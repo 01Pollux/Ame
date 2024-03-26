@@ -361,3 +361,17 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Build directories
+/build/
+/obj/
+/out/
+/bin/
+/lib/
+
+# Project files
+/.vs/
+/.idea/
+
+# External dependencies
+/Deps/Externals/DxC/*

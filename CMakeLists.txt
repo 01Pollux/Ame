@@ -1,13 +1,13 @@
 cmake_minimum_required(VERSION 3.26)
 
-include(CMakeDependentOption)
-
-project(ame_project)
-
 # Require CMAKE_TOOLCHAIN_FILE to be set
 if (NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     message(FATAL_ERROR "CMAKE_TOOLCHAIN_FILE must be set")
 endif ()
+
+include(CMakeDependentOption)
+
+project(ame_project)
 
 #
 
@@ -18,8 +18,9 @@ endif ()
 # AME_RENDERER_BUILD_DX12: Build with dx12 backend
 # AME_RENDERER_BUILD_VULKAN: Build with vulkan backend
 #
-# /Tests:
+# /Extras:
 # AME_BUILD_TESTS: Build tests
+# AME_BUILD_SAMPLES: Build sample apps
 #
 
 #if NoLog=TRUE passed to command line, define AME_NO_LOG
@@ -30,6 +31,8 @@ endif ()
 option(AME_RENDERER_FORCE_NULL "Force null renderer" OFF)
 option(AME_RENDERER_BUILD_DX12 "Build with dx12 backend" ON)
 option(AME_RENDERER_BUILD_VULKAN "Build with vulkan backend" ON)
+
+option(AME_BUILD_SAMPLES "Build samples" ON)
 option(AME_BUILD_TESTS "Build tests" ON)
 
 cmake_dependent_option(AME_RENDERER_BUILD_DX12 "Build with dx12 backend" OFF "NOT AME_RENDERER_FORCE_NULL;WIN32" OFF)
@@ -39,6 +42,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CXX_STANDARD_REQUIRED ON)
 set(CXX_EXTENSIONS NO)
 
+set(NRI_ENABLE_D3D11_SUPPORT OFF CACHE BOOL "" FORCE)
 if (AME_RENDERER_FORCE_NULL)
     set(NRI_BACKEND_D3D11 OFF CACHE BOOL "" FORCE)
     set(NRI_BACKEND_D3D12 OFF CACHE BOOL "" FORCE)
@@ -115,41 +119,43 @@ macro(set_local_and_parent NAME VALUE)
 endmacro()
 
 # Helper function to copy assets to build directory
-function(ame_copy_asset_resources TARGET ASSET_SRC ASSET_DST)
-    add_custom_command(TARGET ${TARGET} POST_BUILD
+function(ame_copy_asset_resources TARGET_NAME ASSET_SRC ASSET_DST)
+    add_custom_command(TARGET "Ame_${TARGET_NAME}" POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${AME_ASSETS_DIR}/${ASSET_SRC}
             $<TARGET_FILE_DIR:${TARGET}>/${ASSET_DST})
 endfunction()
 
+# Helper function to add the C++ library
+# ame_add_library(Name Source1 Source2 ...)
+function(ame_add_library TARGET_NAME LIBRARY_TYPE)
+    add_library("Ame_${TARGET_NAME}" ${LIBRARY_TYPE} ${ARGN})
+    add_library("Ame::${TARGET_NAME}" ALIAS "Ame_${TARGET_NAME}")
+    set_target_properties("Ame_${TARGET_NAME}" PROPERTIES
+            LINKER_LANGUAGE CXX)
+endfunction()
+
 # Helper function to add the executable inside CMAKE_RUNTIME_OUTPUT_DIRECTORY/Name
 # ame_add_executable(Name Source1 Source2 ...)
 function(ame_add_executable TARGET_NAME)
+    ame_add_library(${TARGET_NAME} STATIC ${ARGN})
     add_executable(${TARGET_NAME} ${ARGN})
     set_target_properties(${TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET_NAME})
     
     # check if SUBSYSTEM_LINKER_OPTIONS is was set()
     if (DEFINED SUBSYSTEM_LINKER_OPTIONS)
-        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS ${SUBSYSTEM_LINKER_OPTIONS})
+        set_target_properties("Ame_${TARGET_NAME}" PROPERTIES LINK_FLAGS ${SUBSYSTEM_LINKER_OPTIONS})
     endif ()
 
     ame_copy_dxil_and_dxcompiler(${TARGET_NAME})
     ame_copy_nri_library(${TARGET_NAME})
 endfunction()
 
-# Helper function to add the C++ library
-# ame_add_library(Name Source1 Source2 ...)
-function(ame_add_library LIBRARY_NAME LIBRARY_TYPE)
-    add_library(${LIBRARY_NAME} ${LIBRARY_TYPE} ${ARGN})
-    set_target_properties(${LIBRARY_NAME} PROPERTIES
-            LINKER_LANGUAGE CXX)
-endfunction()
-
 # Helper function to add pch to target
 # ame_add_pch(Name) -> Name_PCH.hpp
 function(ame_add_pch TARGET_NAME)
-    target_precompile_headers(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}_PCH.hpp)
+    target_precompile_headers("Ame_${TARGET_NAME}" PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/${TARGET_NAME}_PCH.hpp)
 endfunction()
 
 #
@@ -180,5 +186,9 @@ endif ()
 
 #
 
-# add_subdirectory(Deps/Externals)
+add_subdirectory(Deps/Externals)
 add_subdirectory(Ame)
+
+if (AME_BUILD_SAMPLES)
+    add_subdirectory(Samples)
+endif ()
