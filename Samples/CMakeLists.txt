@@ -4,3 +4,4 @@ function(msg_add_subdirectory NAME)
 endfunction()
 
 msg_add_subdirectory(SimpleLog)
+msg_add_subdirectory(SimpleWindow)

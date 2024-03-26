@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Engine/Engine.hpp>
-#include <Utils/GetSet.hpp>
 
 #define AME_GETSET_IMPL(Func, Name) \
     const auto& Func() const        \
@@ -18,7 +17,7 @@ namespace Ame::Framework
 {
     template<typename EngineType>
         requires std::is_base_of_v<Ame::BaseEngine, EngineType>
-    class HeadlessApplication
+    class WindowApplication
     {
     public:
         struct Builder;
@@ -49,7 +48,7 @@ namespace Ame::Framework
 
     template<typename EngineType>
         requires std::is_base_of_v<Ame::BaseEngine, EngineType>
-    struct HeadlessApplication<EngineType>::Builder
+    struct WindowApplication<EngineType>::Builder
     {
     public:
         AME_GETSET_IMPL(Name, m_Name);
