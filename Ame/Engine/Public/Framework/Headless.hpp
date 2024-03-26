@@ -16,7 +16,7 @@ namespace Ame::Framework
             m_Engine.Run();
             return *this;
         }
-        
+
         auto& Close()
         {
             m_Engine.Close();
@@ -39,9 +39,13 @@ namespace Ame::Framework
         requires std::is_base_of_v<Ame::BaseEngine, EngineType>
     struct HeadlessApplication<EngineType>::Builder
     {
-        const char* Name;
+    public:
+        auto Name() -> const char*
+        {
+            return m_Name;
+        }
 
-        auto SetName(
+        auto Name(
             const char* CurName) -> Builder&
         {
             Name = CurName;
@@ -53,5 +57,8 @@ namespace Ame::Framework
         {
             return HeadlessApplication(std::forward<ArgsTy>(Args)...);
         }
+
+    private:
+        const char* m_Name = "Ame";
     };
 } // namespace Ame::Framework
