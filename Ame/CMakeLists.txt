@@ -7,7 +7,6 @@ endfunction()
 
 msg_add_subdirectory(Core)
 msg_add_subdirectory(Engine)
-msg_add_subdirectory(Framework)
 
 if (AME_BUILD_TESTS)
 	function (msg_add_test DIRECTORY_NAME TARGET_NAME)

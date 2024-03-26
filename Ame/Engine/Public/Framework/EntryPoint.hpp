@@ -2,7 +2,7 @@
 
 #include <Engine/Engine.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Framework
 {

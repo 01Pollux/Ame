@@ -3,4 +3,4 @@ file(GLOB_RECURSE PUBLIC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
 
 ame_add_executable(Sample_SimpleLog ${PRIVATE_FILES} ${PUBLIC_FILES})
 
-target_link_libraries(Ame_Sample_SimpleLog PRIVATE Ame::Framework)
+target_link_libraries(Sample_SimpleLog PRIVATE Ame::Engine)

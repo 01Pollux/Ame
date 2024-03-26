@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Ame.hpp>
+
 namespace Ame
 {
     class BaseEngine

@@ -138,7 +138,6 @@ endfunction()
 # Helper function to add the executable inside CMAKE_RUNTIME_OUTPUT_DIRECTORY/Name
 # ame_add_executable(Name Source1 Source2 ...)
 function(ame_add_executable TARGET_NAME)
-    ame_add_library(${TARGET_NAME} STATIC ${ARGN})
     add_executable(${TARGET_NAME} ${ARGN})
     set_target_properties(${TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET_NAME})
