@@ -1,0 +1,176 @@
+#pragma once
+
+#include <cstdint>
+#include <utility>
+
+#include <list>
+#include <functional>
+
+namespace Ame::Utils
+{
+    static constexpr uint64_t InvalidSignalHandle = static_cast<uint64_t>(~0ull);
+
+    template<typename... ArgsTy>
+    class Signal
+    {
+    public:
+        using DelegateType = std::function<void(ArgsTy...)>;
+
+        using CallbackDelegateData = std::pair<DelegateType, uint64_t>;
+        using CallbackDelegateList = std::list<CallbackDelegateData>;
+
+    public:
+        /// <summary>
+        /// Add a listener to the delegate list
+        /// </summary>
+        template<std::invocable<ArgsTy...> FnTy>
+        uint64_t Listen(
+            FnTy&& Listener)
+        {
+            return m_Listeners.emplace_back(std::forward<FnTy>(Listener), m_NextHandle++).second;
+        }
+
+        /// <summary>
+        /// Remove a listener from the delegate list
+        /// </summary>
+        void Drop(
+            uint64_t Id)
+        {
+            // Remove from the list the listener with the given id
+            std::erase_if(
+                m_Listeners,
+                [Id](const auto& Listener)
+                { return Listener.second == Id; });
+        }
+
+        /// <summary>
+        /// Remove all listeners from the delegate list
+        /// </summary>
+        void DropAll()
+        {
+            m_Listeners.clear();
+        }
+
+        /// <summary>
+        /// Invoke the listeners with the given arguments
+        /// </summary>
+        void Broadcast(
+            ArgsTy... Args)
+        {
+            for (const auto& Listener : m_Listeners)
+            {
+                Listener.first(std::forward<ArgsTy>(Args)...);
+            }
+        }
+
+        /// <summary>
+        /// Get the number of listeners
+        /// </summary>
+        [[nodiscard]] size_t GetListenersCount() const noexcept
+        {
+            return m_Listeners.size();
+        }
+
+    private:
+        CallbackDelegateList m_Listeners;
+        uint64_t             m_NextHandle{ 0 };
+    };
+
+    template<typename... ArgsTy>
+    class SignalHandle
+    {
+    public:
+        SignalHandle() = default;
+        template<std::invocable<ArgsTy...> FnTy>
+        SignalHandle(
+            Signal<ArgsTy...>& Sig,
+            FnTy&&             Delegate) :
+            m_Signal(&Sig),
+            m_Id(m_Signal->Listen(std::forward<FnTy>(Delegate)))
+        {
+        }
+
+        SignalHandle(
+            const SignalHandle& Other) = delete;
+        SignalHandle(
+            SignalHandle&& Other) noexcept :
+            m_Signal(std::exchange(Other.m_Signal, nullptr)),
+            m_Id(std::exchange(Other.m_Id, InvalidSignalHandle))
+        {
+        }
+
+        SignalHandle& operator=(
+            const SignalHandle& Other) = delete;
+        SignalHandle& operator=(
+            SignalHandle&& Other) noexcept
+        {
+            if (this != &Other)
+            {
+                Drop();
+                m_Signal = std::exchange(Other.m_Signal, nullptr);
+                m_Id     = std::exchange(Other.m_Id, InvalidSignalHandle);
+            }
+            return *this;
+        }
+
+        ~SignalHandle()
+        {
+            Drop();
+        }
+
+        /// <summary>
+        /// Attach the listener to the signal delegate list
+        /// </summary>
+        template<std::invocable<ArgsTy...> FnTy>
+        void Attach(
+            Signal<ArgsTy...>& Sig,
+            FnTy&&             Delegate)
+        {
+            Drop();
+            m_Signal = &Sig;
+            m_Id     = m_Signal->Listen(std::forward<FnTy>(Delegate));
+        }
+
+        /// <summary>
+        /// Release the ownership of the handle without dropping the callback
+        /// </summary>
+        void Release()
+        {
+            m_Signal = nullptr;
+        }
+
+        /// <summary>
+        /// Drop the listener from the signal delegate list
+        /// </summary>
+        void Drop()
+        {
+            if (m_Signal)
+            {
+                m_Signal->Drop(m_Id);
+                m_Id     = InvalidSignalHandle;
+                m_Signal = nullptr;
+            }
+        }
+
+    private:
+        Utils::Signal<ArgsTy...>* m_Signal = nullptr;
+        uint64_t                  m_Id     = InvalidSignalHandle;
+    };
+} // namespace Ame::Utils
+
+#define AME_SIGNAL_DECL(Name, ...)                              \
+    namespace Ame::Signals                                      \
+    {                                                           \
+        using S##Name  = Ame::Utils::Signal<__VA_ARGS__>;       \
+        using SH##Name = Ame::Utils::SignalHandle<__VA_ARGS__>; \
+    }
+
+#define AME_SIGNAL_INST(Name)           \
+public:                                 \
+    [[nodiscard]] auto& Name() noexcept \
+    {                                   \
+        return m_##Name;                \
+    }                                   \
+                                        \
+private:                                \
+    Ame::Signals::S##Name m_##Name
