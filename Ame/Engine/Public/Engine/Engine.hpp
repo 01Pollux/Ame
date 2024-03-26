@@ -2,7 +2,7 @@
 
 namespace Ame
 {
-    class AmeEngine
+    class BaseEngine
     {
     public:
         void Run();

@@ -4,7 +4,7 @@
 
 namespace Ame
 {
-    void AmeEngine::Run()
+    void BaseEngine::Run()
     {
         Initialize();
 
@@ -15,18 +15,18 @@ namespace Ame
         Shutdown();
     }
 
-    void AmeEngine::Close()
+    void BaseEngine::Close()
     {
         m_IsRunning = false;
     }
 
     //
 
-    void AmeEngine::Initialize()
+    void BaseEngine::Initialize()
     {
     }
 
-    void AmeEngine::Shutdown()
+    void BaseEngine::Shutdown()
     {
     }
 } // namespace Ame

@@ -1,29 +1,38 @@
 #pragma once
 
-namespace Ame
+#include <Engine/Engine.hpp>
+
+namespace Ame::Framework
 {
+    template<typename BaseEngine>
+        requires std::is_base_of_v<Ame::BaseEngine, BaseEngine>
     class HeadlessApplication
     {
     public:
-        HeadlessApplication();
+        struct Builder;
+
+        void Run()
+        {
+            m_Engine.Run();
+        }
 
     private:
-        void Run();
-
-        void Close();
-
-    protected:
-        /// <summary>
-        /// Initialize the engine
-        /// </summary>
-        virtual void Initialize();
-
-        /// <summary>
-        /// Shutdown the engine
-        /// </summary>
-        virtual void Shutdown();
-
-    private:
-        bool m_IsRunning = true;
+        AmeEngine m_Engine;
     };
-} // namespace Ame
+
+    template<typename BaseEngine>
+        requires std::is_base_of_v<Ame::BaseEngine, BaseEngine>
+    struct HeadlessApplication<BaseEngine>::Builder
+    {
+        const char* Name;
+
+        auto SetName(
+            const char* CurName) -> Builder&
+        {
+            Name = CurName;
+            return *this;
+        }
+
+        HeadlessApplication Build();
+    };
+} // namespace Ame::Framework

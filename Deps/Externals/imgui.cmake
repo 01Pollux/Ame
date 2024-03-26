@@ -12,7 +12,7 @@ set(IMGUI_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imstb_truetype.h
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/imgui_demo.cpp)
 
-ame_add_library(imgui STATIC ${IMGUI_FILES})
+add_library(imgui STATIC ${IMGUI_FILES})
 add_library(imgui::imgui ALIAS imgui)
 
 target_compile_definitions(imgui PUBLIC IMGUI_DEFINE_MATH_OPERATORS)

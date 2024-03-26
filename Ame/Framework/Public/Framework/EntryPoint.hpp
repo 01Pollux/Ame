@@ -4,7 +4,7 @@
 
 #include <Log/Wrapper.hpp>
 
-namespace Ame
+namespace Ame::Framework
 {
     /// <summary>
     /// The entry point of the engine
@@ -12,20 +12,20 @@ namespace Ame
     extern void Main(
         int    Argc,
         char** Argv);
-} // namespace Ame
+} // namespace Ame::Framework
 
 #define AME_MAIN_EXTERN(Argc, Argv)          \
     int main(                                \
         int    Argc,                         \
         char** Argv)                         \
     {                                        \
-        Ame::Main(Argc, Argv);               \
+        Ame::Framework::Main(Argc, Argv);    \
         Ame::Log::Logger::CloseAllLoggers(); \
         return 0;                            \
     }
 
 #define AME_MAIN(Argc, Argv)    \
     AME_MAIN_EXTERN(Argc, Argv) \
-    void Ame::Main(             \
+    void Ame::Framework::Main(  \
         int    Argc,            \
         char** Argv)
