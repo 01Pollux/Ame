@@ -14,9 +14,12 @@ AME_MAIN(Argc, Argv)
     Log::Editor().Warning("Ignore");
     Log::Client().Error("Goodbye, World!");
 
-    WindowApplication<BaseEngine>::Builder()
-        .Name("Simple Window")
-        .Build()
-        .Close()
-        .Run();
+    auto App = WindowApplication<BaseEngine>::Builder()
+        .Build();
+
+    //WindowApplication<BaseEngine>::Builder()
+    //    .Name("Simple Window")
+    //    .Build()
+    //    .Close()
+    //    .Run();
 }

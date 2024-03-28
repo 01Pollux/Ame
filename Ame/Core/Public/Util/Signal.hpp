@@ -6,7 +6,7 @@
 #include <list>
 #include <functional>
 
-namespace Ame::Utils
+namespace Ame::Util
 {
     static constexpr uint64_t InvalidSignalHandle = static_cast<uint64_t>(~0ull);
 
@@ -156,7 +156,7 @@ namespace Ame::Utils
         Utils::Signal<ArgsTy...>* m_Signal = nullptr;
         uint64_t                  m_Id     = InvalidSignalHandle;
     };
-} // namespace Ame::Utils
+} // namespace Ame::Util
 
 #define AME_SIGNAL_DECL(Name, ...)                              \
     namespace Ame::Signals                                      \

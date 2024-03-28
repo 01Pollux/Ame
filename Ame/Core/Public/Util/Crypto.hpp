@@ -19,7 +19,7 @@ namespace Ame::Concepts
     };
 } // namespace Ame::Concepts
 
-namespace Ame::Utils
+namespace Ame::Util
 {
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     using CryptoDigest = std::array<CryptoPP::byte, CryptoAlgoTy::DIGESTSIZE>;
@@ -98,4 +98,4 @@ namespace Ame::Utils
         Hasher.Final(Digest.data());
         return DigestStringify<CryptoAlgoTy>(Digest);
     }
-} // namespace Ame::Utils
+} // namespace Ame::Util

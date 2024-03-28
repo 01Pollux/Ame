@@ -2,17 +2,6 @@
 
 #include <Engine/Engine.hpp>
 
-#define AME_GETSET_IMPL(Func, Name) \
-    const auto& Func() const        \
-    {                               \
-        return Name;                \
-    }                               \
-    auto& Func(Type Value)          \
-    {                               \
-        Name = Value;               \
-        return *this;               \
-    }
-
 namespace Ame::Framework
 {
     template<typename EngineType>
@@ -51,17 +40,21 @@ namespace Ame::Framework
     struct WindowApplication<EngineType>::Builder
     {
     public:
-        AME_GETSET_IMPL(Name, m_Name);
+        auto& Name(
+            const char* Name)
+        {
+            m_Name = Name;
+            return *this;
+        }
 
         template<typename... ArgsTy>
-        HeadlessApplication Build(ArgsTy&&... Args)
+        auto Build(
+            ArgsTy&&... Args)
         {
-            return HeadlessApplication(std::forward<ArgsTy>(Args)...);
+            return WindowApplication<EngineType>(std::forward<ArgsTy>(Args)...);
         }
 
     private:
         const char* m_Name = "Ame";
     };
 } // namespace Ame::Framework
-
-#undef AME_GETSET_IMPL
