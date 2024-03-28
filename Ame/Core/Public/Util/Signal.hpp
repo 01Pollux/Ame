@@ -153,16 +153,16 @@ namespace Ame::Util
         }
 
     private:
-        Utils::Signal<ArgsTy...>* m_Signal = nullptr;
-        uint64_t                  m_Id     = InvalidSignalHandle;
+        Util::Signal<ArgsTy...>* m_Signal = nullptr;
+        uint64_t                 m_Id     = InvalidSignalHandle;
     };
 } // namespace Ame::Util
 
-#define AME_SIGNAL_DECL(Name, ...)                              \
-    namespace Ame::Signals                                      \
-    {                                                           \
-        using S##Name  = Ame::Utils::Signal<__VA_ARGS__>;       \
-        using SH##Name = Ame::Utils::SignalHandle<__VA_ARGS__>; \
+#define AME_SIGNAL_DECL(Name, ...)                             \
+    namespace Ame::Signals                                     \
+    {                                                          \
+        using S##Name  = Ame::Util::Signal<__VA_ARGS__>;       \
+        using SH##Name = Ame::Util::SignalHandle<__VA_ARGS__>; \
     }
 
 #define AME_SIGNAL_INST(Name)           \

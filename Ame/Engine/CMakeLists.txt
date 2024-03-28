@@ -14,5 +14,5 @@ target_include_directories(
 
 target_link_libraries(
     Ame_Engine PUBLIC 
-    Ame::Core
+    Ame::Rhi
     flecs::flecs_static)

@@ -7,6 +7,7 @@ endfunction()
 
 msg_add_subdirectory(Core)
 msg_add_subdirectory(Windowing)
+msg_add_subdirectory(Rhi)
 msg_add_subdirectory(Engine)
 
 if (AME_BUILD_TESTS)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Utils/Signal.hpp>
+#include <Util/Signal.hpp>
 #include <Window/Desc.hpp>
 #include <utility>
 

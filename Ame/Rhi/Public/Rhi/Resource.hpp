@@ -1,0 +1,164 @@
+#pragma once
+
+#include <Core/Enum.hpp>
+#include <Math/Vector.hpp>
+
+namespace Ame::Rhi
+{
+    using BufferUsageBits  = nri::BufferUsageBits;
+    using TextureType      = nri::TextureType;
+    using TextureUsageBits = nri::TextureUsageBits;
+    using ResourceFormat   = nri::Format;
+
+    //
+
+    enum class BufferViewType : uint8_t
+    {
+        ConstantBuffer,
+        ShaderResource,
+        UnorderedAccess,
+    };
+
+    enum class TextureViewType : uint8_t
+    {
+        ShaderResource1D,
+        ShaderResource1DArray,
+        UnorderedAccess1D,
+        UnorderedAccess1DArray,
+        RenderTarget1D,
+        DepthStencil1D,
+
+        ShaderResource2D,
+        ShaderResource2DArray,
+        ShaderResourceCube,
+        ShaderResourceCubeArray,
+        UnorderedAccess2D,
+        UnorderedAccess2DArray,
+        RenderTarget2D,
+        DepthStencil2D,
+
+        ShaderResource3D,
+        UnorderedAccess3D,
+        RenderTarget3D
+    };
+
+    enum class TextureViewFlags : uint8_t
+    {
+        None            = 0,
+        ReadOnlyDepth   = 1 << 0,
+        ReadOnlyStencil = 1 << 1,
+
+        ReadOnlyDepthStencil = ReadOnlyDepth | ReadOnlyStencil
+    };
+
+    //
+
+    using Mip_t    = uint8_t;
+    using Dim_t    = uint8_t;
+    using Sample_t = uint8_t;
+
+    //
+
+    struct BufferRange
+    {
+        uint64_t Offset = 0;
+        uint64_t Size   = 0;
+
+        constexpr BufferRange(
+            uint32_t Offset = 0,
+            uint32_t Size   = 0) :
+            Offset(Offset),
+            Size(Size)
+        {
+        }
+
+        auto operator<=>(
+            const BufferRange& Other) const noexcept = default;
+    };
+
+    static constexpr BufferRange EntireBuffer = BufferRange(0, std::numeric_limits<uint64_t>::max());
+
+    //
+
+    struct MipLevel
+    {
+        Mip_t Offset = 0;
+        Mip_t Count  = 0;
+
+        constexpr MipLevel(
+            Mip_t Offset = 0,
+            Mip_t Count  = 0) :
+            Offset(Offset),
+            Count(Count)
+        {
+        }
+
+        auto operator<=>(
+            const MipLevel& Other) const noexcept = default;
+    };
+
+    static constexpr MipLevel EntireMipChain = MipLevel(0, std::numeric_limits<Mip_t>::max());
+
+    //
+
+    struct ArraySlice
+    {
+        Dim_t Offset;
+        Dim_t Count;
+
+        constexpr ArraySlice(
+            Dim_t Offset = 0,
+            Dim_t Count  = 0) :
+            Offset(Offset),
+            Count(Count)
+        {
+        }
+
+        auto operator<=>(
+            const ArraySlice& Other) const noexcept = default;
+    };
+
+    static constexpr ArraySlice EntireArray = ArraySlice(0, std::numeric_limits<Dim_t>::max());
+
+    //
+
+    struct TextureSubresource
+    {
+        MipLevel   Mips;
+        ArraySlice Array;
+
+        constexpr TextureSubresource(
+            MipLevel   Mips  = EntireMipChain,
+            ArraySlice Array = EntireArray) :
+            Mips(Mips),
+            Array(Array)
+        {
+        }
+
+        auto operator<=>(
+            const TextureSubresource& Other) const noexcept = default;
+    };
+
+    static constexpr TextureSubresource AllSubresources = TextureSubresource(EntireMipChain, EntireArray);
+
+    //
+
+    using BufferDesc  = nri::BufferDesc;
+    using TextureDesc = nri::TextureDesc;
+
+    //
+
+    struct BufferViewDesc
+    {
+        BufferRange    Range;
+        ResourceFormat Format = ResourceFormat::UNKNOWN;
+    };
+
+    struct TextureViewDesc
+    {
+        TextureViewType    Type;
+        TextureSubresource Subresource;
+        ResourceFormat     Format = ResourceFormat::UNKNOWN; // default to the format of the texture
+        TextureViewFlags   Flags  = TextureViewFlags::None;
+    };
+} // namespace Ame::Rhi
