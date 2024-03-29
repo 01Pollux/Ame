@@ -16,6 +16,10 @@ namespace Ame::Rhi
     {
         class Impl;
 
+        friend Buffer;
+        friend Texture;
+        friend ResourceView;
+
     public:
         Device(
             const DeviceCreateDesc& Desc);
@@ -116,6 +120,67 @@ namespace Ame::Rhi
         /// This will present the frame.
         /// </summary>
         void EndFrame();
+
+    private:
+        /// <summary>
+        /// Create a texture.
+        /// </summary>
+        nri::Texture* Create(
+            const TextureDesc& Desc);
+
+        /// <summary>
+        /// Releases the texture.
+        /// </summary>
+        void Release(
+            nri::Texture& Tex,
+            bool          Defer);
+
+        /// <summary>
+        /// Set the texture name.
+        /// </summary>
+        void SetName(
+            nri::Texture& Tex,
+            const char*   Name);
+
+        /// <summary>
+        /// Get the texture description.
+        /// </summary>
+        [[nodiscard]] const TextureDesc& GetDesc(
+            nri::Texture& Tex) const;
+
+        /// <summary>
+        /// Get the underlying texture.
+        /// </summary>
+        [[nodiscard]] void* GetNative(
+            nri::Texture& Tex) const;
+
+        /// <summary>
+        /// Create resource view
+        /// </summary>
+        [[nodiscard]] nri::Descriptor* CreateView(
+            nri::Texture&          Tex,
+            const TextureViewDesc& Desc) const;
+
+    private:
+        /// <summary>
+        /// Releases the resource view.
+        /// </summary>
+        void Release(
+            nri::Descriptor& View,
+            bool          Defer);
+
+        /// <summary>
+        /// Set the resource view name.
+        /// </summary>
+        void SetName(
+            nri::Descriptor& View,
+            const char*   Name);
+
+        /// <summary>
+        /// Get the underlying resource view.
+        /// </summary>
+        [[nodiscard]] void* GetNative(
+            nri::Descriptor& View) const;
 
     public:
         /// <summary>

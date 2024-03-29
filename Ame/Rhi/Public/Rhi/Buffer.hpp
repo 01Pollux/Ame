@@ -11,6 +11,7 @@ namespace Ame::Rhi
         Buffer() = default;
 
         Buffer(
+            Device&           RhiDevice,
             const BufferDesc& Desc);
 
         explicit Buffer(
@@ -28,40 +29,47 @@ namespace Ame::Rhi
         /// <summary>
         /// Immediately releases the buffer.
         /// </summary>
-        void Release();
+        void Release(
+            Device& RhiDevice);
 
         /// <summary>
         /// Defers the release of the buffer until the gpu is done with it.
         /// </summary>
-        void DeferRelease();
+        void DeferRelease(
+            Device& RhiDevice);
 
     public:
         /// <summary>
         /// Set the buffer name.
         /// </summary>
         void SetName(
+            Device&     RhiDevice,
             const char* Name);
 
         /// <summary>
         /// Get the buffer description.
         /// </summary>
-        [[nodiscard]] const BufferDesc& GetDesc() const;
+        [[nodiscard]] const BufferDesc& GetDesc(
+            Device& RhiDevice) const;
 
         /// <summary>
         /// Get the nri buffer.
         /// </summary>
-        [[nodiscard]] nri::Buffer* Unwrap() const;
+        [[nodiscard]] nri::Buffer* Unwrap(
+            Device& RhiDevice) const;
 
         /// <summary>
         /// Get the buffer native handle.
         /// </summary>
-        [[nodiscard]] void* GetNative() const;
+        [[nodiscard]] void* GetNative(
+            Device& RhiDevice) const;
 
     public:
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] BufferResourceView CreateView(
+            Device&               RhiDevice,
             const BufferViewDesc& Desc) const;
 
     private:

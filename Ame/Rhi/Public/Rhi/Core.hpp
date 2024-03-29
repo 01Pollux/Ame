@@ -3,160 +3,133 @@
 #include <NRIDescs.h>
 #include <Core/Ame.hpp>
 
+namespace Ame::Rhi
+{
+    class Device;
+    class Buffer;
+    class Texture;
+    class ResourceView;
+} // namespace Ame::Rhi
+
 namespace Ame::Concepts
 {
     template<typename Ty>
-    concept RhiObject = requires(Ty& Object) {
+    concept RhiObject = requires(Rhi::Device& RhiDevice, Ty& Object) {
+        // has function Release(Device&)
         {
-            Object.Release()
+            Object.Release(RhiDevice)
         } -> std::same_as<void>;
+        {
+            Object.operator bool()
+        } -> std::same_as<bool>;
     };
 
     template<typename Ty>
-    concept RhiDeferObject = requires(Ty& Object) {
+    concept RhiDeferObject = requires(Rhi::Device& RhiDevice, Ty& Object) {
         {
-            Object.DeferRelease()
+            Object.DeferRelease(RhiDevice)
         } -> std::same_as<void>;
+        {
+            Object.operator bool()
+        } -> std::same_as<bool>;
     };
 } // namespace Ame::Concepts
 
 namespace Ame::Rhi
 {
+    namespace Impl
+    {
+        template<Concepts::RhiObject Ty, bool Defer>
+        class AutoRelease : public NonCopyable
+        {
+        public:
+            AutoRelease() = default;
+
+            AutoRelease(
+                Device& RhiDevice,
+                Ty&&    Object) :
+                m_Device(&RhiDevice),
+                m_Object(std::move(Object)),
+            {
+            }
+
+            AutoRelease(
+                AutoRelease&& Other) noexcept :
+                m_Device(Other.m_Device),
+                m_Object(std::move(Other.m_Object))
+            {
+            }
+
+            AutoRelease& operator=(
+                AutoRelease&& Other) noexcept
+            {
+                if (this != &Other)
+                {
+                    if (m_Object)
+                    {
+                        Release();
+                    }
+                    m_Device = Other.m_Device;
+                    m_Object = std::exchange(Other.m_Object, {});
+                }
+                return *this;
+            }
+
+            ~AutoRelease()
+            {
+                if (m_Object)
+                {
+                    Release();
+                }
+            }
+
+        public:
+            Ty& operator*()
+            {
+                return m_Object;
+            }
+            Ty* operator->()
+            {
+                return &m_Object;
+            }
+
+            Ty const& operator*() const
+            {
+                return m_Object;
+            }
+            Ty const* operator->() const
+            {
+                return &m_Object;
+            }
+
+            Ty& Get()
+            {
+                return m_Object;
+            }
+
+        private:
+            void Release()
+            {
+                if constexpr (Defer)
+                {
+                    m_Object.DeferRelease(*m_Device);
+                }
+                else
+                {
+                    m_Object.Release(*m_Device);
+                }
+            }
+
+        private:
+            Device* m_Device;
+            Ty      m_Object;
+        };
+    } // namespace Impl
+
     template<Concepts::RhiObject Ty>
-    class AutoRelease : public NonCopyable
-    {
-    public:
-        AutoRelease() = default;
-
-        AutoRelease(Ty&& Object) :
-            m_Object(std::move(Object)), m_IsReleased(false)
-        {
-        }
-
-        AutoRelease(AutoRelease&& Other) noexcept :
-            m_Object(std::move(Other.m_Object)), m_IsReleased(Other.m_IsReleased)
-        {
-            Other.m_IsReleased = true;
-        }
-
-        AutoRelease& operator=(AutoRelease&& Other) noexcept
-        {
-            if (this != &Other)
-            {
-                if (m_Object)
-                {
-                    m_Object.Release();
-                }
-                m_Object           = std::exchange(Other.m_Object, {});
-                m_IsReleased       = Other.m_IsReleased;
-                Other.m_IsReleased = true;
-            }
-            return *this;
-        }
-
-        ~AutoRelease()
-        {
-            if (!m_IsReleased)
-            {
-                m_Object.Release();
-            }
-        }
-
-    public:
-        Ty& operator*()
-        {
-            return m_Object;
-        }
-        Ty* operator->()
-        {
-            return &m_Object;
-        }
-
-        Ty const& operator*() const
-        {
-            return m_Object;
-        }
-        Ty const* operator->() const
-        {
-            return &m_Object;
-        }
-
-        Ty& Get()
-        {
-            return m_Object;
-        }
-
-    private:
-        Ty   m_Object;
-        bool m_IsReleased = true;
-    };
-
+    using AutoRelease = Impl::AutoRelease<Ty, false>;
     template<Concepts::RhiDeferObject Ty>
-    class DeferRelease : public NonCopyable
-    {
-    public:
-        DeferRelease() = default;
-
-        DeferRelease(Ty&& Object) :
-            m_Object(std::move(Object))
-        {
-        }
-
-        DeferRelease(DeferRelease&& Other) noexcept :
-            m_Object(std::move(Other.m_Object))
-        {
-        }
-
-        DeferRelease& operator=(DeferRelease&& Other) noexcept
-        {
-            if (this != &Other)
-            {
-                if (m_Object)
-                {
-                    m_Object.DeferRelease();
-                }
-                m_Object           = std::exchange(Other.m_Object, {});
-                m_IsReleased       = Other.m_IsReleased;
-                Other.m_IsReleased = true;
-            }
-        }
-
-        ~DeferRelease()
-        {
-            if (!m_IsReleased)
-            {
-                m_Object.DeferRelease();
-            }
-        }
-
-    public:
-        Ty& operator*()
-        {
-            return m_Object;
-        }
-        Ty* operator->()
-        {
-            return &m_Object;
-        }
-
-        Ty const& operator*() const
-        {
-            return m_Object;
-        }
-        Ty const* operator->() const
-        {
-            return &m_Object;
-        }
-
-        Ty& Get()
-        {
-            return m_Object;
-        }
-
-    private:
-        Ty   m_Object;
-        bool m_IsReleased = true;
-    };
+    using DeferRelease = Impl::AutoRelease<Ty, true>;
 
     enum class GraphicsAPI : uint8_t
     {

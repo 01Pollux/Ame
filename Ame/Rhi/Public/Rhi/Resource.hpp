@@ -5,6 +5,8 @@
 
 namespace Ame::Rhi
 {
+    class Device;
+
     using BufferUsageBits  = nri::BufferUsageBits;
     using TextureType      = nri::TextureType;
     using TextureUsageBits = nri::TextureUsageBits;
@@ -21,25 +23,71 @@ namespace Ame::Rhi
 
     enum class TextureViewType : uint8_t
     {
-        ShaderResource1D,
-        ShaderResource1DArray,
-        UnorderedAccess1D,
-        UnorderedAccess1DArray,
-        RenderTarget1D,
-        DepthStencil1D,
+        None,
 
-        ShaderResource2D,
-        ShaderResource2DArray,
-        ShaderResourceCube,
-        ShaderResourceCubeArray,
-        UnorderedAccess2D,
-        UnorderedAccess2DArray,
-        RenderTarget2D,
-        DepthStencil2D,
+        ShaderResource1D       = 1 << 0,
+        ShaderResource1DArray  = 1 << 1,
+        UnorderedAccess1D      = 1 << 2,
+        UnorderedAccess1DArray = 1 << 3,
+        RenderTarget1D         = 1 << 4,
+        DepthStencil1D         = 1 << 5,
 
-        ShaderResource3D,
-        UnorderedAccess3D,
-        RenderTarget3D
+        AnyOneDimensional =
+            ShaderResource1D |
+            ShaderResource1DArray |
+            UnorderedAccess1D |
+            UnorderedAccess1DArray |
+            RenderTarget1D |
+            DepthStencil1D,
+
+        ShaderResource2D          = 1 << 6,
+        ShaderResource2DArray     = 1 << 7,
+        ShaderResource2DCube      = 1 << 8,
+        ShaderResource2DCubeArray = 1 << 9,
+        UnorderedAccess2D         = 1 << 10,
+        UnorderedAccess2DArray    = 1 << 11,
+        RenderTarget2D            = 1 << 12,
+        DepthStencil2D            = 1 << 13,
+
+        AnyTwoDimensional =
+            ShaderResource2D |
+            ShaderResource2DArray |
+            ShaderResource2DCube |
+            ShaderResource2DCubeArray |
+            UnorderedAccess2D |
+            UnorderedAccess2DArray |
+            RenderTarget2D |
+            DepthStencil2D,
+
+        ShaderResource3D  = 1 << 14,
+        UnorderedAccess3D = 1 << 15,
+        RenderTarget3D    = 1 << 16,
+
+        AnyThreeDimensional =
+            ShaderResource3D |
+            UnorderedAccess3D |
+            RenderTarget3D,
+
+        AnyShaderResource = ShaderResource1D |
+                            ShaderResource1DArray |
+                            ShaderResource2D |
+                            ShaderResource2DArray |
+                            ShaderResource2DCube |
+                            ShaderResource2DCubeArray |
+                            ShaderResource3D,
+
+        AnyUnorderedAccess = UnorderedAccess1D |
+                             UnorderedAccess1DArray |
+                             UnorderedAccess2D |
+                             UnorderedAccess2DArray |
+                             UnorderedAccess3D,
+
+        AnyRenderTarget = RenderTarget1D |
+                          RenderTarget2D |
+                          RenderTarget3D,
+
+        AnyDepthStencil = DepthStencil1D |
+                          DepthStencil2D
     };
 
     enum class TextureViewFlags : uint8_t
@@ -143,8 +191,98 @@ namespace Ame::Rhi
 
     //
 
-    using BufferDesc  = nri::BufferDesc;
-    using TextureDesc = nri::TextureDesc;
+    struct BufferDesc : nri::BufferDesc
+    {
+    };
+
+    struct TextureDesc : nri::TextureDesc
+    {
+        static TextureDesc Tex1D(
+            ResourceFormat   Format,
+            Dim_t            Width,
+            Mip_t            MipNum,
+            Dim_t            ArraySize = 1,
+            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
+            Sample_t         SampleNum = 1)
+        {
+            return TextureDesc{
+                { .type      = TextureType::TEXTURE_1D,
+                  .usageMask = UsageMask,
+                  .format    = Format,
+                  .width     = Width,
+                  .height    = 1,
+                  .depth     = 1,
+                  .mipNum    = MipNum,
+                  .arraySize = ArraySize,
+                  .sampleNum = SampleNum }
+            };
+        }
+
+        [[nodiscard]] TextureDesc Tex2D(
+            ResourceFormat   Format,
+            Dim_t            Width,
+            Dim_t            Height,
+            Mip_t            MipNum,
+            Dim_t            ArraySize = 1,
+            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
+            Sample_t         SampleNum = 1)
+        {
+            return TextureDesc{
+                { .type      = TextureType::TEXTURE_2D,
+                  .usageMask = UsageMask,
+                  .format    = Format,
+                  .width     = Width,
+                  .height    = Height,
+                  .depth     = 1,
+                  .mipNum    = MipNum,
+                  .arraySize = ArraySize,
+                  .sampleNum = SampleNum }
+            };
+        }
+
+        [[nodiscard]] TextureDesc Tex3D(
+            ResourceFormat   Format,
+            Dim_t            Width,
+            Dim_t            Height,
+            uint16_t         Depth,
+            Mip_t            MipNum,
+            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE)
+        {
+            return TextureDesc{
+                { .type      = TextureType::TEXTURE_3D,
+                  .usageMask = UsageMask,
+                  .format    = Format,
+                  .width     = Width,
+                  .height    = Height,
+                  .depth     = Depth,
+                  .mipNum    = MipNum,
+                  .arraySize = 1,
+                  .sampleNum = 1 }
+            };
+        }
+
+        [[nodiscard]] TextureDesc TexCube(
+            ResourceFormat   Format,
+            Dim_t            Width,
+            Dim_t            Height,
+            Mip_t            MipNum,
+            Dim_t            ArraySize = 1,
+            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
+            Sample_t         SampleNum = 1)
+        {
+            return TextureDesc{
+                { .type      = TextureType::TEXTURE_2D,
+                  .usageMask = UsageMask,
+                  .format    = Format,
+                  .width     = Width,
+                  .height    = Height,
+                  .depth     = 1,
+                  .mipNum    = MipNum,
+                  .arraySize = ArraySize,
+                  .sampleNum = SampleNum }
+            };
+        }
+    };
 
     //
 

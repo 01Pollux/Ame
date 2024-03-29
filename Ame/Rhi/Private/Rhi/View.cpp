@@ -4,17 +4,24 @@
 
 namespace Ame::Rhi
 {
-    void ResourceView::Release()
+    void ResourceView::Release(
+        Device& RhiDevice)
     {
+        RhiDevice.Release(*m_Descriptor, false);
+        m_Descriptor = nullptr;
     }
 
-    void ResourceView::DeferRelease()
+    void ResourceView::DeferRelease(
+        Device& RhiDevice)
     {
+        RhiDevice.Release(*m_Descriptor, false);
+        m_Descriptor = nullptr;
     }
 
     //
 
     void ResourceView::SetName(
+        Device&     RhiDevice,
         const char* Name)
     {
     }
@@ -24,7 +31,8 @@ namespace Ame::Rhi
         return m_Descriptor;
     }
 
-    void* ResourceView::GetNative() const
+    void* ResourceView::GetNative(
+        Device& RhiDevice) const
     {
         return nullptr;
     }

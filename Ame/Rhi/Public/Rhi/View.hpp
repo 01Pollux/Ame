@@ -22,21 +22,24 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Immediately releases the buffer.
+        /// Immediately releases the resource view.
         /// </summary>
-        void Release();
+        void Release(
+            Device& RhiDevice);
 
         /// <summary>
-        /// Defers the release of the buffer until the gpu is done with it.
+        /// Defers the release of the resource view until the gpu is done with it.
         /// </summary>
-        void DeferRelease();
+        void DeferRelease(
+            Device& RhiDevice);
 
     public:
         /// <summary>
-        /// Set the buffer name.
+        /// Set the resource view name.
         /// </summary>
         void SetName(
-            const char* Name);
+            Device&     RhiDevice,
+            const char* Name) const;
 
         /// <summary>
         /// Get the nri descriptor.
@@ -46,7 +49,8 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the descriptor native handle.
         /// </summary>
-        [[nodiscard]] void* GetNative() const;
+        [[nodiscard]] void* GetNative(
+            Device& RhiDevice) const;
 
     private:
         nri::Descriptor* m_Descriptor;
@@ -60,7 +64,13 @@ namespace Ame::Rhi
         using ResourceView::ResourceView;
     };
 
-    class SamplerResourceView : public ResourceView
+    class ShaderResourceView : public ResourceView
+    {
+    public:
+        using ResourceView::ResourceView;
+    };
+
+    class UnorderedAccessResourceView : public ResourceView
     {
     public:
         using ResourceView::ResourceView;
@@ -73,6 +83,12 @@ namespace Ame::Rhi
     };
 
     class DepthStencilResourceView : public ResourceView
+    {
+    public:
+        using ResourceView::ResourceView;
+    };
+
+    class SamplerResourceView : public ResourceView
     {
     public:
         using ResourceView::ResourceView;

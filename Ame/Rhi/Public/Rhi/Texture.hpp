@@ -11,6 +11,7 @@ namespace Ame::Rhi
         Texture() = default;
 
         Texture(
+            Device&            RhiDevice,
             const TextureDesc& Desc);
 
         explicit Texture(
@@ -26,26 +27,30 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Immediately releases the buffer.
+        /// Immediately releases the texture.
         /// </summary>
-        void Release();
+        void Release(
+            Device& RhiDevice);
 
         /// <summary>
-        /// Defers the release of the buffer until the gpu is done with it.
+        /// Defers the release of the texture until the gpu is done with it.
         /// </summary>
-        void DeferRelease();
+        void DeferRelease(
+            Device& RhiDevice);
 
     public:
         /// <summary>
-        /// Set the buffer name.
+        /// Set the texture name.
         /// </summary>
         void SetName(
-            const char* Name);
+            Device&     RhiDevice,
+            const char* Name) const;
 
         /// <summary>
-        /// Get the buffer description.
+        /// Get the texture description.
         /// </summary>
-        [[nodiscard]] const TextureDesc& GetDesc() const;
+        [[nodiscard]] const TextureDesc& GetDesc(
+            Device& RhiDevice) const;
 
         /// <summary>
         /// Get the nri texture.
@@ -55,32 +60,29 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the texture native handle.
         /// </summary>
-        [[nodiscard]] void* GetNative() const;
+        [[nodiscard]] void* GetNative(
+            Device& RhiDevice) const;
 
     public:
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] ResourceView CreateShaderView(
+            Device&                RhiDevice,
             const TextureViewDesc& Desc) const;
 
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] RenderTargetResourceView CreateRenderTargetView(
+            Device&                RhiDevice,
             const TextureViewDesc& Desc) const;
 
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] DepthStencilResourceView CreateDepthStencilView(
-            const TextureViewDesc& Desc) const;
-
-    private:
-        /// <summary>
-        /// Create a buffer view.
-        /// </summary>
-        [[nodiscard]] ResourceView CreateView(
+            Device&                RhiDevice,
             const TextureViewDesc& Desc) const;
 
     private:
