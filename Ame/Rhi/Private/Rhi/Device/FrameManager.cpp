@@ -26,6 +26,23 @@ namespace Ame::Rhi
 
     //
 
+    void FrameManager::DeferRelease(
+        nri::Buffer& NriBuffer)
+    {
+    }
+
+    void FrameManager::DeferRelease(
+        nri::Texture& NriTexture)
+    {
+    }
+
+    void FrameManager::DeferRelease(
+        nri::Descriptor& NriDescriptor)
+    {
+    }
+
+    //
+
     uint64_t FrameManager::GetFrameCount() const
     {
         return 0;

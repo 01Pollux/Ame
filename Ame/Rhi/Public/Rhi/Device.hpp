@@ -26,8 +26,8 @@ namespace Ame::Rhi
         Device(
             const DeviceCreateDesc& Desc);
 
-        Device(const Device&);
-        Device& operator=(const Device&);
+        Device(const Device&)            = delete;
+        Device& operator=(const Device&) = delete;
 
         Device(Device&&);
         Device& operator=(Device&&);

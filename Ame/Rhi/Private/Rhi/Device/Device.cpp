@@ -13,9 +13,6 @@ namespace Ame::Rhi
     {
     }
 
-    Device::Device(const Device&) = default;
-    Device& Device::operator=(const Device&) = default;
-
     Device::Device(Device&&) = default;
     Device& Device::operator=(Device&&) = default;
 

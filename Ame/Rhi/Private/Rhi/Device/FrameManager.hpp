@@ -49,6 +49,34 @@ namespace Ame::Rhi
         /// </summary>
         void FlushIdle();
 
+    public:
+        /// <summary>
+        /// Get the state tracker.
+        /// </summary>
+        [[nodiscard]] ResourceStateTracker& GetStateTracker()
+        {
+            return m_ResourceStateTracker;
+        }
+
+    public:
+        /// <summary>
+        /// Defer the release of a buffer.
+        /// </summary>
+        void DeferRelease(
+            nri::Buffer& NriBuffer);
+
+        /// <summary>
+        /// Defer the release of a texture.
+        /// </summary>
+        void DeferRelease(
+            nri::Texture& NriTexture);
+
+        /// <summary>
+        /// Defer the release of a descriptor.
+        /// </summary>
+        void DeferRelease(
+            nri::Descriptor& NriDescriptor);
+
     private:
         ResourceStateTracker m_ResourceStateTracker;
     };

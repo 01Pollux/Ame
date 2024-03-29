@@ -215,7 +215,7 @@ namespace Ame::Rhi
         };
     }
 
-    [[nodiscard]] TextureDesc Tex2D(
+    [[nodiscard]] static TextureDesc Tex2D(
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
@@ -237,7 +237,7 @@ namespace Ame::Rhi
         };
     }
 
-    [[nodiscard]] TextureDesc Tex3D(
+    [[nodiscard]] static TextureDesc Tex3D(
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
@@ -258,26 +258,15 @@ namespace Ame::Rhi
         };
     }
 
-    [[nodiscard]] TextureDesc TexCube(
+    [[nodiscard]] static TextureDesc TexCube(
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
         Mip_t            MipNum,
-        Dim_t            ArraySize = 1,
         TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
         Sample_t         SampleNum = 1)
     {
-        return TextureDesc{
-            .type      = TextureType::TEXTURE_2D,
-            .usageMask = UsageMask,
-            .format    = Format,
-            .width     = Width,
-            .height    = Height,
-            .depth     = 1,
-            .mipNum    = MipNum,
-            .arraySize = ArraySize,
-            .sampleNum = SampleNum
-        };
+        return Tex2D(Format, Width, Height, MipNum, 6, UsageMask, SampleNum);
     }
 
     //
