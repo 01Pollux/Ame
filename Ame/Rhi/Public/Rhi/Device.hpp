@@ -121,6 +121,8 @@ namespace Ame::Rhi
         /// </summary>
         void EndFrame();
 
+        // Below are the functions that are only accessible by the Buffer, Texture and ResourceView classes.
+        // Texture
     private:
         /// <summary>
         /// Create a texture.
@@ -143,7 +145,7 @@ namespace Ame::Rhi
             const char*   Name);
 
         /// <summary>
-        /// Get the texture description.
+        /// Get the texture desc.
         /// </summary>
         [[nodiscard]] const TextureDesc& GetDesc(
             nri::Texture& Tex) const;
@@ -155,26 +157,68 @@ namespace Ame::Rhi
             nri::Texture& Tex) const;
 
         /// <summary>
-        /// Create resource view
+        /// Create resource view for a texture.
         /// </summary>
         [[nodiscard]] nri::Descriptor* CreateView(
             nri::Texture&          Tex,
             const TextureViewDesc& Desc) const;
 
+        // Buffer
+    private:
+        /// <summary>
+        /// Create a buffer.
+        /// </summary>
+        nri::Buffer* Create(
+            const BufferDesc& Desc);
+
+        /// <summary>
+        /// Releases the buffer.
+        /// </summary>
+        void Release(
+            nri::Buffer& Buf,
+            bool         Defer);
+
+        /// <summary>
+        /// Set the buffer name.
+        /// </summary>
+        void SetName(
+            nri::Buffer& Buf,
+            const char*  Name);
+
+        /// <summary>
+        /// Get the buffer desc.
+        /// </summary>
+        [[nodiscard]] const BufferDesc& GetDesc(
+            nri::Buffer& Buf) const;
+
+        /// <summary>
+        /// Get the underlying buffer.
+        /// </summary>
+        [[nodiscard]] void* GetNative(
+            nri::Buffer& Buf) const;
+
+        /// <summary>
+        /// Create resource view for a buffer.
+        /// </summary>
+        [[nodiscard]] nri::Descriptor* CreateView(
+            nri::Buffer&          Buf,
+            const BufferViewDesc& Desc) const;
+
+        // ResourceView
     private:
         /// <summary>
         /// Releases the resource view.
         /// </summary>
         void Release(
             nri::Descriptor& View,
-            bool          Defer);
+            bool             Defer);
 
         /// <summary>
         /// Set the resource view name.
         /// </summary>
         void SetName(
             nri::Descriptor& View,
-            const char*   Name);
+            const char*      Name);
 
         /// <summary>
         /// Get the underlying resource view.

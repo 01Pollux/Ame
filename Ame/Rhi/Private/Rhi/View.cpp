@@ -22,8 +22,9 @@ namespace Ame::Rhi
 
     void ResourceView::SetName(
         Device&     RhiDevice,
-        const char* Name)
+        const char* Name) const
     {
+		RhiDevice.SetName(*m_Descriptor, Name);
     }
 
     nri::Descriptor* ResourceView::Unwrap() const
@@ -34,6 +35,6 @@ namespace Ame::Rhi
     void* ResourceView::GetNative(
         Device& RhiDevice) const
     {
-        return nullptr;
+        return RhiDevice.GetNative(*m_Descriptor);
     }
 } // namespace Ame::Rhi

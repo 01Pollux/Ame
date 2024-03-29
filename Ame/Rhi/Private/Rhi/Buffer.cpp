@@ -5,48 +5,61 @@
 namespace Ame::Rhi
 {
     Buffer::Buffer(
-        const BufferDesc& Desc)
+        Device&           RhiDevice,
+        const BufferDesc& Desc) :
+        m_Buffer(RhiDevice.Create(Desc))
     {
     }
 
     //
 
-    void Buffer::Release()
+    void Buffer::Release(
+        Device& RhiDevice)
     {
+        RhiDevice.Release(*m_Buffer, false);
+        m_Buffer = nullptr;
     }
 
-    void Buffer::DeferRelease()
+    void Buffer::DeferRelease(
+        Device& RhiDevice)
     {
+        RhiDevice.Release(*m_Buffer, true);
+        m_Buffer = nullptr;
     }
 
     //
 
     void Buffer::SetName(
+        Device&     RhiDevice,
         const char* Name)
     {
+        RhiDevice.SetName(*m_Buffer, Name);
     }
 
-    const BufferDesc& Buffer::GetDesc() const
+    const BufferDesc& Buffer::GetDesc(
+        Device& RhiDevice) const
     {
-        static BufferDesc desc;
-        return desc;
+        return RhiDevice.GetDesc(*m_Buffer);
     }
 
-    nri::Buffer* Buffer::Unwrap() const
+    nri::Buffer* Buffer::Unwrap(
+        Device& RhiDevice) const
     {
-        return nullptr;
+        return m_Buffer;
     }
 
-    void* Buffer::GetNative() const
+    void* Buffer::GetNative(
+        Device& RhiDevice) const
     {
-        return nullptr;
+        return RhiDevice.GetNative(*m_Buffer);
     }
 
     //
 
     BufferResourceView Buffer::CreateView(
+        Device&               RhiDevice,
         const BufferViewDesc& Desc) const
     {
-        return BufferResourceView();
+        return BufferResourceView(RhiDevice.CreateView(*m_Buffer, Desc));
     }
 } // namespace Ame::Rhi
