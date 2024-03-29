@@ -3,25 +3,42 @@
 
 namespace Ame::Rhi
 {
-    FrameManager::FrameManager(
-        NRIBridge& NriBridge) :
-        m_ResourceStateTracker(*NriBridge.GetCoreInterface())
+    void FrameManager::Initialize(
+        nri::CoreInterface& NriCore,
+        nri::Device&        RhiDevice,
+        uint32_t            FramesInFlightCount) 
     {
+        m_FrameWrapper.Initialize(NriCore, RhiDevice, FramesInFlightCount);
+    }
+
+    void FrameManager::Shutdown(
+        nri::CoreInterface& NriCore)
+    {
+        m_FrameWrapper.Shutdown(NriCore);
     }
 
     //
 
-    void FrameManager::NewFrame()
+    void FrameManager::NewFrame(
+        nri::CoreInterface& NriCore)
     {
+        m_FrameWrapper.Sync(NriCore);
+        m_FrameWrapper.NewFrame(GetFrameIndex());
     }
 
     void FrameManager::EndFrame(
-        nri::CommandQueue& GraphicsQueue)
+        nri::CoreInterface& NriCore,
+        nri::CommandQueue&  GraphicsQueue)
     {
+        m_FrameWrapper.EndFrame(NriCore, GraphicsQueue);
     }
 
     void FrameManager::FlushIdle()
     {
+        for (uint32_t i = 0; i < m_FrameWrapper.FramesInFlightCount; ++i)
+        {
+            m_FrameWrapper.Release(i);
+        }
     }
 
     //
@@ -45,7 +62,7 @@ namespace Ame::Rhi
 
     uint64_t FrameManager::GetFrameCount() const
     {
-        return 0;
+        return m_FrameWrapper.FenceValue;
     }
 
     uint8_t FrameManager::GetFrameIndex() const
@@ -55,6 +72,6 @@ namespace Ame::Rhi
 
     uint8_t FrameManager::GetFrameCountInFlight() const
     {
-        return 0;
+        return m_FrameWrapper.FramesInFlightCount;
     }
 } // namespace Ame::Rhi

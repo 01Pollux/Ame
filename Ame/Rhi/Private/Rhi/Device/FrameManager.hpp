@@ -2,6 +2,7 @@
 
 #include <Rhi/Device.hpp>
 #include "StateTracker.hpp"
+#include "FrameWrapper.hpp"
 
 namespace Ame::Rhi
 {
@@ -10,8 +11,13 @@ namespace Ame::Rhi
     class FrameManager : public NonCopyable, public NonMovable
     {
     public:
-        FrameManager(
-            NRIBridge& NriBridge);
+        void Initialize(
+            nri::CoreInterface& NriCore,
+            nri::Device&        RhiDevice,
+            uint32_t            FramesInFlightCount);
+
+        void Shutdown(
+            nri::CoreInterface& NriCore);
 
     public:
         /// <summary>
@@ -36,13 +42,15 @@ namespace Ame::Rhi
         /// Mark the start of frame.
         /// Wait for previous frame to finish.
         /// </summary>
-        void NewFrame();
+        void NewFrame(
+            nri::CoreInterface& NriCore);
 
         /// <summary>
         /// Mark the end of frame.
         /// </summary>
         void EndFrame(
-            nri::CommandQueue& GraphicsQueue);
+            nri::CoreInterface& NriCore,
+            nri::CommandQueue&  GraphicsQueue);
 
         /// <summary>
         /// Flush all idle resources
@@ -79,5 +87,6 @@ namespace Ame::Rhi
 
     private:
         ResourceStateTracker m_ResourceStateTracker;
+        FrameWrapper         m_FrameWrapper;
     };
 } // namespace Ame::Rhi

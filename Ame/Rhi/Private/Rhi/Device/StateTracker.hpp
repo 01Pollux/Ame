@@ -66,9 +66,6 @@ namespace Ame::Rhi
         using GlobalBarrierList        = std::vector<nri::GlobalBarrierDesc>;
 
     public:
-        ResourceStateTracker(
-            nri::CoreInterface& NriCore);
-
         /// <summary>
         /// Require a buffer to be in a certain state
         /// if Append is true, the state will be appended to the current state
@@ -83,6 +80,7 @@ namespace Ame::Rhi
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
+            nri::CoreInterface&         NriCore,
             nri::Texture*               Texture,
             AtomTextureSubresourceState State,
             nri::Mip_t                  MipLevel   = 0,
@@ -109,6 +107,7 @@ namespace Ame::Rhi
         /// Begin tracking a texture
         /// </summary>
         void BeginTracking(
+            nri::CoreInterface&         NriCore,
             nri::Texture*               Texture,
             AtomTextureSubresourceState InitialState);
 
@@ -136,6 +135,7 @@ namespace Ame::Rhi
         /// Mutate the state of a texture
         /// </summary>
         void MutateState(
+            nri::CoreInterface&         NriCore,
             nri::Texture*               Texture,
             AtomTextureSubresourceState State,
             nri::Mip_t                  MipLevel   = 0,
@@ -148,6 +148,7 @@ namespace Ame::Rhi
         /// Commit all the pending barriers
         /// </summary>
         void CommitBarriers(
+            nri::CoreInterface& NriCore,
             nri::CommandBuffer& CommandBuffer);
 
     private:
@@ -159,12 +160,14 @@ namespace Ame::Rhi
         /// <summary>
         /// Flush all the texture to the current state
         /// </summary>
-        [[nodiscard]] std::vector<nri::TextureBarrierDesc> FlushTextures();
+        [[nodiscard]] std::vector<nri::TextureBarrierDesc> FlushTextures(
+            nri::CoreInterface& NriCore);
 
         /// <summary>
         /// Flush all texture to the current state
         /// </summary>
         [[nodiscard]] std::vector<nri::TextureBarrierDesc> TransitionTexture(
+            nri::CoreInterface&                   NriCore,
             nri::Texture*                         Texture,
             const TextureSubresourceStates<true>& NewStates);
 
@@ -191,9 +194,8 @@ namespace Ame::Rhi
             nri::AccessBits Next);
 
     private:
-        nri::CoreInterface&      m_NriCore;
         CurrentResourceStateMaps m_CurrentStates;
         PendingResourceStateMaps m_PendingStates;
         GlobalBarrierList        m_GlobalBarriersCache;
     };
-} // namespace Ame::Rhi::Impl
+} // namespace Ame::Rhi

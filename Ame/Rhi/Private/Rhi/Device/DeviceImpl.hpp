@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Rhi/Device.hpp>
+#include "FrameManager.hpp"
 #include "../Nri/Bridge.hpp"
 
 namespace Ame::Windowing
@@ -11,7 +12,6 @@ namespace Ame::Windowing
 namespace Ame::Rhi
 {
     class WindowManager;
-    class FrameManager;
 
     class Device::Impl : public NonCopyable, public NonMovable
     {
@@ -198,7 +198,7 @@ namespace Ame::Rhi
     private:
         NRIBridge           m_NRI;
         UPtr<WindowManager> m_WindowManager;
-        UPtr<FrameManager>  m_FrameManager;
+        FrameManager        m_FrameManager;
 
         nri::Device*       m_Device       = nullptr;
         nri::CommandQueue* m_CommandQueue = nullptr;

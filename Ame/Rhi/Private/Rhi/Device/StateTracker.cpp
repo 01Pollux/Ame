@@ -27,14 +27,6 @@ namespace Ame::Rhi
 
     //
 
-    ResourceStateTracker::ResourceStateTracker(
-        nri::CoreInterface& NriCore) :
-        m_NriCore(NriCore)
-    {
-    }
-
-    //
-
     void ResourceStateTracker::RequireState(
         nri::Buffer*     Buffer,
         nri::AccessStage State,
@@ -52,6 +44,7 @@ namespace Ame::Rhi
     }
 
     void ResourceStateTracker::RequireState(
+        nri::CoreInterface&    NriCore,
         nri::Texture*          Texture,
         nri::AccessLayoutStage State,
         nri::Mip_t             MipLevel,
@@ -74,7 +67,7 @@ namespace Ame::Rhi
             }
         }
 
-        auto& Desc = m_NriCore.GetTextureDesc(*Texture);
+        auto& Desc = NriCore.GetTextureDesc(*Texture);
 
         if (MipCount == nri::REMAINING_MIP_LEVELS)
         {
@@ -112,12 +105,13 @@ namespace Ame::Rhi
     }
 
     void ResourceStateTracker::BeginTracking(
+        nri::CoreInterface&         NriCore,
         nri::Texture*               Texture,
         AtomTextureSubresourceState InitialState)
     {
         AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Textures.contains(Texture), "Texture already being tracked");
 
-        auto& Desc = m_NriCore.GetTextureDesc(*Texture);
+        auto& Desc = NriCore.GetTextureDesc(*Texture);
 
         for (auto [Mip, Array] : ForEachSubresource(0, Desc.mipNum, 0, Desc.arraySize))
         {
@@ -153,6 +147,7 @@ namespace Ame::Rhi
     }
 
     void ResourceStateTracker::MutateState(
+        nri::CoreInterface&         NriCore,
         nri::Texture*               Texture,
         AtomTextureSubresourceState State,
         nri::Mip_t                  MipLevel,
@@ -162,7 +157,7 @@ namespace Ame::Rhi
     {
         AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(Texture), "Texture is not being tracked");
 
-        auto& Desc          = m_NriCore.GetTextureDesc(*Texture);
+        auto& Desc          = NriCore.GetTextureDesc(*Texture);
         auto& CurrentStates = m_CurrentStates.Textures[Texture];
 
         if (MipCount == nri::REMAINING_MIP_LEVELS)
@@ -184,6 +179,7 @@ namespace Ame::Rhi
     //
 
     void ResourceStateTracker::CommitBarriers(
+        nri::CoreInterface& NriCore,
         nri::CommandBuffer& CommandBuffer)
     {
         if (m_PendingStates.Buffers.empty() && m_PendingStates.Textures.empty())
@@ -192,7 +188,7 @@ namespace Ame::Rhi
         }
 
         auto Buffers  = FlushBuffers();
-        auto Textures = FlushTextures();
+        auto Textures = FlushTextures(NriCore);
 
         nri::BarrierGroupDesc Barriers{
             .globals    = m_GlobalBarriersCache.data(),
@@ -203,7 +199,7 @@ namespace Ame::Rhi
             .textureNum = static_cast<uint16_t>(Textures.size())
         };
 
-        m_NriCore.CmdBarrier(CommandBuffer, Barriers);
+        NriCore.CmdBarrier(CommandBuffer, Barriers);
 
         m_PendingStates.Buffers.clear();
         m_PendingStates.Textures.clear();
@@ -233,18 +229,20 @@ namespace Ame::Rhi
 
     //
 
-    std::vector<nri::TextureBarrierDesc> ResourceStateTracker::FlushTextures()
+    std::vector<nri::TextureBarrierDesc> ResourceStateTracker::FlushTextures(
+        nri::CoreInterface& NriCore)
     {
         std::vector<nri::TextureBarrierDesc> Barriers;
         for (auto& [Texture, SubresourceStates] : m_PendingStates.Textures)
         {
-            auto TempBarriers = TransitionTexture(Texture, SubresourceStates);
+            auto TempBarriers = TransitionTexture(NriCore, Texture, SubresourceStates);
             Barriers.insert(Barriers.end(), std::make_move_iterator(TempBarriers.begin()), std::make_move_iterator(TempBarriers.end()));
         }
         return Barriers;
     }
 
     std::vector<nri::TextureBarrierDesc> ResourceStateTracker::TransitionTexture(
+        nri::CoreInterface&                   NriCore,
         nri::Texture*                         Texture,
         const TextureSubresourceStates<true>& NewStates)
     {
@@ -295,7 +293,7 @@ namespace Ame::Rhi
         {
             Barriers.resize(1);
 
-            auto& Desc            = m_NriCore.GetTextureDesc(*Texture);
+            auto& Desc            = NriCore.GetTextureDesc(*Texture);
             Barriers[0].mipNum    = Desc.mipNum;
             Barriers[0].arraySize = Desc.arraySize;
         }
@@ -369,4 +367,4 @@ namespace Ame::Rhi
         return (Current == Next) ||
                ((Current & ReadOnlyStates) && (static_cast<uint32_t>(Current & Next) == static_cast<uint32_t>(Next)));
     }
-} // namespace Ame::Rhi::Impl
+} // namespace Ame::Rhi

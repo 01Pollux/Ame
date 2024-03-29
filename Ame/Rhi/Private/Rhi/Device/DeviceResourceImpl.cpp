@@ -7,7 +7,7 @@ namespace Ame::Rhi
         nri::Buffer*     Buffer,
         nri::AccessStage InitialState)
     {
-        auto& Tracker = m_FrameManager->GetStateTracker();
+        auto& Tracker = m_FrameManager.GetStateTracker();
         Tracker.BeginTracking(Buffer, InitialState);
     }
 
@@ -15,21 +15,21 @@ namespace Ame::Rhi
         nri::Texture*          Texture,
         nri::AccessLayoutStage InitialState)
     {
-        auto& Tracker = m_FrameManager->GetStateTracker();
-        Tracker.BeginTracking(Texture, InitialState);
+        auto& Tracker = m_FrameManager.GetStateTracker();
+        Tracker.BeginTracking(*m_NRI.GetCoreInterface(), Texture, InitialState);
     }
 
     void Device::Impl::EndTracking(
         nri::Buffer* Buffer)
     {
-        auto& Tracker = m_FrameManager->GetStateTracker();
+        auto& Tracker = m_FrameManager.GetStateTracker();
         Tracker.EndTracking(Buffer);
     }
 
     void Device::Impl::EndTracking(
         nri::Texture* Texture)
     {
-        auto& Tracker = m_FrameManager->GetStateTracker();
+        auto& Tracker = m_FrameManager.GetStateTracker();
         Tracker.EndTracking(Texture);
     }
 
@@ -38,18 +38,18 @@ namespace Ame::Rhi
     void Device::Impl::DeferRelease(
         nri::Buffer& NriBuffer)
     {
-        m_FrameManager->DeferRelease(NriBuffer);
+        m_FrameManager.DeferRelease(NriBuffer);
     }
 
     void Device::Impl::DeferRelease(
         nri::Texture& NriTexture)
     {
-        m_FrameManager->DeferRelease(NriTexture);
+        m_FrameManager.DeferRelease(NriTexture);
     }
 
     void Device::Impl::DeferRelease(
         nri::Descriptor& NriDescriptor)
     {
-        m_FrameManager->DeferRelease(NriDescriptor);
+        m_FrameManager.DeferRelease(NriDescriptor);
     }
 } // namespace Ame::Rhi

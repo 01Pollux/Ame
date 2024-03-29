@@ -26,7 +26,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert(m_Device != nullptr, "Failed to create device");
         Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
 
-        m_FrameManager = std::make_unique<FrameManager>(m_NRI);
+        m_FrameManager.Initialize(*m_NRI.GetCoreInterface(), *m_Device, Desc.FramesInFlight);
         if (Desc.Window)
         {
             m_WindowManager = std::make_unique<WindowManager>(m_NRI, *m_Device, *m_CommandQueue, Desc);
@@ -62,17 +62,17 @@ namespace Ame::Rhi
 
     uint64_t Device::Impl::GetFrameCount() const
     {
-        return m_FrameManager->GetFrameCount();
+        return m_FrameManager.GetFrameCount();
     }
 
     uint8_t Device::Impl::GetFrameIndex() const
     {
-        return m_FrameManager->GetFrameIndex();
+        return m_FrameManager.GetFrameIndex();
     }
 
     uint8_t Device::Impl::GetFrameCountInFlight() const
     {
-        return m_FrameManager->GetFrameCountInFlight();
+        return m_FrameManager.GetFrameCountInFlight();
     }
 
     //
@@ -152,7 +152,7 @@ namespace Ame::Rhi
             }
         }
 
-        m_FrameManager->NewFrame();
+        m_FrameManager.NewFrame(*m_NRI.GetCoreInterface());
 
         if (!IsHeadless()) [[likely]]
         {
@@ -167,7 +167,7 @@ namespace Ame::Rhi
             m_WindowManager->Present();
         }
 
-        m_FrameManager->EndFrame(*m_CommandQueue);
+        m_FrameManager.EndFrame(*m_NRI.GetCoreInterface(), *m_CommandQueue);
     }
 
     //
@@ -175,10 +175,7 @@ namespace Ame::Rhi
     void Device::Impl::WaitIdle()
     {
         m_NRI.WaitIdle(*m_CommandQueue);
-        if (m_FrameManager)
-        {
-            m_FrameManager->FlushIdle();
-        }
+        m_FrameManager.FlushIdle();
     }
 
     //
@@ -263,7 +260,10 @@ namespace Ame::Rhi
         WaitIdle();
 
         m_WindowManager.reset();
-        m_FrameManager.reset();
+        if (auto NriCore = m_NRI.GetCoreInterface())
+        {
+            m_FrameManager.Shutdown(*NriCore);
+        }
         m_NRI.Shutdown();
 
 #ifndef AME_DIST
