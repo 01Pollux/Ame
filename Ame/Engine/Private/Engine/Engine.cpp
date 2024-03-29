@@ -24,10 +24,12 @@ namespace Ame
         m_Timer.Reset();
         if (m_RhiDevice.GetGraphicsAPI() != Rhi::GraphicsAPI::Null)
         {
-            while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
+            while (1)
+                ;
+           /* while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
             {
                 m_Logic.Tick(m_Timer, &m_RhiDevice);
-            }
+            }*/
         }
         else
         {

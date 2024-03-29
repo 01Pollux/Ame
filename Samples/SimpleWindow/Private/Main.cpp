@@ -7,7 +7,7 @@
 AME_MAIN(Argc, Argv)
 {
     Log::Logger::Register(Log::Names::Engine, "Engine.log");
-    Log::Logger::Register(Log::Names::Rhi, "Rhi.log");
+    Log::Logger::Register(Log::Names::Rhi, "Engine.log");
 
     WindowApplication<BaseEngine>::Builder()
         .Title("Simple Window")

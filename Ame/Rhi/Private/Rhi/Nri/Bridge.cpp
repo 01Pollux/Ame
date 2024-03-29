@@ -6,14 +6,6 @@
 namespace Ame::Rhi
 {
     /// <summary>
-    /// Log a missing feature.
-    /// </summary>
-    static void MissingFeature(const char* FeatureName)
-    {
-        Log::Rhi().Error("Device does not support {}", FeatureName);
-    }
-
-    /// <summary>
     /// Try to load an nri feature interface.
     /// </summary>
     template<typename Ty>
@@ -23,7 +15,6 @@ namespace Ame::Rhi
         size_t            InterfaceSize,
         UPtr<Ty>&         InterfacePtr,
         DeviceFeatureType Features,
-        const char*       FeatureName,
         bool              Supported = true)
     {
         if (Supported)
@@ -45,7 +36,7 @@ namespace Ame::Rhi
         }
         if (!Supported)
         {
-            MissingFeature(FeatureName);
+            Log::Rhi().Error("Device does not support {}", InterfaceName);
         }
         return Supported;
     }
@@ -58,7 +49,7 @@ namespace Ame::Rhi
         DeviceFeatureType RayTracingFeatures,
         DeviceFeatureType MeshShaderFeatures)
     {
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_CoreInterface, DeviceFeatureType::Required, "CoreInterface"))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_CoreInterface, DeviceFeatureType::Required))
         {
             Shutdown();
             return false;
@@ -68,17 +59,17 @@ namespace Ame::Rhi
 
         auto& DevDesc = m_CoreInterface->GetDeviceDesc(RhiDevice);
 
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_SwapChainInterface, SwapchainFeatures, "SwapChainInterface"))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::SwapChainInterface), m_SwapChainInterface, SwapchainFeatures))
         {
             Shutdown();
             return false;
         }
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_MeshShaderInterface, MeshShaderFeatures, "MeshShaderInterface", DevDesc.isMeshShaderSupported))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::MeshShaderInterface), m_MeshShaderInterface, MeshShaderFeatures, DevDesc.isMeshShaderSupported))
         {
             Shutdown();
             return false;
         }
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_RayTracingInterface, RayTracingFeatures, "RayTracingInterface", DevDesc.isRayTracingSupported))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::RayTracingInterface), m_RayTracingInterface, RayTracingFeatures, DevDesc.isRayTracingSupported))
         {
             Shutdown();
             return false;

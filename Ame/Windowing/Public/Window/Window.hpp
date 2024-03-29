@@ -186,7 +186,7 @@ namespace Ame::Windowing
         void ProcessEvents();
 
     private:
-        GLFWwindow*  m_Handle;
+        GLFWwindow*  m_Handle = nullptr;
         Math::Size2I m_WindowSize{};
         StringU8     m_Title;
     };

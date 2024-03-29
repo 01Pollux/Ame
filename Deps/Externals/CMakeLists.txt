@@ -10,9 +10,16 @@ endfunction()
 
 #
 
+# Add glfw
 msg_add_subdirectory(glfw)
+
+# Add imgui
 msg_add_subdirectory(DxC)
+
+# Add nri
 msg_add_subdirectory(nri)
+
+# Add nri
 msg_include_module(imgui)
 
 #

@@ -23,6 +23,9 @@ namespace Ame::Rhi
             return;
         }
 
+        Log::Rhi().Assert(m_Device != nullptr, "Failed to create device");
+        Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
+
         m_FrameManager = std::make_unique<FrameManager>(m_NRI);
         if (Desc.Window)
         {

@@ -110,6 +110,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Deps/Externals/"
 # Add Asset directory
 set(AME_ASSETS_DIR ${CMAKE_SOURCE_DIR}/Assets)
 
+# Add address sanitizer lookup path
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Deps/Externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+
 #
 
 # Helper function to set variable for local and parent scope
@@ -139,12 +142,13 @@ endfunction()
 # ame_add_executable(Name Source1 Source2 ...)
 function(ame_add_executable TARGET_NAME)
     add_executable(${TARGET_NAME} ${ARGN})
+
     set_target_properties(${TARGET_NAME} PROPERTIES
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${TARGET_NAME})
     
     # check if SUBSYSTEM_LINKER_OPTIONS is was set()
     if (DEFINED SUBSYSTEM_LINKER_OPTIONS)
-        set_target_properties("Ame_${TARGET_NAME}" PROPERTIES LINK_FLAGS ${SUBSYSTEM_LINKER_OPTIONS})
+        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS ${SUBSYSTEM_LINKER_OPTIONS})
     endif ()
 
     ame_copy_dxil_and_dxcompiler(${TARGET_NAME})
@@ -178,6 +182,7 @@ find_package(concurrencpp REQUIRED)
 find_package(freeimage REQUIRED)
 find_package(flecs REQUIRED)
 find_package(Bullet REQUIRED)
+find_package(Sanitizers)
 
 if (AME_BUILD_TESTS)
 	find_package(Boost COMPONENTS REQUIRED unit_test_framework)
