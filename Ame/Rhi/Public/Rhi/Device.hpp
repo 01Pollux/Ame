@@ -12,7 +12,7 @@ namespace Ame::Rhi
 {
     struct DeviceCreateDesc;
 
-    class Device : public NonCopyable
+    class Device
     {
         class Impl;
 
@@ -21,11 +21,16 @@ namespace Ame::Rhi
         friend ResourceView;
 
     public:
+        Device();
+
         Device(
             const DeviceCreateDesc& Desc);
 
-        Device(Device&&)            = default;
-        Device& operator=(Device&&) = default;
+        Device(const Device&);
+        Device& operator=(const Device&);
+
+        Device(Device&&);
+        Device& operator=(Device&&);
 
         ~Device();
 

@@ -5,11 +5,19 @@
 
 namespace Ame::Rhi
 {
+    Device::Device() = default;
+
     Device::Device(
         const DeviceCreateDesc& Desc) :
         m_Impl(std::make_unique<Impl>(Desc))
     {
     }
+
+    Device::Device(const Device&) = default;
+    Device& Device::operator=(const Device&) = default;
+
+    Device::Device(Device&&) = default;
+    Device& Device::operator=(Device&&) = default;
 
     Device::~Device() = default;
 
@@ -17,7 +25,7 @@ namespace Ame::Rhi
 
     GraphicsAPI Device::GetGraphicsAPI() const
     {
-        return m_Impl->GetGraphicsAPI();
+        return m_Impl ? m_Impl->GetGraphicsAPI() : GraphicsAPI::Null;
     }
 
     uint64_t Device::GetFrameCount() const
@@ -39,7 +47,7 @@ namespace Ame::Rhi
 
     bool Device::IsHeadless() const
     {
-        return m_Impl->IsHeadless();
+        return m_Impl && m_Impl->IsHeadless();
     }
 
     Windowing::Window& Device::GetWindow() const

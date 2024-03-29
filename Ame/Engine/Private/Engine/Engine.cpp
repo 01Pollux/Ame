@@ -4,6 +4,8 @@
 
 namespace Ame
 {
+    BaseEngine::~BaseEngine() = default;
+
     void BaseEngine::Run()
     {
         Log::Engine().Trace("Initializing Engine...");
@@ -13,9 +15,20 @@ namespace Ame
 
         Log::Engine().Trace("Engine Initialized");
 
-        while (m_Logic.IsRunning())
+        m_Timer.Reset();
+        if (m_RhiDevice.GetGraphicsAPI() != Rhi::GraphicsAPI::Null)
         {
-            m_Logic.Tick();
+            while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
+            {
+                m_Logic.Tick(m_Timer, &m_RhiDevice);
+            }
+        }
+        else
+        {
+            while (m_Logic.IsRunning())
+            {
+                m_Logic.Tick(m_Timer);
+            }
         }
 
         Log::Engine().Trace("Shutting down Engine...");

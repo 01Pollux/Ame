@@ -2,11 +2,17 @@
 
 #include <Core/Ame.hpp>
 #include <Engine/Logic.hpp>
+#include <Engine/Timer.hpp>
+#include <Rhi/Device.hpp>
 
 namespace Ame
 {
-    class BaseEngine
+    class BaseEngine : public NonCopyable,
+                       public NonMovable
     {
+    public:
+        virtual ~BaseEngine();
+
     public:
         /// <summary>
         /// Run the engine
@@ -34,6 +40,8 @@ namespace Ame
         }
 
     private:
+        EngineTimer m_Timer;
+        Rhi::Device m_RhiDevice;
         EngineLogic m_Logic;
     };
 } // namespace Ame

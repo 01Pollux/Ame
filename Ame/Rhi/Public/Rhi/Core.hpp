@@ -49,7 +49,7 @@ namespace Ame::Rhi
                 Device& RhiDevice,
                 Ty&&    Object) :
                 m_Device(&RhiDevice),
-                m_Object(std::move(Object)),
+                m_Object(std::move(Object))
             {
             }
 
@@ -133,6 +133,7 @@ namespace Ame::Rhi
 
     enum class GraphicsAPI : uint8_t
     {
+        Null,
         DirectX12,
         Vulkan,
 

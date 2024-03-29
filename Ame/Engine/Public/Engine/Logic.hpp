@@ -4,13 +4,21 @@
 
 namespace Ame
 {
+    namespace Rhi
+    {
+        class Device;
+    } // namespace Rhi
+    class EngineTimer;
+
     class EngineLogic
     {
     public:
         /// <summary>
         /// Tick all the systems and update the game
         /// </summary>
-        void Tick();
+        void Tick(
+            EngineTimer& Timer,
+            Rhi::Device* RhiDevice = nullptr);
 
         /// <summary>
         /// Stop the engine loop

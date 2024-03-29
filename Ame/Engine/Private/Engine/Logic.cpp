@@ -2,10 +2,12 @@
 
 namespace Ame
 {
-    void EngineLogic::Tick()
+    void EngineLogic::Tick(
+        EngineTimer& Timer,
+        Rhi::Device* RhiDevice)
     {
     }
-    
+
     void EngineLogic::Stop()
     {
         m_IsRunning = false;
