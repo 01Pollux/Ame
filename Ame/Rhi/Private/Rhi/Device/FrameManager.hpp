@@ -1,11 +1,18 @@
 #pragma once
 
 #include <Rhi/Device.hpp>
+#include "StateTracker.hpp"
 
 namespace Ame::Rhi
 {
+    class NRIBridge;
+
     class FrameManager : public NonCopyable, public NonMovable
     {
+    public:
+        FrameManager(
+            NRIBridge& NriBridge);
+
     public:
         /// <summary>
         /// Get the number of frames that have been rendered.
@@ -41,5 +48,8 @@ namespace Ame::Rhi
         /// Flush all idle resources
         /// </summary>
         void FlushIdle();
+
+    private:
+        ResourceStateTracker m_ResourceStateTracker;
     };
 } // namespace Ame::Rhi

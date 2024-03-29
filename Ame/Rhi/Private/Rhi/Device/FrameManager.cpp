@@ -1,7 +1,16 @@
 #include "FrameManager.hpp"
+#include "../Nri/Bridge.hpp"
 
 namespace Ame::Rhi
 {
+    FrameManager::FrameManager(
+        NRIBridge& NriBridge) :
+        m_ResourceStateTracker(*NriBridge.GetCoreInterface())
+    {
+    }
+
+    //
+
     void FrameManager::NewFrame()
     {
     }

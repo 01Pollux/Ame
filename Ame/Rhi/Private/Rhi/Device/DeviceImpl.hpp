@@ -119,6 +119,63 @@ namespace Ame::Rhi
         /// </summary>
         void WaitIdle();
 
+    public:
+        /// <summary>
+        /// Get the nri bridge.
+        /// </summary>
+        [[nodiscard]] NRIBridge& GetNRI() noexcept;
+
+        /// <summary>
+        /// Get the nri device.
+        /// </summary>
+        [[nodiscard]] nri::Device& GetDevice() noexcept;
+
+    public:
+        /// <summary>
+        /// Begin tracking a buffer
+        /// </summary>
+        void BeginTracking(
+            nri::Buffer*     Buffer,
+            nri::AccessStage InitialState);
+
+        /// <summary>
+        /// Begin tracking a texture
+        /// </summary>
+        void BeginTracking(
+            nri::Texture*          Texture,
+            nri::AccessLayoutStage InitialState);
+
+        /// <summary>
+        /// End tracking a buffer
+        /// </summary>
+        void EndTracking(
+            nri::Buffer* Buffer);
+
+        /// <summary>
+        /// End tracking a texture
+        /// </summary>
+        void EndTracking(
+            nri::Texture* Texture);
+
+    public:
+        /// <summary>
+        /// Defer the release of a buffer.
+        /// </summary>
+        void DeferRelease(
+            nri::Buffer& NriBuffer);
+
+        /// <summary>
+        /// Defer the release of a texture.
+        /// </summary>
+        void DeferRelease(
+            nri::Texture& NriTexture);
+
+        /// <summary>
+        /// Defer the release of a descriptor.
+        /// </summary>
+        void DeferRelease(
+            nri::Descriptor& NriDescriptor);
+
     private:
         /// <summary>
         /// Attempts to create the device.

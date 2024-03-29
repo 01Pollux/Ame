@@ -4,23 +4,19 @@
 
 namespace Ame::Rhi
 {
-#ifndef AME_DIST
     template<typename... ArgsTy>
     void ThrowIfFailed(
         nri::Result Result,
         const char* Message,
         ArgsTy&&... Args)
     {
+#ifndef AME_DIST
+        Log::Rhi().Assert(Result == nri::Result::SUCCESS, "Error: {}", Message, std::forward<ArgsTy>(Args)...);
+#else
         if (Result != nri::Result::SUCCESS)
         {
-            Log::Rhi().Error("Error: %s", Message, std::forward<ArgsTy>(Args)...);
+            Log::Rhi().Error("Error: {}", Message, std::forward<ArgsTy>(Args)...);
         }
-    }
-#else
-    void ThrowIfFailed(
-        nri::Result Result,
-        ...)
-    {
-    }
 #endif
+    }
 } // namespace Ame::Rhi

@@ -121,8 +121,13 @@ namespace Ame::Rhi
         /// </summary>
         void EndFrame();
 
-        // Below are the functions that are only accessible by the Buffer, Texture and ResourceView classes.
-        // Texture
+    public:
+        /// <summary>
+        /// Idle the GPU.
+        /// </summary>
+        void WaitIdle();
+
+        // Below are the functions that are only accessible by the Texture
     private:
         /// <summary>
         /// Create a texture.
@@ -163,7 +168,7 @@ namespace Ame::Rhi
             nri::Texture&          Tex,
             const TextureViewDesc& Desc) const;
 
-        // Buffer
+        // Below are the functions that are only accessible by the Buffer
     private:
         /// <summary>
         /// Create a buffer.
@@ -204,7 +209,7 @@ namespace Ame::Rhi
             nri::Buffer&          Buf,
             const BufferViewDesc& Desc) const;
 
-        // ResourceView
+        // Below are the functions that are only accessible by the ResourceView
     private:
         /// <summary>
         /// Releases the resource view.
@@ -225,12 +230,6 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] void* GetNative(
             nri::Descriptor& View) const;
-
-    public:
-        /// <summary>
-        /// Idle the GPU.
-        /// </summary>
-        void WaitIdle();
 
     private:
         UPtr<Impl> m_Impl;

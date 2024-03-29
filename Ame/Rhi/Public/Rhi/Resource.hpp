@@ -21,7 +21,7 @@ namespace Ame::Rhi
         UnorderedAccess,
     };
 
-    enum class TextureViewType : uint8_t
+    enum class TextureViewType : uint32_t
     {
         None,
 
@@ -191,98 +191,94 @@ namespace Ame::Rhi
 
     //
 
-    struct BufferDesc : nri::BufferDesc
+    using BufferDesc  = nri::BufferDesc;
+    using TextureDesc = nri::TextureDesc;
+
+    static TextureDesc Tex1D(
+        ResourceFormat   Format,
+        Dim_t            Width,
+        Mip_t            MipNum,
+        Dim_t            ArraySize = 1,
+        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
+        Sample_t         SampleNum = 1)
     {
-    };
+        return TextureDesc{
+            .type      = TextureType::TEXTURE_1D,
+            .usageMask = UsageMask,
+            .format    = Format,
+            .width     = Width,
+            .height    = 1,
+            .depth     = 1,
+            .mipNum    = MipNum,
+            .arraySize = ArraySize,
+            .sampleNum = SampleNum
+        };
+    }
 
-    struct TextureDesc : nri::TextureDesc
+    [[nodiscard]] TextureDesc Tex2D(
+        ResourceFormat   Format,
+        Dim_t            Width,
+        Dim_t            Height,
+        Mip_t            MipNum,
+        Dim_t            ArraySize = 1,
+        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
+        Sample_t         SampleNum = 1)
     {
-        static TextureDesc Tex1D(
-            ResourceFormat   Format,
-            Dim_t            Width,
-            Mip_t            MipNum,
-            Dim_t            ArraySize = 1,
-            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
-            Sample_t         SampleNum = 1)
-        {
-            return TextureDesc{
-                { .type      = TextureType::TEXTURE_1D,
-                  .usageMask = UsageMask,
-                  .format    = Format,
-                  .width     = Width,
-                  .height    = 1,
-                  .depth     = 1,
-                  .mipNum    = MipNum,
-                  .arraySize = ArraySize,
-                  .sampleNum = SampleNum }
-            };
-        }
+        return TextureDesc{
+            .type      = TextureType::TEXTURE_2D,
+            .usageMask = UsageMask,
+            .format    = Format,
+            .width     = Width,
+            .height    = Height,
+            .depth     = 1,
+            .mipNum    = MipNum,
+            .arraySize = ArraySize,
+            .sampleNum = SampleNum
+        };
+    }
 
-        [[nodiscard]] TextureDesc Tex2D(
-            ResourceFormat   Format,
-            Dim_t            Width,
-            Dim_t            Height,
-            Mip_t            MipNum,
-            Dim_t            ArraySize = 1,
-            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
-            Sample_t         SampleNum = 1)
-        {
-            return TextureDesc{
-                { .type      = TextureType::TEXTURE_2D,
-                  .usageMask = UsageMask,
-                  .format    = Format,
-                  .width     = Width,
-                  .height    = Height,
-                  .depth     = 1,
-                  .mipNum    = MipNum,
-                  .arraySize = ArraySize,
-                  .sampleNum = SampleNum }
-            };
-        }
+    [[nodiscard]] TextureDesc Tex3D(
+        ResourceFormat   Format,
+        Dim_t            Width,
+        Dim_t            Height,
+        uint16_t         Depth,
+        Mip_t            MipNum,
+        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE)
+    {
+        return TextureDesc{
+            .type      = TextureType::TEXTURE_3D,
+            .usageMask = UsageMask,
+            .format    = Format,
+            .width     = Width,
+            .height    = Height,
+            .depth     = Depth,
+            .mipNum    = MipNum,
+            .arraySize = 1,
+            .sampleNum = 1
+        };
+    }
 
-        [[nodiscard]] TextureDesc Tex3D(
-            ResourceFormat   Format,
-            Dim_t            Width,
-            Dim_t            Height,
-            uint16_t         Depth,
-            Mip_t            MipNum,
-            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE)
-        {
-            return TextureDesc{
-                { .type      = TextureType::TEXTURE_3D,
-                  .usageMask = UsageMask,
-                  .format    = Format,
-                  .width     = Width,
-                  .height    = Height,
-                  .depth     = Depth,
-                  .mipNum    = MipNum,
-                  .arraySize = 1,
-                  .sampleNum = 1 }
-            };
-        }
-
-        [[nodiscard]] TextureDesc TexCube(
-            ResourceFormat   Format,
-            Dim_t            Width,
-            Dim_t            Height,
-            Mip_t            MipNum,
-            Dim_t            ArraySize = 1,
-            TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
-            Sample_t         SampleNum = 1)
-        {
-            return TextureDesc{
-                { .type      = TextureType::TEXTURE_2D,
-                  .usageMask = UsageMask,
-                  .format    = Format,
-                  .width     = Width,
-                  .height    = Height,
-                  .depth     = 1,
-                  .mipNum    = MipNum,
-                  .arraySize = ArraySize,
-                  .sampleNum = SampleNum }
-            };
-        }
-    };
+    [[nodiscard]] TextureDesc TexCube(
+        ResourceFormat   Format,
+        Dim_t            Width,
+        Dim_t            Height,
+        Mip_t            MipNum,
+        Dim_t            ArraySize = 1,
+        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
+        Sample_t         SampleNum = 1)
+    {
+        return TextureDesc{
+            .type      = TextureType::TEXTURE_2D,
+            .usageMask = UsageMask,
+            .format    = Format,
+            .width     = Width,
+            .height    = Height,
+            .depth     = 1,
+            .mipNum    = MipNum,
+            .arraySize = ArraySize,
+            .sampleNum = SampleNum
+        };
+    }
 
     //
 

@@ -23,7 +23,7 @@ namespace Ame::Rhi
             return;
         }
 
-        m_FrameManager = std::make_unique<FrameManager>();
+        m_FrameManager = std::make_unique<FrameManager>(m_NRI);
         if (Desc.Window)
         {
             m_WindowManager = std::make_unique<WindowManager>(m_NRI, *m_Device, *m_CommandQueue, Desc);
@@ -176,6 +176,18 @@ namespace Ame::Rhi
         {
             m_FrameManager->FlushIdle();
         }
+    }
+
+    //
+
+    NRIBridge& Device::Impl::GetNRI() noexcept
+    {
+        return m_NRI;
+    }
+
+    nri::Device& Device::Impl::GetDevice() noexcept
+    {
+        return *m_Device;
     }
 
     //

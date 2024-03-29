@@ -6,8 +6,6 @@
 
 namespace Ame::Rhi
 {
-    class NRIBridge;
-
     class WindowManager : public NonCopyable, public NonMovable
     {
     public:
