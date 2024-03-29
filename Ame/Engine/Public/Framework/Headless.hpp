@@ -5,7 +5,6 @@
 namespace Ame::Framework
 {
     template<typename EngineType>
-        requires std::is_base_of_v<Ame::BaseEngine, EngineType>
     class HeadlessApplication
     {
     public:
@@ -36,7 +35,6 @@ namespace Ame::Framework
     };
 
     template<typename EngineType>
-        requires std::is_base_of_v<Ame::BaseEngine, EngineType>
     struct HeadlessApplication<EngineType>::Builder
     {
     public:
@@ -47,9 +45,9 @@ namespace Ame::Framework
         }
 
         template<typename... ArgsTy>
-        HeadlessApplication Build(ArgsTy&&... Args)
+        [[nodiscard]] HeadlessApplication Build(ArgsTy&&... Args)
         {
-            return HeadlessApplication(std::forward<ArgsTy>(Args)...);
+            return { Rhi::Device{}, std::forward<ArgsTy>(Args)... };
         }
 
     private:

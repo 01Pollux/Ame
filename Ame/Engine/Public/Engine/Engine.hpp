@@ -11,6 +11,9 @@ namespace Ame
                        public NonMovable
     {
     public:
+        BaseEngine(
+            Rhi::Device RhiDevice);
+
         virtual ~BaseEngine();
 
     public:

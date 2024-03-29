@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Engine/Engine.hpp>
+#include <Rhi/DeviceCreateDesc.hpp>
 
 namespace Ame::Framework
 {
     template<typename EngineType>
-        requires std::is_base_of_v<Ame::BaseEngine, EngineType>
     class WindowApplication
     {
     public:
@@ -25,7 +25,7 @@ namespace Ame::Framework
 
     private:
         template<typename... ArgsTy>
-        HeadlessApplication(
+        WindowApplication(
             ArgsTy&&... Args) :
             m_Engine(std::forward<ArgsTy>(Args)...)
         {
@@ -36,25 +36,172 @@ namespace Ame::Framework
     };
 
     template<typename EngineType>
-        requires std::is_base_of_v<Ame::BaseEngine, EngineType>
     struct WindowApplication<EngineType>::Builder
     {
     public:
-        auto& Name(
-            const char* Name)
+        auto& Title(
+            const char* Title)
         {
-            m_Name = Name;
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.Title = Title;
             return *this;
         }
 
+        auto& Size(
+            const Math::Vector2& Size)
+        {
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.Size = Size;
+            return *this;
+        }
+
+        auto& CustomTitleBar(
+            bool Enable = true)
+        {
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.CustomTitleBar = Enable;
+            return *this;
+        }
+
+        auto& StartInMiddle(
+            bool Enable = true)
+        {
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.StartInMiddle = Enable;
+            return *this;
+        }
+
+        auto& Fullscreen(
+            bool Enable = true)
+        {
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.Fullscreen = Enable;
+            return *this;
+        }
+
+        auto& Maximized(
+            bool Enable = true)
+        {
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.Maximized = Enable;
+            return *this;
+        }
+
+        auto& NoResize(
+            bool Enable = true)
+        {
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Window.NoResize = Enable;
+            return *this;
+        }
+
+        //
+
+        auto& SwapchainFormat(
+            Rhi::ResourceFormat Format)
+        {
+            m_RhiDesc.SwapchainFormat = Format;
+            return *this;
+        }
+
+        auto& BackbufferCount(
+            uint32_t Count)
+        {
+            m_RhiDesc.BackbufferCount = Count;
+            return *this;
+        }
+
+        //
+
+        auto& Adapter(
+            const Rhi::AdapterDesc& Adapter)
+        {
+            m_RhiDesc.Adapter = Adapter;
+            return *this;
+        }
+
+        auto& InstanceExtension(
+            const char* Extension)
+        {
+            m_RhiDesc.InstanceExtensions.push_back(Extension);
+            return *this;
+        }
+
+        auto& DeviceExtension(
+            const char* Extension)
+        {
+            m_RhiDesc.DeviceExtensions.push_back(Extension);
+            return *this;
+        }
+
+        auto& FramesInFlight(
+            uint32_t FramesInFlight)
+        {
+            m_RhiDesc.FramesInFlight = FramesInFlight;
+            return *this;
+        }
+
+        auto& RendererBackend(
+            Rhi::DeviceType Backend)
+        {
+            m_RhiDesc.Type = Backend;
+            return *this;
+        }
+
+        auto& RayTracing(
+            Rhi::DeviceFeatureType Feature = Rhi::DeviceFeatureType::Optional)
+        {
+            m_RhiDesc.RayTracingFeatures = Feature;
+            return *this;
+        }
+
+        auto& MeshShader(
+            Rhi::DeviceFeatureType Feature = Rhi::DeviceFeatureType::Optional)
+        {
+            m_RhiDesc.MeshShaderFeatures = Feature;
+            return *this;
+        }
+
+        auto& ValidationLayer(
+            bool Enable = true)
+        {
+            m_RhiDesc.EnableApiValidationLayer = Enable;
+            return *this;
+        }
+
+        auto& VSync(
+            bool Enable = true)
+        {
+            m_RhiDesc.EnableVSync = Enable;
+            return *this;
+        }
+
+    public:
         template<typename... ArgsTy>
-        auto Build(
+        [[nodiscard]] WindowApplication Build(
             ArgsTy&&... Args)
         {
-            return WindowApplication<EngineType>(std::forward<ArgsTy>(Args)...);
+            if (!m_RhiDesc.Adapter)
+            {
+                m_RhiDesc.SetFirstAdapter();
+            }
+
+            return { Rhi::Device{ m_RhiDesc }, std::forward<ArgsTy>(Args)... };
         }
 
     private:
-        const char* m_Name = "Ame";
+        /// <summary>
+        /// Try to create the window desc if it does not exist
+        /// </summary>
+        void TryCreateWindowDesc()
+        {
+            if (!m_RhiDesc.Window.has_value()) [[unlikely]]
+            {
+                m_RhiDesc.Window = Rhi::RhiWindowDesc{};
+            }
+        }
+
+    private:
+        Rhi::DeviceCreateDesc m_RhiDesc;
     };
 } // namespace Ame::Framework

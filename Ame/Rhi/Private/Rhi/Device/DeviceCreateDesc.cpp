@@ -1,4 +1,4 @@
-#include <Rhi/DeviceDesc.hpp>
+#include <Rhi/DeviceCreateDesc.hpp>
 #include <NRI.h>
 #include <Extensions/NRIDeviceCreation.h>
 
@@ -17,6 +17,7 @@ namespace Ame::Rhi
         uint32_t AdapterCount = 0;
         ThrowIfFailed(nri::nriEnumerateAdapters(nullptr, AdapterCount), "Failed to enumerate adapters");
         std::vector<AdapterDesc> Adapters(AdapterCount);
+        ThrowIfFailed(nri::nriEnumerateAdapters(Adapters.data(), AdapterCount), "Failed to enumerate adapters");
 
         for (auto& CurAdapter : Adapters)
         {

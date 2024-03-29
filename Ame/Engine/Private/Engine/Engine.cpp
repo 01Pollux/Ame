@@ -4,6 +4,12 @@
 
 namespace Ame
 {
+    BaseEngine::BaseEngine(
+        Rhi::Device RhiDevice) :
+        m_RhiDevice(std::move(RhiDevice))
+    {
+    }
+
     BaseEngine::~BaseEngine() = default;
 
     void BaseEngine::Run()

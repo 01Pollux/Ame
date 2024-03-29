@@ -3,7 +3,7 @@
 #include "WindowManager.hpp"
 #include "SprivBinding.hpp"
 
-#include <Rhi/DeviceDesc.hpp>
+#include <Rhi/DeviceCreateDesc.hpp>
 #include "../Nri/Log.hpp"
 
 #ifdef AME_PLATFORM_WINDOWS

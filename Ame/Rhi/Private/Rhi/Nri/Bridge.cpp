@@ -19,30 +19,29 @@ namespace Ame::Rhi
     template<typename Ty>
     static bool TryLoadFeature(
         nri::Device&      RhiDevice,
+        const char*       InterfaceName,
+        size_t            InterfaceSize,
         UPtr<Ty>&         InterfacePtr,
         DeviceFeatureType Features,
         const char*       FeatureName,
         bool              Supported = true)
     {
-        if (Features != DeviceFeatureType::Disabled) [[likely]]
+        if (Supported)
         {
-            if (Supported)
+            if (!InterfacePtr)
             {
-                if (!InterfacePtr)
-                {
-                    InterfacePtr = std::make_unique<Ty>();
-                }
-
-                if (nri::nriGetInterface(RhiDevice, NRI_INTERFACE(Ty), InterfacePtr.get()) != nri::Result::SUCCESS &&
-                    Features == DeviceFeatureType::Required) [[unlikely]]
-                {
-                    Supported = false;
-                }
+                InterfacePtr = std::make_unique<Ty>();
             }
-            else if (Features != DeviceFeatureType::Required)
+
+            if (nri::nriGetInterface(RhiDevice, InterfaceName, InterfaceSize, InterfacePtr.get()) != nri::Result::SUCCESS &&
+                Features == DeviceFeatureType::Required) [[unlikely]]
             {
                 Supported = false;
             }
+        }
+        else if (Features != DeviceFeatureType::Required)
+        {
+            Supported = true;
         }
         if (!Supported)
         {
@@ -59,7 +58,7 @@ namespace Ame::Rhi
         DeviceFeatureType RayTracingFeatures,
         DeviceFeatureType MeshShaderFeatures)
     {
-        if (!TryLoadFeature(RhiDevice, m_CoreInterface, DeviceFeatureType::Required, "CoreInterface"))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_CoreInterface, DeviceFeatureType::Required, "CoreInterface"))
         {
             Shutdown();
             return false;
@@ -69,17 +68,17 @@ namespace Ame::Rhi
 
         auto& DevDesc = m_CoreInterface->GetDeviceDesc(RhiDevice);
 
-        if (!TryLoadFeature(RhiDevice, m_SwapChainInterface, SwapchainFeatures, "SwapChainInterface"))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_SwapChainInterface, SwapchainFeatures, "SwapChainInterface"))
         {
             Shutdown();
             return false;
         }
-        if (!TryLoadFeature(RhiDevice, m_MeshShaderInterface, MeshShaderFeatures, "MeshShaderInterface", DevDesc.isMeshShaderSupported))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_MeshShaderInterface, MeshShaderFeatures, "MeshShaderInterface", DevDesc.isMeshShaderSupported))
         {
             Shutdown();
             return false;
         }
-        if (!TryLoadFeature(RhiDevice, m_RayTracingInterface, RayTracingFeatures, "RayTracingInterface", DevDesc.isRayTracingSupported))
+        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_RayTracingInterface, RayTracingFeatures, "RayTracingInterface", DevDesc.isRayTracingSupported))
         {
             Shutdown();
             return false;
@@ -93,6 +92,7 @@ namespace Ame::Rhi
         if (m_IdleFence)
         {
             m_CoreInterface->DestroyFence(*m_IdleFence);
+            m_IdleFence = nullptr;
         }
 
         m_CoreInterface.reset();
@@ -112,9 +112,9 @@ namespace Ame::Rhi
         };
 
         nri::QueueSubmitDesc SubmitDesc{
-			.signalFences = &FenceDesc,
-			.signalFenceNum = 1
-		};
+            .signalFences   = &FenceDesc,
+            .signalFenceNum = 1
+        };
 
         m_CoreInterface->QueueSubmit(CommandQueue, SubmitDesc);
         m_CoreInterface->Wait(*m_IdleFence, m_FenceValue);
