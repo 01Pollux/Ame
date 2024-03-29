@@ -24,19 +24,11 @@ namespace Ame
         m_Timer.Reset();
         if (m_RhiDevice.GetGraphicsAPI() != Rhi::GraphicsAPI::Null)
         {
-            while (1)
-                ;
-           /* while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
-            {
-                m_Logic.Tick(m_Timer, &m_RhiDevice);
-            }*/
+            RenderLoop();
         }
         else
         {
-            while (m_Logic.IsRunning())
-            {
-                m_Logic.Tick(m_Timer);
-            }
+            HeadlessLoop();
         }
 
         Log::Engine().Trace("Shutting down Engine...");
@@ -50,5 +42,25 @@ namespace Ame
     void BaseEngine::Close()
     {
         m_Logic.Stop();
+    }
+
+    //
+
+    void BaseEngine::RenderLoop()
+    {
+        while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
+        {
+            m_RhiDevice.BeginFrame();
+            m_Logic.Tick(m_Timer, &m_RhiDevice);
+            m_RhiDevice.EndFrame();
+        }
+    }
+
+    void BaseEngine::HeadlessLoop()
+    {
+        while (m_Logic.IsRunning())
+        {
+            m_Logic.Tick(m_Timer);
+        }
     }
 } // namespace Ame

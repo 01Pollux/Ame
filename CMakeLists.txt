@@ -110,9 +110,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/Deps/Externals/"
 # Add Asset directory
 set(AME_ASSETS_DIR ${CMAKE_SOURCE_DIR}/Assets)
 
-# Add address sanitizer lookup path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/Deps/Externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
-
 #
 
 # Helper function to set variable for local and parent scope
@@ -182,7 +179,6 @@ find_package(concurrencpp REQUIRED)
 find_package(freeimage REQUIRED)
 find_package(flecs REQUIRED)
 find_package(Bullet REQUIRED)
-find_package(Sanitizers)
 
 if (AME_BUILD_TESTS)
 	find_package(Boost COMPONENTS REQUIRED unit_test_framework)

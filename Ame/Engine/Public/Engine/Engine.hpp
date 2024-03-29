@@ -43,6 +43,17 @@ namespace Ame
         }
 
     private:
+        /// <summary>
+        /// Main engine loop with rendering
+        /// </summary>
+        void RenderLoop();
+
+        /// <summary>
+        /// Main engine loop without rendering
+        /// </summary>
+        void HeadlessLoop();
+
+    private:
         EngineTimer m_Timer;
         Rhi::Device m_RhiDevice;
         EngineLogic m_Logic;
