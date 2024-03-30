@@ -15,7 +15,6 @@ AME_MAIN(Argc, Argv)
     Log::Client().Error("Goodbye, World!");
 
     HeadlessApplication<BaseEngine>::Builder()
-        .Name("Log")
         .Build()
         .Close()
         .Run();

@@ -16,7 +16,7 @@ namespace Ame::Rhi
     class Device::Impl : public NonCopyable, public NonMovable
     {
     public:
-        Impl(
+        explicit Impl(
             const DeviceCreateDesc& Desc);
 
         ~Impl();

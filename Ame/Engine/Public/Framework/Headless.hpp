@@ -38,19 +38,27 @@ namespace Ame::Framework
     struct HeadlessApplication<EngineType>::Builder
     {
     public:
-        auto& Name(const char* Val)
+        auto& Runtime(
+            Ptr<Co::runtime> Runtime)
         {
-            m_Name = Val;
+            m_Runtime = std::move(Runtime);
             return *this;
         }
 
+    public:
         template<typename... ArgsTy>
-        [[nodiscard]] HeadlessApplication Build(ArgsTy&&... Args)
+        [[nodiscard]] HeadlessApplication Build(
+            ArgsTy&&... Args)
         {
-            return { Rhi::Device{}, std::forward<ArgsTy>(Args)... };
+            if (!m_Runtime)
+            {
+                m_Runtime = std::make_shared<Co::runtime>();
+            }
+
+            return { Rhi::Device{}, std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
         }
 
     private:
-        const char* m_Name = "Ame";
+        Ptr<Co::runtime> m_Runtime;
     };
 } // namespace Ame::Framework

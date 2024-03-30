@@ -26,7 +26,7 @@ namespace Ame::Rhi
         Count
     };
 
-    struct RhiWindowDesc
+    struct WindowDesc
     {
         Windowing::WindowDesc Window;
 
@@ -51,7 +51,7 @@ namespace Ame::Rhi
         /// <summary>
         /// A headless device is a device that does not create a window.
         /// </summary>
-        std::optional<RhiWindowDesc> Window;
+        std::optional<WindowDesc> Window;
 
         /// <summary>
         /// VK only.

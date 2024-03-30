@@ -5,3 +5,6 @@ endfunction()
 
 msg_add_subdirectory(SimpleLog)
 msg_add_subdirectory(SimpleWindow)
+msg_add_subdirectory(MultiEngine)
+msg_add_subdirectory(MultiRhi_OneEngine)
+msg_add_subdirectory(MultiRhi_MultiEngine)

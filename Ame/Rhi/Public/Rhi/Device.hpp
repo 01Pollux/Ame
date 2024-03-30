@@ -23,7 +23,7 @@ namespace Ame::Rhi
     public:
         Device();
 
-        Device(
+        explicit Device(
             const DeviceCreateDesc& Desc);
 
         Device(const Device&)            = delete;

@@ -209,7 +209,7 @@ namespace Ame::Framework
         {
             if (!m_RhiDesc.Window.has_value()) [[unlikely]]
             {
-                m_RhiDesc.Window = Rhi::RhiWindowDesc{};
+                m_RhiDesc.Window = Rhi::WindowDesc{};
             }
         }
 

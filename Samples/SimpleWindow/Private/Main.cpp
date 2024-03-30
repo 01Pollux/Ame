@@ -11,7 +11,6 @@ AME_MAIN(Argc, Argv)
 
     WindowApplication<BaseEngine>::Builder()
         .Title("Simple Window")
-        .RendererBackend(Rhi::DeviceType::DirectX12)
         .Build()
         .Run();
 }

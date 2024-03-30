@@ -16,7 +16,7 @@ namespace Ame::Windowing
     class Window : public NonCopyable
     {
     public:
-        Window(
+        explicit Window(
             const WindowDesc& Desc);
 
         Window(Window&& Other) noexcept :
