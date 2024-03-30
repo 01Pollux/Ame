@@ -21,6 +21,7 @@ namespace Ame::Framework
     {                                        \
         Ame::Framework::Main(Argc, Argv);    \
         Ame::Log::Logger::CloseAllLoggers(); \
+        Ame::Rhi::Device::CleanupCheck();    \
         return 0;                            \
     }
 

@@ -19,6 +19,15 @@ namespace Ame::Rhi
     Device::~Device() = default;
 
     //
+    
+    void Device::CleanupCheck()
+    {
+#ifndef AME_DIST
+        Device::Impl::CleanupCheck();
+#endif
+    }
+
+    //
 
     GraphicsAPI Device::GetGraphicsAPI() const
     {

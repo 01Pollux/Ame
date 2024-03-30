@@ -177,6 +177,14 @@ namespace Ame::Framework
         }
 
     public:
+        auto& Runtime(
+            Ptr<Co::runtime> Runtime)
+        {
+            m_Runtime = std::move(Runtime);
+            return *this;
+        }
+
+    public:
         template<typename... ArgsTy>
         [[nodiscard]] WindowApplication Build(
             ArgsTy&&... Args)
@@ -185,8 +193,12 @@ namespace Ame::Framework
             {
                 m_RhiDesc.SetFirstAdapter();
             }
+            if (!m_Runtime)
+            {
+                m_Runtime = std::make_shared<Co::runtime>();
+            }
 
-            return { Rhi::Device{ m_RhiDesc }, std::forward<ArgsTy>(Args)... };
+            return { Rhi::Device{ m_RhiDesc }, std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
         }
 
     private:
@@ -203,5 +215,6 @@ namespace Ame::Framework
 
     private:
         Rhi::DeviceCreateDesc m_RhiDesc;
+        Ptr<Co::runtime>      m_Runtime;
     };
 } // namespace Ame::Framework

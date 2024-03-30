@@ -1,8 +1,11 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+
 #include <Engine/Logic.hpp>
 #include <Engine/Timer.hpp>
+
+#include <concurrencpp/concurrencpp.h>
 #include <Rhi/Device.hpp>
 
 namespace Ame
@@ -12,7 +15,8 @@ namespace Ame
     {
     public:
         BaseEngine(
-            Rhi::Device RhiDevice);
+            Rhi::Device      RhiDevice,
+            Ptr<Co::runtime> Runtime);
 
         virtual ~BaseEngine();
 
@@ -53,9 +57,10 @@ namespace Ame
         /// </summary>
         void HeadlessLoop();
 
-    private:
-        EngineTimer m_Timer;
-        Rhi::Device m_RhiDevice;
-        EngineLogic m_Logic;
+    protected:
+        EngineTimer      m_Timer;
+        Ptr<Co::runtime> m_Runtime;
+        Rhi::Device      m_RhiDevice;
+        EngineLogic      m_Logic;
     };
 } // namespace Ame

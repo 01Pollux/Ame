@@ -5,8 +5,10 @@
 namespace Ame
 {
     BaseEngine::BaseEngine(
-        Rhi::Device RhiDevice) :
-        m_RhiDevice(std::move(RhiDevice))
+        Rhi::Device      RhiDevice,
+        Ptr<Co::runtime> Runtime) :
+        m_RhiDevice(std::move(RhiDevice)),
+        m_Runtime(std::move(Runtime))
     {
     }
 
@@ -50,6 +52,7 @@ namespace Ame
     {
         while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
         {
+            m_Timer.Tick();
             m_RhiDevice.BeginFrame();
             m_Logic.Tick(m_Timer, &m_RhiDevice);
             m_RhiDevice.EndFrame();
@@ -60,6 +63,7 @@ namespace Ame
     {
         while (m_Logic.IsRunning())
         {
+            m_Timer.Tick();
             m_Logic.Tick(m_Timer);
         }
     }

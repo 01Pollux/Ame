@@ -39,6 +39,10 @@ namespace Ame::Rhi
     Device::Impl::~Impl()
     {
         ClearResources();
+    }
+
+    void Device::Impl::CleanupCheck()
+    {
 #ifndef AME_DIST
         nri::nriReportLiveObjects();
 #endif

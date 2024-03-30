@@ -23,6 +23,12 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Check for any leaked rhi objects.
+        /// </summary>
+        static void CleanupCheck();
+
+    public:
+        /// <summary>
         /// Get the graphics API used by the device.
         /// </summary>
         [[nodiscard]] GraphicsAPI GetGraphicsAPI() const;
