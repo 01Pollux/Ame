@@ -14,6 +14,7 @@ namespace Ame::Rhi
         void Initialize(
             nri::CoreInterface& NriCore,
             nri::Device&        RhiDevice,
+            nri::CommandQueue&  CommandQueue,
             uint32_t            FramesInFlightCount);
 
         void Shutdown(

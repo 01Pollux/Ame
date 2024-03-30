@@ -20,6 +20,7 @@ namespace Ame::Rhi
         void Initialize(
             nri::CoreInterface& NriCore,
             nri::Device&        RhiDevice,
+            nri::CommandQueue&  GraphicsQueue,
             uint32_t            FramesInFlightCount);
 
         /// <summary>
@@ -28,15 +29,27 @@ namespace Ame::Rhi
         void Shutdown(
             nri::CoreInterface& NriCore);
 
+        /// <summary>
+        /// Sync the swapchain.
+        /// </summary>
+        /// <param name="GraphicsQueue"></param>
         void Sync(
             nri::CoreInterface& NriCore);
 
+        /// <summary>
+        /// Start a new frame and cleanup pending resources.
+        /// </summary>
         void NewFrame(
-            uint32_t FrameIndex);
+            nri::CoreInterface& NriCore,
+            uint32_t            FrameIndex);
 
+        /// <summary>
+        /// End the frame.
+        /// </summary>
         void EndFrame(
             nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue);
+            nri::CommandQueue&  GraphicsQueue,
+            uint32_t            FrameIndex);
 
         void Release(
             uint32_t FrameIndex);

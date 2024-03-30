@@ -1,4 +1,4 @@
-#include "FrameManager.hpp"
+#include "FrameWrapper.hpp"
 
 #include "../NriError.hpp"
 
@@ -7,9 +7,15 @@ namespace Ame::Rhi
     void FrameWrapper::Initialize(
         nri::CoreInterface& NriCore,
         nri::Device&        RhiDevice,
+        nri::CommandQueue&  GraphicsQueue,
         uint32_t            FramesInFlightCount)
     {
-        Frames                    = std::make_unique<Frame[]>(FramesInFlightCount);
+        Frames = std::make_unique<Frame[]>(FramesInFlightCount);
+        for (uint32_t i = 0; i < FramesInFlightCount; i++)
+        {
+            Frames[i].Initialize(NriCore, GraphicsQueue);
+        }
+
         this->FramesInFlightCount = FramesInFlightCount;
         ThrowIfFailed(NriCore.CreateFence(RhiDevice, FenceValue, Fence), "Failed to create a frame fence");
     }
@@ -17,6 +23,10 @@ namespace Ame::Rhi
     void FrameWrapper::Shutdown(
         nri::CoreInterface& NriCore)
     {
+        for (uint32_t i = 0; i < FramesInFlightCount; i++)
+        {
+            Frames[i].Shutdown(NriCore);
+        }
         NriCore.DestroyFence(*Fence);
         Fence = nullptr;
     }
@@ -33,30 +43,38 @@ namespace Ame::Rhi
     //
 
     void FrameWrapper::NewFrame(
-        uint32_t FrameIndex)
+        nri::CoreInterface& NriCore,
+        uint32_t            FrameIndex)
     {
-        auto& Frame = Frames[FrameIndex];
+        auto& CurFrame = Frames[FrameIndex];
+        CurFrame.NewFrame(NriCore);
     }
 
     void FrameWrapper::EndFrame(
         nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue)
+        nri::CommandQueue&  GraphicsQueue,
+        uint32_t            FrameIndex)
     {
+        auto& CurFrame      = Frames[FrameIndex];
+        auto  CommandBuffer = CurFrame.EndFrame(NriCore);
+
         nri::FenceSubmitDesc FenceDesc{
             .fence = Fence,
             .value = ++FenceValue
         };
 
         nri::QueueSubmitDesc SubmitDesc{
-            .signalFences   = &FenceDesc,
-            .signalFenceNum = 1,
+            .commandBuffers   = &CommandBuffer,
+            .commandBufferNum = 1,
+            .signalFences     = &FenceDesc,
+            .signalFenceNum   = 1,
         };
         NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
     }
 
     void FrameWrapper::Release(
-        uint32_t                 FrameIndex)
+        uint32_t FrameIndex)
     {
-        auto& Frame = Frames[FrameIndex];
+        auto& CurFrame = Frames[FrameIndex];
     }
 } // namespace Ame::Rhi

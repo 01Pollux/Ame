@@ -26,7 +26,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert(m_Device != nullptr, "Failed to create device");
         Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
 
-        m_FrameManager.Initialize(*m_NRI.GetCoreInterface(), *m_Device, Desc.FramesInFlight);
+        m_FrameManager.Initialize(*m_NRI.GetCoreInterface(), *m_Device, *m_CommandQueue, Desc.FramesInFlight);
         if (Desc.Window)
         {
             m_WindowManager = std::make_unique<WindowManager>(m_NRI, *m_Device, *m_CommandQueue, Desc);

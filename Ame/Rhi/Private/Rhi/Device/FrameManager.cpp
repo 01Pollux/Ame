@@ -6,9 +6,10 @@ namespace Ame::Rhi
     void FrameManager::Initialize(
         nri::CoreInterface& NriCore,
         nri::Device&        RhiDevice,
-        uint32_t            FramesInFlightCount) 
+        nri::CommandQueue&  CommandQueue,
+        uint32_t            FramesInFlightCount)
     {
-        m_FrameWrapper.Initialize(NriCore, RhiDevice, FramesInFlightCount);
+        m_FrameWrapper.Initialize(NriCore, RhiDevice, CommandQueue, FramesInFlightCount);
     }
 
     void FrameManager::Shutdown(
@@ -23,14 +24,14 @@ namespace Ame::Rhi
         nri::CoreInterface& NriCore)
     {
         m_FrameWrapper.Sync(NriCore);
-        m_FrameWrapper.NewFrame(GetFrameIndex());
+        m_FrameWrapper.NewFrame(NriCore, GetFrameIndex());
     }
 
     void FrameManager::EndFrame(
         nri::CoreInterface& NriCore,
         nri::CommandQueue&  GraphicsQueue)
     {
-        m_FrameWrapper.EndFrame(NriCore, GraphicsQueue);
+        m_FrameWrapper.EndFrame(NriCore, GraphicsQueue, GetFrameIndex());
     }
 
     void FrameManager::FlushIdle()
