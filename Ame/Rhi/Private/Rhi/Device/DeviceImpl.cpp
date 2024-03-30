@@ -274,7 +274,7 @@ namespace Ame::Rhi
         else
         {
             State.access = nri::AccessBits::COLOR_ATTACHMENT;
-            State.layout = nri::Layout::UNKNOWN;
+            State.layout = nri::Layout::COLOR_ATTACHMENT;
         }
 
         m_ResourceStateTracker.RequireState(
