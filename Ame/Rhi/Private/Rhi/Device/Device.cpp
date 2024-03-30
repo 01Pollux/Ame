@@ -13,7 +13,7 @@ namespace Ame::Rhi
     {
     }
 
-    Device::Device(Device&&) = default;
+    Device::Device(Device&&)            = default;
     Device& Device::operator=(Device&&) = default;
 
     Device::~Device() = default;
@@ -38,6 +38,30 @@ namespace Ame::Rhi
     uint8_t Device::GetFrameCountInFlight() const
     {
         return m_Impl->GetFrameCountInFlight();
+    }
+
+    //
+
+    const Math::Color4& Device::GetClearColor() const noexcept
+    {
+        return m_Impl->GetClearColor();
+    }
+
+    void Device::SetClearColor(
+        const Math::Color4& Color)
+    {
+        m_Impl->SetClearColor(Color);
+    }
+
+    BackbufferClearType Device::GetBackbufferClearType() const noexcept
+    {
+        return m_Impl->GetBackbufferClearType();
+    }
+
+    void Device::SetBackbufferClearType(
+        BackbufferClearType Type)
+    {
+        m_Impl->SetBackbufferClearType(Type);
     }
 
     //

@@ -19,6 +19,14 @@ namespace Ame::Rhi
         NriCore.DestroyCommandBuffer(*m_CommandBuffer);
         NriCore.DestroyCommandAllocator(*m_CommandAllocator);
     }
+
+    //
+
+    nri::CommandBuffer* Frame::GetCommandList() const noexcept
+    {
+        return m_CommandBuffer;
+    }
+
     //
 
     void Frame::NewFrame(
@@ -28,10 +36,9 @@ namespace Ame::Rhi
         NriCore.BeginCommandBuffer(*m_CommandBuffer, nullptr);
     }
 
-    nri::CommandBuffer* Frame::EndFrame(
+    void Frame::EndFrame(
         nri::CoreInterface& NriCore)
     {
         NriCore.EndCommandBuffer(*m_CommandBuffer);
-        return m_CommandBuffer;
     }
 } // namespace Ame::Rhi

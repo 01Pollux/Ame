@@ -24,6 +24,12 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Get the command list.
+        /// </summary>
+        [[nodiscard]] nri::CommandBuffer* GetCommandList() const noexcept;
+
+    public:
+        /// <summary>
         /// Resets the frame resource and cleans up pending resources.
         /// </summary>
         void NewFrame(
@@ -32,7 +38,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Ends the frame resource and submits the command buffer.
         /// </summary>
-        [[nodiscard]] nri::CommandBuffer* EndFrame(
+        void EndFrame(
             nri::CoreInterface& NriCore);
 
     private:

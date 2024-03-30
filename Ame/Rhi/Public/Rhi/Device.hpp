@@ -65,6 +65,29 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Get the clear color.
+        /// </summary>
+        [[nodiscard]] const Math::Color4& GetClearColor() const noexcept;
+
+        /// <summary>
+        /// Set the clear color.
+        /// </summary>
+        void SetClearColor(
+            const Math::Color4& Color);
+
+        /// <summary>
+        /// Get the clear type for the backbuffer.
+        /// </summary>
+        [[nodiscard]] BackbufferClearType GetBackbufferClearType() const noexcept;
+
+        /// <summary>
+        /// Set the clear type for the backbuffer.
+        /// </summary>
+        void SetBackbufferClearType(
+            BackbufferClearType Type);
+
+    public:
+        /// <summary>
         /// The window of the device
         /// </summary>
         [[nodiscard]] Windowing::Window& GetWindow() const;

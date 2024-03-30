@@ -56,16 +56,27 @@ namespace Ame::Rhi
         uint32_t            FrameIndex)
     {
         auto& CurFrame      = Frames[FrameIndex];
-        auto  CommandBuffer = CurFrame.EndFrame(NriCore);
+        auto  CommandBuffer = CurFrame.GetCommandList();
 
+        CurFrame.EndFrame(NriCore);
+
+        nri::QueueSubmitDesc SubmitDesc{
+            .commandBuffers   = &CommandBuffer,
+            .commandBufferNum = 1
+        };
+        NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
+    }
+
+    void FrameWrapper::AdvanceFrame(
+        nri::CoreInterface& NriCore,
+        nri::CommandQueue&  GraphicsQueue)
+    {
         nri::FenceSubmitDesc FenceDesc{
             .fence = Fence,
             .value = ++FenceValue
         };
 
         nri::QueueSubmitDesc SubmitDesc{
-            .commandBuffers   = &CommandBuffer,
-            .commandBufferNum = 1,
             .signalFences     = &FenceDesc,
             .signalFenceNum   = 1,
         };

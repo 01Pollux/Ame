@@ -88,7 +88,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Ignored for dist builds.
         /// </summary>
-        bool EnableApiValidationLayer : 1 = false;
+        bool EnableApiValidationLayer : 1 = true;
 
         /// <summary>
         /// Enable vsync by default.

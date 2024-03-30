@@ -38,6 +38,11 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] uint8_t GetFrameCountInFlight() const;
 
+        /// <summary>
+        /// Get the current command list.
+        /// </summary>
+        [[nodiscard]] nri::CommandBuffer& GetCurrentCommandList() const noexcept;
+
     public:
         /// <summary>
         /// Mark the start of frame.
@@ -47,9 +52,16 @@ namespace Ame::Rhi
             nri::CoreInterface& NriCore);
 
         /// <summary>
-        /// Mark the end of frame.
+        /// End the frame.
         /// </summary>
         void EndFrame(
+            nri::CoreInterface& NriCore,
+            nri::CommandQueue&  GraphicsQueue);
+
+        /// <summary>
+        /// Advance to the next frame.
+        /// </summary>
+        void AdvanceFrame(
             nri::CoreInterface& NriCore,
             nri::CommandQueue&  GraphicsQueue);
 
@@ -57,15 +69,6 @@ namespace Ame::Rhi
         /// Flush all idle resources
         /// </summary>
         void FlushIdle();
-
-    public:
-        /// <summary>
-        /// Get the state tracker.
-        /// </summary>
-        [[nodiscard]] ResourceStateTracker& GetStateTracker()
-        {
-            return m_ResourceStateTracker;
-        }
 
     public:
         /// <summary>
@@ -87,7 +90,6 @@ namespace Ame::Rhi
             nri::Descriptor& NriDescriptor);
 
     private:
-        ResourceStateTracker m_ResourceStateTracker;
-        FrameWrapper         m_FrameWrapper;
+        FrameWrapper m_FrameWrapper;
     };
 } // namespace Ame::Rhi

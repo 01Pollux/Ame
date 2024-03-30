@@ -32,6 +32,8 @@ namespace Ame::Rhi
         nri::AccessStage State,
         bool             Append)
     {
+        Log::Rhi().Assert(m_CurrentStates.Buffers.contains(Buffer), "Buffer is not being tracked");
+
         if (Append)
         {
             auto& CurrentState = m_CurrentStates.Buffers[Buffer];
@@ -53,6 +55,8 @@ namespace Ame::Rhi
         nri::Dim_t             ArrayCount,
         bool                   Append)
     {
+        Log::Rhi().Assert(m_CurrentStates.Textures.contains(Texture), "Texture is not being tracked");
+
         if (Append)
         {
             auto& CurrentStates = m_CurrentStates.Textures[Texture];

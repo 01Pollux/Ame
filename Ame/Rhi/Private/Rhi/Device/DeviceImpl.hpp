@@ -52,6 +52,29 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Get the clear color.
+        /// </summary>
+        [[nodiscard]] const Math::Color4& GetClearColor() const noexcept;
+
+        /// <summary>
+        /// Set the clear color.
+        /// </summary>
+        void SetClearColor(
+            const Math::Color4& Color);
+
+        /// <summary>
+        /// Get the clear type for the backbuffer.
+        /// </summary>
+        [[nodiscard]] BackbufferClearType GetBackbufferClearType() const noexcept;
+
+        /// <summary>
+        /// Set the clear type for the backbuffer.
+        /// </summary>
+        void SetBackbufferClearType(
+            BackbufferClearType Type);
+
+    public:
+        /// <summary>
         /// The window of the device
         /// </summary>
         [[nodiscard]] Windowing::Window& GetWindow() const;
@@ -130,6 +153,11 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] nri::Device& GetDevice() noexcept;
 
+        /// <summary>
+        /// Get the current command list.
+        /// </summary>
+        [[nodiscard]] nri::CommandBuffer& GetCurrentCommandList() const noexcept;
+
     public:
         /// <summary>
         /// Begin tracking a buffer
@@ -178,6 +206,29 @@ namespace Ame::Rhi
 
     private:
         /// <summary>
+        /// Register the backbuffer state.
+        /// </summary>
+        void RegisterBackbufferState();
+
+        /// <summary>
+        /// Unregister the backbuffer state.
+        /// </summary>
+        void UnregisterBackbufferState();
+
+        /// <summary>
+        /// Transition the backbuffer to the specified state (either presenting or rendering)
+        /// </summary>
+        void TransitionBackbuffer(
+            bool Presenting);
+
+        /// <summary>
+        /// Clear the backbuffer with the specified color
+        /// </summary>
+        void ClearBackbuffer(
+            const Math::Color4& Color);
+
+    private:
+        /// <summary>
         /// Attempts to create the device.
         /// </summary>
         [[nodiscard]] bool CreateDevice(
@@ -196,11 +247,15 @@ namespace Ame::Rhi
             const DeviceCreateDesc& Desc);
 
     private:
-        NRIBridge           m_NRI;
-        UPtr<WindowManager> m_WindowManager;
-        FrameManager        m_FrameManager;
+        NRIBridge            m_NRI;
+        UPtr<WindowManager>  m_WindowManager;
+        FrameManager         m_FrameManager;
+        ResourceStateTracker m_ResourceStateTracker;
 
         nri::Device*       m_Device       = nullptr;
         nri::CommandQueue* m_CommandQueue = nullptr;
+
+        Math::Color4        m_ClearColor = Math::Colors::Magenta;
+        BackbufferClearType m_ClearType  = BackbufferClearType::Color;
     };
 } // namespace Ame::Rhi

@@ -2,6 +2,7 @@
 
 #include <Rhi/Texture.hpp>
 #include <Rhi/View.hpp>
+#include <Math/Colors.hpp>
 
 namespace Ame::Rhi
 {
@@ -9,5 +10,11 @@ namespace Ame::Rhi
     {
         Texture                  Resource;
         RenderTargetResourceView View;
+    };
+
+    enum class BackbufferClearType : uint8_t
+    {
+        None,
+        Color,
     };
 } // namespace Ame::Rhi

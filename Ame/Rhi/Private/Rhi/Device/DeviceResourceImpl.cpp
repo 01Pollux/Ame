@@ -7,30 +7,26 @@ namespace Ame::Rhi
         nri::Buffer*     Buffer,
         nri::AccessStage InitialState)
     {
-        auto& Tracker = m_FrameManager.GetStateTracker();
-        Tracker.BeginTracking(Buffer, InitialState);
+        m_ResourceStateTracker.BeginTracking(Buffer, InitialState);
     }
 
     void Device::Impl::BeginTracking(
         nri::Texture*          Texture,
         nri::AccessLayoutStage InitialState)
     {
-        auto& Tracker = m_FrameManager.GetStateTracker();
-        Tracker.BeginTracking(*m_NRI.GetCoreInterface(), Texture, InitialState);
+        m_ResourceStateTracker.BeginTracking(*m_NRI.GetCoreInterface(), Texture, InitialState);
     }
 
     void Device::Impl::EndTracking(
         nri::Buffer* Buffer)
     {
-        auto& Tracker = m_FrameManager.GetStateTracker();
-        Tracker.EndTracking(Buffer);
+        m_ResourceStateTracker.EndTracking(Buffer);
     }
 
     void Device::Impl::EndTracking(
         nri::Texture* Texture)
     {
-        auto& Tracker = m_FrameManager.GetStateTracker();
-        Tracker.EndTracking(Texture);
+        m_ResourceStateTracker.EndTracking(Texture);
     }
 
     //

@@ -30,6 +30,7 @@ namespace Ame::Rhi
         if (Desc.Window)
         {
             m_WindowManager = std::make_unique<WindowManager>(m_NRI, *m_Device, *m_CommandQueue, Desc);
+            RegisterBackbufferState();
         }
 
         SuppressWarningsIfNeeded(Desc);
@@ -73,6 +74,30 @@ namespace Ame::Rhi
     uint8_t Device::Impl::GetFrameCountInFlight() const
     {
         return m_FrameManager.GetFrameCountInFlight();
+    }
+
+    //
+
+    const Math::Color4& Device::Impl::GetClearColor() const noexcept
+    {
+        return m_ClearColor;
+    }
+
+    void Device::Impl::SetClearColor(
+        const Math::Color4& Color)
+    {
+        m_ClearColor = Color;
+    }
+
+    BackbufferClearType Device::Impl::GetBackbufferClearType() const noexcept
+    {
+        return m_ClearType;
+    }
+
+    void Device::Impl::SetBackbufferClearType(
+        BackbufferClearType Type)
+    {
+        m_ClearType = Type;
     }
 
     //
@@ -148,7 +173,9 @@ namespace Ame::Rhi
             if (m_WindowManager->IsDirty()) [[likely]]
             {
                 WaitIdle();
+                UnregisterBackbufferState();
                 m_WindowManager->RecreateSwapchain(*m_Device, *m_CommandQueue);
+                RegisterBackbufferState();
             }
         }
 
@@ -157,17 +184,31 @@ namespace Ame::Rhi
         if (!IsHeadless()) [[likely]]
         {
             m_WindowManager->NewFrame();
+            TransitionBackbuffer(false);
+            if (m_ClearType != BackbufferClearType::None)
+            {
+                ClearBackbuffer(m_ClearColor);
+            }
         }
     }
 
     void Device::Impl::EndFrame()
     {
+        auto NriCore = m_NRI.GetCoreInterface();
+
+        if (!IsHeadless()) [[likely]]
+        {
+            TransitionBackbuffer(true);
+        }
+
+        m_FrameManager.EndFrame(*NriCore, *m_CommandQueue);
+
         if (!IsHeadless()) [[likely]]
         {
             m_WindowManager->Present();
         }
 
-        m_FrameManager.EndFrame(*m_NRI.GetCoreInterface(), *m_CommandQueue);
+        m_FrameManager.AdvanceFrame(*NriCore, *m_CommandQueue);
     }
 
     //
@@ -188,6 +229,84 @@ namespace Ame::Rhi
     nri::Device& Device::Impl::GetDevice() noexcept
     {
         return *m_Device;
+    }
+
+    nri::CommandBuffer& Device::Impl::GetCurrentCommandList() const noexcept
+    {
+        return m_FrameManager.GetCurrentCommandList();
+    }
+
+    //
+
+    void Device::Impl::RegisterBackbufferState()
+    {
+        auto NriCore = m_NRI.GetCoreInterface();
+
+        nri::AccessLayoutStage State{ nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL };
+        for (uint32_t i = 0; i < GetBackbufferCount(); i++)
+        {
+            m_ResourceStateTracker.BeginTracking(*NriCore, GetBackbuffer(i).Resource.Unwrap(), State);
+        }
+    }
+
+    void Device::Impl::UnregisterBackbufferState()
+    {
+        auto NriCore = m_NRI.GetCoreInterface();
+        for (uint32_t i = 0; i < GetBackbufferCount(); i++)
+        {
+            m_ResourceStateTracker.EndTracking(GetBackbuffer(i).Resource.Unwrap());
+        }
+    }
+
+    void Device::Impl::TransitionBackbuffer(
+        bool Present)
+    {
+        auto  NriCore        = m_NRI.GetCoreInterface();
+        auto& CurCommandList = GetCurrentCommandList();
+        auto  CurBackbuffer  = GetBackbuffer();
+
+        nri::AccessLayoutStage State{ .stages = nri::StageBits::ALL };
+        if (Present)
+        {
+            State.access = nri::AccessBits::UNKNOWN;
+            State.layout = nri::Layout::PRESENT;
+        }
+        else
+        {
+            State.access = nri::AccessBits::COLOR_ATTACHMENT;
+            State.layout = nri::Layout::UNKNOWN;
+        }
+
+        m_ResourceStateTracker.RequireState(
+            *NriCore,
+            CurBackbuffer.Resource.Unwrap(),
+            State);
+
+        m_ResourceStateTracker.CommitBarriers(*NriCore, CurCommandList);
+    }
+
+    void Device::Impl::ClearBackbuffer(
+        const Math::Color4& Color)
+    {
+        auto  NriCore           = m_NRI.GetCoreInterface();
+        auto& CurCommandList    = GetCurrentCommandList();
+        auto  CurBackbuffer     = GetBackbuffer();
+        auto  CurBackbufferView = CurBackbuffer.View.Unwrap();
+
+        nri::ClearDesc Clears{
+            .value{ .color32f{ m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a } },
+            .attachmentContentType = nri::AttachmentContentType::COLOR
+        };
+
+        nri::AttachmentsDesc Attachments{
+            .colors   = &CurBackbufferView,
+            .colorNum = 1
+        };
+
+        // TODO: CommandList aware of last rendering pass
+        NriCore->CmdBeginRendering(CurCommandList, Attachments);
+        NriCore->CmdClearAttachments(CurCommandList, &Clears, 1, nullptr, 0);
+        NriCore->CmdEndRendering(CurCommandList);
     }
 
     //
@@ -259,7 +378,11 @@ namespace Ame::Rhi
 
         WaitIdle();
 
-        m_WindowManager.reset();
+        if (m_WindowManager)
+        {
+            UnregisterBackbufferState();
+            m_WindowManager.reset();
+        }
         if (auto NriCore = m_NRI.GetCoreInterface())
         {
             m_FrameManager.Shutdown(*NriCore);

@@ -51,6 +51,13 @@ namespace Ame::Rhi
             nri::CommandQueue&  GraphicsQueue,
             uint32_t            FrameIndex);
 
+        /// <summary>
+        /// Advance to the next frame.
+        /// </summary>
+        void AdvanceFrame(
+            nri::CoreInterface& NriCore,
+            nri::CommandQueue&  GraphicsQueue);
+
         void Release(
             uint32_t FrameIndex);
     };

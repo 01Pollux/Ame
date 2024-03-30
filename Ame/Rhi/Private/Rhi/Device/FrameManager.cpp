@@ -34,6 +34,13 @@ namespace Ame::Rhi
         m_FrameWrapper.EndFrame(NriCore, GraphicsQueue, GetFrameIndex());
     }
 
+    void FrameManager::AdvanceFrame(
+        nri::CoreInterface& NriCore,
+        nri::CommandQueue&  GraphicsQueue)
+    {
+        m_FrameWrapper.AdvanceFrame(NriCore, GraphicsQueue);
+    }
+
     void FrameManager::FlushIdle()
     {
         for (uint32_t i = 0; i < m_FrameWrapper.FramesInFlightCount; ++i)
@@ -74,5 +81,10 @@ namespace Ame::Rhi
     uint8_t FrameManager::GetFrameCountInFlight() const
     {
         return m_FrameWrapper.FramesInFlightCount;
+    }
+
+    nri::CommandBuffer& FrameManager::GetCurrentCommandList() const noexcept
+    {
+        return *m_FrameWrapper.Frames[GetFrameIndex()].GetCommandList();
     }
 } // namespace Ame::Rhi
