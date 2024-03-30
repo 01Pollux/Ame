@@ -5,6 +5,8 @@
 
 #include <Log/Wrapper.hpp>
 
+static constexpr uint32_t NumberOfApps = 5;
+
 using namespace Ame;
 
 class MutliEngineSample : public BaseEngine
@@ -47,19 +49,21 @@ AME_MAIN(Argc, Argv)
     auto Executor = Runtime->thread_pool_executor();
 
     std::vector<Co::result<void>> Tasks;
-    Tasks.reserve(2);
+    Tasks.reserve(NumberOfApps);
 
-    for (size_t i = 0; i < 2; i++)
+    for (size_t i = 0; i < NumberOfApps; i++)
     {
         StringU8 Name = StringUtils::Format("Sample {}", i);
         Tasks.emplace_back(Executor->submit(
             [Runtime, Name]
-            { WindowApplication<MutliEngineSample>::Builder()
-                  .Title(Name.c_str())
-                  .Runtime(std::move(Runtime))
-                  .RendererBackend(Rhi::DeviceType::DirectX12)
-                  .Build()
-                  .Run(); }));
+            {
+                WindowApplication<MutliEngineSample>::Builder()
+                    .Title(Name.c_str())
+                    .Runtime(std::move(Runtime))
+                    .RendererBackend(Rhi::DeviceType::DirectX12)
+                    .Build()
+                    .Run();
+            }));
     }
 
     Co::when_all(Executor, Tasks.begin(), Tasks.end()).run().get();
