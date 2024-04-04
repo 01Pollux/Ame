@@ -8,14 +8,12 @@ namespace Ame::Rhi
     class Texture
     {
     public:
-        Texture() = default;
-
         Texture(
             Device&            RhiDevice,
             const TextureDesc& Desc);
 
         explicit Texture(
-            nri::Texture* Tex) :
+            nri::Texture* Tex = nullptr) :
             m_Texture(Tex)
         {
         }

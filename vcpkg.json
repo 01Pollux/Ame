@@ -2,6 +2,7 @@
   "dependencies": [
     "assimp",
     "boost-core",
+    "boost-iostreams",
     "boost-filesystem",
     "boost-program-options",
     "boost-property-tree",

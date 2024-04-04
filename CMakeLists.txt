@@ -172,6 +172,7 @@ find_package(spdlog REQUIRED)
 find_package(magic_enum REQUIRED)
 find_package(Boost COMPONENTS REQUIRED
 		program_options
+		iostreams
         serialization
         filesystem)
 find_package(cryptopp REQUIRED)

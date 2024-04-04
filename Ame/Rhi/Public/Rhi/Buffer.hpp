@@ -8,14 +8,12 @@ namespace Ame::Rhi
     class Buffer
     {
     public:
-        Buffer() = default;
-
         Buffer(
             Device&           RhiDevice,
             const BufferDesc& Desc);
 
         explicit Buffer(
-            nri::Buffer* Buf) :
+            nri::Buffer* Buf = nullptr) :
             m_Buffer(Buf)
         {
         }

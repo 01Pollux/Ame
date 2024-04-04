@@ -18,7 +18,7 @@ namespace Ame
     void EngineLogic::Initialize()
     {
     }
-    
+
     void EngineLogic::Shutdown()
     {
     }

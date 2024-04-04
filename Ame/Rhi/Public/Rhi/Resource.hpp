@@ -2,15 +2,197 @@
 
 #include <Core/Enum.hpp>
 #include <Math/Vector.hpp>
+#include <IO/MemStream.hpp>
 
 namespace Ame::Rhi
 {
     class Device;
+    class PipelineLayout;
 
-    using BufferUsageBits  = nri::BufferUsageBits;
-    using TextureType      = nri::TextureType;
-    using TextureUsageBits = nri::TextureUsageBits;
-    using ResourceFormat   = nri::Format;
+    using BufferUsageBits      = nri::BufferUsageBits;
+    using TextureType          = nri::TextureType;
+    using TextureUsageBits     = nri::TextureUsageBits;
+    using ResourceFormat       = nri::Format;
+    using IndexType            = nri::IndexType;
+    using Viewport             = nri::Viewport;
+    using Scissor              = nri::Rect;
+    using StageBits            = nri::StageBits;
+    using ShaderType           = nri::StageBits;
+    using TopologyType         = nri::Topology;
+    using PrimitiveRestartType = nri::PrimitiveRestart;
+    using FillMode             = nri::FillMode;
+    using CullMode             = nri::CullMode;
+    using BlendFactor          = nri::BlendFactor;
+    using BlendFunc            = nri::BlendFunc;
+    using ColorWriteBits       = nri::ColorWriteBits;
+    using CompareFunc          = nri::CompareFunc;
+    using StencilFunc          = nri::StencilFunc;
+    using LogicFunc            = nri::LogicFunc;
+    using VertexStreamStepRate = nri::VertexStreamStepRate;
+    using DescriptorType       = nri::DescriptorType;
+
+    //
+
+    struct DescriptorRangeDesc
+    {
+        uint32_t       Register;
+        uint32_t       Count;
+        DescriptorType Type;
+        StageBits      Stages;
+        bool           DynamicSize = false;
+        bool           Array       = false;
+    };
+
+    struct DynamicConstantBufferDesc
+    {
+        uint32_t  Register;
+        StageBits Stages;
+    };
+
+    struct DescriptorSetDesc
+    {
+        uint32_t                             RegisterSpace;
+        std::span<DescriptorRangeDesc>       Ranges;
+        std::span<DynamicConstantBufferDesc> DynamicConstantBuffers;
+        bool                                 PartiallyBound = false;
+    };
+
+    struct PushConstantDesc
+    {
+        uint32_t  Register;
+        uint32_t  Size;
+        StageBits Stages;
+    };
+
+    struct PipelineLayoutDesc
+    {
+        std::span<DescriptorSetDesc> DescriptorSets;
+        std::span<PushConstantDesc>  PushConstants;
+    };
+
+    //
+
+    struct VertexAttributeDesc
+    {
+        const char*    HlslSemantic = nullptr;
+        ResourceFormat Format;
+        uint8_t        HlslSemanticIndex = 0;
+        uint8_t        VkLocation;
+        uint32_t       Offset;
+        uint16_t       StreamIndex = 0;
+    };
+
+    struct VertexStreamDesc
+    {
+        uint32_t             Stride;
+        uint32_t             BindingSlot;
+        VertexStreamStepRate StepRate = VertexStreamStepRate::PER_VERTEX;
+    };
+
+    struct VertexInputDesc
+    {
+        std::span<VertexAttributeDesc> Attributes;
+        std::span<VertexStreamDesc>    Streams;
+    };
+
+    struct InputAssemblyDesc
+    {
+        TopologyType         Topoly;
+        uint8_t              TessControlPointNum = 0;
+        PrimitiveRestartType PrimitiveRestart    = PrimitiveRestartType::DISABLED;
+    };
+
+    struct RasterizationDesc
+    {
+        uint32_t ViewportNum;
+        float    DepthBias                 = 0.f;
+        float    DepthBiasClamp            = 0.f;
+        float    DepthBiasSlopeFactor      = 0.f;
+        FillMode Fill                      = FillMode::SOLID;
+        CullMode Cull                      = CullMode::BACK;
+        bool     FrontCounterClockwise     = false;
+        bool     DepthClamp                = false;
+        bool     AntialiasedLines          = false; // Requires "isLineSmoothingSupported"
+        bool     ConservativeRasterization = false; // Requires "conservativeRasterTier > 0"
+    };
+
+    struct MultisampleDesc
+    {
+        uint32_t SampleMask                  = 0;
+        uint8_t  SampleNum                   = 1;
+        bool     AlphaToCoverageEnable       = false;
+        bool     ProgrammableSampleLocations = false; // Requires "isSampleLocationSupported"
+    };
+
+    struct BlendingDesc
+    {
+        BlendFactor Src  = BlendFactor::ONE;
+        BlendFactor Dst  = BlendFactor::ZERO;
+        BlendFunc   Func = BlendFunc::ADD;
+    };
+
+    struct RenderTargetDesc
+    {
+        ResourceFormat Format;
+        BlendingDesc   Color;
+        BlendingDesc   Alpha;
+        ColorWriteBits WriteMask;
+        bool           BlendEnable = false;
+    };
+
+    struct DepthTargetDesc
+    {
+        CompareFunc Func                 = CompareFunc::LESS;
+        bool        WriteEnable      : 1 = false;
+        bool        BoundsTestEnable : 1 = false; // Requires "isDepthBoundsTestSupported", expects "CmdSetDepthBounds"
+    };
+
+    struct StencilDesc
+    {
+        CompareFunc Func        = CompareFunc::ALWAYS;
+        StencilFunc OnFail      = StencilFunc::KEEP;
+        StencilFunc OnDepthFail = StencilFunc::KEEP;
+        StencilFunc OnPass      = StencilFunc::KEEP;
+        uint8_t     WriteMask   = 0xFF;
+        uint8_t     CompareMask = 0xFF;
+    };
+
+    struct StencilTargetDesc
+    {
+        StencilDesc Front;
+        StencilDesc Back;
+    };
+
+    struct OutputMergerDesc
+    {
+        std::span<RenderTargetDesc> RenderTargets;
+        ResourceFormat              DepthStencilFormat = ResourceFormat::UNKNOWN;
+        DepthTargetDesc             DepthTarget;
+        StencilTargetDesc           StencilTarget;
+        LogicFunc                   ColorLogicFunc = LogicFunc::NONE;
+    };
+
+    struct ShaderDesc
+    {
+        IO::MemDeviceView Bytecode;
+        ShaderType        Type;
+    };
+
+    struct GraphicsPipelineDesc
+    {
+        const PipelineLayout* Layout = nullptr;
+
+        InputAssemblyDesc InputAssembly;
+        RasterizationDesc Rasterizer;
+        OutputMergerDesc  OutputMerger;
+
+        std::span<ShaderDesc> Shaders;
+
+        // Optional
+        VertexInputDesc* VertexInput = nullptr;
+        // Optional
+        const MultisampleDesc* Multisample = nullptr;
+    };
 
     //
 

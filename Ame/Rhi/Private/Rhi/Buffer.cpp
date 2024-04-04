@@ -53,13 +53,4 @@ namespace Ame::Rhi
     {
         return RhiDevice.GetNative(*m_Buffer);
     }
-
-    //
-
-    BufferResourceView Buffer::CreateView(
-        Device&               RhiDevice,
-        const BufferViewDesc& Desc) const
-    {
-        return BufferResourceView(RhiDevice.CreateView(*m_Buffer, Desc));
-    }
 } // namespace Ame::Rhi

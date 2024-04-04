@@ -7,10 +7,8 @@ namespace Ame::Rhi
     class ResourceView
     {
     public:
-        ResourceView() = default;
-
         explicit ResourceView(
-            nri::Descriptor* View) :
+            nri::Descriptor* View = nullptr) :
             m_Descriptor(View)
         {
         }
