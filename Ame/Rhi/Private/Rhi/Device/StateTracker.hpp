@@ -1,6 +1,10 @@
 #pragma once
 
-#include <NRI.h>
+#include <vector>
+#include <unordered_map>
+#include <type_traits>
+
+#include "../Nri/Nri.hpp"
 
 namespace Ame::Rhi
 {

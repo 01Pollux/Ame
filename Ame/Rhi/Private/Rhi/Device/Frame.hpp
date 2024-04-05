@@ -1,7 +1,7 @@
 #pragma once
 
-#include <NRI.h>
 #include <Rhi/Core.hpp>
+#include "../Nri/Nri.hpp"
 
 namespace Ame::Rhi
 {

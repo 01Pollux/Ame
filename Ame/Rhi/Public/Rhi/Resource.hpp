@@ -3,6 +3,10 @@
 #include <Core/Enum.hpp>
 #include <Math/Vector.hpp>
 #include <IO/MemStream.hpp>
+#include <span>
+
+#include <NRI/NRI.h>
+#include <NRI/NRIDescs.h>
 
 namespace Ame::Rhi
 {

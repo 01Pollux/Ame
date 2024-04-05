@@ -1,6 +1,6 @@
 #include "Bridge.hpp"
-#include <NRIDescs.h>
 
+#include "../Nri/Nri.hpp"
 #include "../NriError.hpp"
 
 namespace Ame::Rhi

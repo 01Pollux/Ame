@@ -3,6 +3,7 @@
 #include <Rhi/Core.hpp>
 #include <Window/Desc.hpp>
 #include <concurrencpp/concurrencpp.h>
+#include <NRI/NRI.h>
 
 namespace Ame::Rhi
 {

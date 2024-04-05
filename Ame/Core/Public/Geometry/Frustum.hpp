@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geometry/Common.hpp>
+#include <array>
 
 namespace Ame::Geometry
 {

@@ -1,4 +1,5 @@
 #include <Rhi/Texture.hpp>
+#include <Rhi/Device.hpp>
 
 #include "NriError.hpp"
 

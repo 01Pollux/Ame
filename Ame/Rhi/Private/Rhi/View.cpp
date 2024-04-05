@@ -1,4 +1,5 @@
 #include <Rhi/View.hpp>
+#include <Rhi/Device.hpp>
 
 #include "NriError.hpp"
 

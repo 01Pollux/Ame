@@ -1,7 +1,6 @@
 #include <Rhi/DeviceCreateDesc.hpp>
-#include <NRI.h>
-#include <Extensions/NRIDeviceCreation.h>
 
+#include "../Nri/Nri.hpp"
 #include "../NriError.hpp"
 
 namespace Ame::Rhi

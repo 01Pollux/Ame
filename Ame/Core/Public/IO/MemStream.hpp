@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/iostreams/categories.hpp>
+#include <ios>
 
 namespace Ame::IO
 {

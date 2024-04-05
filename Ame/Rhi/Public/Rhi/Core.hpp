@@ -1,6 +1,5 @@
 #pragma once
 
-#include <NRIDescs.h>
 #include <Core/Ame.hpp>
 
 namespace Ame::Rhi

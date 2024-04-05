@@ -431,8 +431,8 @@ namespace Ame::Rhi
                 InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
                 InfoQueue->Release();
             }
-        }
 #endif
+        }
 #endif
     }
 } // namespace Ame::Rhi

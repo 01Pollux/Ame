@@ -1,4 +1,5 @@
 #include <Rhi/Buffer.hpp>
+#include <Rhi/Device.hpp>
 
 #include "NriError.hpp"
 

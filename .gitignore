@@ -375,3 +375,5 @@ FodyWeavers.xsd
 
 # External dependencies
 /Deps/Externals/DxC/*
+/.vscode
+/vsxmake2022

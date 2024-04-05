@@ -1,11 +1,7 @@
 #pragma once
 
 #include <Rhi/Core.hpp>
-
-#include <NRI.h>
-#include <Extensions/NRISwapChain.h>
-#include <Extensions/NRIMeshShader.h>
-#include <Extensions/NRIRayTracing.h>
+#include "../Nri/Nri.hpp"
 
 namespace Ame::Rhi
 {

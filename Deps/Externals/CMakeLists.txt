@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 function(msg_add_subdirectory DIRECTORY)
     message(STATUS "Building ${DIRECTORY}")
     add_subdirectory(${DIRECTORY})
@@ -8,19 +10,30 @@ function(msg_include_module NAME)
     include("${NAME}.cmake")
 endfunction()
 
+function (configure_for_xmake NAME)
+    install(TARGETS NAME
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endfunction()
+
 #
 
 # Add glfw
 msg_add_subdirectory(glfw)
+configure_for_xmake(GLFW)
 
 # Add imgui
 msg_add_subdirectory(DxC)
+configure_for_xmake(DxCompiler)
 
 # Add nri
 msg_add_subdirectory(nri)
+configure_for_xmake(NRI)
 
 # Add nri
 msg_include_module(imgui)
+configure_for_xmake(imgui)
 
 #
 

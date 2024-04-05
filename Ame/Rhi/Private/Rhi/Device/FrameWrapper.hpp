@@ -1,6 +1,5 @@
 #pragma once
 
-#include <NRI.h>
 #include <Rhi/Core.hpp>
 #include "Frame.hpp"
 
