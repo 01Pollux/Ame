@@ -76,7 +76,7 @@ package("nri")
     if is_plat("macosx") then
         add_frameworks("Cocoa", "IOKit")
     elseif is_plat("windows") then
-        add_syslinks("user32", "shell32", "gdi32")
+        add_syslinks("user32", "gdi32", "dxgi", "dxguid", "d3d12")
     elseif is_plat("mingw") then
         add_syslinks("gdi32")
     elseif is_plat("linux") then
@@ -96,9 +96,9 @@ package("nri")
     add_configs("x11", {description = "Build support for X11", default = is_plat("linux"), type = "boolean"})
     add_configs("wayland", {description = "Build support for Wayland", default = false, type = "boolean"})
     add_configs("vk", {description = "Build support for Vulkan", default = true, type = "boolean"})
-    add_configs("d3d11", {description = "Build support for D3D11", default = false, type = "boolean"})
     add_configs("d3d12", {description = "Build support for D3D12", default = true, type = "boolean"})
     add_configs("agility", {description = "Path to Agility SDK", default = "", type = "string"})
+    add_configs("shared", {description = "Build shared library", default = true, type = "boolean"})
 
     on_load(function (package)
         if package:config("x11") then
@@ -107,32 +107,14 @@ package("nri")
         if package:config("wayland") then
             package:add("deps", "wayland")
         end
-        file = io.open("CMakeLists.txt", "a")
-        file:write([[
-            # Install
-
-            include(GNUInstallDirs)
-            install (TARGETS ${PROJECT_NAME} NRI_Shared NRI_Validation
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            )
-
-            install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-            install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
-        ]])
     end)
 
     on_install(function (package)
-        -- read CMakelists.txt
-        local file = io.open("CMakeLists.txt", "r")
-        local content = file:read("*all")
-        file:close()
-        print(content)
-        local configs = {};
-        table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
+        local configs = {
+            "-DNRI_ENABLE_D3D11_SUPPORT=OFF"
+        };
+        table.insert(configs, "-DDCMAKE_CONFIGURATION_TYPES=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DNRI_ENABLE_VK_SUPPORT=" .. (package:config("vk") and "ON" or "OFF"))
-        table.insert(configs, "-DNRI_ENABLE_D3D11_SUPPORT=" .. (package:config("d3d11") and "ON" or "OFF"))
         table.insert(configs, "-DNRI_ENABLE_D3D12_SUPPORT=" .. (package:config("d3d12") and "ON" or "ON"))
         table.insert(configs, "-DNRI_ENABLE_AGILITY_SDK_SUPPORT=" .. (package:config("agility")))
         table.insert(configs, "-DNRI_STATIC_LIBRARY=" .. (package:config("shared") and "OFF" or "ON"))
@@ -207,4 +189,13 @@ target("Engine")
 
     add_includedirs("Ame/Engine/Public", {public = true})
     add_deps("Rhi", {public = true})
+target_end()
+
+target("Samples.MultiEngine")
+    set_group("Ame")
+    set_kind("binary")
+    add_files("Samples/MultiEngine/**.cpp")
+    add_headerfiles("Samples/MultiEngine/**.hpp")
+
+    add_deps("Engine", {public = true})
 target_end()

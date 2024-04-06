@@ -377,3 +377,4 @@ FodyWeavers.xsd
 /Deps/Externals/DxC/*
 /.vscode
 /vsxmake2022
+/install

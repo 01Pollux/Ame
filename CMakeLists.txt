@@ -192,48 +192,4 @@ add_subdirectory(Ame)
 
 if (AME_BUILD_SAMPLES)
     add_subdirectory(Samples)
-endif ()            # Install
-
-            include(GNUInstallDirs)
-            install (TARGETS ${PROJECT_NAME} NRI_Shared NRI_Validation
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            )
-
-            install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-            install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
-                    # Install
-
-            include(GNUInstallDirs)
-            install (TARGETS ${PROJECT_NAME} NRI_Shared NRI_Validation
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            )
-
-            install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-            install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
-                    # Install
-
-            include(GNUInstallDirs)
-            install (TARGETS ${PROJECT_NAME} NRI_Shared NRI_Validation
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            )
-
-            install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-            install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
-                    # Install
-
-            include(GNUInstallDirs)
-            install (TARGETS ${PROJECT_NAME} NRI_Shared NRI_Validation
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            )
-
-            install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-            install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
-        
+endif ()

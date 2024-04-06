@@ -346,16 +346,12 @@ namespace Ame::Rhi
 
             switch (Type)
             {
-#ifdef AME_RENDERER_BUILD_DX12
             case DeviceType::DirectX12:
                 NriDeviceDesc.graphicsAPI = nri::GraphicsAPI::D3D12;
                 break;
-#endif
-#ifdef AME_RENDERER_BUILD_VULKAN
             case DeviceType::Vulkan:
                 NriDeviceDesc.graphicsAPI = nri::GraphicsAPI::VULKAN;
                 break;
-#endif
             default:
                 continue;
             }
