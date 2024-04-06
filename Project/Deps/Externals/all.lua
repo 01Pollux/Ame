@@ -1,0 +1,13 @@
+includes("glfw.lua")
+includes("nri.lua")
+
+add_requires("boost")
+add_requires("spdlog")
+add_requires("fmt")
+add_requires("flecs")
+add_requires("cryptopp")
+add_requires("magic_enum")
+add_requires("glm")
+add_requires("concurrencpp")
+add_requires("ame.glfw")
+add_requires("nri")
