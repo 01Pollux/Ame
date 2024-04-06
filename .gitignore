@@ -380,3 +380,4 @@ FodyWeavers.xsd
 /install
 /.vscode
 /.xmake
+/cmake-build-debug
