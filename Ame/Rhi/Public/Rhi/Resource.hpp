@@ -299,8 +299,8 @@ namespace Ame::Rhi
         uint64_t Size   = 0;
 
         constexpr BufferRange(
-            uint32_t Offset = 0,
-            uint32_t Size   = 0) :
+            uint64_t Offset = 0,
+            uint64_t Size   = 0) :
             Offset(Offset),
             Size(Size)
         {

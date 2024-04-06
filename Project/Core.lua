@@ -8,7 +8,7 @@ target("Core")
         "cryptopp",
         "magic_enum",
         "glm",
-        "concurrencpp",
+        "ame.concurrencpp",
         "ame.glfw",
         {public = true})
 target_end()

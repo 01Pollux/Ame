@@ -17,17 +17,17 @@
 namespace Ame::Rhi
 {
     static nri::SwapChainFormat ToSwapchainFormat(
-        SwapchainFormat Format)
+        SwapChainFormat Format)
     {
         switch (Format)
         {
-        case SwapchainFormat::BT709_G10_16BIT:
+        case SwapChainFormat::BT709_G10_16BIT:
             return nri::SwapChainFormat::BT709_G10_16BIT;
-        case SwapchainFormat::BT709_G22_8BIT:
+        case SwapChainFormat::BT709_G22_8BIT:
             return nri::SwapChainFormat::BT709_G22_8BIT;
-        case SwapchainFormat::BT709_G22_10BIT:
+        case SwapChainFormat::BT709_G22_10BIT:
             return nri::SwapChainFormat::BT709_G22_10BIT;
-        case SwapchainFormat::BT2020_G2084_10BIT:
+        case SwapChainFormat::BT2020_G2084_10BIT:
             return nri::SwapChainFormat::BT2020_G2084_10BIT;
         default:
             std::unreachable();
@@ -42,7 +42,7 @@ namespace Ame::Rhi
         const DeviceCreateDesc& Desc) :
         m_NriBridge(NriBridge),
         m_Window(Desc.Window->Window),
-        m_SwapChainFormat(ToSwapchainFormat(Desc.Window->SwapChainFormat)),
+        m_SwapChainFormat(ToSwapchainFormat(Desc.Window->Format)),
         m_BackBuffers(Desc.Window->BackbufferCount),
         m_VSyncEnabled(Desc.EnableVSync)
     {

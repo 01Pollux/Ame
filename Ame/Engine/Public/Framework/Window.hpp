@@ -75,7 +75,7 @@ namespace Ame::Framework
             bool Enable = true)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.Fullscreen = Enable;
+            m_RhiDesc.Window->Window.FullScreen = Enable;
             return *this;
         }
 
@@ -97,17 +97,19 @@ namespace Ame::Framework
 
         //
 
-        auto& SwapchainFormat(
+        auto& SwapChainFormat(
             Rhi::ResourceFormat Format)
         {
-            m_RhiDesc.SwapchainFormat = Format;
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->Format = Format;
             return *this;
         }
 
         auto& BackbufferCount(
             uint32_t Count)
         {
-            m_RhiDesc.BackbufferCount = Count;
+            TryCreateWindowDesc();
+            m_RhiDesc.Window->BackbufferCount = Count;
             return *this;
         }
 
@@ -123,14 +125,14 @@ namespace Ame::Framework
         auto& InstanceExtension(
             const char* Extension)
         {
-            m_RhiDesc.InstanceExtensions.push_back(Extension);
+            m_RequiredInstanceExtensions.push_back(Extension);
             return *this;
         }
 
         auto& DeviceExtension(
             const char* Extension)
         {
-            m_RhiDesc.DeviceExtensions.push_back(Extension);
+            m_RequiredDeviceExtensions.push_back(Extension);
             return *this;
         }
 
@@ -198,6 +200,9 @@ namespace Ame::Framework
                 m_Runtime = std::make_shared<Co::runtime>();
             }
 
+            m_RhiDesc.RequiredInstanceExtensions = m_RequiredInstanceExtensions;
+            m_RhiDesc.RequiredDeviceExtensions = m_RequiredDeviceExtensions;
+
             return { Rhi::Device{ m_RhiDesc }, std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
         }
 
@@ -216,5 +221,7 @@ namespace Ame::Framework
     private:
         Rhi::DeviceCreateDesc m_RhiDesc;
         Ptr<Co::runtime>      m_Runtime;
+        std::vector<const char*> m_RequiredInstanceExtensions;
+        std::vector<const char*> m_RequiredDeviceExtensions;
     };
 } // namespace Ame::Framework

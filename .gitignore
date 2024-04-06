@@ -378,3 +378,5 @@ FodyWeavers.xsd
 /.vscode
 /vsxmake2022
 /install
+/.vscode
+/.xmake

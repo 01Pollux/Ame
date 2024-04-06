@@ -34,7 +34,7 @@ namespace Ame::Rhi
         /// <summary>
         /// The swapchain format to use.
         /// </summary>
-        SwapchainFormat SwapChainFormat = SwapchainFormat::BT709_G22_8BIT;
+        SwapChainFormat Format = SwapChainFormat::BT709_G22_8BIT;
 
         /// <summary>
         /// Number of backbuffers.

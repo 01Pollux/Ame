@@ -155,7 +155,7 @@ namespace Ame::Rhi
     //  - G2084 - SMPTE ST.2084 (Perceptual Quantization)
     // Bits per channel:
     //  - 8, 10, 16 (float)
-    enum class SwapchainFormat : uint8_t
+    enum class SwapChainFormat : uint8_t
     {
         BT709_G10_16BIT,
         BT709_G22_8BIT,
