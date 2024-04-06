@@ -2,6 +2,7 @@ package("ame.concurrencpp")
     set_homepage("https://github.com/David-Haim/concurrencpp")
     set_description("Modern concurrency for C++. Tasks, executors, timers and C++20 coroutines to rule them all")
     set_license("MIT")
+    add_rpathdirs("$ORIGIN")
 
     add_urls("https://github.com/David-Haim/concurrencpp/archive/refs/tags/$(version).tar.gz", {version = function (version)
         return "v." .. version

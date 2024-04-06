@@ -3,7 +3,8 @@ package("nri")
     set_description("NRI is a low-level abstract render interface which currently supports three backends: D3D11, D3D12 and Vulkan (VK).")
     set_license("MIT")
     set_sourcedir(path_from_root("Deps/Externals/nri"))
-      
+    add_rpathdirs("$ORIGIN")
+
     add_deps("cmake")
     if is_plat("macosx") then
         add_frameworks("Cocoa", "IOKit")

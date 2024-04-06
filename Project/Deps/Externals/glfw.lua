@@ -3,6 +3,7 @@ package("ame.glfw")
     set_description("GLFW is an Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan application development.")
     set_license("zlib")
     set_sourcedir(path_from_root("Deps/Externals/glfw"))
+    add_rpathdirs("$ORIGIN")
 
     add_deps("cmake")
     if is_plat("macosx") then
