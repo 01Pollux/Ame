@@ -3,10 +3,11 @@
 #include <cstdint>
 #include <utility>
 
-#include <list>
+#include <EASTL/list.h>
 #include <functional>
+#include <mutex>
 
-namespace Ame::Util
+namespace Ame
 {
     static constexpr uint64_t InvalidSignalHandle = static_cast<uint64_t>(~0ull);
 
@@ -14,10 +15,13 @@ namespace Ame::Util
     class Signal
     {
     public:
-        using DelegateType = std::function<void(ArgsTy...)>;
+        using DelegateType = std::move_only_function<void(ArgsTy...)>;
 
         using CallbackDelegateData = std::pair<DelegateType, uint64_t>;
-        using CallbackDelegateList = std::list<CallbackDelegateData>;
+        using CallbackDelegateList = eastl::list<CallbackDelegateData>;
+
+        using PendingAddList  = CallbackDelegateList;
+        using PendingDropList = eastl::vector<uint64_t>;
 
     public:
         /// <summary>
@@ -27,7 +31,16 @@ namespace Ame::Util
         uint64_t Listen(
             FnTy&& Listener)
         {
-            return m_Listeners.emplace_back(std::forward<FnTy>(Listener), m_NextHandle++).second;
+            std::scoped_lock AddLock(m_AddOrDropMutex);
+            if (m_RunMutex.try_lock())
+            {
+                std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
+                m_Listeners.insert(m_Listeners.end(), { std::forward<FnTy>(Listener), m_NextHandle++ });
+            }
+            else
+            {
+                m_PendingAdd.insert(m_PendingAdd.end(), { std::forward<FnTy>(Listener), m_NextHandle++ });
+            }
         }
 
         /// <summary>
@@ -36,44 +49,58 @@ namespace Ame::Util
         void Drop(
             uint64_t Id)
         {
-            // Remove from the list the listener with the given id
-            std::erase_if(
-                m_Listeners,
-                [Id](const auto& Listener)
-                { return Listener.second == Id; });
-        }
-
-        /// <summary>
-        /// Remove all listeners from the delegate list
-        /// </summary>
-        void DropAll()
-        {
-            m_Listeners.clear();
+            std::scoped_lock DropLock(m_AddOrDropMutex);
+            if (m_RunMutex.try_lock())
+            {
+                std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
+                std::erase_if(
+                    m_Listeners,
+                    [Id](const auto& Listener)
+                    { return Listener.second == Id; });
+            }
+            else
+            {
+                m_PendingDrop.insert(m_PendingDrop.end(), Id);
+            }
         }
 
         /// <summary>
         /// Invoke the listeners with the given arguments
         /// </summary>
         void Broadcast(
-            ArgsTy... Args)
+            ArgsTy&&... Args)
         {
-            for (const auto& Listener : m_Listeners)
             {
-                Listener.first(std::forward<ArgsTy>(Args)...);
+                std::scoped_lock RunLock(m_RunMutex);
+                for (auto& Listener : m_Listeners)
+                {
+                    Listener.first(std::move(Args)...);
+                }
+            }
+            {
+                std::scoped_lock AddDropLock(m_AddOrDropMutex);
+
+                m_Listeners.insert(m_Listeners.end(), std::make_move_iterator(m_PendingAdd.begin()), std::make_move_iterator(m_PendingAdd.end()));
+                m_PendingAdd.clear();
+
+                for (uint64_t Id : m_PendingDrop)
+                {
+                    std::erase_if(
+                        m_Listeners,
+                        [Id](const auto& Listener)
+                        { return Listener.second == Id; });
+                }
+                m_PendingDrop.clear();
             }
         }
 
-        /// <summary>
-        /// Get the number of listeners
-        /// </summary>
-        [[nodiscard]] size_t GetListenersCount() const noexcept
-        {
-            return m_Listeners.size();
-        }
-
     private:
+        uint64_t   m_NextHandle{ 0 };
+        std::mutex m_RunMutex, m_AddOrDropMutex;
+
         CallbackDelegateList m_Listeners;
-        uint64_t             m_NextHandle{ 0 };
+        PendingAddList       m_PendingAdd;
+        PendingDropList      m_PendingDrop;
     };
 
     template<typename... ArgsTy>
@@ -156,13 +183,13 @@ namespace Ame::Util
         Util::Signal<ArgsTy...>* m_Signal = nullptr;
         uint64_t                 m_Id     = InvalidSignalHandle;
     };
-} // namespace Ame::Util
+} // namespace Ame
 
-#define AME_SIGNAL_DECL(Name, ...)                             \
-    namespace Ame::Signals                                     \
-    {                                                          \
-        using S##Name  = Ame::Util::Signal<__VA_ARGS__>;       \
-        using SH##Name = Ame::Util::SignalHandle<__VA_ARGS__>; \
+#define AME_SIGNAL_DECL(Name, ...)                       \
+    namespace Ame::Signals                               \
+    {                                                    \
+        using S##Name  = Ame::Signal<__VA_ARGS__>;       \
+        using SH##Name = Ame::SignalHandle<__VA_ARGS__>; \
     }
 
 #define AME_SIGNAL_INST(Name)           \
