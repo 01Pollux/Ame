@@ -3,6 +3,8 @@ includes("nri.lua")
 includes("concurrencpp.lua")
 
 add_requires("boost")
+add_requires("eastl")
+add_requires("mimalloc")
 add_requires("spdlog")
 add_requires("fmt")
 add_requires("flecs")

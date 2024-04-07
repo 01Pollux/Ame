@@ -14,11 +14,11 @@ namespace Ame::Rhi
         {
         case nri::Message::TYPE_INFO:
 #ifndef AME_DIST
-            Log::Rhi().Info(Message);
+            Log::Rhi().Info("{}", Message);
 #endif
             break;
         case nri::Message::TYPE_WARNING:
-            Log::Rhi().Warning(Message);
+            Log::Rhi().Warning("{}", Message);
             break;
         case nri::Message::TYPE_ERROR:
             Log::Rhi().Error(Message);

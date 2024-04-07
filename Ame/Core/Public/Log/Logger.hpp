@@ -13,13 +13,18 @@ namespace spdlog
     class logger;
 } // namespace spdlog
 
-#define AME_LOG_TYPE(Type)                                           \
-    template<typename... ArgsTy>                                     \
-    void Type(                                                       \
-        StringU8View Message,                                        \
-        ArgsTy&&... Args) const                                      \
-    {                                                                \
-        Log(LogLevel::Type, Message, std::forward<ArgsTy>(Args)...); \
+#define AME_LOG_TYPE(Type)                                                      \
+    template<typename... ArgsTy>                                                \
+    void Type(                                                                  \
+        const std::format_string<ArgsTy...> Message,                            \
+        ArgsTy&&... Args) const                                                 \
+    {                                                                           \
+        Log(LogLevel::Type, std::move(Message), std::forward<ArgsTy>(Args)...); \
+    }                                                                           \
+    void Type(                                                                  \
+        const StringU8View Message)                                             \
+    {                                                                           \
+        LogMessage(LogLevel::Type, std::move(Message));                         \
     }
 
 #ifndef AME_DIST
@@ -93,19 +98,30 @@ namespace Ame::Log
         /// Log a message
         /// </summary>
         void LogMessage(
-            LogLevel     Level,
-            StringU8View Message) const;
+            LogLevel           Level,
+            const StringU8View Message) const;
 
         /// <summary>
         /// Log a message
         /// </summary>
         template<typename... ArgsTy>
         void Log(
-            LogLevel     Level,
-            StringU8View Message,
+            LogLevel                            Level,
+            const std::format_string<ArgsTy...> Message,
             ArgsTy&&... Args) const
         {
-            LogMessage(Level, StringUtils::Format(Message, std::forward<ArgsTy>(Args)...));
+            if constexpr (sizeof...(ArgsTy) == 0)
+            {
+                StringU8View FormattedMessage(Message.get().data(), Message.get().size());
+                LogMessage(Level, std::move(FormattedMessage));
+            }
+            else
+            {
+                StringU8 FormattedMessage;
+                FormattedMessage.reserve(Message.get().size());
+                std::format_to(std::back_inserter(FormattedMessage), std::move(Message), std::forward<ArgsTy>(Args)...);
+                LogMessage(Level, FormattedMessage);
+            }
         }
 
         AME_LOG_TYPE(Trace);
@@ -117,14 +133,14 @@ namespace Ame::Log
 
         template<typename... ArgsTy>
         void Assert(
-            bool         Condition,
-            StringU8View Message,
+            bool                                Condition,
+            const std::format_string<ArgsTy...> Message,
             ArgsTy&&... Args) const
         {
 #ifndef AME_DIST
             if (!Condition)
             {
-                Fatal(Message, std::forward<ArgsTy>(Args)...);
+                Fatal(std::move(Message), std::forward<ArgsTy>(Args)...);
                 AME_DEBUG_BREAK;
             }
 #endif
@@ -132,13 +148,13 @@ namespace Ame::Log
 
         template<typename... ArgsTy>
         void Validate(
-            bool         Condition,
-            StringU8View Message,
+            bool                                Condition,
+            const std::format_string<ArgsTy...> Message,
             ArgsTy&&... Args) const
         {
             if (!Condition)
             {
-                Fatal(Message, std::forward<ArgsTy>(Args)...);
+                Fatal(std::move(Message), std::forward<ArgsTy>(Args)...);
                 std::unreachable();
             }
         }

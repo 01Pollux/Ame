@@ -5,6 +5,7 @@
 
 #include <Rhi/DeviceCreateDesc.hpp>
 #include "../Nri/Log.hpp"
+#include "../Nri/Allocator.hpp"
 
 #ifdef AME_PLATFORM_WINDOWS
 #include <d3d12sdklayers.h>
@@ -323,6 +324,10 @@ namespace Ame::Rhi
             .callbackInterface{
                 .MessageCallback = NriLogCallbackInterface::MessageCallback,
                 .AbortExecution  = NriLogCallbackInterface::AbortExecution },
+            .memoryAllocatorInterface{
+                .Allocate   = NriAllocatorCallbackInterface::Allocate,
+                .Reallocate = NriAllocatorCallbackInterface::Reallocate,
+                .Free       = NriAllocatorCallbackInterface::Free },
             .spirvBindingOffsets = DefaultSpirvBindingOffset,
             .vulkanExtensions{
                 .instanceExtensions   = Desc.RequiredInstanceExtensions.data(),

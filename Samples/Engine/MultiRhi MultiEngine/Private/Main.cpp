@@ -28,7 +28,7 @@ protected:
             [this]()
             {
                 double   FPS   = 1.0 / m_Timer.GetDeltaTime();
-                StringU8 Title = StringUtils::Format("{} - FPS: {:.2f}", m_Title, FPS);
+                StringU8 Title = StringU8::formatted("{} - FPS: {:.2f}", m_Title, FPS);
                 m_RhiDevice.GetWindow().SetTitle(Title);
             });
     }

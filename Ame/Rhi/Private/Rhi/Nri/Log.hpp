@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    struct NriLogCallbackInterface : public nri::CallbackInterface
+    struct NriLogCallbackInterface
     {
         static void MessageCallback(
             nri::Message Type,

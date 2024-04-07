@@ -30,7 +30,7 @@ namespace Ame::Log
         std::vector<spdlog::sink_ptr> Sinks) :
         m_Name(TagName)
     {
-        m_Logger = std::make_unique<spdlog::logger>(m_Name, Sinks.begin(), Sinks.end());
+        m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(m_Name), Sinks.begin(), Sinks.end());
         m_Logger->flush_on(spdlog::level::err);
 
 #if defined AME_DEBUG
@@ -69,7 +69,7 @@ namespace Ame::Log
         EnsureLogsDirectory();
 
         std::vector<spdlog::sink_ptr> Sinks{
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(StringUtils::Format("Logs/{}", FileName)),
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(std::format("Logs/{}", Strings::To<std::string_view>(FileName))),
 #ifndef AME_DIST
             std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
 #ifdef AME_PLATFORM_WINDOWS
@@ -100,7 +100,7 @@ namespace Ame::Log
     void Logger::Unregister(
         const StringU8& TagName)
     {
-        spdlog::drop(TagName);
+        spdlog::drop(Strings::To<std::string>(TagName));
         s_Loggers.erase(TagName);
     }
 
@@ -146,32 +146,33 @@ namespace Ame::Log
 
     void Logger::LogMessage(
         LogLevel     Level,
-        StringU8View Message) const
+        const StringU8View Message) const
     {
         if (!m_Logger) [[unlikely]]
         {
             return;
         }
 
+        auto StdMessageView = Strings::To<std::string_view>(Message);
         switch (Level)
         {
         case LogLevel::Trace:
-            m_Logger->trace(Message);
+            m_Logger->trace(StdMessageView);
             break;
         case LogLevel::Debug:
-            m_Logger->debug(Message);
+            m_Logger->debug(StdMessageView);
             break;
         case LogLevel::Info:
-            m_Logger->info(Message);
+            m_Logger->info(StdMessageView);
             break;
         case LogLevel::Warning:
-            m_Logger->warn(Message);
+            m_Logger->warn(StdMessageView);
             break;
         case LogLevel::Error:
-            m_Logger->error(Message);
+            m_Logger->error(StdMessageView);
             break;
         case LogLevel::Fatal:
-            m_Logger->critical(Message);
+            m_Logger->critical(StdMessageView);
             break;
         }
     }

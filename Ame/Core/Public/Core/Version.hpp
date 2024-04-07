@@ -135,7 +135,7 @@ namespace Ame
         /// </summary>
         [[nodiscard]] constexpr auto ToString() const noexcept
         {
-            return StringUtils::Format(
+            return std::format(
                 "{:d}.{:d}.{:d}.{:d}",
                 Major(),
                 Minor(),

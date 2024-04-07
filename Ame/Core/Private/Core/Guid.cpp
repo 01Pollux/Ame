@@ -16,18 +16,22 @@ namespace Ame
 
     StringU8 Guid::ToString() const
     {
-        return boost::uuids::to_string(*this);
+        StringU8 Str(36, '\0');
+        boost::uuids::to_chars(*this, Str.data());
+        return Str;
     }
 
     String Guid::ToWideString() const
     {
-        return boost::uuids::to_wstring(*this);
+        String Str(36, L'\0');
+        boost::uuids::to_chars(*this, Str.data());
+        return Str;
     }
 
     Guid Guid::FromString(
-        const std::string& Id)
+        const StringU8& Id)
     {
-        return Guid{ boost::uuids::string_generator()(Id) };
+        return Guid{ boost::uuids::string_generator()(Id.begin(), Id.end()) };
     }
 
     Guid Guid::Random()

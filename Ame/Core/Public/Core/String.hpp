@@ -1,23 +1,94 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <string>
+#include <EASTL/string.h>
+#include <EASTL/string_view.h>
 #include <format>
 #include <algorithm>
 
-#define STR(x)   L##x
-#define STRU8(x) StringU8(x)
+#if !EASTL_DLL
+inline void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line)
+{
+    return new uint8_t[size];
+}
+#endif
 
 namespace Ame
 {
+    template<typename CharTy>
+    class BasicStringView : public eastl::basic_string_view<CharTy>
+    {
+    public:
+        using char_type            = CharTy;
+        using std_string_view_type = std::basic_string_view<CharTy>;
+        using eastl::basic_string_view<CharTy>::basic_string_view;
+
+    public:
+        using eastl::basic_string_view<CharTy>::data;
+        using eastl::basic_string_view<CharTy>::size;
+
+        [[nodiscard]] constexpr std_string_view_type std_view() const noexcept
+        {
+            return { data(), size() };
+        }
+
+        [[nodiscard]] constexpr operator std_string_view_type() const noexcept
+        {
+            return std_view();
+        }
+    };
+
+    template<typename CharTy>
+    class BasicString : public eastl::basic_string<CharTy>
+    {
+    public:
+        using char_type            = CharTy;
+        using string_view_type     = BasicStringView<CharTy>;
+        using std_string_view_type = std::basic_string_view<CharTy>;
+
+        using eastl::basic_string<CharTy>::basic_string;
+
+        template<typename... ArgsTy>
+        [[nodiscard]] static BasicString<CharTy> formatted(
+            const std_string_view_type Format,
+            ArgsTy&&... Args);
+
+    public:
+        using eastl::basic_string<CharTy>::data;
+        using eastl::basic_string<CharTy>::size;
+
+        [[nodiscard]] constexpr string_view_type view() const noexcept
+        {
+            return { data(), size() };
+        }
+
+        [[nodiscard]] constexpr std_string_view_type std_view() const noexcept
+        {
+            return { data(), size() };
+        }
+
+        [[nodiscard]] constexpr operator std_string_view_type() const noexcept
+        {
+            return std_view();
+        }
+
+        [[nodiscard]] constexpr operator string_view_type() const noexcept
+        {
+            return view();
+        }
+    };
+
     using CharU8       = char;
-    using StringU8     = std::string;
-    using StringU8View = std::string_view;
+    using StringU8View = BasicStringView<CharU8>;
+    using StringU8     = BasicString<CharU8>;
 
     using Char       = wchar_t;
-    using String     = std::wstring;
-    using StringView = std::wstring_view;
+    using StringView = BasicStringView<Char>;
+    using String     = BasicString<Char>;
+} // namespace Ame
 
+namespace Ame
+{
     namespace Concepts
     {
         /// <summary>
@@ -26,59 +97,14 @@ namespace Ame
         template<typename Ty>
         concept StringType = std::is_same_v<Ty, StringU8> || std::is_same_v<Ty, String> ||
                              std::is_same_v<Ty, StringU8View> || std::is_same_v<Ty, StringView> ||
+                             std::is_same_v<Ty, std::string> || std::is_same_v<Ty, std::wstring> ||
+                             std::is_same_v<Ty, std::string_view> || std::is_same_v<Ty, std::wstring_view> ||
                              std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, char> ||
                              std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, wchar_t>;
     } // namespace Concepts
-
-    template<typename Ty>
-    struct StringHash;
-
-    template<>
-    struct StringHash<StringU8View>
-    {
-        using hash_type      = std::hash<StringU8View>;
-        using is_transparent = void;
-
-        size_t operator()(const char* Str) const
-        {
-            return std::hash<StringU8View>{}(Str);
-        }
-
-        size_t operator()(StringU8View Str) const
-        {
-            return std::hash<StringU8View>{}(Str);
-        }
-
-        size_t operator()(StringU8 const& Str) const
-        {
-            return std::hash<StringU8>{}(Str);
-        }
-    };
-
-    template<>
-    struct StringHash<StringView>
-    {
-        using hash_type      = std::hash<StringView>;
-        using is_transparent = void;
-
-        size_t operator()(const wchar_t* Str) const
-        {
-            return std::hash<StringView>{}(Str);
-        }
-
-        size_t operator()(StringView Str) const
-        {
-            return std::hash<StringView>{}(Str);
-        }
-
-        size_t operator()(const String& Str) const
-        {
-            return std::hash<String>{}(Str);
-        }
-    };
 } // namespace Ame
 
-namespace Ame::StringUtils
+namespace Ame::Strings
 {
     /// <summary>
     /// Empty string
@@ -91,7 +117,7 @@ namespace Ame::StringUtils
     /// Transform string to another type
     /// </summary>
     template<typename ToTy, typename FromTy>
-    [[nodiscard]] constexpr ToTy Transform(
+    [[nodiscard]] constexpr ToTy To(
         const FromTy& Str) noexcept
     {
         // same type
@@ -99,7 +125,7 @@ namespace Ame::StringUtils
             return Str;
         // from const _char* to _string_view
         else if constexpr (std::is_pointer_v<FromTy>)
-            return Transform<ToTy>(std::basic_string_view<std::remove_pointer_t<FromTy>>(Str));
+            return To<ToTy>(std::basic_string_view<std::remove_pointer_t<FromTy>>(Str));
         else
         {
             if (Str.empty())
@@ -147,7 +173,7 @@ namespace Ame::StringUtils
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] constexpr String ToLower(
+    [[nodiscard]] static String ToLower(
         const String& Str) noexcept
     {
         String LowStr;
@@ -160,7 +186,7 @@ namespace Ame::StringUtils
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] constexpr StringU8 ToLower(
+    [[nodiscard]] static StringU8 ToLower(
         const StringU8& Str) noexcept
     {
         StringU8 LowStr;
@@ -173,7 +199,7 @@ namespace Ame::StringUtils
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] constexpr String ToUpper(
+    [[nodiscard]] static String ToUpper(
         const String& Str) noexcept
     {
         String UpStr;
@@ -186,7 +212,7 @@ namespace Ame::StringUtils
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] constexpr StringU8 ToUpper(
+    [[nodiscard]] static StringU8 ToUpper(
         const StringU8& Str) noexcept
     {
         StringU8 UpStr;
@@ -199,38 +225,14 @@ namespace Ame::StringUtils
     //
 
     /// <summary>
-    /// Format string
-    /// </summary>
-    template<typename... ArgsTy>
-    [[nodiscard]] constexpr String Format(
-        const StringView FormatStr,
-        ArgsTy&&... Args)
-    {
-        return std::vformat(FormatStr, std::make_wformat_args(Args...));
-    }
-
-    /// <summary>
-    /// Format string
-    /// </summary>
-    template<typename... ArgsTy>
-    [[nodiscard]] constexpr StringU8 Format(
-        const StringU8View FormatStr,
-        ArgsTy&&... Args)
-    {
-        return std::vformat(FormatStr, std::make_format_args(Args...));
-    }
-
-    //
-
-    /// <summary>
     /// Replace occurence of a token in a string
     /// </summary>
-    constexpr bool Replace(
+    static bool Replace(
         StringU8&       Str,
         StringU8View    Token,
         const StringU8& Value) noexcept
     {
-        size_t It = Str.find(Token);
+        size_t It = Str.find(Token.data(), 0, Token.size());
         if (It != std::string::npos)
         {
             Str.replace(It, Token.size(), Value);
@@ -242,7 +244,7 @@ namespace Ame::StringUtils
     /// <summary>
     /// Replace all occurences of a token in a string
     /// </summary>
-    constexpr bool ReplaceAll(
+    static bool ReplaceAll(
         StringU8&       Str,
         StringU8View    Token,
         const StringU8& Value) noexcept
@@ -250,7 +252,7 @@ namespace Ame::StringUtils
         bool Replaced = false;
         while (true)
         {
-            size_t It = Str.find(Token);
+            size_t It = Str.find(Token.data(), 0, Token.size());
             if (It != std::string::npos)
             {
                 Str.replace(It, Token.size(), Value);
@@ -285,4 +287,145 @@ namespace Ame::StringUtils
         }
         return Hash;
     }
-} // namespace Ame::StringUtils
+} // namespace Ame::Strings
+
+namespace Ame
+{
+    struct StringHash
+    {
+    public:
+        template<Concepts::StringType Ty>
+        constexpr StringHash(
+            const Ty& Str) :
+            StringHash(Strings::Hash(Str))
+        {
+        }
+
+        constexpr StringHash(
+            size_t Hash) :
+            m_Hash(Hash)
+        {
+        }
+
+        [[nodiscard]] constexpr operator size_t() const
+        {
+            return m_Hash;
+        }
+
+        constexpr auto operator<=>(const StringHash&) const = default;
+
+    private:
+        size_t m_Hash;
+    };
+
+    namespace Literals
+    {
+        [[nodiscard]] constexpr StringHash operator""_hash(
+            const char* Str,
+            size_t      Size)
+        {
+            return Strings::Hash(std::string_view(Str, Size));
+        }
+
+        [[nodiscard]] constexpr StringHash operator""_hash(
+            const wchar_t* Str,
+            size_t         Size)
+        {
+            return Strings::Hash(std::wstring_view(Str, Size));
+        }
+    } // namespace Literals
+} // namespace Ame
+
+namespace std
+{
+    template<>
+    struct hash<Ame::StringU8View>
+    {
+        size_t operator()(const Ame::StringU8View& Str) const
+        {
+            return Ame::StringHash{ Str };
+        }
+    };
+
+    template<>
+    struct hash<Ame::StringView>
+    {
+        size_t operator()(const Ame::StringView& Str) const
+        {
+            return Ame::StringHash{ Str };
+        }
+    };
+
+    template<>
+    struct hash<Ame::StringU8>
+    {
+        size_t operator()(const Ame::StringU8& Str) const
+        {
+            return Ame::StringHash{ Str };
+        }
+    };
+
+    template<>
+    struct hash<Ame::String>
+    {
+        size_t operator()(const Ame::String& Str) const
+        {
+            return Ame::StringHash{ Str };
+        }
+    };
+} // namespace std
+
+namespace std
+{
+    template<typename CharTy>
+    struct formatter<Ame::BasicStringView<CharTy>, CharTy>
+    {
+        template<typename ParseContext>
+        constexpr auto parse(ParseContext& Ctx)
+        {
+            auto It = Ctx.begin();
+            if (It != Ctx.end() && *It != '}')
+                throw std::format_error("invalid format");
+            return It;
+        }
+
+        template<typename FormatContext>
+        auto format(const Ame::BasicStringView<CharTy> Str, FormatContext& Ctx) const
+        {
+            return std::ranges::copy(Str.std_view(), Ctx.out()).out;
+        }
+    };
+
+    template<typename CharTy>
+    struct formatter<Ame::BasicString<CharTy>, CharTy> : formatter<Ame::BasicStringView<CharTy>, CharTy>
+    {
+        using base_class = formatter<Ame::BasicStringView<CharTy>, CharTy>;
+
+        template<typename ParseContext>
+        constexpr auto parse(ParseContext& Ctx)
+        {
+            return base_class::parse(Ctx);
+        }
+
+        template<typename FormatContext>
+        auto format(const Ame::BasicString<CharTy>& Str, FormatContext& Ctx) const
+        {
+            return base_class::format(Str, Ctx);
+        }
+    };
+} // namespace std
+
+namespace Ame
+{
+    template<typename CharTy>
+    template<typename... ArgsTy>
+    [[nodiscard]] inline BasicString<CharTy> BasicString<CharTy>::formatted(
+        const std_string_view_type Format,
+        ArgsTy&&... Args)
+    {
+        BasicString<CharTy> Str;
+        Str.reserve(Format.size());
+        std::vformat_to(std::back_inserter(Str), std::move(Format), std::make_format_args(std::forward<ArgsTy>(Args)...));
+        return Str;
+    }
+} // namespace Ame
