@@ -6,7 +6,6 @@ function ame_header_library(group, name, kind, path)
     
     local source_files = path_from_root(path .. "/**.cpp")
     if table.empty(source_files) ~= true then
-        print(source_files .. " " .. tostring(table.empty(source_files)))
         add_files(source_files)
     end
 
