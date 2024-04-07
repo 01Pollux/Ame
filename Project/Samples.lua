@@ -1,19 +1,25 @@
-target("Samples.SimpleLog")
-    ame_header_executable("Samples", "Simple Log", "Samples/SimpleLog")
+target("SimpleLog")
+    ame_header_executable("Samples/Engine", "Simple Log", "Samples/Engine/SimpleLog")
 target_end()
 
-target("Samples.SimpleWindow")
-    ame_header_executable("Samples", "Simple Window", "Samples/SimpleWindow")
+target("SimpleWindow")
+    ame_header_executable("Samples/Engine", "Simple Window", "Samples/Engine/SimpleWindow")
 target_end()
 
-target("Samples.MultiEngine")
-    ame_header_executable("Samples", "MultiEngine", "Samples/MultiEngine")
+target("MultiEngine")
+    ame_header_executable("Samples/Engine", "MultiEngine", "Samples/Engine/MultiEngine")
 target_end()
 
-target("Samples.MultiRhi_OneEngine")
-    ame_header_executable("Samples", "MultiRhi OneEngine", "Samples/MultiRhi_OneEngine")
+target("MultiRhi OneEngine")
+    ame_header_executable("Samples/Engine", "MultiRhi OneEngine", "Samples/Engine/MultiRhi OneEngine")
 target_end()
 
-target("Samples.MultiRhi_MultiEngine")
-    ame_header_executable("Samples", "MultiRhi MultiEngine", "Samples/MultiRhi_MultiEngine")
+target("MultiRhi MultiEngine")
+    ame_header_executable("Samples/Engine", "MultiRhi MultiEngine", "Samples/Engine/MultiRhi MultiEngine")
+target_end()
+
+--
+
+target("Triangle")
+    ame_header_executable("Samples/Rhi", "Triangle", "Samples/Rhi/Triangle")
 target_end()
