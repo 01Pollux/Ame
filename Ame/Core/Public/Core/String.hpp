@@ -7,9 +7,13 @@
 #include <algorithm>
 
 #if !EASTL_DLL
-inline void* operator new[](size_t size, const char* name, int flags, unsigned debugFlags, const char* file, int line)
+inline void* operator new[](size_t size, const char*, int, unsigned, const char*, int)
 {
-    return new uint8_t[size];
+    return mi_malloc(size);
+}
+inline void* operator new[](size_t size, size_t alignment, size_t, const char*, int, unsigned, const char*, int)
+{
+    return mi_aligned_alloc(size, alignment);
 }
 #endif
 

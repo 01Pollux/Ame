@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>

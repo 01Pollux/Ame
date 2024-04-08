@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Rhi/Resource.hpp>
 
 namespace Ame::Rhi

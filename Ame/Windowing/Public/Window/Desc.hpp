@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Core/String.hpp>
 #include <Math/Size2.hpp>
 

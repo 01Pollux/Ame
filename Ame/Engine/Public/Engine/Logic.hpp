@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+#include <Engine/Events.hpp>
 
 namespace Ame
 {
@@ -14,12 +15,32 @@ namespace Ame
     {
     public:
         /// <summary>
+        /// Start the frame
+        /// </summary>
+        void StartFrame(
+            BaseEngine& Engine);
+
+        /// <summary>
         /// Tick all the systems and update the game
         /// </summary>
         void Tick(
-            EngineTimer& Timer,
-            Rhi::Device* RhiDevice = nullptr);
+            Co::runtime& Runtime,
+            BaseEngine&  Engine,
+            Rhi::Device* RhiDevice);
 
+        /// <summary>
+        /// Tick all the systems and update the game
+        /// </summary>
+        void Tick(
+            BaseEngine& Engine);
+
+        /// <summary>
+        /// Render the frame
+        /// </summary>
+        void EndFrame(
+            BaseEngine& Engine);
+
+    public:
         /// <summary>
         /// Stop the engine loop
         /// </summary>
@@ -45,6 +66,16 @@ namespace Ame
         void Shutdown();
 
     private:
+        AME_SIGNAL_DOUBLE(OnStartFrame);
+
+        AME_SIGNAL_DOUBLE(OnUpdate);
+        AME_SIGNAL_DOUBLE(OnPostUpdate);
+
+        AME_SIGNAL_DOUBLE(OnRender);
+        AME_SIGNAL_DOUBLE(OnPostRender);
+
+        AME_SIGNAL_DOUBLE(OnEndFrame);
+
         bool m_IsRunning = true;
     };
 } // namespace Ame

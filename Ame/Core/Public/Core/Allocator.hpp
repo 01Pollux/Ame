@@ -8,9 +8,6 @@ This is free software; you can redistribute it and/or modify it under the
 terms of the MIT license. A copy of the license can be found in the file
 "LICENSE" at the root of this distribution.
 -----------------------------------------------------------------------------*/
-#pragma once
-#ifndef MIMALLOC_NEW_DELETE_H
-#define MIMALLOC_NEW_DELETE_H
 
 // ----------------------------------------------------------------------------
 // This header provides convenient overrides for the new and
@@ -126,5 +123,3 @@ inline void* operator new[](std::size_t n, std::align_val_t al, const std::nothr
 }
 #endif
 #endif
-
-#endif // MIMALLOC_NEW_DELETE_H

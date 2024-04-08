@@ -53,8 +53,13 @@ namespace Ame
         while (m_Logic.IsRunning() && m_RhiDevice.ProcessEvents()) [[likely]]
         {
             m_Timer.Tick();
+
             m_RhiDevice.BeginFrame();
-            m_Logic.Tick(m_Timer, &m_RhiDevice);
+
+            m_Logic.StartFrame(*this);
+            m_Logic.Tick(*m_Runtime, *this, &m_RhiDevice);
+            m_Logic.EndFrame(*this);
+
             m_RhiDevice.EndFrame();
         }
     }
@@ -64,7 +69,10 @@ namespace Ame
         while (m_Logic.IsRunning())
         {
             m_Timer.Tick();
-            m_Logic.Tick(m_Timer);
+
+            m_Logic.StartFrame(*this);
+            m_Logic.Tick(*this);
+            m_Logic.EndFrame(*this);
         }
     }
 } // namespace Ame

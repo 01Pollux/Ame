@@ -8,7 +8,8 @@
 
 namespace concurrencpp
 {
-}
+    class runtime;
+} // namespace concurrencpp
 
 namespace Ame
 {

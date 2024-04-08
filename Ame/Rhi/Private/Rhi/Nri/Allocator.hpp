@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include "../Nri/Nri.hpp"
 
 namespace Ame::Rhi

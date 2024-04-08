@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Rhi/Device.hpp>
 #include "StateTracker.hpp"
 #include "FrameWrapper.hpp"

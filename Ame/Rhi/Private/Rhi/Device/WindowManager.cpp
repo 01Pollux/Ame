@@ -48,7 +48,7 @@ namespace Ame::Rhi
     {
         RecreateSwapchain(Device, PresentQueue);
         m_Window.OnWindowSizeChanged().Listen(
-            [this](const Math::Size2I&)
+            [this](const auto&, const auto&)
             {
                 m_DirtySwapChain = true;
             });

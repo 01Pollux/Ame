@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Rhi/Texture.hpp>
 #include <Rhi/View.hpp>
 #include <Math/Colors.hpp>

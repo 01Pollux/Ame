@@ -4,6 +4,7 @@
 #include <utility>
 
 #include <EASTL/list.h>
+#include <EASTL/set.h>
 #include <functional>
 #include <mutex>
 
@@ -20,8 +21,8 @@ namespace Ame
         using CallbackDelegateData = std::pair<DelegateType, uint64_t>;
         using CallbackDelegateList = eastl::list<CallbackDelegateData>;
 
-        using PendingAddList  = CallbackDelegateList;
-        using PendingDropList = eastl::vector<uint64_t>;
+        using PendingAddList = CallbackDelegateList;
+        using PendingDropSet = eastl::set<uint64_t>;
 
     public:
         /// <summary>
@@ -32,15 +33,17 @@ namespace Ame
             FnTy&& Listener)
         {
             std::scoped_lock AddLock(m_AddOrDropMutex);
+            uint64_t         Id = m_NextHandle++;
             if (m_RunMutex.try_lock())
             {
                 std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
-                m_Listeners.insert(m_Listeners.end(), { std::forward<FnTy>(Listener), m_NextHandle++ });
+                m_Listeners.insert(m_Listeners.end(), { std::forward<FnTy>(Listener), Id });
             }
             else
             {
-                m_PendingAdd.insert(m_PendingAdd.end(), { std::forward<FnTy>(Listener), m_NextHandle++ });
+                m_PendingAdd.insert(m_PendingAdd.end(), { std::forward<FnTy>(Listener), Id });
             }
+            return Id;
         }
 
         /// <summary>
@@ -53,14 +56,12 @@ namespace Ame
             if (m_RunMutex.try_lock())
             {
                 std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
-                std::erase_if(
-                    m_Listeners,
-                    [Id](const auto& Listener)
-                    { return Listener.second == Id; });
+                m_Listeners.remove_if([Id](const auto& Listener)
+                                      { return Listener.second == Id; });
             }
             else
             {
-                m_PendingDrop.insert(m_PendingDrop.end(), Id);
+                m_PendingDrop.insert(Id);
             }
         }
 
@@ -74,7 +75,7 @@ namespace Ame
                 std::scoped_lock RunLock(m_RunMutex);
                 for (auto& Listener : m_Listeners)
                 {
-                    Listener.first(std::move(Args)...);
+                    Listener.first(std::forward<ArgsTy>(Args)...);
                 }
             }
             {
@@ -83,13 +84,8 @@ namespace Ame
                 m_Listeners.insert(m_Listeners.end(), std::make_move_iterator(m_PendingAdd.begin()), std::make_move_iterator(m_PendingAdd.end()));
                 m_PendingAdd.clear();
 
-                for (uint64_t Id : m_PendingDrop)
-                {
-                    std::erase_if(
-                        m_Listeners,
-                        [Id](const auto& Listener)
-                        { return Listener.second == Id; });
-                }
+                m_Listeners.remove_if([this](const auto& Listener)
+                                      { return m_PendingDrop.find(Listener.second) != m_PendingDrop.end(); });
                 m_PendingDrop.clear();
             }
         }
@@ -100,8 +96,46 @@ namespace Ame
 
         CallbackDelegateList m_Listeners;
         PendingAddList       m_PendingAdd;
-        PendingDropList      m_PendingDrop;
+        PendingDropSet       m_PendingDrop;
     };
+
+    //
+
+    /// <summary>
+    /// A signal that can be used as a static signal or an object signal
+    /// </summary>
+    template<typename... ArgsTy>
+    class DoubleSignal
+    {
+    public:
+        [[nodiscard]] auto& ObjectSignal() noexcept
+        {
+            return m_ObjectSignal;
+        }
+
+        [[nodiscard]] static auto& GetStaticSignal() noexcept
+        {
+            return m_StaticSignal;
+        }
+
+        [[nodiscard]] auto& StaticSignal() noexcept
+        {
+            return m_StaticSignal;
+        }
+
+        void Broadcast(
+            ArgsTy&&... Args)
+        {
+            m_ObjectSignal.Broadcast(std::forward<ArgsTy>(Args)...);
+            m_StaticSignal.Broadcast(std::forward<ArgsTy>(Args)...);
+        }
+
+    private:
+        Signal<ArgsTy...>               m_ObjectSignal;
+        static inline Signal<ArgsTy...> m_StaticSignal;
+    };
+
+    //
 
     template<typename... ArgsTy>
     class SignalHandle
@@ -180,16 +214,18 @@ namespace Ame
         }
 
     private:
-        Util::Signal<ArgsTy...>* m_Signal = nullptr;
-        uint64_t                 m_Id     = InvalidSignalHandle;
+        Signal<ArgsTy...>* m_Signal = nullptr;
+        uint64_t           m_Id     = InvalidSignalHandle;
     };
 } // namespace Ame
 
-#define AME_SIGNAL_DECL(Name, ...)                       \
-    namespace Ame::Signals                               \
-    {                                                    \
-        using S##Name  = Ame::Signal<__VA_ARGS__>;       \
-        using SH##Name = Ame::SignalHandle<__VA_ARGS__>; \
+#define AME_SIGNAL_DECL(Class, Name, ...)                         \
+    namespace Ame::Signals                                        \
+    {                                                             \
+        using Name      = Ame::Signal<Class&, __VA_ARGS__>;       \
+        using Name##Dbl = Ame::DoubleSignal<Class&, __VA_ARGS__>; \
+        using Name##H   = Ame::SignalHandle<Class&, __VA_ARGS__>; \
+        using Name##SH  = Ame::SignalHandle<Class&, __VA_ARGS__>; \
     }
 
 #define AME_SIGNAL_INST(Name)           \
@@ -200,4 +236,24 @@ public:                                 \
     }                                   \
                                         \
 private:                                \
-    Ame::Signals::S##Name m_##Name
+    Ame::Signals::Name m_##Name
+
+#define AME_SIGNAL_STATIC(Name)                 \
+public:                                         \
+    [[nodiscard]] auto& Static##Name() noexcept \
+    {                                           \
+        return m_##Name;                        \
+    }                                           \
+                                                \
+private:                                        \
+    static inline Ame::Signals::Name m_##Name
+
+#define AME_SIGNAL_DOUBLE(Name)                 \
+public:                                         \
+    [[nodiscard]] auto& Static##Name() noexcept \
+    {                                           \
+        return m_##Name;                        \
+    }                                           \
+                                                \
+private:                                        \
+    Ame::Signals::Name##Dbl m_##Name

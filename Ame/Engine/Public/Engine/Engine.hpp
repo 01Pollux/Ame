@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+#include <Object/Object.hpp>
 
 #include <Engine/Logic.hpp>
 #include <Engine/Timer.hpp>
@@ -10,9 +11,10 @@
 
 namespace Ame
 {
-    class BaseEngine : public NonCopyable,
-                       public NonMovable
+    class BaseEngine : public IObject
     {
+        AME_OBJECT(BaseEngine, IObject);
+
     public:
         BaseEngine(
             Rhi::Device      RhiDevice,

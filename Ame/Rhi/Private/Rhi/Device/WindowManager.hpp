@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Ame.hpp>
+
 #include <Rhi/Device.hpp>
 #include <Window/Window.hpp>
 #include "../Nri/Bridge.hpp"

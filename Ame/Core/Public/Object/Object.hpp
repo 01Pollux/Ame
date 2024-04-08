@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Object/TypeInfo.hpp>
+#include <Object/Signal.hpp>
 
 #define AME_OBJECT(Name, Base)                                                        \
 public:                                                                               \
@@ -22,7 +24,7 @@ private:
 
 namespace Ame
 {
-    class IObject
+    class IObject : public NonCopyable, public NonMovable
     {
     public:
         virtual ~IObject() = default;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Core/Enum.hpp>
 #include <Math/Vector.hpp>
 #include <IO/MemStream.hpp>

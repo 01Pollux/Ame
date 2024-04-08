@@ -1,20 +1,29 @@
 #pragma once
 
-#include <Util/Signal.hpp>
+#include <Core/Ame.hpp>
+#include <Object/Object.hpp>
+
 #include <Window/Desc.hpp>
 #include <utility>
 
 struct GLFWwindow;
 
-AME_SIGNAL_DECL(OnWindowSizeChanged, const Math::Size2I& /*NewSize*/);
-AME_SIGNAL_DECL(OnWindowMinized, bool /*Minimized*/);
-AME_SIGNAL_DECL(OnWindowClosed);
-AME_SIGNAL_DECL(OnWindowTitleHitTest, const Math::Vector2I& /*MousePos*/, bool& /*WasHit*/);
+namespace Ame::Windowing
+{
+    class Window;
+} // namespace Ame::Windowing
+
+AME_SIGNAL_DECL(Windowing::Window, OnWindowSizeChanged, const Math::Size2I& /*NewSize*/);
+AME_SIGNAL_DECL(Windowing::Window, OnWindowMinized, bool /*Minimized*/);
+AME_SIGNAL_DECL(Windowing::Window, OnWindowClosed);
+AME_SIGNAL_DECL(Windowing::Window, OnWindowTitleHitTest, const Math::Vector2I& /*MousePos*/, bool& /*WasHit*/);
 
 namespace Ame::Windowing
 {
-    class Window : public NonCopyable
+    class Window : public IObject
     {
+        AME_OBJECT(Window, IObject);
+
     public:
         explicit Window(
             const WindowDesc& Desc);
