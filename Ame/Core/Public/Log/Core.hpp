@@ -15,6 +15,8 @@ namespace Ame::Log
         Fatal
     };
 
+    class Logger;
+
     namespace Names
     {
         static constexpr const char* Engine   = "Engine";

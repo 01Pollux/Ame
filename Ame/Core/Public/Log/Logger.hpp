@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Log/Core.hpp>
-#include <Core/String.hpp>
-#include <vector>
+#include <Log/Events.hpp>
+#include <EASTL/vector.h>
 
 namespace spdlog
 {
@@ -43,18 +42,18 @@ namespace Ame::Log
         }
 
         Logger(
-            const StringU8&                       TagName,
-            StringU8View                          FileName,
-            std::vector<Ptr<spdlog::sinks::sink>> Sinks);
+            const StringU8&                         TagName,
+            StringU8View                            FileName,
+            eastl::vector<Ptr<spdlog::sinks::sink>> Sinks);
 
     public:
         /// <summary>
         /// Register a logger
         /// </summary>
         static void Register(
-            const StringU8&                       TagName,
-            StringU8View                          FileName,
-            std::vector<Ptr<spdlog::sinks::sink>> Sinks);
+            const StringU8&                         TagName,
+            StringU8View                            FileName,
+            eastl::vector<Ptr<spdlog::sinks::sink>> Sinks);
 
         /// <summary>
         /// Register a logger
@@ -170,6 +169,9 @@ namespace Ame::Log
         /// Get the current log level
         /// </summary>
         [[nodiscard]] LogLevel GetLevel() const noexcept;
+
+    public:
+        AME_SIGNAL_STATIC(OnLog);
 
     private:
         StringU8            m_Name;

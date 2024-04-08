@@ -9,18 +9,6 @@ static constexpr uint32_t NumberOfApps = 5;
 
 using namespace Ame;
 
-constexpr bool is_format()
-{
-    if constexpr (requires { std::formattable<std::string, char>; })
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 class MutliEngineSample : public BaseEngine
 {
 public:
@@ -41,8 +29,6 @@ protected:
             m_Runtime->thread_pool_executor(),
             [this]()
             {
-                constexpr bool p = is_format();
-
                 double FPS = 1.0 / m_Timer.GetDeltaTime();
                 m_RhiDevice.GetWindow().SetTitle(StringU8::formatted("{} - FPS: {:.2f}", m_Title, FPS));
             });
