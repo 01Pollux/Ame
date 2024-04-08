@@ -9,24 +9,14 @@ namespace Ame
         m_OnStartFrame.Broadcast(Engine);
     }
 
-    void EngineLogic::Tick(
-        Co::runtime& Runtime,
-        BaseEngine&  Engine,
-        Rhi::Device* RhiDevice)
+    Co::result<void> EngineLogic::TickRender(
+        Co::executor_tag,
+        Co::thread_pool_executor& Executor,
+        BaseEngine&               Engine)
     {
-        auto Executor = Runtime.thread_pool_executor();
-
-        auto Task = Executor->submit(
-            [&]() -> Co::result<void>
-            {
-                Tick(Engine);
-                co_return;
-            });
-
         m_OnRender.Broadcast(Engine);
         m_OnPostRender.Broadcast(Engine);
-
-        Task.wait();
+        co_return;
     }
 
     void EngineLogic::Tick(

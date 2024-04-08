@@ -2,6 +2,7 @@
 
 #include <Core/Ame.hpp>
 #include <Engine/Events.hpp>
+#include <concurrencpp/concurrencpp.h>
 
 namespace Ame
 {
@@ -23,10 +24,10 @@ namespace Ame
         /// <summary>
         /// Tick all the systems and update the game
         /// </summary>
-        void Tick(
-            Co::runtime& Runtime,
-            BaseEngine&  Engine,
-            Rhi::Device* RhiDevice);
+        [[nodiscard]] Co::result<void> TickRender(
+            Co::executor_tag,
+            Co::thread_pool_executor& Executor,
+            BaseEngine&               Engine);
 
         /// <summary>
         /// Tick all the systems and update the game

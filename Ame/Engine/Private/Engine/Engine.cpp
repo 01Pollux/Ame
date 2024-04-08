@@ -57,7 +57,11 @@ namespace Ame
             m_RhiDevice.BeginFrame();
 
             m_Logic.StartFrame(*this);
-            m_Logic.Tick(*m_Runtime, *this, &m_RhiDevice);
+
+            auto Tick = m_Logic.TickRender({}, *m_Runtime->thread_pool_executor(), *this);
+            m_Logic.Tick(*this);
+            Tick.get();
+
             m_Logic.EndFrame(*this);
 
             m_RhiDevice.EndFrame();
