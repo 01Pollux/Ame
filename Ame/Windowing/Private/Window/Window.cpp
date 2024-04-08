@@ -25,6 +25,17 @@ namespace Ame::Windowing
             std::scoped_lock Lock(s_GlfwInitMutex);
             if (s_GlfwInitCount++ == 0)
             {
+                GLFWallocator GlfwAllocator{
+                    .allocate = [](size_t Size, void*)
+                    { return mi_malloc(Size); },
+                    .reallocate = [](void* Block, size_t Size, void*)
+                    { return mi_realloc(Block, Size); },
+                    .deallocate = [](void* Block, void*)
+                    { mi_free(Block); }
+                };
+
+                glfwSetErrorCallback(GlfwErrorCallback);
+                glfwInitAllocator(&GlfwAllocator);
                 AME_LOG_ASSERT(Log::Window(), glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
             }
         }
@@ -36,7 +47,6 @@ namespace Ame::Windowing
 
             std::scoped_lock Lock(s_GlfwCreateMutex);
 
-            glfwSetErrorCallback(GlfwErrorCallback);
             glfwDefaultWindowHints();
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
@@ -88,11 +98,11 @@ namespace Ame::Windowing
             {
                 auto App = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
 
-                App->m_WindowSize = Math::Size2I{ Width, Height };
                 if (Width && Height)
                 {
-                    App->OnWindowSizeChanged().Broadcast(App->m_WindowSize);
+                    App->OnWindowSizeChanged().Broadcast(*App, App->m_WindowSize);
                 }
+                App->m_WindowSize = Math::Size2I{ Width, Height };
             });
 
         glfwSetWindowCloseCallback(
@@ -100,7 +110,7 @@ namespace Ame::Windowing
             [](GLFWwindow* GlfwWindow)
             {
                 auto App = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
-                App->OnWindowClosed().Broadcast();
+                App->OnWindowClosed().Broadcast(*App);
             });
 
         if (Desc.CustomTitleBar)
@@ -111,7 +121,7 @@ namespace Ame::Windowing
                 {
                     auto App    = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
                     bool WasHit = false;
-                    App->OnWindowTitleHitTest().Broadcast({ X, Y }, WasHit);
+                    App->OnWindowTitleHitTest().Broadcast(*App, { X, Y }, WasHit);
                     *Hit = WasHit;
                 });
         }
@@ -122,7 +132,7 @@ namespace Ame::Windowing
             {
                 auto App    = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
                 bool WasHit = false;
-                App->OnWindowMinized().Broadcast(Iconified);
+                App->OnWindowMinized().Broadcast(*App, Iconified);
             });
     }
 
