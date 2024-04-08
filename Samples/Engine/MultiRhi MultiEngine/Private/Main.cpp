@@ -1,6 +1,8 @@
 
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
+
+#include <Engine/Subsystem/Timer.hpp>
 #include <Window/Window.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -16,21 +18,40 @@ protected:
     void Initialize() override
     {
         BaseEngine::Initialize();
+
         Log::Engine().Trace("Initializing Sample...");
+        InitializeWindow(
+            *GetSubsystem<CoroutineSubsystem>(),
+            GetSubsystem<Rhi::DeviceSubsystem>());
+    }
 
-        m_Title = m_RhiDevice.GetWindow().GetTitle();
+private:
+    void InitializeWindow(
+        Co::runtime& Coroutine,
+        Rhi::Device& RhiDevice)
+    {
+        m_Title = RhiDevice.GetWindow().GetTitle();
 
-        auto TimerQueue = m_Runtime->timer_queue();
+        auto TimerQueue = Coroutine.timer_queue();
         m_TitleTimer    = TimerQueue->make_timer(
             std::chrono::seconds(1),
             std::chrono::seconds(1),
-            m_Runtime->thread_pool_executor(),
+            Coroutine.thread_pool_executor(),
             [this]()
             {
-                double   FPS   = 1.0 / m_Timer.GetDeltaTime();
-                StringU8 Title = StringU8::formatted("{} - FPS: {:.2f}", m_Title, FPS);
-                m_RhiDevice.GetWindow().SetTitle(Title);
+                UpdateTitle(
+                    GetSubsystem<TimerSubsystem>(),
+                    GetSubsystem<Rhi::DeviceSubsystem>());
             });
+    }
+
+    void UpdateTitle(
+        EngineTimer& Timer,
+        Rhi::Device& RhiDevice)
+    {
+        double   FPS   = 1.0 / Timer.GetDeltaTime();
+        StringU8 Title = StringU8::formatted("{} - FPS: {:.2f}", m_Title, FPS);
+        RhiDevice.GetWindow().SetTitle(Title);
     }
 
 private:

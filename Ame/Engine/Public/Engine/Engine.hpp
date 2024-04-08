@@ -1,26 +1,26 @@
 #pragma once
 
-#include <Core/Ame.hpp>
+#include <Core/Container.hpp>
 #include <Object/Object.hpp>
 
 #include <Engine/Logic.hpp>
 #include <Engine/Timer.hpp>
 
 #include <concurrencpp/concurrencpp.h>
-#include <Rhi/Device.hpp>
 
 namespace Ame
 {
-    class BaseEngine : public IObject
+    namespace Rhi
+    {
+        class Device;
+    } // namespace Rhi
+
+    class BaseEngine : public IObject, public Container
     {
         AME_OBJECT(BaseEngine, IObject);
 
     public:
-        BaseEngine(
-            Rhi::Device      RhiDevice,
-            Ptr<Co::runtime> Runtime);
-
-        virtual ~BaseEngine();
+        virtual ~BaseEngine() = default;
 
     public:
         /// <summary>
@@ -37,32 +37,37 @@ namespace Ame
         /// <summary>
         /// Initialize the engine
         /// </summary>
-        virtual void Initialize()
-        {
-        }
+        virtual void Initialize();
 
         /// <summary>
         /// Shutdown the engine
         /// </summary>
-        virtual void Shutdown()
-        {
-        }
+        virtual void Shutdown();
+
+    private:
+        /// <summary>
+        /// Initialize the engine
+        /// </summary>
+        void DoInitialize();
+
+        /// <summary>
+        /// Shutdown the engine
+        /// </summary>
+        void DoShutdown();
 
     private:
         /// <summary>
         /// Main engine loop with rendering
         /// </summary>
-        void RenderLoop();
+        void DoRenderLoop(
+            Rhi::Device& RhiDevice);
 
         /// <summary>
         /// Main engine loop without rendering
         /// </summary>
-        void HeadlessLoop();
+        void DoHeadlessLoop();
 
     protected:
-        EngineTimer      m_Timer;
-        Ptr<Co::runtime> m_Runtime;
-        Rhi::Device      m_RhiDevice;
-        EngineLogic      m_Logic;
+        EngineLogic m_Logic;
     };
 } // namespace Ame

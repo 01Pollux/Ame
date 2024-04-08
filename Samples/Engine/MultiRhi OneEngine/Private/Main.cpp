@@ -19,30 +19,41 @@ protected:
         Log::Engine().Trace("Initializing Sample...");
 
         CreateSecondaryDevice();
+        InitializeWindow(
+            *GetSubsystem<CoroutineSubsystem>(),
+            GetSubsystem<Rhi::DeviceSubsystem>());
+    }
 
-        m_Title = m_RhiDevice.GetWindow().GetTitle();
+private:
+    void InitializeWindow(
+        Co::runtime& Coroutine,
+        Rhi::Device& RhiDevice)
+    {
+        m_Title = RhiDevice.GetWindow().GetTitle();
 
-        auto TimerQueue  = m_Runtime->timer_queue();
+        auto TimerQueue  = Coroutine.timer_queue();
         m_SecondaryTimer = TimerQueue->make_timer(
             std::chrono::seconds(1),
             std::chrono::seconds(1),
-            m_Runtime->thread_pool_executor(),
+            Coroutine.thread_pool_executor(),
             [this]()
             {
-                if (m_SecondaryDevice.ProcessEvents())
+                if (!m_SecondaryDevice.IsHeadless())
                 {
-                    m_SecondaryDevice.BeginFrame();
-                    m_SecondaryDevice.EndFrame();
-                }
-                else
-                {
-                    m_SecondaryTimer.cancel();
-                    m_SecondaryDevice = {};
+                    if (m_SecondaryDevice.ProcessEvents())
+                    {
+                        m_SecondaryDevice.BeginFrame();
+                        m_SecondaryDevice.EndFrame();
+                    }
+                    else
+                    {
+                        m_SecondaryTimer.cancel();
+                        m_SecondaryDevice = {};
+                    }
                 }
             });
     }
 
-private:
     void CreateSecondaryDevice()
     {
         Rhi::DeviceCreateDesc Desc{
@@ -59,8 +70,9 @@ private:
     }
 
 private:
-    StringU8    m_Title;
-    Co::timer   m_SecondaryTimer;
+    StringU8  m_Title;
+    Co::timer m_SecondaryTimer;
+
     Rhi::Device m_SecondaryDevice;
 };
 

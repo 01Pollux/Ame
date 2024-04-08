@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-#include <Engine/Engine.hpp>
+#include <Framework/Framework.hpp>
+#include <Rhi/Subsystem/Device.hpp>
 #include <Rhi/DeviceCreateDesc.hpp>
 
 namespace Ame::Framework
@@ -27,9 +27,13 @@ namespace Ame::Framework
     private:
         template<typename... ArgsTy>
         WindowApplication(
+            const Rhi::DeviceCreateDesc& RhiDesc,
+            Ptr<Co::runtime>             Runtime,
             ArgsTy&&... Args) :
             m_Engine(std::forward<ArgsTy>(Args)...)
         {
+            m_Engine.RegisterSubsystem<Rhi::DeviceSubsystem>(RhiDesc);
+            m_Engine.RegisterSubsystem<CoroutineSubsystem>(std::move(Runtime));
         }
 
     private:
@@ -99,7 +103,7 @@ namespace Ame::Framework
         //
 
         auto& SwapChainFormat(
-            Rhi::ResourceFormat Format)
+            Rhi::SwapChainFormat Format)
         {
             TryCreateWindowDesc();
             m_RhiDesc.Window->Format = Format;
@@ -202,9 +206,9 @@ namespace Ame::Framework
             }
 
             m_RhiDesc.RequiredInstanceExtensions = m_RequiredInstanceExtensions;
-            m_RhiDesc.RequiredDeviceExtensions = m_RequiredDeviceExtensions;
+            m_RhiDesc.RequiredDeviceExtensions   = m_RequiredDeviceExtensions;
 
-            return { Rhi::Device{ m_RhiDesc }, std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
+            return { m_RhiDesc, std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
         }
 
     private:
@@ -220,8 +224,8 @@ namespace Ame::Framework
         }
 
     private:
-        Rhi::DeviceCreateDesc m_RhiDesc;
-        Ptr<Co::runtime>      m_Runtime;
+        Rhi::DeviceCreateDesc    m_RhiDesc;
+        Ptr<Co::runtime>         m_Runtime;
         std::vector<const char*> m_RequiredInstanceExtensions;
         std::vector<const char*> m_RequiredDeviceExtensions;
     };

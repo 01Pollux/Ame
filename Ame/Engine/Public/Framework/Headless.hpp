@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-#include <Engine/Engine.hpp>
+#include <Framework/Framework.hpp>
 
 namespace Ame::Framework
 {
@@ -26,9 +25,11 @@ namespace Ame::Framework
     private:
         template<typename... ArgsTy>
         HeadlessApplication(
+            Ptr<Co::runtime> Runtime,
             ArgsTy&&... Args) :
             m_Engine(std::forward<ArgsTy>(Args)...)
         {
+            m_Engine.RegisterSubsystem<CoroutineSubsystem>(std::move(Runtime));
         }
 
     private:
@@ -56,7 +57,7 @@ namespace Ame::Framework
                 m_Runtime = std::make_shared<Co::runtime>();
             }
 
-            return { Rhi::Device{}, std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
+            return { std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
         }
 
     private:
