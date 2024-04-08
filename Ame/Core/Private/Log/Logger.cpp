@@ -25,9 +25,9 @@ namespace Ame::Log
     }
 
     Logger::Logger(
-        const StringU8&               TagName,
-        const StringU8View            FileName,
-        std::vector<spdlog::sink_ptr> Sinks) :
+        const StringU8&                 TagName,
+        const StringU8View              FileName,
+        eastl::vector<spdlog::sink_ptr> Sinks) :
         m_Name(TagName)
     {
         m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(m_Name), Sinks.begin(), Sinks.end());
@@ -45,9 +45,9 @@ namespace Ame::Log
     //
 
     void Logger::Register(
-        const StringU8&               TagName,
-        StringU8View                  FileName,
-        std::vector<spdlog::sink_ptr> Sinks)
+        const StringU8&                 TagName,
+        StringU8View                    FileName,
+        eastl::vector<spdlog::sink_ptr> Sinks)
     {
         if (s_Loggers.contains(TagName))
         {
@@ -68,7 +68,7 @@ namespace Ame::Log
 
         EnsureLogsDirectory();
 
-        std::vector<spdlog::sink_ptr> Sinks{
+        eastl::vector<spdlog::sink_ptr> Sinks{
             std::make_shared<spdlog::sinks::basic_file_sink_mt>(std::format("Logs/{}", Strings::To<std::string_view>(FileName))),
 #ifndef AME_DIST
             std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
@@ -145,7 +145,7 @@ namespace Ame::Log
     }
 
     void Logger::LogMessage(
-        LogLevel     Level,
+        LogLevel           Level,
         const StringU8View Message) const
     {
         if (!m_Logger) [[unlikely]]
@@ -175,6 +175,8 @@ namespace Ame::Log
             m_Logger->critical(StdMessageView);
             break;
         }
+
+        StaticOnLog().Broadcast(*this, { Message, Level });
     }
 
     void Logger::SetLevel(
