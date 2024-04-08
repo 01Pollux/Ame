@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Log/Events.hpp>
+#include <Log/Signals.hpp>
 #include <EASTL/vector.h>
 
 namespace spdlog

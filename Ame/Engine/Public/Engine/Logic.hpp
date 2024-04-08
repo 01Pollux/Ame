@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Engine/Events.hpp>
+#include <Engine/Signals.hpp>
 #include <concurrencpp/concurrencpp.h>
 
 namespace Ame

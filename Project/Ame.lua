@@ -14,8 +14,18 @@ function ame_header_library(group, name, kind, path)
         add_headerfiles(header_files)
     end
 
-    add_includedirs(path_from_root(path .. "/Private"), {public = false})
-    add_includedirs(path_from_root(path .. "/Public"), {public = true})
+    local include_dirs = path_from_root(path .. "/Public")
+    local folder_exists = os.isdir(include_dirs)
+    if folder_exists == true then
+        add_includedirs(include_dirs, {public = true})
+    end
+
+    include_dirs = path_from_root(path .. "/Private")
+    folder_exists = os.isdir(include_dirs)
+    if folder_exists == true then
+        add_includedirs(include_dirs, {public = false})
+    end
+
     add_filegroups("", {rootdir = "../" .. path .. "/"})
 end
 
