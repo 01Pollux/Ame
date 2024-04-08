@@ -7,6 +7,7 @@
 #include <EASTL/set.h>
 #include <functional>
 #include <mutex>
+#include <atomic>
 
 namespace Ame
 {
@@ -38,6 +39,7 @@ namespace Ame
             {
                 std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
                 m_Listeners.insert(m_Listeners.end(), { std::forward<FnTy>(Listener), Id });
+                m_ListenerCount.fetch_add(1, std::memory_order_relaxed);
             }
             else
             {
@@ -58,6 +60,7 @@ namespace Ame
                 std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
                 m_Listeners.remove_if([Id](const auto& Listener)
                                       { return Listener.second == Id; });
+                m_ListenerCount.fetch_sub(1, std::memory_order_relaxed);
             }
             else
             {
@@ -71,6 +74,12 @@ namespace Ame
         void Broadcast(
             ArgsTy&&... Args)
         {
+            // Skip broadcasting if there are no listeners
+            if (m_ListenerCount.load(std::memory_order_relaxed) == 0)
+            {
+                return;
+            }
+
             {
                 std::scoped_lock RunLock(m_RunMutex);
                 for (auto& Listener : m_Listeners)
@@ -91,8 +100,9 @@ namespace Ame
         }
 
     private:
-        uint64_t   m_NextHandle{ 0 };
-        std::mutex m_RunMutex, m_AddOrDropMutex;
+        std::atomic_uint64_t m_ListenerCount{ 0 };
+        uint64_t             m_NextHandle{ 0 };
+        std::mutex           m_RunMutex, m_AddOrDropMutex;
 
         CallbackDelegateList m_Listeners;
         PendingAddList       m_PendingAdd;
@@ -228,32 +238,32 @@ namespace Ame
         using Name##SH  = Ame::SignalHandle<Class&, __VA_ARGS__>; \
     }
 
-#define AME_SIGNAL_INST(Name)           \
-public:                                 \
-    [[nodiscard]] auto& Name() noexcept \
-    {                                   \
-        return m_##Name;                \
-    }                                   \
-                                        \
-private:                                \
-    Ame::Signals::Name m_##Name
+#define AME_SIGNAL_INST(Name)                 \
+public:                                       \
+    [[nodiscard]] auto& Name() const noexcept \
+    {                                         \
+        return m_##Name;                      \
+    }                                         \
+                                              \
+private:                                      \
+    mutable Ame::Signals::Name m_##Name
 
-#define AME_SIGNAL_STATIC(Name)                 \
-public:                                         \
-    [[nodiscard]] auto& Static##Name() noexcept \
-    {                                           \
-        return m_##Name;                        \
-    }                                           \
-                                                \
-private:                                        \
+#define AME_SIGNAL_STATIC(Name)                       \
+public:                                               \
+    [[nodiscard]] auto& Static##Name() const noexcept \
+    {                                                 \
+        return m_##Name;                              \
+    }                                                 \
+                                                      \
+private:                                              \
     static inline Ame::Signals::Name m_##Name
 
-#define AME_SIGNAL_DOUBLE(Name)                 \
-public:                                         \
-    [[nodiscard]] auto& Static##Name() noexcept \
-    {                                           \
-        return m_##Name;                        \
-    }                                           \
-                                                \
-private:                                        \
-    Ame::Signals::Name##Dbl m_##Name
+#define AME_SIGNAL_DOUBLE(Name)                       \
+public:                                               \
+    [[nodiscard]] auto& Static##Name() const noexcept \
+    {                                                 \
+        return m_##Name;                              \
+    }                                                 \
+                                                      \
+private:                                              \
+    mutable Ame::Signals::Name##Dbl m_##Name
