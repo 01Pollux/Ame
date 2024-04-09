@@ -23,7 +23,10 @@ target_end()
 
 target("Rhi")
     ame_header_library("Ame", "Rhi", "static", "Ame/Rhi")
-    add_packages("nri", {public = true, inherit = true})
+    add_packages(
+        "nri",
+        "directxshadercompiler",
+        {public = true, inherit = true})
     add_deps("Windowing", {public = true, inherit = true})
 target_end()
 

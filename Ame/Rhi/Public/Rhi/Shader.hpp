@@ -1,13 +1,9 @@
 #pragma once
 
 #include <Core/String.hpp>
+#include <Core/Coroutine.hpp>
 #include <Rhi/Resource.hpp>
 #include <EASTL/unordered_map.h>
-
-namespace Ame::Asset
-{
-    class IStorage;
-} // namespace Ame::Asset
 
 namespace Ame::Rhi
 {
@@ -92,7 +88,7 @@ namespace Ame::Rhi
         MacroList                          Defines;
         std::vector<ShaderVulkanExtension> SpirvExtensions{ ShaderVulkanExtension::KHR };
 
-        ShaderType            Stage              = ShaderType::VERTEX_SHADER;
+        ShaderType            Stage              = ShaderType::NONE;
         ShaderProfile         Profile            = ShaderProfile::_6_5;
         ShaderVulkanMemLayout VulkanMemoryLayout = ShaderVulkanMemLayout::Dx;
 
@@ -118,6 +114,13 @@ namespace Ame::Rhi
     class ShaderBytecode : public NonCopyable
     {
     public:
+        [[nodiscard]] static Co::result<ShaderBytecode> Compile(
+            Co::executor_tag,
+            Co::executor&            Executor,
+            GraphicsAPI              Api,
+            StringU8View             ShaderSource,
+            const ShaderCompileDesc& CompileDesc);
+
         [[nodiscard]] static ShaderBytecode Compile(
             GraphicsAPI              Api,
             StringU8View             ShaderSource,

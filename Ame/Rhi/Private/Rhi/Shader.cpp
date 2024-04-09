@@ -330,7 +330,6 @@ namespace Ame::Rhi
 
         constexpr auto p = std::is_same_v<String::std_string_view_type, std::wstring_view>;
 
-
         RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.textureOffset));
         RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.storageTextureAndBufferOffset));
         RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.samplerOffset));
@@ -546,6 +545,16 @@ namespace Ame::Rhi
     }
 
     //
+
+    Co::result<ShaderBytecode> ShaderBytecode::Compile(
+        Co::executor_tag,
+        Co::executor&            Executor,
+        GraphicsAPI              Api,
+        StringU8View             ShaderSource,
+        const ShaderCompileDesc& CompileDesc)
+    {
+        co_return Compile(Api, ShaderSource, CompileDesc);
+    }
 
     ShaderBytecode ShaderBytecode::Compile(
         GraphicsAPI              Api,

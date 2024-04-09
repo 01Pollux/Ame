@@ -6,7 +6,7 @@
 
 namespace Ame
 {
-    struct CoroutineSubsystem : public ExternSharedSubsystem<Co::runtime>
+    struct CoroutineSubsystem : ExternSharedSubsystem<Co::runtime>, kgr::final
     {
     };
 
