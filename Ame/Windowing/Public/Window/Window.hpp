@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Object/Object.hpp>
 #include <Window/Signals.hpp>
 
 #include <Window/Desc.hpp>
@@ -10,10 +9,8 @@ struct GLFWwindow;
 
 namespace Ame::Windowing
 {
-    class Window : public IObject
+    class Window
     {
-        AME_OBJECT(Window, IObject);
-
     public:
         explicit Window(
             const WindowDesc& Desc);

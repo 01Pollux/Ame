@@ -1,4 +1,5 @@
-add_rules("mode.debug", "mode.release")
+includes("Project/Rules.lua")
+add_rules("mode.Debug", "mode.Release", "mode.Dist")
 set_languages("c++latest")
 
 script_root_dir = os.scriptdir()

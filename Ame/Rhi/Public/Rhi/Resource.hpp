@@ -6,6 +6,8 @@
 #include <IO/MemStream.hpp>
 #include <span>
 
+#include <Rhi/Core.hpp>
+
 #include <NRI/NRI.h>
 #include <NRI/NRIDescs.h>
 

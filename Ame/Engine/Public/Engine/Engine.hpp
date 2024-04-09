@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Container.hpp>
-#include <Object/Object.hpp>
 #include <Engine/Signals.hpp>
 
 namespace Ame
@@ -11,10 +10,8 @@ namespace Ame
         class Device;
     } // namespace Rhi
 
-    class BaseEngine : public IObject, public Container
+    class BaseEngine : public Container
     {
-        AME_OBJECT(BaseEngine, IObject);
-
     public:
         virtual ~BaseEngine() = default;
 

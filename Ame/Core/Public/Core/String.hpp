@@ -429,7 +429,14 @@ namespace Ame
     {
         BasicString<CharTy> Str;
         Str.reserve(Format.size());
-        std::vformat_to(std::back_inserter(Str), std::move(Format), std::make_format_args(std::forward<ArgsTy>(Args)...));
+        if constexpr (std::is_same_v<CharTy, char>)
+        {
+            std::vformat_to(std::back_inserter(Str), Format, std::make_format_args(std::forward<ArgsTy>(Args)...));
+        }
+        else
+        {
+            std::vformat_to(std::back_inserter(Str), std::move(Format), std::make_wformat_args(std::forward<ArgsTy>(Args)...));
+        }
         return Str;
     }
 } // namespace Ame
