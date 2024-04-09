@@ -29,7 +29,7 @@ namespace Ame
 
     void BaseEngine::Close()
     {
-        m_Logic.Stop();
+        m_IsRunning = false;
     }
 
     //
@@ -37,10 +37,7 @@ namespace Ame
     void BaseEngine::DoInitialize()
     {
         Log::Engine().Trace("Initializing Engine...");
-
-        m_Logic.Initialize();
         Initialize();
-
         Log::Engine().Trace("Engine Initialized");
     }
 
@@ -57,10 +54,7 @@ namespace Ame
     void BaseEngine::DoShutdown()
     {
         Log::Engine().Trace("Shutting down Engine...");
-
         Shutdown();
-        m_Logic.Shutdown();
-
         Log::Engine().Trace("Engine Shutdown");
     }
 
@@ -73,18 +67,27 @@ namespace Ame
         auto& Timer   = GetSubsystem<TimerSubsystem>();
         Timer.Reset();
 
-        while (m_Logic.IsRunning() && RhiDevice.ProcessEvents()) [[likely]]
+        auto DoRender = [this](Co::executor_tag, Co::executor& Executor) -> Co::result<void>
+        {
+            m_OnRender.Broadcast(*this);
+            m_OnPostRender.Broadcast(*this);
+            co_return;
+        };
+
+        while (m_IsRunning && RhiDevice.ProcessEvents()) [[likely]]
         {
             Timer.Tick();
 
             RhiDevice.BeginFrame();
-            m_Logic.StartFrame(*this);
+            m_OnStartFrame.Broadcast(*this);
 
-            auto Tick = m_Logic.TickRender({}, *Runtime.thread_pool_executor(), *this);
-            m_Logic.Tick(*this);
+            auto Tick = DoRender({}, *Runtime.thread_pool_executor());
+            m_OnUpdate.Broadcast(*this);
+            m_OnPostUpdate.Broadcast(*this);
+
             Tick.get();
 
-            m_Logic.EndFrame(*this);
+            m_OnEndFrame.Broadcast(*this);
             RhiDevice.EndFrame();
         }
     }
@@ -92,13 +95,15 @@ namespace Ame
     void BaseEngine::DoHeadlessLoop()
     {
         auto& Timer = GetSubsystem<TimerSubsystem>();
-        while (m_Logic.IsRunning())
+        while (m_IsRunning)
         {
             Timer.Tick();
+            m_OnStartFrame.Broadcast(*this);
 
-            m_Logic.StartFrame(*this);
-            m_Logic.Tick(*this);
-            m_Logic.EndFrame(*this);
+            m_OnUpdate.Broadcast(*this);
+            m_OnPostUpdate.Broadcast(*this);
+
+            m_OnEndFrame.Broadcast(*this);
         }
     }
 } // namespace Ame

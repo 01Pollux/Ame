@@ -2,11 +2,7 @@
 
 #include <Core/Container.hpp>
 #include <Object/Object.hpp>
-
-#include <Engine/Logic.hpp>
-#include <Engine/Timer.hpp>
-
-#include <concurrencpp/concurrencpp.h>
+#include <Engine/Signals.hpp>
 
 namespace Ame
 {
@@ -67,7 +63,18 @@ namespace Ame
         /// </summary>
         void DoHeadlessLoop();
 
-    protected:
-        EngineLogic m_Logic;
+    public:
+        AME_SIGNAL_DOUBLE(OnStartFrame);
+
+        AME_SIGNAL_DOUBLE(OnUpdate);
+        AME_SIGNAL_DOUBLE(OnPostUpdate);
+
+        AME_SIGNAL_DOUBLE(OnRender);
+        AME_SIGNAL_DOUBLE(OnPostRender);
+
+        AME_SIGNAL_DOUBLE(OnEndFrame);
+
+    private:
+        bool m_IsRunning = true;
     };
 } // namespace Ame
