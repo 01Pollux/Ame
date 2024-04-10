@@ -49,7 +49,11 @@ private:
                 float4 Color;
 			};
 
+#ifdef AME_SHADER_COMPILER_SPIRV
+            [[vk::push_constant]] ConstantData Constants : register(b0, space0);
+#else
             ConstantBuffer<ConstantData> Constants : register(b0, space0);
+#endif
 
 			VertexOutput VS_Main(VertexInput input)
 			{
@@ -67,8 +71,8 @@ private:
         auto VertexShader = Rhi::ShaderBytecode::Compile({}, Executor, RhiDevice.GetGraphicsAPI(), SourceCode, { .Stage = Rhi::ShaderType::VERTEX_SHADER });
         auto PixelShader  = Rhi::ShaderBytecode::Compile({}, Executor, RhiDevice.GetGraphicsAPI(), SourceCode, { .Stage = Rhi::ShaderType::FRAGMENT_SHADER });
 
-        Shaders.emplace_back(co_await VertexShader);
-        Shaders.emplace_back(co_await PixelShader);
+        Shaders.emplace_back(std::move(co_await VertexShader));
+        Shaders.emplace_back(std::move(co_await PixelShader));
 
         co_return Shaders;
     }
@@ -96,8 +100,8 @@ private:
     {
         auto& Executor = *Coroutine.thread_pool_executor();
 
-        auto Shaders = LoadShaders({}, Executor, RhiDevice);
-        auto Layout  = LoadLayout({}, Executor, RhiDevice);
+        auto ShaderTask = LoadShaders({}, Executor, RhiDevice);
+        auto LayoutTask = LoadLayout({}, Executor, RhiDevice);
 
         Rhi::RenderTargetDesc RenderTargets[]{
             { RhiDevice.GetBackbuffer().Resource.GetDesc(RhiDevice).format }
@@ -130,9 +134,10 @@ private:
             .VertexInput = &VertexInput
         };
 
-        Desc.Layout = co_await Layout;
+        Desc.Layout = co_await LayoutTask;
 
-        auto ShaderDescs = co_await Shaders |
+        auto Shaders     = co_await ShaderTask;
+        auto ShaderDescs = Shaders |
                            std::views::transform([](const auto& Shader)
                                                  { return Shader.GetDesc(); }) |
                            std::ranges::to<std::vector>();
