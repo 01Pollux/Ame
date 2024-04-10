@@ -3,7 +3,6 @@
 #include <Core/Ame.hpp>
 #include <Core/Enum.hpp>
 #include <Math/Vector.hpp>
-#include <IO/MemStream.hpp>
 #include <span>
 
 #include <Rhi/Core.hpp>
@@ -15,6 +14,7 @@ namespace Ame::Rhi
 {
     class Device;
     class PipelineLayout;
+    class PipelineState;
 
     using BufferUsageBits      = nri::BufferUsageBits;
     using TextureType          = nri::TextureType;
@@ -38,131 +38,97 @@ namespace Ame::Rhi
     using VertexStreamStepRate = nri::VertexStreamStepRate;
     using DescriptorType       = nri::DescriptorType;
 
-    //
+    using DescriptorRangeDesc       = nri::DescriptorRangeDesc;
+    using DynamicConstantBufferDesc = nri::DynamicConstantBufferDesc;
+    using DescriptorSetDesc         = nri::DescriptorSetDesc;
+    using PushConstantDesc          = nri::PushConstantDesc;
+    using PipelineLayoutDesc        = nri::PipelineLayoutDesc;
 
-    struct DescriptorRangeDesc
-    {
-        uint32_t       Register;
-        uint32_t       Count;
-        DescriptorType Type;
-        StageBits      Stages;
-        bool           DynamicSize = false;
-        bool           Array       = false;
-    };
+    using VertexAttributeDesc = nri::VertexAttributeDesc;
+    using VertexStreamDesc    = nri::VertexStreamDesc;
+    using VertexInputDesc     = nri::VertexInputDesc;
 
-    struct DynamicConstantBufferDesc
-    {
-        uint32_t  Register;
-        StageBits Stages;
-    };
-
-    struct DescriptorSetDesc
-    {
-        uint32_t                             RegisterSpace;
-        std::span<DescriptorRangeDesc>       Ranges;
-        std::span<DynamicConstantBufferDesc> DynamicConstantBuffers;
-        bool                                 PartiallyBound = false;
-    };
-
-    struct PushConstantDesc
-    {
-        uint32_t  Register;
-        uint32_t  Size;
-        StageBits Stages;
-    };
-
-    struct PipelineLayoutDesc
-    {
-        std::span<DescriptorSetDesc> DescriptorSets;
-        std::span<PushConstantDesc>  PushConstants;
-    };
+    using ShaderDesc = nri::ShaderDesc;
 
     //
-
-    struct VertexAttributeDesc
-    {
-        const char*    HlslSemantic = nullptr;
-        ResourceFormat Format;
-        uint8_t        HlslSemanticIndex = 0;
-        uint8_t        VkLocation;
-        uint32_t       Offset;
-        uint16_t       StreamIndex = 0;
-    };
-
-    struct VertexStreamDesc
-    {
-        uint32_t             Stride;
-        uint32_t             BindingSlot;
-        VertexStreamStepRate StepRate = VertexStreamStepRate::PER_VERTEX;
-    };
-
-    struct VertexInputDesc
-    {
-        std::span<VertexAttributeDesc> Attributes;
-        std::span<VertexStreamDesc>    Streams;
-    };
 
     struct InputAssemblyDesc
     {
-        TopologyType         Topoly;
+        TopologyType         Topology;
         uint8_t              TessControlPointNum = 0;
         PrimitiveRestartType PrimitiveRestart    = PrimitiveRestartType::DISABLED;
     };
 
     struct RasterizationDesc
     {
-        uint32_t ViewportNum;
-        float    DepthBias                 = 0.f;
-        float    DepthBiasClamp            = 0.f;
-        float    DepthBiasSlopeFactor      = 0.f;
-        FillMode Fill                      = FillMode::SOLID;
-        CullMode Cull                      = CullMode::BACK;
-        bool     FrontCounterClockwise     = false;
-        bool     DepthClamp                = false;
-        bool     AntialiasedLines          = false; // Requires "isLineSmoothingSupported"
-        bool     ConservativeRasterization = false; // Requires "conservativeRasterTier > 0"
+        float DepthBias            = 0.f;
+        float DepthBiasClamp       = 0.f;
+        float DepthBiasSlopeFactor = 0.f;
+
+        uint8_t ViewportNum    = 1;
+        bool    DepthClamp : 1 = false;
+
+        FillMode Fill : 1 = FillMode::SOLID;
+        CullMode Cull : 2 = CullMode::BACK;
+
+        bool FrontCounterClockwise : 1 = false;
+
+        // Requires "isLineSmoothingSupported"
+        bool AntialiasedLines : 1 = false;
+        // Requires "conservativeRasterTier > 0"
+        bool ConservativeRasterization : 1 = false;
     };
+    static_assert(std::to_underlying(FillMode::MAX_NUM) <= (1 << 1), "Invalid bit size for FillMode");
+    static_assert(std::to_underlying(CullMode::MAX_NUM) <= (1 << 2), "Invalid bit size for CullMode");
 
     struct MultisampleDesc
     {
-        uint32_t SampleMask                  = 0;
-        uint8_t  SampleNum                   = 1;
-        bool     AlphaToCoverageEnable       = false;
-        bool     ProgrammableSampleLocations = false; // Requires "isSampleLocationSupported"
+        uint32_t SampleMask                = 0;
+        uint8_t  SampleNum                 = 1;
+        bool     AlphaToCoverageEnable : 1 = false;
+        // Requires "isSampleLocationSupported"
+        bool ProgrammableSampleLocations : 1 = false;
     };
 
     struct BlendingDesc
     {
-        BlendFactor Src  = BlendFactor::ONE;
-        BlendFactor Dst  = BlendFactor::ZERO;
-        BlendFunc   Func = BlendFunc::ADD;
+        BlendFactor Src  : 5 = BlendFactor::ONE;
+        BlendFactor Dst  : 5 = BlendFactor::ZERO;
+        BlendFunc   Func : 3 = BlendFunc::ADD;
     };
+    static_assert(std::to_underlying(BlendFactor::MAX_NUM) <= (1 << 5), "Invalid bit size for BlendFactor");
+    static_assert(std::to_underlying(BlendFunc::MAX_NUM) <= (1 << 3), "Invalid bit size for BlendFunc");
 
     struct RenderTargetDesc
     {
-        ResourceFormat Format;
+        ResourceFormat Format = ResourceFormat::UNKNOWN;
         BlendingDesc   Color;
         BlendingDesc   Alpha;
-        ColorWriteBits WriteMask;
-        bool           BlendEnable = false;
+        ColorWriteBits WriteMask   : 4 = ColorWriteBits::RGBA;
+        bool           BlendEnable : 1 = false;
     };
+    static_assert(std::to_underlying(ColorWriteBits::RGBA) <= ((1 << 4) - 1), "Invalid bit size for ColorWriteBits");
 
     struct DepthTargetDesc
     {
-        CompareFunc Func                 = CompareFunc::LESS;
-        bool        WriteEnable      : 1 = false;
-        bool        BoundsTestEnable : 1 = false; // Requires "isDepthBoundsTestSupported", expects "CmdSetDepthBounds"
+        CompareFunc Func        : 5 = CompareFunc::LESS;
+        bool        WriteEnable : 1 = false;
+        // Requires "isDepthBoundsTestSupported", expects "CmdSetDepthBounds"
+        bool BoundsTestEnable : 1 = false;
     };
+    static_assert(std::to_underlying(CompareFunc::MAX_NUM) <= (1 << 5), "Invalid bit size for CompareFunc");
 
     struct StencilDesc
     {
-        CompareFunc Func        = CompareFunc::ALWAYS;
-        StencilFunc OnFail      = StencilFunc::KEEP;
-        StencilFunc OnDepthFail = StencilFunc::KEEP;
-        StencilFunc OnPass      = StencilFunc::KEEP;
-        uint8_t     WriteMask   = 0xFF;
-        uint8_t     CompareMask = 0xFF;
+        uint8_t     WriteMask       = 0xFF;
+        uint8_t     CompareMask     = 0xFF;
+        CompareFunc Func        : 5 = CompareFunc::ALWAYS;
+        StencilFunc OnFail      : 3 = StencilFunc::KEEP;
+        StencilFunc OnDepthFail : 3 = StencilFunc::KEEP;
+        StencilFunc OnPass      : 3 = StencilFunc::KEEP;
     };
+    static_assert(std::to_underlying(CompareFunc::MAX_NUM) <= (1 << 5), "Invalid bit size for CompareFunc");
+    static_assert(std::to_underlying(StencilFunc::MAX_NUM) <= (1 << 3), "Invalid bit size for StencilFunc");
 
     struct StencilTargetDesc
     {
@@ -179,15 +145,9 @@ namespace Ame::Rhi
         LogicFunc                   ColorLogicFunc = LogicFunc::NONE;
     };
 
-    struct ShaderDesc
-    {
-        IO::MemDeviceView Bytecode;
-        ShaderType        Type;
-    };
-
     struct GraphicsPipelineDesc
     {
-        const PipelineLayout* Layout = nullptr;
+        Ptr<PipelineLayout> Layout;
 
         InputAssemblyDesc InputAssembly;
         RasterizationDesc Rasterizer;
@@ -196,9 +156,15 @@ namespace Ame::Rhi
         std::span<ShaderDesc> Shaders;
 
         // Optional
-        VertexInputDesc* VertexInput = nullptr;
+        const VertexInputDesc* VertexInput = nullptr;
         // Optional
         const MultisampleDesc* Multisample = nullptr;
+    };
+
+    struct ComputePipelineDesc
+    {
+        Ptr<PipelineLayout> Layout;
+        ShaderDesc          Shader;
     };
 
     //

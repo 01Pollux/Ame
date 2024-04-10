@@ -131,7 +131,7 @@ namespace Ame::Rhi
         ShaderBytecode(
             uint8_t*       Bytecode,
             size_t         Size,
-            nri::StageBits Stage,
+            ShaderType Stage,
             bool           Owning = true) :
             m_Bytecode(Bytecode),
             m_Size(Size),
@@ -149,7 +149,7 @@ namespace Ame::Rhi
         {
             Other.m_Bytecode = nullptr;
             Other.m_Size     = 0;
-            Other.m_Stage    = nri::StageBits::VERTEX_SHADER;
+            Other.m_Stage    = ShaderType::VERTEX_SHADER;
             Other.m_Owning   = false;
         }
 
@@ -165,7 +165,7 @@ namespace Ame::Rhi
 
                 Other.m_Bytecode = nullptr;
                 Other.m_Size     = 0;
-                Other.m_Stage    = nri::StageBits::VERTEX_SHADER;
+                Other.m_Stage    = ShaderType::VERTEX_SHADER;
                 Other.m_Owning   = false;
             }
 
@@ -186,9 +186,9 @@ namespace Ame::Rhi
             return m_Bytecode != nullptr;
         }
 
-        [[nodiscard]] nri::ShaderDesc GetDesc() const
+        [[nodiscard]] ShaderDesc GetDesc() const
         {
-            return nri::ShaderDesc{
+            return ShaderDesc{
                 .stage          = m_Stage,
                 .bytecode       = m_Bytecode,
                 .size           = m_Size,
@@ -207,9 +207,9 @@ namespace Ame::Rhi
         }
 
     private:
-        uint8_t*       m_Bytecode;
-        size_t         m_Size;
-        nri::StageBits m_Stage;
-        bool           m_Owning = false;
+        uint8_t*   m_Bytecode;
+        size_t     m_Size;
+        ShaderType m_Stage;
+        bool       m_Owning = false;
     };
 } // namespace Ame::Rhi

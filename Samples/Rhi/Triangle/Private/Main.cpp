@@ -3,6 +3,7 @@
 #include <Framework/Window.hpp>
 
 #include <Rhi/Shader.hpp>
+#include <ranges>
 
 #include <Log/Wrapper.hpp>
 
@@ -17,11 +18,10 @@ protected:
 
         Log::Engine().Trace("Initializing Sample...");
 
-        printf("Main thread: %d\n", std::this_thread::get_id());
-        LoadPipeline(
-            *GetSubsystem<CoroutineSubsystem>(),
-            GetSubsystem<Rhi::DeviceSubsystem>())
-            .get();
+        auto Pipeline = CreateBasicPipeline(
+                            *GetSubsystem<CoroutineSubsystem>(),
+                            GetSubsystem<Rhi::DeviceSubsystem>())
+                            .get();
     }
 
 private:
@@ -66,17 +66,45 @@ private:
         co_return Shaders;
     }
 
-    Co::result<void> LoadPipeline(
+    [[nodiscard]] Co::result<Ptr<Rhi::PipelineLayout>> LoadLayout(
+        Co::executor_tag,
+        Co::thread_pool_executor& Executor,
+        Rhi::Device&              RhiDevice) const
+    {
+        Rhi::PipelineLayoutDesc Desc{};
+        co_return RhiDevice.CreatePipelineLayout({}, Executor, Desc);
+    }
+
+    [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> CreateBasicPipeline(
         Co::runtime& Coroutine,
         Rhi::Device& RhiDevice)
     {
-        auto Shaders = co_await LoadShaders({}, *Coroutine.background_executor(), RhiDevice);
+        auto& Executor = *Coroutine.thread_pool_executor();
 
-        printf("Shaders: %zu\n", Shaders.size());
-        printf("[0] Size: %zu\n", Shaders[0].GetSize());
-        printf("[1] Size: %zu\n", Shaders[1].GetSize());
+        auto Shaders = LoadShaders({}, Executor, RhiDevice);
+        auto Layout  = LoadLayout({}, Executor, RhiDevice);
 
-        co_return;
+        Rhi::RenderTargetDesc RenderTargets[]{
+            { RhiDevice.GetBackbuffer().Resource.GetDesc(RhiDevice).format }
+        };
+
+        Rhi::GraphicsPipelineDesc Desc{
+            .InputAssembly{
+                Rhi::TopologyType::TRIANGLE_LIST },
+            .OutputMerger{
+                RenderTargets }
+        };
+
+        Desc.Layout = co_await Layout;
+
+        auto ShaderDescs = co_await Shaders |
+                           std::views::transform([](const auto& Shader)
+                                                 { return Shader.GetDesc(); }) |
+                           std::ranges::to<std::vector>();
+
+        Desc.Shaders = ShaderDescs;
+
+        co_return RhiDevice.CreatePipelineState({}, Executor, Desc);
     }
 };
 

@@ -164,4 +164,109 @@ namespace Ame::Rhi
 
         Count,
     };
+
+    //
+
+    template<typename Ty>
+    [[nodiscard]] constexpr size_t ByteSizeOf(
+        const Ty& Value)
+    {
+        // if constexpr has begin and end, use them
+        if constexpr (requires { Value.begin(); Value.end(); })
+        {
+            return std::distance(Value.begin(), Value.end()) * sizeof(typename Ty::value_type);
+        }
+        else
+        {
+            return sizeof(Value);
+        }
+    }
+
+    //
+
+    template<typename Ty>
+    [[nodiscard]] constexpr size_t Count64(
+        const Ty& Value)
+    {
+        return std::size(Value);
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr size_t Size64()
+    {
+        return sizeof(Ty);
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr size_t Size64(
+        const Ty&)
+    {
+        return sizeof(Ty);
+    }
+
+    //
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint32_t Count32(
+        const Ty& Value)
+    {
+        return static_cast<uint32_t>(std::size(Value));
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint32_t Size32()
+    {
+        return static_cast<uint32_t>(sizeof(Ty));
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint32_t Size32(
+        const Ty&)
+    {
+        return static_cast<uint32_t>(sizeof(Ty));
+    }
+
+    //
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint16_t Count16(
+        const Ty& Value)
+    {
+        return static_cast<uint16_t>(std::size(Value));
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint16_t Size16()
+    {
+        return static_cast<uint16_t>(sizeof(Ty));
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint16_t Size16(
+        const Ty&)
+    {
+        return static_cast<uint16_t>(sizeof(Ty));
+    }
+
+    //
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint8_t Count8(
+        const Ty& Value)
+    {
+        return static_cast<uint8_t>(std::size(Value));
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint8_t Size8()
+    {
+        return static_cast<uint8_t>(sizeof(Ty));
+    }
+
+    template<typename Ty>
+    [[nodiscard]] constexpr uint8_t Size8(
+        const Ty&)
+    {
+        return static_cast<uint8_t>(sizeof(Ty));
+    }
 } // namespace Ame::Rhi

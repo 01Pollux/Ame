@@ -1,8 +1,12 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Rhi/Core.hpp>
+#include <Core/Coroutine.hpp>
+
+#include <Rhi/Resource.hpp>
 #include <Rhi/Backbuffer.hpp>
+
+#include <EASTL/unordered_map.h>
 
 namespace Ame::Windowing
 {
@@ -20,6 +24,8 @@ namespace Ame::Rhi
         friend Buffer;
         friend Texture;
         friend ResourceView;
+        friend PipelineLayout;
+        friend PipelineState;
 
     public:
         Device();
@@ -161,6 +167,55 @@ namespace Ame::Rhi
         /// </summary>
         void WaitIdle();
 
+        /// <summary>
+        /// Clean up device resources cache.
+        /// </summary>
+        void CleanupCache();
+
+    public:
+        /// <summary>
+        /// Create pipeline layout.
+        /// </summary>
+        [[nodiscard]] Co::result<Ptr<PipelineLayout>> CreatePipelineLayout(
+            Co::executor_tag,
+            Co::executor&             Executor,
+            const PipelineLayoutDesc& Desc);
+
+        /// <summary>
+        /// Create pipeline layout.
+        /// </summary>
+        [[nodiscard]] Ptr<PipelineLayout> CreatePipelineLayout(
+            const PipelineLayoutDesc& Desc);
+
+    public:
+        /// <summary>
+        /// Create graphics pipeline state.
+        /// </summary>
+        [[nodiscard]] Co::result<Ptr<PipelineState>> CreatePipelineState(
+            Co::executor_tag,
+            Co::executor&,
+            const GraphicsPipelineDesc& Desc);
+
+        /// <summary>
+        /// Create compute pipeline state.
+        /// </summary>
+        [[nodiscard]] Co::result<Ptr<PipelineState>> CreatePipelineState(
+            Co::executor_tag,
+            Co::executor&,
+            const ComputePipelineDesc& Desc);
+
+        /// <summary>
+        /// Create graphics pipeline state.
+        /// </summary>
+        [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
+            const GraphicsPipelineDesc& Desc);
+
+        /// <summary>
+        /// Create compute pipeline state.
+        /// </summary>
+        [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
+            const ComputePipelineDesc& Desc);
+
         // Below are the functions that are only accessible by the Texture
     private:
         /// <summary>
@@ -265,7 +320,84 @@ namespace Ame::Rhi
         [[nodiscard]] void* GetNative(
             nri::Descriptor& View) const;
 
+        // Below are the functions that are only accessible by the PipelineLayout
+    private:
+        /// <summary>
+        /// Set the pipeline layout name.
+        /// </summary>
+        void SetName(
+            nri::PipelineLayout& Layout,
+            const char*          Name) const;
+
+        /// <summary>
+        /// Get the nri pipeline layout.
+        /// </summary>
+        void Release(
+            nri::PipelineLayout& Layout);
+
+        // Below are the functions that are only accessible by the Pipeline
+    private:
+        /// <summary>
+        /// Set the pipeline state name.
+        /// </summary>
+        void SetName(
+            nri::Pipeline& Pipeline,
+            const char*    Name) const;
+
+        /// <summary>
+        /// Get the nri pipeline state.
+        /// </summary>
+        void Release(
+            nri::Pipeline& Pipeline);
+
     private:
         UPtr<Impl> m_Impl;
+
+        template<typename DescTy, typename DataTy>
+        struct DeviceCache
+        {
+        public:
+            [[nodiscard]] DataTy* Read(
+                const DescTy& Desc)
+            {
+                return &Cache[Desc];
+            }
+
+            [[nodiscard]] auto Lock()
+            {
+                return std::scoped_lock(Mutex);
+            }
+
+            void Clear()
+            {
+                auto Guard = Lock();
+                Cache.clear();
+            }
+
+            template<typename FuncTy>
+            [[nodiscard]] DataTy& Load(
+                const DescTy& Desc,
+                FuncTy        Func)
+            {
+                auto Data = Read(Desc);
+                if (!*Data)
+                {
+                    auto Guard = Lock();
+                    if (!*Data)
+                    {
+                        *Data = Func(Desc);
+                    }
+                }
+                return *Data;
+            }
+
+        private:
+            std::mutex                           Mutex;
+            eastl::unordered_map<DescTy, DataTy> Cache;
+        };
+
+        DeviceCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
+        DeviceCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
+        DeviceCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
     };
 } // namespace Ame::Rhi

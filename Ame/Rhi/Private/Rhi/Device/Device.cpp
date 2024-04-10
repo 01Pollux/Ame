@@ -16,7 +16,14 @@ namespace Ame::Rhi
     Device::Device(Device&&)            = default;
     Device& Device::operator=(Device&&) = default;
 
-    Device::~Device() = default;
+    Device::~Device()
+    {
+        if (m_Impl)
+        {
+            CleanupCache();
+            m_Impl = nullptr;
+        }
+    }
 
     //
 
@@ -141,5 +148,12 @@ namespace Ame::Rhi
     void Device::WaitIdle()
     {
         m_Impl->WaitIdle();
+    }
+
+    void Device::CleanupCache()
+    {
+        m_PipelineLayoutCache.Clear();
+        m_GraphicsPipelineCache.Clear();
+        m_ComputePipelineCache.Clear();
     }
 } // namespace Ame::Rhi

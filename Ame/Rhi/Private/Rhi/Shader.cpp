@@ -54,25 +54,25 @@ namespace Ame::Rhi
     /// Get the shader entry point.
     /// </summary>
     [[nodiscard]] const char* GetShaderEntryPoint(
-        nri::StageBits Stage)
+        ShaderType Stage)
     {
         switch (Stage)
         {
-        case nri::StageBits::COMPUTE_SHADER:
+        case ShaderType::COMPUTE_SHADER:
             return "CS_Main";
-        case nri::StageBits::VERTEX_SHADER:
+        case ShaderType::VERTEX_SHADER:
             return "VS_Main";
-        case nri::StageBits::TESS_CONTROL_SHADER:
+        case ShaderType::TESS_CONTROL_SHADER:
             return "HS_Main";
-        case nri::StageBits::TESS_EVALUATION_SHADER:
+        case ShaderType::TESS_EVALUATION_SHADER:
             return "DS_Main";
-        case nri::StageBits::GEOMETRY_SHADER:
+        case ShaderType::GEOMETRY_SHADER:
             return "GS_Main";
-        case nri::StageBits::FRAGMENT_SHADER:
+        case ShaderType::FRAGMENT_SHADER:
             return "PS_Main";
-        case nri::StageBits::MESH_CONTROL_SHADER:
+        case ShaderType::MESH_CONTROL_SHADER:
             return "AS_Main";
-        case nri::StageBits::MESH_EVALUATION_SHADER:
+        case ShaderType::MESH_EVALUATION_SHADER:
             return "MS_Main";
         default:
             std::unreachable();
@@ -83,25 +83,25 @@ namespace Ame::Rhi
     /// Get the shader entry point.
     /// </summary>
     [[nodiscard]] const wchar_t* GetShaderEntryPointWide(
-        nri::StageBits Stage)
+        ShaderType Stage)
     {
         switch (Stage)
         {
-        case nri::StageBits::COMPUTE_SHADER:
+        case ShaderType::COMPUTE_SHADER:
             return L"CS_Main";
-        case nri::StageBits::VERTEX_SHADER:
+        case ShaderType::VERTEX_SHADER:
             return L"VS_Main";
-        case nri::StageBits::TESS_CONTROL_SHADER:
+        case ShaderType::TESS_CONTROL_SHADER:
             return L"HS_Main";
-        case nri::StageBits::TESS_EVALUATION_SHADER:
+        case ShaderType::TESS_EVALUATION_SHADER:
             return L"DS_Main";
-        case nri::StageBits::GEOMETRY_SHADER:
+        case ShaderType::GEOMETRY_SHADER:
             return L"GS_Main";
-        case nri::StageBits::FRAGMENT_SHADER:
+        case ShaderType::FRAGMENT_SHADER:
             return L"PS_Main";
-        case nri::StageBits::MESH_CONTROL_SHADER:
+        case ShaderType::MESH_CONTROL_SHADER:
             return L"AS_Main";
-        case nri::StageBits::MESH_EVALUATION_SHADER:
+        case ShaderType::MESH_EVALUATION_SHADER:
             return L"MS_Main";
         default:
             std::unreachable();
@@ -112,25 +112,25 @@ namespace Ame::Rhi
     /// Get the shader define macro.
     /// </summary>
     [[nodiscard]] static const wchar_t* GetShaderMacro(
-        nri::StageBits Stage)
+        ShaderType Stage)
     {
         switch (Stage)
         {
-        case nri::StageBits::COMPUTE_SHADER:
+        case ShaderType::COMPUTE_SHADER:
             return L"COMPUTE_SHADER=1";
-        case nri::StageBits::VERTEX_SHADER:
+        case ShaderType::VERTEX_SHADER:
             return L"VERTEX_SHADER=1";
-        case nri::StageBits::TESS_CONTROL_SHADER:
+        case ShaderType::TESS_CONTROL_SHADER:
             return L"HULL_SHADER=1";
-        case nri::StageBits::TESS_EVALUATION_SHADER:
+        case ShaderType::TESS_EVALUATION_SHADER:
             return L"DOMAIN_SHADER=1";
-        case nri::StageBits::GEOMETRY_SHADER:
+        case ShaderType::GEOMETRY_SHADER:
             return L"GEOMETRY_SHADER=1";
-        case nri::StageBits::FRAGMENT_SHADER:
+        case ShaderType::FRAGMENT_SHADER:
             return L"PIXEL_SHADER=1";
-        case nri::StageBits::MESH_CONTROL_SHADER:
+        case ShaderType::MESH_CONTROL_SHADER:
             return L"AMPLIFICATION_SHADER=1";
-        case nri::StageBits::MESH_EVALUATION_SHADER:
+        case ShaderType::MESH_EVALUATION_SHADER:
             return L"MESHSHADER_Main";
         default:
             std::unreachable();
@@ -141,35 +141,35 @@ namespace Ame::Rhi
     /// Get the shader entry model.
     /// </summary>
     [[nodiscard]] static String GetShaderModel(
-        nri::StageBits Stage,
+        ShaderType Stage,
         ShaderProfile  Profile)
     {
         String Model;
 
         switch (Stage)
         {
-        case nri::StageBits::COMPUTE_SHADER:
+        case ShaderType::COMPUTE_SHADER:
             Model = L"cs";
             break;
-        case nri::StageBits::VERTEX_SHADER:
+        case ShaderType::VERTEX_SHADER:
             Model = L"vs";
             break;
-        case nri::StageBits::GEOMETRY_SHADER:
+        case ShaderType::GEOMETRY_SHADER:
             Model = L"gs";
             break;
-        case nri::StageBits::TESS_CONTROL_SHADER:
+        case ShaderType::TESS_CONTROL_SHADER:
             Model = L"hs";
             break;
-        case nri::StageBits::TESS_EVALUATION_SHADER:
+        case ShaderType::TESS_EVALUATION_SHADER:
             Model = L"ds";
             break;
-        case nri::StageBits::FRAGMENT_SHADER:
+        case ShaderType::FRAGMENT_SHADER:
             Model = L"ps";
             break;
-        case nri::StageBits::MESH_CONTROL_SHADER:
+        case ShaderType::MESH_CONTROL_SHADER:
             Model = L"as";
             break;
-        case nri::StageBits::MESH_EVALUATION_SHADER:
+        case ShaderType::MESH_EVALUATION_SHADER:
             Model = L"ms";
             break;
         default:
