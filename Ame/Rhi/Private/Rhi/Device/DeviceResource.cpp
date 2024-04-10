@@ -1,7 +1,7 @@
 #include <Rhi/Device.hpp>
 #include "DeviceImpl.hpp"
 
-#include "../NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {

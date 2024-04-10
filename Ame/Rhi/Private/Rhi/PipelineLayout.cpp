@@ -1,15 +1,18 @@
-#include <Rhi/PipelineLayout.hpp>
 #include <Rhi/Device/DeviceImpl.hpp>
-#include <Rhi/Hash.hpp>
+
+#include <Rhi/PipelineLayout.hpp>
+
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
     PipelineLayout::PipelineLayout(
         Device&              RhiDevice,
-        nri::PipelineLayout& Layout) :
+        nri::PipelineLayout& Layout,
+        size_t               Hash) :
         m_RhiDevice(RhiDevice),
-        m_Layout(Layout)
+        m_Layout(Layout),
+        m_Hash(Hash)
     {
     }
 
@@ -29,6 +32,11 @@ namespace Ame::Rhi
         return m_Layout;
     }
 
+    size_t PipelineLayout::GetHash() const
+    {
+        return m_Hash;
+    }
+
     //
 
     Co::result<Ptr<PipelineLayout>> Device::CreatePipelineLayout(
@@ -44,7 +52,7 @@ namespace Ame::Rhi
     {
         return m_PipelineLayoutCache.Load(
             Desc,
-            [this](const PipelineLayoutDesc& Desc)
+            [this](size_t Hash, const PipelineLayoutDesc& Desc)
             {
                 nri::PipelineLayout* NriLayout = nullptr;
 
@@ -55,7 +63,7 @@ namespace Ame::Rhi
                                   m_Impl->GetDevice(), Desc, NriLayout),
                               "Failed to create pipeline layout");
 
-                return std::make_shared<PipelineLayout>(*this, NriLayout);
+                return std::make_shared<PipelineLayout>(*this, *NriLayout, Hash);
             });
     }
 

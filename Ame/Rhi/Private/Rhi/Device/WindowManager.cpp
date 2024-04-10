@@ -1,7 +1,7 @@
 #include "WindowManager.hpp"
 
 #include <Rhi/DeviceCreateDesc.hpp>
-#include "../NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 #if defined AME_PLATFORM_WINDOWS
 #define GLFW_EXPOSE_NATIVE_WIN32

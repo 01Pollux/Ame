@@ -141,8 +141,8 @@ namespace Ame::Rhi
     /// Get the shader entry model.
     /// </summary>
     [[nodiscard]] static String GetShaderModel(
-        ShaderType Stage,
-        ShaderProfile  Profile)
+        ShaderType    Stage,
+        ShaderProfile Profile)
     {
         String Model;
 
@@ -328,8 +328,6 @@ namespace Ame::Rhi
             break;
         }
 
-        constexpr auto p = std::is_same_v<String::std_string_view_type, std::wstring_view>;
-
         RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.textureOffset));
         RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.storageTextureAndBufferOffset));
         RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.samplerOffset));
@@ -427,6 +425,7 @@ namespace Ame::Rhi
             {
                 FinalOptions.emplace_back(L"-D AME_SHADER_COMPILER_SPIRV=1");
                 FinalOptions.emplace_back(L"-spirv");
+                FinalOptions.emplace_back(L"-fvk-use-dx-layout");
 
                 AddSpirvExtensions(Desc.SpirvExtensions, FinalOptions);
                 AddSpirvLayout(Desc, RegisterShift, FinalOptions);
@@ -463,7 +462,7 @@ namespace Ame::Rhi
     /// <summary>
     /// Precompile the shader.
     /// </summary>
-    [[nodiscard]] static CComPtr<IDxcBlob> PrecompileShader(
+    [[nodiscard]] static CComPtr<IDxcBlob> CompileShader(
         IDxcCompiler3*            Compiler,
         IDxcUtils*                Utils,
         std::span<const wchar_t*> Options,
@@ -573,7 +572,7 @@ namespace Ame::Rhi
 
         auto ShaderCodeBlob = LoadShaderFromString(GetComPtr(Utils), ShaderSource);
         auto Options        = CompileShaderOption(Api, Desc);
-        auto Data           = PrecompileShader(GetComPtr(Compiler), GetComPtr(Utils), Options.FinalOptions, GetComPtr(ShaderCodeBlob));
+        auto Data           = CompileShader(GetComPtr(Compiler), GetComPtr(Utils), Options.FinalOptions, GetComPtr(ShaderCodeBlob));
 
         ShaderBytecode Shader;
         if (Data && ValidateShader(Api, GetComPtr(Validator), GetComPtr(Utils), Data))

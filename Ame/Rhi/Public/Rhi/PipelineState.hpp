@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Rhi/Resource.hpp>
+#include <Rhi/Descs/Pipeline.hpp>
 
 namespace Ame::Rhi
 {

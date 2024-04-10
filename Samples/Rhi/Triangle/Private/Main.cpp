@@ -44,6 +44,13 @@ private:
 				float4 Position : SV_POSITION;
 			};
 
+            struct ConstantData
+			{
+                float4 Color;
+			};
+
+            ConstantBuffer<ConstantData> Constants : register(b0, space0);
+
 			VertexOutput VS_Main(VertexInput input)
 			{
 				VertexOutput output;
@@ -53,7 +60,7 @@ private:
 
 			float4 PS_Main(VertexOutput input) : SV_TARGET
 			{
-				return float4(1.0f, 0.0f, 0.0f, 1.0f);
+				return Constants.Color;
 			}
 		)";
 
@@ -71,8 +78,16 @@ private:
         Co::thread_pool_executor& Executor,
         Rhi::Device&              RhiDevice) const
     {
-        Rhi::PipelineLayoutDesc Desc{};
-        co_return RhiDevice.CreatePipelineLayout({}, Executor, Desc);
+        Rhi::PushConstantDesc Constants[]{
+            { .registerIndex = 0, .size = sizeof(float) * 4, .shaderStages = Rhi::ShaderType::FRAGMENT_SHADER }
+        };
+
+        Rhi::PipelineLayoutDesc Desc{
+            .pushConstants   = Constants,
+            .pushConstantNum = Rhi::Count32(Constants),
+            .shaderStages    = Rhi::ShaderType::VERTEX_SHADER | Rhi::ShaderType::FRAGMENT_SHADER
+        };
+        co_return co_await RhiDevice.CreatePipelineLayout({}, Executor, Desc);
     }
 
     [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> CreateBasicPipeline(
@@ -88,11 +103,31 @@ private:
             { RhiDevice.GetBackbuffer().Resource.GetDesc(RhiDevice).format }
         };
 
+        Rhi::VertexStreamDesc VertexStreams[]{
+            { .stride      = sizeof(float) * 2,
+              .bindingSlot = 0,
+              .stepRate    = Rhi::VertexStreamStepRate::PER_VERTEX }
+        };
+
+        Rhi::VertexAttributeDesc VertexAttributes[]{
+            { .d3d{ "POSITION", 0 },
+              .vk{ 0 },
+              .offset      = 0,
+              .format      = Rhi::ResourceFormat::R32_SFLOAT,
+              .streamIndex = 0 }
+        };
+
+        Rhi::VertexInputDesc VertexInput{
+            .attributes   = VertexAttributes,
+            .streams      = VertexStreams,
+            .attributeNum = Rhi::Count8(VertexAttributes),
+            .streamNum    = Rhi::Count8(VertexStreams)
+        };
+
         Rhi::GraphicsPipelineDesc Desc{
-            .InputAssembly{
-                Rhi::TopologyType::TRIANGLE_LIST },
-            .OutputMerger{
-                RenderTargets }
+            .InputAssembly{ Rhi::TopologyType::TRIANGLE_LIST },
+            .OutputMerger{ RenderTargets },
+            .VertexInput = &VertexInput
         };
 
         Desc.Layout = co_await Layout;
@@ -104,7 +139,7 @@ private:
 
         Desc.Shaders = ShaderDescs;
 
-        co_return RhiDevice.CreatePipelineState({}, Executor, Desc);
+        co_return co_await RhiDevice.CreatePipelineState({}, Executor, Desc);
     }
 };
 

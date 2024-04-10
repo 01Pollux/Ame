@@ -1,6 +1,6 @@
 #include "FrameWrapper.hpp"
 
-#include "../NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {

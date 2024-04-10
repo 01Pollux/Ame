@@ -11,7 +11,7 @@
 #include <d3d12sdklayers.h>
 #endif
 
-#include "../NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {

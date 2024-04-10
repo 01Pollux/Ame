@@ -1,9 +1,11 @@
 #pragma once
 
+#include <EASTL/unordered_map.h>
+
 #include <Core/String.hpp>
 #include <Core/Coroutine.hpp>
-#include <Rhi/Resource.hpp>
-#include <EASTL/unordered_map.h>
+
+#include <Rhi/Descs/Core.hpp>
 
 namespace Ame::Rhi
 {
@@ -129,10 +131,10 @@ namespace Ame::Rhi
     public:
         ShaderBytecode() = default;
         ShaderBytecode(
-            uint8_t*       Bytecode,
-            size_t         Size,
+            uint8_t*   Bytecode,
+            size_t     Size,
             ShaderType Stage,
-            bool           Owning = true) :
+            bool       Owning = true) :
             m_Bytecode(Bytecode),
             m_Size(Size),
             m_Stage(Stage),

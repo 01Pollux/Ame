@@ -1,12 +1,13 @@
 #pragma once
 
-#include <Core/Ame.hpp>
 #include <Core/Coroutine.hpp>
+#include <Rhi/Descs/Core.hpp>
 
-#include <Rhi/Resource.hpp>
+#include <Rhi/Util/TypedCache.hpp>
 #include <Rhi/Backbuffer.hpp>
 
-#include <EASTL/unordered_map.h>
+#include <Rhi/Hash/Layout.hpp>
+#include <Rhi/Hash/Pipeline.hpp>
 
 namespace Ame::Windowing
 {
@@ -17,7 +18,7 @@ namespace Ame::Rhi
 {
     struct DeviceCreateDesc;
 
-    class Device
+    class Device : public NonCopyable
     {
         class Impl;
 
@@ -28,15 +29,12 @@ namespace Ame::Rhi
         friend PipelineState;
 
     public:
-        Device();
+        Device() = default;
         Device(
             const DeviceCreateDesc& Desc);
 
-        Device(const Device&)            = delete;
-        Device& operator=(const Device&) = delete;
-
-        Device(Device&&);
-        Device& operator=(Device&&);
+        Device(Device&&)            = default;
+        Device& operator=(Device&&) = default;
 
         ~Device();
 
@@ -353,51 +351,8 @@ namespace Ame::Rhi
     private:
         UPtr<Impl> m_Impl;
 
-        template<typename DescTy, typename DataTy>
-        struct DeviceCache
-        {
-        public:
-            [[nodiscard]] DataTy* Read(
-                const DescTy& Desc)
-            {
-                return &Cache[Desc];
-            }
-
-            [[nodiscard]] auto Lock()
-            {
-                return std::scoped_lock(Mutex);
-            }
-
-            void Clear()
-            {
-                auto Guard = Lock();
-                Cache.clear();
-            }
-
-            template<typename FuncTy>
-            [[nodiscard]] DataTy& Load(
-                const DescTy& Desc,
-                FuncTy        Func)
-            {
-                auto Data = Read(Desc);
-                if (!*Data)
-                {
-                    auto Guard = Lock();
-                    if (!*Data)
-                    {
-                        *Data = Func(Desc);
-                    }
-                }
-                return *Data;
-            }
-
-        private:
-            std::mutex                           Mutex;
-            eastl::unordered_map<DescTy, DataTy> Cache;
-        };
-
-        DeviceCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
-        DeviceCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
-        DeviceCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
+        Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
+        Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
+        Util::TypedCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
     };
 } // namespace Ame::Rhi

@@ -1,9 +1,11 @@
+#include <EASTL/vector.h>
+
+#include <Rhi/Device/DeviceImpl.hpp>
+
 #include <Rhi/PipelineState.hpp>
 #include <Rhi/PipelineLayout.hpp>
-#include <Rhi/Device/DeviceImpl.hpp>
-#include <Rhi/Hash.hpp>
+
 #include <Rhi/NriError.hpp>
-#include <EASTL/vector.h>
 
 namespace Ame::Rhi
 {
@@ -146,7 +148,7 @@ namespace Ame::Rhi
                 .stencil            = Convert(m_Desc.StencilTarget),
                 .depthStencilFormat = m_Desc.DepthStencilFormat,
                 .colorLogicFunc     = m_Desc.ColorLogicFunc,
-                .colorNum           = Count32(m_BlendDescs.size())
+                .colorNum           = Count32(m_BlendDescs)
             };
         }
 
@@ -178,7 +180,7 @@ namespace Ame::Rhi
     {
         return m_GraphicsPipelineCache.Load(
             Desc,
-            [this](const GraphicsPipelineDesc& Desc)
+            [this](size_t, const GraphicsPipelineDesc& Desc)
             {
                 auto MultiSample = Desc.Multisample ? Convert(*Desc.Multisample) : nri::MultisampleDesc{};
 
@@ -189,10 +191,10 @@ namespace Ame::Rhi
                     .vertexInput    = Desc.VertexInput,
                     .inputAssembly  = Convert(Desc.InputAssembly),
                     .rasterization  = Convert(Desc.Rasterizer),
-                    .multisample    = &MultiSample,
+                    .multisample    = Desc.Multisample ? &MultiSample : nullptr,
                     .outputMerger   = OutputMergerDesc.Get(),
                     .shaders        = Desc.Shaders.data(),
-                    .shaderNum      = Desc.Shaders.size()
+                    .shaderNum      = Count32(Desc.Shaders)
                 };
 
                 nri::Pipeline* Pipeline = nullptr;
@@ -204,7 +206,7 @@ namespace Ame::Rhi
                                   m_Impl->GetDevice(), NriDesc, Pipeline),
                               "Failed to create graphics pipeline");
 
-                return std::make_shared<PipelineState>(*this, Desc.Layout, Pipeline);
+                return std::make_shared<PipelineState>(*this, Desc.Layout, *Pipeline);
             });
     }
 
@@ -213,7 +215,7 @@ namespace Ame::Rhi
     {
         return m_ComputePipelineCache.Load(
             Desc,
-            [this](const ComputePipelineDesc& Desc)
+            [this](size_t, const ComputePipelineDesc& Desc)
             {
                 nri::ComputePipelineDesc NriDesc{
                     .pipelineLayout = &Desc.Layout->Unwrap(),
@@ -229,7 +231,7 @@ namespace Ame::Rhi
                                   m_Impl->GetDevice(), NriDesc, Pipeline),
                               "Failed to create compute pipeline");
 
-                return std::make_shared<PipelineState>(*this, Desc.Layout, Pipeline);
+                return std::make_shared<PipelineState>(*this, Desc.Layout, *Pipeline);
             });
     }
 

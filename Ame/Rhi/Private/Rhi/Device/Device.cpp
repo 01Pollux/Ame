@@ -1,20 +1,15 @@
 #include <Rhi/Device.hpp>
 #include "DeviceImpl.hpp"
 
-#include "../NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
-    Device::Device() = default;
-
     Device::Device(
         const DeviceCreateDesc& Desc) :
         m_Impl(std::make_unique<Impl>(Desc))
     {
     }
-
-    Device::Device(Device&&)            = default;
-    Device& Device::operator=(Device&&) = default;
 
     Device::~Device()
     {

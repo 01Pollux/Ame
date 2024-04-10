@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Rhi/Resource.hpp>
+#include <Rhi/Descs/Layout.hpp>
 
 namespace Ame::Rhi
 {
@@ -10,7 +10,8 @@ namespace Ame::Rhi
     public:
         PipelineLayout(
             Device&              RhiDevice,
-            nri::PipelineLayout& Layout);
+            nri::PipelineLayout& Layout,
+            size_t               Hash);
 
         ~PipelineLayout();
 
@@ -26,8 +27,14 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] nri::PipelineLayout& Unwrap() const;
 
+        /// <summary>
+        /// Get the pipeline layout hash.
+        /// </summary>
+        [[nodiscard]] size_t GetHash() const;
+
     private:
         Device&              m_RhiDevice;
         nri::PipelineLayout& m_Layout;
+        size_t               m_Hash = 0;
     };
 } // namespace Ame::Rhi
