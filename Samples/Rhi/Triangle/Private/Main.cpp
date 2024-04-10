@@ -18,10 +18,28 @@ protected:
 
         Log::Engine().Trace("Initializing Sample...");
 
-        auto Pipeline = CreateBasicPipeline(
-                            *GetSubsystem<CoroutineSubsystem>(),
-                            GetSubsystem<Rhi::DeviceSubsystem>())
-                            .get();
+        m_PipelineStateTask = CreateBasicPipeline(
+            *GetSubsystem<CoroutineSubsystem>(),
+            GetSubsystem<Rhi::DeviceSubsystem>());
+
+        OnRender().ObjectSignal().Listen(
+            [this](BaseEngine& Engine)
+            {
+                Render(
+                    GetSubsystem<Rhi::DeviceSubsystem>());
+            });
+    }
+
+private:
+    void Render(
+        Rhi::Device& RhiDevice)
+    {
+        if (m_PipelineStateTask)
+        {
+            m_PipelineState = m_PipelineStateTask.get();
+        }
+
+        Rhi::CommandList& CommandList = RhiDevice.GetCommandList();
     }
 
 private:
@@ -146,6 +164,10 @@ private:
 
         co_return co_await RhiDevice.CreatePipelineState({}, Executor, Desc);
     }
+
+private:
+    Co::result<Ptr<Rhi::PipelineState>> m_PipelineStateTask;
+    Ptr<Rhi::PipelineState>             m_PipelineState;
 };
 
 AME_MAIN(Argc, Argv)

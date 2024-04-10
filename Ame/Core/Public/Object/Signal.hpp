@@ -258,12 +258,12 @@ public:                                               \
 private:                                              \
     static inline Ame::Signals::Name m_##Name
 
-#define AME_SIGNAL_DOUBLE(Name)                       \
-public:                                               \
-    [[nodiscard]] auto& Static##Name() const noexcept \
-    {                                                 \
-        return m_##Name;                              \
-    }                                                 \
-                                                      \
-private:                                              \
+#define AME_SIGNAL_DOUBLE(Name)               \
+public:                                       \
+    [[nodiscard]] auto& Name() const noexcept \
+    {                                         \
+        return m_##Name;                      \
+    }                                         \
+                                              \
+private:                                      \
     mutable Ame::Signals::Name##Dbl m_##Name
