@@ -6,16 +6,17 @@
 namespace Ame::Rhi::Util
 {
     template<typename DescTy, typename DataTy>
-    struct TypedCache
+    struct TypedCache : public NonCopyable,
+                        public NonMovable
     {
     public:
         TypedCache() = default;
 
-        TypedCache(const TypedCache&) = delete;
-        TypedCache(TypedCache&&)      = delete;
+        TypedCache(const TypedCache&)            = delete;
+        TypedCache& operator=(const TypedCache&) = delete;
 
-        TypedCache& operator=(const TypedCache&) = default;
-        TypedCache& operator=(TypedCache&&)      = default;
+        TypedCache(TypedCache&&)            = default;
+        TypedCache& operator=(TypedCache&&) = default;
 
         ~TypedCache() = default;
 
@@ -27,7 +28,6 @@ namespace Ame::Rhi::Util
         }
 
         template<typename FuncTy>
-
         [[nodiscard]] DataTy& Load(
             const DescTy& Desc,
             FuncTy        Func)

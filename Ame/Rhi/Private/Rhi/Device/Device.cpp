@@ -1,15 +1,19 @@
-#include <Rhi/Device/Device.hpp>
 #include <Rhi/Device/DeviceImpl.hpp>
+#include <Rhi/Device/Device.hpp>
 
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
+    Device::Device() = default;
     Device::Device(
         const DeviceCreateDesc& Desc) :
         m_Impl(std::make_unique<DeviceImpl>(Desc))
     {
     }
+
+    Device::Device(Device&&)            = default;
+    Device& Device::operator=(Device&&) = default;
 
     Device::~Device()
     {
@@ -147,9 +151,7 @@ namespace Ame::Rhi
 
     void Device::CleanupCache()
     {
-        m_PipelineLayoutCache.Clear();
-        m_GraphicsPipelineCache.Clear();
-        m_ComputePipelineCache.Clear();
+        m_Impl->CleanupCache();
     }
 
     //

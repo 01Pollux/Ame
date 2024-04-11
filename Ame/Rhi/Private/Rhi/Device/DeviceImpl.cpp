@@ -154,6 +154,13 @@ namespace Ame::Rhi
         }
     }
 
+    void DeviceImpl::CleanupCache()
+    {
+        m_PipelineLayoutCache.Clear();
+        m_GraphicsPipelineCache.Clear();
+        m_ComputePipelineCache.Clear();
+    }
+
     //
 
     bool DeviceImpl::ProcessEvents()
@@ -268,9 +275,9 @@ namespace Ame::Rhi
     void DeviceImpl::TransitionBackbuffer(
         bool Present)
     {
-        auto  NriCore        = m_NRI.GetCoreInterface();
-        auto& CommandBuffer  = GetCurrentCommandList().GetCommandBuffer();
-        auto  CurBackbuffer  = GetBackbuffer();
+        auto  NriCore       = m_NRI.GetCoreInterface();
+        auto& CommandBuffer = GetCurrentCommandList().GetCommandBuffer();
+        auto  CurBackbuffer = GetBackbuffer();
 
         nri::AccessLayoutStage State{ .stages = nri::StageBits::ALL };
         if (Present)
@@ -296,7 +303,7 @@ namespace Ame::Rhi
         const Math::Color4& Color)
     {
         auto  NriCore           = m_NRI.GetCoreInterface();
-        auto& CommandBuffer    = GetCurrentCommandList().GetCommandBuffer();
+        auto& CommandBuffer     = GetCurrentCommandList().GetCommandBuffer();
         auto  CurBackbuffer     = GetBackbuffer();
         auto  CurBackbufferView = CurBackbuffer.View.Unwrap();
 

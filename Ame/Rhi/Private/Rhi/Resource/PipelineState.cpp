@@ -178,7 +178,7 @@ namespace Ame::Rhi
     Ptr<PipelineState> Device::CreatePipelineState(
         const GraphicsPipelineDesc& Desc)
     {
-        return m_GraphicsPipelineCache.Load(
+        return GetImpl().m_GraphicsPipelineCache.Load(
             Desc,
             [this](size_t, const GraphicsPipelineDesc& Desc)
             {
@@ -213,7 +213,7 @@ namespace Ame::Rhi
     Ptr<PipelineState> Device::CreatePipelineState(
         const ComputePipelineDesc& Desc)
     {
-        return m_ComputePipelineCache.Load(
+        return GetImpl().m_ComputePipelineCache.Load(
             Desc,
             [this](size_t, const ComputePipelineDesc& Desc)
             {

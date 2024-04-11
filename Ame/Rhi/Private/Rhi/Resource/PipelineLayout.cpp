@@ -50,7 +50,7 @@ namespace Ame::Rhi
     Ptr<PipelineLayout> Device::CreatePipelineLayout(
         const PipelineLayoutDesc& Desc)
     {
-        return m_PipelineLayoutCache.Load(
+        return GetImpl().m_PipelineLayoutCache.Load(
             Desc,
             [this](size_t Hash, const PipelineLayoutDesc& Desc)
             {

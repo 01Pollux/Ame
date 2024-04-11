@@ -6,6 +6,10 @@
 #include <Rhi/Device/FrameManager.hpp>
 #include <Rhi/Device/StateTracker.hpp>
 
+#include <Rhi/Hash/Layout.hpp>
+#include <Rhi/Hash/Pipeline.hpp>
+#include <Rhi/Util/TypedCache.hpp>
+
 #include <Rhi/Nri/Bridge.hpp>
 
 namespace Ame::Windowing
@@ -17,8 +21,10 @@ namespace Ame::Rhi
 {
     class WindowManager;
 
-    class DeviceImpl : public NonCopyable, public NonMovable
+    class DeviceImpl
     {
+        friend class Device;
+
     public:
         explicit DeviceImpl(
             const DeviceCreateDesc& Desc);
@@ -124,6 +130,11 @@ namespace Ame::Rhi
         void SetVSyncEnabled(
             bool State = true);
 
+        /// <summary>
+        /// Clean up device resources cache.
+        /// </summary>
+        void CleanupCache();
+
     public:
         /// <summary>
         /// Process all events.
@@ -220,7 +231,7 @@ namespace Ame::Rhi
         /// </summary>
         void DeferRelease(
             nri::Layout& Layout);
-        
+
         /// <summary>
         /// Defer the release of a pipeline state.
         /// </summary>
@@ -280,5 +291,9 @@ namespace Ame::Rhi
 
         Math::Color4        m_ClearColor = Math::Colors::Magenta;
         BackbufferClearType m_ClearType  = BackbufferClearType::Color;
+
+        Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
+        Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
+        Util::TypedCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
     };
 } // namespace Ame::Rhi

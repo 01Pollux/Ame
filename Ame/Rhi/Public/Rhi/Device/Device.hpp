@@ -5,10 +5,6 @@
 #include <Rhi/Descs/Core.hpp>
 #include <Rhi/Resource/Backbuffer.hpp>
 
-#include <Rhi/Hash/Layout.hpp>
-#include <Rhi/Hash/Pipeline.hpp>
-#include <Rhi/Util/TypedCache.hpp>
-
 namespace Ame::Windowing
 {
     class Window;
@@ -28,15 +24,15 @@ namespace Ame::Rhi
         friend CommandList;
 
     public:
-        Device() = default;
+        Device();
         explicit Device(
             const DeviceCreateDesc& Desc);
 
         Device(const Device&)            = delete;
         Device& operator=(const Device&) = delete;
 
-        Device(Device&&)            = default;
-        Device& operator=(Device&&) = default;
+        Device(Device&&);
+        Device& operator=(Device&&);
 
         ~Device();
 
@@ -358,9 +354,5 @@ namespace Ame::Rhi
 
     private:
         UPtr<DeviceImpl> m_Impl;
-
-        Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
-        Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
-        Util::TypedCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
     };
 } // namespace Ame::Rhi
