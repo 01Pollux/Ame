@@ -227,12 +227,6 @@ namespace Ame::Rhi
             nri::Descriptor& NriDescriptor);
 
         /// <summary>
-        /// Defer the release of a layout.
-        /// </summary>
-        void DeferRelease(
-            nri::Layout& Layout);
-
-        /// <summary>
         /// Defer the release of a pipeline state.
         /// </summary>
         void DeferRelease(
