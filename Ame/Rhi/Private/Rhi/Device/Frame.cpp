@@ -1,30 +1,40 @@
-#include "Frame.hpp"
+#include <Core/String.hpp>
 
-#include "../Nri/Nri.hpp"
-#include <Rhi/NriError.hpp>
+#include <Rhi/Device/Frame.hpp>
+#include <Rhi/Nri/Nri.hpp>
 
 namespace Ame::Rhi
 {
     void Frame::Initialize(
         nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue)
+        nri::CommandQueue&  GraphicsQueue,
+        uint32_t            FrameIndex)
     {
-        ThrowIfFailed(NriCore.CreateCommandAllocator(GraphicsQueue, m_CommandAllocator), "Failed to create command allocator");
-        ThrowIfFailed(NriCore.CreateCommandBuffer(*m_CommandAllocator, m_CommandBuffer), "Failed to create command buffer");
+#ifndef AME_DIST
+        auto AllocatorName = StringU8::formatted("FrameCommandAllocator_{}", FrameIndex);
+        auto ListName      = StringU8::formatted("FrameCommandList_{}", FrameIndex);
+
+        auto AllocatorNamePtr = AllocatorName.c_str();
+        auto ListNamePtr      = ListName.c_str();
+#else
+        auto AllocatorNamePtr = nullptr;
+        auto ListNamePtr      = nullptr;
+#endif
+
+        m_CommandList.Initialize(NriCore, GraphicsQueue, AllocatorNamePtr, ListNamePtr);
     }
 
     void Frame::Shutdown(
         nri::CoreInterface& NriCore)
     {
-        NriCore.DestroyCommandBuffer(*m_CommandBuffer);
-        NriCore.DestroyCommandAllocator(*m_CommandAllocator);
+        m_CommandList.Shutdown(NriCore);
     }
 
     //
 
-    nri::CommandBuffer* Frame::GetCommandList() const noexcept
+    CommandListImpl& Frame::GetCommandList() noexcept
     {
-        return m_CommandBuffer;
+        return m_CommandList;
     }
 
     //
@@ -32,13 +42,12 @@ namespace Ame::Rhi
     void Frame::NewFrame(
         nri::CoreInterface& NriCore)
     {
-        NriCore.ResetCommandAllocator(*m_CommandAllocator);
-        NriCore.BeginCommandBuffer(*m_CommandBuffer, nullptr);
+        m_CommandList.Reset(NriCore);
     }
 
     void Frame::EndFrame(
         nri::CoreInterface& NriCore)
     {
-        NriCore.EndCommandBuffer(*m_CommandBuffer);
+        m_CommandList.End(NriCore);
     }
 } // namespace Ame::Rhi

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Framework/Framework.hpp>
-#include <Rhi/Device.hpp>
+#include <Rhi/Device/Device.hpp>
 
 namespace Ame::Framework
 {

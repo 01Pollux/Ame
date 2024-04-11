@@ -2,10 +2,11 @@
 
 #include <span>
 
-#include <Rhi/Core.hpp>
 #include <Core/Enum.hpp>
 #include <Math/Vector.hpp>
 #include <Math/Colors.hpp>
+
+#include <Rhi/Core.hpp>
 
 namespace Ame::Rhi
 {

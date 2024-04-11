@@ -1,6 +1,6 @@
 #pragma once
 
-#include <NRI/Extensions/NRIDeviceCreation.h>
+#include <Rhi/Nri/Nri.hpp>
 
 namespace Ame::Rhi
 {

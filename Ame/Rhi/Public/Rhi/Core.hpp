@@ -1,13 +1,16 @@
 #pragma once
 
+#include <span>
+
 #include <Core/Ame.hpp>
 #include <NRI/NRIDescs.h>
-#include <span>
 
 namespace Ame::Rhi
 {
     class Device;
+    class DeviceImpl;
     class CommandList;
+    class CommandListImpl;
     class PipelineLayout;
     class PipelineState;
     class Buffer;

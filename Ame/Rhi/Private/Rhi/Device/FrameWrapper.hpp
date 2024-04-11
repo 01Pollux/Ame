@@ -2,7 +2,8 @@
 
 #include <Core/Ame.hpp>
 #include <Rhi/Core.hpp>
-#include "Frame.hpp"
+
+#include <Rhi/Device/Frame.hpp>
 
 namespace Ame::Rhi
 {

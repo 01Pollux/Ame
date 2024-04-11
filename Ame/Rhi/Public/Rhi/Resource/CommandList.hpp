@@ -1,15 +1,21 @@
 #pragma once
 
 #include <Rhi/Descs/CommandList.hpp>
+#include <Rhi/Resource/View.hpp>
 
 namespace Ame::Rhi
 {
+    /// <summary>
+    /// Command list is a sequence of commands that can be executed by the GPU.
+    /// It is used to record rendering commands, dispatch compute shaders, and copy resources.
+    ///
+    /// They are not synchronized, and creating multiple command lists with the same device WILL reference the same device object.
+    /// </summary>
     class CommandList
     {
     public:
         CommandList(
-            Device&             RhiDevice,
-            nri::CommandBuffer& CommandBuffer);
+            Device& RhiDevice);
 
     public:
         /// <summary>
@@ -29,9 +35,9 @@ namespace Ame::Rhi
         /// Set constants.
         /// </summary>
         void SetConstants(
+            uint32_t    ConstantIndex,
             const void* Data,
-            size_t      Size,
-            size_t      Offset = 0);
+            size_t      Size);
 
         /// <summary>
         /// Set constants.
@@ -39,10 +45,10 @@ namespace Ame::Rhi
         template<typename Ty>
             requires std::is_standard_layout_v<Ty>
         void SetConstants(
-            const Ty& Data,
-            uint32_t  Offset = 0)
+            uint32_t  ConstantIndex,
+            const Ty& Data)
         {
-            SetConstants(&Data, sizeof(Ty), Offset);
+            SetConstants(ConstantIndex, &Data, sizeof(Ty));
         }
 
         /// <summary>
@@ -55,7 +61,7 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Set render targets and depth-stencil buffer.
+        /// Set render targets.
         /// </summary>
         void BeginRendering(
             std::span<Rhi::ResourceView> RenderTargets,
@@ -117,7 +123,7 @@ namespace Ame::Rhi
         void EndRendering();
 
     private:
-        Device&             m_Device;
-        nri::CommandBuffer& m_CommandBuffer;
+        Device&          m_Device;
+        CommandListImpl& m_Impl;
     };
 } // namespace Ame::Rhi

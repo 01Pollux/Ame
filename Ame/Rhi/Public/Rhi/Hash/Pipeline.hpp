@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Rhi/Descs/Pipeline.hpp>
-#include <Rhi/PipelineLayout.hpp>
 #include <Core/Hash.hpp>
+
+#include <Rhi/Descs/Pipeline.hpp>
+#include <Rhi/Resource/PipelineLayout.hpp>
 
 namespace std
 {

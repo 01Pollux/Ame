@@ -1,7 +1,7 @@
-#include <Rhi/Buffer.hpp>
-#include <Rhi/Device.hpp>
+#include <Rhi/Resource/Buffer.hpp>
+#include <Rhi/Device/Device.hpp>
 
-#include "NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {

@@ -1,7 +1,7 @@
-#include <Rhi/Shader.hpp>
+#include <Rhi/Resource/Shader.hpp>
 #include <FileSystem/Path.hpp>
 
-#include <Rhi/Device.hpp>
+#include <Rhi/Device/Device.hpp>
 #include <Rhi/Device/SprivBinding.hpp>
 
 #ifdef AME_PLATFORM_WINDOWS

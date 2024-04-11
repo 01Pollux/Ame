@@ -2,9 +2,10 @@
 
 #include <Core/Ame.hpp>
 
-#include <Rhi/Device.hpp>
+#include <Rhi/Device/Device.hpp>
 #include <Window/Window.hpp>
-#include "../Nri/Bridge.hpp"
+
+#include <Rhi/Nri/Bridge.hpp>
 
 namespace Ame::Rhi
 {

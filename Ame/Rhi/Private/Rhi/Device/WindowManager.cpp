@@ -1,6 +1,7 @@
-#include "WindowManager.hpp"
+#include <Rhi/Device/WindowManager.hpp>
 
-#include <Rhi/DeviceCreateDesc.hpp>
+#include <Rhi/Device/CreateDesc.hpp>
+
 #include <Rhi/NriError.hpp>
 
 #if defined AME_PLATFORM_WINDOWS

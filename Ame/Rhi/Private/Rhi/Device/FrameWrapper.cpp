@@ -1,5 +1,4 @@
-#include "FrameWrapper.hpp"
-
+#include <Rhi/Device/FrameWrapper.hpp>
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
@@ -13,7 +12,7 @@ namespace Ame::Rhi
         Frames = std::make_unique<Frame[]>(FramesInFlightCount);
         for (uint32_t i = 0; i < FramesInFlightCount; i++)
         {
-            Frames[i].Initialize(NriCore, GraphicsQueue);
+            Frames[i].Initialize(NriCore, GraphicsQueue, i);
         }
 
         this->FramesInFlightCount = FramesInFlightCount;
@@ -55,16 +54,11 @@ namespace Ame::Rhi
         nri::CommandQueue&  GraphicsQueue,
         uint32_t            FrameIndex)
     {
-        auto& CurFrame      = Frames[FrameIndex];
-        auto  CommandBuffer = CurFrame.GetCommandList();
+        auto& CurFrame = Frames[FrameIndex];
+        auto& CmdList  = CurFrame.GetCommandList();
 
         CurFrame.EndFrame(NriCore);
-
-        nri::QueueSubmitDesc SubmitDesc{
-            .commandBuffers   = &CommandBuffer,
-            .commandBufferNum = 1
-        };
-        NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
+        CmdList.Submit(NriCore, GraphicsQueue);
     }
 
     void FrameWrapper::AdvanceFrame(
@@ -77,8 +71,8 @@ namespace Ame::Rhi
         };
 
         nri::QueueSubmitDesc SubmitDesc{
-            .signalFences     = &FenceDesc,
-            .signalFenceNum   = 1,
+            .signalFences   = &FenceDesc,
+            .signalFenceNum = 1,
         };
         NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
     }

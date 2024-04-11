@@ -2,8 +2,8 @@
 
 #include <Rhi/Device/DeviceImpl.hpp>
 
-#include <Rhi/PipelineState.hpp>
-#include <Rhi/PipelineLayout.hpp>
+#include <Rhi/Resource/PipelineState.hpp>
+#include <Rhi/Resource/PipelineLayout.hpp>
 
 #include <Rhi/NriError.hpp>
 

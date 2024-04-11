@@ -1,7 +1,7 @@
-#include <Rhi/View.hpp>
-#include <Rhi/Device.hpp>
+#include <Rhi/Resource/View.hpp>
+#include <Rhi/Device/Device.hpp>
 
-#include "NriError.hpp"
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
@@ -25,7 +25,7 @@ namespace Ame::Rhi
         Device&     RhiDevice,
         const char* Name) const
     {
-		RhiDevice.SetName(*m_Descriptor, Name);
+        RhiDevice.SetName(*m_Descriptor, Name);
     }
 
     nri::Descriptor* ResourceView::Unwrap() const

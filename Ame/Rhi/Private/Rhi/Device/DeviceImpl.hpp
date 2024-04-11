@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Rhi/Device.hpp>
-#include "FrameManager.hpp"
-#include "../Nri/Bridge.hpp"
+
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/FrameManager.hpp>
+#include <Rhi/Device/StateTracker.hpp>
+
+#include <Rhi/Nri/Bridge.hpp>
 
 namespace Ame::Windowing
 {
@@ -14,13 +17,13 @@ namespace Ame::Rhi
 {
     class WindowManager;
 
-    class Device::Impl : public NonCopyable, public NonMovable
+    class DeviceImpl : public NonCopyable, public NonMovable
     {
     public:
-        explicit Impl(
+        explicit DeviceImpl(
             const DeviceCreateDesc& Desc);
 
-        ~Impl();
+        ~DeviceImpl();
 
     public:
         /// <summary>
@@ -163,7 +166,8 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the current command list.
         /// </summary>
-        [[nodiscard]] nri::CommandBuffer& GetCurrentCommandList() const noexcept;
+
+        [[nodiscard]] class CommandListImpl& GetCurrentCommandList() noexcept;
 
     public:
         /// <summary>

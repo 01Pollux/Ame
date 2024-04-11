@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+
 #include <Rhi/Descs/Resource.hpp>
-#include <Rhi/View.hpp>
+#include <Rhi/Resource/View.hpp>
 
 namespace Ame::Rhi
 {

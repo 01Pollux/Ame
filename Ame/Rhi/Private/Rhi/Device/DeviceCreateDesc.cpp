@@ -1,13 +1,13 @@
-#include <Rhi/DeviceCreateDesc.hpp>
+#include <Rhi/Device/CreateDesc.hpp>
 
-#include "../Nri/Nri.hpp"
+#include <Rhi/Nri/Nri.hpp>
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
     void DeviceCreateDesc::SetFirstAdapter()
     {
-        uint32_t    AdapterCount = 1;
+        uint32_t AdapterCount = 1;
         ThrowIfFailed(nri::nriEnumerateAdapters(&Adapter, AdapterCount), "Failed to enumerate adapters");
     }
 

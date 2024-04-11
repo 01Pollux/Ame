@@ -2,7 +2,7 @@
 
 #include <Framework/Framework.hpp>
 #include <Rhi/Subsystem/Device.hpp>
-#include <Rhi/DeviceCreateDesc.hpp>
+#include <Rhi/Device/CreateDesc.hpp>
 
 namespace Ame::Framework
 {

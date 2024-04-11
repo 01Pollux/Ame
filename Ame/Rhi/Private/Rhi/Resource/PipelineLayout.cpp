@@ -1,6 +1,6 @@
 #include <Rhi/Device/DeviceImpl.hpp>
 
-#include <Rhi/PipelineLayout.hpp>
+#include <Rhi/Resource/PipelineLayout.hpp>
 
 #include <Rhi/NriError.hpp>
 

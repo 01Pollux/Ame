@@ -1,5 +1,5 @@
-#include <Rhi/Device.hpp>
-#include "DeviceImpl.hpp"
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/DeviceImpl.hpp>
 
 #include <Rhi/NriError.hpp>
 
@@ -7,7 +7,7 @@ namespace Ame::Rhi
 {
     Device::Device(
         const DeviceCreateDesc& Desc) :
-        m_Impl(std::make_unique<Impl>(Desc))
+        m_Impl(std::make_unique<DeviceImpl>(Desc))
     {
     }
 
@@ -25,7 +25,7 @@ namespace Ame::Rhi
     void Device::CleanupCheck()
     {
 #ifndef AME_DIST
-        Device::Impl::CleanupCheck();
+        DeviceImpl::CleanupCheck();
 #endif
     }
 
@@ -154,7 +154,8 @@ namespace Ame::Rhi
 
     //
 
-    CommandList& Device::GetCommandList() const
+    DeviceImpl& Device::GetImpl() const
     {
+        return *m_Impl;
     }
 } // namespace Ame::Rhi

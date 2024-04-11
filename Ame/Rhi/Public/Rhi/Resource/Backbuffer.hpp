@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Rhi/Texture.hpp>
-#include <Rhi/View.hpp>
 #include <Math/Colors.hpp>
+
+#include <Rhi/Resource/Texture.hpp>
+#include <Rhi/Resource/View.hpp>
 
 namespace Ame::Rhi
 {

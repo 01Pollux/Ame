@@ -1,11 +1,11 @@
+#include <ranges>
 
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
 
-#include <Rhi/Shader.hpp>
-#include <Rhi/CommandList.hpp>
-#include <Rhi/PipelineState.hpp>
-#include <ranges>
+#include <Rhi/Resource/Shader.hpp>
+#include <Rhi/Resource/CommandList.hpp>
+#include <Rhi/Resource/PipelineState.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -41,10 +41,10 @@ private:
             m_PipelineState = m_PipelineStateTask.get();
         }
 
-        Rhi::CommandList& CommandList = RhiDevice.GetCommandList();
+        Rhi::CommandList CommandList(RhiDevice);
 
         CommandList.SetPipelineLayout(*m_PipelineState->GetLayout());
-        CommandList.SetConstants(Math::Colors::Red);
+        CommandList.SetConstants(0, Math::Colors::Red);
 
         CommandList.SetPipelineState(*m_PipelineState);
 

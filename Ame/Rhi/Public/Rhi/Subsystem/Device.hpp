@@ -2,7 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Rhi/Device.hpp>
+#include <Rhi/Device/Device.hpp>
 
 namespace Ame::Rhi
 {

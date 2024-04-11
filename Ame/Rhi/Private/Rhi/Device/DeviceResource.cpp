@@ -1,5 +1,5 @@
-#include <Rhi/Device.hpp>
-#include "DeviceImpl.hpp"
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/DeviceImpl.hpp>
 
 #include <Rhi/NriError.hpp>
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Rhi/Device.hpp>
-#include "StateTracker.hpp"
-#include "FrameWrapper.hpp"
+
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/FrameWrapper.hpp>
 
 namespace Ame::Rhi
 {
@@ -42,7 +42,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the current command list.
         /// </summary>
-        [[nodiscard]] nri::CommandBuffer& GetCurrentCommandList() const noexcept;
+        [[nodiscard]] CommandListImpl& GetCurrentCommandList() const noexcept;
 
     public:
         /// <summary>

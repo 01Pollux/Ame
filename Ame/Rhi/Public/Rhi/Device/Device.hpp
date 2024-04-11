@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Core/Coroutine.hpp>
-#include <Rhi/Descs/Core.hpp>
 
-#include <Rhi/Util/TypedCache.hpp>
-#include <Rhi/Backbuffer.hpp>
+#include <Rhi/Descs/Core.hpp>
+#include <Rhi/Resource/Backbuffer.hpp>
 
 #include <Rhi/Hash/Layout.hpp>
 #include <Rhi/Hash/Pipeline.hpp>
+#include <Rhi/Util/TypedCache.hpp>
 
 namespace Ame::Windowing
 {
@@ -20,13 +20,12 @@ namespace Ame::Rhi
 
     class Device : public NonCopyable
     {
-        class Impl;
-
         friend Buffer;
         friend Texture;
         friend ResourceView;
         friend PipelineLayout;
         friend PipelineState;
+        friend CommandList;
 
     public:
         Device() = default;
@@ -214,12 +213,6 @@ namespace Ame::Rhi
         [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
             const ComputePipelineDesc& Desc);
 
-    public:
-        /// <summary>
-        /// Get the command list.
-        /// </summary>
-        [[nodiscard]] CommandList& GetCommandList() const;
-
         // Below are the functions that are only accessible by the Texture
     private:
         /// <summary>
@@ -355,7 +348,13 @@ namespace Ame::Rhi
             nri::Pipeline& Pipeline);
 
     private:
-        UPtr<Impl> m_Impl;
+        /// <summary>
+        /// Get the implementation class.
+        /// </summary>
+        [[nodiscard]] DeviceImpl& GetImpl() const;
+
+    private:
+        UPtr<DeviceImpl> m_Impl;
 
         Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
         Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;

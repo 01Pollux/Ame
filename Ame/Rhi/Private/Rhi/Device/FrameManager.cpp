@@ -83,8 +83,8 @@ namespace Ame::Rhi
         return m_FrameWrapper.FramesInFlightCount;
     }
 
-    nri::CommandBuffer& FrameManager::GetCurrentCommandList() const noexcept
+    CommandListImpl& FrameManager::GetCurrentCommandList() const noexcept
     {
-        return *m_FrameWrapper.Frames[GetFrameIndex()].GetCommandList();
+        return m_FrameWrapper.Frames[GetFrameIndex()].GetCommandList();
     }
 } // namespace Ame::Rhi

@@ -2,7 +2,10 @@
 
 #include <Core/Ame.hpp>
 #include <Rhi/Core.hpp>
-#include "../Nri/Nri.hpp"
+
+#include <Rhi/Resource/CommandListImpl.hpp>
+
+#include <Rhi/Nri/Nri.hpp>
 
 namespace Ame::Rhi
 {
@@ -15,7 +18,8 @@ namespace Ame::Rhi
         /// </summary>
         void Initialize(
             nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue);
+            nri::CommandQueue&  GraphicsQueue,
+            uint32_t            FrameIndex);
 
         /// <summary>
         /// Cleans up the frame resource.
@@ -27,7 +31,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the command list.
         /// </summary>
-        [[nodiscard]] nri::CommandBuffer* GetCommandList() const noexcept;
+        [[nodiscard]] CommandListImpl& GetCommandList() noexcept;
 
     public:
         /// <summary>
@@ -43,7 +47,6 @@ namespace Ame::Rhi
             nri::CoreInterface& NriCore);
 
     private:
-        nri::CommandAllocator* m_CommandAllocator = nullptr;
-        nri::CommandBuffer*    m_CommandBuffer    = nullptr;
+        CommandListImpl m_CommandList;
     };
 } // namespace Ame::Rhi

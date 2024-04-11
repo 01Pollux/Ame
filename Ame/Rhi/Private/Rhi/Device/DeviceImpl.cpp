@@ -1,11 +1,11 @@
-#include "DeviceImpl.hpp"
-#include "FrameManager.hpp"
-#include "WindowManager.hpp"
-#include "SprivBinding.hpp"
+#include <Rhi/Device/DeviceImpl.hpp>
+#include <Rhi/Device/FrameManager.hpp>
+#include <Rhi/Device/WindowManager.hpp>
+#include <Rhi/Device/SprivBinding.hpp>
 
-#include <Rhi/DeviceCreateDesc.hpp>
-#include "../Nri/Log.hpp"
-#include "../Nri/Allocator.hpp"
+#include <Rhi/Device/CreateDesc.hpp>
+#include <Rhi/Nri/Log.hpp>
+#include <Rhi/Nri/Allocator.hpp>
 
 #ifdef AME_PLATFORM_WINDOWS
 #include <d3d12sdklayers.h>
@@ -15,7 +15,7 @@
 
 namespace Ame::Rhi
 {
-    Device::Impl::Impl(
+    DeviceImpl::DeviceImpl(
         const DeviceCreateDesc& Desc)
     {
         if (!CreateDevice(Desc))
@@ -37,12 +37,12 @@ namespace Ame::Rhi
         SuppressWarningsIfNeeded(Desc);
     }
 
-    Device::Impl::~Impl()
+    DeviceImpl::~DeviceImpl()
     {
         ClearResources();
     }
 
-    void Device::Impl::CleanupCheck()
+    void DeviceImpl::CleanupCheck()
     {
 #ifndef AME_DIST
         nri::nriReportLiveObjects();
@@ -51,7 +51,7 @@ namespace Ame::Rhi
 
     //
 
-    GraphicsAPI Device::Impl::GetGraphicsAPI() const
+    GraphicsAPI DeviceImpl::GetGraphicsAPI() const
     {
         auto& Desc = m_NRI.GetCoreInterface()->GetDeviceDesc(*m_Device);
         switch (Desc.graphicsAPI)
@@ -66,40 +66,40 @@ namespace Ame::Rhi
         }
     }
 
-    uint64_t Device::Impl::GetFrameCount() const
+    uint64_t DeviceImpl::GetFrameCount() const
     {
         return m_FrameManager.GetFrameCount();
     }
 
-    uint8_t Device::Impl::GetFrameIndex() const
+    uint8_t DeviceImpl::GetFrameIndex() const
     {
         return m_FrameManager.GetFrameIndex();
     }
 
-    uint8_t Device::Impl::GetFrameCountInFlight() const
+    uint8_t DeviceImpl::GetFrameCountInFlight() const
     {
         return m_FrameManager.GetFrameCountInFlight();
     }
 
     //
 
-    const Math::Color4& Device::Impl::GetClearColor() const noexcept
+    const Math::Color4& DeviceImpl::GetClearColor() const noexcept
     {
         return m_ClearColor;
     }
 
-    void Device::Impl::SetClearColor(
+    void DeviceImpl::SetClearColor(
         const Math::Color4& Color)
     {
         m_ClearColor = Color;
     }
 
-    BackbufferClearType Device::Impl::GetBackbufferClearType() const noexcept
+    BackbufferClearType DeviceImpl::GetBackbufferClearType() const noexcept
     {
         return m_ClearType;
     }
 
-    void Device::Impl::SetBackbufferClearType(
+    void DeviceImpl::SetBackbufferClearType(
         BackbufferClearType Type)
     {
         m_ClearType = Type;
@@ -107,45 +107,45 @@ namespace Ame::Rhi
 
     //
 
-    bool Device::Impl::IsHeadless() const
+    bool DeviceImpl::IsHeadless() const
     {
         return !m_WindowManager;
     }
 
-    Windowing::Window& Device::Impl::GetWindow() const
+    Windowing::Window& DeviceImpl::GetWindow() const
     {
         return *m_WindowManager->GetWindow();
     }
 
-    uint8_t Device::Impl::GetBackbufferCount() const
+    uint8_t DeviceImpl::GetBackbufferCount() const
     {
         return m_WindowManager->GetBackbufferCount();
     }
 
-    uint8_t Device::Impl::GetBackbufferIndex() const
+    uint8_t DeviceImpl::GetBackbufferIndex() const
     {
         return m_WindowManager->GetBackbufferIndex();
     }
 
-    Backbuffer Device::Impl::GetBackbuffer(
+    Backbuffer DeviceImpl::GetBackbuffer(
         uint8_t Index) const
     {
         return m_WindowManager->GetBackbuffer(Index);
     }
 
-    Backbuffer Device::Impl::GetBackbuffer() const
+    Backbuffer DeviceImpl::GetBackbuffer() const
     {
         return GetBackbuffer(GetBackbufferIndex());
     }
 
     //
 
-    bool Device::Impl::IsVSyncEnabled() const noexcept
+    bool DeviceImpl::IsVSyncEnabled() const noexcept
     {
         return IsHeadless() ? false : m_WindowManager->IsVSyncEnabled();
     }
 
-    void Device::Impl::SetVSyncEnabled(
+    void DeviceImpl::SetVSyncEnabled(
         bool State)
     {
         if (!IsHeadless())
@@ -156,7 +156,7 @@ namespace Ame::Rhi
 
     //
 
-    bool Device::Impl::ProcessEvents()
+    bool DeviceImpl::ProcessEvents()
     {
         if (!IsHeadless()) [[likely]]
         {
@@ -171,7 +171,7 @@ namespace Ame::Rhi
         return true;
     }
 
-    void Device::Impl::BeginFrame()
+    void DeviceImpl::BeginFrame()
     {
         if (!IsHeadless()) [[likely]]
         {
@@ -197,7 +197,7 @@ namespace Ame::Rhi
         }
     }
 
-    void Device::Impl::EndFrame()
+    void DeviceImpl::EndFrame()
     {
         auto NriCore = m_NRI.GetCoreInterface();
 
@@ -218,7 +218,7 @@ namespace Ame::Rhi
 
     //
 
-    void Device::Impl::WaitIdle()
+    void DeviceImpl::WaitIdle()
     {
         m_NRI.WaitIdle(*m_CommandQueue);
         m_FrameManager.FlushIdle();
@@ -226,24 +226,24 @@ namespace Ame::Rhi
 
     //
 
-    NRIBridge& Device::Impl::GetNRI() noexcept
+    NRIBridge& DeviceImpl::GetNRI() noexcept
     {
         return m_NRI;
     }
 
-    nri::Device& Device::Impl::GetDevice() noexcept
+    nri::Device& DeviceImpl::GetDevice() noexcept
     {
         return *m_Device;
     }
 
-    nri::CommandBuffer& Device::Impl::GetCurrentCommandList() const noexcept
+    CommandListImpl& DeviceImpl::GetCurrentCommandList() noexcept
     {
         return m_FrameManager.GetCurrentCommandList();
     }
 
     //
 
-    void Device::Impl::RegisterBackbufferState()
+    void DeviceImpl::RegisterBackbufferState()
     {
         auto NriCore = m_NRI.GetCoreInterface();
 
@@ -254,7 +254,7 @@ namespace Ame::Rhi
         }
     }
 
-    void Device::Impl::UnregisterBackbufferState()
+    void DeviceImpl::UnregisterBackbufferState()
     {
         auto NriCore = m_NRI.GetCoreInterface();
         for (uint32_t i = 0; i < GetBackbufferCount(); i++)
@@ -263,11 +263,11 @@ namespace Ame::Rhi
         }
     }
 
-    void Device::Impl::TransitionBackbuffer(
+    void DeviceImpl::TransitionBackbuffer(
         bool Present)
     {
         auto  NriCore        = m_NRI.GetCoreInterface();
-        auto& CurCommandList = GetCurrentCommandList();
+        auto& CommandBuffer  = GetCurrentCommandList().GetCommandBuffer();
         auto  CurBackbuffer  = GetBackbuffer();
 
         nri::AccessLayoutStage State{ .stages = nri::StageBits::ALL };
@@ -287,14 +287,14 @@ namespace Ame::Rhi
             CurBackbuffer.Resource.Unwrap(),
             State);
 
-        m_ResourceStateTracker.CommitBarriers(*NriCore, CurCommandList);
+        m_ResourceStateTracker.CommitBarriers(*NriCore, CommandBuffer);
     }
 
-    void Device::Impl::ClearBackbuffer(
+    void DeviceImpl::ClearBackbuffer(
         const Math::Color4& Color)
     {
         auto  NriCore           = m_NRI.GetCoreInterface();
-        auto& CurCommandList    = GetCurrentCommandList();
+        auto& CommandBuffer    = GetCurrentCommandList().GetCommandBuffer();
         auto  CurBackbuffer     = GetBackbuffer();
         auto  CurBackbufferView = CurBackbuffer.View.Unwrap();
 
@@ -309,14 +309,14 @@ namespace Ame::Rhi
         };
 
         // TODO: CommandList aware of last rendering pass
-        NriCore->CmdBeginRendering(CurCommandList, Attachments);
-        NriCore->CmdClearAttachments(CurCommandList, &Clears, 1, nullptr, 0);
-        NriCore->CmdEndRendering(CurCommandList);
+        NriCore->CmdBeginRendering(CommandBuffer, Attachments);
+        NriCore->CmdClearAttachments(CommandBuffer, &Clears, 1, nullptr, 0);
+        NriCore->CmdEndRendering(CommandBuffer);
     }
 
     //
 
-    bool Device::Impl::CreateDevice(
+    bool DeviceImpl::CreateDevice(
         const DeviceCreateDesc& Desc)
     {
         nri::DeviceCreationDesc NriDeviceDesc{
@@ -374,7 +374,7 @@ namespace Ame::Rhi
         return m_Device != nullptr;
     }
 
-    void Device::Impl::ClearResources()
+    void DeviceImpl::ClearResources()
     {
         if (!m_Device) [[unlikely]]
         {
@@ -402,7 +402,7 @@ namespace Ame::Rhi
 
     //
 
-    void Device::Impl::SuppressWarningsIfNeeded(
+    void DeviceImpl::SuppressWarningsIfNeeded(
         const DeviceCreateDesc& Desc)
     {
 #ifndef AME_DIST
