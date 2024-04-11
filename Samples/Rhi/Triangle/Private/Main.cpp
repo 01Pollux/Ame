@@ -3,6 +3,8 @@
 #include <Framework/Window.hpp>
 
 #include <Rhi/Shader.hpp>
+#include <Rhi/CommandList.hpp>
+#include <Rhi/PipelineState.hpp>
 #include <ranges>
 
 #include <Log/Wrapper.hpp>
@@ -40,6 +42,19 @@ private:
         }
 
         Rhi::CommandList& CommandList = RhiDevice.GetCommandList();
+
+        CommandList.SetPipelineLayout(*m_PipelineState->GetLayout());
+        CommandList.SetConstants(Math::Colors::Red);
+
+        CommandList.SetPipelineState(*m_PipelineState);
+
+        Rhi::AttachmentsDesc Attachments{};
+        Rhi::ResourceView    RenderTargets[]{
+            RhiDevice.GetBackbuffer().View
+        };
+        CommandList.BeginRendering(RenderTargets);
+        CommandList.Draw(Rhi::DrawDesc{ .vertexNum = 3 });
+        CommandList.EndRendering();
     }
 
 private:

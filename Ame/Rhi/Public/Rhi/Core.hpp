@@ -1,13 +1,22 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+#include <NRI/NRIDescs.h>
+#include <span>
 
 namespace Ame::Rhi
 {
     class Device;
+    class CommandList;
+    class PipelineLayout;
+    class PipelineState;
     class Buffer;
     class Texture;
     class ResourceView;
+
+    using Mip_t    = uint8_t;
+    using Dim_t    = uint8_t;
+    using Sample_t = uint8_t;
 } // namespace Ame::Rhi
 
 namespace Ame::Concepts

@@ -151,4 +151,10 @@ namespace Ame::Rhi
         m_GraphicsPipelineCache.Clear();
         m_ComputePipelineCache.Clear();
     }
+
+    //
+
+    CommandList& Device::GetCommandList() const
+    {
+    }
 } // namespace Ame::Rhi

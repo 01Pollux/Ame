@@ -214,6 +214,12 @@ namespace Ame::Rhi
         [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
             const ComputePipelineDesc& Desc);
 
+    public:
+        /// <summary>
+        /// Get the command list.
+        /// </summary>
+        [[nodiscard]] CommandList& GetCommandList() const;
+
         // Below are the functions that are only accessible by the Texture
     private:
         /// <summary>
