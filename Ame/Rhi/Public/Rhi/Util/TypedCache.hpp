@@ -9,6 +9,17 @@ namespace Ame::Rhi::Util
     struct TypedCache
     {
     public:
+        TypedCache() = default;
+
+        TypedCache(const TypedCache&) = delete;
+        TypedCache(TypedCache&&)      = delete;
+
+        TypedCache& operator=(const TypedCache&) = default;
+        TypedCache& operator=(TypedCache&&)      = default;
+
+        ~TypedCache() = default;
+
+    public:
         void Clear()
         {
             std::scoped_lock Guard(m_Mutex);

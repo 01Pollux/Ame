@@ -1,9 +1,7 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-#include <Rhi/Core.hpp>
-
 #include <Rhi/Resource/CommandListImpl.hpp>
+#include <Rhi/Device/DeferredResource.hpp>
 
 #include <Rhi/Nri/Nri.hpp>
 
@@ -46,7 +44,43 @@ namespace Ame::Rhi
         void EndFrame(
             nri::CoreInterface& NriCore);
 
+        /// <summary>
+        /// Releases the resources that are deferred for release.
+        /// </summary>
+        void Release(
+            nri::CoreInterface& NriCore);
+
+    public:
+        /// <summary>
+        /// Defer the release of a buffer.
+        /// </summary>
+        void DeferRelease(
+            nri::Buffer& NriBuffer);
+
+        /// <summary>
+        /// Defer the release of a texture.
+        /// </summary>
+        void DeferRelease(
+            nri::Texture& NriTexture);
+
+        /// <summary>
+        /// Defer the release of a descriptor.
+        /// </summary>
+        void DeferRelease(
+            nri::Descriptor& NriDescriptor);
+
+        /// <summary>
+        /// Defer the release of a pipeline state.
+        /// </summary>
+        void DeferRelease(
+            nri::Pipeline& Pipeline);
+
     private:
         CommandListImpl m_CommandList;
+
+        DeferredBuffer     m_DeferredBuffers;
+        DeferredTexture    m_DeferredTextures;
+        DeferredDescriptor m_DeferredDescriptors;
+        DeferredPipeline   m_DeferredPipelines;
     };
 } // namespace Ame::Rhi

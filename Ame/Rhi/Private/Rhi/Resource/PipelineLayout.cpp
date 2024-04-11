@@ -87,4 +87,10 @@ namespace Ame::Rhi
 
         NriCore.DestroyPipelineLayout(Layout);
     }
+
+    void DeviceImpl::DeferRelease(
+        nri::Layout& Layout)
+    {
+        //m_FrameManager.DeferRelease(Layout);
+    }
 } // namespace Ame::Rhi

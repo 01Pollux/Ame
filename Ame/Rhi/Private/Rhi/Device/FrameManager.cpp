@@ -41,11 +41,12 @@ namespace Ame::Rhi
         m_FrameWrapper.AdvanceFrame(NriCore, GraphicsQueue);
     }
 
-    void FrameManager::FlushIdle()
+    void FrameManager::FlushIdle(
+        nri::CoreInterface& NriCore)
     {
         for (uint32_t i = 0; i < m_FrameWrapper.FramesInFlightCount; ++i)
         {
-            m_FrameWrapper.Release(i);
+            m_FrameWrapper.Release(NriCore, i);
         }
     }
 
@@ -54,16 +55,25 @@ namespace Ame::Rhi
     void FrameManager::DeferRelease(
         nri::Buffer& NriBuffer)
     {
+        GetCurrentFrame().DeferRelease(NriBuffer);
     }
 
     void FrameManager::DeferRelease(
         nri::Texture& NriTexture)
     {
+        GetCurrentFrame().DeferRelease(NriTexture);
     }
 
     void FrameManager::DeferRelease(
         nri::Descriptor& NriDescriptor)
     {
+        GetCurrentFrame().DeferRelease(NriDescriptor);
+    }
+
+    void FrameManager::DeferRelease(
+        nri::Pipeline& Pipeline)
+    {
+        GetCurrentFrame().DeferRelease(Pipeline);
     }
 
     //
@@ -85,6 +95,6 @@ namespace Ame::Rhi
 
     CommandListImpl& FrameManager::GetCurrentCommandList() const noexcept
     {
-        return m_FrameWrapper.Frames[GetFrameIndex()].GetCommandList();
+        return GetCurrentFrame().GetCommandList();
     }
 } // namespace Ame::Rhi

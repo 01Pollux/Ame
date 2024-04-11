@@ -66,7 +66,7 @@ namespace Ame::Rhi
     struct BlendingDesc
     {
         BlendFactor Src  : 5 = BlendFactor::ONE;
-        BlendFactor Dst  : 5 = BlendFactor::ZERO;
+        BlendFactor Dst  : 5 = BlendFactor::ONE_MINUS_CONSTANT_ALPHA;
         BlendFunc   Func : 3 = BlendFunc::ADD;
     };
     static_assert(std::to_underlying(BlendFactor::MAX_NUM) <= (1 << 5), "Invalid bit size for BlendFactor");
@@ -84,7 +84,7 @@ namespace Ame::Rhi
 
     struct DepthTargetDesc
     {
-        CompareFunc Func        : 5 = CompareFunc::LESS;
+        CompareFunc Func        : 5 = CompareFunc::NONE;
         bool        WriteEnable : 1 = false;
         // Requires "isDepthBoundsTestSupported", expects "CmdSetDepthBounds"
         bool BoundsTestEnable : 1 = false;
@@ -95,7 +95,7 @@ namespace Ame::Rhi
     {
         uint8_t     WriteMask       = 0xFF;
         uint8_t     CompareMask     = 0xFF;
-        CompareFunc Func        : 5 = CompareFunc::ALWAYS;
+        CompareFunc Func        : 5 = CompareFunc::NONE;
         StencilFunc OnFail      : 3 = StencilFunc::KEEP;
         StencilFunc OnDepthFail : 3 = StencilFunc::KEEP;
         StencilFunc OnPass      : 3 = StencilFunc::KEEP;

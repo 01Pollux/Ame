@@ -220,8 +220,10 @@ namespace Ame::Rhi
 
     void DeviceImpl::WaitIdle()
     {
+        auto NriCore = m_NRI.GetCoreInterface();
+
         m_NRI.WaitIdle(*m_CommandQueue);
-        m_FrameManager.FlushIdle();
+        m_FrameManager.FlushIdle(*NriCore);
     }
 
     //

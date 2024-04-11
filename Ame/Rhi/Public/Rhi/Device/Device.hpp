@@ -18,7 +18,7 @@ namespace Ame::Rhi
 {
     struct DeviceCreateDesc;
 
-    class Device : public NonCopyable
+    class Device
     {
         friend Buffer;
         friend Texture;
@@ -29,8 +29,11 @@ namespace Ame::Rhi
 
     public:
         Device() = default;
-        Device(
+        explicit Device(
             const DeviceCreateDesc& Desc);
+
+        Device(const Device&)            = delete;
+        Device& operator=(const Device&) = delete;
 
         Device(Device&&)            = default;
         Device& operator=(Device&&) = default;

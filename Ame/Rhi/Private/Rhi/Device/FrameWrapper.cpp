@@ -78,8 +78,10 @@ namespace Ame::Rhi
     }
 
     void FrameWrapper::Release(
-        uint32_t FrameIndex)
+        nri::CoreInterface& NriCore,
+        uint32_t            FrameIndex)
     {
         auto& CurFrame = Frames[FrameIndex];
+        CurFrame.Release(NriCore);
     }
 } // namespace Ame::Rhi

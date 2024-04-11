@@ -43,11 +43,47 @@ namespace Ame::Rhi
         nri::CoreInterface& NriCore)
     {
         m_CommandList.Reset(NriCore);
+        Release(NriCore);
     }
 
     void Frame::EndFrame(
         nri::CoreInterface& NriCore)
     {
         m_CommandList.End(NriCore);
+    }
+
+    void Frame::Release(
+        nri::CoreInterface& NriCore)
+    {
+        m_DeferredBuffers.Release(NriCore);
+        m_DeferredTextures.Release(NriCore);
+        m_DeferredDescriptors.Release(NriCore);
+        m_DeferredPipelines.Release(NriCore);
+    }
+
+    //
+
+    void Frame::DeferRelease(
+        nri::Buffer& NriBuffer)
+    {
+        m_DeferredBuffers.DeferRelease(NriBuffer);
+    }
+
+    void Frame::DeferRelease(
+        nri::Texture& NriTexture)
+    {
+        m_DeferredTextures.DeferRelease(NriTexture);
+    }
+
+    void Frame::DeferRelease(
+        nri::Descriptor& NriDescriptor)
+    {
+        m_DeferredDescriptors.DeferRelease(NriDescriptor);
+    }
+
+    void Frame::DeferRelease(
+        nri::Pipeline& Pipeline)
+    {
+        m_DeferredPipelines.DeferRelease(Pipeline);
     }
 } // namespace Ame::Rhi

@@ -69,7 +69,8 @@ namespace Ame::Rhi
         /// <summary>
         /// Flush all idle resources
         /// </summary>
-        void FlushIdle();
+        void FlushIdle(
+            nri::CoreInterface& NriCore);
 
     public:
         /// <summary>
@@ -89,6 +90,21 @@ namespace Ame::Rhi
         /// </summary>
         void DeferRelease(
             nri::Descriptor& NriDescriptor);
+
+        /// <summary>
+        /// Defer the release of a pipeline state.
+        /// </summary>
+        void DeferRelease(
+            nri::Pipeline& Pipeline);
+
+    private:
+        /// <summary>
+        /// Get the current frame.
+        /// </summary>
+        [[nodiscard]] auto& GetCurrentFrame() const noexcept
+        {
+            return m_FrameWrapper.Frames[GetFrameIndex()];
+        }
 
     private:
         FrameWrapper m_FrameWrapper;

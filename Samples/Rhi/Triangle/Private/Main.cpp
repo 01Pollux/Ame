@@ -13,6 +13,12 @@ using namespace Ame;
 
 class TriangleSampleEngine : public BaseEngine
 {
+    struct ViewportScissor
+    {
+        std::array<Rhi::Viewport, 1> Viewport;
+        std::array<Rhi::Scissor, 1>  Scissor;
+    };
+
 protected:
     void Initialize() override
     {
@@ -30,6 +36,11 @@ protected:
                 Render(
                     GetSubsystem<Rhi::DeviceSubsystem>());
             });
+    }
+
+    void Shutdown() override
+    {
+        m_PipelineState = nullptr;
     }
 
 private:
@@ -53,12 +64,35 @@ private:
             RhiDevice.GetBackbuffer().View
         };
         CommandList.BeginRendering(RenderTargets);
+
+        auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
+        CommandList.SetViewports(Viewports);
+        CommandList.SetScissorRects(Scissors);
         CommandList.Draw(Rhi::DrawDesc{ .vertexNum = 3 });
         CommandList.EndRendering();
     }
 
 private:
-    [[nodiscard]] Co::result<std::vector<Rhi::ShaderBytecode>> LoadShaders(
+    [[nodiscard]] ViewportScissor GetViewportsAndScissors(
+        Rhi::Device& RhiDevice)
+    {
+        auto& BackbufferDesc = RhiDevice.GetBackbuffer().Resource.GetDesc(RhiDevice);
+
+        return ViewportScissor{
+            .Viewport{
+                Rhi::Viewport{
+                    .width         = static_cast<float>(BackbufferDesc.width),
+                    .height        = static_cast<float>(BackbufferDesc.height),
+                    .depthRangeMax = 1.0f } },
+            .Scissor{
+                Rhi::Scissor{
+                    .width  = BackbufferDesc.width,
+                    .height = BackbufferDesc.height } }
+        };
+    }
+
+    [[nodiscard]] Co::result<std::vector<Rhi::ShaderBytecode>>
+    LoadShaders(
         Co::executor_tag,
         Co::thread_pool_executor& Executor,
         Rhi::Device&              RhiDevice) const
@@ -67,38 +101,29 @@ private:
         Shaders.reserve(2);
 
         constexpr const char* SourceCode = R"(
-			struct VertexInput
-			{
-				float2 Position : POSITION;
-			};
+        struct VSOutput
+        {
+            float4 pos : SV_POSITION;
+            float4 color : COLOR;
+        };
+        VSOutput VS_Main(uint vertexId : SV_VertexID)
+        {
+            VSOutput output;
 
-			struct VertexOutput
-			{
-				float4 Position : SV_POSITION;
-			};
+            if (vertexId == 0)
+                output.pos = float4(0.0, 0.5, 0.5, 1.0);
+            else if (vertexId == 2)
+                output.pos = float4(0.5, -0.5, 0.5, 1.0);
+            else if (vertexId == 1)
+                output.pos = float4(-0.5, -0.5, 0.5, 1.0);
 
-            struct ConstantData
-			{
-                float4 Color;
-			};
-
-#ifdef AME_SHADER_COMPILER_SPIRV
-            [[vk::push_constant]] ConstantData Constants : register(b0, space0);
-#else
-            ConstantBuffer<ConstantData> Constants : register(b0, space0);
-#endif
-
-			VertexOutput VS_Main(VertexInput input)
-			{
-				VertexOutput output;
-				output.Position = float4(input.Position, 0.0f, 1.0f);
-				return output;
-			}
-
-			float4 PS_Main(VertexOutput input) : SV_TARGET
-			{
-				return Constants.Color;
-			}
+            output.color = clamp(output.pos, 0, 1);
+            return output;
+        }
+        float4 PS_Main(VSOutput ps) : SV_TARGET
+        {
+	        return ps.color;
+		}
 		)";
 
         auto VertexShader = Rhi::ShaderBytecode::Compile({}, Executor, RhiDevice.GetGraphicsAPI(), SourceCode, { .Stage = Rhi::ShaderType::VERTEX_SHADER });
@@ -163,8 +188,9 @@ private:
 
         Rhi::GraphicsPipelineDesc Desc{
             .InputAssembly{ Rhi::TopologyType::TRIANGLE_LIST },
+            .Rasterizer{ .Cull = Rhi::CullMode::NONE },
             .OutputMerger{ RenderTargets },
-            .VertexInput = &VertexInput
+            //.VertexInput = &VertexInput
         };
 
         Desc.Layout = co_await LayoutTask;

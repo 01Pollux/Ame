@@ -253,6 +253,12 @@ namespace Ame::Rhi
         auto& Nri     = m_Impl->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        NriCore.DestroyPipeline(Pipeline);
+        m_Impl->DeferRelease(Pipeline);
+    }
+
+    void DeviceImpl::DeferRelease(
+        nri::Pipeline& Pipeline)
+    {
+        m_FrameManager.DeferRelease(Pipeline);
     }
 } // namespace Ame::Rhi

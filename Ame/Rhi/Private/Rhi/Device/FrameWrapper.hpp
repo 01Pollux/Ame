@@ -59,7 +59,11 @@ namespace Ame::Rhi
             nri::CoreInterface& NriCore,
             nri::CommandQueue&  GraphicsQueue);
 
+        /// <summary>
+        /// Release the frame and all deferred resources.
+        /// </summary>
         void Release(
-            uint32_t FrameIndex);
+            nri::CoreInterface& NriCore,
+            uint32_t            FrameIndex);
     };
 } // namespace Ame::Rhi
