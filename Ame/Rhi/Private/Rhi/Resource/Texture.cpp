@@ -13,8 +13,6 @@ namespace Ame::Rhi
     {
     }
 
-    //
-
     void Texture::Release(
         Device& RhiDevice,
         bool    Defer)
@@ -30,13 +28,21 @@ namespace Ame::Rhi
         Device&     RhiDevice,
         const char* Name) const
     {
-        RhiDevice.SetName(*m_Texture, Name);
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.SetTextureDebugName(*m_Texture, Name);
     }
 
     const TextureDesc& Texture::GetDesc(
         Device& RhiDevice) const
     {
-        return RhiDevice.GetDesc(*m_Texture);
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        return NriCore.GetTextureDesc(*m_Texture);
     }
 
     nri::Texture* Texture::Unwrap() const
@@ -47,7 +53,11 @@ namespace Ame::Rhi
     void* Texture::GetNative(
         Device& RhiDevice) const
     {
-        return RhiDevice.GetNative(*m_Texture);
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        return std::bit_cast<void*>(NriCore.GetTextureNativeObject(*m_Texture));
     }
 
     //
@@ -138,29 +148,5 @@ namespace Ame::Rhi
         nri::Texture* Texture)
     {
         m_ResourceStateTracker.EndTracking(Texture);
-    }
-
-    //
-
-    void Device::SetName(
-        nri::Texture& NriTexture,
-        const char*   Name)
-    {
-        auto& Nri = m_Impl->GetNRI();
-        Nri.GetCoreInterface()->SetTextureDebugName(NriTexture, Name);
-    }
-
-    const TextureDesc& Device::GetDesc(
-        nri::Texture& NriTexture) const
-    {
-        auto& Nri = m_Impl->GetNRI();
-        return Nri.GetCoreInterface()->GetTextureDesc(NriTexture);
-    }
-
-    void* Device::GetNative(
-        nri::Texture& NriTexture) const
-    {
-        auto& Nri = m_Impl->GetNRI();
-        return std::bit_cast<void*>(Nri.GetCoreInterface()->GetTextureNativeObject(NriTexture));
     }
 } // namespace Ame::Rhi

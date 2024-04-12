@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Rhi/Buffer.hpp>
+#include <Rhi/Resource/Buffer.hpp>
 
 namespace Ame::Rhi
 {

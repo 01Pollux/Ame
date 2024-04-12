@@ -13,8 +13,6 @@ namespace Ame::Rhi
     {
     }
 
-    //
-
     void Buffer::Release(
         Device& RhiDevice,
         bool    Defer)
@@ -26,19 +24,6 @@ namespace Ame::Rhi
 
     //
 
-    void Buffer::SetName(
-        Device&     RhiDevice,
-        const char* Name)
-    {
-        RhiDevice.SetName(*m_Buffer, Name);
-    }
-
-    const BufferDesc& Buffer::GetDesc(
-        Device& RhiDevice) const
-    {
-        return RhiDevice.GetDesc(*m_Buffer);
-    }
-
     nri::Buffer* Buffer::Unwrap(
         Device& RhiDevice) const
     {
@@ -48,7 +33,58 @@ namespace Ame::Rhi
     void* Buffer::GetNative(
         Device& RhiDevice) const
     {
-        return RhiDevice.GetNative(*m_Buffer);
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        return std::bit_cast<void*>(NriCore.GetBufferNativeObject(*m_Buffer));
+    }
+
+    //
+
+    void Buffer::SetName(
+        Device&     RhiDevice,
+        const char* Name)
+    {
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.SetBufferDebugName(*m_Buffer, Name);
+    }
+
+    const BufferDesc& Buffer::GetDesc(
+        Device& RhiDevice) const
+    {
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        return NriCore.GetBufferDesc(*m_Buffer);
+    }
+
+    //
+
+    void* Buffer::Map(
+        Device& RhiDevice,
+        size_t  Offset,
+        size_t  Size)
+    {
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        return NriCore.MapBuffer(*m_Buffer, Offset, Size);
+    }
+
+    void Buffer::Unmap(
+        Device& RhiDevice)
+    {
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.UnmapBuffer(*m_Buffer);
     }
 
     //
@@ -101,33 +137,5 @@ namespace Ame::Rhi
         nri::Buffer* Buffer)
     {
         m_ResourceStateTracker.EndTracking(Buffer);
-    }
-
-    //
-
-    void Device::SetName(
-        nri::Buffer& NriBuffer,
-        const char*  Name)
-    {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
-
-        NriCore.SetBufferDebugName(NriBuffer, Name);
-    }
-
-    const BufferDesc& Device::GetDesc(
-        nri::Buffer& NriBuffer) const
-    {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
-
-        return NriCore.GetBufferDesc(NriBuffer);
-    }
-
-    void* Device::GetNative(
-        nri::Buffer& NriBuffer) const
-    {
-        auto& Nri = m_Impl->GetNRI();
-        return std::bit_cast<void*>(Nri.GetCoreInterface()->GetBufferNativeObject(NriBuffer));
     }
 } // namespace Ame::Rhi

@@ -62,6 +62,21 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Map the buffer.
+        /// </summary>
+        void* Map(
+            Device& RhiDevice,
+            size_t  Offset = 0,
+            size_t  Size   = 0);
+
+        /// <summary>
+        /// Unmap the buffer.
+        /// </summary>
+        void Unmap(
+            Device& RhiDevice);
+
+    public:
+        /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] BufferResourceView CreateView(

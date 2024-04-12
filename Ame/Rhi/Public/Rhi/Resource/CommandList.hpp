@@ -5,6 +5,9 @@
 
 namespace Ame::Rhi
 {
+    struct VertexBufferView;
+    struct IndexBufferView;
+
     /// <summary>
     /// Command list is a sequence of commands that can be executed by the GPU.
     /// It is used to record rendering commands, dispatch compute shaders, and copy resources.
@@ -104,6 +107,26 @@ namespace Ame::Rhi
         /// </summary>
         void SetBlendConstants(
             const Math::Color4& BlendConstants);
+
+        /// <summary>
+        /// Set vertex buffers.
+        /// </summary>
+        void SetVertexBuffers(
+            std::span<const VertexBufferView> VertexBuffers,
+            uint32_t                          BaseSlot = 0);
+
+        /// <summary>
+        /// Set vertex buffer.
+        /// </summary>
+        void SetVertexBuffer(
+            const VertexBufferView& VertexBuffer,
+            uint32_t                BaseSlot = 0);
+
+        /// <summary>
+        /// Set index buffer.
+        /// </summary>
+        void SetIndexBuffer(
+            const IndexBufferView& IndexBuffer);
 
         /// <summary>
         /// Perform draw call.

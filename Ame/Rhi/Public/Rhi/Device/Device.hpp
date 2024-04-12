@@ -257,25 +257,6 @@ namespace Ame::Rhi
             bool          Defer);
 
         /// <summary>
-        /// Set the texture name.
-        /// </summary>
-        void SetName(
-            nri::Texture& Tex,
-            const char*   Name);
-
-        /// <summary>
-        /// Get the texture desc.
-        /// </summary>
-        [[nodiscard]] const TextureDesc& GetDesc(
-            nri::Texture& Tex) const;
-
-        /// <summary>
-        /// Get the underlying texture.
-        /// </summary>
-        [[nodiscard]] void* GetNative(
-            nri::Texture& Tex) const;
-
-        /// <summary>
         /// Create resource view for a texture.
         /// </summary>
         [[nodiscard]] nri::Descriptor* CreateView(
@@ -299,25 +280,6 @@ namespace Ame::Rhi
             bool         Defer);
 
         /// <summary>
-        /// Set the buffer name.
-        /// </summary>
-        void SetName(
-            nri::Buffer& Buf,
-            const char*  Name);
-
-        /// <summary>
-        /// Get the buffer desc.
-        /// </summary>
-        [[nodiscard]] const BufferDesc& GetDesc(
-            nri::Buffer& Buf) const;
-
-        /// <summary>
-        /// Get the underlying buffer.
-        /// </summary>
-        [[nodiscard]] void* GetNative(
-            nri::Buffer& Buf) const;
-
-        /// <summary>
         /// Create resource view for a buffer.
         /// </summary>
         [[nodiscard]] nri::Descriptor* CreateView(
@@ -332,19 +294,6 @@ namespace Ame::Rhi
         void Release(
             nri::Descriptor& View,
             bool             Defer);
-
-        /// <summary>
-        /// Set the resource view name.
-        /// </summary>
-        void SetName(
-            nri::Descriptor& View,
-            const char*      Name);
-
-        /// <summary>
-        /// Get the underlying resource view.
-        /// </summary>
-        [[nodiscard]] void* GetNative(
-            nri::Descriptor& View) const;
 
     private:
         /// <summary>

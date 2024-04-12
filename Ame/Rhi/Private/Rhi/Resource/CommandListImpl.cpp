@@ -5,6 +5,7 @@
 
 #include <Rhi/Resource/PipelineLayout.hpp>
 #include <Rhi/Resource/PipelineState.hpp>
+#include <Rhi/Resource/VertexView.hpp>
 
 #include <Rhi/NriError.hpp>
 
@@ -205,6 +206,40 @@ namespace Ame::Rhi
             BlendConstants.a
         };
         NriCore.CmdSetBlendConstants(*m_CommandBuffer, NriColor);
+    }
+
+    void CommandListImpl::SetVertexBuffers(
+        DeviceImpl&                       RhiDeviceImpl,
+        class Device&                     RhiDevice,
+        std::span<const VertexBufferView> VertexBuffers,
+        uint32_t                          BaseSlot)
+    {
+        std::vector<nri::Buffer*> NriBuffers;
+        std::vector<uint64_t>     Offsets;
+
+        NriBuffers.reserve(VertexBuffers.size());
+        Offsets.reserve(VertexBuffers.size());
+
+        for (const auto& VertexBuffer : VertexBuffers)
+        {
+            NriBuffers.push_back(VertexBuffer.Buffer.Unwrap(RhiDevice));
+            Offsets.push_back(VertexBuffer.Offset);
+        }
+
+        auto& Nri     = RhiDeviceImpl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+        NriCore.CmdSetVertexBuffers(*m_CommandBuffer, BaseSlot, Count32(NriBuffers), NriBuffers.data(), Offsets.data());
+    }
+
+    void CommandListImpl::SetIndexBuffer(
+        DeviceImpl&            RhiDeviceImpl,
+        class Device&          RhiDevice,
+        const IndexBufferView& IndexBuffer)
+    {
+        auto& Nri     = RhiDeviceImpl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdSetIndexBuffer(*m_CommandBuffer, *IndexBuffer.Buffer.Unwrap(RhiDevice), IndexBuffer.Offset, IndexBuffer.Type);
     }
 
     void CommandListImpl::Draw(

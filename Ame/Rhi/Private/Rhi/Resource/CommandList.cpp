@@ -1,5 +1,6 @@
 #include <Rhi/Resource/CommandListImpl.hpp>
 #include <Rhi/Device/DeviceImpl.hpp>
+#include <Rhi/Resource/VertexView.hpp>
 
 namespace Ame::Rhi
 {
@@ -84,6 +85,26 @@ namespace Ame::Rhi
         const Math::Color4& BlendConstants)
     {
         m_Impl.SetBlendConstants(m_Device.GetImpl(), BlendConstants);
+    }
+
+    void CommandList::SetVertexBuffers(
+        std::span<const VertexBufferView> VertexBuffers,
+        uint32_t                          BaseSlot)
+    {
+        m_Impl.SetVertexBuffers(m_Device.GetImpl(), m_Device, VertexBuffers, BaseSlot);
+    }
+
+    void CommandList::SetVertexBuffer(
+        const VertexBufferView& VertexBuffer,
+        uint32_t                BaseSlot)
+    {
+        SetVertexBuffers({ &VertexBuffer, 1 }, BaseSlot);
+    }
+
+    void CommandList::SetIndexBuffer(
+        const IndexBufferView& IndexBuffer)
+    {
+        m_Impl.SetIndexBuffer(m_Device.GetImpl(), m_Device, IndexBuffer);
     }
 
     void CommandList::Draw(

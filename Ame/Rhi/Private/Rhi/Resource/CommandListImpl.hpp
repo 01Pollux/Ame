@@ -137,6 +137,23 @@ namespace Ame::Rhi
             const Math::Color4& BlendConstants);
 
         /// <summary>
+        /// Set vertex buffer.
+        /// </summary>
+        void SetVertexBuffers(
+            DeviceImpl&                       RhiDeviceImpl,
+            class Device&                     RhiDevice,
+            std::span<const VertexBufferView> VertexBuffers,
+            uint32_t                          BaseSlot);
+
+        /// <summary>
+        /// Set index buffer.
+        /// </summary>
+        void SetIndexBuffer(
+            DeviceImpl&            RhiDeviceImpl,
+            class Device&          RhiDevice,
+            const IndexBufferView& IndexBuffer);
+
+        /// <summary>
         /// Perform draw call.
         /// </summary>
         void Draw(

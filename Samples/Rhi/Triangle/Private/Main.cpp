@@ -7,6 +7,7 @@
 #include <Rhi/Resource/CommandList.hpp>
 #include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Buffer.hpp>
+#include <Rhi/Resource/VertexView.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -86,6 +87,8 @@ private:
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
         CommandList.SetViewports(Viewports);
         CommandList.SetScissorRects(Scissors);
+        CommandList.SetVertexBuffer({ .Buffer = m_VertexBuffer });
+        CommandList.SetIndexBuffer({ .Buffer = m_IndexBuffer, .Type = Rhi::IndexType::UINT16 });
         CommandList.Draw(Rhi::DrawDesc{ .vertexNum = 3 });
         CommandList.EndRendering();
     }
@@ -118,24 +121,21 @@ private:
         Shaders.reserve(2);
 
         constexpr const char* SourceCode = R"(
+        struct VSInput
+        {
+        	float2 pos : POSITION;  
+        };
         struct VSOutput
         {
             float4 pos : SV_POSITION;
             float4 color : COLOR;
         };
-        VSOutput VS_Main(uint vertexId : SV_VertexID)
+        VSOutput VS_Main(VSInput vs) 
         {
-            VSOutput output;
-
-            if (vertexId == 0)
-                output.pos = float4(0.0, 0.5, 0.5, 1.0);
-            else if (vertexId == 2)
-                output.pos = float4(0.5, -0.5, 0.5, 1.0);
-            else if (vertexId == 1)
-                output.pos = float4(-0.5, -0.5, 0.5, 1.0);
-
-            output.color = clamp(output.pos, 0, 1);
-            return output;
+            VSOutput ps;
+			ps.pos = float4(vs.pos, 0.0, 1.0);
+			ps.color = float4(1.0, vs.pos.y, vs.pos.x, 1.0);
+			return ps;
         }
         float4 PS_Main(VSOutput ps) : SV_TARGET
         {
@@ -192,7 +192,7 @@ private:
             { .d3d{ "POSITION", 0 },
               .vk{ 0 },
               .offset      = 0,
-              .format      = Rhi::ResourceFormat::R32_SFLOAT,
+              .format      = Rhi::ResourceFormat::RG32_SFLOAT,
               .streamIndex = 0 }
         };
 
@@ -239,6 +239,10 @@ private:
         };
         m_VertexBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
 
+        auto Buffer = m_VertexBuffer.Map(RhiDevice);
+        std::memcpy(Buffer, Vertices, sizeof(Vertices));
+        m_VertexBuffer.Unmap(RhiDevice);
+
         uint16_t Indices[]{
             0, 1, 2
         };
@@ -247,6 +251,10 @@ private:
         Desc.usageMask = Rhi::BufferUsageBits::INDEX_BUFFER;
 
         m_IndexBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
+
+        Buffer = m_IndexBuffer.Map(RhiDevice);
+        std::memcpy(Buffer, Indices, sizeof(Indices));
+        m_IndexBuffer.Unmap(RhiDevice);
     }
 
 private:

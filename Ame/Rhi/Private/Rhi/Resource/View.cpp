@@ -253,7 +253,11 @@ namespace Ame::Rhi
         Device&     RhiDevice,
         const char* Name) const
     {
-        RhiDevice.SetName(*m_Descriptor, Name);
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.SetDescriptorDebugName(*m_Descriptor, Name);
     }
 
     nri::Descriptor* ResourceView::Unwrap() const
@@ -264,7 +268,11 @@ namespace Ame::Rhi
     void* ResourceView::GetNative(
         Device& RhiDevice) const
     {
-        return RhiDevice.GetNative(*m_Descriptor);
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        return std::bit_cast<void*>(NriCore.GetDescriptorNativeObject(*m_Descriptor));
     }
 
     //
@@ -274,21 +282,6 @@ namespace Ame::Rhi
         bool             Defer)
     {
         m_Impl->Release(View, Defer);
-    }
-
-    void Device::SetName(
-        nri::Descriptor& View,
-        const char*      Name)
-    {
-        auto& Nri = m_Impl->GetNRI();
-        Nri.GetCoreInterface()->SetDescriptorDebugName(View, Name);
-    }
-
-    void* Device::GetNative(
-        nri::Descriptor& View) const
-    {
-        auto& Nri = m_Impl->GetNRI();
-        return std::bit_cast<void*>(Nri.GetCoreInterface()->GetDescriptorNativeObject(View));
     }
 
     //
