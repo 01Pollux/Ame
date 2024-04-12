@@ -4,6 +4,7 @@
 
 #include <Rhi/Device/Device.hpp>
 #include <Rhi/Device/FrameManager.hpp>
+#include <Rhi/Device/MemoryAllocator.hpp>
 #include <Rhi/Device/StateTracker.hpp>
 
 #include <Rhi/Hash/Layout.hpp>
@@ -278,6 +279,7 @@ namespace Ame::Rhi
         NRIBridge            m_NRI;
         UPtr<WindowManager>  m_WindowManager;
         FrameManager         m_FrameManager;
+        MemoryAllocator      m_MemoryAllocator;
         ResourceStateTracker m_ResourceStateTracker;
 
         nri::Device*       m_Device       = nullptr;

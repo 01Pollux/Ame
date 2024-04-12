@@ -183,6 +183,20 @@ namespace Ame::Rhi
         [[nodiscard]] Ptr<PipelineLayout> CreatePipelineLayout(
             const PipelineLayoutDesc& Desc);
 
+    private:
+        /// <summary>
+        /// Set the pipeline layout name.
+        /// </summary>
+        void SetName(
+            nri::PipelineLayout& Layout,
+            const char*          Name) const;
+
+        /// <summary>
+        /// Get the nri pipeline layout.
+        /// </summary>
+        void Release(
+            nri::PipelineLayout& Layout);
+
     public:
         /// <summary>
         /// Create graphics pipeline state.
@@ -211,6 +225,20 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
             const ComputePipelineDesc& Desc);
+
+    private:
+        /// <summary>
+        /// Set the pipeline state name.
+        /// </summary>
+        void SetName(
+            nri::Pipeline& Pipeline,
+            const char*    Name) const;
+
+        /// <summary>
+        /// Get the nri pipeline state.
+        /// </summary>
+        void Release(
+            nri::Pipeline& Pipeline);
 
         // Below are the functions that are only accessible by the Texture
     private:
@@ -315,36 +343,6 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] void* GetNative(
             nri::Descriptor& View) const;
-
-        // Below are the functions that are only accessible by the PipelineLayout
-    private:
-        /// <summary>
-        /// Set the pipeline layout name.
-        /// </summary>
-        void SetName(
-            nri::PipelineLayout& Layout,
-            const char*          Name) const;
-
-        /// <summary>
-        /// Get the nri pipeline layout.
-        /// </summary>
-        void Release(
-            nri::PipelineLayout& Layout);
-
-        // Below are the functions that are only accessible by the Pipeline
-    private:
-        /// <summary>
-        /// Set the pipeline state name.
-        /// </summary>
-        void SetName(
-            nri::Pipeline& Pipeline,
-            const char*    Name) const;
-
-        /// <summary>
-        /// Get the nri pipeline state.
-        /// </summary>
-        void Release(
-            nri::Pipeline& Pipeline);
 
     private:
         /// <summary>

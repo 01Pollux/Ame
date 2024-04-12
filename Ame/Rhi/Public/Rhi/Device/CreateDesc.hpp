@@ -5,6 +5,7 @@
 #include <Core/Ame.hpp>
 #include <Rhi/Core.hpp>
 #include <Window/Desc.hpp>
+#include <Rhi/Device/MemoryDesc.hpp>
 
 namespace Ame::Rhi
 {
@@ -49,6 +50,11 @@ namespace Ame::Rhi
         /// The adapter to use for the device.
         /// </summary>
         AdapterDesc Adapter;
+
+        /// <summary>
+        /// Memory allocator settings.
+        /// </summary>
+        MemoryAllocatorDesc MemoryAllocator;
 
         /// <summary>
         /// A headless device is a device that does not create a window.

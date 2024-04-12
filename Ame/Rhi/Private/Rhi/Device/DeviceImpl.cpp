@@ -16,7 +16,8 @@
 namespace Ame::Rhi
 {
     DeviceImpl::DeviceImpl(
-        const DeviceCreateDesc& Desc)
+        const DeviceCreateDesc& Desc) : 
+        m_MemoryAllocator(Desc.MemoryAllocator),
     {
         if (!CreateDevice(Desc))
         {
