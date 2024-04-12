@@ -27,7 +27,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert(m_Device != nullptr, "Failed to create device");
         Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
 
-        m_MemoryAllocator.Initialize(Desc.MemoryAllocator);
+        m_MemoryAllocator.Initialize(*this, Desc.MemoryAllocator);
         m_FrameManager.Initialize(*m_NRI.GetCoreInterface(), *m_Device, *m_CommandQueue, Desc.FramesInFlight);
         if (Desc.Window)
         {
@@ -54,7 +54,8 @@ namespace Ame::Rhi
 
     GraphicsAPI DeviceImpl::GetGraphicsAPI() const
     {
-        auto& Desc = m_NRI.GetCoreInterface()->GetDeviceDesc(*m_Device);
+        auto& NriCore = *m_NRI.GetCoreInterface();
+        auto& Desc    = NriCore.GetDeviceDesc(*m_Device);
         switch (Desc.graphicsAPI)
         {
         case nri::GraphicsAPI::D3D12:
@@ -192,7 +193,8 @@ namespace Ame::Rhi
             }
         }
 
-        m_FrameManager.NewFrame(*m_NRI.GetCoreInterface());
+        auto& NriCore = *m_NRI.GetCoreInterface();
+        m_FrameManager.NewFrame(NriCore, m_MemoryAllocator);
 
         if (!IsHeadless()) [[likely]]
         {
@@ -207,31 +209,31 @@ namespace Ame::Rhi
 
     void DeviceImpl::EndFrame()
     {
-        auto NriCore = m_NRI.GetCoreInterface();
+        auto& NriCore = *m_NRI.GetCoreInterface();
 
         if (!IsHeadless()) [[likely]]
         {
             TransitionBackbuffer(true);
         }
 
-        m_FrameManager.EndFrame(*NriCore, *m_CommandQueue);
+        m_FrameManager.EndFrame(NriCore, *m_CommandQueue);
 
         if (!IsHeadless()) [[likely]]
         {
             m_WindowManager->Present();
         }
 
-        m_FrameManager.AdvanceFrame(*NriCore, *m_CommandQueue);
+        m_FrameManager.AdvanceFrame(NriCore, *m_CommandQueue);
     }
 
     //
 
     void DeviceImpl::WaitIdle()
     {
-        auto NriCore = m_NRI.GetCoreInterface();
+        auto& NriCore = *m_NRI.GetCoreInterface();
 
         m_NRI.WaitIdle(*m_CommandQueue);
-        m_FrameManager.FlushIdle(*NriCore);
+        m_FrameManager.FlushIdle(NriCore, m_MemoryAllocator);
     }
 
     //
@@ -255,18 +257,17 @@ namespace Ame::Rhi
 
     void DeviceImpl::RegisterBackbufferState()
     {
-        auto NriCore = m_NRI.GetCoreInterface();
+        auto& NriCore = *m_NRI.GetCoreInterface();
 
         nri::AccessLayoutStage State{ nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL };
         for (uint32_t i = 0; i < GetBackbufferCount(); i++)
         {
-            m_ResourceStateTracker.BeginTracking(*NriCore, GetBackbuffer(i).Resource.Unwrap(), State);
+            m_ResourceStateTracker.BeginTracking(NriCore, GetBackbuffer(i).Resource.Unwrap(), State);
         }
     }
 
     void DeviceImpl::UnregisterBackbufferState()
     {
-        auto NriCore = m_NRI.GetCoreInterface();
         for (uint32_t i = 0; i < GetBackbufferCount(); i++)
         {
             m_ResourceStateTracker.EndTracking(GetBackbuffer(i).Resource.Unwrap());
@@ -276,7 +277,7 @@ namespace Ame::Rhi
     void DeviceImpl::TransitionBackbuffer(
         bool Present)
     {
-        auto  NriCore       = m_NRI.GetCoreInterface();
+        auto& NriCore       = *m_NRI.GetCoreInterface();
         auto& CommandBuffer = GetCurrentCommandList().GetCommandBuffer();
         auto  CurBackbuffer = GetBackbuffer();
 
@@ -293,17 +294,17 @@ namespace Ame::Rhi
         }
 
         m_ResourceStateTracker.RequireState(
-            *NriCore,
+            NriCore,
             CurBackbuffer.Resource.Unwrap(),
             State);
 
-        m_ResourceStateTracker.CommitBarriers(*NriCore, CommandBuffer);
+        m_ResourceStateTracker.CommitBarriers(NriCore, CommandBuffer);
     }
 
     void DeviceImpl::ClearBackbuffer(
         const Math::Color4& Color)
     {
-        auto  NriCore           = m_NRI.GetCoreInterface();
+        auto& NriCore           = *m_NRI.GetCoreInterface();
         auto& CommandBuffer     = GetCurrentCommandList().GetCommandBuffer();
         auto  CurBackbuffer     = GetBackbuffer();
         auto  CurBackbufferView = CurBackbuffer.View.Unwrap();
@@ -319,9 +320,9 @@ namespace Ame::Rhi
         };
 
         // TODO: CommandList aware of last rendering pass
-        NriCore->CmdBeginRendering(CommandBuffer, Attachments);
-        NriCore->CmdClearAttachments(CommandBuffer, &Clears, 1, nullptr, 0);
-        NriCore->CmdEndRendering(CommandBuffer);
+        NriCore.CmdBeginRendering(CommandBuffer, Attachments);
+        NriCore.CmdClearAttachments(CommandBuffer, &Clears, 1, nullptr, 0);
+        NriCore.CmdEndRendering(CommandBuffer);
     }
 
     //
@@ -424,8 +425,8 @@ namespace Ame::Rhi
         if (Desc.EnableApiValidationLayer && GraphicsAPI == GraphicsAPI::DirectX12) [[likely]]
         {
 #ifdef AME_PLATFORM_WINDOWS
-            auto CoreInterface = m_NRI.GetCoreInterface();
-            auto Device        = static_cast<ID3D12Device*>(CoreInterface->GetDeviceNativeObject(*m_Device));
+            auto& NriCore = *m_NRI.GetCoreInterface();
+            auto  Device  = static_cast<ID3D12Device*>(NriCore.GetDeviceNativeObject(*m_Device));
 
             ID3D12InfoQueue* InfoQueue = nullptr;
             Device->QueryInterface(&InfoQueue);

@@ -40,10 +40,11 @@ namespace Ame::Rhi
     //
 
     void Frame::NewFrame(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& NriCore,
+        MemoryAllocator&    MemAllocator)
     {
         m_CommandList.Reset(NriCore);
-        Release(NriCore);
+        Release(NriCore, MemAllocator);
     }
 
     void Frame::EndFrame(
@@ -53,10 +54,11 @@ namespace Ame::Rhi
     }
 
     void Frame::Release(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& NriCore,
+        MemoryAllocator&    MemAllocator)
     {
-        m_DeferredBuffers.Release(NriCore);
-        m_DeferredTextures.Release(NriCore);
+        m_DeferredBuffers.Release(MemAllocator);
+        m_DeferredTextures.Release(MemAllocator);
         m_DeferredDescriptors.Release(NriCore);
         m_DeferredPipelines.Release(NriCore);
     }

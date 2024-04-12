@@ -42,6 +42,7 @@ namespace Ame::Rhi
         /// </summary>
         void NewFrame(
             nri::CoreInterface& NriCore,
+            MemoryAllocator&    MemAllocator,
             uint32_t            FrameIndex);
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace Ame::Rhi
         /// </summary>
         void Release(
             nri::CoreInterface& NriCore,
+            MemoryAllocator&    MemAllocator,
             uint32_t            FrameIndex);
     };
 } // namespace Ame::Rhi

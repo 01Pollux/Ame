@@ -28,16 +28,11 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Immediately releases the buffer.
+        /// Releases the buffer.
         /// </summary>
         void Release(
-            Device& RhiDevice);
-
-        /// <summary>
-        /// Defers the release of the buffer until the gpu is done with it.
-        /// </summary>
-        void DeferRelease(
-            Device& RhiDevice);
+            Device& RhiDevice,
+            bool    Defer = true);
 
     public:
         /// <summary>

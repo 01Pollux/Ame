@@ -5,13 +5,17 @@
 
 namespace Ame::Rhi
 {
-    void MemoryAllocator::Initialize(const MemoryAllocatorDesc& Desc)
+    void MemoryAllocator::Initialize(
+        DeviceImpl&                RhiDevice,
+        const MemoryAllocatorDesc& Desc)
     {
         m_BlockSize       = Desc.InitialBlockSize;
         m_GrowSize        = Desc.NextBlockSize;
         m_MaxSize         = Desc.MaxBlockSize;
         m_GrowthFactor    = Desc.GrowthFactor;
         m_MaxGrowAttempts = Desc.MaxGrowAttempts;
+
+        m_RhiDevice = &RhiDevice;
     }
 
     void MemoryAllocator::Shutdown()
@@ -29,27 +33,28 @@ namespace Ame::Rhi
     //
 
     nri::Buffer* MemoryAllocator::CreateBuffer(
-        DeviceImpl&         RhiDevice,
         nri::MemoryLocation Location,
         const BufferDesc&   Desc)
     {
-        auto& Nri     = RhiDevice.GetNRI();
+        auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         nri::Buffer* NriBuffer = nullptr;
-        ThrowIfFailed(NriCore.CreateBuffer(RhiDevice.GetDevice(), Desc, NriBuffer), "failed to create buffer");
+        ThrowIfFailed(NriCore.CreateBuffer(m_RhiDevice->GetDevice(), Desc, NriBuffer), "failed to create buffer");
 
         nri::MemoryDesc MemoryDesc;
         NriCore.GetBufferMemoryInfo(*NriBuffer, Location, MemoryDesc);
 
         if (MemoryDesc.mustBeDedicated)
         {
-            auto Memory = AllocateDedicatedMemory(RhiDevice, NriBuffer, MemoryDesc);
-            BindBufferToMemory(RhiDevice, Memory, *NriBuffer, 0);
+            DedicatedAllocation Handle({ AllocateDedicatedMemory(NriBuffer, MemoryDesc) }, AllocationType::Buffer);
+            BindBufferToMemory(*m_RhiDevice, Handle.Memory, *NriBuffer, 0);
+
+            m_DedicatedSegments.emplace(NriBuffer, std::move(Handle));
         }
         else
         {
-            auto Handle = m_Node.Bind(RhiDevice, this, *NriBuffer, MemoryDesc);
+            BlockAllocation Handle({ m_Node.Bind(this, *NriBuffer, MemoryDesc) }, AllocationType::Buffer);
             if (!Handle)
             {
                 throw std::runtime_error("failed to create and bind buffer memory");
@@ -61,27 +66,28 @@ namespace Ame::Rhi
     }
 
     nri::Texture* MemoryAllocator::CreateTexture(
-        DeviceImpl&         RhiDevice,
         nri::MemoryLocation Location,
         const TextureDesc&  Desc)
     {
-        auto& Nri     = RhiDevice.GetNRI();
+        auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         nri::Texture* NriTexture = nullptr;
-        ThrowIfFailed(NriCore.CreateTexture(RhiDevice.GetDevice(), Desc, NriTexture), "failed to create texture");
+        ThrowIfFailed(NriCore.CreateTexture(m_RhiDevice->GetDevice(), Desc, NriTexture), "failed to create texture");
 
         nri::MemoryDesc MemoryDesc;
         NriCore.GetTextureMemoryInfo(*NriTexture, Location, MemoryDesc);
 
         if (MemoryDesc.mustBeDedicated)
         {
-            auto Memory = AllocateDedicatedMemory(RhiDevice, NriTexture, MemoryDesc);
-            BindTextureToMemory(RhiDevice, Memory, *NriTexture, 0);
+            DedicatedAllocation Handle({ AllocateDedicatedMemory(NriTexture, MemoryDesc) }, AllocationType::Texture);
+            BindTextureToMemory(*m_RhiDevice, Handle.Memory, *NriTexture, 0);
+
+            m_DedicatedSegments.emplace(NriTexture, std::move(Handle));
         }
         else
         {
-            auto Handle = m_Node.Bind(RhiDevice, this, *NriTexture, MemoryDesc);
+            BlockAllocation Handle({ m_Node.Bind(this, *NriTexture, MemoryDesc) }, AllocationType::Texture);
             if (!Handle)
             {
                 throw std::runtime_error("failed to create and bind texture memory");
@@ -95,21 +101,27 @@ namespace Ame::Rhi
     //
 
     void MemoryAllocator::Release(
-        DeviceImpl& RhiDevice,
-        void*       Resource)
+        void* Resource)
     {
         if (auto Iter = m_BlockHandles.find(Resource); Iter != m_BlockHandles.end())
         {
-            auto& [Allocator, Handle] = Iter->second;
-            Allocator->Free(Handle);
+            auto& Allocation = Iter->second;
+
+            ReleaseOfType(Resource, Allocation.Type);
+
+            Allocation.Allocator->Free(Allocation.AllocHandle);
             m_BlockHandles.erase(Iter);
         }
         else if (auto Iter = m_DedicatedSegments.find(Resource); Iter != m_DedicatedSegments.end())
         {
-            auto& Nri     = RhiDevice.GetNRI();
+            auto& Allocation = Iter->second;
+
+            ReleaseOfType(Resource, Allocation.Type);
+
+            auto& Nri     = m_RhiDevice->GetNRI();
             auto& NriCore = *Nri.GetCoreInterface();
 
-            NriCore.FreeMemory(*Iter->second);
+            NriCore.FreeMemory(*Allocation.Memory);
             m_DedicatedSegments.erase(Iter);
         }
         else
@@ -118,20 +130,39 @@ namespace Ame::Rhi
         }
     }
 
+    void MemoryAllocator::ReleaseOfType(
+        void*          Resource,
+        AllocationType Type)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        switch (Type)
+        {
+        case AllocationType::Buffer:
+            NriCore.DestroyBuffer(*static_cast<nri::Buffer*>(Resource));
+            break;
+        case AllocationType::Texture:
+            NriCore.DestroyTexture(*static_cast<nri::Texture*>(Resource));
+            break;
+        default:
+            std::unreachable();
+        }
+    }
+
     //
 
     nri::Memory* MemoryAllocator::AllocateDedicatedMemory(
-        DeviceImpl&            RhiDevice,
         void*                  Resource,
         const nri::MemoryDesc& Desc)
     {
-        auto& Nri     = RhiDevice.GetNRI();
+        auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         nri::Memory* Memory = nullptr;
-        ThrowIfFailed(NriCore.AllocateMemory(RhiDevice.GetDevice(), Desc.type, Desc.size, Memory), "failed to allocate memory");
+        ThrowIfFailed(NriCore.AllocateMemory(m_RhiDevice->GetDevice(), Desc.type, Desc.size, Memory), "failed to allocate memory");
 
-        return m_DedicatedSegments.emplace(Resource, Memory).first->second;
+        return Memory;
     }
 
     void MemoryAllocator::BindBufferToMemory(

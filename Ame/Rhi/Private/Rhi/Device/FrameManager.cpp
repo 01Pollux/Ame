@@ -21,10 +21,11 @@ namespace Ame::Rhi
     //
 
     void FrameManager::NewFrame(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& NriCore,
+        MemoryAllocator&    MemAllocator)
     {
         m_FrameWrapper.Sync(NriCore);
-        m_FrameWrapper.NewFrame(NriCore, GetFrameIndex());
+        m_FrameWrapper.NewFrame(NriCore, MemAllocator, GetFrameIndex());
     }
 
     void FrameManager::EndFrame(
@@ -42,11 +43,12 @@ namespace Ame::Rhi
     }
 
     void FrameManager::FlushIdle(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& NriCore,
+        MemoryAllocator&    MemAllocator)
     {
         for (uint32_t i = 0; i < m_FrameWrapper.FramesInFlightCount; ++i)
         {
-            m_FrameWrapper.Release(NriCore, i);
+            m_FrameWrapper.Release(NriCore, MemAllocator, i);
         }
     }
 

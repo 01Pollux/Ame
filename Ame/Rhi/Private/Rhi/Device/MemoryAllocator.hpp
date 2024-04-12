@@ -12,11 +12,18 @@ namespace Ame::Rhi
 {
     class MemoryAllocator
     {
+        enum class AllocationType : uint8_t
+        {
+            Buffer,
+            Texture,
+        };
+
     public:
         /// <summary>
         /// Initialize the memory allocator.
         /// </summary>
         void Initialize(
+            DeviceImpl&                RhiDevice,
             const MemoryAllocatorDesc& Desc);
 
         /// <summary>
@@ -29,7 +36,6 @@ namespace Ame::Rhi
         /// Create a managed buffer fully initialized with memory.
         /// </summary>
         [[nodiscard]] nri::Buffer* CreateBuffer(
-            DeviceImpl&       RhiDevice,
             MemoryLocation    Location,
             const BufferDesc& Desc);
 
@@ -37,7 +43,6 @@ namespace Ame::Rhi
         /// Create a managed texture fully initialized with memory.
         /// </summary>
         [[nodiscard]] nri::Texture* CreateTexture(
-            DeviceImpl&        RhiDevice,
             MemoryLocation     Location,
             const TextureDesc& Desc);
 
@@ -47,15 +52,21 @@ namespace Ame::Rhi
         /// resource must be a pointer to the nri texture or nri buffer.
         /// </summary>
         void Release(
-            DeviceImpl& RhiDevice,
-            void*       Resource);
+            void* Resource);
+
+    private:
+        /// <summary>
+        /// Release the memory associated with the resource.
+        /// </summary>
+        void ReleaseOfType(
+            void*          Resource,
+            AllocationType Type);
 
     private:
         /// <summary>
         /// Allocate dedicated memory for a resource.
         /// </summary>
         [[nodiscard]] nri::Memory* AllocateDedicatedMemory(
-            DeviceImpl&            RhiDevice,
             void*                  Resource,
             const nri::MemoryDesc& Desc);
 
@@ -159,7 +170,6 @@ namespace Ame::Rhi
             /// </summary>
             template<typename ResourceTy>
             [[nodiscard]] ManagedHandleType Bind(
-                DeviceImpl&            RhiDevice,
                 MemoryAllocator*       Allocator,
                 ResourceTy&            Resource,
                 const nri::MemoryDesc& Desc)
@@ -176,7 +186,7 @@ namespace Ame::Rhi
                             return Handle;
                         }
                     }
-                    Region.Grow(RhiDevice, Allocator, Desc.type);
+                    Region.Grow(*Allocator->m_RhiDevice, Allocator, Desc.type);
                 }
 
                 return {};
@@ -194,15 +204,26 @@ namespace Ame::Rhi
             SegmentType m_Segments;
         };
 
-        /// <summary>
-        /// Key is the pointer to the resource.
-        /// </summary>
-        using DedicatedSegments = std::unordered_map<void*, nri::Memory*>;
+        struct DedicatedAllocation
+        {
+            nri::Memory*   Memory;
+            AllocationType Type;
+        };
+
+        struct BlockAllocation : ManagedHandleType
+        {
+            AllocationType Type;
+        };
 
         /// <summary>
         /// Key is the pointer to the resource.
         /// </summary>
-        using BlockHandleMap = std::map<void*, ManagedHandleType>;
+        using DedicatedSegments = std::unordered_map<void*, DedicatedAllocation>;
+
+        /// <summary>
+        /// Key is the pointer to the resource.
+        /// </summary>
+        using BlockHandleMap = std::map<void*, BlockAllocation>;
 
     private:
         size_t   m_BlockSize;
@@ -210,6 +231,8 @@ namespace Ame::Rhi
         size_t   m_MaxSize;
         float    m_GrowthFactor;
         uint32_t m_MaxGrowAttempts;
+
+        DeviceImpl* m_RhiDevice = nullptr;
 
         SegmentNode       m_Node;
         DedicatedSegments m_DedicatedSegments;

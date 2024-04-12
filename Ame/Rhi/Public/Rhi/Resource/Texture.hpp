@@ -28,16 +28,11 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Immediately releases the texture.
+        /// Releases the texture.
         /// </summary>
         void Release(
-            Device& RhiDevice);
-
-        /// <summary>
-        /// Defers the release of the texture until the gpu is done with it.
-        /// </summary>
-        void DeferRelease(
-            Device& RhiDevice);
+            Device& RhiDevice,
+            bool    Defer = true);
 
     public:
         /// <summary>

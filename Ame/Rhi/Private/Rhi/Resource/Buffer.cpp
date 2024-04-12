@@ -16,18 +16,11 @@ namespace Ame::Rhi
     //
 
     void Buffer::Release(
-        Device& RhiDevice)
+        Device& RhiDevice,
+        bool    Defer)
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Buffer != nullptr, "Buffer was already released.");
-        RhiDevice.Release(*m_Buffer, false);
-        m_Buffer = nullptr;
-    }
-
-    void Buffer::DeferRelease(
-        Device& RhiDevice)
-    {
-        AME_LOG_ASSERT(Log::Rhi(), m_Buffer != nullptr, "Buffer was already released.");
-        RhiDevice.Release(*m_Buffer, true);
+        RhiDevice.Release(*m_Buffer, Defer);
         m_Buffer = nullptr;
     }
 
@@ -67,7 +60,7 @@ namespace Ame::Rhi
         auto& Nri     = m_Impl->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        auto NriBuffer = m_Impl->m_MemoryAllocator.CreateBuffer(*m_Impl, Location, Desc);
+        auto NriBuffer = m_Impl->m_MemoryAllocator.CreateBuffer(Location, Desc);
         m_Impl->BeginTracking(NriBuffer, { nri::AccessBits::UNKNOWN, nri::StageBits::ALL });
 
         return NriBuffer;
@@ -78,18 +71,39 @@ namespace Ame::Rhi
         bool         Defer)
     {
         m_Impl->EndTracking(&NriBuffer);
+        m_Impl->Release(NriBuffer, Defer);
+    }
+
+    void DeviceImpl::Release(
+        nri::Buffer& NriBuffer,
+        bool         Defer)
+    {
         if (Defer)
         {
-            auto& Nri     = m_Impl->GetNRI();
-            auto& NriCore = *Nri.GetCoreInterface();
-
-            NriCore.DestroyBuffer(NriBuffer);
+            m_FrameManager.DeferRelease(NriBuffer);
         }
         else
         {
-            m_Impl->DeferRelease(NriBuffer);
+            m_MemoryAllocator.Release(&NriBuffer);
         }
     }
+
+    //
+
+    void DeviceImpl::BeginTracking(
+        nri::Buffer*     Buffer,
+        nri::AccessStage InitialState)
+    {
+        m_ResourceStateTracker.BeginTracking(Buffer, InitialState);
+    }
+
+    void DeviceImpl::EndTracking(
+        nri::Buffer* Buffer)
+    {
+        m_ResourceStateTracker.EndTracking(Buffer);
+    }
+
+    //
 
     void Device::SetName(
         nri::Buffer& NriBuffer,

@@ -50,7 +50,8 @@ namespace Ame::Rhi
         /// Wait for previous frame to finish.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& NriCore,
+            MemoryAllocator&    MemAllocator);
 
         /// <summary>
         /// End the frame.
@@ -70,7 +71,8 @@ namespace Ame::Rhi
         /// Flush all idle resources
         /// </summary>
         void FlushIdle(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& NriCore,
+            MemoryAllocator&    MemAllocator);
 
     public:
         /// <summary>

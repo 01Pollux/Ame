@@ -178,7 +178,6 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the current command list.
         /// </summary>
-
         [[nodiscard]] class CommandListImpl& GetCurrentCommandList() noexcept;
 
     public:
@@ -210,22 +209,25 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Defer the release of a buffer.
+        /// Release of buffer.
         /// </summary>
-        void DeferRelease(
-            nri::Buffer& NriBuffer);
+        void Release(
+            nri::Buffer& NriBuffer,
+            bool         Defer);
 
         /// <summary>
         /// Defer the release of a texture.
         /// </summary>
-        void DeferRelease(
-            nri::Texture& NriTexture);
+        void Release(
+            nri::Texture& NriTexture,
+            bool          Defer);
 
         /// <summary>
         /// Defer the release of a descriptor.
         /// </summary>
-        void DeferRelease(
-            nri::Descriptor& NriDescriptor);
+        void Release(
+            nri::Descriptor& NriDescriptor,
+            bool             Defer);
 
         /// <summary>
         /// Defer the release of a pipeline state.

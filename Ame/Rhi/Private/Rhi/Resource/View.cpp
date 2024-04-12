@@ -225,17 +225,26 @@ namespace Ame::Rhi
     //
 
     void ResourceView::Release(
-        Device& RhiDevice)
+        Device& RhiDevice,
+        bool    Defer)
     {
-        RhiDevice.Release(*m_Descriptor, false);
+        RhiDevice.Release(*m_Descriptor, Defer);
         m_Descriptor = nullptr;
     }
 
-    void ResourceView::DeferRelease(
-        Device& RhiDevice)
+    void DeviceImpl::Release(
+        nri::Descriptor& NriDescriptor,
+        bool             Defer)
     {
-        RhiDevice.Release(*m_Descriptor, false);
-        m_Descriptor = nullptr;
+        if (Defer)
+        {
+            m_FrameManager.DeferRelease(NriDescriptor);
+        }
+        else
+        {
+            auto& NriCore = *GetNRI().GetCoreInterface();
+            NriCore.DestroyDescriptor(NriDescriptor);
+        }
     }
 
     //
@@ -264,15 +273,7 @@ namespace Ame::Rhi
         nri::Descriptor& View,
         bool             Defer)
     {
-        if (Defer)
-        {
-            auto& Nri = m_Impl->GetNRI();
-            Nri.GetCoreInterface()->DestroyDescriptor(View);
-        }
-        else
-        {
-            m_Impl->DeferRelease(View);
-        }
+        m_Impl->Release(View, Defer);
     }
 
     void Device::SetName(

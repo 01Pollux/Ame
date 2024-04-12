@@ -7,6 +7,8 @@
 
 namespace Ame::Rhi
 {
+    class MemoryAllocator;
+
     class Frame : public NonCopyable,
                   public NonMovable
     {
@@ -36,7 +38,8 @@ namespace Ame::Rhi
         /// Resets the frame resource and cleans up pending resources.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& NriCore,
+            MemoryAllocator&    MemAllocator);
 
         /// <summary>
         /// Ends the frame resource and submits the command buffer.
@@ -48,7 +51,8 @@ namespace Ame::Rhi
         /// Releases the resources that are deferred for release.
         /// </summary>
         void Release(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& NriCore,
+            MemoryAllocator&    MemAllocator);
 
     public:
         /// <summary>

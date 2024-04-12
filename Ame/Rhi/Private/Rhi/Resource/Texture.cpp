@@ -16,18 +16,11 @@ namespace Ame::Rhi
     //
 
     void Texture::Release(
-        Device& RhiDevice)
+        Device& RhiDevice,
+        bool    Defer)
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Texture != nullptr, "Texture was already released.");
-        RhiDevice.Release(*m_Texture, false);
-        m_Texture = nullptr;
-    }
-
-    void Texture::DeferRelease(
-        Device& RhiDevice)
-    {
-        AME_LOG_ASSERT(Log::Rhi(), m_Texture != nullptr, "Texture was already released.");
-        RhiDevice.Release(*m_Texture, true);
+        RhiDevice.Release(*m_Texture, Defer);
         m_Texture = nullptr;
     }
 
@@ -104,7 +97,7 @@ namespace Ame::Rhi
         auto& Nri     = m_Impl->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        auto NriTexture = m_Impl->m_MemoryAllocator.CreateTexture(*m_Impl, Location, Desc);
+        auto NriTexture = m_Impl->m_MemoryAllocator.CreateTexture(Location, Desc);
         m_Impl->BeginTracking(NriTexture, { nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL });
 
         return NriTexture;
@@ -115,16 +108,39 @@ namespace Ame::Rhi
         bool          Defer)
     {
         m_Impl->EndTracking(&NriTexture);
+        m_Impl->Release(NriTexture, Defer);
+    }
+
+    void DeviceImpl::Release(
+        nri::Texture& NriTexture,
+        bool          Defer)
+    {
         if (Defer)
         {
-            auto& Nri = m_Impl->GetNRI();
-            Nri.GetCoreInterface()->DestroyTexture(NriTexture);
+            m_FrameManager.DeferRelease(NriTexture);
         }
         else
         {
-            m_Impl->DeferRelease(NriTexture);
+            m_MemoryAllocator.Release(&NriTexture);
         }
     }
+
+    //
+
+    void DeviceImpl::BeginTracking(
+        nri::Texture*          Texture,
+        nri::AccessLayoutStage InitialState)
+    {
+        m_ResourceStateTracker.BeginTracking(*m_NRI.GetCoreInterface(), Texture, InitialState);
+    }
+
+    void DeviceImpl::EndTracking(
+        nri::Texture* Texture)
+    {
+        m_ResourceStateTracker.EndTracking(Texture);
+    }
+
+    //
 
     void Device::SetName(
         nri::Texture& NriTexture,

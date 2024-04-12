@@ -43,10 +43,11 @@ namespace Ame::Rhi
 
     void FrameWrapper::NewFrame(
         nri::CoreInterface& NriCore,
+        MemoryAllocator&    MemAllocator,
         uint32_t            FrameIndex)
     {
         auto& CurFrame = Frames[FrameIndex];
-        CurFrame.NewFrame(NriCore);
+        CurFrame.NewFrame(NriCore, MemAllocator);
     }
 
     void FrameWrapper::EndFrame(
@@ -79,9 +80,10 @@ namespace Ame::Rhi
 
     void FrameWrapper::Release(
         nri::CoreInterface& NriCore,
+        MemoryAllocator&    MemAllocator,
         uint32_t            FrameIndex)
     {
         auto& CurFrame = Frames[FrameIndex];
-        CurFrame.Release(NriCore);
+        CurFrame.Release(NriCore, MemAllocator);
     }
 } // namespace Ame::Rhi

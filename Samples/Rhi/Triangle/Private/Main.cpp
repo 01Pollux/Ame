@@ -54,11 +54,11 @@ private:
         m_PipelineState = nullptr;
         if (m_VertexBuffer)
         {
-            m_VertexBuffer.DeferRelease(RhiDevice);
+            m_VertexBuffer.Release(RhiDevice);
         }
         if (m_IndexBuffer)
         {
-            m_IndexBuffer.DeferRelease(RhiDevice);
+            m_IndexBuffer.Release(RhiDevice);
         }
     }
 
@@ -228,10 +228,10 @@ private:
         Rhi::Device& RhiDevice)
     {
         Math::Vector2 Vertices[]{
-			{ 0.0f, 0.5f },
-			{ 0.5f, -0.5f },
-			{ -0.5f, -0.5f }
-		};
+            { 0.0f, 0.5f },
+            { 0.5f, -0.5f },
+            { -0.5f, -0.5f }
+        };
 
         Rhi::BufferDesc Desc{
             .size      = sizeof(Vertices),
