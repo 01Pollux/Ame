@@ -227,17 +227,17 @@ private:
     void CreateBuffers(
         Rhi::Device& RhiDevice)
     {
-        float Vertices[]{
-            0.0f, 0.5f,
-            0.5f, -0.5f,
-            -0.5f, -0.5f
-        };
+        Math::Vector2 Vertices[]{
+			{ 0.0f, 0.5f },
+			{ 0.5f, -0.5f },
+			{ -0.5f, -0.5f }
+		};
 
         Rhi::BufferDesc Desc{
             .size      = sizeof(Vertices),
             .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER
         };
-        m_VertexBuffer = Rhi::Buffer(RhiDevice, Desc);
+        m_VertexBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
 
         uint16_t Indices[]{
             0, 1, 2
@@ -246,7 +246,7 @@ private:
         Desc.size      = sizeof(Indices);
         Desc.usageMask = Rhi::BufferUsageBits::INDEX_BUFFER;
 
-        m_IndexBuffer = Rhi::Buffer(RhiDevice, Desc);
+        m_IndexBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
     }
 
 private:

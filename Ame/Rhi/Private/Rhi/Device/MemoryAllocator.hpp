@@ -5,36 +5,46 @@
 #include <Rhi/Device/MemoryDesc.hpp>
 #include <Allocator/Utils/Buddy.hpp>
 
-#include <Rhi/Resource/Buffer.hpp>
-#include <Rhi/Resource/Texture.hpp>
+#include <Rhi/Descs/Resource.hpp>
+#include <Rhi/Nri/Nri.hpp>
 
 namespace Ame::Rhi
 {
     class MemoryAllocator
     {
     public:
-        MemoryAllocator(
+        /// <summary>
+        /// Initialize the memory allocator.
+        /// </summary>
+        void Initialize(
             const MemoryAllocatorDesc& Desc);
 
         /// <summary>
+        /// Release all memory associated with the allocator.
+        /// </summary>
+        void Shutdown();
+
+    public:
+        /// <summary>
         /// Create a managed buffer fully initialized with memory.
         /// </summary>
-        [[nodiscard]] Buffer CreateBuffer(
-            DeviceImpl&            RhiDevice,
-            nri::MemoryLocation    Location,
-            const nri::BufferDesc& Desc);
+        [[nodiscard]] nri::Buffer* CreateBuffer(
+            DeviceImpl&       RhiDevice,
+            MemoryLocation    Location,
+            const BufferDesc& Desc);
 
         /// <summary>
         /// Create a managed texture fully initialized with memory.
         /// </summary>
-        [[nodiscard]] Texture CreateTexture(
-            DeviceImpl&             RhiDevice,
-            nri::MemoryLocation     Location,
-            const nri::TextureDesc& Desc);
+        [[nodiscard]] nri::Texture* CreateTexture(
+            DeviceImpl&        RhiDevice,
+            MemoryLocation     Location,
+            const TextureDesc& Desc);
 
     public:
         /// <summary>
         /// Release the memory associated with the resource.
+        /// resource must be a pointer to the nri texture or nri buffer.
         /// </summary>
         void Release(
             DeviceImpl& RhiDevice,
@@ -131,30 +141,33 @@ namespace Ame::Rhi
             /// Grow the segment for the given node.
             /// </summary>
             void Grow(
+                DeviceImpl&      RhiDevice,
                 MemoryAllocator* Allocator,
                 nri::MemoryType  Location);
         };
 
         using SegmentType = std::map<nri::MemoryType, SegmentRegion>;
 
+        /// <summary>
+        /// A segment node is a collection of segment regions by memory type for a single node.
+        /// </summary>
         struct SegmentNode
         {
-            SegmentType Segments;
-
         public:
             /// <summary>
             /// Bind the memory block to a resource
             /// </summary>
             template<typename ResourceTy>
             [[nodiscard]] ManagedHandleType Bind(
+                DeviceImpl&            RhiDevice,
                 MemoryAllocator*       Allocator,
                 ResourceTy&            Resource,
                 const nri::MemoryDesc& Desc)
             {
-                auto& Region = Segments[Desc.type];
+                auto& Region = m_Segments[Desc.type];
 
                 uint32_t Attempts = 0;
-                while (Attempts++ < m_MaxGrowAttempts)
+                while (Attempts++ <= Allocator->m_MaxGrowAttempts)
                 {
                     for (auto& Block : Region.Blocks)
                     {
@@ -163,11 +176,22 @@ namespace Ame::Rhi
                             return Handle;
                         }
                     }
-                    Region.Grow(Allocator, Desc.type);
+                    Region.Grow(RhiDevice, Allocator, Desc.type);
                 }
 
                 return {};
             }
+
+            /// <summary>
+            /// Release all memory associated with the node.
+            /// </summary>
+            void Release()
+            {
+                m_Segments.clear();
+            }
+
+        private:
+            SegmentType m_Segments;
         };
 
         /// <summary>

@@ -5,21 +5,33 @@
 
 namespace Ame::Rhi
 {
-    MemoryAllocator::MemoryAllocator(
-        const MemoryAllocatorDesc& Desc) :
-        m_BlockSize(Desc.InitialBlockSize),
-        m_GrowSize(Desc.NextBlockSize),
-        m_MaxSize(Desc.MaxBlockSize),
-        m_GrowthFactor(Desc.GrowthFactor)
+    void MemoryAllocator::Initialize(const MemoryAllocatorDesc& Desc)
     {
+        m_BlockSize       = Desc.InitialBlockSize;
+        m_GrowSize        = Desc.NextBlockSize;
+        m_MaxSize         = Desc.MaxBlockSize;
+        m_GrowthFactor    = Desc.GrowthFactor;
+        m_MaxGrowAttempts = Desc.MaxGrowAttempts;
+    }
+
+    void MemoryAllocator::Shutdown()
+    {
+        if (!m_BlockHandles.empty() || !m_DedicatedSegments.empty())
+        {
+            Log::Rhi().Error("MemoryAllocator has leaked resources.");
+        }
+
+        m_BlockHandles.clear();
+        m_DedicatedSegments.clear();
+        m_Node.Release();
     }
 
     //
 
-    Buffer MemoryAllocator::CreateBuffer(
-        DeviceImpl&            RhiDevice,
-        nri::MemoryLocation    Location,
-        const nri::BufferDesc& Desc)
+    nri::Buffer* MemoryAllocator::CreateBuffer(
+        DeviceImpl&         RhiDevice,
+        nri::MemoryLocation Location,
+        const BufferDesc&   Desc)
     {
         auto& Nri     = RhiDevice.GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
@@ -37,7 +49,7 @@ namespace Ame::Rhi
         }
         else
         {
-            auto Handle = m_Node.Bind(this, *NriBuffer, MemoryDesc);
+            auto Handle = m_Node.Bind(RhiDevice, this, *NriBuffer, MemoryDesc);
             if (!Handle)
             {
                 throw std::runtime_error("failed to create and bind buffer memory");
@@ -45,13 +57,13 @@ namespace Ame::Rhi
             m_BlockHandles.emplace(NriBuffer, std::move(Handle));
         }
 
-        return Buffer(NriBuffer);
+        return NriBuffer;
     }
 
-    Texture MemoryAllocator::CreateTexture(
-        DeviceImpl&             RhiDevice,
-        nri::MemoryLocation     Location,
-        const nri::TextureDesc& Desc)
+    nri::Texture* MemoryAllocator::CreateTexture(
+        DeviceImpl&         RhiDevice,
+        nri::MemoryLocation Location,
+        const TextureDesc&  Desc)
     {
         auto& Nri     = RhiDevice.GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
@@ -69,7 +81,7 @@ namespace Ame::Rhi
         }
         else
         {
-            auto Handle = m_Node.Bind(this, *NriTexture, MemoryDesc);
+            auto Handle = m_Node.Bind(RhiDevice, this, *NriTexture, MemoryDesc);
             if (!Handle)
             {
                 throw std::runtime_error("failed to create and bind texture memory");
@@ -77,7 +89,7 @@ namespace Ame::Rhi
             m_BlockHandles.emplace(NriTexture, std::move(Handle));
         }
 
-        return Texture(NriTexture);
+        return NriTexture;
     }
 
     //
@@ -243,6 +255,7 @@ namespace Ame::Rhi
     //
 
     void MemoryAllocator::SegmentRegion::Grow(
+        DeviceImpl&      RhiDevice,
         MemoryAllocator* Allocator,
         nri::MemoryType  Type)
     {
@@ -259,6 +272,6 @@ namespace Ame::Rhi
             break;
         }
 
-        Blocks.emplace_back(NewSize, Type);
+        Blocks.emplace_back(RhiDevice, NewSize, Type);
     }
 } // namespace Ame::Rhi

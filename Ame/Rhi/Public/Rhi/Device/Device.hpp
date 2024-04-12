@@ -246,6 +246,7 @@ namespace Ame::Rhi
         /// Create a texture.
         /// </summary>
         nri::Texture* Create(
+            MemoryLocation     Location,
             const TextureDesc& Desc);
 
         /// <summary>
@@ -287,6 +288,7 @@ namespace Ame::Rhi
         /// Create a buffer.
         /// </summary>
         nri::Buffer* Create(
+            MemoryLocation    Location,
             const BufferDesc& Desc);
 
         /// <summary>

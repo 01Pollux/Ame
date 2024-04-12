@@ -12,6 +12,7 @@ namespace Ame::Rhi
     public:
         Texture(
             Device&            RhiDevice,
+            MemoryLocation     Location,
             const TextureDesc& Desc);
 
         explicit Texture(

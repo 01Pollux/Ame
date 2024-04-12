@@ -4,20 +4,20 @@
 
 namespace Ame::Rhi
 {
-    using IndexType = nri::IndexType;
-    using BufferUsageBits      = nri::BufferUsageBits;
-    using TextureType          = nri::TextureType;
-    using TextureUsageBits     = nri::TextureUsageBits;
+    using IndexType        = nri::IndexType;
+    using BufferUsageBits  = nri::BufferUsageBits;
+    using TextureType      = nri::TextureType;
+    using TextureUsageBits = nri::TextureUsageBits;
 
     //
 
     static TextureDesc Tex1D(
         ResourceFormat   Format,
         Dim_t            Width,
-        Mip_t            MipNum,
-        Dim_t            ArraySize = 1,
-        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
-        Sample_t         SampleNum = 1)
+        Mip_t            MipNum      = 0,
+        Dim_t            ArraySize   = 1,
+        TextureUsageBits UsageMask   = TextureUsageBits::SHADER_RESOURCE,
+        Sample_t         SampleCount = 1)
     {
         return TextureDesc{
             .type      = TextureType::TEXTURE_1D,
@@ -28,7 +28,7 @@ namespace Ame::Rhi
             .depth     = 1,
             .mipNum    = MipNum,
             .arraySize = ArraySize,
-            .sampleNum = SampleNum
+            .sampleNum = SampleCount
         };
     }
 
@@ -36,10 +36,10 @@ namespace Ame::Rhi
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
-        Mip_t            MipNum,
-        Dim_t            ArraySize = 1,
-        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
-        Sample_t         SampleNum = 1)
+        Mip_t            MipNum      = 0,
+        Dim_t            ArraySize   = 1,
+        TextureUsageBits UsageMask   = TextureUsageBits::SHADER_RESOURCE,
+        Sample_t         SampleCount = 1)
     {
         return TextureDesc{
             .type      = TextureType::TEXTURE_2D,
@@ -50,7 +50,7 @@ namespace Ame::Rhi
             .depth     = 1,
             .mipNum    = MipNum,
             .arraySize = ArraySize,
-            .sampleNum = SampleNum
+            .sampleNum = SampleCount
         };
     }
 
@@ -58,8 +58,8 @@ namespace Ame::Rhi
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
-        uint16_t         Depth,
-        Mip_t            MipNum,
+        Dim_t            Depth,
+        Mip_t            MipNum    = 0,
         TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE)
     {
         return TextureDesc{
@@ -69,9 +69,7 @@ namespace Ame::Rhi
             .width     = Width,
             .height    = Height,
             .depth     = Depth,
-            .mipNum    = MipNum,
-            .arraySize = 1,
-            .sampleNum = 1
+            .mipNum    = MipNum
         };
     }
 
@@ -79,10 +77,10 @@ namespace Ame::Rhi
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
-        Mip_t            MipNum,
-        TextureUsageBits UsageMask = TextureUsageBits::SHADER_RESOURCE,
-        Sample_t         SampleNum = 1)
+        Mip_t            MipNum      = 0,
+        TextureUsageBits UsageMask   = TextureUsageBits::SHADER_RESOURCE,
+        Sample_t         SampleCount = 1)
     {
-        return Tex2D(Format, Width, Height, MipNum, 6, UsageMask, SampleNum);
+        return Tex2D(Format, Width, Height, MipNum, 6, UsageMask, SampleCount);
     }
 } // namespace Ame::Rhi

@@ -16,8 +16,7 @@
 namespace Ame::Rhi
 {
     DeviceImpl::DeviceImpl(
-        const DeviceCreateDesc& Desc) : 
-        m_MemoryAllocator(Desc.MemoryAllocator),
+        const DeviceCreateDesc& Desc)
     {
         if (!CreateDevice(Desc))
         {
@@ -28,6 +27,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert(m_Device != nullptr, "Failed to create device");
         Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
 
+        m_MemoryAllocator.Initialize(Desc.MemoryAllocator);
         m_FrameManager.Initialize(*m_NRI.GetCoreInterface(), *m_Device, *m_CommandQueue, Desc.FramesInFlight);
         if (Desc.Window)
         {
@@ -398,10 +398,14 @@ namespace Ame::Rhi
             UnregisterBackbufferState();
             m_WindowManager.reset();
         }
+
+        m_MemoryAllocator.Shutdown();
+
         if (auto NriCore = m_NRI.GetCoreInterface())
         {
             m_FrameManager.Shutdown(*NriCore);
         }
+
         m_NRI.Shutdown();
 
 #ifndef AME_DIST

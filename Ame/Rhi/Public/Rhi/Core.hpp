@@ -18,7 +18,7 @@ namespace Ame::Rhi
     class ResourceView;
 
     using Mip_t    = uint8_t;
-    using Dim_t    = uint8_t;
+    using Dim_t    = uint16_t;
     using Sample_t = uint8_t;
 } // namespace Ame::Rhi
 

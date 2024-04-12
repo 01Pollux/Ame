@@ -18,6 +18,7 @@ namespace Ame::Rhi
     using ShaderBits     = nri::StageBits;
     using ShaderType     = nri::StageBits;
     using ShaderDesc     = nri::ShaderDesc;
+    using MemoryLocation = nri::MemoryLocation;
 
     using BufferDesc  = nri::BufferDesc;
     using TextureDesc = nri::TextureDesc;

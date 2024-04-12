@@ -1,14 +1,15 @@
 #include <Rhi/Resource/Texture.hpp>
-#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/DeviceImpl.hpp>
 
-#include <Rhi/NriError.hpp>
+#include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi
 {
     Texture::Texture(
         Device&            RhiDevice,
+        MemoryLocation     Location,
         const TextureDesc& Desc) :
-        m_Texture(RhiDevice.Create(Desc))
+        m_Texture(RhiDevice.Create(Location, Desc))
     {
     }
 
@@ -92,5 +93,58 @@ namespace Ame::Rhi
                           "Texture view type must be a depth stencil type.");
 #endif
         return DepthStencilResourceView(RhiDevice.CreateView(*m_Texture, Desc));
+    }
+
+    //
+
+    nri::Texture* Device::Create(
+        MemoryLocation     Location,
+        const TextureDesc& Desc)
+    {
+        auto& Nri     = m_Impl->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        auto NriTexture = m_Impl->m_MemoryAllocator.CreateTexture(*m_Impl, Location, Desc);
+        m_Impl->BeginTracking(NriTexture, { nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL });
+
+        return NriTexture;
+    }
+
+    void Device::Release(
+        nri::Texture& NriTexture,
+        bool          Defer)
+    {
+        m_Impl->EndTracking(&NriTexture);
+        if (Defer)
+        {
+            auto& Nri = m_Impl->GetNRI();
+            Nri.GetCoreInterface()->DestroyTexture(NriTexture);
+        }
+        else
+        {
+            m_Impl->DeferRelease(NriTexture);
+        }
+    }
+
+    void Device::SetName(
+        nri::Texture& NriTexture,
+        const char*   Name)
+    {
+        auto& Nri = m_Impl->GetNRI();
+        Nri.GetCoreInterface()->SetTextureDebugName(NriTexture, Name);
+    }
+
+    const TextureDesc& Device::GetDesc(
+        nri::Texture& NriTexture) const
+    {
+        auto& Nri = m_Impl->GetNRI();
+        return Nri.GetCoreInterface()->GetTextureDesc(NriTexture);
+    }
+
+    void* Device::GetNative(
+        nri::Texture& NriTexture) const
+    {
+        auto& Nri = m_Impl->GetNRI();
+        return std::bit_cast<void*>(Nri.GetCoreInterface()->GetTextureNativeObject(NriTexture));
     }
 } // namespace Ame::Rhi

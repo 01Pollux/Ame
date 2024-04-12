@@ -12,6 +12,7 @@ namespace Ame::Rhi
     public:
         Buffer(
             Device&           RhiDevice,
+            MemoryLocation    Location,
             const BufferDesc& Desc);
 
         explicit Buffer(
