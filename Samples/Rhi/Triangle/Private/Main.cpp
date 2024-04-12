@@ -6,6 +6,7 @@
 #include <Rhi/Resource/Shader.hpp>
 #include <Rhi/Resource/CommandList.hpp>
 #include <Rhi/Resource/PipelineState.hpp>
+#include <Rhi/Resource/Buffer.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -26,30 +27,47 @@ protected:
 
         Log::Engine().Trace("Initializing Sample...");
 
+        auto& RhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
+
         m_PipelineStateTask = CreateBasicPipeline(
             *GetSubsystem<CoroutineSubsystem>(),
-            GetSubsystem<Rhi::DeviceSubsystem>());
+            RhiDevice);
+
+        CreateBuffers(RhiDevice);
 
         OnRender().ObjectSignal().Listen(
-            [this](BaseEngine& Engine)
+            [this, &RhiDevice](BaseEngine& Engine)
             {
-                Render(
-                    GetSubsystem<Rhi::DeviceSubsystem>());
+                Render(RhiDevice);
             });
     }
 
     void Shutdown() override
     {
-        m_PipelineState = nullptr;
+        ReleaseRhiResources(GetSubsystem<Rhi::DeviceSubsystem>());
     }
 
 private:
+    void ReleaseRhiResources(
+        Rhi::Device& RhiDevice)
+    {
+        m_PipelineState = nullptr;
+        if (m_VertexBuffer)
+        {
+            m_VertexBuffer.DeferRelease(RhiDevice);
+        }
+        if (m_IndexBuffer)
+        {
+            m_IndexBuffer.DeferRelease(RhiDevice);
+        }
+    }
+
     void Render(
         Rhi::Device& RhiDevice)
     {
         if (m_PipelineStateTask)
         {
-            m_PipelineState = m_PipelineStateTask.get();
+            m_PipelineStateTask.wait();
         }
 
         Rhi::CommandList CommandList(RhiDevice);
@@ -91,8 +109,7 @@ private:
         };
     }
 
-    [[nodiscard]] Co::result<std::vector<Rhi::ShaderBytecode>>
-    LoadShaders(
+    [[nodiscard]] Co::result<std::vector<Rhi::ShaderBytecode>> LoadShaders(
         Co::executor_tag,
         Co::thread_pool_executor& Executor,
         Rhi::Device&              RhiDevice) const
@@ -152,7 +169,7 @@ private:
         co_return co_await RhiDevice.CreatePipelineLayout({}, Executor, Desc);
     }
 
-    [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> CreateBasicPipeline(
+    [[nodiscard]] Co::result<void> CreateBasicPipeline(
         Co::runtime& Coroutine,
         Rhi::Device& RhiDevice)
     {
@@ -190,7 +207,7 @@ private:
             .InputAssembly{ Rhi::TopologyType::TRIANGLE_LIST },
             .Rasterizer{ .Cull = Rhi::CullMode::NONE },
             .OutputMerger{ RenderTargets },
-            //.VertexInput = &VertexInput
+            .VertexInput = &VertexInput
         };
 
         Desc.Layout = co_await LayoutTask;
@@ -203,12 +220,42 @@ private:
 
         Desc.Shaders = ShaderDescs;
 
-        co_return co_await RhiDevice.CreatePipelineState({}, Executor, Desc);
+        m_PipelineState = co_await RhiDevice.CreatePipelineState({}, Executor, Desc);
     }
 
 private:
-    Co::result<Ptr<Rhi::PipelineState>> m_PipelineStateTask;
-    Ptr<Rhi::PipelineState>             m_PipelineState;
+    void CreateBuffers(
+        Rhi::Device& RhiDevice)
+    {
+        float Vertices[]{
+            0.0f, 0.5f,
+            0.5f, -0.5f,
+            -0.5f, -0.5f
+        };
+
+        Rhi::BufferDesc Desc{
+            .size      = sizeof(Vertices),
+            .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER
+        };
+        m_VertexBuffer = Rhi::Buffer(RhiDevice, Desc);
+
+        uint16_t Indices[]{
+            0, 1, 2
+        };
+
+        Desc.size      = sizeof(Indices);
+        Desc.usageMask = Rhi::BufferUsageBits::INDEX_BUFFER;
+
+        m_IndexBuffer = Rhi::Buffer(RhiDevice, Desc);
+    }
+
+private:
+    Co::result<void> m_PipelineStateTask;
+
+    Ptr<Rhi::PipelineState> m_PipelineState;
+
+    Rhi::Buffer m_VertexBuffer;
+    Rhi::Buffer m_IndexBuffer;
 };
 
 AME_MAIN(Argc, Argv)

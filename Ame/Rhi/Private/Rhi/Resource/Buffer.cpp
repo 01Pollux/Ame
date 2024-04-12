@@ -17,6 +17,7 @@ namespace Ame::Rhi
     void Buffer::Release(
         Device& RhiDevice)
     {
+        AME_LOG_ASSERT(Log::Rhi(), m_Buffer != nullptr, "Buffer was already released.");
         RhiDevice.Release(*m_Buffer, false);
         m_Buffer = nullptr;
     }
@@ -24,6 +25,7 @@ namespace Ame::Rhi
     void Buffer::DeferRelease(
         Device& RhiDevice)
     {
+        AME_LOG_ASSERT(Log::Rhi(), m_Buffer != nullptr, "Buffer was already released.");
         RhiDevice.Release(*m_Buffer, true);
         m_Buffer = nullptr;
     }

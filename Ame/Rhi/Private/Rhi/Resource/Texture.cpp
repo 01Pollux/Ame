@@ -17,6 +17,7 @@ namespace Ame::Rhi
     void Texture::Release(
         Device& RhiDevice)
     {
+        AME_LOG_ASSERT(Log::Rhi(), m_Texture != nullptr, "Texture was already released.");
         RhiDevice.Release(*m_Texture, false);
         m_Texture = nullptr;
     }
@@ -24,6 +25,7 @@ namespace Ame::Rhi
     void Texture::DeferRelease(
         Device& RhiDevice)
     {
+        AME_LOG_ASSERT(Log::Rhi(), m_Texture != nullptr, "Texture was already released.");
         RhiDevice.Release(*m_Texture, true);
         m_Texture = nullptr;
     }
