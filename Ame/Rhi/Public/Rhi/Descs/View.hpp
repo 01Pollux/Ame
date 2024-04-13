@@ -91,14 +91,17 @@ namespace Ame::Rhi
 
     //
 
+    template<typename Ty>
+    static constexpr Ty RemainingSize = std::numeric_limits<Ty>::max();
+
     struct BufferRange
     {
-        uint64_t Offset = 0;
-        uint64_t Size   = 0;
+        size_t Offset = 0;
+        size_t Size   = 0;
 
         constexpr BufferRange(
-            uint64_t Offset = 0,
-            uint64_t Size   = 0) :
+            size_t Offset = 0,
+            size_t Size   = 0) :
             Offset(Offset),
             Size(Size)
         {
@@ -106,9 +109,13 @@ namespace Ame::Rhi
 
         auto operator<=>(
             const BufferRange& Other) const noexcept = default;
+
+        [[nodiscard]] BufferRange Transform(
+            Device& RhiDevice,
+            Buffer& RhiBuffer) const noexcept;
     };
 
-    static constexpr BufferRange EntireBuffer = BufferRange(0, std::numeric_limits<uint64_t>::max());
+    static constexpr BufferRange EntireBuffer = BufferRange(0, RemainingSize<size_t>);
 
     //
 
@@ -127,9 +134,13 @@ namespace Ame::Rhi
 
         auto operator<=>(
             const MipLevel& Other) const noexcept = default;
+
+        [[nodiscard]] MipLevel Transform(
+            Device&  RhiDevice,
+            Texture& RhiTexture) const noexcept;
     };
 
-    static constexpr MipLevel EntireMipChain = MipLevel(0, std::numeric_limits<Mip_t>::max());
+    static constexpr MipLevel EntireMipChain = MipLevel(0, RemainingSize<Mip_t>);
 
     //
 
@@ -148,9 +159,13 @@ namespace Ame::Rhi
 
         auto operator<=>(
             const ArraySlice& Other) const noexcept = default;
+
+        [[nodiscard]] ArraySlice Transform(
+            Device&  RhiDevice,
+            Texture& RhiTexture) const noexcept;
     };
 
-    static constexpr ArraySlice EntireArray = ArraySlice(0, std::numeric_limits<Dim_t>::max());
+    static constexpr ArraySlice EntireArray = ArraySlice(0, RemainingSize<Dim_t>);
 
     //
 
@@ -169,6 +184,10 @@ namespace Ame::Rhi
 
         auto operator<=>(
             const TextureSubresource& Other) const noexcept = default;
+
+        [[nodiscard]] TextureSubresource Transform(
+            Device&  RhiDevice,
+            Texture& RhiTexture) const noexcept;
     };
 
     static constexpr TextureSubresource AllSubresources = TextureSubresource(EntireMipChain, EntireArray);

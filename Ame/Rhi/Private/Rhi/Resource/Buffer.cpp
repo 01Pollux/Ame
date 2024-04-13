@@ -87,6 +87,13 @@ namespace Ame::Rhi
         NriCore.UnmapBuffer(*m_Buffer);
     }
 
+    BufferResourceView Buffer::CreateView(
+        Device&               RhiDevice,
+        const BufferViewDesc& Desc) const
+    {
+        return BufferResourceView(RhiDevice.CreateView(*m_Buffer, Desc));
+    }
+
     //
 
     nri::Buffer* Device::Create(

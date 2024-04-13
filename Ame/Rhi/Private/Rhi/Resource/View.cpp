@@ -1,6 +1,9 @@
 #include <Rhi/Resource/View.hpp>
 #include <Rhi/Device/DeviceImpl.hpp>
 
+#include <Rhi/Resource/Buffer.hpp>
+#include <Rhi/Resource/Texture.hpp>
+
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
@@ -66,15 +69,18 @@ namespace Ame::Rhi
                 .flags       = ConvertViewBits(Desc.Flags)
             };
 
-            if (Desc.Subresource.Mips == EntireMipChain)
+            if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t> ||
+                Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
             {
-                NriDesc.mipOffset = 0;
-                NriDesc.mipNum    = NriCore.GetTextureDesc(Texture).mipNum;
-            }
-            if (Desc.Subresource.Array == EntireArray)
-            {
-                NriDesc.arrayOffset = 0;
-                NriDesc.arraySize   = NriCore.GetTextureDesc(Texture).arraySize;
+                auto& NriTextureDesc = NriCore.GetTextureDesc(Texture);
+                if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t>)
+                {
+                    NriDesc.mipNum = NriTextureDesc.mipNum - Desc.Subresource.Mips.Offset;
+                }
+                if (Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
+                {
+                    NriDesc.arraySize = NriTextureDesc.arraySize - Desc.Subresource.Array.Offset;
+                }
             }
 
             return NriDesc;
@@ -128,15 +134,18 @@ namespace Ame::Rhi
                 .flags       = ConvertViewBits(Desc.Flags)
             };
 
-            if (Desc.Subresource.Mips == EntireMipChain)
+            if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t> ||
+                Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
             {
-                NriDesc.mipOffset = 0;
-                NriDesc.mipNum    = NriCore.GetTextureDesc(Texture).mipNum;
-            }
-            if (Desc.Subresource.Array == EntireArray)
-            {
-                NriDesc.arrayOffset = 0;
-                NriDesc.arraySize   = NriCore.GetTextureDesc(Texture).arraySize;
+                auto& NriTextureDesc = NriCore.GetTextureDesc(Texture);
+                if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t>)
+                {
+                    NriDesc.mipNum = NriTextureDesc.mipNum - Desc.Subresource.Mips.Offset;
+                }
+                if (Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
+                {
+                    NriDesc.arraySize = NriTextureDesc.arraySize - Desc.Subresource.Array.Offset;
+                }
             }
 
             return NriDesc;
@@ -180,15 +189,18 @@ namespace Ame::Rhi
                 .flags       = ConvertViewBits(Desc.Flags)
             };
 
-            if (Desc.Subresource.Mips == EntireMipChain)
+            if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t> ||
+                Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
             {
-                NriDesc.mipOffset = 0;
-                NriDesc.mipNum    = NriCore.GetTextureDesc(Texture).mipNum;
-            }
-            if (Desc.Subresource.Array == EntireArray)
-            {
-                NriDesc.sliceOffset = 0;
-                NriDesc.sliceNum    = NriCore.GetTextureDesc(Texture).arraySize;
+                auto& NriTextureDesc = NriCore.GetTextureDesc(Texture);
+                if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t>)
+                {
+                    NriDesc.mipNum = NriTextureDesc.mipNum - Desc.Subresource.Mips.Offset;
+                }
+                if (Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
+                {
+                    NriDesc.sliceNum = NriTextureDesc.arraySize - Desc.Subresource.Array.Offset;
+                }
             }
 
             return NriDesc;
@@ -197,13 +209,12 @@ namespace Ame::Rhi
 
     struct BufferView
     {
-        using ViewType = nri::Texture1DViewType;
-        using DescType = nri::Texture1DViewDesc;
+        using DescType = nri::BufferViewDesc;
 
         [[nodiscard]] static nri::BufferViewDesc Convert(
-            nri::CoreInterface&   NriCore,
-            nri::Buffer&          Buffer,
-            const BufferViewDesc& Desc)
+            nri::CoreInterface& NriCore,
+            nri::Buffer&        Buffer,
+            BufferViewDesc      Desc)
         {
             nri::BufferViewDesc NriDesc{
                 .buffer = &Buffer,
@@ -327,5 +338,53 @@ namespace Ame::Rhi
         ThrowIfFailed(NriCore->CreateBufferView(NriDesc, View), "Failed to create buffer view");
 
         return View;
+    }
+
+    //
+
+    BufferRange BufferRange::Transform(
+        Device& RhiDevice,
+        Buffer& RhiBuffer) const noexcept
+    {
+        auto Copy = *this;
+        if (Copy.Size == RemainingSize<size_t>)
+        {
+            Copy.Size = RhiBuffer.GetDesc(RhiDevice).size - Copy.Offset;
+        }
+        return Copy;
+    }
+
+    MipLevel MipLevel::Transform(
+        Device&  RhiDevice,
+        Texture& RhiTexture) const noexcept
+    {
+        auto Copy = *this;
+        if (Copy.Count == RemainingSize<Mip_t>)
+        {
+            Copy.Count = RhiTexture.GetDesc(RhiDevice).mipNum - Copy.Offset;
+        }
+        return Copy;
+    }
+
+    ArraySlice ArraySlice::Transform(
+        Device&  RhiDevice,
+        Texture& RhiTexture) const noexcept
+    {
+        auto Copy = *this;
+        if (Copy.Count == RemainingSize<Dim_t>)
+        {
+            Copy.Count = RhiTexture.GetDesc(RhiDevice).arraySize - Copy.Offset;
+        }
+        return Copy;
+    }
+
+    TextureSubresource TextureSubresource::Transform(
+        Device&  RhiDevice,
+        Texture& RhiTexture) const noexcept
+    {
+        return {
+            Mips.Transform(RhiDevice, RhiTexture),
+            Array.Transform(RhiDevice, RhiTexture)
+        };
     }
 } // namespace Ame::Rhi
