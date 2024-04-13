@@ -37,16 +37,6 @@ namespace Ame
             return m_Container.service<Ty>();
         }
 
-        /// <summary>
-        /// This function returns the result of the callable object.
-        /// </summary>
-        template<typename... ArgsTy>
-        auto InvokeSubsystem(
-            ArgsTy&&... Args)
-        {
-            return m_Container.invoke(std::forward<ArgsTy>(Args)...);
-        }
-
     public:
         /// <summary>
         ///  This function merges a container with another.

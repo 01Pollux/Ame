@@ -3,6 +3,8 @@
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
 
+#include <Engine/Subsystem/Timer.hpp>
+
 #include <Rhi/Resource/Shader.hpp>
 #include <Rhi/Resource/CommandList.hpp>
 #include <Rhi/Resource/PipelineState.hpp>
@@ -37,9 +39,9 @@ protected:
         CreateBuffers(RhiDevice);
 
         OnRender().ObjectSignal().Listen(
-            [this, &RhiDevice](BaseEngine& Engine)
+            [this, &RhiDevice, &Timer = GetSubsystem<TimerSubsystem>()](BaseEngine& Engine)
             {
-                Render(RhiDevice);
+                Render(Timer, RhiDevice);
             });
     }
 
@@ -64,6 +66,7 @@ private:
     }
 
     void Render(
+        EngineTimer& Timer,
         Rhi::Device& RhiDevice)
     {
         if (m_PipelineStateTask)
@@ -74,7 +77,7 @@ private:
         Rhi::CommandList CommandList(RhiDevice);
 
         CommandList.SetPipelineLayout(*m_PipelineState->GetLayout());
-        CommandList.SetConstants(0, Math::Colors::Red);
+        CommandList.SetConstants<float>(0, Timer.GetEngineTime());
 
         CommandList.SetPipelineState(*m_PipelineState);
 
@@ -89,7 +92,7 @@ private:
         CommandList.SetScissorRects(Scissors);
         CommandList.SetVertexBuffer({ .Buffer = m_VertexBuffer });
         CommandList.SetIndexBuffer({ .Buffer = m_IndexBuffer, .Type = Rhi::IndexType::UINT16 });
-        CommandList.Draw(Rhi::DrawDesc{ .vertexNum = 3 });
+        CommandList.Draw(Rhi::DrawIndexedDesc{ .indexNum = 3, .instanceNum = 1 });
         CommandList.EndRendering();
     }
 
@@ -130,16 +133,27 @@ private:
             float4 pos : SV_POSITION;
             float4 color : COLOR;
         };
+        struct ConstantData
+        {
+            float time;
+        };
+
+        #ifdef AME_SHADER_COMPILER_SPIRV
+        [[vk::push_constant]] ConstantData PushConstants;
+		#else
+		ConstantBuffer<ConstantData> PushConstants;
+		#endif
+
         VSOutput VS_Main(VSInput vs) 
         {
             VSOutput ps;
 			ps.pos = float4(vs.pos, 0.0, 1.0);
-			ps.color = float4(1.0, vs.pos.y, vs.pos.x, 1.0);
+			ps.color = float4(sin(PushConstants.time), sin(PushConstants.time + 2.0f), sin(PushConstants.time + 4.0f), 1.0f);
 			return ps;
         }
         float4 PS_Main(VSOutput ps) : SV_TARGET
         {
-	        return ps.color;
+            return ps.color;
 		}
 		)";
 
@@ -158,7 +172,7 @@ private:
         Rhi::Device&              RhiDevice) const
     {
         Rhi::PushConstantDesc Constants[]{
-            { .registerIndex = 0, .size = sizeof(float) * 4, .shaderStages = Rhi::ShaderType::FRAGMENT_SHADER }
+            { .registerIndex = 0, .size = sizeof(float), .shaderStages = Rhi::ShaderType::VERTEX_SHADER }
         };
 
         Rhi::PipelineLayoutDesc Desc{
@@ -273,7 +287,7 @@ AME_MAIN(Argc, Argv)
 
     WindowApplication<TriangleSampleEngine>::Builder()
         .Title("Simple Window")
-        .RendererBackend(Rhi::DeviceType::DirectX12)
+        //.RendererBackend(Rhi::DeviceType::DirectX12)
         .Build()
         .Run();
 }
