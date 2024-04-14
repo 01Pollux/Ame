@@ -9,17 +9,20 @@ namespace Ame::Rhi
 {
     class Buffer
     {
+        friend class Device;
+
+        Buffer(
+            Device&        RhiDevice,
+            MemoryLocation Location,
+            nri::Buffer*   Buf);
+
     public:
+        Buffer() = default;
+
         Buffer(
             Device&           RhiDevice,
             MemoryLocation    Location,
             const BufferDesc& Desc);
-
-        explicit Buffer(
-            nri::Buffer* Buf = nullptr) :
-            m_Buffer(Buf)
-        {
-        }
 
         operator bool() const noexcept
         {
@@ -62,18 +65,10 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Map the buffer.
+        /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        void* Map(
-            Device& RhiDevice,
-            size_t  Offset = 0,
-            size_t  Size   = 0);
-
-        /// <summary>
-        /// Unmap the buffer.
-        /// </summary>
-        void Unmap(
-            Device& RhiDevice);
+        void* GetPtr(
+            size_t  Offset = 0);
 
     public:
         /// <summary>
@@ -85,5 +80,6 @@ namespace Ame::Rhi
 
     private:
         nri::Buffer* m_Buffer = nullptr;
+        void*        m_Mapped = nullptr;
     };
 } // namespace Ame::Rhi

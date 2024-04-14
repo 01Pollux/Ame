@@ -6,10 +6,26 @@
 namespace Ame::Rhi
 {
     Buffer::Buffer(
+        Device&        RhiDevice,
+        MemoryLocation Location,
+        nri::Buffer*   NriBuffer) :
+        m_Buffer(NriBuffer)
+    {
+        if (Location == MemoryLocation::HOST_UPLOAD || Location == MemoryLocation::HOST_READBACK)
+        {
+            auto& Impl    = RhiDevice.GetImpl();
+            auto& Nri     = Impl.GetNRI();
+            auto& NriCore = *Nri.GetCoreInterface();
+
+            m_Mapped = NriCore.MapBuffer(*m_Buffer, 0, nri::WHOLE_SIZE);
+        }
+    }
+
+    Buffer::Buffer(
         Device&           RhiDevice,
         MemoryLocation    Location,
         const BufferDesc& Desc) :
-        m_Buffer(RhiDevice.Create(Location, Desc))
+        Buffer(RhiDevice, Location, RhiDevice.Create(Location, Desc))
     {
     }
 
@@ -18,6 +34,17 @@ namespace Ame::Rhi
         bool    Defer)
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Buffer != nullptr, "Buffer was already released.");
+
+        if (m_Mapped)
+        {
+            auto& Impl    = RhiDevice.GetImpl();
+            auto& Nri     = Impl.GetNRI();
+            auto& NriCore = *Nri.GetCoreInterface();
+
+            NriCore.UnmapBuffer(*m_Buffer);
+            m_Mapped = nullptr;
+        }
+
         RhiDevice.Release(*m_Buffer, Defer);
         m_Buffer = nullptr;
     }
@@ -65,26 +92,11 @@ namespace Ame::Rhi
 
     //
 
-    void* Buffer::Map(
-        Device& RhiDevice,
-        size_t  Offset,
-        size_t  Size)
+    void* Buffer::GetPtr(
+        size_t  Offset)
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
-
-        return NriCore.MapBuffer(*m_Buffer, Offset, Size);
-    }
-
-    void Buffer::Unmap(
-        Device& RhiDevice)
-    {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
-
-        NriCore.UnmapBuffer(*m_Buffer);
+        AME_LOG_ASSERT(Log::Rhi(), m_Mapped != nullptr, "Buffer is not host visible.");
+		return static_cast<uint8_t*>(m_Mapped) + Offset;
     }
 
     BufferResourceView Buffer::CreateView(
