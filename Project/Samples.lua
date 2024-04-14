@@ -23,7 +23,3 @@ target_end()
 target("Triangle")
     ame_header_executable("Samples/Rhi", "Triangle", "Samples/Rhi/Triangle")
 target_end()
-
-target("Stream Buffer")
-    ame_header_executable("Samples/Rhi", "Stream Buffer", "Samples/Rhi/StreamBuffer")
-target_end()

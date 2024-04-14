@@ -10,6 +10,7 @@
 #include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Buffer.hpp>
 #include <Rhi/Resource/VertexView.hpp>
+#include <Rhi/Stream/Buffer.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -55,13 +56,9 @@ private:
         Rhi::Device& RhiDevice)
     {
         m_PipelineState = nullptr;
-        if (m_VertexBuffer)
+        if (m_DrawBuffer)
         {
-            m_VertexBuffer.Release(RhiDevice);
-        }
-        if (m_IndexBuffer)
-        {
-            m_IndexBuffer.Release(RhiDevice);
+            m_DrawBuffer.Release(RhiDevice);
         }
     }
 
@@ -90,8 +87,8 @@ private:
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
         CommandList.SetViewports(Viewports);
         CommandList.SetScissorRects(Scissors);
-        CommandList.SetVertexBuffer({ .Buffer = m_VertexBuffer });
-        CommandList.SetIndexBuffer({ .Buffer = m_IndexBuffer, .Type = Rhi::IndexType::UINT16 });
+        CommandList.SetVertexBuffer({ .Buffer = m_DrawBuffer });
+        CommandList.SetIndexBuffer({ .Buffer = m_DrawBuffer, .Offset = m_IndexBufferOffset, .Type = Rhi::IndexType::UINT16 });
         CommandList.Draw(Rhi::DrawIndexedDesc{ .indexNum = 3, .instanceNum = 1 });
         CommandList.EndRendering();
     }
@@ -241,34 +238,29 @@ private:
     void CreateBuffers(
         Rhi::Device& RhiDevice)
     {
-        Math::Vector2 Vertices[]{
+        constexpr Math::Vector2 Vertices[]{
             { 0.0f, 0.5f },
             { 0.5f, -0.5f },
             { -0.5f, -0.5f }
         };
 
-        Rhi::BufferDesc Desc{
-            .size      = sizeof(Vertices),
-            .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER
-        };
-        m_VertexBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
-
-        auto Buffer = m_VertexBuffer.Map(RhiDevice);
-        std::memcpy(Buffer, Vertices, sizeof(Vertices));
-        m_VertexBuffer.Unmap(RhiDevice);
-
-        uint16_t Indices[]{
+        constexpr uint16_t Indices[]{
             0, 1, 2
         };
 
-        Desc.size      = sizeof(Indices);
-        Desc.usageMask = Rhi::BufferUsageBits::INDEX_BUFFER;
+        constexpr Rhi::BufferDesc Desc{
+            .size      = sizeof(Vertices) + sizeof(Indices),
+            .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER | Rhi::BufferUsageBits::INDEX_BUFFER
+        };
 
-        m_IndexBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
+        m_DrawBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
 
-        Buffer = m_IndexBuffer.Map(RhiDevice);
-        std::memcpy(Buffer, Indices, sizeof(Indices));
-        m_IndexBuffer.Unmap(RhiDevice);
+        namespace RS = Rhi::Streaming;
+        RS::BufferOStream Stream(RS::BufferView(RhiDevice, m_DrawBuffer, Rhi::EntireBuffer));
+
+        Stream.write(std::bit_cast<const char*>(&Vertices[0]), sizeof(Vertices));
+        m_IndexBufferOffset = Stream.tellp();
+        Stream.write(std::bit_cast<const char*>(&Indices[0]), sizeof(Indices));
     }
 
 private:
@@ -276,8 +268,8 @@ private:
 
     Ptr<Rhi::PipelineState> m_PipelineState;
 
-    Rhi::Buffer m_VertexBuffer;
-    Rhi::Buffer m_IndexBuffer;
+    Rhi::Buffer m_DrawBuffer;
+    size_t      m_IndexBufferOffset = 0;
 };
 
 AME_MAIN(Argc, Argv)
