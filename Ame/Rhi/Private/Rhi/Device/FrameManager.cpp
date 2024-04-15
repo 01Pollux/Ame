@@ -1,15 +1,13 @@
-#include "FrameManager.hpp"
-#include "../Nri/Bridge.hpp"
+#include <Rhi/Device/FrameManager.hpp>
 
 namespace Ame::Rhi
 {
     void FrameManager::Initialize(
-        nri::CoreInterface& NriCore,
-        nri::Device&        RhiDevice,
-        nri::CommandQueue&  CommandQueue,
-        uint32_t            FramesInFlightCount)
+        DeviceImpl&                     RhiDevice,
+        const DescriptorAllocationDesc& DescriptorPoolDesc,
+        uint32_t                        FramesInFlightCount)
     {
-        m_FrameWrapper.Initialize(NriCore, RhiDevice, CommandQueue, FramesInFlightCount);
+        m_FrameWrapper.Initialize(RhiDevice, DescriptorPoolDesc, FramesInFlightCount);
     }
 
     void FrameManager::Shutdown(
@@ -28,11 +26,9 @@ namespace Ame::Rhi
         m_FrameWrapper.NewFrame(NriCore, MemAllocator, GetFrameIndex());
     }
 
-    void FrameManager::EndFrame(
-        nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue)
+    void FrameManager::EndFrame()
     {
-        m_FrameWrapper.EndFrame(NriCore, GraphicsQueue, GetFrameIndex());
+        m_FrameWrapper.EndFrame(GetFrameIndex());
     }
 
     void FrameManager::AdvanceFrame(

@@ -6,9 +6,9 @@
 namespace Ame::Rhi
 {
     void Frame::Initialize(
-        nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue,
-        uint32_t            FrameIndex)
+        DeviceImpl&                     RhiDevice,
+        const DescriptorAllocationDesc& DescriptorPoolDesc,
+        uint32_t                        FrameIndex)
     {
 #ifndef AME_DIST
         auto AllocatorName = StringU8::formatted("FrameCommandAllocator_{}", FrameIndex);
@@ -21,13 +21,12 @@ namespace Ame::Rhi
         auto ListNamePtr      = nullptr;
 #endif
 
-        m_CommandList.Initialize(NriCore, GraphicsQueue, AllocatorNamePtr, ListNamePtr);
+        m_CommandList.Initialize(RhiDevice, DescriptorPoolDesc, AllocatorNamePtr, ListNamePtr);
     }
 
-    void Frame::Shutdown(
-        nri::CoreInterface& NriCore)
+    void Frame::Shutdown()
     {
-        m_CommandList.Shutdown(NriCore);
+        m_CommandList.Shutdown();
     }
 
     //
@@ -43,14 +42,13 @@ namespace Ame::Rhi
         nri::CoreInterface& NriCore,
         MemoryAllocator&    MemAllocator)
     {
-        m_CommandList.Reset(NriCore);
+        m_CommandList.Reset();
         Release(NriCore, MemAllocator);
     }
 
-    void Frame::EndFrame(
-        nri::CoreInterface& NriCore)
+    void Frame::EndFrame()
     {
-        m_CommandList.End(NriCore);
+        m_CommandList.End();
     }
 
     void Frame::Release(

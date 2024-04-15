@@ -54,8 +54,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri buffer.
         /// </summary>
-        [[nodiscard]] nri::Buffer* Unwrap(
-            Device& RhiDevice) const;
+        [[nodiscard]] nri::Buffer* Unwrap() const;
 
         /// <summary>
         /// Get the buffer native handle.

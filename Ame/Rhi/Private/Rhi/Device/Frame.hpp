@@ -17,15 +17,14 @@ namespace Ame::Rhi
         /// Initializes the frame resource.
         /// </summary>
         void Initialize(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue,
-            uint32_t            FrameIndex);
+            DeviceImpl&                     RhiDevice,
+            const DescriptorAllocationDesc& DescriptorPoolDesc,
+            uint32_t                        FrameIndex);
 
         /// <summary>
         /// Cleans up the frame resource.
         /// </summary>
-        void Shutdown(
-            nri::CoreInterface& NriCore);
+        void Shutdown();
 
     public:
         /// <summary>
@@ -44,8 +43,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Ends the frame resource and submits the command buffer.
         /// </summary>
-        void EndFrame(
-            nri::CoreInterface& NriCore);
+        void EndFrame();
 
         /// <summary>
         /// Releases the resources that are deferred for release.

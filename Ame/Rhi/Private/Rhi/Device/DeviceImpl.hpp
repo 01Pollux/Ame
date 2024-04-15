@@ -176,6 +176,11 @@ namespace Ame::Rhi
         [[nodiscard]] nri::Device& GetDevice() noexcept;
 
         /// <summary>
+        /// Get the nri command queue.
+        /// </summary>
+        [[nodiscard]] nri::CommandQueue& GetQueue() noexcept;
+
+        /// <summary>
         /// Get the current command list.
         /// </summary>
         [[nodiscard]] class CommandListImpl& GetCurrentCommandList() noexcept;

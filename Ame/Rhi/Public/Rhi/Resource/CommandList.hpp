@@ -29,13 +29,13 @@ namespace Ame::Rhi
         /// Set pipeline layout.
         /// </summary>
         void SetPipelineLayout(
-            PipelineLayout& Layout);
+            const Ptr<PipelineLayout>& Layout);
 
         /// <summary>
         /// Set pipeline state.
         /// </summary>
         void SetPipelineState(
-            PipelineState& Pipeline);
+            const Ptr<PipelineState>& Pipeline);
 
     public:
         /// <summary>
@@ -102,8 +102,10 @@ namespace Ame::Rhi
         /// <summary>
         /// Allocate descriptor sets for the pipeline layout.
         /// </summary>
-        [[nodiscard]] std::vector<DescriptorSet*> AllocateSets(
-            uint32_t Count);
+        [[nodiscard]] std::vector<DescriptorSet> AllocateSets(
+            uint32_t LayoutSlot,
+            uint32_t InstanceCount = 1,
+            uint32_t VariableCount = 0);
 
     public:
         /// <summary>

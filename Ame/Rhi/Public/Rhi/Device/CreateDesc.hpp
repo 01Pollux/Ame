@@ -3,9 +3,11 @@
 #include <concurrencpp/concurrencpp.h>
 
 #include <Core/Ame.hpp>
-#include <Rhi/Core.hpp>
 #include <Window/Desc.hpp>
+
+#include <Rhi/Core.hpp>
 #include <Rhi/Device/MemoryDesc.hpp>
+#include <Rhi/Device/DescriptorDesc.hpp>
 
 namespace Ame::Rhi
 {
@@ -55,6 +57,11 @@ namespace Ame::Rhi
         /// Memory allocator settings.
         /// </summary>
         MemoryAllocatorDesc MemoryAllocator;
+
+        /// <summary>
+        /// Descriptor pool settings.
+        /// </summary>
+        DescriptorAllocationDesc DescriptorPoolDesc;
 
         /// <summary>
         /// A headless device is a device that does not create a window.

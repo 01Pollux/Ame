@@ -11,9 +11,7 @@ namespace Ame::Rhi
         DescriptorSet() = default;
 
         DescriptorSet(
-            Device&             RhiDevice,
             nri::DescriptorSet* Set) :
-            m_Device(&RhiDevice),
             m_Set(Set)
         {
         }
@@ -30,7 +28,6 @@ namespace Ame::Rhi
         [[nodiscard]] nri::DescriptorSet* Unwrap() const;
 
     private:
-        Device*             m_Device = nullptr;
-        nri::DescriptorSet* m_Set    = nullptr;
+        nri::DescriptorSet* m_Set = nullptr;
     };
 } // namespace Ame::Rhi

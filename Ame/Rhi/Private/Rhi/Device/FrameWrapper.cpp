@@ -1,22 +1,25 @@
 #include <Rhi/Device/FrameWrapper.hpp>
+#include <Rhi/Device/DeviceImpl.hpp>
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
     void FrameWrapper::Initialize(
-        nri::CoreInterface& NriCore,
-        nri::Device&        RhiDevice,
-        nri::CommandQueue&  GraphicsQueue,
-        uint32_t            FramesInFlightCount)
+        DeviceImpl&                     RhiDevice,
+        const DescriptorAllocationDesc& DescriptorPoolDesc,
+        uint32_t                        FramesInFlightCount)
     {
+        auto& Nri     = RhiDevice.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
         Frames = std::make_unique<Frame[]>(FramesInFlightCount);
         for (uint32_t i = 0; i < FramesInFlightCount; i++)
         {
-            Frames[i].Initialize(NriCore, GraphicsQueue, i);
+            Frames[i].Initialize(RhiDevice, DescriptorPoolDesc, i);
         }
 
         this->FramesInFlightCount = FramesInFlightCount;
-        ThrowIfFailed(NriCore.CreateFence(RhiDevice, FenceValue, Fence), "Failed to create a frame fence");
+        ThrowIfFailed(NriCore.CreateFence(RhiDevice.GetDevice(), FenceValue, Fence), "Failed to create a frame fence");
     }
 
     void FrameWrapper::Shutdown(
@@ -24,7 +27,7 @@ namespace Ame::Rhi
     {
         for (uint32_t i = 0; i < FramesInFlightCount; i++)
         {
-            Frames[i].Shutdown(NriCore);
+            Frames[i].Shutdown();
         }
         NriCore.DestroyFence(*Fence);
         Fence = nullptr;
@@ -51,15 +54,13 @@ namespace Ame::Rhi
     }
 
     void FrameWrapper::EndFrame(
-        nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue,
-        uint32_t            FrameIndex)
+        uint32_t FrameIndex)
     {
         auto& CurFrame = Frames[FrameIndex];
         auto& CmdList  = CurFrame.GetCommandList();
 
-        CurFrame.EndFrame(NriCore);
-        CmdList.Submit(NriCore, GraphicsQueue);
+        CurFrame.EndFrame();
+        CmdList.Submit();
     }
 
     void FrameWrapper::AdvanceFrame(

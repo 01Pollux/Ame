@@ -13,10 +13,9 @@ namespace Ame::Rhi
     {
     public:
         void Initialize(
-            nri::CoreInterface& NriCore,
-            nri::Device&        RhiDevice,
-            nri::CommandQueue&  CommandQueue,
-            uint32_t            FramesInFlightCount);
+            DeviceImpl&                     RhiDevice,
+            const DescriptorAllocationDesc& DescriptorPoolDesc,
+            uint32_t                        FramesInFlightCount);
 
         void Shutdown(
             nri::CoreInterface& NriCore);
@@ -56,9 +55,7 @@ namespace Ame::Rhi
         /// <summary>
         /// End the frame.
         /// </summary>
-        void EndFrame(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue);
+        void EndFrame();
 
         /// <summary>
         /// Advance to the next frame.

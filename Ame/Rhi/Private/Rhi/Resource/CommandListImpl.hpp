@@ -2,6 +2,7 @@
 
 #include <Rhi/Resource/CommandList.hpp>
 #include <Rhi/Nri/Nri.hpp>
+#include <Rhi/Device/DescriptorAllocator.hpp>
 
 namespace Ame::Rhi
 {
@@ -13,28 +14,25 @@ namespace Ame::Rhi
         /// Initialize command list.
         /// </summary>
         void Initialize(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue,
-            const char*         AllocatorName,
-            const char*         ListName);
+            DeviceImpl&                     RhiDevice,
+            const DescriptorAllocationDesc& DescriptorPoolDesc,
+            const char*                     AllocatorName,
+            const char*                     ListName);
 
         /// <summary>
         /// Shutdown command list.
         /// </summary>
-        void Shutdown(
-            nri::CoreInterface& NriCore);
+        void Shutdown();
 
         /// <summary>
         /// Reset command list.
         /// </summary>
-        void Reset(
-            nri::CoreInterface& NriCore);
+        void Reset();
 
         /// <summary>
         /// End command list.
         /// </summary>
-        void End(
-            nri::CoreInterface& NriCore);
+        void End();
 
     public:
         /// <summary>
@@ -45,31 +43,26 @@ namespace Ame::Rhi
         /// <summary>
         /// Submit command list to the queue.
         /// </summary>
-        void Submit(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue);
+        void Submit();
 
     public:
         /// <summary>
         /// Set pipeline layout.
         /// </summary>
         void SetPipelineLayout(
-            DeviceImpl&     RhiDevice,
-            PipelineLayout& Layout);
+            const Ptr<PipelineLayout>& Layout);
 
         /// <summary>
         /// Set pipeline state.
         /// </summary>
         void SetPipelineState(
-            DeviceImpl&    RhiDevice,
-            PipelineState& Pipeline);
+            const Ptr<PipelineState>& Pipeline);
 
     public:
         /// <summary>
         /// Set constants.
         /// </summary>
         void SetConstants(
-            DeviceImpl& RhiDevice,
             uint32_t    ConstantIndex,
             const void* Data,
             size_t      Size);
@@ -78,7 +71,6 @@ namespace Ame::Rhi
         /// Set descriptor sets with dynamic offsets (optional).
         /// </summary>
         void SetDescriptorSet(
-            DeviceImpl&          RhiDevice,
             uint32_t             LayoutSlot,
             const DescriptorSet& DescriptorSets,
             uint32_t*            DynamicBufferOffset);
@@ -88,7 +80,6 @@ namespace Ame::Rhi
         /// Interacts with PSL enabled pipelines. Affects any depth-stencil operations, including clear and copy
         /// </summary>
         void SetSamplePositions(
-            DeviceImpl&               RhiDevice,
             std::span<SamplePosition> Positions,
             Sample_t                  SampleCount);
 
@@ -96,16 +87,16 @@ namespace Ame::Rhi
         /// <summary>
         /// Allocate descriptor sets for the pipeline layout.
         /// </summary>
-        [[nodiscard]] std::vector<DescriptorSet*> AllocateSets(
-            DeviceImpl& RhiDevice,
-            uint32_t    Count);
+        [[nodiscard]] std::vector<DescriptorSet> AllocateSets(
+            uint32_t LayoutSlot,
+            uint32_t InstanceCount,
+            uint32_t VariableCount);
 
     public:
         /// <summary>
         /// Set render targets and depth-stencil buffer.
         /// </summary>
         void BeginRendering(
-            DeviceImpl&                  RhiDevice,
             std::span<Rhi::ResourceView> RenderTargets,
             Rhi::ResourceView            DepthStencil = Rhi::ResourceView{});
 
@@ -113,7 +104,6 @@ namespace Ame::Rhi
         /// Clear render targets and depth-stencil buffer.
         /// </summary>
         void ClearAttachments(
-            DeviceImpl&            RhiDevice,
             std::span<ClearDesc>   Clears,
             std::span<ClearRegion> Regions);
 
@@ -121,44 +111,37 @@ namespace Ame::Rhi
         /// Set viewport of the render target.
         /// </summary>
         void SetViewports(
-            DeviceImpl&         RhiDevice,
             std::span<Viewport> Viewports);
 
         /// <summary>
         /// Set scissor rects of the render target.
         /// </summary>
         void SetScissorRects(
-            DeviceImpl&            RhiDevice,
             std::span<ScissorRect> ScissorRects);
 
         /// <summary>
         /// Set stencil reference value.
         /// </summary>
         void SetStencilReference(
-            DeviceImpl& RhiDevice,
-            uint8_t     StencilReference);
+            uint8_t StencilReference);
 
         /// <summary>
         /// Set depth bounds.
         /// </summary>
         void SetDepthBounds(
-            DeviceImpl& RhiDevice,
-            float       MinDepthBounds,
-            float       MaxDepthBounds);
+            float MinDepthBounds,
+            float MaxDepthBounds);
 
         /// <summary>
         /// Set blend constants.
         /// </summary>
         void SetBlendConstants(
-            DeviceImpl&         RhiDevice,
             const Math::Color4& BlendConstants);
 
         /// <summary>
         /// Set vertex buffer.
         /// </summary>
         void SetVertexBuffers(
-            DeviceImpl&                       RhiDeviceImpl,
-            class Device&                     RhiDevice,
             std::span<const VertexBufferView> VertexBuffers,
             uint32_t                          BaseSlot);
 
@@ -166,32 +149,30 @@ namespace Ame::Rhi
         /// Set index buffer.
         /// </summary>
         void SetIndexBuffer(
-            DeviceImpl&            RhiDeviceImpl,
-            class Device&          RhiDevice,
             const IndexBufferView& IndexBuffer);
 
         /// <summary>
         /// Perform draw call.
         /// </summary>
         void Draw(
-            DeviceImpl&     RhiDevice,
             const DrawDesc& Desc);
 
         /// <summary>
         /// Perform draw indexed call.
         /// </summary>
         void Draw(
-            DeviceImpl&            RhiDevice,
             const DrawIndexedDesc& Desc);
 
         /// <summary>
         /// End rendering.
         /// </summary>
-        void EndRendering(
-            DeviceImpl& RhiDevice);
+        void EndRendering();
 
     private:
         nri::CommandAllocator* m_CommandAllocator = nullptr;
         nri::CommandBuffer*    m_CommandBuffer    = nullptr;
+        DeviceImpl*            m_RhiDevice        = nullptr;
+        Ptr<PipelineLayout>    m_PipelineLayout;
+        DescriptorAllocator    m_DescriptorAllocator;
     };
 } // namespace Ame::Rhi

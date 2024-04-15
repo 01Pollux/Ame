@@ -51,8 +51,7 @@ namespace Ame::Rhi
 
     //
 
-    nri::Buffer* Buffer::Unwrap(
-        Device& RhiDevice) const
+    nri::Buffer* Buffer::Unwrap() const
     {
         return m_Buffer;
     }

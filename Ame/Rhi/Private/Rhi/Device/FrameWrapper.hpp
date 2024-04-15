@@ -19,10 +19,9 @@ namespace Ame::Rhi
         /// Initialize the frame wrapper.
         /// </summary>
         void Initialize(
-            nri::CoreInterface& NriCore,
-            nri::Device&        RhiDevice,
-            nri::CommandQueue&  GraphicsQueue,
-            uint32_t            FramesInFlightCount);
+            DeviceImpl&                     RhiDevice,
+            const DescriptorAllocationDesc& DescriptorPoolDesc,
+            uint32_t                        FramesInFlightCount);
 
         /// <summary>
         /// Shutdown the frame wrapper.
@@ -49,9 +48,7 @@ namespace Ame::Rhi
         /// End the frame.
         /// </summary>
         void EndFrame(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue,
-            uint32_t            FrameIndex);
+            uint32_t FrameIndex);
 
         /// <summary>
         /// Advance to the next frame.

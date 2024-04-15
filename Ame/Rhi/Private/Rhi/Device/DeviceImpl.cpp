@@ -28,7 +28,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
 
         m_MemoryAllocator.Initialize(*this, Desc.MemoryAllocator);
-        m_FrameManager.Initialize(*m_NRI.GetCoreInterface(), *m_Device, *m_CommandQueue, Desc.FramesInFlight);
+        m_FrameManager.Initialize(*this, Desc.DescriptorPoolDesc, Desc.FramesInFlight);
         if (Desc.Window)
         {
             m_WindowManager = std::make_unique<WindowManager>(m_NRI, *m_Device, *m_CommandQueue, Desc);
@@ -216,7 +216,7 @@ namespace Ame::Rhi
             TransitionBackbuffer(true);
         }
 
-        m_FrameManager.EndFrame(NriCore, *m_CommandQueue);
+        m_FrameManager.EndFrame();
 
         if (!IsHeadless()) [[likely]]
         {
@@ -246,6 +246,11 @@ namespace Ame::Rhi
     nri::Device& DeviceImpl::GetDevice() noexcept
     {
         return *m_Device;
+    }
+
+    nri::CommandQueue& DeviceImpl::GetQueue() noexcept
+    {
+        return *m_CommandQueue;
     }
 
     CommandListImpl& DeviceImpl::GetCurrentCommandList() noexcept

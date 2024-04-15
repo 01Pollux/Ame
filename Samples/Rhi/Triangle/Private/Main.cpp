@@ -73,9 +73,8 @@ private:
 
         Rhi::CommandList CommandList(RhiDevice);
 
-        CommandList.SetPipelineLayout(*m_PipelineState->GetLayout());
-
-        CommandList.SetPipelineState(*m_PipelineState);
+        CommandList.SetPipelineLayout(m_PipelineState->GetLayout());
+        CommandList.SetPipelineState(m_PipelineState);
 
         Rhi::AttachmentsDesc Attachments{};
         Rhi::ResourceView    RenderTargets[]{
@@ -92,7 +91,7 @@ private:
         BufferStream.write(std::bit_cast<const char*>(&Data[0]), sizeof(Data));
         BufferStream.flush();
 
-        auto Set = CommandList.AllocateSets(1)[0];
+        auto Set = CommandList.AllocateSets(0)[0];
         CommandList.SetDescriptorSet(0, *Set);
 
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
