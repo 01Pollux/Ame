@@ -11,8 +11,9 @@ namespace Ame::Rhi
     {
         m_RhiDevice = &RhiDevice;
 
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& Nri        = m_RhiDevice->GetNRI();
+        auto& NriCore    = *Nri.GetCoreInterface();
+        auto& DeviceDesc = NriCore.GetDeviceDesc(m_RhiDevice->GetDevice());
 
         nri::DescriptorPoolDesc NriDesc{
             .descriptorSetMaxNum           = Desc.DescriptorSetMaxCount,
@@ -25,7 +26,7 @@ namespace Ame::Rhi
             .storageBufferMaxNum           = Desc.StorageBufferMaxCount,
             .structuredBufferMaxNum        = Desc.StructuredBufferMaxCount,
             .storageStructuredBufferMaxNum = Desc.StorageStructuredBufferMaxCount,
-            .accelerationStructureMaxNum   = Desc.AccelerationStructureMaxCount,
+            .accelerationStructureMaxNum   = DeviceDesc.isRayTracingSupported ? Desc.AccelerationStructureMaxCount : 0
         };
         ThrowIfFailed(NriCore.CreateDescriptorPool(m_RhiDevice->GetDevice(), NriDesc, m_Pool), "Failed to create descriptor pool");
     }
