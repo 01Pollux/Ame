@@ -106,6 +106,18 @@ namespace Ame::Rhi
         NriCore.CmdSetConstants(*m_CommandBuffer, ConstantIndex, Data, Size);
     }
 
+    void CommandListImpl::SetDescriptorSet(
+        DeviceImpl&          RhiDevice,
+        uint32_t             LayoutSlot,
+        const DescriptorSet& DescriptorSets,
+        uint32_t*            DynamicBufferOffset)
+    {
+        auto& Nri     = RhiDevice.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdSetDescriptorSet(*m_CommandBuffer, LayoutSlot, *DescriptorSets.Unwrap(), DynamicBufferOffset);
+    }
+
     void CommandListImpl::SetSamplePositions(
         DeviceImpl&               RhiDevice,
         std::span<SamplePosition> Positions,
@@ -115,6 +127,15 @@ namespace Ame::Rhi
         auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.CmdSetSamplePositions(*m_CommandBuffer, Positions.data(), static_cast<Sample_t>(Positions.size()), SampleCount);
+    }
+
+    //
+
+    std::vector<DescriptorSet*> CommandListImpl::AllocateSets(
+        DeviceImpl& RhiDevice,
+        uint32_t    Count)
+    {
+        return std::vector<DescriptorSet*>();
     }
 
     //

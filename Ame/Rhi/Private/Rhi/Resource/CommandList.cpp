@@ -33,11 +33,48 @@ namespace Ame::Rhi
         m_Impl.SetConstants(m_Device.GetImpl(), ConstantIndex, Data, Size);
     }
 
+    void CommandList::SetDescriptorSet(
+        uint32_t             LayoutSlot,
+        const DescriptorSet& DescriptorSets)
+    {
+		m_Impl.SetDescriptorSet(m_Device.GetImpl(), LayoutSlot, DescriptorSets, nullptr);
+    }
+
+    void CommandList::SetDescriptorSet(
+        uint32_t             LayoutSlot,
+        const DescriptorSet& DescriptorSets,
+        uint32_t             DynamicBufferOffset)
+    {
+		m_Impl.SetDescriptorSet(m_Device.GetImpl(), LayoutSlot, DescriptorSets, &DynamicBufferOffset);
+    }
+
     void CommandList::SetSamplePositions(
         std::span<SamplePosition> Positions,
         Sample_t                  SampleCount)
     {
         m_Impl.SetSamplePositions(m_Device.GetImpl(), Positions, SampleCount);
+    }
+
+    //
+
+    Streaming::BufferOStream CommandList::AllocateUpload(
+        size_t Size,
+        size_t WindowSize)
+    {
+        return Streaming::BufferOStream();
+    }
+
+    Streaming::BufferOStream CommandList::AllocateScratch(
+        size_t Size,
+        size_t WindowSize)
+    {
+        return Streaming::BufferOStream();
+    }
+
+    std::vector<DescriptorSet*> CommandList::AllocateSets(
+        uint32_t Count)
+    {
+        return m_Impl.AllocateSets(m_Device.GetImpl(), Count);
     }
 
     //

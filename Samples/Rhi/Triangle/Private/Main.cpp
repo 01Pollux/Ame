@@ -74,7 +74,6 @@ private:
         Rhi::CommandList CommandList(RhiDevice);
 
         CommandList.SetPipelineLayout(*m_PipelineState->GetLayout());
-        CommandList.SetConstants<float>(0, Timer.GetEngineTime());
 
         CommandList.SetPipelineState(*m_PipelineState);
 
@@ -83,6 +82,18 @@ private:
             RhiDevice.GetBackbuffer().View
         };
         CommandList.BeginRendering(RenderTargets);
+
+        auto  BufferStream = CommandList.AllocateScratch(1024);
+        float Data[]{
+            static_cast<float>(Timer.GetEngineTime()), 0.5f,
+            0.5f, -0.5f,
+            -0.5f, -0.5f
+        };
+        BufferStream.write(std::bit_cast<const char*>(&Data[0]), sizeof(Data));
+        BufferStream.flush();
+
+        auto Set = CommandList.AllocateSets(1)[0];
+        CommandList.SetDescriptorSet(0, *Set);
 
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
         CommandList.SetViewports(Viewports);
@@ -135,17 +146,13 @@ private:
             float time;
         };
 
-        #ifdef AME_SHADER_COMPILER_SPIRV
-        [[vk::push_constant]] ConstantData PushConstants;
-		#else
-		ConstantBuffer<ConstantData> PushConstants;
-		#endif
+		ConstantBuffer<ConstantData> Data : register(b0, space1);
 
         VSOutput VS_Main(VSInput vs) 
         {
             VSOutput ps;
 			ps.pos = float4(vs.pos, 0.0, 1.0);
-			ps.color = float4(sin(PushConstants.time), sin(PushConstants.time + 2.0f), sin(PushConstants.time + 4.0f), 1.0f);
+			ps.color = float4(sin(Data.time), sin(Data.time + 2.0f), sin(Data.time + 4.0f), 1.0f);
 			return ps;
         }
         float4 PS_Main(VSOutput ps) : SV_TARGET
@@ -168,14 +175,21 @@ private:
         Co::thread_pool_executor& Executor,
         Rhi::Device&              RhiDevice) const
     {
-        Rhi::PushConstantDesc Constants[]{
-            { .registerIndex = 0, .size = sizeof(float), .shaderStages = Rhi::ShaderType::VERTEX_SHADER }
+        Rhi::DynamicConstantBufferDesc Buffers[]{
+            { .registerIndex = 0,
+              .shaderStages  = Rhi::ShaderType::VERTEX_SHADER | Rhi::ShaderType::FRAGMENT_SHADER }
+        };
+
+        Rhi::DescriptorSetDesc DescriptorSets[]{
+            { .registerSpace            = 1,
+              .dynamicConstantBuffers   = Buffers,
+              .dynamicConstantBufferNum = Rhi::Count32(Buffers) }
         };
 
         Rhi::PipelineLayoutDesc Desc{
-            .pushConstants   = Constants,
-            .pushConstantNum = Rhi::Count32(Constants),
-            .shaderStages    = Rhi::ShaderType::VERTEX_SHADER | Rhi::ShaderType::FRAGMENT_SHADER
+            .descriptorSets   = DescriptorSets,
+            .descriptorSetNum = Rhi::Count32(DescriptorSets),
+            .shaderStages     = Rhi::ShaderType::VERTEX_SHADER | Rhi::ShaderType::FRAGMENT_SHADER
         };
         co_return co_await RhiDevice.CreatePipelineLayout({}, Executor, Desc);
     }

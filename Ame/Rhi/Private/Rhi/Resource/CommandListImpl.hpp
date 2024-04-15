@@ -75,6 +75,15 @@ namespace Ame::Rhi
             size_t      Size);
 
         /// <summary>
+        /// Set descriptor sets with dynamic offsets (optional).
+        /// </summary>
+        void SetDescriptorSet(
+            DeviceImpl&          RhiDevice,
+            uint32_t             LayoutSlot,
+            const DescriptorSet& DescriptorSets,
+            uint32_t*            DynamicBufferOffset);
+
+        /// <summary>
         /// Mandatory state, if enabled (can be set only once)
         /// Interacts with PSL enabled pipelines. Affects any depth-stencil operations, including clear and copy
         /// </summary>
@@ -82,6 +91,14 @@ namespace Ame::Rhi
             DeviceImpl&               RhiDevice,
             std::span<SamplePosition> Positions,
             Sample_t                  SampleCount);
+
+    public:
+        /// <summary>
+        /// Allocate descriptor sets for the pipeline layout.
+        /// </summary>
+        [[nodiscard]] std::vector<DescriptorSet*> AllocateSets(
+            DeviceImpl& RhiDevice,
+            uint32_t    Count);
 
     public:
         /// <summary>

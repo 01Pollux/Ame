@@ -1,7 +1,11 @@
 #pragma once
 
 #include <Rhi/Descs/CommandList.hpp>
+
 #include <Rhi/Resource/View.hpp>
+#include <Rhi/Resource/Set.hpp>
+
+#include <Rhi/Stream/Buffer.hpp>
 
 namespace Ame::Rhi
 {
@@ -55,12 +59,51 @@ namespace Ame::Rhi
         }
 
         /// <summary>
+        /// Set descriptor sets.
+        /// </summary>
+        void SetDescriptorSet(
+            uint32_t             LayoutSlot,
+            const DescriptorSet& DescriptorSets);
+
+        /// <summary>
+        /// Set descriptor sets with dynamic offsets.
+        /// </summary>
+        void SetDescriptorSet(
+            uint32_t             LayoutSlot,
+            const DescriptorSet& DescriptorSets,
+            uint32_t             DynamicBufferOffset);
+
+        /// <summary>
         /// Mandatory state, if enabled (can be set only once)
         /// Interacts with PSL enabled pipelines. Affects any depth-stencil operations, including clear and copy
         /// </summary>
         void SetSamplePositions(
             std::span<SamplePosition> Positions,
             Sample_t                  SampleCount);
+
+    public:
+        /// <summary>
+        /// Allocate a buffer for upload.
+        /// The buffer is CPU-GPU visible and can be used to stream data to the GPU.
+        /// WindowSize is the size of intermediate buffer used for streaming.
+        /// </summary>
+        [[nodiscard]] Streaming::BufferOStream AllocateUpload(
+            size_t Size,
+            size_t WindowSize = 0);
+
+        /// <summary>
+        /// Allocate a buffer for upload.
+        /// The buffer is GPU visible and can be used to stream data to the GPU.
+        /// </summary>
+        [[nodiscard]] Streaming::BufferOStream AllocateScratch(
+            size_t Size,
+            size_t WindowSize = 0);
+
+        /// <summary>
+        /// Allocate descriptor sets for the pipeline layout.
+        /// </summary>
+        [[nodiscard]] std::vector<DescriptorSet*> AllocateSets(
+            uint32_t Count);
 
     public:
         /// <summary>
