@@ -1,7 +1,9 @@
 #include <Rhi/Device/WindowManager.hpp>
 
 #include <Rhi/Device/CreateDesc.hpp>
+#include <Rhi/Device/DeviceImpl.hpp>
 
+#include <Rhi/Nri/Nri.hpp>
 #include <Rhi/NriError.hpp>
 
 #if defined AME_PLATFORM_WINDOWS
@@ -37,17 +39,15 @@ namespace Ame::Rhi
     }
 
     WindowManager::WindowManager(
-        NRIBridge&              NriBridge,
-        nri::Device&            Device,
-        nri::CommandQueue&      PresentQueue,
+        DeviceImpl&             RhiDevice,
         const DeviceCreateDesc& Desc) :
-        m_NriBridge(NriBridge),
+        m_Device(RhiDevice),
         m_Window(Desc.Window->Window),
         m_SwapChainFormat(ToSwapchainFormat(Desc.Window->Format)),
         m_BackBuffers(Desc.Window->BackbufferCount),
         m_VSyncEnabled(Desc.EnableVSync)
     {
-        RecreateSwapchain(Device, PresentQueue);
+        RecreateSwapchain();
         m_Window.OnWindowSizeChanged().Listen(
             [this](const auto&, const auto&)
             {
@@ -60,8 +60,10 @@ namespace Ame::Rhi
         ReleaseBackBuffers();
         if (m_SwapChain)
         {
-            auto& SwapchainInterface = *m_NriBridge.GetSwapChainInterface();
-            SwapchainInterface.DestroySwapChain(*m_SwapChain);
+            auto& Nri          = m_Device.GetNRI();
+            auto& NriSwapchain = *Nri.GetSwapChainInterface();
+
+            NriSwapchain.DestroySwapChain(*m_SwapChain);
         }
     }
 
@@ -69,14 +71,18 @@ namespace Ame::Rhi
 
     void WindowManager::NewFrame()
     {
-        auto& SwapchainInterface = *m_NriBridge.GetSwapChainInterface();
-        m_BackBufferIndex        = SwapchainInterface.AcquireNextSwapChainTexture(*m_SwapChain);
+        auto& Nri          = m_Device.GetNRI();
+        auto& NriSwapchain = *Nri.GetSwapChainInterface();
+
+        m_BackBufferIndex = NriSwapchain.AcquireNextSwapChainTexture(*m_SwapChain);
     }
 
     void WindowManager::Present()
     {
-        auto& SwapchainInterface = *m_NriBridge.GetSwapChainInterface();
-        SwapchainInterface.QueuePresent(*m_SwapChain);
+        auto& Nri          = m_Device.GetNRI();
+        auto& NriSwapchain = *Nri.GetSwapChainInterface();
+
+        NriSwapchain.QueuePresent(*m_SwapChain);
     }
 
     //
@@ -133,18 +139,18 @@ namespace Ame::Rhi
         return m_DirtySwapChain;
     }
 
-    void WindowManager::RecreateSwapchain(
-        nri::Device&       Device,
-        nri::CommandQueue& GraphicsQueue)
+    void WindowManager::RecreateSwapchain()
     {
-        auto& SwapchainInterface = *m_NriBridge.GetSwapChainInterface();
+        auto& Nri           = m_Device.GetNRI();
+        auto& NriSwapchain  = *Nri.GetSwapChainInterface();
+        auto& GraphicsQueue = m_Device.GetQueue();
 
         m_DirtySwapChain = false;
         ReleaseBackBuffers();
 
         if (m_SwapChain)
         {
-            SwapchainInterface.DestroySwapChain(*m_SwapChain);
+            NriSwapchain.DestroySwapChain(*m_SwapChain);
             m_SwapChain = nullptr;
         }
 
@@ -173,18 +179,19 @@ namespace Ame::Rhi
             .verticalSyncInterval = m_VSyncEnabled
         };
 
-        ThrowIfFailed(SwapchainInterface.CreateSwapChain(Device, SwapChainDesc, m_SwapChain), "Failed to create swapchain");
+        ThrowIfFailed(NriSwapchain.CreateSwapChain(m_Device.GetDevice(), SwapChainDesc, m_SwapChain), "Failed to create swapchain");
         CreateSwapChainViews();
     }
 
     void WindowManager::CreateSwapChainViews()
     {
-        auto& SwapchainInterface = *m_NriBridge.GetSwapChainInterface();
-        auto& CoreInterface      = *m_NriBridge.GetCoreInterface();
+        auto& Nri          = m_Device.GetNRI();
+        auto& NriSwapchain = *Nri.GetSwapChainInterface();
+        auto& NriCore      = *Nri.GetCoreInterface();
 
         uint32_t Count       = 0;
-        auto     BackBuffers = SwapchainInterface.GetSwapChainTextures(*m_SwapChain, Count);
-        m_BackBufferFormat   = CoreInterface.GetTextureDesc(*BackBuffers[0]).format;
+        auto     BackBuffers = NriSwapchain.GetSwapChainTextures(*m_SwapChain, Count);
+        m_BackBufferFormat   = NriCore.GetTextureDesc(*BackBuffers[0]).format;
 
         nri::Texture2DViewDesc ViewDesc{
             .viewType = nri::Texture2DViewType::COLOR_ATTACHMENT,
@@ -194,22 +201,24 @@ namespace Ame::Rhi
         for (uint32_t i = 0; i < Count; i++)
         {
             ViewDesc.texture          = BackBuffers[i];
-            m_BackBuffers[i].Resource = Texture(BackBuffers[i]);
+            m_BackBuffers[i].Resource = Texture(Texture::Extern{}, m_Device, BackBuffers[i]);
 
             nri::Descriptor* View = nullptr;
-            ThrowIfFailed(CoreInterface.CreateTexture2DView(ViewDesc, View), "Failed to create texture view of the swapchain texture");
-            m_BackBuffers[i].View = RenderTargetResourceView(View);
+            ThrowIfFailed(NriCore.CreateTexture2DView(ViewDesc, View), "Failed to create texture view of the swapchain texture");
+            m_BackBuffers[i].View = RenderTargetResourceView(ResourceView::Extern{}, m_Device, View);
         }
     }
 
     void WindowManager::ReleaseBackBuffers()
     {
-        auto& CoreInterface = *m_NriBridge.GetCoreInterface();
+        auto& Nri     = m_Device.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
         for (auto& BackBuffer : m_BackBuffers)
         {
             if (auto Descriptor = BackBuffer.View.Unwrap())
             {
-                CoreInterface.DestroyDescriptor(*Descriptor);
+                NriCore.DestroyDescriptor(*Descriptor);
                 BackBuffer.View = {};
             }
         }

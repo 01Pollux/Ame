@@ -10,16 +10,36 @@ namespace Ame::Rhi
     class Texture
     {
     public:
+        struct Extern
+        {
+        };
+
+        Texture() = default;
+        Texture(
+            Extern,
+            DeviceImpl&   RhiDevice,
+            nri::Texture* RhiTexture);
+        Texture(
+            Extern,
+            Device&       RhiDevice,
+            nri::Texture* RhiTexture);
+        Texture(std::nullptr_t) :
+            m_Owning(false)
+        {
+        }
+
         Texture(
             Device&            RhiDevice,
             MemoryLocation     Location,
             const TextureDesc& Desc);
 
-        explicit Texture(
-            nri::Texture* Tex = nullptr) :
-            m_Texture(Tex)
-        {
-        }
+        Texture(const Texture&) = delete;
+        Texture(Texture&& Other) noexcept;
+
+        Texture& operator=(const Texture&) = delete;
+        Texture& operator=(Texture&& Other) noexcept;
+
+        ~Texture();
 
         operator bool() const noexcept
         {
@@ -28,25 +48,15 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Releases the texture.
-        /// </summary>
-        void Release(
-            Device& RhiDevice,
-            bool    Defer = true);
-
-    public:
-        /// <summary>
         /// Set the texture name.
         /// </summary>
         void SetName(
-            Device&     RhiDevice,
             const char* Name) const;
 
         /// <summary>
         /// Get the texture description.
         /// </summary>
-        [[nodiscard]] const TextureDesc& GetDesc(
-            Device& RhiDevice) const;
+        [[nodiscard]] const TextureDesc& GetDesc() const;
 
         /// <summary>
         /// Get the nri texture.
@@ -56,32 +66,36 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the texture native handle.
         /// </summary>
-        [[nodiscard]] void* GetNative(
-            Device& RhiDevice) const;
+        [[nodiscard]] void* GetNative() const;
 
     public:
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] ResourceView CreateShaderView(
-            Device&                RhiDevice,
             const TextureViewDesc& Desc) const;
 
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] RenderTargetResourceView CreateRenderTargetView(
-            Device&                RhiDevice,
             const TextureViewDesc& Desc) const;
 
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] DepthStencilResourceView CreateDepthStencilView(
-            Device&                RhiDevice,
             const TextureViewDesc& Desc) const;
 
     private:
+        /// <summary>
+        /// Releases the texture.
+        /// </summary>
+        void Release();
+
+    private:
+        DeviceImpl*   m_Device  = nullptr;
         nri::Texture* m_Texture = nullptr;
+        bool          m_Owning  = true;
     };
 } // namespace Ame::Rhi

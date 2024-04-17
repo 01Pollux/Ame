@@ -235,37 +235,66 @@ namespace Ame::Rhi
 
     //
 
-    void ResourceView::Release(
-        Device& RhiDevice,
-        bool    Defer)
+    ResourceView::ResourceView(
+        DeviceImpl*      RhiDevice,
+        nri::Descriptor* Descriptor) :
+        m_Device(RhiDevice),
+        m_Descriptor(Descriptor)
     {
-        RhiDevice.Release(*m_Descriptor, Defer);
-        m_Descriptor = nullptr;
     }
 
-    void DeviceImpl::Release(
-        nri::Descriptor& NriDescriptor,
-        bool             Defer)
+    ResourceView::ResourceView(
+        Extern,
+        DeviceImpl&      RhiDevice,
+        nri::Descriptor* Descriptor) :
+        m_Device(&RhiDevice),
+        m_Descriptor(Descriptor),
+        m_Owning(false)
     {
-        if (Defer)
-        {
-            m_FrameManager.DeferRelease(NriDescriptor);
-        }
-        else
-        {
-            auto& NriCore = *GetNRI().GetCoreInterface();
-            NriCore.DestroyDescriptor(NriDescriptor);
-        }
     }
 
-    //
+    ResourceView::ResourceView(
+        Extern,
+        Device&          RhiDevice,
+        nri::Descriptor* Descriptor) :
+        m_Device(&RhiDevice.GetImpl()),
+        m_Descriptor(Descriptor),
+        m_Owning(false)
+    {
+    }
+
+    ResourceView::ResourceView(
+        ResourceView&& Other) noexcept :
+        m_Device(std::exchange(Other.m_Device, nullptr)),
+        m_Descriptor(std::exchange(Other.m_Descriptor, nullptr)),
+        m_Owning(std::exchange(Other.m_Owning, false))
+    {
+    }
+
+    ResourceView& ResourceView::operator=(
+        ResourceView&& Other) noexcept
+    {
+        if (this != &Other)
+        {
+            Release();
+
+            m_Device     = std::exchange(Other.m_Device, nullptr);
+            m_Descriptor = std::exchange(Other.m_Descriptor, nullptr);
+            m_Owning     = std::exchange(Other.m_Owning, false);
+        }
+
+        return *this;
+    }
+
+    ResourceView::~ResourceView()
+    {
+        Release();
+    }
 
     void ResourceView::SetName(
-        Device&     RhiDevice,
         const char* Name) const
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
+        auto& Nri     = m_Device->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.SetDescriptorDebugName(*m_Descriptor, Name);
@@ -276,11 +305,9 @@ namespace Ame::Rhi
         return m_Descriptor;
     }
 
-    void* ResourceView::GetNative(
-        Device& RhiDevice) const
+    void* ResourceView::GetNative() const
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
+        auto& Nri     = m_Device->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         return std::bit_cast<void*>(NriCore.GetDescriptorNativeObject(*m_Descriptor));
@@ -288,54 +315,41 @@ namespace Ame::Rhi
 
     //
 
-    void Device::Release(
-        nri::Descriptor& View,
-        bool             Defer)
-    {
-        m_Impl->Release(View, Defer);
-    }
-
-    //
-
-    nri::Descriptor* Device::CreateView(
+    nri::Descriptor* DeviceImpl::CreateView(
         nri::Texture&          NriTexture,
         const TextureViewDesc& Desc) const
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto  NriCore = Nri.GetCoreInterface();
+        auto& NriCore = *m_NRI.GetCoreInterface();
 
         using namespace EnumBitOperators;
         nri::Descriptor* View = nullptr;
         if ((Desc.Type & TextureViewType::AnyOneDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView1D::Convert(*NriCore, NriTexture, Desc);
-            ThrowIfFailed(NriCore->CreateTexture1DView(NriDesc, View), "Failed to create texture view");
+            auto NriDesc = TexView1D::Convert(NriCore, NriTexture, Desc);
+            ThrowIfFailed(NriCore.CreateTexture1DView(NriDesc, View), "Failed to create texture view");
         }
         else if ((Desc.Type & TextureViewType::AnyTwoDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView2D::Convert(*NriCore, NriTexture, Desc);
-            ThrowIfFailed(NriCore->CreateTexture2DView(NriDesc, View), "Failed to create texture view");
+            auto NriDesc = TexView2D::Convert(NriCore, NriTexture, Desc);
+            ThrowIfFailed(NriCore.CreateTexture2DView(NriDesc, View), "Failed to create texture view");
         }
         else if ((Desc.Type & TextureViewType::AnyThreeDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView3D::Convert(*NriCore, NriTexture, Desc);
-            ThrowIfFailed(NriCore->CreateTexture3DView(NriDesc, View), "Failed to create texture view");
+            auto NriDesc = TexView3D::Convert(NriCore, NriTexture, Desc);
+            ThrowIfFailed(NriCore.CreateTexture3DView(NriDesc, View), "Failed to create texture view");
         }
         return View;
     }
 
-    //
-
-    nri::Descriptor* Device::CreateView(
+    nri::Descriptor* DeviceImpl::CreateView(
         nri::Buffer&          NriBuffer,
         const BufferViewDesc& Desc) const
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto  NriCore = Nri.GetCoreInterface();
-        auto  NriDesc = BufferView::Convert(*NriCore, NriBuffer, Desc);
+        auto& NriCore = *m_NRI.GetCoreInterface();
+        auto  NriDesc = BufferView::Convert(NriCore, NriBuffer, Desc);
 
         nri::Descriptor* View = nullptr;
-        ThrowIfFailed(NriCore->CreateBufferView(NriDesc, View), "Failed to create buffer view");
+        ThrowIfFailed(NriCore.CreateBufferView(NriDesc, View), "Failed to create buffer view");
 
         return View;
     }
@@ -343,48 +357,70 @@ namespace Ame::Rhi
     //
 
     BufferRange BufferRange::Transform(
-        Device& RhiDevice,
         Buffer& RhiBuffer) const noexcept
     {
         auto Copy = *this;
         if (Copy.Size == RemainingSize<size_t>)
         {
-            Copy.Size = RhiBuffer.GetDesc(RhiDevice).size - Copy.Offset;
+            Copy.Size = RhiBuffer.GetDesc().size - Copy.Offset;
         }
         return Copy;
     }
 
     MipLevel MipLevel::Transform(
-        Device&  RhiDevice,
         Texture& RhiTexture) const noexcept
     {
         auto Copy = *this;
         if (Copy.Count == RemainingSize<Mip_t>)
         {
-            Copy.Count = RhiTexture.GetDesc(RhiDevice).mipNum - Copy.Offset;
+            Copy.Count = RhiTexture.GetDesc().mipNum - Copy.Offset;
         }
         return Copy;
     }
 
     ArraySlice ArraySlice::Transform(
-        Device&  RhiDevice,
         Texture& RhiTexture) const noexcept
     {
         auto Copy = *this;
         if (Copy.Count == RemainingSize<Dim_t>)
         {
-            Copy.Count = RhiTexture.GetDesc(RhiDevice).arraySize - Copy.Offset;
+            Copy.Count = RhiTexture.GetDesc().arraySize - Copy.Offset;
         }
         return Copy;
     }
 
     TextureSubresource TextureSubresource::Transform(
-        Device&  RhiDevice,
         Texture& RhiTexture) const noexcept
     {
         return {
-            Mips.Transform(RhiDevice, RhiTexture),
-            Array.Transform(RhiDevice, RhiTexture)
+            Mips.Transform(RhiTexture),
+            Array.Transform(RhiTexture)
         };
+    }
+
+    //
+
+    void DeviceImpl::Release(
+        nri::Descriptor& NriDescriptor)
+    {
+        m_FrameManager.DeferRelease(NriDescriptor);
+    }
+
+    void Device::Release(
+        nri::Descriptor& View)
+    {
+        m_Impl->Release(View);
+    }
+
+    void ResourceView::Release()
+    {
+        if (!m_Owning || !m_Device)
+        {
+            return;
+        }
+
+        m_Device->Release(*m_Descriptor);
+        m_Descriptor = nullptr;
+        m_Owning     = false;
     }
 } // namespace Ame::Rhi

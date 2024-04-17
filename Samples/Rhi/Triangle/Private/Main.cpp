@@ -46,22 +46,7 @@ protected:
             });
     }
 
-    void Shutdown() override
-    {
-        ReleaseRhiResources(GetSubsystem<Rhi::DeviceSubsystem>());
-    }
-
 private:
-    void ReleaseRhiResources(
-        Rhi::Device& RhiDevice)
-    {
-        m_PipelineState = nullptr;
-        if (m_DrawBuffer)
-        {
-            m_DrawBuffer.Release(RhiDevice);
-        }
-    }
-
     void Render(
         EngineTimer& Timer,
         Rhi::Device& RhiDevice)
@@ -73,26 +58,32 @@ private:
 
         Rhi::CommandList CommandList(RhiDevice);
 
+        if (m_TempBuffer)
+        {
+            CommandList.CopyBuffer({ m_TempBuffer }, { m_DrawBuffer });
+            m_TempBuffer = nullptr;
+        }
+
         CommandList.SetPipelineLayout(m_PipelineState->GetLayout());
         CommandList.SetPipelineState(m_PipelineState);
 
-        Rhi::AttachmentsDesc Attachments{};
-        Rhi::ResourceView    RenderTargets[]{
-            RhiDevice.GetBackbuffer().View
+        Rhi::AttachmentsDesc     Attachments{};
+        const Rhi::ResourceView* RenderTargets[]{
+            &RhiDevice.GetBackbuffer().View
         };
         CommandList.BeginRendering(RenderTargets);
 
-        auto  BufferStream = CommandList.AllocateScratch(1024);
+        auto  BufferPtr = m_DynamicBuffer.GetPtr();
         float Data[]{
             static_cast<float>(Timer.GetEngineTime()), 0.5f,
             0.5f, -0.5f,
             -0.5f, -0.5f
         };
-        BufferStream.write(std::bit_cast<const char*>(&Data[0]), sizeof(Data));
-        BufferStream.flush();
+        std::memcpy(BufferPtr, Data, sizeof(Data));
 
         auto Set = CommandList.AllocateSets(0)[0];
-        CommandList.SetDescriptorSet(0, *Set);
+        Set.SetDynamicBuffer(RhiDevice, 0, m_DynamicBufferView.Unwrap());
+        CommandList.SetDescriptorSet(0, Set, 0);
 
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
         CommandList.SetViewports(Viewports);
@@ -107,7 +98,7 @@ private:
     [[nodiscard]] ViewportScissor GetViewportsAndScissors(
         Rhi::Device& RhiDevice)
     {
-        auto& BackbufferDesc = RhiDevice.GetBackbuffer().Resource.GetDesc(RhiDevice);
+        auto& BackbufferDesc = RhiDevice.GetBackbuffer().Resource.GetDesc();
 
         return ViewportScissor{
             .Viewport{
@@ -203,7 +194,7 @@ private:
         auto LayoutTask = LoadLayout({}, Executor, RhiDevice);
 
         Rhi::RenderTargetDesc RenderTargets[]{
-            { RhiDevice.GetBackbuffer().Resource.GetDesc(RhiDevice).format }
+            { RhiDevice.GetBackbuffer().Resource.GetDesc().format }
         };
 
         Rhi::VertexStreamDesc VertexStreams[]{
@@ -266,14 +257,24 @@ private:
             .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER | Rhi::BufferUsageBits::INDEX_BUFFER
         };
 
-        m_DrawBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
+        m_DrawBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
+        m_TempBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
 
         namespace RS = Rhi::Streaming;
-        RS::BufferOStream Stream(RS::BufferView(RhiDevice, m_DrawBuffer, Rhi::EntireBuffer));
+        RS::BufferOStream Stream(RS::BufferView(m_TempBuffer, Rhi::EntireBuffer));
 
         Stream.write(std::bit_cast<const char*>(&Vertices[0]), sizeof(Vertices));
         m_IndexBufferOffset = Stream.tellp();
         Stream.write(std::bit_cast<const char*>(&Indices[0]), sizeof(Indices));
+
+        Stream.flush();
+
+        constexpr Rhi::BufferDesc DynamicDesc{
+            .size      = 1024,
+            .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER
+        };
+        m_DynamicBuffer     = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, DynamicDesc);
+        m_DynamicBufferView = m_DynamicBuffer.CreateView({});
     }
 
 private:
@@ -282,7 +283,11 @@ private:
     Ptr<Rhi::PipelineState> m_PipelineState;
 
     Rhi::Buffer m_DrawBuffer;
+    Rhi::Buffer m_TempBuffer;
     size_t      m_IndexBufferOffset = 0;
+
+    Rhi::Buffer             m_DynamicBuffer;
+    Rhi::BufferResourceView m_DynamicBufferView;
 };
 
 AME_MAIN(Argc, Argv)
@@ -292,7 +297,7 @@ AME_MAIN(Argc, Argv)
 
     WindowApplication<TriangleSampleEngine>::Builder()
         .Title("Simple Window")
-        //.RendererBackend(Rhi::DeviceType::DirectX12)
+        .RendererBackend(Rhi::DeviceType::DirectX12)
         .Build()
         .Run();
 }

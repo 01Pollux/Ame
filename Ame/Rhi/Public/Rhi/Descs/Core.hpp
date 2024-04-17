@@ -20,8 +20,14 @@ namespace Ame::Rhi
     using ShaderDesc     = nri::ShaderDesc;
     using MemoryLocation = nri::MemoryLocation;
 
-    using BufferDesc    = nri::BufferDesc;
-    using TextureDesc   = nri::TextureDesc;
+    using BufferDesc  = nri::BufferDesc;
+    using TextureDesc = nri::TextureDesc;
+
+    using TextureRegionDesc     = nri::TextureRegionDesc;
+    using TextureDataLayoutDesc = nri::TextureDataLayoutDesc;
+
+    using DescriptorRangeUpdateDesc = nri::DescriptorRangeUpdateDesc;
+    using DescriptorSetCopyDesc     = nri::DescriptorSetCopyDesc;
 
     struct BufferViewDesc;
     struct TextureViewDesc;

@@ -111,7 +111,6 @@ namespace Ame::Rhi
             const BufferRange& Other) const noexcept = default;
 
         [[nodiscard]] BufferRange Transform(
-            Device& RhiDevice,
             Buffer& RhiBuffer) const noexcept;
     };
 
@@ -136,7 +135,6 @@ namespace Ame::Rhi
             const MipLevel& Other) const noexcept = default;
 
         [[nodiscard]] MipLevel Transform(
-            Device&  RhiDevice,
             Texture& RhiTexture) const noexcept;
     };
 
@@ -161,7 +159,6 @@ namespace Ame::Rhi
             const ArraySlice& Other) const noexcept = default;
 
         [[nodiscard]] ArraySlice Transform(
-            Device&  RhiDevice,
             Texture& RhiTexture) const noexcept;
     };
 
@@ -186,7 +183,6 @@ namespace Ame::Rhi
             const TextureSubresource& Other) const noexcept = default;
 
         [[nodiscard]] TextureSubresource Transform(
-            Device&  RhiDevice,
             Texture& RhiTexture) const noexcept;
     };
 
@@ -196,15 +192,15 @@ namespace Ame::Rhi
 
     struct BufferViewDesc
     {
-        BufferRange    Range;
+        BufferRange    Range  = EntireBuffer;
         ResourceFormat Format = ResourceFormat::UNKNOWN;
     };
 
     struct TextureViewDesc
     {
         TextureViewType    Type;
-        TextureSubresource Subresource;
-        ResourceFormat     Format = ResourceFormat::UNKNOWN; // default to the format of the texture
-        TextureViewFlags   Flags  = TextureViewFlags::None;
+        TextureSubresource Subresource = AllSubresources;
+        ResourceFormat     Format      = ResourceFormat::UNKNOWN; // default to the format of the texture
+        TextureViewFlags   Flags       = TextureViewFlags::None;
     };
 } // namespace Ame::Rhi

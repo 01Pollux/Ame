@@ -57,20 +57,6 @@ namespace Ame::Rhi
 
     //
 
-    Streaming::BufferOStream CommandList::AllocateUpload(
-        size_t Size,
-        size_t WindowSize)
-    {
-        return Streaming::BufferOStream();
-    }
-
-    Streaming::BufferOStream CommandList::AllocateScratch(
-        size_t Size,
-        size_t WindowSize)
-    {
-        return Streaming::BufferOStream();
-    }
-
     std::vector<DescriptorSet> CommandList::AllocateSets(
         uint32_t LayoutSlot,
         uint32_t InstanceCount,
@@ -82,8 +68,8 @@ namespace Ame::Rhi
     //
 
     void CommandList::BeginRendering(
-        std::span<Rhi::ResourceView> RenderTargets,
-        Rhi::ResourceView            DepthStencil)
+        std::span<const Rhi::ResourceView*> RenderTargets,
+        const Rhi::ResourceView*            DepthStencil)
     {
         m_Impl.BeginRendering(RenderTargets, DepthStencil);
     }
@@ -161,5 +147,34 @@ namespace Ame::Rhi
     void CommandList::EndRendering()
     {
         m_Impl.EndRendering();
+    }
+
+    //
+
+    void CommandList::CopyBuffer(
+        const BufferCopyDesc& Src,
+        const BufferCopyDesc& Dst,
+        size_t                Size)
+    {
+        m_Impl.CopyBuffer(Src, Dst, Size);
+    }
+
+    void CommandList::CopyTexture(
+        const TextureCopyDesc& Src,
+        const TextureCopyDesc& Dst)
+    {
+        m_Impl.CopyTexture(Src, Dst);
+    }
+
+    void CommandList::UploadTexture(
+        const TransferCopyDesc& Desc)
+    {
+        m_Impl.UploadTexture(Desc);
+    }
+
+    void CommandList::ReadbackTexture(
+        const TransferCopyDesc& Desc)
+    {
+        m_Impl.ReadbackTexture(Desc);
     }
 } // namespace Ame::Rhi

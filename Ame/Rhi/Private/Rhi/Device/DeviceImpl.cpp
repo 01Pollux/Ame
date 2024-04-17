@@ -31,7 +31,7 @@ namespace Ame::Rhi
         m_FrameManager.Initialize(*this, Desc.DescriptorPoolDesc, Desc.FramesInFlight);
         if (Desc.Window)
         {
-            m_WindowManager = std::make_unique<WindowManager>(m_NRI, *m_Device, *m_CommandQueue, Desc);
+            m_WindowManager = std::make_unique<WindowManager>(*this, Desc);
             RegisterBackbufferState();
         }
 
@@ -129,13 +129,13 @@ namespace Ame::Rhi
         return m_WindowManager->GetBackbufferIndex();
     }
 
-    Backbuffer DeviceImpl::GetBackbuffer(
+    const Backbuffer& DeviceImpl::GetBackbuffer(
         uint8_t Index) const
     {
         return m_WindowManager->GetBackbuffer(Index);
     }
 
-    Backbuffer DeviceImpl::GetBackbuffer() const
+    const Backbuffer& DeviceImpl::GetBackbuffer() const
     {
         return GetBackbuffer(GetBackbufferIndex());
     }
@@ -188,7 +188,7 @@ namespace Ame::Rhi
             {
                 WaitIdle();
                 UnregisterBackbufferState();
-                m_WindowManager->RecreateSwapchain(*m_Device, *m_CommandQueue);
+                m_WindowManager->RecreateSwapchain();
                 RegisterBackbufferState();
             }
         }
@@ -284,7 +284,7 @@ namespace Ame::Rhi
     {
         auto& NriCore       = *m_NRI.GetCoreInterface();
         auto& CommandBuffer = GetCurrentCommandList().GetCommandBuffer();
-        auto  CurBackbuffer = GetBackbuffer();
+        auto& CurBackbuffer = GetBackbuffer();
 
         nri::AccessLayoutStage State{ .stages = nri::StageBits::ALL };
         if (Present)
@@ -311,7 +311,7 @@ namespace Ame::Rhi
     {
         auto& NriCore           = *m_NRI.GetCoreInterface();
         auto& CommandBuffer     = GetCurrentCommandList().GetCommandBuffer();
-        auto  CurBackbuffer     = GetBackbuffer();
+        auto& CurBackbuffer     = GetBackbuffer();
         auto  CurBackbufferView = CurBackbuffer.View.Unwrap();
 
         nri::ClearDesc Clears{

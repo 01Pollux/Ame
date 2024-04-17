@@ -111,13 +111,13 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the backbuffer at the specified index.
         /// </summary>
-        [[nodiscard]] Backbuffer GetBackbuffer(
+        [[nodiscard]] const Backbuffer& GetBackbuffer(
             uint8_t Index) const;
 
         /// <summary>
         /// Get the current backbuffer.
         /// </summary>
-        [[nodiscard]] Backbuffer GetBackbuffer() const;
+        [[nodiscard]] const Backbuffer& GetBackbuffer() const;
 
     public:
         /// <summary>
@@ -214,25 +214,37 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Create resource view for a texture.
+        /// </summary>
+        [[nodiscard]] nri::Descriptor* CreateView(
+            nri::Texture&          Tex,
+            const TextureViewDesc& Desc) const;
+
+        /// <summary>
+        /// Create resource view for a buffer.
+        /// </summary>
+        [[nodiscard]] nri::Descriptor* CreateView(
+            nri::Buffer&          Buf,
+            const BufferViewDesc& Desc) const;
+
+    public:
+        /// <summary>
         /// Release of buffer.
         /// </summary>
         void Release(
-            nri::Buffer& NriBuffer,
-            bool         Defer);
+            nri::Buffer& NriBuffer);
 
         /// <summary>
         /// Defer the release of a texture.
         /// </summary>
         void Release(
-            nri::Texture& NriTexture,
-            bool          Defer);
+            nri::Texture& NriTexture);
 
         /// <summary>
         /// Defer the release of a descriptor.
         /// </summary>
         void Release(
-            nri::Descriptor& NriDescriptor,
-            bool             Defer);
+            nri::Descriptor& NriDescriptor);
 
         /// <summary>
         /// Defer the release of a pipeline state.

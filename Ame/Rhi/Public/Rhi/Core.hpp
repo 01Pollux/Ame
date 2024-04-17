@@ -16,6 +16,7 @@ namespace Ame::Rhi
     class Buffer;
     class Texture;
     class ResourceView;
+    class DescriptorSet;
 
     using Mip_t    = uint8_t;
     using Dim_t    = uint16_t;

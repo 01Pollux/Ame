@@ -101,13 +101,13 @@ namespace Ame::Rhi
         return m_Impl->GetBackbufferIndex();
     }
 
-    Backbuffer Device::GetBackbuffer(
+    const Backbuffer& Device::GetBackbuffer(
         uint8_t Index) const
     {
         return m_Impl->GetBackbuffer(Index);
     }
 
-    Backbuffer Device::GetBackbuffer() const
+    const Backbuffer& Device::GetBackbuffer() const
     {
         return m_Impl->GetBackbuffer();
     }

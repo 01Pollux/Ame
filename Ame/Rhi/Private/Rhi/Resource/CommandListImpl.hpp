@@ -2,6 +2,7 @@
 
 #include <Rhi/Resource/CommandList.hpp>
 #include <Rhi/Nri/Nri.hpp>
+
 #include <Rhi/Device/DescriptorAllocator.hpp>
 
 namespace Ame::Rhi
@@ -97,8 +98,8 @@ namespace Ame::Rhi
         /// Set render targets and depth-stencil buffer.
         /// </summary>
         void BeginRendering(
-            std::span<Rhi::ResourceView> RenderTargets,
-            Rhi::ResourceView            DepthStencil = Rhi::ResourceView{});
+            std::span<const Rhi::ResourceView*> RenderTargets,
+            const Rhi::ResourceView*            DepthStencil);
 
         /// <summary>
         /// Clear render targets and depth-stencil buffer.
@@ -167,6 +168,35 @@ namespace Ame::Rhi
         /// End rendering.
         /// </summary>
         void EndRendering();
+
+    public:
+        /// <summary>
+        /// Perform a copy from buffer to buffer
+        /// Copy the rest of buffer if size is 0
+        /// </summary>
+        void CopyBuffer(
+            const BufferCopyDesc& Src,
+            const BufferCopyDesc& Dst,
+            size_t                Size = 0);
+
+        /// <summary>
+        /// Perform a copy from texture to texture
+        /// </summary>
+        void CopyTexture(
+            const TextureCopyDesc& Src,
+            const TextureCopyDesc& Dst);
+
+        /// <summary>
+        /// Perform a copy from buffer to texture
+        /// </summary>
+        void UploadTexture(
+            const TransferCopyDesc& Desc);
+
+        /// <summary>
+        /// Perform a copy from texture to buffer
+        /// </summary>
+        void ReadbackTexture(
+            const TransferCopyDesc& Desc);
 
     private:
         nri::CommandAllocator* m_CommandAllocator = nullptr;

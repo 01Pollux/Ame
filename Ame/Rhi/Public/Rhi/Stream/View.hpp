@@ -12,12 +12,11 @@ namespace Ame::Rhi::Streaming
         BufferRange Range;
 
         BufferView(
-            Device&     RhiDevice,
             Buffer&     RhiBuffer,
             BufferRange Range) :
             RhiBuffer(RhiBuffer),
-            Range(Range.Transform(RhiDevice, RhiBuffer))
+            Range(Range.Transform(RhiBuffer))
         {
         }
     };
-} // namespace Ame::Rhi
+} // namespace Ame::Rhi::Streaming

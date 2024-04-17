@@ -6,40 +6,76 @@
 namespace Ame::Rhi
 {
     Texture::Texture(
+        Extern,
+        DeviceImpl&   RhiDevice,
+        nri::Texture* RhiTexture) :
+        m_Device(&RhiDevice),
+        m_Texture(RhiTexture),
+        m_Owning(false)
+    {
+    }
+
+    Texture::Texture(
+        Extern,
+        Device&       RhiDevice,
+        nri::Texture* RhiTexture) :
+        m_Device(&RhiDevice.GetImpl()),
+        m_Texture(RhiTexture),
+        m_Owning(false)
+    {
+    }
+
+    Texture::Texture(
         Device&            RhiDevice,
         MemoryLocation     Location,
         const TextureDesc& Desc) :
+        m_Device(&RhiDevice.GetImpl()),
         m_Texture(RhiDevice.Create(Location, Desc))
     {
     }
 
-    void Texture::Release(
-        Device& RhiDevice,
-        bool    Defer)
+    Texture::Texture(
+        Texture&& Other) noexcept :
+        m_Device(std::exchange(Other.m_Device, nullptr)),
+        m_Texture(std::exchange(Other.m_Texture, nullptr)),
+        m_Owning(std::exchange(Other.m_Owning, false))
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_Texture != nullptr, "Texture was already released.");
-        RhiDevice.Release(*m_Texture, Defer);
-        m_Texture = nullptr;
+    }
+
+    Texture& Texture::operator=(
+        Texture&& Other) noexcept
+    {
+        if (this != &Other)
+        {
+            Release();
+
+            m_Device  = std::exchange(Other.m_Device, nullptr);
+            m_Texture = std::exchange(Other.m_Texture, nullptr);
+            m_Owning  = std::exchange(Other.m_Owning, false);
+        }
+
+        return *this;
+    }
+
+    Texture::~Texture()
+    {
+        Release();
     }
 
     //
 
     void Texture::SetName(
-        Device&     RhiDevice,
         const char* Name) const
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
+        auto& Nri     = m_Device->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.SetTextureDebugName(*m_Texture, Name);
     }
 
-    const TextureDesc& Texture::GetDesc(
-        Device& RhiDevice) const
+    const TextureDesc& Texture::GetDesc() const
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
+        auto& Nri     = m_Device->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         return NriCore.GetTextureDesc(*m_Texture);
@@ -50,11 +86,9 @@ namespace Ame::Rhi
         return m_Texture;
     }
 
-    void* Texture::GetNative(
-        Device& RhiDevice) const
+    void* Texture::GetNative() const
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
+        auto& Nri     = m_Device->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         return std::bit_cast<void*>(NriCore.GetTextureNativeObject(*m_Texture));
@@ -63,7 +97,6 @@ namespace Ame::Rhi
     //
 
     ResourceView Texture::CreateShaderView(
-        Device&                RhiDevice,
         const TextureViewDesc& Desc) const
     {
 #ifdef AME_DEBUG
@@ -71,11 +104,10 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & (TextureViewType::AnyShaderResource | TextureViewType::AnyUnorderedAccess)) != TextureViewType::None,
                           "Texture view type must be a shader resource type or an unordered access type.");
 #endif
-        return ResourceView(RhiDevice.CreateView(*m_Texture, Desc));
+        return ResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc));
     }
 
     RenderTargetResourceView Texture::CreateRenderTargetView(
-        Device&                RhiDevice,
         const TextureViewDesc& Desc) const
     {
 #ifdef AME_DEBUG
@@ -83,11 +115,10 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & TextureViewType::AnyRenderTarget) != TextureViewType::None,
                           "Texture view type must be a render target type.");
 #endif
-        return RenderTargetResourceView(RhiDevice.CreateView(*m_Texture, Desc));
+        return RenderTargetResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc));
     }
 
     DepthStencilResourceView Texture::CreateDepthStencilView(
-        Device&                RhiDevice,
         const TextureViewDesc& Desc) const
     {
 #ifdef AME_DEBUG
@@ -95,7 +126,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & TextureViewType::AnyDepthStencil) != TextureViewType::None,
                           "Texture view type must be a depth stencil type.");
 #endif
-        return DepthStencilResourceView(RhiDevice.CreateView(*m_Texture, Desc));
+        return DepthStencilResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc));
     }
 
     //
@@ -113,28 +144,6 @@ namespace Ame::Rhi
         return NriTexture;
     }
 
-    void Device::Release(
-        nri::Texture& NriTexture,
-        bool          Defer)
-    {
-        m_Impl->EndTracking(&NriTexture);
-        m_Impl->Release(NriTexture, Defer);
-    }
-
-    void DeviceImpl::Release(
-        nri::Texture& NriTexture,
-        bool          Defer)
-    {
-        if (Defer)
-        {
-            m_FrameManager.DeferRelease(NriTexture);
-        }
-        else
-        {
-            m_MemoryAllocator.Release(&NriTexture);
-        }
-    }
-
     //
 
     void DeviceImpl::BeginTracking(
@@ -148,5 +157,32 @@ namespace Ame::Rhi
         nri::Texture* Texture)
     {
         m_ResourceStateTracker.EndTracking(Texture);
+    }
+
+    //
+
+    void Texture::Release()
+    {
+        if (!m_Owning || !m_Device)
+        {
+            return;
+        }
+
+        m_Device->Release(*m_Texture);
+        m_Texture = nullptr;
+        m_Owning  = false;
+    }
+
+    void Device::Release(
+        nri::Texture& NriTexture)
+    {
+        m_Impl->EndTracking(&NriTexture);
+        m_Impl->Release(NriTexture);
+    }
+
+    void DeviceImpl::Release(
+        nri::Texture& NriTexture)
+    {
+        m_FrameManager.DeferRelease(NriTexture);
     }
 } // namespace Ame::Rhi

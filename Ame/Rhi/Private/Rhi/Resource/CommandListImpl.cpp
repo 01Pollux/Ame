@@ -68,6 +68,7 @@ namespace Ame::Rhi
         auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.EndCommandBuffer(*m_CommandBuffer);
+        m_PipelineLayout = nullptr;
     }
 
     //
@@ -95,11 +96,14 @@ namespace Ame::Rhi
     void CommandListImpl::SetPipelineLayout(
         const Ptr<PipelineLayout>& Layout)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        if (!m_PipelineLayout || m_PipelineLayout->GetHash() != Layout->GetHash())
+        {
+            auto& Nri     = m_RhiDevice->GetNRI();
+            auto& NriCore = *Nri.GetCoreInterface();
 
-        NriCore.CmdSetPipelineLayout(*m_CommandBuffer, Layout->Unwrap());
-        m_PipelineLayout = Layout;
+            NriCore.CmdSetPipelineLayout(*m_CommandBuffer, Layout->Unwrap());
+            m_PipelineLayout = Layout;
+        }
     }
 
     void CommandListImpl::SetPipelineState(
@@ -158,19 +162,19 @@ namespace Ame::Rhi
     //
 
     void CommandListImpl::BeginRendering(
-        std::span<Rhi::ResourceView> RenderTargets,
-        Rhi::ResourceView            DepthStencil)
+        std::span<const Rhi::ResourceView*> RenderTargets,
+        const Rhi::ResourceView*            DepthStencil)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
         auto NriRenderTargets = RenderTargets |
-                                std::views::transform([](const Rhi::ResourceView& View)
-                                                      { return View.Unwrap(); }) |
+                                std::views::transform([](const Rhi::ResourceView* View)
+                                                      { return View->Unwrap(); }) |
                                 std::ranges::to<std::vector>();
 
         nri::AttachmentsDesc Attachements{
-            .depthStencil = DepthStencil.Unwrap(),
+            .depthStencil = DepthStencil ? DepthStencil->Unwrap() : nullptr,
             .colors       = NriRenderTargets.data(),
             .colorNum     = Count32(NriRenderTargets)
         };
@@ -294,5 +298,55 @@ namespace Ame::Rhi
         auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.CmdEndRendering(*m_CommandBuffer);
+    }
+
+    //
+
+    void CommandListImpl::CopyBuffer(
+        const BufferCopyDesc& Src,
+        const BufferCopyDesc& Dst,
+        size_t                Size)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        if (!Size)
+        {
+            auto& SrcDesc = NriCore.GetBufferDesc(*Src.RhiBuffer.Unwrap());
+            auto& DstDesc = NriCore.GetBufferDesc(*Dst.RhiBuffer.Unwrap());
+
+            Size = std::min(SrcDesc.size - Src.Offset, DstDesc.size - Dst.Offset);
+        }
+
+        NriCore.CmdCopyBuffer(*m_CommandBuffer, *Dst.RhiBuffer.Unwrap(), Dst.Offset, *Src.RhiBuffer.Unwrap(), Src.Offset, Size);
+    }
+
+    void CommandListImpl::CopyTexture(
+        const TextureCopyDesc& Src,
+        const TextureCopyDesc& Dst)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdCopyTexture(*m_CommandBuffer, *Dst.RhiTexture.Unwrap(), Dst.Region, *Src.RhiTexture.Unwrap(), Src.Region);
+    }
+
+    void CommandListImpl::UploadTexture(
+        const TransferCopyDesc& Desc)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *Desc.RhiTexture.Unwrap(), Desc.Region, *Desc.RhiBuffer.Unwrap(), Desc.Layout);
+    }
+
+    void CommandListImpl::ReadbackTexture(
+        const TransferCopyDesc& Desc)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        auto CopyLayout = Desc.Layout;
+        NriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *Desc.RhiBuffer.Unwrap(), CopyLayout, *Desc.RhiTexture.Unwrap(), Desc.Region);
     }
 } // namespace Ame::Rhi

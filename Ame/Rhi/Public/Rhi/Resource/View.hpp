@@ -7,12 +7,40 @@ namespace Ame::Rhi
 {
     class ResourceView
     {
+        friend class Texture;
+        friend class Buffer;
+
+    protected:
+        ResourceView(
+            DeviceImpl*      RhiDevice,
+            nri::Descriptor* Descriptor);
+
     public:
-        explicit ResourceView(
-            nri::Descriptor* View = nullptr) :
-            m_Descriptor(View)
+        struct Extern
+        {
+        };
+
+        ResourceView() = default;
+        ResourceView(
+            Extern,
+            DeviceImpl&      RhiDevice,
+            nri::Descriptor* Descriptor);
+        ResourceView(
+            Extern,
+            Device&          RhiDevice,
+            nri::Descriptor* Descriptor);
+        ResourceView(std::nullptr_t) :
+            m_Owning(false)
         {
         }
+
+        ResourceView(const ResourceView&) = delete;
+        ResourceView(ResourceView&& Other) noexcept;
+
+        ResourceView& operator=(const ResourceView&) = delete;
+        ResourceView& operator=(ResourceView&& Other) noexcept;
+
+        ~ResourceView();
 
         operator bool() const noexcept
         {
@@ -21,18 +49,9 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Releases the resource view.
-        /// </summary>
-        void Release(
-            Device& RhiDevice,
-            bool    Defer = true);
-
-    public:
-        /// <summary>
         /// Set the resource view name.
         /// </summary>
         void SetName(
-            Device&     RhiDevice,
             const char* Name) const;
 
         /// <summary>
@@ -43,11 +62,18 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the descriptor native handle.
         /// </summary>
-        [[nodiscard]] void* GetNative(
-            Device& RhiDevice) const;
+        [[nodiscard]] void* GetNative() const;
 
     private:
-        nri::Descriptor* m_Descriptor;
+        /// <summary>
+        /// Releases the resource view.
+        /// </summary>
+        void Release();
+
+    private:
+        DeviceImpl*      m_Device     = nullptr;
+        nri::Descriptor* m_Descriptor = nullptr;
+        bool             m_Owning     = true;
     };
 
     //

@@ -13,9 +13,7 @@ namespace Ame::Rhi
     {
     public:
         WindowManager(
-            NRIBridge&              NriBridge,
-            nri::Device&            Device,
-            nri::CommandQueue&      PresentQueue,
+            DeviceImpl&             RhiDevice,
             const DeviceCreateDesc& Desc);
 
         ~WindowManager();
@@ -82,9 +80,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Create the swapchain for the device
         /// </summary>
-        void RecreateSwapchain(
-            nri::Device&       Device,
-            nri::CommandQueue& GraphicsQueue);
+        void RecreateSwapchain();
 
     private:
         /// <summary>
@@ -98,7 +94,7 @@ namespace Ame::Rhi
         void ReleaseBackBuffers();
 
     private:
-        NRIBridge& m_NriBridge;
+        DeviceImpl& m_Device;
 
         Windowing::Window    m_Window;
         nri::SwapChain*      m_SwapChain        = nullptr;
