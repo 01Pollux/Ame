@@ -92,7 +92,7 @@ namespace Ame::Rhi
     //
 
     template<typename Ty>
-    static constexpr Ty RemainingSize = std::numeric_limits<Ty>::max();
+    static constexpr Ty RemainingSize = static_cast<Ty>(0);
 
     struct BufferRange
     {
@@ -111,7 +111,7 @@ namespace Ame::Rhi
             const BufferRange& Other) const noexcept = default;
 
         [[nodiscard]] BufferRange Transform(
-            Buffer& RhiBuffer) const noexcept;
+            const Buffer& RhiBuffer) const noexcept;
     };
 
     static constexpr BufferRange EntireBuffer = BufferRange(0, RemainingSize<size_t>);
@@ -135,7 +135,7 @@ namespace Ame::Rhi
             const MipLevel& Other) const noexcept = default;
 
         [[nodiscard]] MipLevel Transform(
-            Texture& RhiTexture) const noexcept;
+            const Texture& RhiTexture) const noexcept;
     };
 
     static constexpr MipLevel EntireMipChain = MipLevel(0, RemainingSize<Mip_t>);
@@ -159,7 +159,7 @@ namespace Ame::Rhi
             const ArraySlice& Other) const noexcept = default;
 
         [[nodiscard]] ArraySlice Transform(
-            Texture& RhiTexture) const noexcept;
+            const Texture& RhiTexture) const noexcept;
     };
 
     static constexpr ArraySlice EntireArray = ArraySlice(0, RemainingSize<Dim_t>);
@@ -183,7 +183,7 @@ namespace Ame::Rhi
             const TextureSubresource& Other) const noexcept = default;
 
         [[nodiscard]] TextureSubresource Transform(
-            Texture& RhiTexture) const noexcept;
+            const Texture& RhiTexture) const noexcept;
     };
 
     static constexpr TextureSubresource AllSubresources = TextureSubresource(EntireMipChain, EntireArray);
@@ -194,6 +194,10 @@ namespace Ame::Rhi
     {
         BufferRange    Range  = EntireBuffer;
         ResourceFormat Format = ResourceFormat::UNKNOWN;
+        BufferViewType Type   = BufferViewType::ConstantBuffer;
+
+        [[nodiscard]] BufferViewDesc Transform(
+            const Buffer& RhiBuffer) const noexcept;
     };
 
     struct TextureViewDesc
@@ -202,5 +206,8 @@ namespace Ame::Rhi
         TextureSubresource Subresource = AllSubresources;
         ResourceFormat     Format      = ResourceFormat::UNKNOWN; // default to the format of the texture
         TextureViewFlags   Flags       = TextureViewFlags::None;
+
+        [[nodiscard]] TextureViewDesc Transform(
+            const Texture& RhiTexure) const noexcept;
     };
 } // namespace Ame::Rhi

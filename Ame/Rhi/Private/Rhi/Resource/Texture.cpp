@@ -104,7 +104,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & (TextureViewType::AnyShaderResource | TextureViewType::AnyUnorderedAccess)) != TextureViewType::None,
                           "Texture view type must be a shader resource type or an unordered access type.");
 #endif
-        return ResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc));
+        return ResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc.Transform(*this)));
     }
 
     RenderTargetResourceView Texture::CreateRenderTargetView(
@@ -115,7 +115,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & TextureViewType::AnyRenderTarget) != TextureViewType::None,
                           "Texture view type must be a render target type.");
 #endif
-        return RenderTargetResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc));
+        return RenderTargetResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc.Transform(*this)));
     }
 
     DepthStencilResourceView Texture::CreateDepthStencilView(
@@ -126,7 +126,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & TextureViewType::AnyDepthStencil) != TextureViewType::None,
                           "Texture view type must be a depth stencil type.");
 #endif
-        return DepthStencilResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc));
+        return DepthStencilResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc.Transform(*this)));
     }
 
     //

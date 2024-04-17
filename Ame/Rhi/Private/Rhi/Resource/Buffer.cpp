@@ -126,7 +126,7 @@ namespace Ame::Rhi
     BufferResourceView Buffer::CreateView(
         const BufferViewDesc& Desc) const
     {
-        return BufferResourceView(m_Device, m_Device->CreateView(*m_Buffer, Desc));
+        return BufferResourceView(m_Device, m_Device->CreateView(*m_Buffer, Desc.Transform(*this)));
     }
 
     //

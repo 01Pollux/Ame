@@ -54,11 +54,10 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::CoreInterface&    NriCore,
             nri::Texture&          Texture,
             const TextureViewDesc& Desc)
         {
-            DescType NriDesc{
+            return {
                 .texture     = &Texture,
                 .viewType    = Convert(Desc.Type),
                 .format      = Desc.Format,
@@ -68,22 +67,6 @@ namespace Ame::Rhi
                 .arraySize   = Desc.Subresource.Array.Count,
                 .flags       = ConvertViewBits(Desc.Flags)
             };
-
-            if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t> ||
-                Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
-            {
-                auto& NriTextureDesc = NriCore.GetTextureDesc(Texture);
-                if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t>)
-                {
-                    NriDesc.mipNum = NriTextureDesc.mipNum - Desc.Subresource.Mips.Offset;
-                }
-                if (Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
-                {
-                    NriDesc.arraySize = NriTextureDesc.arraySize - Desc.Subresource.Array.Offset;
-                }
-            }
-
-            return NriDesc;
         }
     };
 
@@ -119,11 +102,10 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::CoreInterface&    NriCore,
             nri::Texture&          Texture,
             const TextureViewDesc& Desc)
         {
-            DescType NriDesc{
+            return {
                 .texture     = &Texture,
                 .viewType    = Convert(Desc.Type),
                 .format      = Desc.Format,
@@ -133,22 +115,6 @@ namespace Ame::Rhi
                 .arraySize   = Desc.Subresource.Array.Count,
                 .flags       = ConvertViewBits(Desc.Flags)
             };
-
-            if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t> ||
-                Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
-            {
-                auto& NriTextureDesc = NriCore.GetTextureDesc(Texture);
-                if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t>)
-                {
-                    NriDesc.mipNum = NriTextureDesc.mipNum - Desc.Subresource.Mips.Offset;
-                }
-                if (Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
-                {
-                    NriDesc.arraySize = NriTextureDesc.arraySize - Desc.Subresource.Array.Offset;
-                }
-            }
-
-            return NriDesc;
         }
     };
 
@@ -174,11 +140,10 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::CoreInterface&    NriCore,
             nri::Texture&          Texture,
             const TextureViewDesc& Desc)
         {
-            DescType NriDesc{
+            return {
                 .texture     = &Texture,
                 .viewType    = Convert(Desc.Type),
                 .format      = Desc.Format,
@@ -188,46 +153,40 @@ namespace Ame::Rhi
                 .sliceNum    = Desc.Subresource.Array.Count,
                 .flags       = ConvertViewBits(Desc.Flags)
             };
-
-            if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t> ||
-                Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
-            {
-                auto& NriTextureDesc = NriCore.GetTextureDesc(Texture);
-                if (Desc.Subresource.Mips.Count == RemainingSize<Mip_t>)
-                {
-                    NriDesc.mipNum = NriTextureDesc.mipNum - Desc.Subresource.Mips.Offset;
-                }
-                if (Desc.Subresource.Array.Count == RemainingSize<Dim_t>)
-                {
-                    NriDesc.sliceNum = NriTextureDesc.arraySize - Desc.Subresource.Array.Offset;
-                }
-            }
-
-            return NriDesc;
         }
     };
 
     struct BufferView
     {
         using DescType = nri::BufferViewDesc;
+        using ViewType = nri::BufferViewType;
 
+        static constexpr ViewType Convert(
+            BufferViewType Type)
+        {
+            switch (Type)
+            {
+            case BufferViewType::ConstantBuffer:
+                return ViewType::CONSTANT;
+            case BufferViewType::ShaderResource:
+                return ViewType::SHADER_RESOURCE;
+            case BufferViewType::UnorderedAccess:
+                return ViewType::SHADER_RESOURCE_STORAGE;
+            default:
+                std::unreachable();
+            }
+        }
         [[nodiscard]] static nri::BufferViewDesc Convert(
-            nri::CoreInterface& NriCore,
-            nri::Buffer&        Buffer,
-            BufferViewDesc      Desc)
+            nri::Buffer&          Buffer,
+            const BufferViewDesc& Desc)
         {
             nri::BufferViewDesc NriDesc{
-                .buffer = &Buffer,
-                .format = Desc.Format,
-                .offset = Desc.Range.Offset,
-                .size   = Desc.Range.Size
+                .buffer   = &Buffer,
+                .viewType = Convert(Desc.Type),
+                .format   = Desc.Format,
+                .offset   = Desc.Range.Offset,
+                .size     = Desc.Range.Size,
             };
-
-            if (Desc.Range == EntireBuffer)
-            {
-                NriDesc.offset = 0;
-                NriDesc.size   = NriCore.GetBufferDesc(Buffer).size;
-            }
 
             return NriDesc;
         }
@@ -325,17 +284,17 @@ namespace Ame::Rhi
         nri::Descriptor* View = nullptr;
         if ((Desc.Type & TextureViewType::AnyOneDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView1D::Convert(NriCore, NriTexture, Desc);
+            auto NriDesc = TexView1D::Convert(NriTexture, Desc);
             ThrowIfFailed(NriCore.CreateTexture1DView(NriDesc, View), "Failed to create texture view");
         }
         else if ((Desc.Type & TextureViewType::AnyTwoDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView2D::Convert(NriCore, NriTexture, Desc);
+            auto NriDesc = TexView2D::Convert(NriTexture, Desc);
             ThrowIfFailed(NriCore.CreateTexture2DView(NriDesc, View), "Failed to create texture view");
         }
         else if ((Desc.Type & TextureViewType::AnyThreeDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView3D::Convert(NriCore, NriTexture, Desc);
+            auto NriDesc = TexView3D::Convert(NriTexture, Desc);
             ThrowIfFailed(NriCore.CreateTexture3DView(NriDesc, View), "Failed to create texture view");
         }
         return View;
@@ -346,7 +305,7 @@ namespace Ame::Rhi
         const BufferViewDesc& Desc) const
     {
         auto& NriCore = *m_NRI.GetCoreInterface();
-        auto  NriDesc = BufferView::Convert(NriCore, NriBuffer, Desc);
+        auto  NriDesc = BufferView::Convert(NriBuffer, Desc);
 
         nri::Descriptor* View = nullptr;
         ThrowIfFailed(NriCore.CreateBufferView(NriDesc, View), "Failed to create buffer view");
@@ -357,7 +316,7 @@ namespace Ame::Rhi
     //
 
     BufferRange BufferRange::Transform(
-        Buffer& RhiBuffer) const noexcept
+        const Buffer& RhiBuffer) const noexcept
     {
         auto Copy = *this;
         if (Copy.Size == RemainingSize<size_t>)
@@ -368,7 +327,7 @@ namespace Ame::Rhi
     }
 
     MipLevel MipLevel::Transform(
-        Texture& RhiTexture) const noexcept
+        const Texture& RhiTexture) const noexcept
     {
         auto Copy = *this;
         if (Copy.Count == RemainingSize<Mip_t>)
@@ -379,7 +338,7 @@ namespace Ame::Rhi
     }
 
     ArraySlice ArraySlice::Transform(
-        Texture& RhiTexture) const noexcept
+        const Texture& RhiTexture) const noexcept
     {
         auto Copy = *this;
         if (Copy.Count == RemainingSize<Dim_t>)
@@ -390,12 +349,30 @@ namespace Ame::Rhi
     }
 
     TextureSubresource TextureSubresource::Transform(
-        Texture& RhiTexture) const noexcept
+        const Texture& RhiTexture) const noexcept
     {
         return {
             Mips.Transform(RhiTexture),
             Array.Transform(RhiTexture)
         };
+    }
+
+    //
+
+    BufferViewDesc BufferViewDesc::Transform(
+        const Buffer& RhiBuffer) const noexcept
+    {
+        auto Copy  = *this;
+        Copy.Range = Range.Transform(RhiBuffer);
+        return Copy;
+    }
+
+    TextureViewDesc TextureViewDesc::Transform(
+        const Texture& RhiTexure) const noexcept
+    {
+        auto Copy        = *this;
+        Copy.Subresource = Subresource.Transform(RhiTexure);
+        return Copy;
     }
 
     //
