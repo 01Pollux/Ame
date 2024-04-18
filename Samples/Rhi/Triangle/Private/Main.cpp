@@ -81,6 +81,15 @@ private:
 
         auto Set = CommandList.AllocateSets(0)[0];
         Set.SetDynamicBuffer(RhiDevice, 0, m_DynamicBufferView.Unwrap());
+
+        const nri::Descriptor* Descriptors[]{
+            m_TextureView.Unwrap()
+        };
+        Set.SetRange(RhiDevice, 0, { .descriptors = Descriptors, .descriptorNum = Rhi::Count32(Descriptors) });
+
+        Descriptors[0] = m_TextureSampler.Unwrap();
+        Set.SetRange(RhiDevice, 1, { .descriptors = Descriptors, .descriptorNum = Rhi::Count32(Descriptors) });
+
         CommandList.SetDescriptorSet(0, Set, 0);
 
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
@@ -135,6 +144,8 @@ private:
         };
 
 		ConstantBuffer<ConstantData> Data : register(b0, space1);
+        Texture2D<float4> Texture : register(t0, space1);
+        SamplerState Sampler : register(s0, space1);
 
         VSOutput VS_Main(VSInput vs) 
         {
@@ -145,7 +156,7 @@ private:
         }
         float4 PS_Main(VSOutput ps) : SV_TARGET
         {
-            return ps.color;
+            return ps.color * Texture.Sample(Sampler, float2(0.5, 0.5));
 		}
 		)";
 
@@ -165,11 +176,22 @@ private:
     {
         Rhi::DynamicConstantBufferDesc Buffers[]{
             { .registerIndex = 0,
-              .shaderStages  = Rhi::ShaderType::VERTEX_SHADER | Rhi::ShaderType::FRAGMENT_SHADER }
+              .shaderStages  = Rhi::ShaderType::VERTEX_SHADER }
+        };
+
+        Rhi::DescriptorRangeDesc Ranges[]{
+            { .descriptorNum  = 1,
+              .descriptorType = Rhi::DescriptorType::TEXTURE,
+              .shaderStages   = Rhi::ShaderBits::FRAGMENT_SHADER },
+            { .descriptorNum  = 1,
+              .descriptorType = Rhi::DescriptorType::SAMPLER,
+              .shaderStages   = Rhi::ShaderBits::FRAGMENT_SHADER }
         };
 
         Rhi::DescriptorSetDesc DescriptorSets[]{
             { .registerSpace            = 1,
+              .ranges                   = Ranges,
+              .rangeNum                 = Rhi::Count32(Ranges),
               .dynamicConstantBuffers   = Buffers,
               .dynamicConstantBufferNum = Rhi::Count32(Buffers) }
         };
