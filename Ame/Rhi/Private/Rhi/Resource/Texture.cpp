@@ -96,7 +96,7 @@ namespace Ame::Rhi
 
     //
 
-    ResourceView Texture::CreateShaderView(
+    ShaderResourceView Texture::CreateShaderView(
         const TextureViewDesc& Desc) const
     {
 #ifdef AME_DEBUG
@@ -104,7 +104,7 @@ namespace Ame::Rhi
         Log::Rhi().Assert((Desc.Type & (TextureViewType::AnyShaderResource | TextureViewType::AnyUnorderedAccess)) != TextureViewType::None,
                           "Texture view type must be a shader resource type or an unordered access type.");
 #endif
-        return ResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc.Transform(*this)));
+        return ShaderResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc.Transform(*this)));
     }
 
     RenderTargetResourceView Texture::CreateRenderTargetView(

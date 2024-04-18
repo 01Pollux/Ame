@@ -11,7 +11,7 @@ namespace Ame::Rhi
 
     //
 
-    static TextureDesc Tex1D(
+    static TextureDesc constexpr Tex1D(
         ResourceFormat   Format,
         Dim_t            Width,
         Mip_t            MipNum      = 0,
@@ -32,7 +32,7 @@ namespace Ame::Rhi
         };
     }
 
-    [[nodiscard]] static TextureDesc Tex2D(
+    [[nodiscard]] static constexpr TextureDesc Tex2D(
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
@@ -54,7 +54,7 @@ namespace Ame::Rhi
         };
     }
 
-    [[nodiscard]] static TextureDesc Tex3D(
+    [[nodiscard]] static constexpr TextureDesc Tex3D(
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,
@@ -73,7 +73,7 @@ namespace Ame::Rhi
         };
     }
 
-    [[nodiscard]] static TextureDesc TexCube(
+    [[nodiscard]] static constexpr TextureDesc TexCube(
         ResourceFormat   Format,
         Dim_t            Width,
         Dim_t            Height,

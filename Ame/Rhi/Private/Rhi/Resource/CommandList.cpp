@@ -177,4 +177,34 @@ namespace Ame::Rhi
     {
         m_Impl.ReadbackTexture(Desc);
     }
+
+    //
+
+    void CommandList::RequireState(
+        const Buffer&      RhiBuffer,
+        const AccessStage& State,
+        bool               Append)
+    {
+        m_Impl.RequireState(RhiBuffer, State, Append);
+    }
+
+    void CommandList::RequireState(
+        const Texture&            RhiTexture,
+        const AccessLayoutStage&  State,
+        const TextureSubresource& Subresource,
+        bool                      Append)
+    {
+        m_Impl.RequireState(RhiTexture, State, Subresource, Append);
+    }
+
+    void CommandList::PlaceBarrier(
+        const GlobalBarrierDesc& BarrierDesc)
+    {
+        m_Impl.PlaceBarrier(BarrierDesc);
+    }
+
+    void CommandList::CommitBarriers()
+    {
+        m_Impl.CommitBarriers();
+    }
 } // namespace Ame::Rhi

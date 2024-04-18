@@ -349,4 +349,53 @@ namespace Ame::Rhi
         auto CopyLayout = Desc.Layout;
         NriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *Desc.RhiBuffer.Unwrap(), CopyLayout, *Desc.RhiTexture.Unwrap(), Desc.Region);
     }
+
+    //
+
+    void CommandListImpl::RequireState(
+        const Buffer&      RhiBuffer,
+        const AccessStage& State,
+        bool               Append)
+    {
+        auto& Nri          = m_RhiDevice->GetNRI();
+        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& StateTracker = m_RhiDevice->GetStateTracker();
+
+        StateTracker.RequireState(
+            RhiBuffer.Unwrap(),
+            State);
+    }
+
+    void CommandListImpl::RequireState(
+        const Texture&            RhiTexture,
+        const AccessLayoutStage&  State,
+        const TextureSubresource& Subresource,
+        bool                      Append)
+    {
+        auto& Nri          = m_RhiDevice->GetNRI();
+        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& StateTracker = m_RhiDevice->GetStateTracker();
+
+        StateTracker.RequireState(
+            NriCore,
+            RhiTexture.Unwrap(),
+            State);
+    }
+
+    void CommandListImpl::PlaceBarrier(
+        const GlobalBarrierDesc& BarrierDesc)
+    {
+        auto& Nri          = m_RhiDevice->GetNRI();
+        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& StateTracker = m_RhiDevice->GetStateTracker();
+    }
+
+    void CommandListImpl::CommitBarriers()
+    {
+        auto& Nri          = m_RhiDevice->GetNRI();
+        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& StateTracker = m_RhiDevice->GetStateTracker();
+
+        StateTracker.CommitBarriers(NriCore, *m_CommandBuffer);
+    }
 } // namespace Ame::Rhi

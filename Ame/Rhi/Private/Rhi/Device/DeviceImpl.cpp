@@ -258,6 +258,11 @@ namespace Ame::Rhi
         return m_FrameManager.GetCurrentCommandList();
     }
 
+    ResourceStateTracker& DeviceImpl::GetStateTracker() noexcept
+    {
+        return m_ResourceStateTracker;
+    }
+
     //
 
     void DeviceImpl::RegisterBackbufferState()
@@ -286,24 +291,21 @@ namespace Ame::Rhi
         auto& CommandBuffer = GetCurrentCommandList().GetCommandBuffer();
         auto& CurBackbuffer = GetBackbuffer();
 
-        nri::AccessLayoutStage State{ .stages = nri::StageBits::ALL };
+        Rhi::AccessLayoutStage State{
+            .stages = Rhi::ShaderBits::ALL
+        };
         if (Present)
         {
-            State.access = nri::AccessBits::UNKNOWN;
-            State.layout = nri::Layout::PRESENT;
+            State.access = Rhi::AccessBits::UNKNOWN;
+            State.layout = Rhi::LayoutType::PRESENT;
         }
         else
         {
-            State.access = nri::AccessBits::COLOR_ATTACHMENT;
-            State.layout = nri::Layout::COLOR_ATTACHMENT;
+            State.access = Rhi::AccessBits::COLOR_ATTACHMENT;
+            State.layout = Rhi::LayoutType::COLOR_ATTACHMENT;
         }
 
-        m_ResourceStateTracker.RequireState(
-            NriCore,
-            CurBackbuffer.Resource.Unwrap(),
-            State);
-
-        m_ResourceStateTracker.CommitBarriers(NriCore, CommandBuffer);
+        GetCurrentCommandList().RequireState(CurBackbuffer.Resource, State);
     }
 
     void DeviceImpl::ClearBackbuffer(

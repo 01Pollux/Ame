@@ -15,6 +15,10 @@ namespace Ame::Rhi
             DeviceImpl*      RhiDevice,
             nri::Descriptor* Descriptor);
 
+        ResourceView(
+            Device&            RhiDevice,
+            const SamplerDesc& Desc);
+
     public:
         struct Extern
         {
@@ -70,7 +74,7 @@ namespace Ame::Rhi
         /// </summary>
         void Release();
 
-    private:
+    protected:
         DeviceImpl*      m_Device     = nullptr;
         nri::Descriptor* m_Descriptor = nullptr;
         bool             m_Owning     = true;
@@ -111,6 +115,30 @@ namespace Ame::Rhi
     class SamplerResourceView : public ResourceView
     {
     public:
-        using ResourceView::ResourceView;
+        SamplerResourceView() = default;
+        SamplerResourceView(
+            Extern,
+            DeviceImpl&      RhiDevice,
+            nri::Descriptor* Descriptor);
+        SamplerResourceView(
+            Extern,
+            Device&          RhiDevice,
+            nri::Descriptor* Descriptor);
+        SamplerResourceView(std::nullptr_t) :
+            ResourceView(nullptr)
+        {
+        }
+
+        SamplerResourceView(
+            Device&            RhiDevice,
+            const SamplerDesc& Desc);
+
+        SamplerResourceView(const SamplerResourceView&)           = delete;
+        SamplerResourceView(SamplerResourceView&& Other) noexcept = default;
+
+        SamplerResourceView& operator=(const SamplerResourceView&)           = delete;
+        SamplerResourceView& operator=(SamplerResourceView&& Other) noexcept = default;
+
+        ~SamplerResourceView() = default;
     };
 } // namespace Ame::Rhi

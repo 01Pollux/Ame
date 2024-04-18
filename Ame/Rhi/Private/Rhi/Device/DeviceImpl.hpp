@@ -185,6 +185,11 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] class CommandListImpl& GetCurrentCommandList() noexcept;
 
+        /// <summary>
+        /// Get the resource state tracker for transitions
+        /// </summary>
+        [[nodiscard]] ResourceStateTracker& GetStateTracker() noexcept;
+
     public:
         /// <summary>
         /// Begin tracking a buffer

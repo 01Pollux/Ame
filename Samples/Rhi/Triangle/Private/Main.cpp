@@ -32,12 +32,15 @@ protected:
         Log::Engine().Trace("Initializing Sample...");
 
         auto& RhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
+        auto& Coroutine = *GetSubsystem<CoroutineSubsystem>();
 
         m_PipelineStateTask = CreateBasicPipeline(
-            *GetSubsystem<CoroutineSubsystem>(),
+            Coroutine,
             RhiDevice);
 
-        CreateBuffers(RhiDevice);
+        m_BufferTask = CreateBuffers(
+            Coroutine,
+            RhiDevice);
 
         OnRender().ObjectSignal().Listen(
             [this, &RhiDevice, &Timer = GetSubsystem<TimerSubsystem>()](BaseEngine& Engine)
@@ -57,12 +60,7 @@ private:
         }
 
         Rhi::CommandList CommandList(RhiDevice);
-
-        if (m_TempBuffer)
-        {
-            CommandList.CopyBuffer({ m_TempBuffer }, { m_DrawBuffer });
-            m_TempBuffer = nullptr;
-        }
+        FinishUploadingResources(CommandList);
 
         CommandList.SetPipelineLayout(m_PipelineState->GetLayout());
         CommandList.SetPipelineState(m_PipelineState);
@@ -239,55 +237,124 @@ private:
     }
 
 private:
-    void CreateBuffers(
+    static constexpr Math::Vector2 Vertices[]{
+        { 0.0f, 0.5f },
+        { 0.5f, -0.5f },
+        { -0.5f, -0.5f }
+    };
+
+    static constexpr uint16_t Indices[]{
+        0, 1, 2
+    };
+
+    std::array<uint8_t, 4> TextureData{ 255, 0, 0, 255 };
+
+    static constexpr Rhi::BufferDesc BufferDesc{
+        .size      = sizeof(Vertices) + sizeof(Indices),
+        .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER | Rhi::BufferUsageBits::INDEX_BUFFER
+    };
+
+    static constexpr Rhi::TextureDesc TextureDesc = Rhi::Tex2D(
+        Rhi::ResourceFormat::RGBA8_UNORM,
+        1, 1, 1);
+
+    static constexpr Rhi::BufferDesc DynamicDesc{
+        .size      = 1024,
+        .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER
+    };
+
+    static constexpr Rhi::BufferDesc UploadDesc{
+        .size = BufferDesc.size + sizeof(TextureData)
+    };
+
+    static constexpr Rhi::SamplerDesc SamplerDesc{
+        .filters{ nri::Filter::LINEAR, nri::Filter::LINEAR, nri::Filter::LINEAR },
+        .anisotropy = 8,
+        .mipMax     = 16.0f,
+        .addressModes{ nri::AddressMode::REPEAT, nri::AddressMode::REPEAT }
+    };
+
+    void AllocateResources(
         Rhi::Device& RhiDevice)
     {
-        constexpr Math::Vector2 Vertices[]{
-            { 0.0f, 0.5f },
-            { 0.5f, -0.5f },
-            { -0.5f, -0.5f }
-        };
+        m_DrawBuffer    = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::DEVICE, BufferDesc);
+        m_Texture       = Rhi::Texture(RhiDevice, Rhi::MemoryLocation::DEVICE, TextureDesc);
+        m_DynamicBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, DynamicDesc);
+        m_TempBuffer    = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, UploadDesc);
 
-        constexpr uint16_t Indices[]{
-            0, 1, 2
-        };
+        m_DynamicBufferView = m_DynamicBuffer.CreateView({});
+        m_TextureView       = m_Texture.CreateShaderView(Rhi::TextureViewDesc{ Rhi::TextureViewType::ShaderResource2D });
+        m_TextureSampler    = Rhi::SamplerResourceView(RhiDevice, SamplerDesc);
+    }
 
-        constexpr Rhi::BufferDesc Desc{
-            .size      = sizeof(Vertices) + sizeof(Indices),
-            .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER | Rhi::BufferUsageBits::INDEX_BUFFER
-        };
-
-        m_DrawBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
-        m_TempBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, Desc);
-
+    void UploadResources()
+    {
         namespace RS = Rhi::Streaming;
         RS::BufferOStream Stream(RS::BufferView(m_TempBuffer, Rhi::EntireBuffer));
 
         Stream.write(std::bit_cast<const char*>(&Vertices[0]), sizeof(Vertices));
         m_IndexBufferOffset = Stream.tellp();
         Stream.write(std::bit_cast<const char*>(&Indices[0]), sizeof(Indices));
+        Stream.write(std::bit_cast<const char*>(&TextureData[0]), sizeof(TextureData));
+    }
 
-        Stream.flush();
+    void FinishUploadingResources(
+        Rhi::CommandList& CommandList)
+    {
+        if (m_TempBuffer) [[unlikely]]
+        {
+            m_BufferTask.wait();
 
-        constexpr Rhi::BufferDesc DynamicDesc{
-            .size      = 1024,
-            .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER
-        };
-        m_DynamicBuffer     = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, DynamicDesc);
-        m_DynamicBufferView = m_DynamicBuffer.CreateView({});
+            CommandList.CopyBuffer({ m_TempBuffer }, { m_DrawBuffer });
+            CommandList.UploadTexture(
+                { .RhiTexture = m_Texture,
+                  .RhiBuffer  = m_TempBuffer,
+                  .Layout{ .offset   = BufferDesc.size,
+                           .rowPitch = sizeof(TextureData) } });
+
+            CommandList.RequireState(m_DrawBuffer, { Rhi::AccessBits::VERTEX_BUFFER | Rhi::AccessBits::INDEX_BUFFER });
+            CommandList.RequireState(m_Texture, { Rhi::AccessBits::SHADER_RESOURCE });
+            CommandList.RequireState(m_DynamicBuffer, { Rhi::AccessBits::CONSTANT_BUFFER });
+            CommandList.CommitBarriers();
+
+            m_TempBuffer = nullptr;
+        }
+    }
+
+    Co::result<void> CreateBuffers(
+        Co::executor_tag,
+        Co::thread_pool_executor& Executor,
+        Rhi::Device&              RhiDevice)
+    {
+        AllocateResources(RhiDevice);
+        UploadResources();
+        co_return;
+    }
+
+    Co::result<void> CreateBuffers(
+        Co::runtime& Coroutine,
+        Rhi::Device& RhiDevice)
+    {
+        co_await CreateBuffers({}, *Coroutine.thread_pool_executor(), RhiDevice);
     }
 
 private:
     Co::result<void> m_PipelineStateTask;
+    Co::result<void> m_BufferTask;
 
     Ptr<Rhi::PipelineState> m_PipelineState;
 
     Rhi::Buffer m_DrawBuffer;
-    Rhi::Buffer m_TempBuffer;
     size_t      m_IndexBufferOffset = 0;
 
     Rhi::Buffer             m_DynamicBuffer;
     Rhi::BufferResourceView m_DynamicBufferView;
+
+    Rhi::Texture             m_Texture;
+    Rhi::ShaderResourceView  m_TextureView;
+    Rhi::SamplerResourceView m_TextureSampler;
+
+    Rhi::Buffer m_TempBuffer;
 };
 
 AME_MAIN(Argc, Argv)

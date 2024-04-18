@@ -72,7 +72,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Create a buffer view.
         /// </summary>
-        [[nodiscard]] ResourceView CreateShaderView(
+        [[nodiscard]] ShaderResourceView CreateShaderView(
             const TextureViewDesc& Desc) const;
 
         /// <summary>

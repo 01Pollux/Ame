@@ -203,6 +203,18 @@ namespace Ame::Rhi
     }
 
     ResourceView::ResourceView(
+        Device&            RhiDevice,
+        const SamplerDesc& Desc) :
+        m_Device(&RhiDevice.GetImpl())
+    {
+        auto& Impl    = RhiDevice.GetImpl();
+        auto& Nri     = Impl.GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        ThrowIfFailed(NriCore.CreateSampler(m_Device->GetDevice(), Desc, m_Descriptor), "Failed to create sampler");
+    }
+
+    ResourceView::ResourceView(
         Extern,
         DeviceImpl&      RhiDevice,
         nri::Descriptor* Descriptor) :
@@ -372,6 +384,10 @@ namespace Ame::Rhi
     {
         auto Copy        = *this;
         Copy.Subresource = Subresource.Transform(RhiTexure);
+        if (Format == Rhi::ResourceFormat::UNKNOWN)
+        {
+            Copy.Format = RhiTexure.GetDesc().format;
+        }
         return Copy;
     }
 
@@ -399,5 +415,30 @@ namespace Ame::Rhi
         m_Device->Release(*m_Descriptor);
         m_Descriptor = nullptr;
         m_Owning     = false;
+    };
+
+    //
+
+    SamplerResourceView::SamplerResourceView(
+        Extern,
+        DeviceImpl&      RhiDevice,
+        nri::Descriptor* Descriptor) :
+        ResourceView({}, RhiDevice, Descriptor)
+    {
+    }
+
+    SamplerResourceView::SamplerResourceView(
+        Extern,
+        Device&          RhiDevice,
+        nri::Descriptor* Descriptor) :
+        ResourceView({}, RhiDevice, Descriptor)
+    {
+    }
+
+    SamplerResourceView::SamplerResourceView(
+        Device&            RhiDevice,
+        const SamplerDesc& Desc) :
+        ResourceView(RhiDevice, Desc)
+    {
     }
 } // namespace Ame::Rhi

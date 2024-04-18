@@ -201,6 +201,37 @@ namespace Ame::Rhi
         void ReadbackTexture(
             const TransferCopyDesc& Desc);
 
+    public:
+        /// <summary>
+        /// Require a buffer to be in a certain state
+        /// if Append is true, the state will be appended to the current state
+        /// </summary>
+        void RequireState(
+            const Buffer&      RhiBuffer,
+            const AccessStage& State,
+            bool               Append = false);
+
+        /// <summary>
+        /// Require a texture to be in a certain state
+        /// if Append is true, the state will be appended to the current state
+        /// </summary>
+        void RequireState(
+            const Texture&            RhiTexture,
+            const AccessLayoutStage&  State,
+            const TextureSubresource& Subresource = AllSubresources,
+            bool                      Append      = false);
+
+        /// <summary>
+        /// Place a global barrier
+        /// </summary>
+        void PlaceBarrier(
+            const GlobalBarrierDesc& BarrierDesc);
+
+        /// <summary>
+        /// Commit all the pending barriers
+        /// </summary>
+        void CommitBarriers();
+
     private:
         Device&          m_Device;
         CommandListImpl& m_Impl;

@@ -22,12 +22,20 @@ namespace Ame::Rhi
 
     using BufferDesc  = nri::BufferDesc;
     using TextureDesc = nri::TextureDesc;
+    using SamplerDesc = nri::SamplerDesc;
 
     using TextureRegionDesc     = nri::TextureRegionDesc;
     using TextureDataLayoutDesc = nri::TextureDataLayoutDesc;
 
     using DescriptorRangeUpdateDesc = nri::DescriptorRangeUpdateDesc;
     using DescriptorSetCopyDesc     = nri::DescriptorSetCopyDesc;
+
+    using AccessBits        = nri::AccessBits;
+    using AccessStage       = nri::AccessStage;
+    using LayoutType        = nri::Layout;
+    using AccessLayoutStage = nri::AccessLayoutStage;
+
+    using GlobalBarrierDesc = nri::GlobalBarrierDesc;
 
     struct BufferViewDesc;
     struct TextureViewDesc;
