@@ -17,7 +17,20 @@ namespace Ame::FlappyRocket
         FlappyRocketGame(
             Ecs::Universe& EcsUniverse);
 
+    public:
+        /// <summary>
+        /// Recreate the world
+        /// </summary>
+        void ResetWorld();
+
+    public:
+        /// <summary>
+        /// Update the game
+        /// </summary>
+        void Update(
+            const EngineTimer& Timer);
+
     private:
-        std::reference_wrapper<Ecs::Universe> m_EcsUniverse;
+        Ecs::Universe* m_EcsUniverse = nullptr;
     };
 } // namespace Ame::FlappyRocket

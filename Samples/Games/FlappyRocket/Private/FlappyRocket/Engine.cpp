@@ -8,8 +8,7 @@
 
 namespace Ame::FlappyRocket
 {
-    FlappyRocketEngine::FlappyRocketEngine() :
-        m_Game(GetSubsystem<Ecs::EntitySubsystem>())
+    FlappyRocketEngine::FlappyRocketEngine()
     {
         Log::Logger::Register(Log::Names::Engine, "Logs/Engine.log");
         Log::Logger::Register(Log::Names::Client, "Logs/FlappyRocket.log");
@@ -31,6 +30,9 @@ namespace Ame::FlappyRocket
             });
 
         SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
+
+        m_Game = FlappyRocketGame(GetSubsystem<Ecs::EntitySubsystem>());
+        m_Game.ResetWorld();
     }
 
     void FlappyRocketEngine::SetClearColor(
@@ -44,5 +46,6 @@ namespace Ame::FlappyRocket
     void FlappyRocketEngine::LoopUpdate(
         const EngineTimer& Timer)
     {
+        m_Game.Update(Timer);
     }
 } // namespace Ame::FlappyRocket
