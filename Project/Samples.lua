@@ -27,5 +27,5 @@ target_end()
 --
 
 target("FlappyRocket")
-    ame_header_executable("Samples/Games", "FlappyRocket", "Samples/Rhi/FlappyRocket")
+    ame_header_executable("Samples/Games", "FlappyRocket", "Samples/Games/FlappyRocket")
 target_end()
