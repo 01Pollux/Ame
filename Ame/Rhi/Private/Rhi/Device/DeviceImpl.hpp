@@ -309,7 +309,7 @@ namespace Ame::Rhi
         nri::Device*       m_Device       = nullptr;
         nri::CommandQueue* m_CommandQueue = nullptr;
 
-        Math::Color4        m_ClearColor = Math::Colors::Magenta;
+        Math::Color4        m_ClearColor = Colors::Magenta;
         BackbufferClearType m_ClearType  = BackbufferClearType::Color;
 
         Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;

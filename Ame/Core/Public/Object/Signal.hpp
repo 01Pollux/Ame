@@ -123,11 +123,6 @@ namespace Ame
             return m_ObjectSignal;
         }
 
-        [[nodiscard]] static auto& GetStaticSignal() noexcept
-        {
-            return m_StaticSignal;
-        }
-
         [[nodiscard]] auto& StaticSignal() noexcept
         {
             return m_StaticSignal;

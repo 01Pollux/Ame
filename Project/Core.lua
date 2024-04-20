@@ -30,7 +30,12 @@ target("Rhi")
     add_deps("Windowing", {public = true, inherit = true})
 target_end()
 
+target("Ecs")
+    ame_header_library("Ame", "Ecs", "static", "Ame/Ecs")
+    add_deps("Core", {public = true, inherit = true})
+target_end()
+
 target("Engine")
     ame_header_library("Ame", "Engine", "static", "Ame/Engine")
-    add_deps("Rhi", {public = true, inherit = true})
+    add_deps({ "Rhi", "Ecs" }, {public = true, inherit = true})
 target_end()
