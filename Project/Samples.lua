@@ -23,3 +23,9 @@ target_end()
 target("Triangle")
     ame_header_executable("Samples/Rhi", "Triangle", "Samples/Rhi/Triangle")
 target_end()
+
+--
+
+target("FlappyRocket")
+    ame_header_executable("Samples/Games", "FlappyRocket", "Samples/Rhi/FlappyRocket")
+target_end()
