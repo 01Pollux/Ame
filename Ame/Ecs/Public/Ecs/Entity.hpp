@@ -32,6 +32,44 @@ namespace Ame::Ecs
         void SetParent(
             const Entity& Parent = Entity::Null);
 
+    public:
+        template<typename Ty, typename... ArgsTy>
+        void AddComponent(
+            ArgsTy&&... Args)
+        {
+            m_Entity.emplace<Ty>(std::forward<ArgsTy>(Args)...);
+        }
+
+        template<typename Ty>
+        void RemoveComponent()
+        {
+            m_Entity.remove<Ty>();
+        }
+
+        template<typename Ty>
+        [[nodiscard]] bool HasComponent() const
+        {
+            return m_Entity.has<Ty>();
+        }
+
+        template<typename Ty>
+        [[nodiscard]] const Ty& GetComponent() const
+        {
+            return *m_Entity.get<Ty>();
+        }
+
+        template<typename Ty>
+        [[nodiscard]] Ty& GetComponentMut()
+        {
+            return *m_Entity.get_mut<Ty>();
+        }
+
+        template<typename Ty>
+        [[nodiscard]] std::optional<const Ty*> TryGetComponent() const
+        {
+            return m_Entity.get<Ty>();
+        }
+
     private:
         /// <summary>
         /// Get the flecs entity

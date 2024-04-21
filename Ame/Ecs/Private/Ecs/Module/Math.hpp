@@ -4,10 +4,10 @@
 
 namespace Ame::Ecs::Module
 {
-    class StandardModule
+    class MathModule
     {
     public:
-        StandardModule(
+        MathModule(
             flecs::world& FlecsWorld);
     };
 } // namespace Ame::Ecs::Module

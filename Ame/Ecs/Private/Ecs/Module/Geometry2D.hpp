@@ -4,10 +4,10 @@
 
 namespace Ame::Ecs::Module
 {
-    class StandardModule
+    class Geometry2DModule
     {
     public:
-        StandardModule(
+        Geometry2DModule(
             flecs::world& FlecsWorld);
     };
 } // namespace Ame::Ecs::Module

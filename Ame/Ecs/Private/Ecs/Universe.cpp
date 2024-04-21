@@ -7,6 +7,13 @@ namespace Ame::Ecs
     World& Universe::CreateWorld(
         const StringU8& Name)
     {
+#ifdef AME_DEBUG
+        if (m_Worlds.contains(Name))
+        {
+            Log::Ecs().Error("Universe::CreateWorld: World already exists");
+            return m_Worlds.at(Name);
+        }
+#endif
         return m_Worlds.emplace(Name, World{ Name }).first->second;
     }
 

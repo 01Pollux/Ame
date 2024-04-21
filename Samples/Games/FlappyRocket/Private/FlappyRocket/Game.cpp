@@ -1,6 +1,8 @@
 #include <FlappyRocket/Engine.hpp>
 
 #include <Ecs/Universe.hpp>
+#include <Ecs/Component/Math/Transform.hpp>
+#include <Ecs/Component/Geometry2D/Sprite.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -20,7 +22,11 @@ namespace Ame::FlappyRocket
         auto& World = m_EcsUniverse->CreateWorld("Flappy Rocket");
         m_EcsUniverse->SetActiveWorld(World);
 
-        World.CreateEntity("Player");
+        //
+
+        auto Player = World.CreateEntity("Player");
+        Player.AddComponent<Ecs::Component::Sprite>();
+        Player.AddComponent<Ecs::Component::Transform>();
     }
 
     //
