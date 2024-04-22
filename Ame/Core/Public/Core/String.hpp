@@ -20,16 +20,29 @@ inline void* operator new[](size_t size, size_t alignment, size_t, const char*, 
 namespace Ame
 {
     template<typename CharTy>
+    class BasicString;
+
+    template<typename CharTy>
     class BasicStringView : public eastl::basic_string_view<CharTy>
     {
     public:
+        using base_class = eastl::basic_string_view<CharTy>;
+
         using char_type            = CharTy;
+        using string_type          = BasicString<CharTy>;
         using std_string_view_type = std::basic_string_view<CharTy>;
-        using eastl::basic_string_view<CharTy>::basic_string_view;
 
     public:
-        using eastl::basic_string_view<CharTy>::data;
-        using eastl::basic_string_view<CharTy>::size;
+        using base_class::base_class;
+
+        constexpr BasicStringView(std_string_view_type Str) noexcept :
+            base_class({ Str.data(), Str.size() })
+        {
+        }
+
+    public:
+        using base_class::data;
+        using base_class::size;
 
         [[nodiscard]] constexpr std_string_view_type std_view() const noexcept
         {
@@ -40,17 +53,23 @@ namespace Ame
         {
             return std_view();
         }
+
+        [[nodiscard]] constexpr string_type str() const noexcept;
+
+        [[nodiscard]] constexpr operator string_type() const noexcept;
     };
+
+    //
 
     template<typename CharTy>
     class BasicString : public eastl::basic_string<CharTy>
     {
     public:
+        using base_class = eastl::basic_string<CharTy>;
+
         using char_type            = CharTy;
         using string_view_type     = BasicStringView<CharTy>;
         using std_string_view_type = std::basic_string_view<CharTy>;
-
-        using eastl::basic_string<CharTy>::basic_string;
 
         template<typename... ArgsTy>
         [[nodiscard]] static BasicString<CharTy> formatted(
@@ -58,8 +77,11 @@ namespace Ame
             ArgsTy&&... Args);
 
     public:
-        using eastl::basic_string<CharTy>::data;
-        using eastl::basic_string<CharTy>::size;
+        using base_class::base_class;
+
+    public:
+        using base_class::data;
+        using base_class::size;
 
         [[nodiscard]] constexpr string_view_type view() const noexcept
         {
@@ -81,6 +103,22 @@ namespace Ame
             return view();
         }
     };
+
+    //
+
+    template<typename CharTy>
+    [[nodiscard]] constexpr auto BasicStringView<CharTy>::str() const noexcept -> string_type
+    {
+        return { data(), size() };
+    }
+
+    template<typename CharTy>
+    [[nodiscard]] constexpr BasicStringView<CharTy>::operator string_type() const noexcept
+    {
+        return str();
+    }
+
+    //
 
     using CharU8       = char;
     using StringU8View = BasicStringView<CharU8>;

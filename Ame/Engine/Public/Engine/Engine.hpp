@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Container.hpp>
+#include <Core/String.hpp>
 #include <Engine/Signals.hpp>
 
 namespace Ame

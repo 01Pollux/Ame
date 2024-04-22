@@ -18,13 +18,16 @@ namespace Ame::FlappyRocket
 
     void FlappyRocketGame::ResetWorld()
     {
-        m_EcsUniverse->RemoveWorld("Flappy Rocket");
-        auto& World = m_EcsUniverse->CreateWorld("Flappy Rocket");
+        m_EcsUniverse->RemoveWorld(WorldName);
+        auto& World = m_EcsUniverse->CreateWorld(WorldName);
         m_EcsUniverse->SetActiveWorld(World);
+    }
 
-        //
+    void FlappyRocketGame::AddAllEntities()
+    {
+        auto& World = *m_EcsUniverse->GetActiveWorld();
 
-        auto Player = World.CreateEntity("Player");
+        auto Player = World.CreateEntity(PlayerName);
         Player.AddComponent<Ecs::Component::Sprite>();
         Player.AddComponent<Ecs::Component::Transform>();
     }
