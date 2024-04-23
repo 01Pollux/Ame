@@ -13,4 +13,4 @@ namespace Ame::Events
     };
 } // namespace Ame::Events
 
-AME_SIGNAL_DECL(const Ame::Log::Logger, OnLog, const Ame::Events::LogEvent& /*Data*/);
+AME_SIGNAL_INSTANCE_DECL(const Ame::Log::Logger, OnLog, const Ame::Events::LogEvent& /*Data*/);

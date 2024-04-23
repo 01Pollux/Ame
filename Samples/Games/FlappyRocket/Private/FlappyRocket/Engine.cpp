@@ -1,8 +1,7 @@
 #include <FlappyRocket/Engine.hpp>
 
-#include <Engine/Subsystem/Timer.hpp>
 #include <Rhi/Subsystem/Device.hpp>
-#include <Ecs/Subsystem/Entity.hpp>
+#include <Ecs/Subsystem/Universe.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -22,17 +21,9 @@ namespace Ame::FlappyRocket
     {
         BaseEngine::Initialize();
 
-        OnUpdate().ObjectSignal().Listen(
-            [](BaseEngine& Engine)
-            {
-                auto& Self = static_cast<FlappyRocketEngine&>(Engine);
-                Self.LoopUpdate(
-                    Self.GetSubsystem<TimerSubsystem>());
-            });
-
         SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
 
-        m_Game = FlappyRocketGame(GetSubsystem<Ecs::EntitySubsystem>());
+        m_Game = FlappyRocketGame(GetSubsystem<Ecs::UniverseSubsystem>());
         CreateWorld();
     }
 
@@ -45,13 +36,6 @@ namespace Ame::FlappyRocket
     void FlappyRocketEngine::CreateWorld()
     {
         m_Game.ResetWorld();
-    }
-
-    //
-
-    void FlappyRocketEngine::LoopUpdate(
-        const EngineTimer& Timer)
-    {
-        m_Game.Update(Timer);
+        m_Game.AddAllEntities();
     }
 } // namespace Ame::FlappyRocket

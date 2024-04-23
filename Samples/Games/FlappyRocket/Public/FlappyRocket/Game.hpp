@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Engine/Engine.hpp>
-#include <Engine/Timer.hpp>
 
 namespace Ame::Ecs
 {
@@ -12,7 +11,7 @@ namespace Ame::FlappyRocket
 {
     class FlappyRocketGame
     {
-        static constexpr const StringU8View WorldName = "Flappy Rocket";
+        static constexpr const StringU8View WorldName  = "Flappy Rocket";
         static constexpr const StringU8View PlayerName = "Player";
 
     public:
@@ -30,13 +29,6 @@ namespace Ame::FlappyRocket
         /// Add all entities to the world for the game
         /// </summary>
         void AddAllEntities();
-
-    public:
-        /// <summary>
-        /// Update the game
-        /// </summary>
-        void Update(
-            const EngineTimer& Timer);
 
     private:
         Ecs::Universe* m_EcsUniverse = nullptr;

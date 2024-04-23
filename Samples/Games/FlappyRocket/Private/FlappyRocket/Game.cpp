@@ -31,12 +31,4 @@ namespace Ame::FlappyRocket
         Player.AddComponent<Ecs::Component::Sprite>();
         Player.AddComponent<Ecs::Component::Transform>();
     }
-
-    //
-
-    void FlappyRocketGame::Update(
-        const EngineTimer& Timer)
-    {
-        m_EcsUniverse->ProgressActiveWorld(Timer.GetDeltaTime());
-    }
 } // namespace Ame::FlappyRocket

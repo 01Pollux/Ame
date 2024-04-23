@@ -62,10 +62,13 @@ namespace Ame
     using Ptr = std::shared_ptr<Ty>;
 
     template<typename Ty>
-    using Ref = std::weak_ptr<Ty>;
+    using RefPtr = std::weak_ptr<Ty>;
 
     template<typename Ty, typename _Dx = std::default_delete<Ty>>
     using UPtr = std::unique_ptr<Ty, _Dx>;
+
+    template<typename Ty>
+    using Ref = std::reference_wrapper<Ty>;
 } // namespace Ame
 
 namespace Ame::DbgImpl

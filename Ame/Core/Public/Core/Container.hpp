@@ -41,9 +41,9 @@ namespace Ame
         /// This function will return a reference to the subsystem Ty.
         /// </summary>
         template<typename Ty>
-        [[nodiscard]] kgr::service_type<Ty> GetSubsystem() const
+        [[nodiscard]] kgr::service_type<Ty> GetSubsystemOpt()
         {
-            return m_Container.service<Ty>();
+            return HasSubsystem<Ty>() ? std::optional{ m_Container.service<Ty>() } : std::nullopt;
         }
 
     public:

@@ -1,8 +1,6 @@
 #pragma once
 
 #include <Engine/Engine.hpp>
-#include <Engine/Timer.hpp>
-
 #include <FlappyRocket/Game.hpp>
 
 namespace Ame::FlappyRocket
@@ -21,10 +19,6 @@ namespace Ame::FlappyRocket
 
     private:
         void CreateWorld();
-
-    private:
-        void LoopUpdate(
-            const EngineTimer& Timer);
 
     private:
         FlappyRocketGame m_Game;

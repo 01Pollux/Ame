@@ -2,10 +2,20 @@
 
 #include <Core/Ame.hpp>
 
-namespace Ame::Rhi
+namespace Ame
 {
-    class Device;
-} // namespace Ame::Rhi
+    class IFrame;
+    class FrameTimer;
+
+    namespace Ecs
+    {
+        struct Universe;
+    } // namespace Ecs
+    namespace Rhi
+    {
+        class Device;
+    } // namespace Rhi
+} // namespace Ame
 
 namespace Ame::Gfx
 {
@@ -13,20 +23,36 @@ namespace Ame::Gfx
     {
     public:
         Renderer(
-            std::reference_wrapper<Rhi::Device> Device);
+            IFrame&        Frame,
+            FrameTimer&    Timer,
+            Rhi::Device&   Device,
+            Ecs::Universe& EcsUniverse);
 
+    private:
         /// <summary>
         /// Update the renderer and all its components such as the camera, the scene, lights, etc.
         /// </summary>
-        void Update(
-            double DeltaTime);
+        void OnUpdate();
 
         /// <summary>
-        /// Render the scene to the screen
+        /// Called before the frame begins
         /// </summary>
-        void Render();
+        void OnStartFrame();
+
+        /// <summary>
+        /// Called when the frame is being rendered
+        /// </summary>
+        void OnRender();
+
+        /// <summary>
+        /// Called after the frame ends
+        /// </summary>
+        void OnEndFrame();
 
     private:
-        std::reference_wrapper<Rhi::Device> m_Device;
+        Ref<IFrame>        m_Frame;
+        Ref<FrameTimer>    m_Timer;
+        Ref<Rhi::Device>   m_Device;
+        Ref<Ecs::Universe> m_EcsUniverse;
     };
 } // namespace Ame::Gfx

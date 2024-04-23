@@ -224,14 +224,16 @@ namespace Ame
     };
 } // namespace Ame
 
-#define AME_SIGNAL_DECL(Class, Name, ...)                         \
-    namespace Ame::Signals                                        \
-    {                                                             \
-        using Name      = Ame::Signal<Class&, __VA_ARGS__>;       \
-        using Name##Dbl = Ame::DoubleSignal<Class&, __VA_ARGS__>; \
-        using Name##H   = Ame::SignalHandle<Class&, __VA_ARGS__>; \
-        using Name##SH  = Ame::SignalHandle<Class&, __VA_ARGS__>; \
+#define AME_SIGNAL_DECL(Name, ...)                        \
+    namespace Ame::Signals                                \
+    {                                                     \
+        using Name      = Ame::Signal<__VA_ARGS__>;       \
+        using Name##Dbl = Ame::DoubleSignal<__VA_ARGS__>; \
+        using Name##H   = Ame::SignalHandle<__VA_ARGS__>; \
+        using Name##SH  = Ame::SignalHandle<__VA_ARGS__>; \
     }
+
+#define AME_SIGNAL_INSTANCE_DECL(Class, Name, ...) AME_SIGNAL_DECL(Name, Class&, __VA_ARGS__)
 
 #define AME_SIGNAL_INST(Name)                 \
 public:                                       \

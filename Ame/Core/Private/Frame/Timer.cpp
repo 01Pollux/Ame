@@ -1,30 +1,30 @@
-#include <Engine/Timer.hpp>
+#include <Frame/Timer.hpp>
 
 namespace Ame
 {
     using fmilliseconds = std::chrono::duration<double, std::milli>;
 
-    double EngineTimer::GetGameTime() const
+    double FrameTimer::GetGameTime() const
     {
         return m_GameTime;
     }
 
-    double EngineTimer::GetEngineTime() const
+    double FrameTimer::GetEngineTime() const
     {
         return m_EngineTime;
     }
 
-    double EngineTimer::GetDeltaTime() const
+    double FrameTimer::GetDeltaTime() const
     {
         return m_DeltaTime;
     }
 
-    float EngineTimer::GetTimeScale() const
+    float FrameTimer::GetTimeScale() const
     {
         return m_TimeScale;
     }
 
-    void EngineTimer::SetTimeScale(
+    void FrameTimer::SetTimeScale(
         float TimeScale)
     {
         // We were paused and now we are unpaused
@@ -35,7 +35,7 @@ namespace Ame
         m_TimeScale = TimeScale;
     }
 
-    void EngineTimer::Reset()
+    void FrameTimer::Reset()
     {
         m_PrevTime = steady_clock::now();
         m_BaseTime = m_PrevTime;
@@ -43,7 +43,7 @@ namespace Ame
         m_GameTime = 0.0;
     }
 
-    bool EngineTimer::Tick()
+    bool FrameTimer::Tick()
     {
         if (m_TimeScale <= std::numeric_limits<float>::epsilon())
         {

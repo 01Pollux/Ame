@@ -5,10 +5,10 @@
 
 namespace Ame
 {
-    class EngineTimer
+    class FrameTimer
     {
     public:
-        EngineTimer()
+        FrameTimer()
         {
             SetTimeScale(1.f);
         }

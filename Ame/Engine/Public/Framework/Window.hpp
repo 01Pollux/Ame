@@ -3,9 +3,27 @@
 #include <Framework/Framework.hpp>
 #include <Rhi/Subsystem/Device.hpp>
 #include <Rhi/Device/CreateDesc.hpp>
+#include <Gfx/Subsystem/Renderer.hpp>
 
 namespace Ame::Framework
 {
+  static  void foo()
+    {
+        constexpr auto px = kgr::detail::is_emplace_valid<Rhi::DeviceSubsystem>::value;
+        constexpr auto pxs = kgr::detail::is_emplace_valid<Gfx::RendererSubsystem>::value;
+
+        using T           = Gfx::RendererSubsystem;
+        constexpr auto a  = kgr::detail::is_single<T>::value;
+        constexpr auto b  = kgr::detail::is_construction_valid<T>::value;
+        constexpr auto ba = kgr::detail::service_check<T>::value;
+        constexpr auto baa = kgr::detail::shallow_service_check<T>::value;
+        constexpr auto bab = kgr::detail::dependency_check<T>::value;
+        constexpr auto bb = kgr::detail::is_autocall_valid<T>::value;
+        constexpr auto bc = kgr::detail::dependency_trait<kgr::detail::is_autocall_valid, T>::value;
+        constexpr auto c  = kgr::detail::is_construct_function_callable<T>::value;
+        constexpr auto d  = kgr::detail::is_service_constructible<T>::value;
+    }
+
     template<typename EngineType>
     class WindowApplication
     {
@@ -34,6 +52,7 @@ namespace Ame::Framework
         {
             m_Engine.RegisterSubsystem<Rhi::DeviceSubsystem>(RhiDesc);
             m_Engine.RegisterSubsystem<CoroutineSubsystem>(std::move(Runtime));
+            m_Engine.RegisterSubsystem<Gfx::RendererSubsystem>();
         }
 
     private:

@@ -2,10 +2,14 @@
 
 #include <Core/Container.hpp>
 #include <Core/String.hpp>
-#include <Engine/Signals.hpp>
 
 namespace Ame
 {
+    namespace Gfx
+    {
+        class Renderer;
+    } // namespace Gfx
+
     namespace Rhi
     {
         class Device;
@@ -31,12 +35,16 @@ namespace Ame
         /// <summary>
         /// Initialize the engine
         /// </summary>
-        virtual void Initialize();
+        virtual void Initialize()
+        {
+        }
 
         /// <summary>
         /// Shutdown the engine
         /// </summary>
-        virtual void Shutdown();
+        virtual void Shutdown()
+        {
+        }
 
     private:
         /// <summary>
@@ -48,31 +56,5 @@ namespace Ame
         /// Shutdown the engine
         /// </summary>
         void DoShutdown();
-
-    private:
-        /// <summary>
-        /// Main engine loop with rendering
-        /// </summary>
-        void DoRenderLoop(
-            Rhi::Device& RhiDevice);
-
-        /// <summary>
-        /// Main engine loop without rendering
-        /// </summary>
-        void DoHeadlessLoop();
-
-    public:
-        AME_SIGNAL_DOUBLE(OnStartFrame);
-
-        AME_SIGNAL_DOUBLE(OnUpdate);
-        AME_SIGNAL_DOUBLE(OnPostUpdate);
-
-        AME_SIGNAL_DOUBLE(OnRender);
-        AME_SIGNAL_DOUBLE(OnPostRender);
-
-        AME_SIGNAL_DOUBLE(OnEndFrame);
-
-    private:
-        bool m_IsRunning = true;
     };
 } // namespace Ame
