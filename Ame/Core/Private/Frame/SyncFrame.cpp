@@ -6,6 +6,11 @@ namespace Ame
     {
         OnStartFrame().Broadcast();
 
+        if (!IsRunning())
+        {
+            return;
+        }
+
         OnUpdate().Broadcast();
         OnPostUpdate().Broadcast();
 

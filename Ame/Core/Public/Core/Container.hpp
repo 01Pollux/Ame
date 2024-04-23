@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <Core/Ame.hpp>
 #include <kangaru/kangaru.hpp>
 
@@ -41,9 +42,9 @@ namespace Ame
         /// This function will return a reference to the subsystem Ty.
         /// </summary>
         template<typename Ty>
-        [[nodiscard]] kgr::service_type<Ty> GetSubsystemOpt()
+        [[nodiscard]] std::optional<Ref<std::remove_reference_t<kgr::service_type<Ty>>>> GetSubsystemOpt()
         {
-            return HasSubsystem<Ty>() ? std::optional{ m_Container.service<Ty>() } : std::nullopt;
+            return HasSubsystem<Ty>() ? std::optional{ std::ref(m_Container.service<Ty>()) } : std::nullopt;
         }
 
     public:

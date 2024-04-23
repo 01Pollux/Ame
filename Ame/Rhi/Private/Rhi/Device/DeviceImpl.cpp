@@ -288,7 +288,7 @@ namespace Ame::Rhi
         bool Present)
     {
         auto& NriCore       = *m_NRI.GetCoreInterface();
-        auto& CommandBuffer = GetCurrentCommandList().GetCommandBuffer();
+        auto& CmdList   = GetCurrentCommandList();
         auto& CurBackbuffer = GetBackbuffer();
 
         Rhi::AccessLayoutStage State{
@@ -305,7 +305,8 @@ namespace Ame::Rhi
             State.layout = Rhi::LayoutType::COLOR_ATTACHMENT;
         }
 
-        GetCurrentCommandList().RequireState(CurBackbuffer.Resource, State);
+        CmdList.RequireState(CurBackbuffer.Resource, State);
+        CmdList.CommitBarriers();
     }
 
     void DeviceImpl::ClearBackbuffer(

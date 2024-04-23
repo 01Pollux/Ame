@@ -22,6 +22,10 @@ namespace Ame
         };
 
         OnStartFrame().Broadcast();
+        if (!IsRunning())
+        {
+            return;
+        }
 
         auto RenderTick = ThreadExecutor->submit(DoRender);
 

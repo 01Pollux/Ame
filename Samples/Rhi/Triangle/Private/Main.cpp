@@ -3,7 +3,8 @@
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
 
-#include <Engine/Subsystem/Timer.hpp>
+#include <Frame/Subsystem/Frame.hpp>
+#include <Frame/Subsystem/Timer.hpp>
 
 #include <Rhi/Resource/Shader.hpp>
 #include <Rhi/Resource/CommandList.hpp>
@@ -11,6 +12,7 @@
 #include <Rhi/Resource/Buffer.hpp>
 #include <Rhi/Resource/VertexView.hpp>
 #include <Rhi/Stream/Buffer.hpp>
+#include <Math/Common.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -33,6 +35,7 @@ protected:
 
         auto& RhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
         auto& Coroutine = *GetSubsystem<CoroutineSubsystem>();
+        auto& Frame     = GetSubsystem<FrameSubsystem>();
 
         m_PipelineStateTask = CreateBasicPipeline(
             Coroutine,
@@ -42,8 +45,8 @@ protected:
             Coroutine,
             RhiDevice);
 
-        OnRender().ObjectSignal().Listen(
-            [this, &RhiDevice, &Timer = GetSubsystem<TimerSubsystem>()](BaseEngine& Engine)
+        Frame.OnRender().ObjectSignal().Listen(
+            [this, &RhiDevice, &Timer = GetSubsystem<FrameTimerSubsystem>()]
             {
                 Render(Timer, RhiDevice);
             });
@@ -51,7 +54,7 @@ protected:
 
 private:
     void Render(
-        EngineTimer& Timer,
+        FrameTimer&  Timer,
         Rhi::Device& RhiDevice)
     {
         if (m_PipelineStateTask)
@@ -95,8 +98,8 @@ private:
         auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
         CommandList.SetViewports(Viewports);
         CommandList.SetScissorRects(Scissors);
-        CommandList.SetVertexBuffer({ .Buffer = m_DrawBuffer });
-        CommandList.SetIndexBuffer({ .Buffer = m_DrawBuffer, .Offset = m_IndexBufferOffset, .Type = Rhi::IndexType::UINT16 });
+        CommandList.SetVertexBuffer({ .Buffer = m_DrawBuffer, .Offset = VertexOffset });
+        CommandList.SetIndexBuffer({ .Buffer = m_DrawBuffer, .Offset = IndexOffset, .Type = Rhi::IndexType::UINT16 });
         CommandList.Draw(Rhi::DrawIndexedDesc{ .indexNum = 3, .instanceNum = 1 });
         CommandList.EndRendering();
     }
@@ -218,7 +221,7 @@ private:
         };
 
         Rhi::VertexStreamDesc VertexStreams[]{
-            { .stride      = sizeof(float) * 2,
+            { .stride      = sizeof(Vertices[0]),
               .bindingSlot = 0,
               .stepRate    = Rhi::VertexStreamStepRate::PER_VERTEX }
         };
@@ -268,13 +271,15 @@ private:
     static constexpr uint16_t Indices[]{
         0, 1, 2
     };
-
     std::array<uint8_t, 4> TextureData{ 255, 0, 0, 255 };
 
     static constexpr Rhi::BufferDesc BufferDesc{
         .size      = sizeof(Vertices) + sizeof(Indices),
         .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER | Rhi::BufferUsageBits::INDEX_BUFFER
     };
+
+    static constexpr uint32_t IndexOffset  = sizeof(Vertices);
+    static constexpr uint32_t VertexOffset = 0;
 
     static constexpr Rhi::TextureDesc TextureDesc = Rhi::Tex2D(
         Rhi::ResourceFormat::RGBA8_UNORM,
@@ -286,7 +291,7 @@ private:
     };
 
     static constexpr Rhi::BufferDesc UploadDesc{
-        .size = BufferDesc.size + sizeof(TextureData)
+        .size = sizeof(TextureData) + BufferDesc.size
     };
 
     static constexpr Rhi::SamplerDesc SamplerDesc{
@@ -307,6 +312,11 @@ private:
         m_DynamicBufferView = m_DynamicBuffer.CreateView({});
         m_TextureView       = m_Texture.CreateShaderView(Rhi::TextureViewDesc{ Rhi::TextureViewType::ShaderResource2D });
         m_TextureSampler    = Rhi::SamplerResourceView(RhiDevice, SamplerDesc);
+
+        m_DrawBuffer.SetName("DrawBuffer");
+        m_Texture.SetName("Texture");
+        m_DynamicBuffer.SetName("DynamicBuffer");
+        m_TempBuffer.SetName("TempBuffer");
     }
 
     void UploadResources()
@@ -314,10 +324,10 @@ private:
         namespace RS = Rhi::Streaming;
         RS::BufferOStream Stream(RS::BufferView(m_TempBuffer, Rhi::EntireBuffer));
 
-        Stream.write(std::bit_cast<const char*>(&Vertices[0]), sizeof(Vertices));
-        m_IndexBufferOffset = Stream.tellp();
-        Stream.write(std::bit_cast<const char*>(&Indices[0]), sizeof(Indices));
         Stream.write(std::bit_cast<const char*>(&TextureData[0]), sizeof(TextureData));
+
+        Stream.write(std::bit_cast<const char*>(&Vertices[0]), sizeof(Vertices));
+        Stream.write(std::bit_cast<const char*>(&Indices[0]), sizeof(Indices));
     }
 
     void FinishUploadingResources(
@@ -327,15 +337,17 @@ private:
         {
             m_BufferTask.wait();
 
-            CommandList.CopyBuffer({ m_TempBuffer }, { m_DrawBuffer });
+            CommandList.RequireState(m_Texture, { Rhi::AccessBits::COPY_DESTINATION, Rhi::LayoutType::COPY_DESTINATION });
+            CommandList.CommitBarriers();
+
             CommandList.UploadTexture(
                 { .RhiTexture = m_Texture,
                   .RhiBuffer  = m_TempBuffer,
-                  .Layout{ .offset   = BufferDesc.size,
-                           .rowPitch = sizeof(TextureData) } });
+                  .Layout{ .rowPitch = sizeof(TextureData) } });
+            CommandList.CopyBuffer({ m_TempBuffer, Rhi::Size32(TextureData) }, { m_DrawBuffer });
 
             CommandList.RequireState(m_DrawBuffer, { Rhi::AccessBits::VERTEX_BUFFER | Rhi::AccessBits::INDEX_BUFFER });
-            CommandList.RequireState(m_Texture, { Rhi::AccessBits::SHADER_RESOURCE });
+            CommandList.RequireState(m_Texture, { Rhi::AccessBits::SHADER_RESOURCE, Rhi::LayoutType::SHADER_RESOURCE });
             CommandList.RequireState(m_DynamicBuffer, { Rhi::AccessBits::CONSTANT_BUFFER });
             CommandList.CommitBarriers();
 
@@ -367,7 +379,6 @@ private:
     Ptr<Rhi::PipelineState> m_PipelineState;
 
     Rhi::Buffer m_DrawBuffer;
-    size_t      m_IndexBufferOffset = 0;
 
     Rhi::Buffer             m_DynamicBuffer;
     Rhi::BufferResourceView m_DynamicBufferView;
@@ -385,8 +396,7 @@ AME_MAIN(Argc, Argv)
     Log::Logger::Register(Log::Names::Rhi, "Engine.log");
 
     WindowApplication<TriangleSampleEngine>::Builder()
-        .Title("Simple Window")
-        .RendererBackend(Rhi::DeviceType::DirectX12)
+        .Title("Triangle")
         .Build()
         .Run();
 }

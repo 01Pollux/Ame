@@ -2,7 +2,7 @@
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
 
-#include <Engine/Subsystem/Timer.hpp>
+#include <Frame/Subsystem/Timer.hpp>
 #include <Window/Window.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -42,13 +42,13 @@ private:
             [this]()
             {
                 UpdateTitle(
-                    GetSubsystem<TimerSubsystem>(),
+                    GetSubsystem<FrameTimerSubsystem>(),
                     GetSubsystem<Rhi::DeviceSubsystem>());
             });
     }
 
     void UpdateTitle(
-        EngineTimer& Timer,
+        FrameTimer&  Timer,
         Rhi::Device& RhiDevice)
     {
         double FPS = 1.0 / Timer.GetDeltaTime();

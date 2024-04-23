@@ -42,15 +42,19 @@ namespace Ame::Gfx
 
     void Renderer::OnUpdate()
     {
-        if (!m_Device.get().ProcessEvents())
-        {
-            m_Frame.get().Stop();
-        }
+        m_EcsUniverse.get().ProgressActiveWorld(m_Timer.get().GetDeltaTime());
     }
 
     void Renderer::OnStartFrame()
     {
-        m_Device.get().BeginFrame();
+        if (!m_Device.get().ProcessEvents())
+        {
+            m_Frame.get().Stop();
+        }
+        else
+        {
+            m_Device.get().BeginFrame();
+        }
     }
 
     void Renderer::OnRender()
