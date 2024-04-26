@@ -1,50 +1,39 @@
 #pragma once
 
-#include <Rhi/Resource/CommandList.hpp>
-#include <Rhi/Nri/Nri.hpp>
+#include <Rhi/Descs/CommandList.hpp>
+#include <Rhi/CommandList/CopyDesc.hpp>
 
-#include <Rhi/Device/DescriptorAllocator.hpp>
+#include <Rhi/Resource/View.hpp>
+#include <Rhi/Resource/Set.hpp>
 
 namespace Ame::Rhi
 {
-    class CommandListImpl : public NonCopyable,
-                            public NonMovable
+    struct VertexBufferView;
+    struct IndexBufferView;
+
+    /// <summary>
+    /// Command list is a sequence of commands that can be executed by the GPU.
+    /// It is used to record rendering commands, dispatch compute shaders, and copy resources.
+    ///
+    /// They are not synchronized, and creating multiple command lists with the same device WILL reference the same device object.
+    /// </summary>
+    class CommandList
     {
     public:
-        /// <summary>
-        /// Initialize command list.
-        /// </summary>
-        void Initialize(
-            DeviceImpl&                     RhiDevice,
-            const DescriptorAllocationDesc& DescriptorPoolDesc,
-            const char*                     AllocatorName,
-            const char*                     ListName);
-
-        /// <summary>
-        /// Shutdown command list.
-        /// </summary>
-        void Shutdown();
-
-        /// <summary>
-        /// Reset command list.
-        /// </summary>
-        void Reset();
-
-        /// <summary>
-        /// End command list.
-        /// </summary>
-        void End();
+        CommandList(
+            Device& RhiDevice);
 
     public:
         /// <summary>
-        /// Get nri command list.
+        /// Begin tag marker.
         /// </summary>
-        [[nodiscard]] nri::CommandBuffer& GetCommandBuffer() noexcept;
+        void BeginMarker(
+            const char* Name);
 
         /// <summary>
-        /// Submit command list to the queue.
+        /// End last tag marker.
         /// </summary>
-        void Submit();
+        void EndMarker();
 
     public:
         /// <summary>
@@ -69,12 +58,31 @@ namespace Ame::Rhi
             size_t      Size);
 
         /// <summary>
-        /// Set descriptor sets with dynamic offsets (optional).
+        /// Set constants.
+        /// </summary>
+        template<typename Ty>
+            requires std::is_standard_layout_v<Ty>
+        void SetConstants(
+            uint32_t  ConstantIndex,
+            const Ty& Data)
+        {
+            SetConstants(ConstantIndex, &Data, sizeof(Ty));
+        }
+
+        /// <summary>
+        /// Set descriptor sets.
+        /// </summary>
+        void SetDescriptorSet(
+            uint32_t             LayoutSlot,
+            const DescriptorSet& DescriptorSets);
+
+        /// <summary>
+        /// Set descriptor sets with dynamic offsets.
         /// </summary>
         void SetDescriptorSet(
             uint32_t             LayoutSlot,
             const DescriptorSet& DescriptorSets,
-            uint32_t*            DynamicBufferOffset);
+            uint32_t             DynamicBufferOffset);
 
         /// <summary>
         /// Mandatory state, if enabled (can be set only once)
@@ -90,16 +98,16 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] std::vector<DescriptorSet> AllocateSets(
             uint32_t LayoutSlot,
-            uint32_t InstanceCount,
-            uint32_t VariableCount);
+            uint32_t InstanceCount = 1,
+            uint32_t VariableCount = 0);
 
     public:
         /// <summary>
-        /// Set render targets and depth-stencil buffer.
+        /// Set render targets.
         /// </summary>
         void BeginRendering(
             std::span<const Rhi::ResourceView*> RenderTargets,
-            const Rhi::ResourceView*            DepthStencil);
+            const Rhi::ResourceView*            DepthStencil = nullptr);
 
         /// <summary>
         /// Clear render targets and depth-stencil buffer.
@@ -107,6 +115,12 @@ namespace Ame::Rhi
         void ClearAttachments(
             std::span<ClearDesc>   Clears,
             std::span<ClearRegion> Regions);
+
+        /// <summary>
+        /// Clear render targets and depth-stencil buffer.
+        /// </summary>
+        void ClearAttachments(
+            std::span<ClearDesc> Clears);
 
         /// <summary>
         /// Set viewport of the render target.
@@ -140,11 +154,18 @@ namespace Ame::Rhi
             const Math::Color4& BlendConstants);
 
         /// <summary>
-        /// Set vertex buffer.
+        /// Set vertex buffers.
         /// </summary>
         void SetVertexBuffers(
             std::span<const VertexBufferView> VertexBuffers,
-            uint32_t                          BaseSlot);
+            uint32_t                          BaseSlot = 0);
+
+        /// <summary>
+        /// Set vertex buffer.
+        /// </summary>
+        void SetVertexBuffer(
+            const VertexBufferView& VertexBuffer,
+            uint32_t                BaseSlot = 0);
 
         /// <summary>
         /// Set index buffer.
@@ -230,10 +251,6 @@ namespace Ame::Rhi
         void CommitBarriers();
 
     private:
-        nri::CommandAllocator* m_CommandAllocator = nullptr;
-        nri::CommandBuffer*    m_CommandBuffer    = nullptr;
-        DeviceImpl*            m_RhiDevice        = nullptr;
-        Ptr<PipelineLayout>    m_PipelineLayout;
-        DescriptorAllocator    m_DescriptorAllocator;
+        Ref<CommandListImpl> m_Impl;
     };
 } // namespace Ame::Rhi

@@ -23,6 +23,11 @@ namespace Ame::Rhi
         };
 
         Buffer() = default;
+        Buffer(std::nullptr_t) :
+            m_Owning(false)
+        {
+        }
+
         Buffer(
             Extern,
             DeviceImpl&  RhiDevice,
@@ -31,20 +36,17 @@ namespace Ame::Rhi
             Extern,
             Device&      RhiDevice,
             nri::Buffer* NriBuffer);
-        Buffer(std::nullptr_t) :
-            m_Owning(false)
-        {
-        }
 
         Buffer(
             Device&           RhiDevice,
             MemoryLocation    Location,
             const BufferDesc& Desc);
 
-        Buffer(const Buffer&) = delete;
+    public:
+        Buffer(const Buffer&);
         Buffer(Buffer&& Other) noexcept;
 
-        Buffer& operator=(const Buffer&) = delete;
+        Buffer& operator=(const Buffer&);
         Buffer& operator=(Buffer&& Other) noexcept;
 
         ~Buffer();
@@ -75,6 +77,11 @@ namespace Ame::Rhi
         /// Get the buffer native handle.
         /// </summary>
         [[nodiscard]] void* GetNative() const;
+
+        /// <summary>
+        /// Check if the buffer is owning. (If the buffer is owning, it will be released when the buffer is destroyed)
+        /// </summary>
+        [[nodiscard]] bool IsOwning() const;
 
     public:
         /// <summary>

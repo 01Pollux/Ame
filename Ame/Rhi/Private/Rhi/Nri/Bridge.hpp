@@ -5,8 +5,6 @@
 
 namespace Ame::Rhi
 {
-    struct DeviceCreationDesc;
-
     class NRIBridge final
     {
     public:

@@ -12,7 +12,8 @@ namespace Ame::Rhi
         m_Device(&RhiDevice.GetImpl()),
         m_Buffer(NriBuffer)
     {
-        if (Location == MemoryLocation::HOST_UPLOAD || Location == MemoryLocation::HOST_READBACK)
+        if (Location == MemoryLocation::HOST_UPLOAD ||
+            Location == MemoryLocation::HOST_READBACK)
         {
             auto& Impl    = RhiDevice.GetImpl();
             auto& Nri     = Impl.GetNRI();
@@ -50,6 +51,16 @@ namespace Ame::Rhi
     {
     }
 
+    //
+
+    Buffer::Buffer(
+        const Buffer& Other) :
+        m_Device(Other.m_Device),
+        m_Buffer(Other.m_Buffer),
+        m_Owning(false)
+    {
+    }
+
     Buffer::Buffer(
         Buffer&& Other) noexcept :
         m_Device(std::exchange(Other.m_Device, nullptr)),
@@ -57,6 +68,21 @@ namespace Ame::Rhi
         m_Mapped(std::exchange(Other.m_Mapped, nullptr)),
         m_Owning(std::exchange(Other.m_Owning, false))
     {
+    }
+
+    Buffer& Buffer::operator=(
+        const Buffer& Other)
+    {
+        if (this != &Other)
+        {
+            Release();
+
+            m_Device = Other.m_Device;
+            m_Buffer = Other.m_Buffer;
+            m_Owning = false;
+        }
+
+        return *this;
     }
 
     Buffer& Buffer::operator=(
@@ -93,6 +119,11 @@ namespace Ame::Rhi
         auto& NriCore = *Nri.GetCoreInterface();
 
         return std::bit_cast<void*>(NriCore.GetBufferNativeObject(*m_Buffer));
+    }
+
+    bool Buffer::IsOwning() const
+    {
+        return m_Owning;
     }
 
     //

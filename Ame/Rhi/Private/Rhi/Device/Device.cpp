@@ -40,6 +40,11 @@ namespace Ame::Rhi
         return m_Impl ? m_Impl->GetGraphicsAPI() : GraphicsAPI::Null;
     }
 
+    const DeviceDesc& Device::GetDesc() const
+    {
+        return m_Impl->GetDesc();
+    }
+
     uint64_t Device::GetFrameCount() const
     {
         return m_Impl->GetFrameCount();
@@ -110,6 +115,11 @@ namespace Ame::Rhi
     const Backbuffer& Device::GetBackbuffer() const
     {
         return m_Impl->GetBackbuffer();
+    }
+
+    const TextureDesc& Device::GetBackBufferDesc() const
+    {
+        return GetBackbuffer().Resource.GetDesc();
     }
 
     //

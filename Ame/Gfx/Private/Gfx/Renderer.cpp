@@ -47,7 +47,7 @@ namespace Ame::Gfx
 
     void Renderer::OnStartFrame()
     {
-        if (!m_Device.get().ProcessEvents())
+        if (!m_Device.get().ProcessEvents()) [[unlikely]]
         {
             m_Frame.get().Stop();
         }

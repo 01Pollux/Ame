@@ -68,6 +68,12 @@ namespace Ame::Rhi
         }
     }
 
+    const DeviceDesc& DeviceImpl::GetDesc() const
+    {
+        auto& NriCore = *m_NRI.GetCoreInterface();
+        return NriCore.GetDeviceDesc(*m_Device);
+    }
+
     uint64_t DeviceImpl::GetFrameCount() const
     {
         return m_FrameManager.GetFrameCount();
@@ -288,7 +294,7 @@ namespace Ame::Rhi
         bool Present)
     {
         auto& NriCore       = *m_NRI.GetCoreInterface();
-        auto& CmdList   = GetCurrentCommandList();
+        auto& CmdList       = GetCurrentCommandList();
         auto& CurBackbuffer = GetBackbuffer();
 
         Rhi::AccessLayoutStage State{

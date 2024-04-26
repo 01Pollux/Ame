@@ -1,6 +1,6 @@
 #include <ranges>
 
-#include <Rhi/Resource/CommandListImpl.hpp>
+#include <Rhi/CommandList/CommandListImpl.hpp>
 #include <Rhi/Device/DeviceImpl.hpp>
 
 #include <Rhi/Resource/PipelineLayout.hpp>
@@ -89,6 +89,25 @@ namespace Ame::Rhi
             .commandBufferNum = 1
         };
         NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
+    }
+
+    //
+
+    void CommandListImpl::BeginMarker(
+        const char* Name)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdBeginAnnotation(*m_CommandBuffer, Name);
+    }
+
+    void CommandListImpl::EndMarker()
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdEndAnnotation(*m_CommandBuffer);
     }
 
     //
@@ -189,6 +208,15 @@ namespace Ame::Rhi
         auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.CmdClearAttachments(*m_CommandBuffer, Clears.data(), Count32(Clears), Regions.data(), Count32(Regions));
+    }
+
+    void CommandListImpl::ClearAttachments(
+        std::span<ClearDesc> Clears)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdClearAttachments(*m_CommandBuffer, Clears.data(), Count32(Clears), nullptr, 0);
     }
 
     void CommandListImpl::SetViewports(
@@ -363,7 +391,8 @@ namespace Ame::Rhi
 
         StateTracker.RequireState(
             RhiBuffer.Unwrap(),
-            State);
+            State,
+            Append);
     }
 
     void CommandListImpl::RequireState(
@@ -376,10 +405,17 @@ namespace Ame::Rhi
         auto& NriCore      = *Nri.GetCoreInterface();
         auto& StateTracker = m_RhiDevice->GetStateTracker();
 
+        auto CopySubresource = Subresource.Transform(RhiTexture);
+
         StateTracker.RequireState(
             NriCore,
             RhiTexture.Unwrap(),
-            State);
+            State,
+            CopySubresource.Mips.Offset,
+            CopySubresource.Mips.Count,
+            CopySubresource.Array.Offset,
+            CopySubresource.Array.Count,
+            Append);
     }
 
     void CommandListImpl::PlaceBarrier(

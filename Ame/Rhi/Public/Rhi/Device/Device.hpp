@@ -50,6 +50,11 @@ namespace Ame::Rhi
         [[nodiscard]] GraphicsAPI GetGraphicsAPI() const;
 
         /// <summary>
+        /// Get the device description.
+        /// </summary>
+        [[nodiscard]] const DeviceDesc& GetDesc() const;
+
+        /// <summary>
         /// Check if the device is headless.
         /// This means that the device is not rendering to a window.
         /// </summary>
@@ -123,6 +128,11 @@ namespace Ame::Rhi
         /// Get the current backbuffer.
         /// </summary>
         [[nodiscard]] const Backbuffer& GetBackbuffer() const;
+
+        /// <summary>
+        /// Get the backbuffer description.
+        /// </summary>
+        [[nodiscard]] const TextureDesc& GetBackBufferDesc() const;
 
     public:
         /// <summary>

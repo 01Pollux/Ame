@@ -34,12 +34,37 @@ namespace Ame::Rhi
     {
     }
 
+    //
+
+    Texture::Texture(
+        const Texture& Other) :
+        m_Device(Other.m_Device),
+        m_Texture(Other.m_Texture),
+        m_Owning(false)
+    {
+    }
+
     Texture::Texture(
         Texture&& Other) noexcept :
         m_Device(std::exchange(Other.m_Device, nullptr)),
         m_Texture(std::exchange(Other.m_Texture, nullptr)),
         m_Owning(std::exchange(Other.m_Owning, false))
     {
+    }
+
+    Texture& Texture::operator=(
+        const Texture& Other)
+    {
+        if (this != &Other)
+        {
+            Release();
+
+            m_Device  = Other.m_Device;
+            m_Texture = Other.m_Texture;
+            m_Owning  = false;
+        }
+
+        return *this;
     }
 
     Texture& Texture::operator=(
@@ -94,7 +119,18 @@ namespace Ame::Rhi
         return std::bit_cast<void*>(NriCore.GetTextureNativeObject(*m_Texture));
     }
 
+    bool Texture::IsOwning() const
+    {
+        return m_Owning;
+    }
+
     //
+
+    ResourceView Texture::CreateView(
+        const TextureViewDesc& Desc) const
+    {
+        return ResourceView(m_Device, m_Device->CreateView(*m_Texture, Desc.Transform(*this)));
+    }
 
     ShaderResourceView Texture::CreateShaderView(
         const TextureViewDesc& Desc) const

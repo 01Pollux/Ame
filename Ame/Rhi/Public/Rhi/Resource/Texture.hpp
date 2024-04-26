@@ -15,6 +15,11 @@ namespace Ame::Rhi
         };
 
         Texture() = default;
+        Texture(std::nullptr_t) :
+            m_Owning(false)
+        {
+        }
+
         Texture(
             Extern,
             DeviceImpl&   RhiDevice,
@@ -23,20 +28,17 @@ namespace Ame::Rhi
             Extern,
             Device&       RhiDevice,
             nri::Texture* RhiTexture);
-        Texture(std::nullptr_t) :
-            m_Owning(false)
-        {
-        }
 
         Texture(
             Device&            RhiDevice,
             MemoryLocation     Location,
             const TextureDesc& Desc);
 
-        Texture(const Texture&) = delete;
+    public:
+        Texture(const Texture& Other);
         Texture(Texture&& Other) noexcept;
 
-        Texture& operator=(const Texture&) = delete;
+        Texture& operator=(const Texture& Other);
         Texture& operator=(Texture&& Other) noexcept;
 
         ~Texture();
@@ -68,21 +70,32 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] void* GetNative() const;
 
+        /// <summary>
+        /// Check if the texture is owning. (If the texture is owning, it will be released when the texture is destroyed)
+        /// </summary>
+        [[nodiscard]] bool IsOwning() const;
+
     public:
         /// <summary>
-        /// Create a buffer view.
+        /// Create a texture view.
+        /// </summary>
+        [[nodiscard]] ResourceView CreateView(
+            const TextureViewDesc& Desc) const;
+
+        /// <summary>
+        /// Create a shader resource view.
         /// </summary>
         [[nodiscard]] ShaderResourceView CreateShaderView(
             const TextureViewDesc& Desc) const;
 
         /// <summary>
-        /// Create a buffer view.
+        /// Create a render target view.
         /// </summary>
         [[nodiscard]] RenderTargetResourceView CreateRenderTargetView(
             const TextureViewDesc& Desc) const;
 
         /// <summary>
-        /// Create a buffer view.
+        /// Create a depth stencil view.
         /// </summary>
         [[nodiscard]] DepthStencilResourceView CreateDepthStencilView(
             const TextureViewDesc& Desc) const;

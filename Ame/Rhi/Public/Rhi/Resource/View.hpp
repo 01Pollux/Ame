@@ -25,6 +25,11 @@ namespace Ame::Rhi
         };
 
         ResourceView() = default;
+        ResourceView(std::nullptr_t) :
+            m_Owning(false)
+        {
+        }
+
         ResourceView(
             Extern,
             DeviceImpl&      RhiDevice,
@@ -33,15 +38,12 @@ namespace Ame::Rhi
             Extern,
             Device&          RhiDevice,
             nri::Descriptor* Descriptor);
-        ResourceView(std::nullptr_t) :
-            m_Owning(false)
-        {
-        }
 
-        ResourceView(const ResourceView&) = delete;
+    public:
+        ResourceView(const ResourceView&);
         ResourceView(ResourceView&& Other) noexcept;
 
-        ResourceView& operator=(const ResourceView&) = delete;
+        ResourceView& operator=(const ResourceView&);
         ResourceView& operator=(ResourceView&& Other) noexcept;
 
         ~ResourceView();
@@ -67,6 +69,11 @@ namespace Ame::Rhi
         /// Get the descriptor native handle.
         /// </summary>
         [[nodiscard]] void* GetNative() const;
+
+        /// <summary>
+        /// Check if the resource view is owning. (If the resource view is owning, it will be released when the resource view is destroyed)
+        /// </summary>
+        [[nodiscard]] bool IsOwning() const;
 
     private:
         /// <summary>

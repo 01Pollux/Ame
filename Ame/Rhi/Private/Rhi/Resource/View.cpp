@@ -235,11 +235,34 @@ namespace Ame::Rhi
     }
 
     ResourceView::ResourceView(
+        const ResourceView& Other) :
+        m_Device(Other.m_Device),
+        m_Descriptor(Other.m_Descriptor),
+        m_Owning(false)
+    {
+    }
+
+    ResourceView::ResourceView(
         ResourceView&& Other) noexcept :
         m_Device(std::exchange(Other.m_Device, nullptr)),
         m_Descriptor(std::exchange(Other.m_Descriptor, nullptr)),
         m_Owning(std::exchange(Other.m_Owning, false))
     {
+    }
+
+    ResourceView& ResourceView::operator=(
+        const ResourceView& Other)
+    {
+        if (this != &Other)
+        {
+            Release();
+
+            m_Device     = Other.m_Device;
+            m_Descriptor = Other.m_Descriptor;
+            m_Owning     = false;
+        }
+
+        return *this;
     }
 
     ResourceView& ResourceView::operator=(
@@ -282,6 +305,11 @@ namespace Ame::Rhi
         auto& NriCore = *Nri.GetCoreInterface();
 
         return std::bit_cast<void*>(NriCore.GetDescriptorNativeObject(*m_Descriptor));
+    }
+
+    bool ResourceView::IsOwning() const
+    {
+        return m_Owning;
     }
 
     //

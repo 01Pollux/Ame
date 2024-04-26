@@ -1,9 +1,13 @@
 #pragma once
 
 #include <Core/Allocator.hpp>
-#include <utility>
+
 #include <concepts>
+#include <utility>
 #include <memory>
+#include <optional>
+#include <expected>
+
 #include <boost/core/noncopyable.hpp>
 
 namespace concurrencpp
@@ -69,6 +73,12 @@ namespace Ame
 
     template<typename Ty>
     using Ref = std::reference_wrapper<Ty>;
+
+    template<typename Ty>
+    using Opt = std::optional<Ty>;
+
+    template<typename Ty, typename ErrTy = std::exception_ptr>
+    using Expect = std::expected<Ty, ErrTy>;
 } // namespace Ame
 
 namespace Ame::DbgImpl

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Rhi/Resource/CommandListImpl.hpp>
+#include <Rhi/CommandList/CommandListImpl.hpp>
 #include <Rhi/Device/DeferredResource.hpp>
 
 #include <Rhi/Nri/Nri.hpp>
