@@ -35,7 +35,7 @@ namespace Ame::Rhi::Streaming
         /// <summary>
         /// Get the buffer.
         /// </summary>
-        Buffer& GetBuffer() const
+        const Buffer& GetBuffer() const
         {
             return m_Device.GetBuffer();
         }

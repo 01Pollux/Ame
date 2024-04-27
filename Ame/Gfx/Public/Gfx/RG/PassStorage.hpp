@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Gfx/RG/Pass.hpp>
 #include <map>
 #include <stack>
+#include <Gfx/RG/Pass.hpp>
+#include <Gfx/RG/Standard.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -60,6 +61,13 @@ namespace Ame::Gfx::RG
         /// </summary>
         [[nodiscard]] bool ContainsPass(
             const Pass* RgPass);
+
+    public:
+        /// <summary>
+        /// Set the graph as one of the standard graphs
+        /// </summary>
+        void SetStandard(
+            StdGraph Type);
 
     private:
         /// <summary>

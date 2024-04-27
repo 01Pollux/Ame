@@ -55,6 +55,6 @@ namespace Ame::Gfx::RG
         Ref<Rhi::Device> m_Device;
 
         Context     m_Context;
-        PassStorage m_Builder;
+        PassStorage m_Passes;
     };
 } // namespace Ame::Gfx::RG

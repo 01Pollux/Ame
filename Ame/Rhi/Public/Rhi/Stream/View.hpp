@@ -8,13 +8,13 @@ namespace Ame::Rhi::Streaming
 {
     struct BufferView
     {
-        Buffer&     RhiBuffer;
+        Buffer      RhiBuffer;
         BufferRange Range;
 
         BufferView(
-            Buffer&     RhiBuffer,
+            Buffer      RhiBuffer,
             BufferRange Range) :
-            RhiBuffer(RhiBuffer),
+            RhiBuffer(std::move(RhiBuffer)),
             Range(Range.Transform(RhiBuffer))
         {
         }

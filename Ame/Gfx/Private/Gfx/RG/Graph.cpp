@@ -13,7 +13,7 @@ namespace Ame::Gfx::RG
 
     void Graph::Update()
     {
-        m_Builder.Build(m_Context);
+        m_Passes.Build(m_Context);
     }
 
     void Graph::UpdateFrameStorage(
@@ -33,14 +33,14 @@ namespace Ame::Gfx::RG
     void Graph::Execute()
     {
         m_Context.Execute();
-        m_Builder.RemoveOneShotPasses();
+        m_Passes.RemoveOneShotPasses();
     }
 
     //
 
     PassStorage& Graph::GetPassStorage()
     {
-        return m_Builder;
+        return m_Passes;
     }
 
     const ResourceStorage& Graph::GetResourceStorage() const
