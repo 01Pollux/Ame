@@ -146,7 +146,7 @@ namespace Ame::Gfx::RG
     class ResourceHandle
     {
         friend class DependencyLevel;
-        friend class Storage;
+        friend class ResourceStorage;
 
         struct ViewDesc
         {

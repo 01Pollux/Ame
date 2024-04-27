@@ -1,11 +1,11 @@
 #include <Gfx/RG/Dispatch.hpp>
-#include <Gfx/RG/Storage.hpp>
+#include <Gfx/RG/ResourceStorage.hpp>
 
 namespace Ame::Gfx::RG
 {
     GraphicsSetup::GraphicsSetup(
         Rhi::CommandList&               CommandList,
-        const Storage&                  RgStorage,
+        const ResourceStorage&          RgStorage,
         bool                            Enable,
         std::span<const ResourceViewId> RenderTargets,
         const ResourceViewId&           DepthStencil)
@@ -39,7 +39,7 @@ namespace Ame::Gfx::RG
     //
 
     std::vector<const Rhi::ResourceView*> GraphicsSetup::SetupRenderTargets(
-        const Storage&                  RgStorage,
+        const ResourceStorage&          RgStorage,
         std::span<Rhi::ClearDesc>       ClearDescs,
         std::span<const ResourceViewId> RenderTargets) const
     {
@@ -78,7 +78,7 @@ namespace Ame::Gfx::RG
     }
 
     const Rhi::ResourceView* GraphicsSetup::SetupDepthStencil(
-        const Storage&            RgStorage,
+        const ResourceStorage&    RgStorage,
         std::span<Rhi::ClearDesc> ClearDescs,
         const ResourceViewId&     DepthStencil) const
     {

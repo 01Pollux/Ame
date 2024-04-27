@@ -1,13 +1,26 @@
 #pragma once
 
-#include <Ecs/World.hpp>
 #include <unordered_map>
+#include <Ecs/World.hpp>
+
+#include <Core/Signals/Frame.hpp>
+
+namespace Ame
+{
+    class IFrame;
+    class FrameTimer;
+} // namespace Ame
 
 namespace Ame::Ecs
 {
     class Universe
     {
         using WorldMap = std::unordered_map<StringU8, World>;
+
+    public:
+        Universe(
+            const Ptr<IFrame>& Frame,
+            FrameTimer&        Timer);
 
     public:
         /// <summary>
@@ -48,7 +61,7 @@ namespace Ame::Ecs
         /// </summary>
         [[nodiscard]] World* GetActiveWorld();
 
-    public:
+    private:
         /// <summary>
         /// Progress current active worlds.
         /// </summary>
@@ -56,6 +69,10 @@ namespace Ame::Ecs
             double DeltaTime);
 
     private:
+        Ptr<IFrame> m_Frame;
+
+        Signals::OnUpdate::Handle m_OnUpdate;
+
         WorldMap m_Worlds;
         World*   m_ActiveWorld = nullptr;
     };

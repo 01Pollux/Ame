@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cstdint>
-#include <utility>
-
-#include <EASTL/list.h>
-#include <EASTL/set.h>
+#include <map>
+#include <set>
 #include <functional>
 #include <mutex>
 #include <atomic>
+
+#include <Core/Ame.hpp>
 
 namespace Ame
 {
@@ -17,13 +16,13 @@ namespace Ame
     class Signal
     {
     public:
-        using DelegateType = std::move_only_function<void(ArgsTy...)>;
+        using DelegateType        = std::move_only_function<void(ArgsTy...)>;
+        using CallbackDelegateMap = std::map<uint64_t, DelegateType>;
 
-        using CallbackDelegateData = std::pair<DelegateType, uint64_t>;
-        using CallbackDelegateList = eastl::list<CallbackDelegateData>;
+        struct Handle;
 
-        using PendingAddList = CallbackDelegateList;
-        using PendingDropSet = eastl::set<uint64_t>;
+        using PendingAddList = CallbackDelegateMap;
+        using PendingDropSet = std::set<uint64_t>;
 
     public:
         /// <summary>
@@ -38,13 +37,14 @@ namespace Ame
             if (m_RunMutex.try_lock())
             {
                 std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
-                m_Listeners.insert(m_Listeners.end(), { std::forward<FnTy>(Listener), Id });
+                m_Listeners.emplace(Id, std::forward<FnTy>(Listener));
                 m_ListenerCount.fetch_add(1, std::memory_order_relaxed);
             }
             else
             {
-                m_PendingAdd.insert(m_PendingAdd.end(), { std::forward<FnTy>(Listener), Id });
+                m_PendingAdd.emplace(Id, std::forward<FnTy>(Listener));
             }
+
             return Id;
         }
 
@@ -58,12 +58,12 @@ namespace Ame
             if (m_RunMutex.try_lock())
             {
                 std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
-                m_Listeners.remove_if([Id](const auto& Listener)
-                                      { return Listener.second == Id; });
+                m_Listeners.erase(Id);
                 m_ListenerCount.fetch_sub(1, std::memory_order_relaxed);
             }
             else
             {
+                m_PendingAdd.erase(Id);
                 m_PendingDrop.insert(Id);
             }
         }
@@ -84,29 +84,28 @@ namespace Ame
                 std::scoped_lock RunLock(m_RunMutex);
                 for (auto& Listener : m_Listeners)
                 {
-                    Listener.first(std::forward<ArgsTy>(Args)...);
+                    Listener.second(std::forward<ArgsTy>(Args)...);
                 }
             }
             {
                 std::scoped_lock AddDropLock(m_AddOrDropMutex);
 
-                m_Listeners.insert(m_Listeners.end(), std::make_move_iterator(m_PendingAdd.begin()), std::make_move_iterator(m_PendingAdd.end()));
-                m_PendingAdd.clear();
-
-                m_Listeners.remove_if([this](const auto& Listener)
-                                      { return m_PendingDrop.find(Listener.second) != m_PendingDrop.end(); });
-                m_PendingDrop.clear();
+                m_Listeners.merge(m_PendingAdd);
+                for (uint64_t Id : m_PendingDrop)
+                {
+                    m_Listeners.erase(Id);
+                }
             }
         }
 
     private:
-        std::atomic_uint64_t m_ListenerCount{ 0 };
-        uint64_t             m_NextHandle{ 0 };
+        std::atomic_uint64_t m_ListenerCount = 0;
+        uint64_t             m_NextHandle    = 0;
         std::mutex           m_RunMutex, m_AddOrDropMutex;
 
-        CallbackDelegateList m_Listeners;
-        PendingAddList       m_PendingAdd;
-        PendingDropSet       m_PendingDrop;
+        CallbackDelegateMap m_Listeners;
+        PendingAddList      m_PendingAdd;
+        PendingDropSet      m_PendingDrop;
     };
 
     //
@@ -222,6 +221,64 @@ namespace Ame
         Signal<ArgsTy...>* m_Signal = nullptr;
         uint64_t           m_Id     = InvalidSignalHandle;
     };
+
+    //
+
+    template<typename... ArgsTy>
+    struct Signal<ArgsTy...>::Handle
+    {
+    public:
+        Handle() = default;
+
+        template<std::invocable<ArgsTy...> FnTy>
+        Handle(
+            Signal<ArgsTy...>& Sig,
+            FnTy&&             Delegate) :
+            m_Handle(Sig, std::forward<FnTy>(Delegate))
+        {
+        }
+
+        Handle(
+            const Handle& Other) = delete;
+        Handle(
+            Handle&& Other) noexcept :
+            m_Handle(std::move(Other.m_Handle))
+        {
+        }
+
+        Handle& operator=(
+            const Handle& Other) = delete;
+        Handle& operator=(
+            Handle&& Other) noexcept
+        {
+            if (this != &Other)
+            {
+                m_Handle = std::move(Other.m_Handle);
+            }
+            return *this;
+        }
+
+        ~Handle() = default;
+
+        /// <summary>
+        /// Release the ownership of the handle without dropping the callback
+        /// </summary>
+        void Release()
+        {
+            m_Handle.Release();
+        }
+
+        /// <summary>
+        /// Drop the listener from the signal delegate list
+        /// </summary>
+        void Drop()
+        {
+            m_Handle.Drop();
+        }
+
+    private:
+        SignalHandle<ArgsTy...> m_Handle;
+    };
 } // namespace Ame
 
 #define AME_SIGNAL_DECL(Name, ...)                        \
@@ -229,8 +286,6 @@ namespace Ame
     {                                                     \
         using Name      = Ame::Signal<__VA_ARGS__>;       \
         using Name##Dbl = Ame::DoubleSignal<__VA_ARGS__>; \
-        using Name##H   = Ame::SignalHandle<__VA_ARGS__>; \
-        using Name##SH  = Ame::SignalHandle<__VA_ARGS__>; \
     }
 
 #define AME_SIGNAL_INSTANCE_DECL(Class, Name, ...) AME_SIGNAL_DECL(Name, Class&, __VA_ARGS__)

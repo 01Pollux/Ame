@@ -38,17 +38,17 @@ namespace Ame::Gfx::RG
 
     //
 
-    Builder& Graph::GetBuilder()
+    PassStorage& Graph::GetPassStorage()
     {
         return m_Builder;
     }
 
-    const Storage& Graph::GetStorage() const
+    const ResourceStorage& Graph::GetResourceStorage() const
     {
         return m_Context.GetStorage();
     }
 
-    Storage& Graph::GetStorage()
+    ResourceStorage& Graph::GetResourceStorage()
     {
         return m_Context.GetStorage();
     }

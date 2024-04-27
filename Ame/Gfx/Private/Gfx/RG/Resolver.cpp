@@ -1,12 +1,12 @@
 #include <Gfx/RG/Resolver.hpp>
-#include <Gfx/RG/Storage.hpp>
+#include <Gfx/RG/ResourceStorage.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Gfx::RG
 {
     Resolver::Resolver(
-        Storage& RgStorage) :
+        ResourceStorage& RgStorage) :
         m_Storage(RgStorage)
     {
     }

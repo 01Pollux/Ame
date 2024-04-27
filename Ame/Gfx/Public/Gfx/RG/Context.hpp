@@ -1,14 +1,14 @@
 #pragma once
 
-#include <Gfx/RG/Storage.hpp>
+#include <Gfx/RG/ResourceStorage.hpp>
 #include <Gfx/RG/DependencyLevel.hpp>
 
 namespace Ame::Gfx::RG
 {
     class Context
     {
+        friend class PassStorage;
         friend class Graph;
-        friend class Builder;
 
         using DependencyLevelListType = std::vector<DependencyLevel>;
 
@@ -20,12 +20,12 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get the render graph storage
         /// </summary>
-        [[nodiscard]] const Storage& GetStorage() const;
+        [[nodiscard]] const ResourceStorage& GetStorage() const;
 
         /// <summary>
         /// Get the render graph storage
         /// </summary>
-        [[nodiscard]] Storage& GetStorage();
+        [[nodiscard]] ResourceStorage& GetStorage();
 
     private:
         /// <summary>
@@ -60,7 +60,7 @@ namespace Ame::Gfx::RG
 
     private:
         Ref<Rhi::Device>             m_Device;
-        Storage                      m_Storage;
+        ResourceStorage              m_Resources;
         std::vector<DependencyLevel> m_Levels;
     };
 } // namespace Ame::Gfx::RG

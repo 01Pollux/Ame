@@ -1,4 +1,4 @@
-#include <Gfx/RG/Storage.hpp>
+#include <Gfx/RG/ResourceStorage.hpp>
 #include <Math/Common.hpp>
 #include <Rhi/Device/Device.hpp>
 #include <Rhi/Util/ResourceSize.hpp>
@@ -7,7 +7,7 @@
 
 namespace Ame::Gfx::RG
 {
-    RG::Storage::Storage(
+    ResourceStorage::ResourceStorage(
         Rhi::Device& Device) :
         m_Device(Device)
     {
@@ -16,20 +16,20 @@ namespace Ame::Gfx::RG
 
     //
 
-    Rhi::Device& RG::Storage::GetDevice() const
+    Rhi::Device& ResourceStorage::GetDevice() const
     {
         return m_Device.get();
     }
 
     //
 
-    bool Storage::ContainsResource(
+    bool ResourceStorage::ContainsResource(
         const ResourceId& Id) const
     {
         return m_Resources.contains(Id);
     }
 
-    bool Storage::ContainsResourceView(
+    bool ResourceStorage::ContainsResourceView(
         const ResourceViewId& ViewId)
     {
         auto Iter = m_Resources.find(ViewId.GetResource());
@@ -38,36 +38,36 @@ namespace Ame::Gfx::RG
 
     //
 
-    const ResourceHandle& Storage::GetFrameResource() const
+    const ResourceHandle& ResourceStorage::GetFrameResource() const
     {
         return GetResource(ResourceId::FrameResource);
     }
 
-    const Rhi::ResourceView& Storage::GetFrameResourceHandle() const
+    const Rhi::ResourceView& ResourceStorage::GetFrameResourceHandle() const
     {
         return GetResourceViewHandle(ResourceId::FrameResource("Main"));
     }
 
-    const FrameResource& Storage::GetFrameResourceData() const
+    const FrameResource& ResourceStorage::GetFrameResourceData() const
     {
         return m_FrameResource;
     }
 
     //
 
-    const ResourceHandle& Storage::GetResource(
+    const ResourceHandle& ResourceStorage::GetResource(
         const ResourceId& Id) const
     {
         return m_Resources.at(Id);
     }
 
-    ResourceHandle& Storage::GetResourceMut(
+    ResourceHandle& ResourceStorage::GetResourceMut(
         const ResourceId& Id)
     {
         return m_Resources.at(Id);
     }
 
-    ResourceViewDesc& Storage::GetResourceViewMut(
+    ResourceViewDesc& ResourceStorage::GetResourceViewMut(
         const ResourceViewId& ViewId)
     {
         CheckLockState(false);
@@ -77,7 +77,7 @@ namespace Ame::Gfx::RG
         return Iter->second.GetViewMut(ViewId);
     }
 
-    const ResourceViewDesc& Storage::GetResourceView(
+    const ResourceViewDesc& ResourceStorage::GetResourceView(
         const ResourceViewId& ViewId) const
     {
         CheckLockState(false);
@@ -87,7 +87,7 @@ namespace Ame::Gfx::RG
         return Iter->second.GetView(ViewId);
     }
 
-    const Rhi::ResourceView& Storage::GetResourceViewHandle(
+    const Rhi::ResourceView& ResourceStorage::GetResourceViewHandle(
         const ResourceViewId& ViewId) const
     {
         CheckLockState(false);
@@ -99,7 +99,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    void Storage::DeclareBuffer(
+    void ResourceStorage::DeclareBuffer(
         const ResourceId&      Id,
         const Rhi::BufferDesc& Desc)
     {
@@ -107,7 +107,7 @@ namespace Ame::Gfx::RG
         m_Resources[Id].SetDynamic(Desc);
     }
 
-    void Storage::DeclareTexture(
+    void ResourceStorage::DeclareTexture(
         const ResourceId&       Id,
         const Rhi::TextureDesc& Desc)
     {
@@ -117,7 +117,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    void Storage::ImportBuffer(
+    void ResourceStorage::ImportBuffer(
         const ResourceId&  Id,
         const Rhi::Buffer& Buffer)
     {
@@ -127,7 +127,7 @@ namespace Ame::Gfx::RG
         m_Resources[Id].Import(Buffer);
     }
 
-    void Storage::ImportTexture(
+    void ResourceStorage::ImportTexture(
         const ResourceId&   Id,
         const Rhi::Texture& Texture)
     {
@@ -139,7 +139,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    void Storage::UpdateResources()
+    void ResourceStorage::UpdateResources()
     {
         CheckLockState(false);
 
@@ -149,7 +149,7 @@ namespace Ame::Gfx::RG
         }
     }
 
-    Rhi::BufferDesc& Storage::DeclareBufferView(
+    Rhi::BufferDesc& ResourceStorage::DeclareBufferView(
         const ResourceViewId& ViewId,
         ResourceViewDesc      ViewDesc)
     {
@@ -160,7 +160,7 @@ namespace Ame::Gfx::RG
         return Iter->second.CreateBufferView(ViewId, std::move(ViewDesc));
     }
 
-    Rhi::TextureDesc& Storage::DeclareTextureView(
+    Rhi::TextureDesc& ResourceStorage::DeclareTextureView(
         const ResourceViewId& ViewId,
         ResourceViewDesc      ViewDesc)
     {
@@ -173,7 +173,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    void Storage::UpdateFrameResource(
+    void ResourceStorage::UpdateFrameResource(
         float                        EngineTime,
         float                        GameTime,
         float                        DeltaTime,
@@ -217,34 +217,34 @@ namespace Ame::Gfx::RG
             Rhi::BufferViewDesc{ .Type = Rhi::BufferViewType::ConstantBuffer });
     }
 
-    void Storage::AllocateFrameResource()
+    void ResourceStorage::AllocateFrameResource()
     {
         auto&   DeviceDesc = m_Device.get().GetDesc();
-        uint8_t FrameCount = m_Device.get().GetFrameIndex();
+        uint8_t FrameCount = m_Device.get().GetFrameCountInFlight();
         size_t  BufferSize = Rhi::GetConstantBufferSize(DeviceDesc, sizeof(m_FrameResource), FrameCount);
 
         m_FrameResourceBuffer = Rhi::Buffer(m_Device.get(), Rhi::MemoryLocation::HOST_UPLOAD, { .size = BufferSize, .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER });
     }
 
-    void Storage::Lock()
+    void ResourceStorage::Lock()
     {
 #ifndef AME_DIST
         m_Locked = true;
 #endif
     }
 
-    void Storage::Unlock()
+    void ResourceStorage::Unlock()
     {
 #ifndef AME_DIST
         m_Locked = false;
 #endif
     }
 
-    void Storage::CheckLockState(
+    void ResourceStorage::CheckLockState(
         bool Locked) const
     {
 #ifndef AME_DIST
-        AME_LOG_ASSERT(Log::Renderer(), m_Locked == Locked, "Storage is{} locked", Locked ? "" : "n't");
+        AME_LOG_ASSERT(Log::Renderer(), m_Locked == Locked, "ResourceStorage is{} locked", Locked ? "" : "n't");
 #endif
     }
 } // namespace Ame::Gfx::RG

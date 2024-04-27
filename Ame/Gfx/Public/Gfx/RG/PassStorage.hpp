@@ -6,7 +6,7 @@
 
 namespace Ame::Gfx::RG
 {
-    class Builder
+    class PassStorage
     {
         friend class Graph;
 
@@ -14,7 +14,7 @@ namespace Ame::Gfx::RG
         {
             Resolver RgResolver;
             BuilderInfo(
-                Storage& RgStorage) :
+                ResourceStorage& RgStorage) :
                 RgResolver(RgStorage)
             {
             }
@@ -113,6 +113,6 @@ namespace Ame::Gfx::RG
 
     private:
         std::vector<UPtr<Pass>> m_Passes;
-        bool m_IsBuilt = false;
+        bool                    m_IsBuilt = true;
     };
 } // namespace Ame::Gfx::RG

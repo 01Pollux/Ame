@@ -11,12 +11,12 @@ namespace Ame::Gfx::RG
 {
     class Pass
     {
-        friend class Builder;
+        friend class PassStorage;
         friend class DependencyLevel;
 
     public:
         using BuildFuncType   = std::move_only_function<void(Resolver&)>;
-        using ExecuteFuncType = std::move_only_function<void(const Storage&, Rhi::CommandList*)>;
+        using ExecuteFuncType = std::move_only_function<void(const ResourceStorage&, Rhi::CommandList*)>;
 
         Pass() = default;
 
@@ -117,8 +117,8 @@ namespace Ame::Gfx::RG
         /// Execute render pass
         /// </summary>
         void DoExecute(
-            const Storage&    RgStorage,
-            Rhi::CommandList* CommandList)
+            const ResourceStorage& RgStorage,
+            Rhi::CommandList*      CommandList)
         {
             if (m_ExecuteFunc) [[likely]]
             {
@@ -142,7 +142,7 @@ namespace Ame::Gfx::RG
     {
     public:
         using BuildFuncType   = std::move_only_function<void(Ty&, Resolver&)>;
-        using ExecuteFuncType = std::move_only_function<void(const Ty&, const Storage&, nri::CommandBuffer*)>;
+        using ExecuteFuncType = std::move_only_function<void(const Ty&, const ResourceStorage&, nri::CommandBuffer*)>;
 
         /// <summary>
         /// Initializes a build callback

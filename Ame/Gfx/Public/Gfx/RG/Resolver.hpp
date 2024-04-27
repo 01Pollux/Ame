@@ -8,11 +8,11 @@ namespace Ame::Gfx::RG
 
     class Resolver
     {
-        friend class Builder;
+        friend class PassStorage;
 
     public:
         Resolver(
-            Storage& RgStorage);
+            ResourceStorage& RgStorage);
 
     public:
         /// <summary>
@@ -283,7 +283,7 @@ namespace Ame::Gfx::RG
             Rhi::LayoutType   Layout);
 
     private:
-        Storage& m_Storage;
+        ResourceStorage& m_Storage;
 
         std::vector<ResourceViewId> m_RenderTargets;
         ResourceViewId              m_DepthStencil;

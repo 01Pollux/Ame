@@ -1,16 +1,15 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+#include <Gfx/RG/Graph.hpp>
+
+#include <Core/Signals/Frame.hpp>
 
 namespace Ame
 {
     class IFrame;
     class FrameTimer;
 
-    namespace Ecs
-    {
-        struct Universe;
-    } // namespace Ecs
     namespace Rhi
     {
         class Device;
@@ -23,10 +22,9 @@ namespace Ame::Gfx
     {
     public:
         Renderer(
-            IFrame&        Frame,
-            FrameTimer&    Timer,
-            Rhi::Device&   Device,
-            Ecs::Universe& EcsUniverse);
+            Ptr<IFrame>  Frame,
+            FrameTimer&  Timer,
+            Rhi::Device& Device);
 
     private:
         /// <summary>
@@ -50,9 +48,15 @@ namespace Ame::Gfx
         void OnEndFrame();
 
     private:
-        Ref<IFrame>        m_Frame;
-        Ref<FrameTimer>    m_Timer;
-        Ref<Rhi::Device>   m_Device;
-        Ref<Ecs::Universe> m_EcsUniverse;
+        Ptr<IFrame>      m_Frame;
+        Ref<FrameTimer>  m_Timer;
+        Ref<Rhi::Device> m_Device;
+
+        Signals::OnUpdate::Handle     m_OnUpdate;
+        Signals::OnStartFrame::Handle m_OnStartFrame;
+        Signals::OnRender::Handle     m_OnRender;
+        Signals::OnEndFrame::Handle   m_OnEndFrame;
+
+        RG::Graph m_Graph;
     };
 } // namespace Ame::Gfx

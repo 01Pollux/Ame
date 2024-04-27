@@ -4,7 +4,7 @@ target("Core")
         "boost",
         "eastl",
         "mimalloc",
-        "kangaru",
+        "ame.kangaru",
         "spdlog",
         "fmt",
         "flecs",

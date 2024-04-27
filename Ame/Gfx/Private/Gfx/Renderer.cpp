@@ -1,55 +1,61 @@
 #include <Gfx/Renderer.hpp>
 
 #include <Frame/Frame.hpp>
-#include <Ecs/Universe.hpp>
 #include <Rhi/Device/Device.hpp>
 
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        IFrame&        Frame,
-        FrameTimer&    Timer,
-        Rhi::Device&   Device,
-        Ecs::Universe& EcsUniverse) :
+        Ptr<IFrame>  Frame,
+        FrameTimer&  Timer,
+        Rhi::Device& Device) :
         m_Frame(Frame),
         m_Timer(Timer),
         m_Device(Device),
-        m_EcsUniverse(EcsUniverse)
+        m_Graph(Timer, Device)
     {
         if (!Device.IsHeadless())
         {
-            Frame.OnUpdate()
-                .ObjectSignal()
-                .Listen([this]
-                        { OnUpdate(); });
+            m_OnUpdate = {
+                Frame->OnUpdate()
+                    .ObjectSignal(),
+                [this]
+                { OnUpdate(); }
+            };
 
-            Frame.OnStartFrame()
-                .ObjectSignal()
-                .Listen([this]
-                        { OnStartFrame(); });
+            m_OnStartFrame = {
+                Frame->OnStartFrame()
+                    .ObjectSignal(),
+                [this]
+                { OnStartFrame(); }
+            };
 
-            Frame.OnRender()
-                .ObjectSignal()
-                .Listen([this]
-                        { OnRender(); });
+            m_OnRender = {
+                Frame->OnRender()
+                    .ObjectSignal(),
+                [this]
+                { OnRender(); }
+            };
 
-            Frame.OnEndFrame()
-                .ObjectSignal()
-                .Listen([this]
-                        { OnEndFrame(); });
+            m_OnEndFrame = {
+                Frame->OnEndFrame()
+                    .ObjectSignal(),
+                [this]
+                { OnEndFrame(); }
+            };
         }
     }
 
     void Renderer::OnUpdate()
     {
-        m_EcsUniverse.get().ProgressActiveWorld(m_Timer.get().GetDeltaTime());
+        m_Graph.Update();
     }
 
     void Renderer::OnStartFrame()
     {
         if (!m_Device.get().ProcessEvents()) [[unlikely]]
         {
-            m_Frame.get().Stop();
+            m_Frame->Stop();
         }
         else
         {
@@ -59,6 +65,7 @@ namespace Ame::Gfx
 
     void Renderer::OnRender()
     {
+        m_Graph.Execute();
     }
 
     void Renderer::OnEndFrame()

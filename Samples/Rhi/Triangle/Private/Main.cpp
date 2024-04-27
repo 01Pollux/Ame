@@ -7,7 +7,7 @@
 #include <Frame/Subsystem/Timer.hpp>
 
 #include <Rhi/Resource/Shader.hpp>
-#include <Rhi/Resource/CommandList.hpp>
+#include <Rhi/CommandList/CommandList.hpp>
 #include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Buffer.hpp>
 #include <Rhi/Resource/VertexView.hpp>
@@ -45,11 +45,14 @@ protected:
             Coroutine,
             RhiDevice);
 
-        Frame.OnRender().ObjectSignal().Listen(
-            [this, &RhiDevice, &Timer = GetSubsystem<FrameTimerSubsystem>()]
+        m_OnUpdate = {
+            Frame.OnRender()
+                .ObjectSignal(),
+            [this, &RhiDevice, &Timer = GetSubsystem<FrameTimerSubsystem>()]()
             {
                 Render(Timer, RhiDevice);
-            });
+            }
+        };
     }
 
 private:
@@ -388,6 +391,8 @@ private:
     Rhi::SamplerResourceView m_TextureSampler;
 
     Rhi::Buffer m_TempBuffer;
+
+    Signals::OnUpdate::Handle m_OnUpdate;
 };
 
 AME_MAIN(Argc, Argv)

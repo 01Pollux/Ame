@@ -1,9 +1,23 @@
 #include <Ecs/Universe.hpp>
+#include <Frame/Frame.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Ecs
 {
+    Universe::Universe(
+        const Ptr<IFrame>& Frame,
+        FrameTimer&        Timer) :
+        m_Frame(Frame)
+    {
+        m_OnUpdate = {
+            Frame->OnUpdate()
+                .ObjectSignal(),
+            [this, &Timer]
+            { ProgressActiveWorld(Timer.GetDeltaTime()); }
+        };
+    }
+
     World& Universe::CreateWorld(
         const StringU8& Name)
     {
@@ -67,6 +81,8 @@ namespace Ame::Ecs
     {
         return m_ActiveWorld;
     }
+
+    //
 
     void Universe::ProgressActiveWorld(
         double DeltaTime)

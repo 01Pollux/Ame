@@ -1,38 +1,42 @@
-#include <Gfx/RG/Builder.hpp>
+#include <Gfx/RG/PassStorage.hpp>
 #include <Gfx/RG/Context.hpp>
 #include <Gfx/RG/DependencyLevel.hpp>
 
 namespace Ame::Gfx::RG
 {
-    Pass* Builder::AddPass(
+    Pass* PassStorage::AddPass(
         UPtr<Pass> RgPass)
     {
+        m_IsBuilt = false;
         return m_Passes.emplace_back(std::move(RgPass)).get();
     }
 
-    UPtr<Pass> Builder::RemovePass(
+    UPtr<Pass> PassStorage::RemovePass(
         const Pass* RgPass)
     {
         UPtr<Pass> RemovedPass;
-        std::erase_if(m_Passes,
-                      [&](auto& CurPass)
-                      {
-                          if (CurPass.get() == RgPass)
-                          {
-                              RemovedPass = std::move(CurPass);
-                              return true;
-                          }
-                          return false;
-                      });
+        std::erase_if(
+            m_Passes,
+            [&](auto& CurPass)
+            {
+                if (CurPass.get() == RgPass)
+                {
+                    m_IsBuilt   = false;
+                    RemovedPass = std::move(CurPass);
+                    return true;
+                }
+                return false;
+            });
         return RemovedPass;
     }
 
-    void Builder::Clear()
+    void PassStorage::Clear()
     {
+        m_IsBuilt = false;
         m_Passes.clear();
     }
 
-    bool Builder::ContainsPass(
+    bool PassStorage::ContainsPass(
         const Pass* RgPass)
     {
         return std::ranges::contains(m_Passes, RgPass, [](auto& CurPass)
@@ -41,11 +45,18 @@ namespace Ame::Gfx::RG
 
     //
 
-    void Builder::Build(
+    void PassStorage::Build(
         Context& RgContext)
     {
         if (m_IsBuilt)
         {
+            return;
+        }
+        m_IsBuilt = true;
+
+        if (m_Passes.empty()) [[unlikely]]
+        {
+            RgContext.Build({});
             return;
         }
 
@@ -54,13 +65,13 @@ namespace Ame::Gfx::RG
         Builders.reserve(m_Passes.size());
         for (size_t i = 0; i < m_Passes.size(); i++)
         {
-            auto& Builder = Builders.emplace_back(RgContext.GetStorage());
-            m_Passes[i]->DoBuild(Builder.RgResolver);
+            auto& PassStorage = Builders.emplace_back(RgContext.GetStorage());
+            m_Passes[i]->DoBuild(PassStorage.RgResolver);
         }
         RgContext.Build(BuildPasses(RgContext, Builders));
     }
 
-    void Builder::RemoveOneShotPasses()
+    void PassStorage::RemoveOneShotPasses()
     {
         using namespace EnumBitOperators;
 
@@ -73,7 +84,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    auto Builder::BuildPasses(
+    auto PassStorage::BuildPasses(
         Context&          RgContext,
         BuildersListType& Builders) -> DepepndencyLevelListType
     {
@@ -84,7 +95,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    auto Builder::BuildAdjacencyLists(
+    auto PassStorage::BuildAdjacencyLists(
         const BuildersListType& Builders) -> AdjacencyListType
     {
         AdjacencyListType AdjacencyList(m_Passes.size());
@@ -116,7 +127,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    auto Builder::TopologicalSort(
+    auto PassStorage::TopologicalSort(
         const AdjacencyListType& AdjacencyList) -> TopologicalSortListType
     {
         std::stack<size_t> Stack{};
@@ -142,7 +153,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    void Builder::DepthFirstSearch(
+    void PassStorage::DepthFirstSearch(
         const AdjacencyListType& AdjacencyList,
         size_t                   Index,
         std::vector<bool>&       Visited,
@@ -161,7 +172,7 @@ namespace Ame::Gfx::RG
 
     //
 
-    auto Builder::BuildDependencyLevels(
+    auto PassStorage::BuildDependencyLevels(
         Context&                       RgContext,
         const TopologicalSortListType& TopologicalSort,
         const AdjacencyListType&       AdjacencyList,

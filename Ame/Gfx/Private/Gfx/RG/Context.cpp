@@ -5,20 +5,20 @@ namespace Ame::Gfx::RG
     Context::Context(
         Rhi::Device& Device) :
         m_Device(Device),
-        m_Storage(Device)
+        m_Resources(Device)
     {
     }
 
     //
 
-    const Storage& Context::GetStorage() const
+    const ResourceStorage& Context::GetStorage() const
     {
-        return m_Storage;
+        return m_Resources;
     }
 
-    Storage& Context::GetStorage()
+    ResourceStorage& Context::GetStorage()
     {
-        return m_Storage;
+        return m_Resources;
     }
 
     //

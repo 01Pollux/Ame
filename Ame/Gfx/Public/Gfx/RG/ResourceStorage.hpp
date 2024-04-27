@@ -6,7 +6,7 @@
 
 namespace Ame::Gfx::RG
 {
-    class Storage
+    class ResourceStorage
     {
         friend class Resolver;
         friend class Context;
@@ -15,7 +15,7 @@ namespace Ame::Gfx::RG
         using ResourceMapType = std::map<ResourceId, ResourceHandle>;
 
     public:
-        Storage(
+        ResourceStorage(
             Rhi::Device& Device);
 
     public:

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Gfx/RG/Builder.hpp>
+#include <Gfx/RG/PassStorage.hpp>
 #include <Gfx/RG/Context.hpp>
 
 #include <Frame/Timer.hpp>
@@ -38,24 +38,23 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get the render graph builder
         /// </summary>
-        [[nodiscard]] Builder& GetBuilder();
-
-    public:
-        /// <summary>
-        /// Get the render graph storage
-        /// </summary>
-        [[nodiscard]] const Storage& GetStorage() const;
+        [[nodiscard]] PassStorage& GetPassStorage();
 
         /// <summary>
         /// Get the render graph storage
         /// </summary>
-        [[nodiscard]] Storage& GetStorage();
+        [[nodiscard]] const ResourceStorage& GetResourceStorage() const;
+
+        /// <summary>
+        /// Get the render graph storage
+        /// </summary>
+        [[nodiscard]] ResourceStorage& GetResourceStorage();
 
     private:
         Ref<FrameTimer>  m_Timer;
         Ref<Rhi::Device> m_Device;
 
-        Context m_Context;
-        Builder m_Builder;
+        Context     m_Context;
+        PassStorage m_Builder;
     };
 } // namespace Ame::Gfx::RG

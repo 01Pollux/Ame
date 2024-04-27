@@ -2,6 +2,9 @@
 
 #include <Core/Subsystem.hpp>
 
+#include <Frame/Subsystem/Timer.hpp>
+#include <Frame/Subsystem/Frame.hpp>
+
 #include <Ecs/Universe.hpp>
 
 namespace Ame::Ecs

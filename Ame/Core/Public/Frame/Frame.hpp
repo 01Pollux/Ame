@@ -11,7 +11,7 @@ namespace Ame
         IFrame(
             FrameTimer& Timer);
 
-        ~IFrame() = default;
+        virtual ~IFrame() = default;
 
         void Run();
 

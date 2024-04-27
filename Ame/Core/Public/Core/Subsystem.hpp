@@ -79,6 +79,17 @@ namespace Ame
     template<typename Ty>
     using AbstractSharedSubsystem = kgr::abstract_shared_service<Ty>;
 
+    /// <summary>
+    /// This class is an abstract service that can be overrided by kgr::unique_service
+    ///
+    /// As it is abstract, a service that overrides it must be instanciated by the container before usage.
+    /// </summary>
+    template<typename Ty>
+    struct AbstractUniqueSubsystem : kgr::abstract
+    {
+        auto forward() -> std::unique_ptr<Ty>;
+    };
+
     //
 
     /// <summary>

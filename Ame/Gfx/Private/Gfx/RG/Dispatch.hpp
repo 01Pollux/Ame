@@ -9,7 +9,7 @@ namespace Ame::Gfx::RG
     public:
         GraphicsSetup(
             Rhi::CommandList&               CommandList,
-            const Storage&                  RgStorage,
+            const ResourceStorage&          RgStorage,
             bool                            Enable,
             std::span<const ResourceViewId> RenderTargets,
             const ResourceViewId&           DepthStencil);
@@ -21,7 +21,7 @@ namespace Ame::Gfx::RG
         /// Setup the render target for the graphics pipeline
         /// </summary>
         [[nodiscard]] std::vector<const Rhi::ResourceView*> SetupRenderTargets(
-            const Storage&                  RgStorage,
+            const ResourceStorage&          RgStorage,
             std::span<Rhi::ClearDesc>       ClearDescs,
             std::span<const ResourceViewId> RenderTargets) const;
 
@@ -29,7 +29,7 @@ namespace Ame::Gfx::RG
         /// Setup the depth stencil for the graphics pipeline
         /// </summary>
         [[nodiscard]] const Rhi::ResourceView* SetupDepthStencil(
-            const Storage&            RgStorage,
+            const ResourceStorage&    RgStorage,
             std::span<Rhi::ClearDesc> ClearDescs,
             const ResourceViewId&     DepthStencil) const;
 

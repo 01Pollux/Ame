@@ -17,9 +17,10 @@
 namespace Ame::Gfx::RG
 {
     class Pass;
-    class Builder;
     class Context;
-    class Storage;
+    class DependencyLevel;
+    class PassStorage;
+    class ResourceStorage;
     class Graph;
 
     class ResourceId;

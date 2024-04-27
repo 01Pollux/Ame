@@ -9,15 +9,15 @@ namespace Ame::Gfx::RG
 {
     struct FrameResource
     {
-        alignas(16) Math::Matrix4x4 World;
+        Math::Matrix4x4 World;
 
-        alignas(16) Math::Matrix4x4 View;
-        alignas(16) Math::Matrix4x4 Projection;
-        alignas(16) Math::Matrix4x4 ViewProjection;
+        Math::Matrix4x4 View;
+        Math::Matrix4x4 Projection;
+        Math::Matrix4x4 ViewProjection;
 
-        alignas(16) Math::Matrix4x4 ViewInverse;
-        alignas(16) Math::Matrix4x4 ProjectionInverse;
-        alignas(16) Math::Matrix4x4 ViewProjectionInverse;
+        Math::Matrix4x4 ViewInverse;
+        Math::Matrix4x4 ProjectionInverse;
+        Math::Matrix4x4 ViewProjectionInverse;
 
         Math::Vector2 Viewport;
 

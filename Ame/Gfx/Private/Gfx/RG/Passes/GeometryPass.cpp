@@ -1,5 +1,5 @@
 #include <Gfx/RG/Passes/GeometryPass.hpp>
-#include <Gfx/RG/Storage.hpp>
+#include <Gfx/RG/ResourceStorage.hpp>
 
 #include <Rhi/Device/Device.hpp>
 
@@ -31,6 +31,6 @@ namespace Ame::Gfx::RG::Std
                             .ForceColor = true },
                         Desc.format);
                 })
-            .Execute([this](const Storage& RgStorage, Rhi::CommandList* CommandList) {});
+            .Execute([this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList) {});
     }
 } // namespace Ame::Gfx::RG::Std
