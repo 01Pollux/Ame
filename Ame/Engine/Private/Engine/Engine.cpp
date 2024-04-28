@@ -8,7 +8,7 @@ namespace Ame
 {
     void BaseEngine::Run()
     {
-        IFrame& Frame = *GetSubsystem<FrameSubsystem>();
+        IFrame& Frame = GetSubsystem<FrameSubsystem>();
 
         DoInitialize();
         Frame.Run();
@@ -17,7 +17,7 @@ namespace Ame
 
     void BaseEngine::Close()
     {
-        IFrame& Frame = *GetSubsystem<FrameSubsystem>();
+        IFrame& Frame = GetSubsystem<FrameSubsystem>();
         Frame.Stop();
     }
 

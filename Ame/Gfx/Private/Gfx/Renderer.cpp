@@ -6,7 +6,7 @@
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        Ptr<IFrame>  Frame,
+        IFrame&      Frame,
         FrameTimer&  Timer,
         Rhi::Device& Device) :
         m_Frame(Frame),
@@ -17,28 +17,28 @@ namespace Ame::Gfx
         if (!Device.IsHeadless())
         {
             m_OnUpdate = {
-                Frame->OnUpdate()
+                Frame.OnUpdate()
                     .ObjectSignal(),
                 [this]
                 { OnUpdate(); }
             };
 
             m_OnStartFrame = {
-                Frame->OnStartFrame()
+                Frame.OnStartFrame()
                     .ObjectSignal(),
                 [this]
                 { OnStartFrame(); }
             };
 
             m_OnRender = {
-                Frame->OnRender()
+                Frame.OnRender()
                     .ObjectSignal(),
                 [this]
                 { OnRender(); }
             };
 
             m_OnEndFrame = {
-                Frame->OnEndFrame()
+                Frame.OnEndFrame()
                     .ObjectSignal(),
                 [this]
                 { OnEndFrame(); }
@@ -55,7 +55,7 @@ namespace Ame::Gfx
     {
         if (!m_Device.get().ProcessEvents()) [[unlikely]]
         {
-            m_Frame->Stop();
+            m_Frame.get().Stop();
         }
         else
         {

@@ -22,7 +22,7 @@ namespace Ame::Gfx
     {
     public:
         Renderer(
-            Ptr<IFrame>  Frame,
+            IFrame&      Frame,
             FrameTimer&  Timer,
             Rhi::Device& Device);
 
@@ -48,7 +48,7 @@ namespace Ame::Gfx
         void OnEndFrame();
 
     private:
-        Ptr<IFrame>      m_Frame;
+        Ref<IFrame>      m_Frame;
         Ref<FrameTimer>  m_Timer;
         Ref<Rhi::Device> m_Device;
 

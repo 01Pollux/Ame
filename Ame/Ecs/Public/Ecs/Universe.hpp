@@ -19,8 +19,8 @@ namespace Ame::Ecs
 
     public:
         Universe(
-            const Ptr<IFrame>& Frame,
-            FrameTimer&        Timer);
+            IFrame&     Frame,
+            FrameTimer& Timer);
 
     public:
         /// <summary>
@@ -69,8 +69,6 @@ namespace Ame::Ecs
             double DeltaTime);
 
     private:
-        Ptr<IFrame> m_Frame;
-
         Signals::OnUpdate::Handle m_OnUpdate;
 
         WorldMap m_Worlds;

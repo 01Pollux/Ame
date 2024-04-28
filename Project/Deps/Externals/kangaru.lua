@@ -3,11 +3,8 @@ package("ame.kangaru")
     set_homepage("https://github.com/gracicot/kangaru")
     set_description("🦘 A dependency injection container for C++11, C++14 and later")
     set_license("MIT")
-
-    add_urls("https://github.com/gracicot/kangaru/archive/refs/tags/$(version).tar.gz",
-             "https://github.com/gracicot/kangaru.git")
-
-    add_versions("v4.3.1", "3896ea2a13cc1c220b4d83bf598e27e77004170b4a212af8f14264f8a6fb0e45")
+    
+    add_urls("https://github.com/gracicot/kangaru.git")
 
     add_deps("cmake")
 

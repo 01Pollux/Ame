@@ -3,9 +3,13 @@
 
 #include <Rhi/Device/Device.hpp>
 
+#include <Ecs/Component/Geometry2D/Sprite.hpp>
+
 namespace Ame::Gfx::RG::Std
 {
-    GeometryPass::GeometryPass()
+    GeometryPass::GeometryPass(
+        Ecs::Universe& Universe) :
+        m_Universe(Universe)
     {
         Name("GeometryPass")
             .SetFlags(PassFlags::Graphics)
@@ -31,6 +35,22 @@ namespace Ame::Gfx::RG::Std
                             .ForceColor = true },
                         Desc.format);
                 })
-            .Execute([this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList) {});
+            .Execute(
+                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
+                {
+                    //auto& ActiveWorld = m_Universe.get().GetActiveWorld();
+                    //if (ActiveWorld == nullptr) [[unlikely]]
+                    //{
+                    //    return;
+                    //}
+
+                    //// auto& Batcher = RgStorage.GetSceneBatcher();
+                    //auto& Batcher = m_DrawBatcher;
+
+                    //for (auto& Entity : ActiveWorld->Query<Component::Renderable>())
+                    //{
+
+                    //}
+                });
     }
 } // namespace Ame::Gfx::RG::Std

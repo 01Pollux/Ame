@@ -6,12 +6,11 @@
 namespace Ame::Ecs
 {
     Universe::Universe(
-        const Ptr<IFrame>& Frame,
-        FrameTimer&        Timer) :
-        m_Frame(Frame)
+        IFrame&     Frame,
+        FrameTimer& Timer)
     {
         m_OnUpdate = {
-            Frame->OnUpdate()
+            Frame.OnUpdate()
                 .ObjectSignal(),
             [this, &Timer]
             { ProgressActiveWorld(Timer.GetDeltaTime()); }

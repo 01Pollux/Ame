@@ -35,7 +35,7 @@ protected:
 
         auto& RhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
         auto& Coroutine = *GetSubsystem<CoroutineSubsystem>();
-        m_Frame         = GetSubsystem<FrameSubsystem>();
+        auto& Frame     = GetSubsystem<FrameSubsystem>();
 
         m_PipelineStateTask = CreateBasicPipeline(
             Coroutine,
@@ -46,7 +46,7 @@ protected:
             RhiDevice);
 
         m_OnUpdate = {
-            m_Frame->OnRender()
+            Frame.OnRender()
                 .ObjectSignal(),
             [this, &RhiDevice, &Timer = GetSubsystem<FrameTimerSubsystem>()]()
             {
@@ -392,7 +392,6 @@ private:
 
     Rhi::Buffer m_TempBuffer;
 
-    Ptr<IFrame>               m_Frame;
     Signals::OnUpdate::Handle m_OnUpdate;
 };
 
