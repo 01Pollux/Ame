@@ -6,10 +6,5 @@ namespace Ame::Gfx
 {
     class DrawBatcher
     {
-    public:
-        void DrawSprite();
-
-    private:
-        SpriteBatch m_SpriteBatch;
     };
 } // namespace Ame::Gfx

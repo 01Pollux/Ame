@@ -3,7 +3,7 @@
 #include <Gfx/RG/Pass.hpp>
 
 #include <Ecs/Universe.hpp>
-#include <Gfx/Ecs/Component/Renderable2D.hpp>
+#include <Gfx/Ecs/Component/RenderInstance.hpp>
 #include <Gfx/Draw/Batcher/Batcher.hpp>
 
 namespace Ame::Gfx::RG::Std
@@ -24,7 +24,7 @@ namespace Ame::Gfx::RG::Std
         Ref<Ecs::Universe> m_Universe;
 
         // TODO: this should be in seperate pass where we're going to be using it for depth prepass, indirect command composer, light pass, etc.
-        using Render2DRuleType = Ecs::Rule<const Ecs::Gfx::Component::Renderable2D>;
+        using Render2DRuleType = Ecs::Rule<const Ecs::Gfx::Component::RenderInstance>;
 
         Render2DRuleType m_Render2DRule;
         DrawBatcher      m_DrawBatcher;

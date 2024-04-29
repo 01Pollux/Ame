@@ -1,9 +1,11 @@
-package("nri")
+package("ame.nri")
+    set_kind("library")
     set_homepage("https://github.com/NVIDIAGameWorks/NRI")
     set_description("NRI is a low-level abstract render interface which currently supports three backends: D3D11, D3D12 and Vulkan (VK).")
     set_license("MIT")
-    set_sourcedir(path_from_root("Deps/Externals/nri"))
     add_rpathdirs("$ORIGIN")
+
+    add_urls("https://github.com/NVIDIAGameWorks/NRI.git")
 
     add_deps("cmake")
     if is_plat("macosx") then
@@ -16,16 +18,6 @@ package("nri")
         add_syslinks("dl", "pthread")
     end
 
-    on_load(function (package)
-        if package:config("x11") then
-            package:add("deps", "libx11", "libxrandr", "libxrender", "libxinerama", "libxfixes", "libxcursor", "libxi", "libxext")
-        end
-        if package:config("wayland") then
-            package:add("deps", "wayland")
-        end
-        package:add("includedirs", "Include")
-    end)
-    
     add_configs("x11", {description = "Build support for X11", default = is_plat("linux"), type = "boolean"})
     add_configs("wayland", {description = "Build support for Wayland", default = false, type = "boolean"})
     add_configs("vk", {description = "Build support for Vulkan", default = true, type = "boolean"})
@@ -43,6 +35,31 @@ package("nri")
     end)
 
     on_install(function (package)
+        -- in xmake, append 'install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})' to CMakeLists.txt
+        local text = [[
+# Export NVAPI
+if (INPUT_LIB_NVAPI_FOUND)
+    add_library (NVAPI INTERFACE)
+    target_link_libraries (NVAPI INTERFACE ${INPUT_LIB_NVAPI})
+endif ()
+
+# Install
+include(GNUInstallDirs)
+
+install (TARGETS ${PROJECT_NAME}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
+        ]]
+        
+        local file = io.open("CMakeLists.txt", "a")
+        file:write(text)
+        file:close()
+
         local configs = {
             "-DNRI_ENABLE_D3D11_SUPPORT=OFF"
         };

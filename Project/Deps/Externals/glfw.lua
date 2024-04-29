@@ -1,9 +1,10 @@
 package("ame.glfw")
+    set_kind("library")
     set_homepage("https://www.glfw.org/")
     set_description("GLFW is an Open Source, multi-platform library for OpenGL, OpenGL ES and Vulkan application development.")
     set_license("zlib")
-    set_sourcedir(path_from_root("Deps/Externals/glfw"))
-    add_rpathdirs("$ORIGIN")
+
+    add_urls("https://github.com/01Pollux/glfw.git")
 
     add_deps("cmake")
     if is_plat("macosx") then

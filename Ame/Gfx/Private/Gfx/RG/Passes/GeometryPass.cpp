@@ -2,8 +2,6 @@
 #include <Gfx/RG/ResourceStorage.hpp>
 #include <Rhi/Device/Device.hpp>
 
-#include <Gfx/Ecs/Component/Visibility.hpp>
-
 namespace Ame::Gfx::RG::Std
 {
     GeometryPass::GeometryPass(
@@ -50,9 +48,7 @@ namespace Ame::Gfx::RG::Std
                         m_Render2DRule.iter()
                             .set_var(CameraIndex, FrameData.CurrentCamera);
 
-                    RenderIter.iter([&](Ecs::Iterator& Iter, const Ecs::Gfx::Component::Renderable2D* Renderables) {
-                        Batcher.
-                    });
+                    RenderIter.iter([&](Ecs::Iterator& Iter, const Ecs::Gfx::Component::RenderInstance* Instances) {});
                 });
     }
 
@@ -71,8 +67,8 @@ namespace Ame::Gfx::RG::Std
         }
 
         m_Render2DRule = ActiveWorld
-                             ->CreateRule<const Ecs::Gfx::Component::Renderable2D>()
-                             .with<Ecs::Gfx::Component::VisibleBy>("$Camera")
+                             ->CreateRule<const Ecs::Gfx::Component::RenderInstance>()
+                             //.with<Ecs::Gfx::Component::VisibleBy>("$Camera")
                              .build();
     }
 } // namespace Ame::Gfx::RG::Std
