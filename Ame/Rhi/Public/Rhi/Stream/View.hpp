@@ -11,11 +11,11 @@ namespace Ame::Rhi::Streaming
         Buffer      RhiBuffer;
         BufferRange Range;
 
-        BufferView(
+        explicit BufferView(
             Buffer      RhiBuffer,
-            BufferRange Range) :
+            BufferRange Range = EntireBuffer) :
             RhiBuffer(std::move(RhiBuffer)),
-            Range(Range.Transform(RhiBuffer))
+            Range(Range.Transform(this->RhiBuffer))
         {
         }
     };

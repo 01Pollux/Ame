@@ -90,6 +90,12 @@ namespace Ame::Rhi
         void* GetPtr(
             size_t Offset = 0);
 
+        /// <summary>
+        /// Get the buffer pointer. (Only for host visible buffers)
+        /// </summary>
+        const void* GetPtr(
+            size_t Offset = 0) const;
+
     public:
         /// <summary>
         /// Create a buffer view.

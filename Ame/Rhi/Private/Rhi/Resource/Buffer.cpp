@@ -154,6 +154,15 @@ namespace Ame::Rhi
         return static_cast<uint8_t*>(m_Mapped) + Offset;
     }
 
+    const void* Buffer::GetPtr(
+        size_t Offset) const
+    {
+        AME_LOG_ASSERT(Log::Rhi(), m_Mapped != nullptr, "Buffer is not host visible.");
+        return static_cast<const uint8_t*>(m_Mapped) + Offset;
+    }
+
+    //
+
     BufferResourceView Buffer::CreateView(
         const BufferViewDesc& Desc) const
     {

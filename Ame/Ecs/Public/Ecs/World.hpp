@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ecs/Entity.hpp>
+#include <Ecs/Rule.hpp>
 
 namespace Ame::Ecs
 {
@@ -47,6 +48,16 @@ namespace Ame::Ecs
         [[nodiscard]] StringU8 GetUniqueEntityName(
             const char*   Name,
             const Entity& Parent = Entity::Null) const;
+
+    public:
+        /// <summary>
+        /// Create a new rule in the world for querying entities.
+        /// </summary>
+        template<typename... ArgsTy>
+        [[nodiscard]] RuleBuilder<ArgsTy...> CreateRule()
+        {
+            return m_World->rule_builder<ArgsTy...>();
+        }
 
     public:
         /// <summary>

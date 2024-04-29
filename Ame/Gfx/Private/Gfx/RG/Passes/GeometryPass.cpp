@@ -1,9 +1,8 @@
 #include <Gfx/RG/Passes/GeometryPass.hpp>
 #include <Gfx/RG/ResourceStorage.hpp>
-
 #include <Rhi/Device/Device.hpp>
 
-#include <Ecs/Component/Geometry2D/Sprite.hpp>
+#include <Gfx/Ecs/Component/Visibility.hpp>
 
 namespace Ame::Gfx::RG::Std
 {
@@ -38,19 +37,42 @@ namespace Ame::Gfx::RG::Std
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
-                    //auto& ActiveWorld = m_Universe.get().GetActiveWorld();
-                    //if (ActiveWorld == nullptr) [[unlikely]]
-                    //{
-                    //    return;
-                    //}
+                    CreateRenderRules();
 
-                    //// auto& Batcher = RgStorage.GetSceneBatcher();
-                    //auto& Batcher = m_DrawBatcher;
+                    auto& FrameData = RgStorage.GetFrameResourceData();
 
-                    //for (auto& Entity : ActiveWorld->Query<Component::Renderable>())
-                    //{
+                    // auto& Batcher = RgStorage.GetSceneBatcher();
+                    auto& Batcher = m_DrawBatcher;
 
-                    //}
+                    auto CameraIndex = m_Render2DRule.find_var("Camera");
+
+                    Ecs::Iterable RenderIter =
+                        m_Render2DRule.iter()
+                            .set_var(CameraIndex, FrameData.CurrentCamera);
+
+                    RenderIter.iter([&](Ecs::Iterator& Iter, const Ecs::Gfx::Component::Renderable2D* Renderables) {
+                        Batcher.
+                    });
                 });
+    }
+
+    void GeometryPass::CreateRenderRules()
+    {
+        auto ActiveWorld = m_Universe.get().GetActiveWorld();
+        if (ActiveWorld == nullptr) [[unlikely]]
+        {
+            m_Render2DRule = {};
+            return;
+        }
+
+        if (m_Render2DRule) [[likely]]
+        {
+            return;
+        }
+
+        m_Render2DRule = ActiveWorld
+                             ->CreateRule<const Ecs::Gfx::Component::Renderable2D>()
+                             .with<Ecs::Gfx::Component::VisibleBy>("$Camera")
+                             .build();
     }
 } // namespace Ame::Gfx::RG::Std

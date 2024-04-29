@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Gfx/RG/Core.hpp>
+
 #include <Math/Transform.hpp>
 #include <Math/Matrix.hpp>
 #include <Math/Vector.hpp>
+
+#include <Ecs/Entity.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -24,5 +27,7 @@ namespace Ame::Gfx::RG
         float EngineTime;
         float GameTime;
         float DeltaTime;
+
+        Ecs::Entity CurrentCamera;
     };
 } // namespace Ame::Gfx::RG

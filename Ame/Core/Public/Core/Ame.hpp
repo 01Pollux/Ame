@@ -79,6 +79,12 @@ namespace Ame
 
     template<typename Ty, typename ErrTy = std::exception_ptr>
     using Expect = std::expected<Ty, ErrTy>;
+
+    template<typename... ArgsTy>
+    using Tuple = std::tuple<ArgsTy...>;
+
+    template<typename First, typename Second>
+    using Pair = std::pair<First, Second>;
 } // namespace Ame
 
 namespace Ame::DbgImpl
