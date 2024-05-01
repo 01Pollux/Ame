@@ -10,14 +10,11 @@ namespace Ame::Ecs::Gfx::Component
     {
         uint32_t AABBIndex;
         uint32_t TransformIndex;
-        uint32_t MaterialIndex;
-        uint32_t VisibilityIndex;
+        uint32_t CameraMask;
 
         uint32_t VertexOffset;
+        uint32_t VertexSize;
         uint32_t IndexOffset;
         uint32_t IndexCount;
-
-        Rhi::Buffer VertexBuffer;
-        Rhi::Buffer IndexBuffer;
     };
 } // namespace Ame::Ecs::Gfx::Component

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Gfx/Draw/Buffers/SlotBasedBuffer.hpp>
+#include <Gfx/Ecs/Component/RenderInstance.hpp>
 
 namespace Ame::Gfx::Draw::Buffers
 {
-    using VisibilityBuffer = SlotBasedBuffer<uint32_t>;
+    using InstanceBuffer = SlotBasedBuffer<Ecs::Gfx::Component::RenderInstance>;
 } // namespace Ame::Gfx::Draw::Buffers
