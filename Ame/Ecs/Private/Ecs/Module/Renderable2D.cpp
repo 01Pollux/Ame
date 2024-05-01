@@ -9,7 +9,7 @@ namespace Ame::Ecs::Module
     Renderable2DModule::Renderable2DModule(
         flecs::world& FlecsWorld)
     {
-        FlecsWorld.module<Renderable2DModule>("2D");
+        FlecsWorld.module<Renderable2DModule>();
 
         RenderableModule::AttachRenderable(FlecsWorld.component<Component::Sprite>());
     }
