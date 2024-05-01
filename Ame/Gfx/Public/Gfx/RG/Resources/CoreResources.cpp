@@ -8,9 +8,14 @@ namespace Ame::Gfx::RG
 {
     CoreResources::CoreResources(
         Rhi::Device& Device) :
-        m_Device(Device)
+        m_Device(Device),
+        m_FrameResourceBuffer(AllocateFrameResource(Device)),
+        m_AABBBuffer(Device),
+        m_TransformBuffer(Device),
+        m_VertexBuffer(Device),
+        m_IndexBuffer(Device),
+        m_InstanceBuffer(Device)
     {
-        AllocateFrameResource();
     }
 
     //
@@ -24,6 +29,35 @@ namespace Ame::Gfx::RG
     {
         return m_FrameResource;
     }
+
+    //
+
+    const AABBBuffer& CoreResources::GetAABBBuffer() const
+    {
+        return m_AABBBuffer;
+    }
+
+    const TransformBuffer& CoreResources::GetTransformBuffer() const
+    {
+        return m_TransformBuffer;
+    }
+
+    const VertexBuffer& CoreResources::GetVertexBuffer() const
+    {
+        return m_VertexBuffer;
+    }
+
+    const IndexBuffer& CoreResources::GetIndexBuffer() const
+    {
+        return m_IndexBuffer;
+    }
+
+    const InstanceBuffer& CoreResources::GetInstanceBuffer() const
+    {
+        return m_InstanceBuffer;
+    }
+
+    //
 
     void CoreResources::UpdateFrameResource(
         float                        EngineTime,
@@ -62,12 +96,13 @@ namespace Ame::Gfx::RG
 
     //
 
-    void CoreResources::AllocateFrameResource()
+    Rhi::Buffer CoreResources::AllocateFrameResource(
+        Rhi::Device& Device)
     {
-        auto&   DeviceDesc = m_Device.get().GetDesc();
-        uint8_t FrameCount = m_Device.get().GetFrameCountInFlight();
+        auto&   DeviceDesc = Device.GetDesc();
+        uint8_t FrameCount = Device.GetFrameCountInFlight();
         size_t  BufferSize = Rhi::GetConstantBufferSize(DeviceDesc, sizeof(FrameResourceGPU), FrameCount);
 
-        m_FrameResourceBuffer = Rhi::Buffer(m_Device.get(), Rhi::MemoryLocation::HOST_UPLOAD, { .size = BufferSize, .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER });
+        return Rhi::Buffer(Device, Rhi::MemoryLocation::HOST_UPLOAD, { .size = BufferSize, .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER });
     }
 } // namespace Ame::Gfx::RG

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Gfx/RG/Resources/AABBBuffer.hpp>
 #include <Gfx/RG/Resources/FrameResource.hpp>
-#include <Gfx/RG/Resources/InstanceBuffer.hpp>
+#include <Gfx/RG/Resources/AABBBuffer.hpp>
 #include <Gfx/RG/Resources/TransformBuffer.hpp>
 #include <Gfx/RG/Resources/VertexBuffer.hpp>
 #include <Gfx/RG/Resources/IndexBuffer.hpp>
+#include <Gfx/RG/Resources/InstanceBuffer.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -16,16 +16,17 @@ namespace Ame::Gfx::RG
             Rhi::Device& Device);
 
     public:
-        /// <summary>
-        /// Get frame resource
-        /// </summary>
-        [[nodiscard]] const Rhi::Buffer& GetFrameResource() const;
-
-        /// <summary>
-        /// Get frame resource data
-        /// </summary>
+        [[nodiscard]] const Rhi::Buffer&      GetFrameResource() const;
         [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;
 
+    public:
+        [[nodiscard]] const AABBBuffer&      GetAABBBuffer() const;
+        [[nodiscard]] const TransformBuffer& GetTransformBuffer() const;
+        [[nodiscard]] const VertexBuffer&    GetVertexBuffer() const;
+        [[nodiscard]] const IndexBuffer&     GetIndexBuffer() const;
+        [[nodiscard]] const InstanceBuffer&  GetInstanceBuffer() const;
+
+    public:
         /// <summary>
         /// Update frame resource for the current frame
         /// </summary>
@@ -41,12 +42,19 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Allocate the frame resource
         /// </summary>
-        void AllocateFrameResource();
+        [[nodiscard]] static Rhi::Buffer AllocateFrameResource(
+            Rhi::Device& Device);
 
     private:
         Ref<Rhi::Device> m_Device;
 
         Rhi::Buffer      m_FrameResourceBuffer;
         FrameResourceCPU m_FrameResource;
+
+        AABBBuffer      m_AABBBuffer;
+        TransformBuffer m_TransformBuffer;
+        VertexBuffer    m_VertexBuffer;
+        IndexBuffer     m_IndexBuffer;
+        InstanceBuffer  m_InstanceBuffer;
     };
 } // namespace Ame::Gfx::RG

@@ -48,8 +48,8 @@ namespace Ame::Rhi::Util
         static constexpr uint32_t SizePerInstance = sizeof(Ty);
 
         SlotBasedBuffer(
-            Rhi::Device&        RhiDevice,
-            SlotBasedBufferDesc Desc = {}) :
+            Rhi::Device&               RhiDevice,
+            const SlotBasedBufferDesc& Desc = {}) :
             m_Device(RhiDevice),
             m_Desc(Desc)
         {
@@ -106,7 +106,7 @@ namespace Ame::Rhi::Util
         {
             return m_EmptySlots.size();
         }
-        
+
         /// <summary>
         /// Get the number of allocated slots in the buffer
         /// </summary>
@@ -189,7 +189,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         void RecreateBuffer()
         {
-            if (m_Stream)
+            if (m_Stream.is_open())
             {
                 Flush();
                 m_Stream.close();
@@ -199,7 +199,7 @@ namespace Ame::Rhi::Util
             CopyToBuffer(NewBuffer);
 
             m_Buffer = std::move(NewBuffer);
-            m_Stream.open(m_Buffer);
+            m_Stream.open(Rhi::Streaming::BufferView(m_Buffer));
         }
 
         /// <summary>

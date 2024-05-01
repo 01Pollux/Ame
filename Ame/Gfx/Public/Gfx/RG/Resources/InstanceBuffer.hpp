@@ -8,5 +8,6 @@ namespace Ame::Gfx::RG
     class InstanceBuffer : public Rhi::Util::SlotBasedBuffer<Ecs::Gfx::Component::RenderInstance>
     {
     public:
+        using SlotBasedBuffer::SlotBasedBuffer;
     };
 } // namespace Ame::Gfx::RG

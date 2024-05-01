@@ -48,8 +48,8 @@ namespace Ame::Rhi::Util
 
     public:
         BlockBasedBuffer(
-            Rhi::Device&         RhiDevice,
-            BlockBasedBufferDesc Desc) :
+            Rhi::Device&                RhiDevice,
+            const BlockBasedBufferDesc& Desc = {}) :
             m_Device(RhiDevice),
             m_Desc(Desc)
         {

@@ -7,5 +7,6 @@ namespace Ame::Gfx::RG
     class VertexBuffer : public Rhi::Util::BlockBasedBuffer
     {
     public:
+        using BlockBasedBuffer::BlockBasedBuffer;
     };
 } // namespace Ame::Gfx::RG

@@ -8,5 +8,6 @@ namespace Ame::Gfx::RG
     class TransformBuffer : public Rhi::Util::SlotBasedBuffer<Math::TransformMatrix>
     {
     public:
+        using SlotBasedBuffer::SlotBasedBuffer;
     };
 } // namespace Ame::Gfx::RG
