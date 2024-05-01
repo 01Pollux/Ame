@@ -29,6 +29,13 @@ namespace Ame::Gfx::RG
         [[nodiscard]] const InstanceBuffer&  GetInstanceBuffer() const;
 
     public:
+        [[nodiscard]] AABBBuffer&      GetAABBBuffer();
+        [[nodiscard]] TransformBuffer& GetTransformBuffer();
+        [[nodiscard]] VertexBuffer&    GetVertexBuffer();
+        [[nodiscard]] IndexBuffer&     GetIndexBuffer();
+        [[nodiscard]] InstanceBuffer&  GetInstanceBuffer();
+
+    public:
         /// <summary>
         /// Update frame resource for the current frame
         /// </summary>

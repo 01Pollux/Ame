@@ -5,11 +5,11 @@
 namespace Ame::Ecs
 {
     template<typename... ArgsTy>
-    using RuleBuilder = flecs::rule_builder<ArgsTy...>;
+    using QueryBuilder = flecs::query_builder<ArgsTy...>;
 
     template<typename... ArgsTy>
-    using Rule = flecs::rule<ArgsTy...>;
+    using Query = flecs::query<ArgsTy...>;
 
     template<typename... ArgsTy>
-    using UniqueRule = Unique<Rule<ArgsTy...>>;
+    using UniqueQuery = Unique<Query<ArgsTy...>>;
 } // namespace Ame::Ecs

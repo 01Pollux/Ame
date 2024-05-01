@@ -4,11 +4,14 @@
 
 namespace Ame::Gfx::RG
 {
+    class CoreResources;
+
     class EcsSystemHooks
     {
     public:
         EcsSystemHooks(
-            Ecs::Universe& Universe);
+            Ecs::Universe& Universe,
+            CoreResources& Resources);
 
         EcsSystemHooks(const EcsSystemHooks&) = delete;
         EcsSystemHooks(EcsSystemHooks&& Other);
@@ -30,6 +33,9 @@ namespace Ame::Gfx::RG
         void ApplyHooks();
 
     private:
+        void ApplyTransformObserver();
+
+    private:
         /// <summary>
         /// Called when the world changes.
         /// </summary>
@@ -37,7 +43,10 @@ namespace Ame::Gfx::RG
 
     private:
         Ref<Ecs::Universe> m_Universe;
+        Ref<CoreResources> m_CoreResources;
 
         Signals::OnWorldChange::Handle m_OnWorldChange;
+
+        Ecs::UniqueObserver m_TransformObserver;
     };
 } // namespace Ame::Gfx::RG

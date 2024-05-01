@@ -81,4 +81,6 @@ namespace Ame::Ecs
     };
 
     inline const Entity Entity::Null = Entity{};
+
+    using UniqueEntity = Unique<Entity>;
 } // namespace Ame::Ecs

@@ -46,6 +46,8 @@ namespace Ame::Rhi::Util
             }
         };
 
+        static constexpr Handle InvalidHandle = {};
+
     public:
         BlockBasedBuffer(
             Rhi::Device&                RhiDevice,

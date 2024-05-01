@@ -46,6 +46,7 @@ namespace Ame::Rhi::Util
     {
     public:
         static constexpr uint32_t SizePerInstance = sizeof(Ty);
+        static constexpr uint32_t InvalidIndex    = std::numeric_limits<uint32_t>::max();
 
         SlotBasedBuffer(
             Rhi::Device&               RhiDevice,
@@ -128,8 +129,7 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Rent a slot in the buffer
         /// </summary>
-        [[nodiscard]] uint32_t Rent(
-            const Ty& Data)
+        [[nodiscard]] uint32_t Rent()
         {
             if (m_EmptySlots.empty())
             {
@@ -139,6 +139,16 @@ namespace Ame::Rhi::Util
             auto Slot = *m_EmptySlots.begin();
             m_EmptySlots.erase(Slot);
 
+            return Slot;
+        }
+
+        /// <summary>
+        /// Rent a slot in the buffer
+        /// </summary>
+        [[nodiscard]] uint32_t Rent(
+            const Ty& Data)
+        {
+            auto Slot = Rent();
             Write(Slot, Data);
             return Slot;
         }

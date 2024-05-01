@@ -3,7 +3,7 @@
 #include <Ecs/Component/StdComponent.hpp>
 
 #include <Ecs/Module/Math.hpp>
-#include <Ecs/Module/Geometry2D.hpp>
+#include <Ecs/Module/Renderable.hpp>
 
 namespace Ame::Ecs::Module
 {
@@ -15,6 +15,6 @@ namespace Ame::Ecs::Module
         FlecsWorld.component<Component::Std::AmeEntityTag>();
 
         FlecsWorld.import <Module::MathModule>();
-        FlecsWorld.import <Module::Geometry2DModule>();
+        FlecsWorld.import <Module::RenderableModule>();
     }
 } // namespace Ame::Ecs::Module

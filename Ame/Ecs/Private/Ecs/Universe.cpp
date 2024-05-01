@@ -66,15 +66,17 @@ namespace Ame::Ecs
         {
             if (&World == &EcsWorld)
             {
-                OnWorldChange().Broadcast(*this, { m_ActiveWorld, EcsWorld });
-                m_ActiveWorld = &EcsWorld;
+                auto& OldWorld = m_ActiveWorld;
+                m_ActiveWorld  = &EcsWorld;
+                OnWorldChange().Broadcast(*this, { OldWorld, EcsWorld });
                 return;
             }
         }
         Log::Ecs().Error("Universe::SetActiveWorld: World not found");
 #else
-        OnWorldChange().Broadcast(*this, { m_ActiveWorld, EcsWorld });
+        auto& OldWorld = m_ActiveWorld;
         m_ActiveWorld = &EcsWorld;
+        OnWorldChange().Broadcast(*this, { OldWorld, EcsWorld });
 #endif
     }
 

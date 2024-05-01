@@ -16,7 +16,7 @@ namespace Ame::Gfx::RG
         m_VertexBuffer(Device),
         m_IndexBuffer(Device),
         m_InstanceBuffer(Device),
-        m_EcsSystemHooks(Universe)
+        m_EcsSystemHooks(Universe, *this)
     {
     }
 
@@ -55,6 +55,33 @@ namespace Ame::Gfx::RG
     }
 
     const InstanceBuffer& CoreResources::GetInstanceBuffer() const
+    {
+        return m_InstanceBuffer;
+    }
+
+    //
+
+    AABBBuffer& CoreResources::GetAABBBuffer()
+    {
+        return m_AABBBuffer;
+    }
+
+    TransformBuffer& CoreResources::GetTransformBuffer()
+    {
+        return m_TransformBuffer;
+    }
+
+    VertexBuffer& CoreResources::GetVertexBuffer()
+    {
+        return m_VertexBuffer;
+    }
+
+    IndexBuffer& CoreResources::GetIndexBuffer()
+    {
+        return m_IndexBuffer;
+    }
+
+    InstanceBuffer& CoreResources::GetInstanceBuffer()
     {
         return m_InstanceBuffer;
     }

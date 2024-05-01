@@ -13,6 +13,9 @@ namespace Ame::Signals::Data
 {
     struct WorldChange
     {
+        /// <summary>
+        /// The old world, can be null.
+        /// </summary>
         Ecs::World* OldWorld;
         Ecs::World& NewWorld;
     };

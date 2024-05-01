@@ -2,7 +2,7 @@
 
 #include <Ecs/Universe.hpp>
 #include <Ecs/Component/Math/Transform.hpp>
-#include <Ecs/Component/Geometry2D/Sprite.hpp>
+#include <Ecs/Component/Renderable/2D/Sprite.hpp>
 
 #include <Log/Wrapper.hpp>
 
