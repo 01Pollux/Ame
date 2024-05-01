@@ -4,6 +4,11 @@
 #include <Gfx/RG/Resource.hpp>
 #include <Gfx/RG/Resources/FrameResource.hpp>
 
+namespace Ame::Ecs
+{
+    class Universe;
+} // namespace Ame::Ecs
+
 namespace Ame::Gfx::RG
 {
     class ResourceStorage
@@ -16,7 +21,8 @@ namespace Ame::Gfx::RG
 
     public:
         ResourceStorage(
-            Rhi::Device& Device);
+            Rhi::Device&   Device,
+            Ecs::Universe& Universe);
 
         ResourceStorage(const ResourceStorage&)     = delete;
         ResourceStorage(ResourceStorage&&) noexcept = default;

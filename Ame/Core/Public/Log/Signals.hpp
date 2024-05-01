@@ -4,13 +4,13 @@
 #include <Object/Signal.hpp>
 #include <Log/Core.hpp>
 
-namespace Ame::Events
+namespace Ame::Signals::Data
 {
-    struct LogEvent
+    struct Log
     {
-        StringU8View  Message;
-        Log::LogLevel Level;
+        StringU8View       Message;
+        Ame::Log::LogLevel Level;
     };
-} // namespace Ame::Events
+} // namespace Ame::Signals::Data
 
-AME_SIGNAL_INSTANCE_DECL(const Ame::Log::Logger, OnLog, const Ame::Events::LogEvent& /*Data*/);
+AME_SIGNAL_INSTANCE_DECL(const Ame::Log::Logger, OnLog, const Data::Log& /*LogData*/);

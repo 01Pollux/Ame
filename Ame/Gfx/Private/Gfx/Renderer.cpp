@@ -6,13 +6,14 @@
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        IFrame&      Frame,
-        FrameTimer&  Timer,
-        Rhi::Device& Device) :
+        IFrame&        Frame,
+        FrameTimer&    Timer,
+        Rhi::Device&   Device,
+        Ecs::Universe& Universe) :
         m_Frame(Frame),
         m_Timer(Timer),
         m_Device(Device),
-        m_Graph(Timer, Device)
+        m_Graph(Timer, Device, Universe)
     {
         if (!Device.IsHeadless())
         {

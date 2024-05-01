@@ -12,8 +12,9 @@ namespace Ame::Gfx::RG
     {
     public:
         Graph(
-            FrameTimer&  Timer,
-            Rhi::Device& Device);
+            FrameTimer&    Timer,
+            Rhi::Device&   Device,
+            Ecs::Universe& Universe);
 
     public:
         /// <summary>

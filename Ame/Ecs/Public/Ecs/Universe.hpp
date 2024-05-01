@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <Ecs/World.hpp>
+#include <Ecs/Signals/Universe.hpp>
 
 #include <Core/Signals/Frame.hpp>
 
@@ -59,7 +60,16 @@ namespace Ame::Ecs
         /// Get the active world.
         /// if the world does not exist, it will return nullptr.
         /// </summary>
+        [[nodiscard]] const World* GetActiveWorld() const;
+
+        /// <summary>
+        /// Get the active world.
+        /// if the world does not exist, it will return nullptr.
+        /// </summary>
         [[nodiscard]] World* GetActiveWorld();
+
+    public:
+        AME_SIGNAL_DOUBLE(OnWorldChange);
 
     private:
         /// <summary>

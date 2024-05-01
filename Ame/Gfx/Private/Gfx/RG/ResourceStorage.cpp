@@ -7,9 +7,10 @@
 namespace Ame::Gfx::RG
 {
     ResourceStorage::ResourceStorage(
-        Rhi::Device& Device) :
+        Rhi::Device&   Device,
+        Ecs::Universe& Universe) :
         m_Device(Device),
-        m_CoreResources(std::make_unique<CoreResources>(Device))
+        m_CoreResources(std::make_unique<CoreResources>(Device, Universe))
     {
     }
 

@@ -57,6 +57,7 @@ namespace Ame::Rhi
         const Buffer& Other) :
         m_Device(Other.m_Device),
         m_Buffer(Other.m_Buffer),
+        m_Mapped(Other.m_Mapped),
         m_Owning(false)
     {
     }
@@ -79,6 +80,7 @@ namespace Ame::Rhi
 
             m_Device = Other.m_Device;
             m_Buffer = Other.m_Buffer;
+            m_Mapped = Other.m_Mapped;
             m_Owning = false;
         }
 

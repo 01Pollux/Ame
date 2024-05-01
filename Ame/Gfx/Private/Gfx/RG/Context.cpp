@@ -3,9 +3,10 @@
 namespace Ame::Gfx::RG
 {
     Context::Context(
-        Rhi::Device& Device) :
+        Rhi::Device& Device,
+        Ecs::Universe& Universe) :
         m_Device(Device),
-        m_Resources(Device)
+        m_Resources(Device, Universe)
     {
     }
 

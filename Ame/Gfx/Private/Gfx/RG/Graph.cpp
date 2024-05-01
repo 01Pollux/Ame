@@ -3,11 +3,12 @@
 namespace Ame::Gfx::RG
 {
     Graph::Graph(
-        FrameTimer&  Timer,
-        Rhi::Device& Device) :
+        FrameTimer&    Timer,
+        Rhi::Device&   Device,
+        Ecs::Universe& Universe) :
         m_Timer(Timer),
         m_Device(Device),
-        m_Context(Device)
+        m_Context(Device, Universe)
     {
     }
 

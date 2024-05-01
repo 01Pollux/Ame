@@ -14,7 +14,8 @@ namespace Ame::Gfx::RG
 
     public:
         Context(
-            Rhi::Device& Device);
+            Rhi::Device&   Device,
+            Ecs::Universe& Universe);
 
     public:
         /// <summary>

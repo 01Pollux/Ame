@@ -6,11 +6,11 @@ namespace Ame::Gfx::RG
 {
     void ResourceStorage::UpdateCoreResources()
     {
-        auto& Resource = m_Resources[Names::FrameResource];
-        if (!Resource)
+        auto& FrameResource = m_Resources[Names::FrameResource];
+        if (!FrameResource)
         {
-            Resource.Import(m_CoreResources->GetFrameResource());
-            Resource.CreateBufferView(
+            FrameResource.Import(m_CoreResources->GetFrameResource());
+            FrameResource.CreateBufferView(
                 Names::FrameResourceMain,
                 Rhi::BufferViewDesc{ .Type = Rhi::BufferViewType::ConstantBuffer });
         }

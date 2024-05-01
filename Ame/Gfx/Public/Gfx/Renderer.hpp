@@ -22,9 +22,10 @@ namespace Ame::Gfx
     {
     public:
         Renderer(
-            IFrame&      Frame,
-            FrameTimer&  Timer,
-            Rhi::Device& Device);
+            IFrame&        Frame,
+            FrameTimer&    Timer,
+            Rhi::Device&   Device,
+            Ecs::Universe& Universe);
 
     private:
         /// <summary>

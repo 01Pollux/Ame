@@ -6,6 +6,7 @@
 #include <Gfx/RG/Resources/VertexBuffer.hpp>
 #include <Gfx/RG/Resources/IndexBuffer.hpp>
 #include <Gfx/RG/Resources/InstanceBuffer.hpp>
+#include <Gfx/RG/Resources/EcsSystem.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -13,7 +14,8 @@ namespace Ame::Gfx::RG
     {
     public:
         CoreResources(
-            Rhi::Device& Device);
+            Rhi::Device&   Device,
+            Ecs::Universe& Universe);
 
     public:
         [[nodiscard]] const Rhi::Buffer&      GetFrameResource() const;
@@ -56,5 +58,7 @@ namespace Ame::Gfx::RG
         VertexBuffer    m_VertexBuffer;
         IndexBuffer     m_IndexBuffer;
         InstanceBuffer  m_InstanceBuffer;
+
+        EcsSystemHooks m_EcsSystemHooks;
     };
 } // namespace Ame::Gfx::RG
