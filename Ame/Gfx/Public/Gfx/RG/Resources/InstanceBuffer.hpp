@@ -1,9 +1,12 @@
 #pragma once
 
-#include <Gfx/Draw/Buffers/SlotBasedBuffer.hpp>
+#include <Rhi/Util/SlotBasedBuffer.hpp>
 #include <Gfx/Ecs/Component/RenderInstance.hpp>
 
-namespace Ame::Gfx::Draw::Buffers
+namespace Ame::Gfx::RG
 {
-    using InstanceBuffer = SlotBasedBuffer<Ecs::Gfx::Component::RenderInstance>;
-} // namespace Ame::Gfx::Draw::Buffers
+    class InstanceBuffer : public Rhi::Util::SlotBasedBuffer<Ecs::Gfx::Component::RenderInstance>
+    {
+    public:
+    };
+} // namespace Ame::Gfx::RG

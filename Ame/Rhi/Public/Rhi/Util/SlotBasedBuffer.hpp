@@ -1,10 +1,12 @@
 #pragma once
 
+#include <set>
+
 #include <Rhi/Resource/Buffer.hpp>
 #include <Rhi/Stream/Buffer.hpp>
 #include <Math/Common.hpp>
 
-namespace Ame::Gfx::Draw::Buffers
+namespace Ame::Rhi::Util
 {
     struct SlotBasedBufferDesc
     {
@@ -98,27 +100,28 @@ namespace Ame::Gfx::Draw::Buffers
         }
 
         /// <summary>
-        /// Get the size of the buffer
+        /// Get the number of empty slots in the buffer
         /// </summary>
-        [[nodiscard]] size_t GetSize() const
+        [[nodiscard]] size_t GetEmptyCount() const
         {
-            return m_InstanceCount * SizePerInstance;
+            return m_EmptySlots.size();
+        }
+        
+        /// <summary>
+        /// Get the number of allocated slots in the buffer
+        /// </summary>
+        [[nodiscard]] size_t GetAllocatedCount() const
+        {
+            return m_Desc.InstanceCount - m_EmptySlots.size();
         }
 
+    public:
         /// <summary>
         /// Get buffer of the slot based buffer
         /// </summary>
         [[nodiscard]] const Rhi::Buffer& GetBuffer() const
         {
             return m_Buffer;
-        }
-
-        /// <summary>
-        /// Get the number of empty slots in the buffer
-        /// </summary>
-        [[nodiscard]] size_t GetEmptyCount() const
-        {
-            return m_EmptySlots.size();
         }
 
     public:
@@ -169,10 +172,10 @@ namespace Ame::Gfx::Draw::Buffers
                 InstanceCount = std::min(InstanceCount, m_Desc.MaxInstances);
             }
 
-            uint32_t FirstEmptySlot = m_EmptySlots.empty() ? m_InstanceCount : *m_EmptySlots.begin();
-            m_InstanceCount         = InstanceCount;
+            uint32_t FirstEmptySlot = m_EmptySlots.empty() ? m_Desc.InstanceCount : *m_EmptySlots.begin();
+            m_Desc.InstanceCount    = InstanceCount;
 
-            for (uint32_t i = FirstEmptySlot; i < m_InstanceCount; i++)
+            for (uint32_t i = FirstEmptySlot; i < m_Desc.InstanceCount; i++)
             {
                 m_EmptySlots.insert(i);
             }
@@ -192,7 +195,7 @@ namespace Ame::Gfx::Draw::Buffers
                 m_Stream.close();
             }
 
-            auto NewBuffer = CreateBuffer(m_InstanceCount);
+            auto NewBuffer = CreateBuffer(m_Desc.InstanceCount);
             CopyToBuffer(NewBuffer);
 
             m_Buffer = std::move(NewBuffer);
@@ -229,13 +232,13 @@ namespace Ame::Gfx::Draw::Buffers
             };
 
             return Rhi::Buffer(
-                m_Device,
+                m_Device.get(),
                 Rhi::MemoryLocation::HOST_UPLOAD,
                 Desc);
         }
 
     private:
-        Ref<Rhi::Device>    m_RhiDevice;
+        Ref<Rhi::Device>    m_Device;
         SlotBasedBufferDesc m_Desc;
 
         Rhi::Buffer                   m_Buffer;
@@ -243,4 +246,4 @@ namespace Ame::Gfx::Draw::Buffers
 
         std::set<uint32_t> m_EmptySlots;
     };
-} // namespace Ame::Gfx::Draw::Buffers
+} // namespace Ame::Rhi::Util

@@ -1,7 +1,6 @@
 #include <Gfx/RG/ResourceStorage.hpp>
-#include <Math/Common.hpp>
-#include <Rhi/Device/Device.hpp>
-#include <Rhi/Util/ResourceSize.hpp>
+#include <Gfx/RG/Resources/CoreResources.hpp>
+#include <Gfx/RG/Resources/Names.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -9,10 +8,12 @@ namespace Ame::Gfx::RG
 {
     ResourceStorage::ResourceStorage(
         Rhi::Device& Device) :
-        m_Device(Device)
+        m_Device(Device),
+        m_CoreResources(std::make_unique<CoreResources>(Device))
     {
-        AllocateFrameResource();
     }
+
+    ResourceStorage::~ResourceStorage() = default;
 
     //
 
@@ -40,17 +41,17 @@ namespace Ame::Gfx::RG
 
     const ResourceHandle& ResourceStorage::GetFrameResource() const
     {
-        return GetResource(ResourceId::FrameResource);
+        return GetResource(Names::FrameResource);
     }
 
     const Rhi::ResourceView& ResourceStorage::GetFrameResourceHandle() const
     {
-        return GetResourceViewHandle(ResourceId::FrameResource("Main"));
+        return GetResourceViewHandle(Names::FrameResourceMain);
     }
 
-    const FrameResource& ResourceStorage::GetFrameResourceData() const
+    const FrameResourceCPU& ResourceStorage::GetFrameResourceData() const
     {
-        return m_FrameResource;
+        return m_CoreResources->GetFrameResourceData();
     }
 
     //
@@ -172,59 +173,6 @@ namespace Ame::Gfx::RG
     }
 
     //
-
-    void ResourceStorage::UpdateFrameResource(
-        float                        EngineTime,
-        float                        GameTime,
-        float                        DeltaTime,
-        const Math::TransformMatrix& Transform,
-        const Math::Matrix4x4&       Projection,
-        const Math::Vector2&         Viewport)
-    {
-        CheckLockState(false);
-
-        auto View = glm::lookAt(
-            Transform.GetPosition(),
-            Transform.GetPosition() + Transform.GetLookDir(),
-            Transform.GetUpDir());
-
-        m_FrameResource.World = Transform.ToMat4x4Transposed();
-
-        m_FrameResource.View           = glm::transpose(View);
-        m_FrameResource.Projection     = glm::transpose(Projection);
-        m_FrameResource.ViewProjection = m_FrameResource.View * m_FrameResource.Projection;
-
-        m_FrameResource.ViewInverse           = glm::inverse(m_FrameResource.View);
-        m_FrameResource.ProjectionInverse     = glm::inverse(m_FrameResource.Projection);
-        m_FrameResource.ViewProjectionInverse = glm::inverse(m_FrameResource.ViewProjection);
-
-        m_FrameResource.Viewport = Viewport;
-
-        m_FrameResource.EngineTime = EngineTime;
-        m_FrameResource.GameTime   = GameTime;
-        m_FrameResource.DeltaTime  = DeltaTime;
-
-        auto&   DeviceDesc = m_Device.get().GetDesc();
-        uint8_t FrameIndex = m_Device.get().GetFrameIndex();
-        size_t  Offset     = Rhi::GetConstantBufferSize(DeviceDesc, sizeof(m_FrameResource), FrameIndex);
-        std::memcpy(m_FrameResourceBuffer.GetPtr(Offset), &m_FrameResource, sizeof(m_FrameResource));
-
-        auto& Resource = m_Resources[ResourceId::FrameResource];
-        Resource.Import(m_FrameResourceBuffer);
-
-        Resource.CreateBufferView(
-            ResourceId::FrameResource("Main"),
-            Rhi::BufferViewDesc{ .Type = Rhi::BufferViewType::ConstantBuffer });
-    }
-
-    void ResourceStorage::AllocateFrameResource()
-    {
-        auto&   DeviceDesc = m_Device.get().GetDesc();
-        uint8_t FrameCount = m_Device.get().GetFrameCountInFlight();
-        size_t  BufferSize = Rhi::GetConstantBufferSize(DeviceDesc, sizeof(m_FrameResource), FrameCount);
-
-        m_FrameResourceBuffer = Rhi::Buffer(m_Device.get(), Rhi::MemoryLocation::HOST_UPLOAD, { .size = BufferSize, .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER });
-    }
 
     void ResourceStorage::Lock()
     {

@@ -1,9 +1,12 @@
 #pragma once
 
-#include <Gfx/Draw/Buffers/SlotBasedBuffer.hpp>
+#include <Rhi/Util/SlotBasedBuffer.hpp>
 #include <Math/Transform.hpp>
 
-namespace Ame::Gfx::Draw::Buffers
+namespace Ame::Gfx::RG
 {
-    using TransformBuffer = SlotBasedBuffer<Math::TransformMatrix>;
-} // namespace Ame::Gfx::Draw::Buffers
+    class TransformBuffer : public Rhi::Util::SlotBasedBuffer<Math::TransformMatrix>
+    {
+    public:
+    };
+} // namespace Ame::Gfx::RG

@@ -39,6 +39,11 @@ namespace Ame::Gfx::RG
         Release();
     }
 
+    ResourceHandle::operator bool() const noexcept
+    {
+        return !std::holds_alternative<std::monostate>(m_Resource);
+    }
+
     //
 
     const ResourceDesc& ResourceHandle::GetDesc() const noexcept

@@ -4,8 +4,6 @@
 
 namespace Ame::Gfx::RG
 {
-    struct FrameResource;
-
     class Resolver
     {
         friend class PassStorage;
@@ -23,7 +21,7 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get frame resource
         /// </summary>
-        [[nodiscard]] const FrameResource& GetFrameResourceData() const;
+        [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;
 
     public:
         /// <summary>

@@ -23,6 +23,12 @@ namespace Ame::Gfx::RG
 
     //
 
+    void Context::Update()
+    {
+        auto& RgStorage = GetStorage();
+        RgStorage.UpdateCoreResources();
+    }
+
     void Context::UpdateFrameStorage(
         float                        EngineTime,
         float                        GameTime,

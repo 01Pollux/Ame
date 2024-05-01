@@ -1,4 +1,5 @@
 #include <Gfx/RG/Passes/GeometryPass.hpp>
+#include <Gfx/RG/Resources/Names.hpp>
 #include <Gfx/RG/ResourceStorage.hpp>
 #include <Rhi/Device/Device.hpp>
 
@@ -20,7 +21,7 @@ namespace Ame::Gfx::RG::Std
                     Desc.sampleNum = Backbuffer.sampleNum;
 
                     // ResourceId OutputImage("GeometryPass::OutputImage");
-                    ResourceId OutputImage = ResourceId::OutputImage;
+                    ResourceId OutputImage = Names::OutputImage;
 
                     RgResolver.CreateTexture(OutputImage, Desc);
                     RgResolver.WriteRenderTarget(

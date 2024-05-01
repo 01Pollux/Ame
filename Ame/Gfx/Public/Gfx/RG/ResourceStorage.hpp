@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Gfx/RG/Resource.hpp>
-#include <Gfx/RG/FrameResource.hpp>
 #include <map>
+#include <Gfx/RG/Resource.hpp>
+#include <Gfx/RG/Resources/FrameResource.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -17,6 +17,14 @@ namespace Ame::Gfx::RG
     public:
         ResourceStorage(
             Rhi::Device& Device);
+
+        ResourceStorage(const ResourceStorage&)     = delete;
+        ResourceStorage(ResourceStorage&&) noexcept = default;
+
+        ResourceStorage& operator=(const ResourceStorage&)     = delete;
+        ResourceStorage& operator=(ResourceStorage&&) noexcept = default;
+
+        ~ResourceStorage();
 
     public:
         /// <summary>
@@ -51,7 +59,7 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get frame resource data for the current frame
         /// </summary>
-        [[nodiscard]] const FrameResource& GetFrameResourceData() const;
+        [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;
 
     public:
         /// <summary>
@@ -136,6 +144,12 @@ namespace Ame::Gfx::RG
 
     private:
         /// <summary>
+        /// Update core resources such as frame resource, transform buffer, etc.
+        /// </summary>
+        void UpdateCoreResources();
+
+    private:
+        /// <summary>
         /// Update frame resource for the current frame
         /// </summary>
         void UpdateFrameResource(
@@ -145,11 +159,6 @@ namespace Ame::Gfx::RG
             const Math::TransformMatrix& Transform,
             const Math::Matrix4x4&       Projection,
             const Math::Vector2&         Viewport);
-
-        /// <summary>
-        /// Allocate the frame resource
-        /// </summary>
-        void AllocateFrameResource();
 
     private:
         /// <summary>
@@ -173,8 +182,7 @@ namespace Ame::Gfx::RG
     private:
         Ref<Rhi::Device> m_Device;
 
-        Rhi::Buffer          m_FrameResourceBuffer;
-        FrameResource        m_FrameResource;
+        UPtr<CoreResources>  m_CoreResources;
         ResourceMapType      m_Resources;
         std::set<ResourceId> m_ImportedResources;
 

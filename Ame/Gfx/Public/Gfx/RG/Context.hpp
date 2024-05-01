@@ -29,6 +29,11 @@ namespace Ame::Gfx::RG
 
     private:
         /// <summary>
+        /// Update core storage resources incase of changes
+        /// </summary>
+        void Update();
+
+        /// <summary>
         /// Update the frame storage
         /// </summary>
         void UpdateFrameStorage(

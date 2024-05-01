@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Gfx/RG/Core.hpp>
 #include <map>
+#include <Gfx/RG/Core.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -10,9 +10,6 @@ namespace Ame::Gfx::RG
         static constexpr size_t InvalidId = std::numeric_limits<uint32_t>::max();
 
     public:
-        static const ResourceId OutputImage;
-        static const ResourceId FrameResource;
-
         ResourceId() = default;
 
         explicit ResourceId(
@@ -68,9 +65,6 @@ namespace Ame::Gfx::RG
         StringU8 m_Name;
 #endif
     };
-
-    inline const ResourceId ResourceId::OutputImage   = ResourceId("_OutputImage");
-    inline const ResourceId ResourceId::FrameResource = ResourceId("_FrameResource");
 
     //
 
@@ -171,6 +165,8 @@ namespace Ame::Gfx::RG
         ResourceHandle& operator=(ResourceHandle&&) noexcept;
 
         ~ResourceHandle();
+
+        operator bool() const noexcept;
 
     public:
         /// <summary>

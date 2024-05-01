@@ -20,11 +20,14 @@ namespace Ame::Gfx::RG
     class Context;
     class DependencyLevel;
     class PassStorage;
+    class CoreResources;
     class ResourceStorage;
     class Graph;
 
     class ResourceId;
     class ResourceViewId;
+
+    struct FrameResourceCPU;
 
     enum class PassFlags : uint8_t
     {

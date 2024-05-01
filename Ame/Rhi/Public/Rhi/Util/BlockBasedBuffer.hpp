@@ -4,7 +4,7 @@
 #include <Rhi/Stream/Buffer.hpp>
 #include <Allocator/Utils/Buddy.hpp>
 
-namespace Ame::Gfx::Draw::Buffers
+namespace Ame::Rhi::Util
 {
     struct BlockBasedBufferDesc
     {
@@ -62,7 +62,7 @@ namespace Ame::Gfx::Draw::Buffers
         void Flush(
             const Handle& Slot)
         {
-            m_Blocks[Slot.Block].Stream.flush();
+            m_Blocks[Slot.Block].Stream->flush();
         }
 
         /// <summary>
@@ -72,8 +72,25 @@ namespace Ame::Gfx::Draw::Buffers
         {
             for (auto& Block : m_Blocks)
             {
-                Block.Stream.flush();
+                Block.Stream->flush();
             }
+        }
+
+    public:
+        /// <summary>
+        /// Get the size of the block
+        /// </summary>
+        [[nodiscard]] uint32_t GetBlockSize() const
+        {
+            return m_Desc.Size;
+        }
+
+        /// <summary>
+        /// Get the number of blocks in the buffer
+        /// </summary>
+        [[nodiscard]] uint32_t GetBlocksCount() const
+        {
+            return static_cast<uint32_t>(m_Blocks.size());
         }
 
     public:
@@ -96,8 +113,8 @@ namespace Ame::Gfx::Draw::Buffers
             size_t        Size)
         {
             auto& Block = m_Blocks[Slot.Block];
-            Block.Stream.seekp(Slot.Offset);
-            Block.Stream.write(std::bit_cast<const char*>(Data), Size);
+            Block.Stream->seekp(Slot.Offset);
+            Block.Stream->write(std::bit_cast<const char*>(Data), Size);
         }
 
     public:
@@ -204,9 +221,9 @@ namespace Ame::Gfx::Draw::Buffers
 
         struct Block
         {
-            Allocator::Buddy              Buddy;
-            Rhi::Buffer                   Buffer;
-            Rhi::Streaming::BufferOStream Stream;
+            Allocator::Buddy                    Buddy;
+            Rhi::Buffer                         Buffer;
+            UPtr<Rhi::Streaming::BufferOStream> Stream;
 
             Block(
                 Rhi::Device&         RhiDevice,
@@ -214,11 +231,11 @@ namespace Ame::Gfx::Draw::Buffers
                 Rhi::BufferUsageBits UsageFlags) :
                 Buddy(Size),
                 Buffer(CreateBuffer(RhiDevice, Size, UsageFlags)),
-                Stream(Buffer)
+                Stream(std::make_unique<Rhi::Streaming::BufferOStream>(Rhi::Streaming::BufferView(Buffer)))
             {
             }
         };
 
         std::vector<Block> m_Blocks;
     };
-} // namespace Ame::Gfx::Draw::Buffers
+} // namespace Ame::Rhi::Util

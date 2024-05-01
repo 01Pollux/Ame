@@ -18,7 +18,7 @@ namespace Ame::Gfx::RG
         return m_Storage.GetDevice();
     }
 
-    const FrameResource& Resolver::GetFrameResourceData() const
+    const FrameResourceCPU& Resolver::GetFrameResourceData() const
     {
         return m_Storage.GetFrameResourceData();
     }

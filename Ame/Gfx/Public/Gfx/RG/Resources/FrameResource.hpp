@@ -10,7 +10,7 @@
 
 namespace Ame::Gfx::RG
 {
-    struct FrameResource
+    struct FrameResourceGPU
     {
         Math::Matrix4x4 World;
 
@@ -27,7 +27,10 @@ namespace Ame::Gfx::RG
         float EngineTime;
         float GameTime;
         float DeltaTime;
+    };
 
+    struct FrameResourceCPU : FrameResourceGPU
+    {
         Ecs::Entity CurrentCamera;
     };
 } // namespace Ame::Gfx::RG

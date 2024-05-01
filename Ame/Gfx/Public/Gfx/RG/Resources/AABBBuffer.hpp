@@ -1,9 +1,12 @@
 #pragma once
 
-#include <Gfx/Draw/Buffers/SlotBasedBuffer.hpp>
+#include <Rhi/Util/SlotBasedBuffer.hpp>
 #include <Geometry/AABB.hpp>
 
-namespace Ame::Gfx::Draw::Buffers
+namespace Ame::Gfx::RG
 {
-    using AABBBuffer = SlotBasedBuffer<Geometry::AABB>;
-} // namespace Ame::Gfx::Draw::Buffers
+    class AABBBuffer : public Rhi::Util::SlotBasedBuffer<Geometry::AABB>
+    {
+    public:
+    };
+} // namespace Ame::Gfx::RG
