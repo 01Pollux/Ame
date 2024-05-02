@@ -13,6 +13,7 @@ namespace Ame::FlappyRocket
     {
         static constexpr const String WorldName  = "Flappy Rocket";
         static constexpr const String PlayerName = "Player";
+        static constexpr const String CameraName = "Camera";
 
     public:
         FlappyRocketGame() = default;

@@ -2,6 +2,7 @@
 
 #include <Ecs/Universe.hpp>
 #include <Ecs/Component/Math/Transform.hpp>
+#include <Ecs/Component/Viewport/Camera.hpp>
 #include <Ecs/Component/Renderable/2D/Sprite.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -30,5 +31,9 @@ namespace Ame::FlappyRocket
         auto Player = World.CreateEntity(PlayerName);
         Player.AddComponent<Ecs::Component::Sprite>();
         Player.AddComponent<Ecs::Component::Transform>();
+
+        auto Camera = World.CreateEntity(CameraName);
+        Camera.AddComponent<Ecs::Component::Camera>();
+        Camera.AddComponent<Ecs::Component::Transform>(Math::Mat::Identity<Math::Matrix3x3>, Math::Vec::Backward<Math::Vector3> * 2.f);
     }
 } // namespace Ame::FlappyRocket
