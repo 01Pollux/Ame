@@ -18,24 +18,20 @@ namespace Ame::Ecs
         {
         }
 
+        Unique(const Unique&) = delete;
         Unique(
             Unique&& Other) noexcept :
             m_Entity(std::exchange(Other.m_Entity, Ty{}))
         {
         }
 
+        Unique& operator=(const Unique&) = delete;
         Unique& operator=(
             Unique&& Other) noexcept
         {
             if (this != &Other)
             {
-                if (IsValid())
-                {
-                    if constexpr (requires { m_Entity.destruct(); })
-                    {
-                        m_Entity.destruct();
-                    }
-                }
+                Reset();
                 m_Entity = std::exchange(Other.m_Entity, Ty{});
             }
 
@@ -44,13 +40,7 @@ namespace Ame::Ecs
 
         ~Unique()
         {
-            if (IsValid())
-            {
-                if constexpr (requires { m_Entity.destruct(); })
-                {
-                    m_Entity.destruct();
-                }
-            }
+            Reset();
         }
 
     public:
@@ -100,6 +90,24 @@ namespace Ame::Ecs
         void Discard()
         {
             m_Entity = Ty{};
+        }
+
+        /// <summary>
+        /// Release the entity if it is valid.
+        /// </summary>
+        void Reset()
+        {
+            if (IsValid())
+            {
+                if constexpr (requires { m_Entity.destruct(); })
+                {
+                    m_Entity.destruct();
+                }
+                else
+                {
+                    m_Entity.Reset();
+                }
+            }
         }
 
     private:

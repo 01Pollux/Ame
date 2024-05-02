@@ -4,7 +4,6 @@ includes("concurrencpp.lua")
 includes("kangaru.lua")
 
 add_requires("boost")
-add_requires("eastl")
 add_requires("mimalloc")
 add_requires("ame.kangaru")
 add_requires("spdlog")

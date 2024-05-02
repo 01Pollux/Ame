@@ -17,7 +17,11 @@ namespace Ame::Signals::Data
         /// The old world, can be null.
         /// </summary>
         Ecs::World* OldWorld;
-        Ecs::World& NewWorld;
+
+        /// <summary>
+        /// The new world, can be null when the world is removed. (shutdown)
+        /// </summary>
+        Ecs::World* NewWorld;
     };
 } // namespace Ame::Signals::Data
 

@@ -15,6 +15,7 @@ namespace Ame::Ecs::Module
     public:
         /// <summary>
         /// Attaches the Renderable component to the given FlecsComponent.
+        /// Used to mark a component as renderable.
         /// </summary>
         template<typename Ty>
         static flecs::component<Ty> AttachRenderable(

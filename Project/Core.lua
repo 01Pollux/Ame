@@ -2,7 +2,6 @@ target("Core")
     ame_header_library("Ame", "Core", "static", "Ame/Core")
     add_packages(
         "boost",
-        "eastl",
         "mimalloc",
         "ame.kangaru",
         "spdlog",

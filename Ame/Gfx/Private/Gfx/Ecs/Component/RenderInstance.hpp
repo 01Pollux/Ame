@@ -2,8 +2,6 @@
 
 #include <Math/Vector.hpp>
 
-#include <Rhi/Resource/Buffer.hpp>
-
 namespace Ame::Ecs::Gfx::Component
 {
     struct RenderInstance

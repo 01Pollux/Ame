@@ -9,6 +9,12 @@ namespace Ame::Ecs
     {
     }
 
+    void Entity::Reset()
+    {
+        m_Entity.destruct();
+        m_Entity = {};
+    }
+
     Entity::operator bool() const
     {
         return m_Entity.is_alive();

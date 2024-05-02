@@ -2,6 +2,7 @@
 
 #include <Core/Ame.hpp>
 #include <Gfx/RG/Graph.hpp>
+#include <Ecs/Universe.hpp>
 
 #include <Core/Signals/Frame.hpp>
 
@@ -14,12 +15,20 @@ namespace Ame
     {
         class Device;
     } // namespace Rhi
+
+    namespace Ecs::Component
+    {
+        struct Transform;
+        struct Camera;
+    } // namespace Ecs::Component
 } // namespace Ame
 
 namespace Ame::Gfx
 {
     class Renderer
     {
+        using CameraRenderQuery = Ecs::UniqueQuery<const Ecs::Component::Transform, const Ecs::Component::Camera>;
+
     public:
         Renderer(
             IFrame&        Frame,
@@ -49,15 +58,19 @@ namespace Ame::Gfx
         void OnEndFrame();
 
     private:
-        Ref<IFrame>      m_Frame;
-        Ref<FrameTimer>  m_Timer;
-        Ref<Rhi::Device> m_Device;
+        Ref<IFrame>        m_Frame;
+        Ref<FrameTimer>    m_Timer;
+        Ref<Rhi::Device>   m_Device;
+        Ref<Ecs::Universe> m_Universe;
+
+        Signals::OnWorldChange::Handle m_OnWorldChange;
 
         Signals::OnUpdate::Handle     m_OnUpdate;
         Signals::OnStartFrame::Handle m_OnStartFrame;
         Signals::OnRender::Handle     m_OnRender;
         Signals::OnEndFrame::Handle   m_OnEndFrame;
 
-        RG::Graph m_Graph;
+        RG::Graph         m_Graph;
+        CameraRenderQuery m_CameraQuery;
     };
 } // namespace Ame::Gfx

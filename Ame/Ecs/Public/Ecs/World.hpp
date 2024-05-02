@@ -16,10 +16,10 @@ namespace Ame::Ecs
         World(
             const StringU8& Name);
 
-        World(const World&)            = delete;
-        World& operator=(const World&) = delete;
-
+        World(const World&) = delete;
         World(World&&) noexcept;
+
+        World& operator=(const World&) = delete;
         World& operator=(World&&) noexcept;
 
         ~World();

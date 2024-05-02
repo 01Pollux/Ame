@@ -23,6 +23,14 @@ namespace Ame::Ecs
             IFrame&     Frame,
             FrameTimer& Timer);
 
+        Universe(const Universe&) = delete;
+        Universe(Universe&& Other);
+
+        Universe& operator=(const Universe&) = delete;
+        Universe& operator=(Universe&& Other);
+
+        ~Universe();
+
     public:
         /// <summary>
         /// Add a world to the universe.
@@ -54,7 +62,12 @@ namespace Ame::Ecs
         /// If the world does not exist, it will be set to nullptr.
         /// </summary>
         void SetActiveWorld(
-            World& EcsWorld);
+            World* EcsWorld);
+
+        /// <summary>
+        /// Check if the universe has an active world.
+        /// </summary>
+        [[nodiscard]] bool HasActiveWorld() const;
 
         /// <summary>
         /// Get the active world.
@@ -78,10 +91,17 @@ namespace Ame::Ecs
         void ProgressActiveWorld(
             double DeltaTime);
 
+        /// <summary>
+        /// Change the world.
+        /// </summary>
+        void InvokeChangeWorld(
+            World* NewWorld);
+
     private:
         Signals::OnUpdate::Handle m_OnUpdate;
 
         WorldMap m_Worlds;
         World*   m_ActiveWorld = nullptr;
     };
+
 } // namespace Ame::Ecs

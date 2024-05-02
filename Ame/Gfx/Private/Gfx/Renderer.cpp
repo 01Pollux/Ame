@@ -3,6 +3,9 @@
 #include <Frame/Frame.hpp>
 #include <Rhi/Device/Device.hpp>
 
+#include <Ecs/Component/Math/Transform.hpp>
+#include <Ecs/Component/Viewport/Camera.hpp>
+
 namespace Ame::Gfx
 {
     Renderer::Renderer(
@@ -13,10 +16,32 @@ namespace Ame::Gfx
         m_Frame(Frame),
         m_Timer(Timer),
         m_Device(Device),
-        m_Graph(Timer, Device, Universe)
+        m_Graph(Timer, Device, Universe),
+        m_Universe(Universe)
     {
         if (!Device.IsHeadless())
         {
+            m_OnWorldChange = {
+                Universe.OnWorldChange()
+                    .ObjectSignal(),
+                [this](auto& Universe, auto& ChangeData)
+                {
+                    m_CameraQuery.Reset();
+                    if (ChangeData.NewWorld)
+                    {
+                        m_CameraQuery =
+                            ChangeData.NewWorld
+                                ->CreateQuery<const Ecs::Component::Transform, const Ecs::Component::Camera>()
+                                .order_by<const Ecs::Component::Camera>(
+                                    [](flecs::entity_t, auto a, flecs::entity_t, auto b) -> int
+                                    {
+                                        return a->Priority - b->Priority;
+                                    })
+                                .build();
+                    }
+                }
+            };
+
             m_OnUpdate = {
                 Frame.OnUpdate()
                     .ObjectSignal(),
@@ -66,7 +91,19 @@ namespace Ame::Gfx
 
     void Renderer::OnRender()
     {
-        m_Graph.Execute();
+        auto RenderIter =
+            [this](Ecs::Iterator Iter, const Ecs::Component::Transform* Transforms, const Ecs::Component::Camera* Cameras)
+        {
+            for (auto i : Iter)
+            {
+                m_Graph.UpdateFrameStorage(
+                    Transforms[i],
+                    Cameras[i].GetProjectionMatrix(),
+                    Cameras[i].GetViewporSize());
+                m_Graph.Execute();
+            }
+        };
+        m_CameraQuery->iter(std::move(RenderIter));
     }
 
     void Renderer::OnEndFrame()

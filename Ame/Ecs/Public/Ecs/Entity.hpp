@@ -15,6 +15,11 @@ namespace Ame::Ecs
         Entity(
             flecs::entity FlecsEntity);
 
+        /// <summary>
+        /// Release the entity.
+        /// </summary>
+        void Reset();
+
     public:
         operator bool() const;
 

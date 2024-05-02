@@ -22,9 +22,11 @@ namespace Ame::Gfx::RG
     }
 
     EcsSystemHooks::EcsSystemHooks(
-        EcsSystemHooks&& Other) :
+        EcsSystemHooks&& Other) noexcept :
         m_Universe(std::move(Other.m_Universe)),
-        m_CoreResources(std::move(Other.m_CoreResources))
+        m_CoreResources(std::move(Other.m_CoreResources)),
+        m_OnWorldChange(std::move(Other.m_OnWorldChange)),
+        m_TransformObserver(std::move(Other.m_TransformObserver))
     {
     }
 
@@ -34,8 +36,10 @@ namespace Ame::Gfx::RG
         if (this != &Other)
         {
             Reset();
-            m_Universe      = std::move(Other.m_Universe);
-            m_CoreResources = std::move(Other.m_CoreResources);
+            m_Universe          = std::move(Other.m_Universe);
+            m_CoreResources     = std::move(Other.m_CoreResources);
+            m_OnWorldChange     = std::move(Other.m_OnWorldChange);
+            m_TransformObserver = std::move(Other.m_TransformObserver);
         }
         return *this;
     }
