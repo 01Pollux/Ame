@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Log/Signals.hpp>
-#include <EASTL/vector.h>
+#include <vector>
 
 namespace spdlog
 {
@@ -21,9 +21,9 @@ namespace spdlog
         Log(LogLevel::Type, std::move(Message), std::forward<ArgsTy>(Args)...); \
     }                                                                           \
     void Type(                                                                  \
-        const StringU8View Message)                                             \
+        StringView Message)                                                     \
     {                                                                           \
-        LogMessage(LogLevel::Type, std::move(Message));                         \
+        LogMessage(LogLevel::Type, Message);                                    \
     }
 
 #ifndef AME_DIST
@@ -36,49 +36,52 @@ namespace Ame::Log
 {
     class Logger final
     {
+    public:
+        using SinkList = std::vector<Ptr<spdlog::sinks::sink>>;
+
     private:
         Logger()
         {
         }
 
         Logger(
-            const StringU8&                         TagName,
-            StringU8View                            FileName,
-            eastl::vector<Ptr<spdlog::sinks::sink>> Sinks);
+            StringView TagName,
+            StringView FileName,
+            SinkList   Sinks);
 
     public:
         /// <summary>
         /// Register a logger
         /// </summary>
         static void Register(
-            const StringU8&                         TagName,
-            StringU8View                            FileName,
-            eastl::vector<Ptr<spdlog::sinks::sink>> Sinks);
+            const String& TagName,
+            StringView    FileName,
+            SinkList      Sinks);
 
         /// <summary>
         /// Register a logger
         /// </summary>
         static void Register(
-            const StringU8& TagName,
-            StringU8View    FileName);
+            const String& TagName,
+            StringView    FileName);
 
         /// <summary>
         /// Register a null logger
         /// </summary>
         static void RegisterNull(
-            const StringU8& TagName);
+            const String& TagName);
 
         /// <summary>
         /// Unregister a logger
         /// </summary>
         static void Unregister(
-            const StringU8& TagName);
+            const String& TagName);
 
         /// <summary>
         /// Get global logger
         /// </summary>
         [[nodiscard]] static Logger& GetLogger(
-            StringU8View Name);
+            const String& Name);
 
         /// <summary>
         /// Close all loggers
@@ -97,8 +100,8 @@ namespace Ame::Log
         /// Log a message
         /// </summary>
         void LogMessage(
-            LogLevel           Level,
-            const StringU8View Message) const;
+            LogLevel   Level,
+            StringView Message) const;
 
         /// <summary>
         /// Log a message
@@ -111,15 +114,11 @@ namespace Ame::Log
         {
             if constexpr (sizeof...(ArgsTy) == 0)
             {
-                StringU8View FormattedMessage(Message.get().data(), Message.get().size());
-                LogMessage(Level, std::move(FormattedMessage));
+                LogMessage(Level, Message.get());
             }
             else
             {
-                StringU8 FormattedMessage;
-                FormattedMessage.reserve(Message.get().size());
-                std::format_to(std::back_inserter(FormattedMessage), std::move(Message), std::forward<ArgsTy>(Args)...);
-                LogMessage(Level, FormattedMessage);
+                LogMessage(Level, std::format(std::move(Message), std::forward<ArgsTy>(Args)...));
             }
         }
 
@@ -174,7 +173,7 @@ namespace Ame::Log
         AME_SIGNAL_STATIC(OnLog);
 
     private:
-        StringU8            m_Name;
+        String              m_Name;
         Ptr<spdlog::logger> m_Logger;
     };
 } // namespace Ame::Log

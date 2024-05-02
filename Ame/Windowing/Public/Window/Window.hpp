@@ -52,13 +52,13 @@ namespace Ame::Windowing
         /// <summary>
         /// The title of the window
         /// </summary>
-        [[nodiscard]] const StringU8& GetTitle() const;
+        [[nodiscard]] const String& GetTitle() const;
 
         /// <summary>
         /// Set the title of the window
         /// </summary>
         void SetTitle(
-            StringU8 Title);
+            String Title);
 
         /// <summary>
         /// The position of the window in the screen
@@ -184,6 +184,6 @@ namespace Ame::Windowing
     private:
         GLFWwindow*  m_Handle = nullptr;
         Math::Size2I m_WindowSize{};
-        StringU8     m_Title;
+        String       m_Title;
     };
 } // namespace Ame::Windowing

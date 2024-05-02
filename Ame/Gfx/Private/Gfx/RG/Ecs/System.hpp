@@ -14,7 +14,7 @@ namespace Ame::Gfx::RG
             CoreResources& Resources);
 
         EcsSystemHooks(const EcsSystemHooks&) = delete;
-        EcsSystemHooks(EcsSystemHooks&& Other);
+        EcsSystemHooks(EcsSystemHooks&& Other) noexcept;
 
         EcsSystemHooks& operator=(const EcsSystemHooks&) = delete;
         EcsSystemHooks& operator=(EcsSystemHooks&& Other);

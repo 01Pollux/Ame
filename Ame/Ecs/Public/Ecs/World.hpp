@@ -14,7 +14,7 @@ namespace Ame::Ecs
     {
     public:
         World(
-            const StringU8& Name);
+            const String& Name);
 
         World(const World&) = delete;
         World(World&&) noexcept;
@@ -30,8 +30,8 @@ namespace Ame::Ecs
         /// If the entity's name is already in use, Name will be modified to be unique using 'CreateUniqueEntityName'.
         /// </summary>
         Entity CreateEntity(
-            const StringU8& Name,
-            const Entity&   Parent = Entity::Null);
+            StringView    Name,
+            const Entity& Parent = Entity::Null);
 
         /// <summary>
         /// Destroy an entity in the world.
@@ -40,17 +40,11 @@ namespace Ame::Ecs
             const Entity& EcsEntity,
             bool          WithChildren = true);
 
-        /// <summary>
-        /// Get an entities by its name.
-        /// </summary>
-        [[nodiscard]] std::vector<Entity> GetEntities(
-            const StringU8& Name);
-
     public:
         /// <summary>
         /// Get unique entity name that is not already in use.
         /// </summary>
-        [[nodiscard]] StringU8 GetUniqueEntityName(
+        [[nodiscard]] String GetUniqueEntityName(
             const char*   Name,
             const Entity& Parent = Entity::Null) const;
 

@@ -43,7 +43,7 @@ namespace Ame::Gfx::RG
         /// Get the name of the pass
         /// </summary>
         Pass& Name(
-            StringU8View Name)
+            StringView Name)
         {
 #ifndef AME_DIST
             m_Name = Name;
@@ -74,7 +74,7 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get the name of the pass
         /// </summary>
-        [[nodiscard]] StringU8View GetName() const
+        [[nodiscard]] StringView GetName() const
         {
 #ifndef AME_DIST
             return m_Name;
@@ -131,7 +131,7 @@ namespace Ame::Gfx::RG
         ExecuteFuncType m_ExecuteFunc;
         PassFlags       m_Flags = PassFlags::None;
 #ifndef AME_DIST
-        StringU8 m_Name = "Unnamed";
+        String m_Name = "Unnamed";
 #endif
     };
 

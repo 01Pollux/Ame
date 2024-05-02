@@ -20,7 +20,7 @@ namespace Ame::FlappyRocket
     {
         m_EcsUniverse->RemoveWorld(WorldName);
         auto& World = m_EcsUniverse->CreateWorld(WorldName);
-        m_EcsUniverse->SetActiveWorld(World);
+        m_EcsUniverse->SetActiveWorld(&World);
     }
 
     void FlappyRocketGame::AddAllEntities()

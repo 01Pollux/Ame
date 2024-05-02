@@ -11,7 +11,7 @@
 
 namespace Ame::Log
 {
-    static std::map<StringU8, UPtr<Logger>> s_Loggers;
+    static std::map<String, UPtr<Logger>> s_Loggers;
 
     //
 
@@ -25,9 +25,9 @@ namespace Ame::Log
     }
 
     Logger::Logger(
-        const StringU8&                 TagName,
-        const StringU8View              FileName,
-        eastl::vector<spdlog::sink_ptr> Sinks) :
+        StringView TagName,
+        StringView FileName,
+        SinkList   Sinks) :
         m_Name(TagName)
     {
         m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(m_Name), Sinks.begin(), Sinks.end());
@@ -45,9 +45,9 @@ namespace Ame::Log
     //
 
     void Logger::Register(
-        const StringU8&                 TagName,
-        StringU8View                    FileName,
-        eastl::vector<spdlog::sink_ptr> Sinks)
+        const String& TagName,
+        StringView    FileName,
+        SinkList      Sinks)
     {
         if (s_Loggers.contains(TagName))
         {
@@ -58,8 +58,8 @@ namespace Ame::Log
     }
 
     void Logger::Register(
-        const StringU8& TagName,
-        StringU8View    FileName)
+        const String& TagName,
+        StringView    FileName)
     {
         if (s_Loggers.contains(TagName))
         {
@@ -68,7 +68,7 @@ namespace Ame::Log
 
         EnsureLogsDirectory();
 
-        eastl::vector<spdlog::sink_ptr> Sinks{
+        SinkList Sinks{
             std::make_shared<spdlog::sinks::basic_file_sink_mt>(std::format("Logs/{}", Strings::To<std::string_view>(FileName))),
 #ifndef AME_DIST
             std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
@@ -92,13 +92,13 @@ namespace Ame::Log
     }
 
     void Logger::RegisterNull(
-        const StringU8& TagName)
+        const String& TagName)
     {
         s_Loggers.emplace(TagName, UPtr<Logger>(new Logger));
     }
 
     void Logger::Unregister(
-        const StringU8& TagName)
+        const String& TagName)
     {
         spdlog::drop(Strings::To<std::string>(TagName));
         s_Loggers.erase(TagName);
@@ -107,10 +107,10 @@ namespace Ame::Log
     //
 
     Logger& Logger::GetLogger(
-        StringU8View Name)
+        const String& Name)
     {
         static Logger s_NullLogger;
-        auto          Iter = s_Loggers.find(StringU8(Name));
+        auto          Iter = s_Loggers.find(Name);
         if (Iter != s_Loggers.end())
         {
             return *Iter->second;
@@ -145,34 +145,33 @@ namespace Ame::Log
     }
 
     void Logger::LogMessage(
-        LogLevel           Level,
-        const StringU8View Message) const
+        LogLevel   Level,
+        StringView Message) const
     {
         if (!m_Logger) [[unlikely]]
         {
             return;
         }
 
-        auto StdMessageView = Strings::To<std::string_view>(Message);
         switch (Level)
         {
         case LogLevel::Trace:
-            m_Logger->trace(StdMessageView);
+            m_Logger->trace(Message);
             break;
         case LogLevel::Debug:
-            m_Logger->debug(StdMessageView);
+            m_Logger->debug(Message);
             break;
         case LogLevel::Info:
-            m_Logger->info(StdMessageView);
+            m_Logger->info(Message);
             break;
         case LogLevel::Warning:
-            m_Logger->warn(StdMessageView);
+            m_Logger->warn(Message);
             break;
         case LogLevel::Error:
-            m_Logger->error(StdMessageView);
+            m_Logger->error(Message);
             break;
         case LogLevel::Fatal:
-            m_Logger->critical(StdMessageView);
+            m_Logger->critical(Message);
             break;
         }
 

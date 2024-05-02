@@ -2,20 +2,30 @@
 
 namespace Ame::EcsUtil
 {
-    StringU8 GetUniqueEntityName(
+    String GetUniqueEntityName(
         const flecs::world&  FlecsWorld,
         const char*          Name,
         const flecs::entity& FlecsParent)
     {
         bool IsValidName = Name && *Name && Name[0] != '\0';
 
-        StringU8 NewName{ IsValidName ? Name : "Entity" };
-        StringU8 NewNameTmp = NewName;
+        String NewName{ IsValidName ? Name : "Entity" };
+        String NewNameTmp = NewName;
 
         size_t Idx = 0;
-        while (FlecsParent.lookup(NewName.c_str()))
+        if (FlecsParent)
         {
-            NewName = StringU8::formatted("{}_{}", NewNameTmp, ++Idx);
+            while (FlecsParent.lookup(NewName.c_str()))
+            {
+                NewName = std::format("{}_{}", NewNameTmp, ++Idx);
+            }
+        }
+        else
+        {
+            while (FlecsWorld.lookup(NewName.c_str()))
+            {
+                NewName = std::format("{}_{}", NewNameTmp, ++Idx);
+            }
         }
 
         return NewName;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <EASTL/unordered_map.h>
-
 #include <Core/String.hpp>
 #include <Core/Coroutine.hpp>
 
@@ -85,7 +83,7 @@ namespace Ame::Rhi
 
     struct ShaderCompileDesc
     {
-        using MacroList = eastl::unordered_map<String, String>;
+        using MacroList = std::unordered_map<WideString, WideString>;
 
         MacroList                          Defines;
         std::vector<ShaderVulkanExtension> SpirvExtensions{ ShaderVulkanExtension::KHR };
@@ -120,12 +118,12 @@ namespace Ame::Rhi
             Co::executor_tag,
             Co::executor&            Executor,
             GraphicsAPI              Api,
-            StringU8View             ShaderSource,
+            StringView             ShaderSource,
             const ShaderCompileDesc& CompileDesc);
 
         [[nodiscard]] static ShaderBytecode Compile(
             GraphicsAPI              Api,
-            StringU8View             ShaderSource,
+            StringView               ShaderSource,
             const ShaderCompileDesc& CompileDesc);
 
     public:

@@ -1,132 +1,19 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <EASTL/string.h>
-#include <EASTL/string_view.h>
 #include <format>
+#include <string>
 #include <algorithm>
-
-#if !EASTL_DLL
-inline void* operator new[](size_t size, const char*, int, unsigned, const char*, int)
-{
-    return mi_malloc(size);
-}
-inline void* operator new[](size_t size, size_t alignment, size_t, const char*, int, unsigned, const char*, int)
-{
-    return mi_aligned_alloc(size, alignment);
-}
-#endif
 
 namespace Ame
 {
-    template<typename CharTy>
-    class BasicString;
+    using Char       = char;
+    using StringView = std::string_view;
+    using String     = std::string;
 
-    template<typename CharTy>
-    class BasicStringView : public eastl::basic_string_view<CharTy>
-    {
-    public:
-        using base_class = eastl::basic_string_view<CharTy>;
-
-        using char_type            = CharTy;
-        using string_type          = BasicString<CharTy>;
-        using std_string_view_type = std::basic_string_view<CharTy>;
-
-    public:
-        using base_class::base_class;
-
-        constexpr BasicStringView(std_string_view_type Str) noexcept :
-            base_class({ Str.data(), Str.size() })
-        {
-        }
-
-    public:
-        using base_class::data;
-        using base_class::size;
-
-        [[nodiscard]] constexpr std_string_view_type std_view() const noexcept
-        {
-            return { data(), size() };
-        }
-
-        [[nodiscard]] constexpr operator std_string_view_type() const noexcept
-        {
-            return std_view();
-        }
-
-        [[nodiscard]] constexpr string_type str() const noexcept;
-
-        [[nodiscard]] constexpr operator string_type() const noexcept;
-    };
-
-    //
-
-    template<typename CharTy>
-    class BasicString : public eastl::basic_string<CharTy>
-    {
-    public:
-        using base_class = eastl::basic_string<CharTy>;
-
-        using char_type            = CharTy;
-        using string_view_type     = BasicStringView<CharTy>;
-        using std_string_view_type = std::basic_string_view<CharTy>;
-
-        template<typename... ArgsTy>
-        [[nodiscard]] static BasicString<CharTy> formatted(
-            const std_string_view_type Format,
-            ArgsTy&&... Args);
-
-    public:
-        using base_class::base_class;
-
-    public:
-        using base_class::data;
-        using base_class::size;
-
-        [[nodiscard]] constexpr string_view_type view() const noexcept
-        {
-            return { data(), size() };
-        }
-
-        [[nodiscard]] constexpr std_string_view_type std_view() const noexcept
-        {
-            return { data(), size() };
-        }
-
-        [[nodiscard]] constexpr operator std_string_view_type() const noexcept
-        {
-            return std_view();
-        }
-
-        [[nodiscard]] constexpr operator string_view_type() const noexcept
-        {
-            return view();
-        }
-    };
-
-    //
-
-    template<typename CharTy>
-    [[nodiscard]] constexpr auto BasicStringView<CharTy>::str() const noexcept -> string_type
-    {
-        return { data(), size() };
-    }
-
-    template<typename CharTy>
-    [[nodiscard]] constexpr BasicStringView<CharTy>::operator string_type() const noexcept
-    {
-        return str();
-    }
-
-    //
-
-    using CharU8       = char;
-    using StringU8View = BasicStringView<CharU8>;
-    using StringU8     = BasicString<CharU8>;
-
-    using Char       = wchar_t;
-    using StringView = BasicStringView<Char>;
-    using String     = BasicString<Char>;
+    using WideChar       = wchar_t;
+    using WideStringView = std::wstring_view;
+    using WideString     = std::wstring;
 } // namespace Ame
 
 namespace Ame
@@ -137,12 +24,12 @@ namespace Ame
         /// String type concept
         /// </summary>
         template<typename Ty>
-        concept StringType = std::is_same_v<Ty, StringU8> || std::is_same_v<Ty, String> ||
-                             std::is_same_v<Ty, StringU8View> || std::is_same_v<Ty, StringView> ||
+        concept StringType = std::is_same_v<Ty, String> || std::is_same_v<Ty, WideString> ||
+                             std::is_same_v<Ty, StringView> || std::is_same_v<Ty, WideStringView> ||
                              std::is_same_v<Ty, std::string> || std::is_same_v<Ty, std::wstring> ||
                              std::is_same_v<Ty, std::string_view> || std::is_same_v<Ty, std::wstring_view> ||
-                             std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, char> ||
-                             std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, wchar_t>;
+                             std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, Char> ||
+                             std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, WideChar>;
     } // namespace Concepts
 } // namespace Ame
 
@@ -152,7 +39,7 @@ namespace Ame::Strings
     /// Empty string
     /// </summary>
     template<typename Ty>
-        requires std::is_same_v<Ty, StringU8> || std::is_same_v<Ty, String>
+        requires std::is_same_v<Ty, String> || std::is_same_v<Ty, WideString>
     static Ty Empty = {};
 
     /// <summary>
@@ -216,25 +103,25 @@ namespace Ame::Strings
     /// Convert string to lower case
     /// </summary>
     [[nodiscard]] static String ToLower(
-        const String& Str) noexcept
+        const StringView& Str) noexcept
     {
         String LowStr;
         LowStr.reserve(Str.size());
-        std::ranges::transform(Str, std::back_inserter(LowStr), [](wchar_t c)
-                               { return static_cast<wchar_t>(std::tolower(c)); });
+        std::ranges::transform(Str, std::back_inserter(LowStr), [](Char c)
+                               { return static_cast<Char>(std::tolower(c)); });
         return LowStr;
     }
 
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] static StringU8 ToLower(
-        const StringU8& Str) noexcept
+    [[nodiscard]] static WideString ToLower(
+        const WideStringView& Str) noexcept
     {
-        StringU8 LowStr;
+        WideString LowStr;
         LowStr.reserve(Str.size());
-        std::ranges::transform(Str, std::back_inserter(LowStr), [](char c)
-                               { return static_cast<char>(std::tolower(c)); });
+        std::ranges::transform(Str, std::back_inserter(LowStr), [](WideChar c)
+                               { return static_cast<WideChar>(std::tolower(c)); });
         return LowStr;
     }
 
@@ -242,25 +129,25 @@ namespace Ame::Strings
     /// Convert string to upper case
     /// </summary>
     [[nodiscard]] static String ToUpper(
-        const String& Str) noexcept
+        const StringView& Str) noexcept
     {
         String UpStr;
         UpStr.reserve(Str.size());
-        std::ranges::transform(Str, std::back_inserter(UpStr), [](wchar_t c)
-                               { return static_cast<wchar_t>(std::toupper(c)); });
+        std::ranges::transform(Str, std::back_inserter(UpStr), [](Char c)
+                               { return static_cast<Char>(std::toupper(c)); });
         return UpStr;
     }
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] static StringU8 ToUpper(
-        const StringU8& Str) noexcept
+    [[nodiscard]] static WideString ToUpper(
+        const WideStringView& Str) noexcept
     {
-        StringU8 UpStr;
+        WideString UpStr;
         UpStr.reserve(Str.size());
-        std::ranges::transform(Str, std::back_inserter(UpStr), [](char c)
-                               { return static_cast<char>(std::toupper(c)); });
+        std::ranges::transform(Str, std::back_inserter(UpStr), [](WideChar c)
+                               { return static_cast<WideChar>(std::toupper(c)); });
         return UpStr;
     }
 
@@ -270,12 +157,12 @@ namespace Ame::Strings
     /// Replace occurence of a token in a string
     /// </summary>
     static bool Replace(
-        StringU8&       Str,
-        StringU8View    Token,
-        const StringU8& Value) noexcept
+        String&    Str,
+        StringView Token,
+        StringView Value) noexcept
     {
         size_t It = Str.find(Token.data(), 0, Token.size());
-        if (It != std::string::npos)
+        if (It != Str.npos)
         {
             Str.replace(It, Token.size(), Value);
             return true;
@@ -284,29 +171,75 @@ namespace Ame::Strings
     }
 
     /// <summary>
+    /// Replace occurence of a token in a string
+    /// </summary>
+    static bool Replace(
+        WideString&    Str,
+        WideStringView Token,
+        WideStringView Value) noexcept
+    {
+        size_t It = Str.find(Token.data(), 0, Token.size());
+        if (It != Str.npos)
+        {
+            Str.replace(It, Token.size(), Value);
+            return true;
+        }
+        return false;
+    }
+
+    //
+
+    /// <summary>
     /// Replace all occurences of a token in a string
     /// </summary>
-    static bool ReplaceAll(
-        StringU8&       Str,
-        StringU8View    Token,
-        const StringU8& Value) noexcept
+    static size_t ReplaceAll(
+        String&    Str,
+        StringView Token,
+        StringView Value) noexcept
     {
-        bool Replaced = false;
+        size_t Count = 0;
         while (true)
         {
             size_t It = Str.find(Token.data(), 0, Token.size());
-            if (It != std::string::npos)
+            if (It != Str.npos)
             {
                 Str.replace(It, Token.size(), Value);
-                Replaced = true;
+                Count++;
             }
             else
             {
                 break;
             }
         }
-        return Replaced;
+        return Count;
     }
+
+    /// <summary>
+    /// Replace all occurences of a token in a string
+    /// </summary>
+    static size_t ReplaceAll(
+        WideString&    Str,
+        WideStringView Token,
+        WideStringView Value) noexcept
+    {
+        size_t Count = 0;
+        while (true)
+        {
+            size_t It = Str.find(Token.data(), 0, Token.size());
+            if (It != Str.npos)
+            {
+                Str.replace(It, Token.size(), Value);
+                Count++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return Count;
+    }
+
+    //
 
     /// <summary>
     /// Hash a string
@@ -381,15 +314,6 @@ namespace Ame
 namespace std
 {
     template<>
-    struct hash<Ame::StringU8View>
-    {
-        size_t operator()(const Ame::StringU8View& Str) const
-        {
-            return Ame::StringHash{ Str };
-        }
-    };
-
-    template<>
     struct hash<Ame::StringView>
     {
         size_t operator()(const Ame::StringView& Str) const
@@ -399,9 +323,9 @@ namespace std
     };
 
     template<>
-    struct hash<Ame::StringU8>
+    struct hash<Ame::WideStringView>
     {
-        size_t operator()(const Ame::StringU8& Str) const
+        size_t operator()(const Ame::WideStringView& Str) const
         {
             return Ame::StringHash{ Str };
         }
@@ -415,66 +339,13 @@ namespace std
             return Ame::StringHash{ Str };
         }
     };
-} // namespace std
 
-namespace std
-{
-    template<typename CharTy>
-    struct formatter<Ame::BasicStringView<CharTy>, CharTy>
+    template<>
+    struct hash<Ame::WideString>
     {
-        template<typename ParseContext>
-        constexpr auto parse(ParseContext& Ctx)
+        size_t operator()(const Ame::WideString& Str) const
         {
-            auto It = Ctx.begin();
-            if (It != Ctx.end() && *It != '}')
-                throw std::format_error("invalid format");
-            return It;
-        }
-
-        template<typename FormatContext>
-        auto format(const Ame::BasicStringView<CharTy> Str, FormatContext& Ctx) const
-        {
-            return std::ranges::copy(Str.std_view(), Ctx.out()).out;
-        }
-    };
-
-    template<typename CharTy>
-    struct formatter<Ame::BasicString<CharTy>, CharTy> : formatter<Ame::BasicStringView<CharTy>, CharTy>
-    {
-        using base_class = formatter<Ame::BasicStringView<CharTy>, CharTy>;
-
-        template<typename ParseContext>
-        constexpr auto parse(ParseContext& Ctx)
-        {
-            return base_class::parse(Ctx);
-        }
-
-        template<typename FormatContext>
-        auto format(const Ame::BasicString<CharTy>& Str, FormatContext& Ctx) const
-        {
-            return base_class::format(Str, Ctx);
+            return Ame::StringHash{ Str };
         }
     };
 } // namespace std
-
-namespace Ame
-{
-    template<typename CharTy>
-    template<typename... ArgsTy>
-    [[nodiscard]] inline BasicString<CharTy> BasicString<CharTy>::formatted(
-        const std_string_view_type Format,
-        ArgsTy&&... Args)
-    {
-        BasicString<CharTy> Str;
-        Str.reserve(Format.size());
-        if constexpr (std::is_same_v<CharTy, char>)
-        {
-            std::vformat_to(std::back_inserter(Str), Format, std::make_format_args(std::forward<ArgsTy>(Args)...));
-        }
-        else
-        {
-            std::vformat_to(std::back_inserter(Str), std::move(Format), std::make_wformat_args(std::forward<ArgsTy>(Args)...));
-        }
-        return Str;
-    }
-} // namespace Ame

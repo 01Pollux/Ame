@@ -1,6 +1,5 @@
 #pragma once
 
-#include <EASTL/vector.h>
 #include <mutex>
 #include <algorithm>
 #include <execution>
@@ -12,8 +11,8 @@ namespace Ame::Rhi
     template<typename Ty, typename ReleaseFunc>
     struct DeferredResource
     {
-        eastl::vector<Ty*> Resources;
-        std::mutex         Mutex;
+        std::vector<Ty*> Resources;
+        std::mutex       Mutex;
 
         void DeferRelease(
             Ty& Resource)

@@ -8,7 +8,7 @@ namespace Ame::Signals::Data
 {
     struct Log
     {
-        StringU8View       Message;
+        StringView         Message;
         Ame::Log::LogLevel Level;
     };
 } // namespace Ame::Signals::Data

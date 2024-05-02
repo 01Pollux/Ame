@@ -14,9 +14,9 @@ namespace Ame
 {
     const Guid Guid::Null{};
 
-    StringU8 Guid::ToString() const
+    String Guid::ToString() const
     {
-        StringU8 Str(36, '\0');
+        String Str(36, '\0');
         boost::uuids::to_chars(*this, Str.data());
         return Str;
     }
@@ -29,7 +29,7 @@ namespace Ame
     }
 
     Guid Guid::FromString(
-        const StringU8& Id)
+        StringView Id)
     {
         return Guid{ boost::uuids::string_generator()(Id.begin(), Id.end()) };
     }

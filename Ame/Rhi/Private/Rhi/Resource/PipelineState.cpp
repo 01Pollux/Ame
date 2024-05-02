@@ -1,5 +1,3 @@
-#include <EASTL/vector.h>
-
 #include <Rhi/Device/DeviceImpl.hpp>
 
 #include <Rhi/Resource/PipelineState.hpp>

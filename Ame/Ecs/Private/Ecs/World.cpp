@@ -15,11 +15,11 @@ namespace Ame::Ecs
 
     struct WorldName
     {
-        StringU8 Name;
+        String Name;
     };
 
     World::World(
-        const StringU8& Name)
+        const String& Name)
     {
         {
             std::lock_guard Lock(g_FlecsMutex);
@@ -61,15 +61,16 @@ namespace Ame::Ecs
     //
 
     Entity World::CreateEntity(
-        const StringU8& Name,
-        const Entity&   Parent)
+        StringView    Name,
+        const Entity& Parent)
     {
         auto FlecsEntity = m_World->entity();
         if (Parent)
         {
             FlecsEntity.child_of(Parent);
         }
-        FlecsEntity.set_name(Name.c_str());
+        auto SafeName = GetUniqueEntityName(Name.data(), Parent);
+        FlecsEntity.set_name(SafeName.c_str());
         return Entity(FlecsEntity);
     }
 
@@ -96,15 +97,9 @@ namespace Ame::Ecs
         FlecsEntity.destruct();
     }
 
-    std::vector<Entity> World::GetEntities(
-        const StringU8& Name)
-    {
-        return {};
-    }
-
     //
 
-    StringU8 World::GetUniqueEntityName(
+    String World::GetUniqueEntityName(
         const char*   Name,
         const Entity& Parent) const
     {

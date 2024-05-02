@@ -11,8 +11,8 @@ namespace Ame::Rhi
         uint32_t                        FrameIndex)
     {
 #ifndef AME_DIST
-        auto AllocatorName = StringU8::formatted("FrameCommandAllocator_{}", FrameIndex);
-        auto ListName      = StringU8::formatted("FrameCommandList_{}", FrameIndex);
+        auto AllocatorName = std::format("FrameCommandAllocator_{}", FrameIndex);
+        auto ListName      = std::format("FrameCommandList_{}", FrameIndex);
 
         auto AllocatorNamePtr = AllocatorName.c_str();
         auto ListNamePtr      = ListName.c_str();

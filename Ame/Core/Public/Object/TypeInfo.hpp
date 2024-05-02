@@ -20,14 +20,14 @@ namespace Ame
     {
     public:
         TypeInfo(
-            std::string_view Name,
-            const TypeInfo*  Parent = nullptr);
+            StringView      Name,
+            const TypeInfo* Parent = nullptr);
 
         [[nodiscard]] uint64_t GetHash() const
         {
             return m_Hash;
         }
-        [[nodiscard]] eastl::string_view GetName() const
+        [[nodiscard]] StringView GetName() const
         {
             return m_Name.c_str();
         }
@@ -42,7 +42,7 @@ namespace Ame
             return m_Hash == Hash;
         }
         [[nodiscard]] bool IsTypeOf(
-            std::string_view Name) const;
+            StringView Name) const;
         [[nodiscard]] bool IsTypeOf(
             const TypeInfo& Type) const
         {
@@ -67,7 +67,7 @@ namespace Ame
             return false;
         }
         [[nodiscard]] bool IsChildOf(
-            std::string_view Name) const;
+            StringView Name) const;
         [[nodiscard]] bool IsChildOf(
             const TypeInfo& Type) const
         {
@@ -76,7 +76,7 @@ namespace Ame
 
     private:
         uint64_t        m_Hash;
-        eastl::string   m_Name;
+        String          m_Name;
         const TypeInfo* m_Parent;
     };
 } // namespace Ame

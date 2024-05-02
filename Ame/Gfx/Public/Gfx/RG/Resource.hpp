@@ -13,7 +13,7 @@ namespace Ame::Gfx::RG
         ResourceId() = default;
 
         explicit ResourceId(
-            StringU8View Name) :
+            StringView Name) :
             m_Id(Name)
 #ifndef AME_DIST
             ,
@@ -33,7 +33,7 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get resource name (non-dist only)
         /// </summary>
-        [[nodiscard]] StringU8View GetName() const noexcept
+        [[nodiscard]] StringView GetName() const noexcept
         {
 #ifndef AME_DIST
             return m_Name;
@@ -57,12 +57,12 @@ namespace Ame::Gfx::RG
         /// Create a resource view id from this resource id
         /// </summary>
         [[nodiscard]] ResourceViewId operator()(
-            StringU8View ViewName) const;
+            StringView ViewName) const;
 
     private:
         StringHash m_Id = InvalidId;
 #ifndef AME_DIST
-        StringU8 m_Name;
+        String m_Name;
 #endif
     };
 
@@ -76,15 +76,15 @@ namespace Ame::Gfx::RG
         ResourceViewId() = default;
 
         explicit ResourceViewId(
-            StringU8View Name,
-            StringU8View ViewName) :
+            StringView Name,
+            StringView ViewName) :
             ResourceViewId(ResourceId(Name), ViewName)
         {
         }
 
         explicit ResourceViewId(
-            ResourceId   ResId,
-            StringU8View ViewName) :
+            ResourceId ResId,
+            StringView ViewName) :
             m_Resource(ResId),
             m_ViewId(ViewName)
         {
@@ -130,7 +130,7 @@ namespace Ame::Gfx::RG
     //
 
     inline ResourceViewId ResourceId::operator()(
-        StringU8View ViewName) const
+        StringView ViewName) const
     {
         return ResourceViewId(*this, ViewName);
     }

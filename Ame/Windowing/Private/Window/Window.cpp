@@ -162,13 +162,13 @@ namespace Ame::Windowing
         return glfwWindowShouldClose(m_Handle) == GLFW_FALSE;
     }
 
-    const StringU8& Window::GetTitle() const
+    const String& Window::GetTitle() const
     {
         return m_Title;
     }
 
     void Window::SetTitle(
-        StringU8 Title)
+        String Title)
     {
         m_Title = std::move(Title);
         glfwSetWindowTitle(m_Handle, m_Title.c_str());

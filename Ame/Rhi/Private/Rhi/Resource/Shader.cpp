@@ -140,11 +140,11 @@ namespace Ame::Rhi
     /// <summary>
     /// Get the shader entry model.
     /// </summary>
-    [[nodiscard]] static String GetShaderModel(
+    [[nodiscard]] static WideString GetShaderModel(
         ShaderType    Stage,
         ShaderProfile Profile)
     {
-        String Model;
+        WideString Model;
 
         switch (Stage)
         {
@@ -312,7 +312,7 @@ namespace Ame::Rhi
     /// </summary>
     static void AddSpirvLayout(
         const ShaderCompileDesc&     Desc,
-        std::vector<String>&         RegisterShift,
+        std::vector<WideString>&     RegisterShift,
         std::vector<const wchar_t*>& Options)
     {
         switch (Desc.VulkanMemoryLayout)
@@ -328,10 +328,10 @@ namespace Ame::Rhi
             break;
         }
 
-        RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.textureOffset));
-        RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.storageTextureAndBufferOffset));
-        RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.samplerOffset));
-        RegisterShift.emplace_back(String::formatted(L"{}", DefaultSpirvBindingOffset.constantBufferOffset));
+        RegisterShift.emplace_back(std::format(L"{}", DefaultSpirvBindingOffset.textureOffset));
+        RegisterShift.emplace_back(std::format(L"{}", DefaultSpirvBindingOffset.storageTextureAndBufferOffset));
+        RegisterShift.emplace_back(std::format(L"{}", DefaultSpirvBindingOffset.samplerOffset));
+        RegisterShift.emplace_back(std::format(L"{}", DefaultSpirvBindingOffset.constantBufferOffset));
 
         const wchar_t* TShift = RegisterShift[0].c_str();
         const wchar_t* UShift = RegisterShift[1].c_str();
@@ -371,8 +371,8 @@ namespace Ame::Rhi
     /// Load shader blob from string.
     /// </summary>
     [[nodiscard]] static CComPtr<IDxcBlobEncoding> LoadShaderFromString(
-        IDxcUtils*   Utils,
-        StringU8View ShaderSource)
+        IDxcUtils* Utils,
+        StringView ShaderSource)
     {
         CComPtr<IDxcBlobEncoding> ShaderCodeBlob;
         ThrowShaderException(Utils->CreateBlobFromPinned(
@@ -439,10 +439,10 @@ namespace Ame::Rhi
 
             for (auto& [Key, Value] : Desc.Defines)
             {
-                MacrosCombined.emplace_back(String::formatted(
+                MacrosCombined.emplace_back(std::format(
                     L"{}={}",
                     Key,
-                    Value.empty() ? L"1" : Value.view()));
+                    Value.empty() ? L"1" : Value.data()));
             }
 
             for (auto& Macro : MacrosCombined)
@@ -453,10 +453,10 @@ namespace Ame::Rhi
         }
 
     private:
-        String              Model;
-        String              DefineMacro;
-        std::vector<String> RegisterShift;
-        std::vector<String> MacrosCombined;
+        WideString              Model;
+        WideString              DefineMacro;
+        std::vector<WideString> RegisterShift;
+        std::vector<WideString> MacrosCombined;
     };
 
     /// <summary>
@@ -492,7 +492,7 @@ namespace Ame::Rhi
                  Error->GetStringLength() > 0))
             {
                 size_t StrLen = Error->GetStringLength();
-                Log::Rhi().Error(StringU8View(Error->GetStringPointer(), StrLen));
+                Log::Rhi().Error(StringView(Error->GetStringPointer(), StrLen));
                 return {};
             }
         }
@@ -531,7 +531,7 @@ namespace Ame::Rhi
                 OperationResult->GetErrorBuffer(&Error);
                 Utils->GetBlobAsUtf8(GetComPtr(Error), &ErrorUtf8);
 
-                Log::Rhi().Error(StringU8View(ErrorUtf8->GetStringPointer(), ErrorUtf8->GetBufferSize()));
+                Log::Rhi().Error(StringView(ErrorUtf8->GetStringPointer(), ErrorUtf8->GetBufferSize()));
                 return false;
             }
             else
@@ -549,7 +549,7 @@ namespace Ame::Rhi
         Co::executor_tag,
         Co::executor&            Executor,
         GraphicsAPI              Api,
-        StringU8View             ShaderSource,
+        StringView               ShaderSource,
         const ShaderCompileDesc& CompileDesc)
     {
         co_return Compile(Api, ShaderSource, CompileDesc);
@@ -557,7 +557,7 @@ namespace Ame::Rhi
 
     ShaderBytecode ShaderBytecode::Compile(
         GraphicsAPI              Api,
-        StringU8View             ShaderSource,
+        StringView               ShaderSource,
         const ShaderCompileDesc& Desc)
     {
         CComPtr<IDxcValidator> Validator;

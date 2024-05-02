@@ -74,12 +74,12 @@ namespace Ame
         }
 
         static const Guid            Null;
-        static inline const StringU8 NullString = "00000000-0000-0000-0000-000000000000";
+        static inline const String NullString = "00000000-0000-0000-0000-000000000000";
 
         /// <summary>
         /// Convert guid to string
         /// </summary>
-        [[nodiscard]] StringU8 ToString() const;
+        [[nodiscard]] String ToString() const;
 
         /// <summary>
         /// Convert guid to wide string
@@ -90,7 +90,7 @@ namespace Ame
         /// Generate guid from string
         /// </summary>
         [[nodiscard]] static Guid FromString(
-            const StringU8& Id);
+            StringView Id);
 
         /// <summary>
         /// Generate a random guid not null

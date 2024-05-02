@@ -16,7 +16,7 @@ namespace Ame::Ecs
 {
     class Universe
     {
-        using WorldMap = std::unordered_map<StringU8, World>;
+        using WorldMap = std::unordered_map<String, World>;
 
     public:
         Universe(
@@ -36,25 +36,25 @@ namespace Ame::Ecs
         /// Add a world to the universe.
         /// </summary>
         World& CreateWorld(
-            const StringU8& Name);
+            const String& Name);
 
         /// <summary>
         /// Remove a world from the universe.
         /// </summary>
         void RemoveWorld(
-            const StringU8& Name);
+            const String& Name);
 
         /// <summary>
         /// Check if the universe has a world.
         /// </summary>
         bool HasWorld(
-            const StringU8& Name);
+            const String& Name);
 
         /// <summary>
         /// Get the world by name.
         /// </summary>
         [[nodiscard]] World& GetWorld(
-            const StringU8& Name);
+            const String& Name);
 
     public:
         /// <summary>
@@ -103,5 +103,4 @@ namespace Ame::Ecs
         WorldMap m_Worlds;
         World*   m_ActiveWorld = nullptr;
     };
-
 } // namespace Ame::Ecs

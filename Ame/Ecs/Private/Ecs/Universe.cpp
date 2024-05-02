@@ -45,7 +45,7 @@ namespace Ame::Ecs
     //
 
     World& Universe::CreateWorld(
-        const StringU8& Name)
+        const String& Name)
     {
 #ifdef AME_DEBUG
         if (m_Worlds.contains(Name))
@@ -58,7 +58,7 @@ namespace Ame::Ecs
     }
 
     void Universe::RemoveWorld(
-        const StringU8& Name)
+        const String& Name)
     {
         auto Iter = m_Worlds.find(Name);
         if (Iter != m_Worlds.end())
@@ -72,13 +72,13 @@ namespace Ame::Ecs
     }
 
     bool Universe::HasWorld(
-        const StringU8& Name)
+        const String& Name)
     {
         return m_Worlds.contains(Name);
     }
 
     World& Universe::GetWorld(
-        const StringU8& Name)
+        const String& Name)
     {
         return m_Worlds.at(Name);
     }
