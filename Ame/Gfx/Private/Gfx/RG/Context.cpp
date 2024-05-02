@@ -3,7 +3,7 @@
 namespace Ame::Gfx::RG
 {
     Context::Context(
-        Rhi::Device& Device,
+        Rhi::Device&   Device,
         Ecs::Universe& Universe) :
         m_Device(Device),
         m_Resources(Device, Universe)
@@ -34,12 +34,13 @@ namespace Ame::Gfx::RG
         float                        EngineTime,
         float                        GameTime,
         float                        DeltaTime,
+        Ecs::Entity                  CameraEntity,
         const Math::TransformMatrix& Transform,
         const Math::Matrix4x4&       Projection,
         const Math::Vector2&         Viewport)
     {
         auto& RgStorage = GetStorage();
-        RgStorage.UpdateFrameResource(EngineTime, GameTime, DeltaTime, Transform, Projection, Viewport);
+        RgStorage.UpdateFrameResource(EngineTime, GameTime, DeltaTime, CameraEntity, Transform, Projection, Viewport);
     }
 
     void Context::Execute()

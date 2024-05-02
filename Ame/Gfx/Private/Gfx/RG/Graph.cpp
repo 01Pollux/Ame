@@ -19,6 +19,7 @@ namespace Ame::Gfx::RG
     }
 
     void Graph::UpdateFrameStorage(
+        Ecs::Entity                  CameraEntity,
         const Math::TransformMatrix& Transform,
         const Math::Matrix4x4&       Projection,
         const Math::Vector2&         Viewport)
@@ -27,6 +28,7 @@ namespace Ame::Gfx::RG
             static_cast<float>(m_Timer.get().GetEngineTime()),
             static_cast<float>(m_Timer.get().GetDeltaTime()),
             static_cast<float>(m_Timer.get().GetDeltaTime()),
+            CameraEntity,
             Transform,
             Projection,
             Viewport);

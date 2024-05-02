@@ -97,6 +97,7 @@ namespace Ame::Gfx
             for (auto i : Iter)
             {
                 m_Graph.UpdateFrameStorage(
+                    Iter.entity(i),
                     Transforms[i],
                     Cameras[i].GetProjectionMatrix(),
                     Cameras[i].GetViewporSize());

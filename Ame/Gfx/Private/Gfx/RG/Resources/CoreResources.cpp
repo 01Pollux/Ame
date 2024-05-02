@@ -92,6 +92,7 @@ namespace Ame::Gfx::RG
         float                        EngineTime,
         float                        GameTime,
         float                        DeltaTime,
+        Ecs::Entity                  CameraEntity,
         const Math::TransformMatrix& Transform,
         const Math::Matrix4x4&       Projection,
         const Math::Vector2&         Viewport)
@@ -113,9 +114,11 @@ namespace Ame::Gfx::RG
 
         m_FrameResource.Viewport = Viewport;
 
-        m_FrameResource.EngineTime = EngineTime;
-        m_FrameResource.GameTime   = GameTime;
-        m_FrameResource.DeltaTime  = DeltaTime;
+        m_FrameResource.EngineTime    = EngineTime;
+        m_FrameResource.GameTime      = GameTime;
+        m_FrameResource.DeltaTime     = DeltaTime;
+
+        m_FrameResource.CurrentCamera = CameraEntity;
 
         auto&   DeviceDesc = m_Device.get().GetDesc();
         uint8_t FrameIndex = m_Device.get().GetFrameIndex();
