@@ -1,4 +1,4 @@
-#include <Gfx/RG/Resources/EcsSystem.hpp>
+#include <Gfx/RG/Ecs/System.hpp>
 #include <Gfx/RG/Resources/CoreResources.hpp>
 
 #include <Ecs/Component/Renderable/Renderable.hpp>

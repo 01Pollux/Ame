@@ -6,7 +6,7 @@
 #include <Gfx/RG/Resources/VertexBuffer.hpp>
 #include <Gfx/RG/Resources/IndexBuffer.hpp>
 #include <Gfx/RG/Resources/InstanceBuffer.hpp>
-#include <Gfx/RG/Resources/EcsSystem.hpp>
+#include <Gfx/RG/Ecs/System.hpp>
 
 namespace Ame::Gfx::RG
 {
