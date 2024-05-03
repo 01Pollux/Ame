@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Ecs/Universe.hpp>
+#include <Ecs/Signals/Universe.OnWorldChangeHelper.hpp>
 
 namespace Ame::Gfx::RG
 {
@@ -8,25 +8,17 @@ namespace Ame::Gfx::RG
 
     class EcsSystemHooks
     {
+        struct EntityDesc
+        {
+            Ecs::UniqueObserver TransformObserver;
+        };
+
     public:
         EcsSystemHooks(
             Ecs::Universe& Universe,
             CoreResources& Resources);
 
-        EcsSystemHooks(const EcsSystemHooks&) = delete;
-        EcsSystemHooks(EcsSystemHooks&& Other) noexcept;
-
-        EcsSystemHooks& operator=(const EcsSystemHooks&) = delete;
-        EcsSystemHooks& operator=(EcsSystemHooks&& Other);
-
-        ~EcsSystemHooks();
-
     private:
-        /// <summary>
-        /// Remove all hooks.
-        /// </summary>
-        void Reset();
-
         /// <summary>
         /// Apply all hooks for the current world.
         /// </summary>
@@ -36,17 +28,9 @@ namespace Ame::Gfx::RG
         void ApplyTransformObserver();
 
     private:
-        /// <summary>
-        /// Called when the world changes.
-        /// </summary>
-        void OnWorldChange();
-
-    private:
         Ref<Ecs::Universe> m_Universe;
         Ref<CoreResources> m_CoreResources;
 
-        Signals::OnWorldChange::Handle m_OnWorldChange;
-
-        Ecs::UniqueObserver m_TransformObserver;
+        Signals::OnWorldChangeHelper<EntityDesc> m_WorldData;
     };
 } // namespace Ame::Gfx::RG
