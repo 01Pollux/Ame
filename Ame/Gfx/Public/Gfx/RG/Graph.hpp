@@ -26,7 +26,7 @@ namespace Ame::Gfx::RG
         /// Update the frame storage
         /// </summary>
         void UpdateFrameStorage(
-            Ecs::Entity                  CameraEntity,
+            const Ecs::Entity&           CameraEntity,
             const Math::TransformMatrix& Transform,
             const Math::Matrix4x4&       Projection,
             const Math::Vector2&         Viewport);

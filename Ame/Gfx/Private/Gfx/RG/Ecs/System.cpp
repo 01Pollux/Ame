@@ -15,7 +15,8 @@ namespace Ame::Gfx::RG
             {
                 if (ChangeData.NewWorld)
                 {
-                    ApplyTransformObserver();
+                    CreateTransformObserver();
+                    CreateCameraRule();
                 }
             }
         };

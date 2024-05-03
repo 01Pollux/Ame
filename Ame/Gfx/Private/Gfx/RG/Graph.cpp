@@ -19,7 +19,7 @@ namespace Ame::Gfx::RG
     }
 
     void Graph::UpdateFrameStorage(
-        Ecs::Entity                  CameraEntity,
+        const Ecs::Entity&           CameraEntity,
         const Math::TransformMatrix& Transform,
         const Math::Matrix4x4&       Projection,
         const Math::Vector2&         Viewport)

@@ -2,15 +2,23 @@
 
 #include <Ecs/Signals/Universe.OnWorldChangeHelper.hpp>
 
+#include <Ecs/Component/Math/Transform.hpp>
+#include <Ecs/Component/Renderable/BaseRenderable.hpp>
+
 namespace Ame::Gfx::RG
 {
     class CoreResources;
+
+    using CameraRenderRule = Ecs::UniqueRule<
+        const Ecs::Component::Transform,
+        const Ecs::Component::BaseRenderable>;
 
     class EcsSystemHooks
     {
         struct EntityDesc
         {
             Ecs::UniqueObserver TransformObserver;
+            CameraRenderRule    RenderRule;
         };
 
     public:
@@ -18,14 +26,15 @@ namespace Ame::Gfx::RG
             Ecs::Universe& Universe,
             CoreResources& Resources);
 
-    private:
-        /// <summary>
-        /// Apply all hooks for the current world.
-        /// </summary>
-        void ApplyHooks();
+    public:
+        [[nodiscard]] CameraRenderRule& GetCameraRule() noexcept
+        {
+            return m_WorldData->RenderRule;
+        }
 
     private:
-        void ApplyTransformObserver();
+        void CreateTransformObserver();
+        void CreateCameraRule();
 
     private:
         Ref<Ecs::Universe> m_Universe;

@@ -3,9 +3,7 @@
 #include <Gfx/RG/Resources/FrameResource.hpp>
 #include <Gfx/RG/Resources/AABBBuffer.hpp>
 #include <Gfx/RG/Resources/TransformBuffer.hpp>
-#include <Gfx/RG/Resources/VertexBuffer.hpp>
-#include <Gfx/RG/Resources/IndexBuffer.hpp>
-#include <Gfx/RG/Resources/InstanceBuffer.hpp>
+#include <Gfx/RG/Resources/CameraCullResult.hpp>
 #include <Gfx/RG/Ecs/System.hpp>
 
 namespace Ame::Gfx::RG
@@ -24,16 +22,10 @@ namespace Ame::Gfx::RG
     public:
         [[nodiscard]] const AABBBuffer&      GetAABBBuffer() const;
         [[nodiscard]] const TransformBuffer& GetTransformBuffer() const;
-        [[nodiscard]] const VertexBuffer&    GetVertexBuffer() const;
-        [[nodiscard]] const IndexBuffer&     GetIndexBuffer() const;
-        [[nodiscard]] const InstanceBuffer&  GetInstanceBuffer() const;
 
     public:
         [[nodiscard]] AABBBuffer&      GetAABBBuffer();
         [[nodiscard]] TransformBuffer& GetTransformBuffer();
-        [[nodiscard]] VertexBuffer&    GetVertexBuffer();
-        [[nodiscard]] IndexBuffer&     GetIndexBuffer();
-        [[nodiscard]] InstanceBuffer&  GetInstanceBuffer();
 
     public:
         /// <summary>
@@ -43,10 +35,23 @@ namespace Ame::Gfx::RG
             float                        EngineTime,
             float                        GameTime,
             float                        DeltaTime,
-            Ecs::Entity                  CameraEntity,
+            const Ecs::Entity&           CameraEntity,
             const Math::TransformMatrix& Transform,
             const Math::Matrix4x4&       Projection,
             const Math::Vector2&         Viewport);
+
+    public:
+        /// <summary>
+        /// Collect entities for rendering
+        /// </summary>
+        void CollectEntities();
+
+    private:
+        /// <summary>
+        /// Collect entities for rendering
+        /// </summary>
+        void CollectEntities(
+            const CameraRenderRule& RenderRule);
 
     private:
         /// <summary>
@@ -56,16 +61,15 @@ namespace Ame::Gfx::RG
             Rhi::Device& Device);
 
     private:
-        Ref<Rhi::Device> m_Device;
+        Ref<Rhi::Device>   m_Device;
+        Ref<Ecs::Universe> m_Universe;
 
         Rhi::Buffer      m_FrameResourceBuffer;
         FrameResourceCPU m_FrameResource;
 
-        AABBBuffer      m_AABBBuffer;
-        TransformBuffer m_TransformBuffer;
-        VertexBuffer    m_VertexBuffer;
-        IndexBuffer     m_IndexBuffer;
-        InstanceBuffer  m_InstanceBuffer;
+        AABBBuffer       m_AABBBuffer;
+        TransformBuffer  m_TransformBuffer;
+        CameraCullResult m_CameraCullResult;
 
         EcsSystemHooks m_EcsSystemHooks;
     };

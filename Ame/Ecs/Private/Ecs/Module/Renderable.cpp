@@ -9,7 +9,8 @@ namespace Ame::Ecs::Module
     {
         FlecsWorld.module<RenderableModule>();
 
-        FlecsWorld.component<Component::Renderable>();
+        FlecsWorld.component<Component::BaseRenderable>();
+        FlecsWorld.component<Component::BaseRenderableTag>();
 
         FlecsWorld.import <Renderable2DModule>();
     }

@@ -1,12 +1,9 @@
 #include <Gfx/RG/Ecs/System.hpp>
 #include <Gfx/RG/Resources/CoreResources.hpp>
 
-#include <Ecs/Component/Renderable/Renderable.hpp>
-#include <Ecs/Component/Math/Transform.hpp>
-
 namespace Ame::Gfx::RG
 {
-    void EcsSystemHooks::ApplyTransformObserver()
+    void EcsSystemHooks::CreateTransformObserver()
     {
         auto& World = *m_Universe.get().GetActiveWorld();
 
@@ -41,7 +38,7 @@ namespace Ame::Gfx::RG
 
         m_WorldData->TransformObserver =
             World.CreateObserver<const Ecs::Component::Transform>()
-                .with<const Ecs::Component::Renderable>()
+                .with<const Ecs::Component::BaseRenderableTag>()
                 .event(flecs::OnSet)
                 .event(flecs::OnRemove)
                 .iter(TransformObserverCallback);

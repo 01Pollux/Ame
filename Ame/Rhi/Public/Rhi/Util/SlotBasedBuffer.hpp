@@ -45,7 +45,8 @@ namespace Ame::Rhi::Util
     class SlotBasedBuffer
     {
     public:
-        static constexpr uint32_t SizePerInstance = sizeof(Ty);
+        using Type                                = Ty;
+        static constexpr uint32_t SizePerInstance = sizeof(Type);
         static constexpr uint32_t InvalidIndex    = std::numeric_limits<uint32_t>::max();
 
         SlotBasedBuffer(
@@ -71,8 +72,8 @@ namespace Ame::Rhi::Util
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t  Index,
-            const Ty& Data)
+            uint32_t    Index,
+            const Type& Data)
         {
             Write(Index, std::addressof(Data), SizePerInstance);
         }
@@ -146,7 +147,7 @@ namespace Ame::Rhi::Util
         /// Rent a slot in the buffer
         /// </summary>
         [[nodiscard]] uint32_t Rent(
-            const Ty& Data)
+            const Type& Data)
         {
             auto Slot = Rent();
             Write(Slot, Data);

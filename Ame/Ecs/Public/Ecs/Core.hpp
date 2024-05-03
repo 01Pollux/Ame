@@ -103,7 +103,7 @@ namespace Ame::Ecs
                 {
                     m_Entity.destruct();
                 }
-                else
+                else if constexpr (requires { m_Entity.Reset(); })
                 {
                     m_Entity.Reset();
                 }
@@ -111,6 +111,6 @@ namespace Ame::Ecs
         }
 
     private:
-        Ty m_Entity;
+        Ty m_Entity{};
     };
 } // namespace Ame::Ecs

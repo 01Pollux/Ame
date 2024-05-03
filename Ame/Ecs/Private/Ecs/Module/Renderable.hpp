@@ -2,7 +2,7 @@
 
 #include <Ecs/Core.hpp>
 
-#include <Ecs/Component/Renderable/Renderable.hpp>
+#include <Ecs/Component/Renderable/BaseRenderable.hpp>
 
 namespace Ame::Ecs::Module
 {
@@ -21,13 +21,16 @@ namespace Ame::Ecs::Module
         static flecs::component<Ty> AttachRenderable(
             flecs::component<Ty> FlecsComponent)
         {
+            FlecsComponent.is_a<Component::BaseRenderable>();
             return FlecsComponent
                 .on_add(
                     [](flecs::entity FlecsEntity, Ty&)
-                    { FlecsEntity.add<Component::Renderable>(); })
+                    {
+                        FlecsEntity.add<Component::BaseRenderableTag>();
+                    })
                 .on_remove(
                     [](flecs::entity FlecsEntity, Ty&)
-                    { FlecsEntity.remove<Component::Renderable>(); });
+                    { FlecsEntity.remove<Component::BaseRenderableTag>(); });
         }
     };
 } // namespace Ame::Ecs::Module

@@ -1,8 +1,14 @@
 #include <Gfx/RG/Ecs/System.hpp>
 #include <Gfx/RG/Resources/CoreResources.hpp>
 
-#include <Ecs/Component/Viewport/Camera.hpp>
-
 namespace Ame::Gfx::RG
 {
+    void EcsSystemHooks::CreateCameraRule()
+    {
+        auto& World = *m_Universe.get().GetActiveWorld();
+
+        m_WorldData->RenderRule =
+            World.CreateRule<const Ecs::Component::Transform, const Ecs::Component::BaseRenderable>()
+                .build();
+    }
 } // namespace Ame::Gfx::RG

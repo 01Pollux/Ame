@@ -22,12 +22,13 @@ namespace Ame::Gfx::RG
         float                        EngineTime,
         float                        GameTime,
         float                        DeltaTime,
-        Ecs::Entity                  CameraEntity,
+        const Ecs::Entity&           CameraEntity,
         const Math::TransformMatrix& Transform,
         const Math::Matrix4x4&       Projection,
         const Math::Vector2&         Viewport)
     {
         CheckLockState(false);
         m_CoreResources->UpdateFrameResource(EngineTime, GameTime, DeltaTime, CameraEntity, Transform, Projection, Viewport);
+        m_CoreResources->CollectEntities();
     }
 } // namespace Ame::Gfx::RG

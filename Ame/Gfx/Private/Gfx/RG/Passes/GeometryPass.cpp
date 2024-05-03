@@ -36,40 +36,6 @@ namespace Ame::Gfx::RG::Std
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
-                    CreateRenderRules();
-
-                    auto& FrameData = RgStorage.GetFrameResourceData();
-
-                    // auto& Batcher = RgStorage.GetSceneBatcher();
-                    auto& Batcher = m_DrawBatcher;
-
-                    auto CameraIndex = m_Render2DRule.find_var("Camera");
-
-                    Ecs::Iterable RenderIter =
-                        m_Render2DRule.iter()
-                            .set_var(CameraIndex, FrameData.CurrentCamera);
-
-                    RenderIter.iter([&](Ecs::Iterator& Iter, const Ecs::Gfx::Component::RenderInstance* Instances) {});
                 });
-    }
-
-    void GeometryPass::CreateRenderRules()
-    {
-        auto ActiveWorld = m_Universe.get().GetActiveWorld();
-        if (ActiveWorld == nullptr) [[unlikely]]
-        {
-            m_Render2DRule = {};
-            return;
-        }
-
-        if (m_Render2DRule) [[likely]]
-        {
-            return;
-        }
-
-        m_Render2DRule = ActiveWorld
-                             ->CreateRule<const Ecs::Gfx::Component::RenderInstance>()
-                             //.with<Ecs::Gfx::Component::VisibleBy>("$Camera")
-                             .build();
     }
 } // namespace Ame::Gfx::RG::Std
