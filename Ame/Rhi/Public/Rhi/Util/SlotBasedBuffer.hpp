@@ -13,7 +13,7 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Initial number of instances in the buffer
         /// </summary>
-        uint32_t InstanceCount = 1;
+        uint32_t InstanceCount = 1'024;
 
         /// <summary>
         /// Alignment of the instances in the buffer
@@ -56,7 +56,8 @@ namespace Ame::Rhi::Util
             m_Stream(std::make_unique<Rhi::Streaming::BufferOStream>()),
             m_Desc(Desc)
         {
-            GrowSlots(m_Desc.InstanceCount);
+            uint32_t InitialCount = std::exchange(m_Desc.InstanceCount, 0);
+            GrowSlots(InitialCount);
         }
 
     public:
