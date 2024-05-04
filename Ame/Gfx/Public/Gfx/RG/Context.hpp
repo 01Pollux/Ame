@@ -30,6 +30,11 @@ namespace Ame::Gfx::RG
 
     private:
         /// <summary>
+        /// Reset camera storage resources
+        /// </summary>
+        void Reset();
+        
+        /// <summary>
         /// Update core storage resources incase of changes
         /// </summary>
         void Update();

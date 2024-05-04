@@ -6,6 +6,11 @@
 
 namespace Ame::Gfx::RG
 {
+    void CoreResources::ResetCameraStorage()
+    {
+        m_CameraCullResult.Reset();
+    }
+
     void CoreResources::CollectEntities()
     {
         CollectEntities(m_EcsSystemHooks.GetCameraRule());

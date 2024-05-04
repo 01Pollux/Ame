@@ -53,6 +53,7 @@ namespace Ame::Rhi::Util
             Rhi::Device&               RhiDevice,
             const SlotBasedBufferDesc& Desc = {}) :
             m_Device(RhiDevice),
+            m_Stream(std::make_unique<Rhi::Streaming::BufferOStream>()),
             m_Desc(Desc)
         {
             GrowSlots(m_Desc.InstanceCount);
@@ -64,7 +65,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         void Flush()
         {
-            m_Stream.flush();
+            m_Stream->flush();
         }
 
     public:
@@ -87,8 +88,8 @@ namespace Ame::Rhi::Util
             size_t      Size)
         {
             size_t Offset = GetOffset(Index);
-            m_Stream.seekp(Offset);
-            m_Stream.write(static_cast<const char*>(Data), Size);
+            m_Stream->seekp(Offset);
+            m_Stream->write(static_cast<const char*>(Data), Size);
         }
 
     public:
@@ -212,17 +213,17 @@ namespace Ame::Rhi::Util
         /// </summary>
         void RecreateBuffer()
         {
-            if (m_Stream.is_open())
+            if (m_Stream->is_open())
             {
                 Flush();
-                m_Stream.close();
+                m_Stream->close();
             }
 
             auto NewBuffer = CreateBuffer(m_Desc.InstanceCount);
             CopyToBuffer(NewBuffer);
 
             m_Buffer = std::move(NewBuffer);
-            m_Stream.open(Rhi::Streaming::BufferView(m_Buffer));
+            m_Stream->open(Rhi::Streaming::BufferView(m_Buffer));
         }
 
         /// <summary>
@@ -264,8 +265,8 @@ namespace Ame::Rhi::Util
         Ref<Rhi::Device>    m_Device;
         SlotBasedBufferDesc m_Desc;
 
-        Rhi::Buffer                   m_Buffer;
-        Rhi::Streaming::BufferOStream m_Stream;
+        Rhi::Buffer                         m_Buffer;
+        UPtr<Rhi::Streaming::BufferOStream> m_Stream;
 
         std::set<uint32_t> m_EmptySlots;
     };

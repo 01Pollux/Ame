@@ -4,33 +4,21 @@
 
 namespace Ame::Gfx::RG
 {
-    auto CameraCullResult::StagedEntity::operator<=>(
-        const StagedEntity& Other) const noexcept
-    {
-        bool UniquerVertexa = Renderable.get().Vertex.HasUniqueBuffer();
-        bool UniquerVertexb = Other.Renderable.get().Vertex.HasUniqueBuffer();
-
-        bool UniqueIndexa = Renderable.get().Index.HasUniqueBuffer();
-        bool UniqueIndexb = Other.Renderable.get().Index.HasUniqueBuffer();
-
-        auto a = std::tie(Renderable.get().PipelineState, UniquerVertexa, UniqueIndexa, Distance);
-        auto b = std::tie(Other.Renderable.get().PipelineState, UniquerVertexb, UniqueIndexb, Other.Distance);
-        auto c = a <=> b;
-
-        return c;
-    }
-
-    //
-
     CameraCullResult::CameraCullResult(
         Rhi::Device&          RhiDevice,
         const CameraCullDesc& Desc) :
-        m_DynamicVertices(RhiDevice, Desc.VertexDesc),
-        m_DynamicIndices(RhiDevice, Desc.IndexDesc),
-        m_AllInstances(RhiDevice, Desc.InstanceDesc)
+        m_Device(RhiDevice),
+        m_CameraVertexDesc(Desc.VertexDesc),
+        m_CameraIndexDesc(Desc.IndexDesc),
+        m_CameraInstanceDesc(Desc.InstanceDesc)
     {
         m_Rows.reserve(Desc.EstimatedRowSize);
         m_StagedEntities.reserve(Desc.EstimatedEntitiesCount);
+    }
+
+    void CameraCullResult::Reset()
+    {
+        m_CurrentCamera = -1;
     }
 
     void CameraCullResult::AddEntity(
@@ -40,8 +28,8 @@ namespace Ame::Gfx::RG
     {
         if (Renderable.Vertex.Count == 0 || Renderable.Index.Count == 0)
         {
-			return;
-		}
+            return;
+        }
 
         m_StagedEntities.emplace(Renderable, Instance, Distance);
     }
@@ -53,9 +41,11 @@ namespace Ame::Gfx::RG
             return;
         }
 
-        Reset();
+        PrepareForUpload();
         uint32_t LastVertexBlock = std::numeric_limits<uint32_t>::max(),
                  LastIndexBlock  = std::numeric_limits<uint32_t>::max();
+
+        auto& Storage = m_Cameras[m_CurrentCamera];
 
         auto FetchBuffer = [](auto& DynamicBuffer, auto& View, uint32_t& LastBlock, bool& NewRow)
         {
@@ -92,8 +82,8 @@ namespace Ame::Gfx::RG
 
             bool NewRow = false;
 
-            auto [VtxBuffer, VertexOffset] = FetchBuffer(m_DynamicVertices, Vertex, LastVertexBlock, NewRow);
-            auto [IdxBuffer, IndexOffset]   = FetchBuffer(m_DynamicIndices, Index, LastIndexBlock, NewRow);
+            auto [VtxBuffer, VertexOffset] = FetchBuffer(Storage.DynamicVertices, Vertex, LastVertexBlock, NewRow);
+            auto [IdxBuffer, IndexOffset]  = FetchBuffer(Storage.DynamicIndices, Index, LastIndexBlock, NewRow);
 
             Instance.get().VertexOffset = VertexOffset;
             Instance.get().VertexSize   = Vertex.Count;
@@ -109,18 +99,21 @@ namespace Ame::Gfx::RG
                 m_Rows.back().Count++;
             }
 
-            m_AllInstances.Rent(Instance);
+            Storage.AllInstances.Rent(Instance);
         }
         m_StagedEntities.clear();
     }
 
-    void CameraCullResult::Reset()
+    void CameraCullResult::PrepareForUpload()
     {
         m_Rows.clear();
         m_Rows.reserve(m_StagedEntities.size());
-        // TODO: this should be camera based buffers
-        m_AllInstances.Reset();
-        m_DynamicIndices.Reset();
-        m_DynamicVertices.Reset();
+
+        m_CurrentCamera++;
+        if (m_CurrentCamera >= m_Cameras.size())
+        {
+            m_Cameras.emplace_back(m_Device.get(), m_CameraVertexDesc, m_CameraIndexDesc, m_CameraInstanceDesc);
+        }
+        m_Cameras[m_CurrentCamera].Reset();
     }
 } // namespace Ame::Gfx::RG

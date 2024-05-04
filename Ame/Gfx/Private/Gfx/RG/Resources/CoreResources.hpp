@@ -42,6 +42,11 @@ namespace Ame::Gfx::RG
 
     public:
         /// <summary>
+        /// Reset camera storage resources
+        /// </summary>
+        void ResetCameraStorage();
+        
+        /// <summary>
         /// Collect entities for rendering
         /// </summary>
         void CollectEntities();

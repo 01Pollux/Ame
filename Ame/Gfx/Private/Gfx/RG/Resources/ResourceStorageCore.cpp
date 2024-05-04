@@ -4,6 +4,11 @@
 
 namespace Ame::Gfx::RG
 {
+    void ResourceStorage::ResetCameraStorage()
+    {
+        m_CoreResources->ResetCameraStorage();
+    }
+
     void ResourceStorage::UpdateCoreResources()
     {
         auto& FrameResource = m_Resources[Names::FrameResource];
@@ -15,8 +20,6 @@ namespace Ame::Gfx::RG
                 Rhi::BufferViewDesc{ .Type = Rhi::BufferViewType::ConstantBuffer });
         }
     }
-
-    //
 
     void ResourceStorage::UpdateFrameResource(
         float                        EngineTime,

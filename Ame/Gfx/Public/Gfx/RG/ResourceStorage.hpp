@@ -150,6 +150,11 @@ namespace Ame::Gfx::RG
 
     private:
         /// <summary>
+        /// Reset camera storage resources
+        /// </summary>
+        void ResetCameraStorage();
+        
+        /// <summary>
         /// Update core resources such as frame resource, transform buffer, etc.
         /// </summary>
         void UpdateCoreResources();

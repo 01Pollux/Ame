@@ -24,6 +24,7 @@ namespace Ame::Gfx::RG
         // Estimated number of unique objects per camera
         uint32_t EstimatedRowSize       = 1024;
         uint32_t EstimatedEntitiesCount = 1024 * 4;
+        uint32_t EstimatedCameraCount   = 2;
     };
 
     /// <summary>
@@ -41,7 +42,22 @@ namespace Ame::Gfx::RG
             Ref<RenderInstance>                       Instance;
             float                                     Distance;
 
-            auto operator<=>(const StagedEntity& Other) const noexcept;
+            std::partial_ordering operator<=>(const StagedEntity& Other) const noexcept;
+        };
+
+        struct CameraStorage
+        {
+            VertexBuffer   DynamicVertices;
+            IndexBuffer    DynamicIndices;
+            InstanceBuffer AllInstances;
+
+            CameraStorage(
+                Rhi::Device&                           RhiDevice,
+                const Rhi::Util::BlockBasedBufferDesc& VertexDesc,
+                const Rhi::Util::BlockBasedBufferDesc& IndexDesc,
+                const Rhi::Util::SlotBasedBufferDesc&  InstanceDesc);
+
+            void Reset();
         };
 
     public:
@@ -57,6 +73,11 @@ namespace Ame::Gfx::RG
         CameraCullResult(
             Rhi::Device&          RhiDevice,
             const CameraCullDesc& Desc = {});
+
+        /// <summary>
+        /// Reset cameras storages
+        /// </summary>
+        void Reset();
 
     public:
         /// <summary>
@@ -77,17 +98,22 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Reset the cull result.
         /// </summary>
-        void Reset();
+        void PrepareForUpload();
 
     private:
-        using Data         = std::vector<Row>;
-        using FlatEntities = boost::container::flat_multiset<StagedEntity>;
+        using Data           = std::vector<Row>;
+        using CameraStorages = std::vector<CameraStorage>;
+        using FlatEntities   = boost::container::flat_multiset<StagedEntity>;
 
-        VertexBuffer   m_DynamicVertices;
-        IndexBuffer    m_DynamicIndices;
-        InstanceBuffer m_AllInstances;
+        Ref<Rhi::Device> m_Device;
 
-        Data         m_Rows;
-        FlatEntities m_StagedEntities;
+        Rhi::Util::BlockBasedBufferDesc m_CameraVertexDesc;
+        Rhi::Util::BlockBasedBufferDesc m_CameraIndexDesc;
+        Rhi::Util::SlotBasedBufferDesc  m_CameraInstanceDesc;
+
+        CameraStorages m_Cameras;
+        FlatEntities   m_StagedEntities;
+        Data           m_Rows;
+        int8_t         m_CurrentCamera = -1;
     };
 } // namespace Ame::Gfx::RG

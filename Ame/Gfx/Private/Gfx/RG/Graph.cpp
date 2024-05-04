@@ -15,6 +15,7 @@ namespace Ame::Gfx::RG
     void Graph::Update()
     {
         m_Passes.Build(m_Context);
+        m_Context.Reset();
         m_Context.Update();
     }
 
