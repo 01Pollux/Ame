@@ -23,19 +23,19 @@ namespace Ame::Ecs::Component
             uint32_t    Count = 0;
             Rhi::Buffer RhiBuffer;
 
-            [[nodiscard]] bool IsBuffered() const
+            [[nodiscard]] bool HasUniqueBuffer() const
             {
                 return RhiBuffer;
             }
 
-            [[nodiscard]] size_t GetBufferedOffset() const
+            [[nodiscard]] size_t GetUniqueBufferOffset() const
             {
                 return std::bit_cast<size_t>(View);
             }
 
-            [[nodiscard]] bool IsCpuData() const
+            [[nodiscard]] bool IsLocal() const
             {
-                return !IsBuffered();
+                return !HasUniqueBuffer();
             }
         };
 

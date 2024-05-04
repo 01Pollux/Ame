@@ -8,8 +8,10 @@
 namespace Ame::Gfx::RG
 {
     class CoreResources;
+    struct RenderInstance;
 
     using CameraRenderRule = Ecs::UniqueRule<
+        RenderInstance,
         const Ecs::Component::Transform,
         const Ecs::Component::BaseRenderable>;
 

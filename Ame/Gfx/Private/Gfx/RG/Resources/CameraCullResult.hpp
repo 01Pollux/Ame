@@ -37,8 +37,9 @@ namespace Ame::Gfx::RG
     {
         struct StagedEntity
         {
-            const Ecs::Component::BaseRenderable* Renderable;
-            float                                 Distance;
+            Ref<const Ecs::Component::BaseRenderable> Renderable;
+            Ref<RenderInstance>                       Instance;
+            float                                     Distance;
 
             auto operator<=>(const StagedEntity& Other) const noexcept;
         };
@@ -63,7 +64,8 @@ namespace Ame::Gfx::RG
         /// </summary>
         void AddEntity(
             float                                 Distance,
-            const Ecs::Component::BaseRenderable& Renderable);
+            const Ecs::Component::BaseRenderable& Renderable,
+            RenderInstance&                       Instance);
 
         /// <summary>
         /// Sort the cull result.

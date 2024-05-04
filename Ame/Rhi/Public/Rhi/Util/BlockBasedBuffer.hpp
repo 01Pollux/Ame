@@ -36,13 +36,13 @@ namespace Ame::Rhi::Util
         {
             static constexpr uint32_t InvalidValue = std::numeric_limits<uint32_t>::max();
 
-            uint32_t Block  = InvalidValue;
-            uint32_t Offset = InvalidValue;
-            uint32_t Size   = InvalidValue;
+            uint32_t BlockSlot = InvalidValue;
+            uint32_t Offset    = InvalidValue;
+            uint32_t Size      = InvalidValue;
 
             operator bool() const
             {
-                return Block != InvalidValue;
+                return BlockSlot != InvalidValue;
             }
         };
 
@@ -62,9 +62,9 @@ namespace Ame::Rhi::Util
         /// Flush the stream to the buffer
         /// </summary>
         void Flush(
-            const Handle& Slot)
+            const uint32_t BlockSlot)
         {
-            m_Blocks[Slot.Block].Stream->flush();
+            m_Blocks[BlockSlot].Stream->flush();
         }
 
         /// <summary>
@@ -72,9 +72,9 @@ namespace Ame::Rhi::Util
         /// </summary>
         void FlushAll()
         {
-            for (auto& Block : m_Blocks)
+            for (auto& CurBlock : m_Blocks)
             {
-                Block.Stream->flush();
+                CurBlock.Stream->flush();
             }
         }
 
@@ -100,9 +100,9 @@ namespace Ame::Rhi::Util
         /// Get buffer of the slot based buffer
         /// </summary>
         [[nodiscard]] const Rhi::Buffer& GetBuffer(
-            const Handle& Slot) const
+            const uint32_t BlockSlot) const
         {
-            return m_Blocks[Slot.Block].Buffer;
+            return m_Blocks[BlockSlot].Buffer;
         }
 
     public:
@@ -114,9 +114,21 @@ namespace Ame::Rhi::Util
             const void*   Data,
             size_t        Size)
         {
-            auto& Block = m_Blocks[Slot.Block];
-            Block.Stream->seekp(Slot.Offset);
-            Block.Stream->write(std::bit_cast<const char*>(Data), Size);
+            Write(Slot.BlockSlot, Slot.Offset, Data, Size);
+        }
+        
+        /// <summary>
+        /// Write data to the buffer
+        /// </summary>
+        void Write(
+            uint32_t BlockSlot,
+            uint32_t Offset,
+            const void*   Data,
+            size_t        Size)
+        {
+            auto& Block = m_Blocks[BlockSlot];
+			Block.Stream->seekp(Offset);
+			Block.Stream->write(std::bit_cast<const char*>(Data), Size);
         }
 
     public:
@@ -150,7 +162,19 @@ namespace Ame::Rhi::Util
         void Return(
             const Handle& Slot)
         {
-            m_Blocks[Slot.Block].Buddy.Free({ .Offset = Slot.Offset, .Size = Slot.Size });
+            m_Blocks[Slot.BlockSlot].Buddy.Free({ 
+                .Offset = Slot.Offset, 
+                .Size = Slot.Size });
+        }
+
+    public:
+        void Reset()
+        {
+            for (auto& Block : m_Blocks)
+            {
+                Block.Buddy = Allocator::Buddy(m_Desc.Size);
+                Block.Stream->seekp(0);
+            }
         }
 
     private:
@@ -169,7 +193,9 @@ namespace Ame::Rhi::Util
 
                 if (FoundSlot)
                 {
-                    Slot = { .Block = i, .Offset = static_cast<uint32_t>(FoundSlot.Offset), .Size = static_cast<uint32_t>(FoundSlot.Size) };
+                    Slot = { .BlockSlot = i,
+                             .Offset    = static_cast<uint32_t>(FoundSlot.Offset),
+                             .Size      = static_cast<uint32_t>(FoundSlot.Size) };
                     break;
                 }
             }
@@ -188,13 +214,15 @@ namespace Ame::Rhi::Util
         [[nodiscard]] Handle CreateBlock(
             size_t Size)
         {
-            if (m_Desc.Size < Size || m_Desc.MaxBlockCount <= m_Blocks.size()) [[unlikely]]
+            if (m_Desc.Size < Size || (m_Desc.MaxBlockCount && m_Desc.MaxBlockCount <= m_Blocks.size())) [[unlikely]]
             {
                 return {};
             }
 
             m_Blocks.emplace_back(m_Device.get(), m_Desc.Size, m_Desc.UsageFlags);
-            return { .Block = static_cast<uint32_t>(m_Blocks.size() - 1), .Offset = 0, .Size = static_cast<uint32_t>(Size) };
+            return { .BlockSlot = static_cast<uint32_t>(m_Blocks.size() - 1),
+                     .Offset    = 0,
+                     .Size      = static_cast<uint32_t>(Size) };
         }
 
     private:

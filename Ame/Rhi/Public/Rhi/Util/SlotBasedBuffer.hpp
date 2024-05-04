@@ -146,7 +146,7 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Rent a slot in the buffer
         /// </summary>
-        [[nodiscard]] uint32_t Rent(
+        uint32_t Rent(
             const Type& Data)
         {
             auto Slot = Rent();
@@ -161,6 +161,18 @@ namespace Ame::Rhi::Util
             uint32_t Slot)
         {
             m_EmptySlots.insert(Slot);
+        }
+
+    public:
+        /// <summary>
+        /// Reset all slots in the buffer
+        /// </summary>
+        void Reset()
+        {
+            for (uint32_t i = 0; i < m_Desc.InstanceCount; i++)
+            {
+                m_EmptySlots.insert(i);
+            }
         }
 
     private:

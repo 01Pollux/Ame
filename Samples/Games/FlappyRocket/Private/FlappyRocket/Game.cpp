@@ -29,7 +29,7 @@ namespace Ame::FlappyRocket
         auto& World = *m_EcsUniverse->GetActiveWorld();
 
         auto Player = World.CreateEntity(PlayerName);
-        Player.AddComponent<Ecs::Component::Sprite>();
+        Player.AddComponent(Ecs::Component::Sprite::Quad());
         Player.AddComponent<Ecs::Component::Transform>();
 
         auto Camera = World.CreateEntity(CameraName);

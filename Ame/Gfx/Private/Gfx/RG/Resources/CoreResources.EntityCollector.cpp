@@ -26,11 +26,13 @@ namespace Ame::Gfx::RG
         auto FilterEntities =
             [this, &CameraData, &CameraPosition](
                 Ecs::Iterator&                        Iter,
+                RenderInstance*                       Instances,
                 const Ecs::Component::Transform*      Transforms,
                 const Ecs::Component::BaseRenderable* Renderables)
         {
             for (auto i : Iter)
             {
+                auto& Instance   = Instances[i];
                 auto& Transform  = Transforms[i];
                 auto& Renderable = Renderables[i];
 
@@ -40,7 +42,7 @@ namespace Ame::Gfx::RG
                 }
 
                 float Distance = glm::distance2(Transform.GetPosition(), CameraPosition);
-                m_CameraCullResult.AddEntity(Distance, Renderable);
+                m_CameraCullResult.AddEntity(Distance, Renderable, Instance);
             }
         };
 

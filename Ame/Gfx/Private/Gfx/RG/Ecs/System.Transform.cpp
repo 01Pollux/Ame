@@ -16,7 +16,7 @@ namespace Ame::Gfx::RG
                 auto&       Transform = Transforms[i];
                 Ecs::Entity Entity(Iter.entity(i));
 
-                auto& InstanceInfo = Entity.GetComponentMut<Ecs::Gfx::Component::RenderInstance>();
+                auto& InstanceInfo = Entity.GetComponentMut<RenderInstance>();
                 if (Iter.event() == flecs::OnSet)
                 {
                     if (InstanceInfo.TransformIndex == TransformBuffer.InvalidIndex)

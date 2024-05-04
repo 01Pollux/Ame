@@ -46,6 +46,13 @@ namespace Ame::Ecs
         }
 
         template<typename Ty>
+        void AddComponent(
+            Ty&& Data)
+        {
+            m_Entity.emplace<Ty>(std::forward<Ty>(Data));
+        }
+
+        template<typename Ty>
         void RemoveComponent()
         {
             m_Entity.remove<Ty>();

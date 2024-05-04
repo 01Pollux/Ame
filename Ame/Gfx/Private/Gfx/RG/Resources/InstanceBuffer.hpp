@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Rhi/Util/SlotBasedBuffer.hpp>
-#include <Gfx/Ecs/Component/RenderInstance.hpp>
+#include <Gfx/RG/Resources/RenderInstance.hpp>
 
 namespace Ame::Gfx::RG
 {
-    class InstanceBuffer : public Rhi::Util::SlotBasedBuffer<Ecs::Gfx::Component::RenderInstance>
+    class InstanceBuffer : public Rhi::Util::SlotBasedBuffer<RenderInstance>
     {
     public:
         using SlotBasedBuffer::SlotBasedBuffer;
