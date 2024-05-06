@@ -45,6 +45,26 @@ namespace Ame::Gfx::RG
             std::partial_ordering operator<=>(const StagedEntity& Other) const noexcept;
         };
 
+        struct StagedGroup
+        {
+            using EntityList = std::span<const StagedEntity>;
+
+            Rhi::Buffer VtxBuffer;
+            Rhi::Buffer IdxBuffer;
+            EntityList  Entities;
+            double      RMSDistance = 0.;
+
+            StagedGroup(
+                std::span<const StagedEntity> Group,
+                Rhi::Buffer                   VtxBuffer,
+                Rhi::Buffer                   IdxBuffer);
+
+            const Ecs::Component::BaseRenderable& GetFirstRenderable() const;
+            const RenderInstance&                 GetFirstInstance() const;
+
+            std::partial_ordering operator<=>(const StagedGroup& Other) const noexcept;
+        };
+
         struct CameraStorage
         {
             VertexBuffer   DynamicVertices;
@@ -63,10 +83,12 @@ namespace Ame::Gfx::RG
     public:
         struct Row
         {
-            Rhi::Buffer             VertexBuffer;
-            Rhi::Buffer             IndexBuffer;
+            Rhi::Buffer             VtxBuffer;
+            Rhi::Buffer             IdxBuffer;
             Ptr<Rhi::PipelineState> PipelineState;
             uint32_t                Count = 1;
+
+            Row(StagedGroup Group);
         };
 
     public:
@@ -100,10 +122,22 @@ namespace Ame::Gfx::RG
         /// </summary>
         void PrepareForUpload();
 
+        /// <summary>
+        /// Cut the rows into subrows to fit vertex/index buffer limits if needed.
+        /// Group the rows for upload.
+        /// </summary>
+        void StageUpload();
+
+        /// <summary>
+        /// Finalize the cull result into rows.
+        /// </summary>
+        void FinalizeStaging();
+
     private:
-        using Data           = std::vector<Row>;
-        using CameraStorages = std::vector<CameraStorage>;
-        using FlatEntities   = boost::container::flat_multiset<StagedEntity>;
+        using Data               = std::vector<Row>;
+        using CameraStorages     = std::vector<CameraStorage>;
+        using FlatStagedEntities = boost::container::flat_multiset<StagedEntity>;
+        using FlatStagedGroups   = boost::container::flat_multiset<StagedGroup>;
 
         Ref<Rhi::Device> m_Device;
 
@@ -111,8 +145,10 @@ namespace Ame::Gfx::RG
         Rhi::Util::BlockBasedBufferDesc m_CameraIndexDesc;
         Rhi::Util::SlotBasedBufferDesc  m_CameraInstanceDesc;
 
+        FlatStagedEntities m_StagedEntities;
+        FlatStagedGroups   m_StagedGroups;
+
         CameraStorages m_Cameras;
-        FlatEntities   m_StagedEntities;
         Data           m_Rows;
         int8_t         m_CurrentCamera = -1;
     };

@@ -1,12 +1,15 @@
 #pragma once
 
 #include <Math/Colors.hpp>
-#include <Ecs/Component/Renderable/BaseRenderable.hpp>
+#include <Rhi/Resource/PipelineState.hpp>
 
 namespace Ame::Ecs::Component
 {
-    struct Sprite final : public Component::BaseRenderable
+    struct Sprite
     {
+        Ptr<Rhi::PipelineState> PipelineState = nullptr;
+        uint32_t                CameraMask    = 0xFFFF'FFFF;
+
         std::vector<Math::Vector3> Vertices;
         std::vector<uint16_t>      Indices;
 

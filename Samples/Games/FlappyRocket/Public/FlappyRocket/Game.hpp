@@ -11,9 +11,9 @@ namespace Ame::FlappyRocket
 {
     class FlappyRocketGame
     {
-        static constexpr const String WorldName  = "Flappy Rocket";
-        static constexpr const String PlayerName = "Player";
-        static constexpr const String CameraName = "Camera";
+        static inline const String WorldName  = "Flappy Rocket";
+        static inline const String PlayerName = "Player";
+        static inline const String CameraName = "Camera";
 
     public:
         FlappyRocketGame() = default;

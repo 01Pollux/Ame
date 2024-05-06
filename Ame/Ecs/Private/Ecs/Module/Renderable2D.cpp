@@ -3,6 +3,8 @@
 
 #include <Ecs/Component/Renderable/2D/Sprite.hpp>
 
+#include <Ecs/Entity.hpp>
+
 namespace Ame::Ecs::Module
 {
     Renderable2DModule::Renderable2DModule(
@@ -12,13 +14,18 @@ namespace Ame::Ecs::Module
 
         RenderableModule::AttachRenderable(FlecsWorld.component<Component::Sprite>())
             .on_set(
-                [](flecs::entity Entity, Component::Sprite& Sprite)
+                [](Ecs::Entity Entity, Component::Sprite& Sprite)
                 {
-                    Sprite.Vertex.View = Sprite.Vertices.data();
-                    Sprite.Index.View  = Sprite.Indices.data();
+                    auto& Renderable = Entity.GetComponentMut<Component::BaseRenderable>();
 
-                    Sprite.Vertex.Count = static_cast<uint32_t>(Sprite.Vertices.size());
-                    Sprite.Index.Count  = static_cast<uint32_t>(Sprite.Indices.size());
+                    Renderable.Vertex.View  = Sprite.Vertices.data();
+                    Renderable.Vertex.Count = static_cast<uint32_t>(Sprite.Vertices.size());
+
+                    Renderable.Index.View  = Sprite.Indices.data();
+                    Renderable.Index.Count = static_cast<uint32_t>(Sprite.Indices.size());
+
+                    Renderable.PipelineState = Sprite.PipelineState;
+                    Renderable.CameraMask    = Sprite.CameraMask;
                 });
     }
 } // namespace Ame::Ecs::Module

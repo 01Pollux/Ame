@@ -21,7 +21,6 @@ namespace Ame::Ecs::Module
         static flecs::component<Ty> AttachRenderable(
             flecs::component<Ty> FlecsComponent)
         {
-            FlecsComponent.is_a<Component::BaseRenderable>();
             return FlecsComponent
                 .on_add(
                     [](flecs::entity FlecsEntity, Ty&)

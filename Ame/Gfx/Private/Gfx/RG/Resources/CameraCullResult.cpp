@@ -42,6 +42,28 @@ namespace Ame::Gfx::RG
         }
 
         PrepareForUpload();
+        StageUpload();
+        FinalizeStaging();
+    }
+
+    //
+
+    void CameraCullResult::PrepareForUpload()
+    {
+        m_Rows.clear();
+        m_Rows.reserve(m_StagedEntities.size());
+
+        // Create a new camera storage if needed
+        m_CurrentCamera++;
+        if (m_CurrentCamera >= m_Cameras.size())
+        {
+            m_Cameras.emplace_back(m_Device.get(), m_CameraVertexDesc, m_CameraIndexDesc, m_CameraInstanceDesc);
+        }
+        m_Cameras[m_CurrentCamera].Reset();
+    }
+
+    void CameraCullResult::StageUpload()
+    {
         uint32_t LastVertexBlock = std::numeric_limits<uint32_t>::max(),
                  LastIndexBlock  = std::numeric_limits<uint32_t>::max();
 
@@ -75,6 +97,13 @@ namespace Ame::Gfx::RG
             return std::pair{ Buffer, Offset };
         };
 
+        auto First = m_StagedEntities.begin();
+        auto Last  = First;
+
+        Rhi::Buffer         VtxBuffer;
+        Rhi::Buffer         IdxBuffer;
+        Rhi::PipelineState* LastPso = nullptr;
+
         for (auto& [Renderable, Instance, Distance] : m_StagedEntities)
         {
             auto& Vertex = Renderable.get().Vertex;
@@ -82,38 +111,44 @@ namespace Ame::Gfx::RG
 
             bool NewRow = false;
 
-            auto [VtxBuffer, VertexOffset] = FetchBuffer(Storage.DynamicVertices, Vertex, LastVertexBlock, NewRow);
-            auto [IdxBuffer, IndexOffset]  = FetchBuffer(Storage.DynamicIndices, Index, LastIndexBlock, NewRow);
+            std::tie(VtxBuffer, Instance.get().VertexOffset) = FetchBuffer(Storage.DynamicVertices, Vertex, LastVertexBlock, NewRow);
+            std::tie(IdxBuffer, Instance.get().IndexOffset)  = FetchBuffer(Storage.DynamicIndices, Index, LastIndexBlock, NewRow);
 
-            Instance.get().VertexOffset = VertexOffset;
-            Instance.get().VertexSize   = Vertex.Count;
-            Instance.get().IndexOffset  = IndexOffset;
-            Instance.get().IndexCount   = Index.Count;
+            Instance.get().VertexSize = Vertex.Count;
+            Instance.get().IndexCount = Index.Count;
+
+            Storage.AllInstances.Rent(Instance);
+
+            if (Renderable.get().PipelineState.get() != LastPso)
+            {
+                NewRow  = true;
+                LastPso = Renderable.get().PipelineState.get();
+            }
 
             if (NewRow)
             {
-                m_Rows.emplace_back(VtxBuffer, IdxBuffer, Renderable.get().PipelineState);
+                if (First != Last)
+                {
+                    m_StagedGroups.emplace(std::span{ First, Last }, VtxBuffer, IdxBuffer);
+                    First = Last;
+                }
             }
-            else
-            {
-                m_Rows.back().Count++;
-            }
-
-            Storage.AllInstances.Rent(Instance);
+            Last++;
         }
-        m_StagedEntities.clear();
+
+        if (First != Last)
+        {
+            m_StagedGroups.emplace(std::span{ First, Last }, VtxBuffer, IdxBuffer);
+        }
     }
 
-    void CameraCullResult::PrepareForUpload()
+    void CameraCullResult::FinalizeStaging()
     {
-        m_Rows.clear();
-        m_Rows.reserve(m_StagedEntities.size());
-
-        m_CurrentCamera++;
-        if (m_CurrentCamera >= m_Cameras.size())
+        for (auto& Group : m_StagedGroups)
         {
-            m_Cameras.emplace_back(m_Device.get(), m_CameraVertexDesc, m_CameraIndexDesc, m_CameraInstanceDesc);
+            m_Rows.emplace_back(std::move(Group));
         }
-        m_Cameras[m_CurrentCamera].Reset();
+        m_StagedGroups.clear();
+        m_StagedEntities.clear();
     }
 } // namespace Ame::Gfx::RG
