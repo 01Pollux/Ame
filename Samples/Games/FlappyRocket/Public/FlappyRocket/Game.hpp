@@ -1,11 +1,7 @@
 #pragma once
 
-#include <Engine/Engine.hpp>
-
-namespace Ame::Ecs
-{
-    class Universe;
-} // namespace Ame::Ecs
+#include <Gfx/Renderer.hpp>
+#include <Ecs/Universe.hpp>
 
 namespace Ame::FlappyRocket
 {
@@ -18,6 +14,7 @@ namespace Ame::FlappyRocket
     public:
         FlappyRocketGame() = default;
         FlappyRocketGame(
+            Gfx::Renderer& Renderer,
             Ecs::Universe& EcsUniverse);
 
     public:
@@ -30,6 +27,13 @@ namespace Ame::FlappyRocket
         /// Add all entities to the world for the game
         /// </summary>
         void AddAllEntities();
+
+    private:
+        /// <summary>
+        /// Setup the render graph for the game
+        /// </summary>
+        void SetupRenderGraph(
+            Gfx::RG::Graph& RenderGraph);
 
     private:
         Ecs::Universe* m_EcsUniverse = nullptr;

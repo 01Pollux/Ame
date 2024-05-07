@@ -16,7 +16,7 @@ namespace Ame::Gfx::RG
         {
             FrameResource.Import(m_CoreResources->GetFrameResource());
             FrameResource.CreateBufferView(
-                Names::FrameResourceMain,
+                Names::FrameResourceMainView,
                 Rhi::BufferViewDesc{ .Type = Rhi::BufferViewType::ConstantBuffer });
         }
     }

@@ -47,7 +47,7 @@ namespace Ame::Gfx::RG
 
     const Rhi::ResourceView& ResourceStorage::GetFrameResourceHandle() const
     {
-        return GetResourceViewHandle(Names::FrameResourceMain);
+        return GetResourceViewHandle(Names::FrameResourceMainView);
     }
 
     const FrameResourceCPU& ResourceStorage::GetFrameResourceData() const

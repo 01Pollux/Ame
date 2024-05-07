@@ -20,7 +20,7 @@ namespace Ame::Signals
             Handle(Sig,
                    [this, Delegate = std::move(Delegate)](auto& This, auto& SigData)
                    {
-                       m_Object     = std::exchange(m_Object, {});
+                       m_Object = {};
                        Delegate(This, SigData);
                    })
         {

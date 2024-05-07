@@ -2,10 +2,13 @@
 
 #include <functional>
 
-#include <boost/compressed_pair.hpp>
-
 #include <Gfx/RG/Core.hpp>
 #include <Gfx/RG/Resolver.hpp>
+
+#include <Gfx/RG/Resources/Names.hpp>
+#include <Gfx/RG/ResourceStorage.hpp>
+
+#include <Math/Common.hpp>
 
 namespace Ame::Gfx::RG
 {

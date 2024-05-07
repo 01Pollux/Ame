@@ -8,7 +8,7 @@
 namespace Ame::Ecs
 {
     template<typename Ty>
-    struct Unique : public NonCopyable
+    struct Unique
     {
     public:
         Unique() = default;

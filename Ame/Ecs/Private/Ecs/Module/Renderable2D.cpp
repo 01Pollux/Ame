@@ -26,6 +26,8 @@ namespace Ame::Ecs::Module
 
                     Renderable.PipelineState = Sprite.PipelineState;
                     Renderable.CameraMask    = Sprite.CameraMask;
+
+                    Entity.MarkModified<Component::BaseRenderable>();
                 });
     }
 } // namespace Ame::Ecs::Module

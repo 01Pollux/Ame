@@ -7,7 +7,6 @@ namespace Ame::Gfx::RG
     Pass* PassStorage::AddPass(
         UPtr<Pass> RgPass)
     {
-        m_IsBuilt = false;
         return m_Passes.emplace_back(std::move(RgPass)).get();
     }
 
@@ -21,7 +20,6 @@ namespace Ame::Gfx::RG
             {
                 if (CurPass.get() == RgPass)
                 {
-                    m_IsBuilt   = false;
                     RemovedPass = std::move(CurPass);
                     return true;
                 }
@@ -32,7 +30,6 @@ namespace Ame::Gfx::RG
 
     void PassStorage::Clear()
     {
-        m_IsBuilt = false;
         m_Passes.clear();
     }
 
@@ -48,11 +45,6 @@ namespace Ame::Gfx::RG
     void PassStorage::Build(
         Context& RgContext)
     {
-        if (m_IsBuilt)
-        {
-            return;
-        }
-        m_IsBuilt = true;
 
         if (m_Passes.empty()) [[unlikely]]
         {
@@ -75,11 +67,8 @@ namespace Ame::Gfx::RG
     {
         using namespace EnumBitOperators;
 
-        bool ErasedPasses =
-            std::erase_if(m_Passes, [](const UPtr<Pass>& RgPass)
-                          { return (RgPass->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; }) > 0;
-
-        m_IsBuilt = m_IsBuilt && !ErasedPasses;
+        std::erase_if(m_Passes, [](const UPtr<Pass>& RgPass)
+                      { return (RgPass->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; });
     }
 
     //

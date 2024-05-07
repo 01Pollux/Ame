@@ -72,6 +72,20 @@ namespace Ame::Gfx
         }
     }
 
+    //
+
+    RG::Graph& Renderer::GetRenderGraph()
+    {
+        return m_Graph;
+    }
+
+    const RG::Graph& Renderer::GetRenderGraph() const
+    {
+        return m_Graph;
+    }
+
+    //
+
     void Renderer::OnUpdate()
     {
         m_Graph.Update();

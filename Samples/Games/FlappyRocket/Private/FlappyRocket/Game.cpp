@@ -1,6 +1,5 @@
 #include <FlappyRocket/Engine.hpp>
 
-#include <Ecs/Universe.hpp>
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
 #include <Ecs/Component/Renderable/2D/Sprite.hpp>
@@ -10,9 +9,11 @@
 namespace Ame::FlappyRocket
 {
     FlappyRocketGame::FlappyRocketGame(
+        Gfx::Renderer& Renderer,
         Ecs::Universe& EcsUniverse) :
         m_EcsUniverse(&EcsUniverse)
     {
+        SetupRenderGraph(Renderer.GetRenderGraph());
     }
 
     //

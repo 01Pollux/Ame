@@ -16,6 +16,23 @@ namespace Ame::Gfx::RG
         m_StagedEntities.reserve(Desc.EstimatedEntitiesCount);
     }
 
+    //
+
+    uint32_t CameraCullResult::GetEntitiesCount() const
+    {
+        return m_EntitiesCount;
+    }
+
+    CamerCullRowGenerator CameraCullResult::GetEntities() const
+    {
+        for (auto& Row : m_Rows)
+        {
+            co_yield Row;
+        }
+    }
+
+    //
+
     void CameraCullResult::Reset()
     {
         m_CurrentCamera = -1;
@@ -144,10 +161,13 @@ namespace Ame::Gfx::RG
 
     void CameraCullResult::FinalizeStaging()
     {
+        m_EntitiesCount = 0;
         for (auto& Group : m_StagedGroups)
         {
             m_Rows.emplace_back(std::move(Group));
+            m_EntitiesCount += Group.Entities.size();
         }
+
         m_StagedGroups.clear();
         m_StagedEntities.clear();
     }

@@ -36,13 +36,24 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Add a render pass to the graph
         /// </summary>
-        template<typename Ty = void>
-        [[nodiscard]] TypedPass<Ty>& NewPass()
+        template<typename Ty, typename... ArgsTy>
+            requires std::derived_from<Ty, Pass>
+        Ty& NewPass(
+            ArgsTy&&... Args)
         {
-            auto  Pass = std::make_unique<TypedPass<Ty>>();
-            auto& Ref  = *Pass;
-            AddPass(std::move(Pass));
-            return Ref;
+            auto  PassPtr = std::make_unique<Ty>(std::forward<ArgsTy>(Args)...);
+            auto& PassRef = *PassPtr;
+            AddPass(std::move(PassPtr));
+            return PassRef;
+        }
+
+        /// <summary>
+        /// Add a render pass to the graph
+        /// </summary>
+        template<typename Ty = void>
+        [[nodiscard]] TypedPass<Ty>& NewTypedPass()
+        {
+            return NewPass<TypedPass<Ty>>();
         }
 
         /// <summary>
@@ -121,6 +132,5 @@ namespace Ame::Gfx::RG
 
     private:
         std::vector<UPtr<Pass>> m_Passes;
-        bool                    m_IsBuilt = true;
     };
 } // namespace Ame::Gfx::RG

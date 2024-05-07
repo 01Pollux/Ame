@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/container/flat_set.hpp>
+#include <Core/Coroutine.hpp>
 
 #include <Rhi/Resource/PipelineState.hpp>
 
@@ -96,6 +97,11 @@ namespace Ame::Gfx::RG
             Rhi::Device&          RhiDevice,
             const CameraCullDesc& Desc = {});
 
+    public:
+        [[nodiscard]] uint32_t                  GetEntitiesCount() const;
+        [[nodiscard]] Co::generator<const Row&> GetEntities() const;
+
+    public:
         /// <summary>
         /// Reset cameras storages
         /// </summary>
@@ -151,5 +157,9 @@ namespace Ame::Gfx::RG
         CameraStorages m_Cameras;
         Data           m_Rows;
         int8_t         m_CurrentCamera = -1;
+
+        uint32_t m_EntitiesCount = 0;
     };
+
+    using CamerCullRowGenerator = Co::generator<const CameraCullResult::Row&>;
 } // namespace Ame::Gfx::RG

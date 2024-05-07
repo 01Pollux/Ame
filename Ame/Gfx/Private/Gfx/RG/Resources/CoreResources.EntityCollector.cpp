@@ -28,10 +28,8 @@ namespace Ame::Gfx::RG
             m_FrameResource.World[2][3]
         };
 
-        int  count = 0; 
-        int  count2 = 0; 
         auto FilterEntities =
-            [&count, &count2, this, &CameraData, &CameraPosition](
+            [this, &CameraData, &CameraPosition](
                 Ecs::Iterator&                        Iter,
                 RenderInstance*                       Instances,
                 const Ecs::Component::Transform*      Transforms,
@@ -44,7 +42,6 @@ namespace Ame::Gfx::RG
                 auto& Transform  = Transforms[i];
                 auto& Renderable = Renderables[i];
 
-                count++;
                 if ((Renderable.CameraMask & CameraData.CullMask) != CameraData.CullMask)
                 {
                     continue;
@@ -52,7 +49,6 @@ namespace Ame::Gfx::RG
 
                 float Distance = glm::distance2(Transform.GetPosition(), CameraPosition);
                 m_CameraCullResult.AddEntity(Distance, Renderable, Instance);
-                count2++;
             }
         };
 

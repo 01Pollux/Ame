@@ -33,6 +33,18 @@ namespace Ame::Gfx::RG
 
     //
 
+    uint32_t CoreResources::GetEntitiesCount() const
+    {
+        return m_CameraCullResult.GetEntitiesCount();
+    }
+
+    CamerCullRowGenerator CoreResources::GetEntities() const
+    {
+        return m_CameraCullResult.GetEntities();
+    }
+
+    //
+
     const AABBBuffer& CoreResources::GetAABBBuffer() const
     {
         return m_AABBBuffer;

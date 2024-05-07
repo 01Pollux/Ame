@@ -36,6 +36,17 @@ namespace Ame::Gfx
             Rhi::Device&   Device,
             Ecs::Universe& Universe);
 
+    public:
+        /// <summary>
+        /// Get the render graph
+        /// </summary>
+        [[nodiscard]] const RG::Graph& GetRenderGraph() const;
+
+        /// <summary>
+        /// Get the render graph
+        /// </summary>
+        [[nodiscard]] RG::Graph& GetRenderGraph();
+
     private:
         /// <summary>
         /// Update the renderer and all its components such as the camera, the scene, lights, etc.

@@ -77,6 +77,12 @@ namespace Ame::Ecs
         }
 
         template<typename Ty>
+        void MarkModified()
+        {
+            m_Entity.modified<Ty>();
+        }
+
+        template<typename Ty>
         [[nodiscard]] std::optional<const Ty*> TryGetComponent() const
         {
             return m_Entity.get<Ty>();

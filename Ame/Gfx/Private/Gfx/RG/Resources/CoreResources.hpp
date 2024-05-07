@@ -20,6 +20,10 @@ namespace Ame::Gfx::RG
         [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;
 
     public:
+        [[nodiscard]] uint32_t              GetEntitiesCount() const;
+        [[nodiscard]] CamerCullRowGenerator GetEntities() const;
+
+    public:
         [[nodiscard]] const AABBBuffer&      GetAABBBuffer() const;
         [[nodiscard]] const TransformBuffer& GetTransformBuffer() const;
 
@@ -45,7 +49,7 @@ namespace Ame::Gfx::RG
         /// Reset camera storage resources
         /// </summary>
         void ResetCameraStorage();
-        
+
         /// <summary>
         /// Collect entities for rendering
         /// </summary>
