@@ -247,6 +247,19 @@ namespace Ame::Rhi
         /// </summary>
         void CommitBarriers();
 
+    public:
+        /// <summary>
+        /// Clear storage buffer
+        /// </summary>
+        void ClearBuffer(
+            const ClearBufferDesc& Desc);
+
+        /// <summary>
+        /// Clear storage texture
+        /// </summary>
+        void ClearTexture(
+            const ClearTextureDesc& Desc);
+
     private:
         nri::CommandAllocator* m_CommandAllocator = nullptr;
         nri::CommandBuffer*    m_CommandBuffer    = nullptr;

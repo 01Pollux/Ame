@@ -3,7 +3,7 @@
 
 #include "../Core/Ame.hlsli"
 
-struct FrameData
+struct FrameDesc
 {
 	matrix World;
 	
@@ -42,7 +42,5 @@ struct FrameData
 		return World._11_12_13;
 	}
 };
-
-AME_RESOURCE(ConstantBuffer<FrameData>, g_FrameData, b, 0, 1);
 
 #endif

@@ -49,7 +49,7 @@ namespace Ame::Gfx::RG
         for (uint32_t i = 0; i < static_cast<uint32_t>(RenderTargets.size()); i++)
         {
             auto& RtvViewId = RenderTargets[i];
-            auto& RtvDesc   = std::get<RenderTargetViewDesc>(RgStorage.GetResourceView(RtvViewId));
+            auto& RtvDesc   = std::get<RenderTargetViewDesc>(RgStorage.GetResourceViewDesc(RtvViewId));
 
             Rtvs.push_back(&RgStorage.GetResourceViewHandle(RtvViewId));
             if (RtvDesc.ClearType != ERTClearType::Ignore)
@@ -87,7 +87,7 @@ namespace Ame::Gfx::RG
             return nullptr;
         }
 
-        auto& DsvDesc = std::get<DepthStencilViewDesc>(RgStorage.GetResourceView(DepthStencil));
+        auto& DsvDesc = std::get<DepthStencilViewDesc>(RgStorage.GetResourceViewDesc(DepthStencil));
         auto  Dsv     = &RgStorage.GetResourceViewHandle(DepthStencil);
         if (DsvDesc.ClearType != EDSClearType::Ignore)
         {

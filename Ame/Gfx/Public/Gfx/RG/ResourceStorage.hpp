@@ -83,13 +83,13 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get resource from id
         /// </summary>
-        [[nodiscard]] ResourceViewDesc& GetResourceViewMut(
+        [[nodiscard]] ResourceViewDesc& GetResourceViewDescMut(
             const ResourceViewId& ViewId);
 
         /// <summary>
         /// Get resource from id
         /// </summary>
-        [[nodiscard]] const ResourceViewDesc& GetResourceView(
+        [[nodiscard]] const ResourceViewDesc& GetResourceViewDesc(
             const ResourceViewId& ViewId) const;
 
         /// <summary>

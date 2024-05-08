@@ -70,7 +70,7 @@ namespace Ame::Rhi
         {
             nri::DescriptorSet* Set = nullptr;
             NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, &Set, 1, VariableCount);
-            return { DescriptorSet{ Set } };
+            return { DescriptorSet{ m_RhiDevice, Set } };
         }
         else
         {
@@ -78,8 +78,8 @@ namespace Ame::Rhi
             NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, NriDescriptorSets.data(), InstanceCount, VariableCount);
 
             return NriDescriptorSets |
-                   std::views::transform([](nri::DescriptorSet* Set)
-                                         { return DescriptorSet{ Set }; }) |
+                   std::views::transform([this](nri::DescriptorSet* Set)
+                                         { return DescriptorSet{ m_RhiDevice, Set }; }) |
                    std::ranges::to<std::vector>();
         }
     }

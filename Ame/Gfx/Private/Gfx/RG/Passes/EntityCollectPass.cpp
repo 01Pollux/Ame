@@ -31,7 +31,19 @@ namespace Ame::Gfx::RG::Std
                         Rhi::ShaderBits::COMPUTE_SHADER);
                 })
             .Execute(
-                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList) {
+                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
+                {
+                    auto& CounterBufferView  = RgStorage.GetResourceViewHandle(Names::EntityDispatchCounter("Main"));
+                    auto& DispatchBufferView = RgStorage.GetResourceViewHandle(Names::EntityDispatchBuffer("Main"));
+
+                    //auto Set = CommandList->AllocateSets(0)[0];
+                    //Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());
+                    //CommandList->SetDescriptorSet(0, Set);
+
+                    // CommandList->ClearBuffer({ .storageBuffer = Counter.Unwrap(),
+                    //                            .setIndexInPipelineLayout
+
+                    //});
                 });
     }
 } // namespace Ame::Gfx::RG::Std

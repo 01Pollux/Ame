@@ -434,4 +434,24 @@ namespace Ame::Rhi
 
         StateTracker.CommitBarriers(NriCore, *m_CommandBuffer);
     }
+
+    //
+
+    void CommandListImpl::ClearBuffer(
+        const ClearBufferDesc& Desc)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+		auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdClearStorageBuffer(*m_CommandBuffer, Desc);
+    }
+
+    void CommandListImpl::ClearTexture(
+        const ClearTextureDesc& Desc)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdClearStorageTexture(*m_CommandBuffer, Desc);
+    }
 } // namespace Ame::Rhi

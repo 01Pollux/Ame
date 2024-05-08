@@ -5,9 +5,10 @@
 
 namespace Ame::Rhi::Util
 {
+    // TODO: remove this or move it to /Private
     template<typename DescTy, typename DataTy>
-    struct TypedCache : public NonCopyable,
-                        public NonMovable
+    struct TypedCache
+
     {
     public:
         TypedCache() = default;

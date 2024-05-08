@@ -44,7 +44,7 @@ namespace Ame::Gfx::RG
                         CurState.access |= State.access;
                         CurState.stages |= State.stages;
                     } },
-                Storage.GetResourceView(ViewId));
+                Storage.GetResourceViewDesc(ViewId));
         }
 
         for (auto& [ResourceId, Layout] : TextureLayouts)

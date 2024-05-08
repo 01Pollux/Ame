@@ -66,34 +66,31 @@ namespace Ame::Gfx::RG
     ResourceHandle& ResourceStorage::GetResourceMut(
         const ResourceId& Id)
     {
+        CheckLockState(false);
         return m_Resources.at(Id);
     }
 
-    ResourceViewDesc& ResourceStorage::GetResourceViewMut(
+    ResourceViewDesc& ResourceStorage::GetResourceViewDescMut(
         const ResourceViewId& ViewId)
     {
         CheckLockState(false);
 
         auto Iter = m_Resources.find(ViewId.GetResource());
         AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.GetViewMut(ViewId);
+        return Iter->second.GetViewDescMut(ViewId);
     }
 
-    const ResourceViewDesc& ResourceStorage::GetResourceView(
+    const ResourceViewDesc& ResourceStorage::GetResourceViewDesc(
         const ResourceViewId& ViewId) const
     {
-        CheckLockState(false);
-
         auto Iter = m_Resources.find(ViewId.GetResource());
         AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.GetView(ViewId);
+        return Iter->second.GetViewDesc(ViewId);
     }
 
     const Rhi::ResourceView& ResourceStorage::GetResourceViewHandle(
         const ResourceViewId& ViewId) const
     {
-        CheckLockState(false);
-
         auto Iter = m_Resources.find(ViewId.GetResource());
         AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
         return Iter->second.GetViewHandle(ViewId);

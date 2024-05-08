@@ -135,13 +135,13 @@ namespace Ame::Gfx::RG
 
     //
 
-    ResourceViewDesc& ResourceHandle::GetViewMut(
+    ResourceViewDesc& ResourceHandle::GetViewDescMut(
         const ResourceViewId& ViewId)
     {
         return m_Views.at(ViewId.Get()).Desc;
     }
 
-    const ResourceViewDesc& ResourceHandle::GetView(
+    const ResourceViewDesc& ResourceHandle::GetViewDesc(
         const ResourceViewId& ViewId) const
     {
         return m_Views.at(ViewId.Get()).Desc;

@@ -250,6 +250,19 @@ namespace Ame::Rhi
         /// </summary>
         void CommitBarriers();
 
+    public:
+        /// <summary>
+        /// Clear storage buffer
+        /// </summary>
+        void ClearBuffer(
+            const ClearBufferDesc& Desc);
+
+        /// <summary>
+        /// Clear storage texture
+        /// </summary>
+        void ClearTexture(
+            const ClearTextureDesc& Desc);
+
     private:
         Ref<CommandListImpl> m_Impl;
     };

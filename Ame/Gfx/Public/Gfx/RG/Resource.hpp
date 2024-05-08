@@ -222,13 +222,13 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get resource view desc
         /// </summary>
-        [[nodiscard]] ResourceViewDesc& GetViewMut(
+        [[nodiscard]] ResourceViewDesc& GetViewDescMut(
             const ResourceViewId& ViewId);
 
         /// <summary>
         /// Get resource view desc
         /// </summary>
-        [[nodiscard]] const ResourceViewDesc& GetView(
+        [[nodiscard]] const ResourceViewDesc& GetViewDesc(
             const ResourceViewId& ViewId) const;
 
         /// <summary>

@@ -225,4 +225,17 @@ namespace Ame::Rhi
     {
         m_Impl.get().CommitBarriers();
     }
+
+    //
+
+    void CommandList::ClearBuffer(
+        const ClearBufferDesc& Desc)
+    {
+        m_Impl.get().ClearBuffer(Desc);
+    }
+
+    void CommandList::ClearTexture(const ClearTextureDesc& Desc)
+    {
+        m_Impl.get().ClearTexture(Desc);
+    }
 } // namespace Ame::Rhi

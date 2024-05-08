@@ -10,7 +10,9 @@ namespace Ame::Rhi
         DescriptorSet() = default;
 
         DescriptorSet(
+            Rhi::DeviceImpl*    RhiDevice,
             nri::DescriptorSet* Set) :
+            m_RhiDevice(RhiDevice),
             m_Set(Set)
         {
         }
@@ -25,7 +27,6 @@ namespace Ame::Rhi
         /// Set the descriptor ranges.
         /// </summary>
         void SetRanges(
-            Device&                                    RhiDevice,
             uint32_t                                   BaseRange,
             std::span<const DescriptorRangeUpdateDesc> RangeUpdateDescs);
 
@@ -33,7 +34,6 @@ namespace Ame::Rhi
         /// Set the descriptor ranges.
         /// </summary>
         void SetRange(
-            Device&                          RhiDevice,
             uint32_t                         BaseRange,
             const DescriptorRangeUpdateDesc& RangeUpdateDesc);
 
@@ -41,23 +41,20 @@ namespace Ame::Rhi
         /// Set the dynamic buffers.
         /// </summary>
         void SetDynamicBuffers(
-            Device&                           RhiDevice,
-            uint32_t                          BaseBuffer,
+            uint32_t                          BufferOffset,
             std::span<const nri::Descriptor*> Buffers);
 
         /// <summary>
         /// Set the dynamic buffers.
         /// </summary>
         void SetDynamicBuffer(
-            Device&                RhiDevice,
-            uint32_t               BaseBuffer,
+            uint32_t               BufferOffset,
             const nri::Descriptor* Buffer);
 
         /// <summary>
         /// Copy the descriptor set.
         /// </summary>
         void CopyTo(
-            Device&                      RhiDevice,
             const DescriptorSetCopyDesc& CopyDesc);
 
     public:
@@ -67,6 +64,7 @@ namespace Ame::Rhi
         [[nodiscard]] nri::DescriptorSet* Unwrap() const;
 
     private:
-        nri::DescriptorSet* m_Set = nullptr;
+        DeviceImpl*         m_RhiDevice = nullptr;
+        nri::DescriptorSet* m_Set       = nullptr;
     };
 } // namespace Ame::Rhi

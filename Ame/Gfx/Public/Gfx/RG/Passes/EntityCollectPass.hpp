@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Gfx/RG/Pass.hpp>
-
 #include <Ecs/Universe.hpp>
 
 namespace Ame::Gfx::RG::Std
