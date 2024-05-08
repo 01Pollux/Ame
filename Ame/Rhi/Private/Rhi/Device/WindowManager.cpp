@@ -157,15 +157,13 @@ namespace Ame::Rhi
         auto WindowSize   = m_Window.GetSize();
         auto WindowHandle = m_Window.GetHandle();
 
-        nri::Window Window
-        {
+        nri::Window Window{
 #if AME_PLATFORM_WINDOWS
             .windows = { glfwGetWin32Window(WindowHandle) }
 #elif AME_PLATFORM_LINUX
             .x11 = {
                 .dpy    = glfwGetX11Display(),
-                .window = glfwGetX11Window(WindowHandle)
-            }
+                .window = glfwGetX11Window(WindowHandle) }
 #endif
         };
 

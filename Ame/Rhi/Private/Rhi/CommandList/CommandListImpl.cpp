@@ -441,7 +441,7 @@ namespace Ame::Rhi
         const ClearBufferDesc& Desc)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
-		auto& NriCore = *Nri.GetCoreInterface();
+        auto& NriCore = *Nri.GetCoreInterface();
 
         NriCore.CmdClearStorageBuffer(*m_CommandBuffer, Desc);
     }

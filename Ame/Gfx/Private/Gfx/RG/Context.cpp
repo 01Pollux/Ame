@@ -29,7 +29,7 @@ namespace Ame::Gfx::RG
         auto& RgStorage = GetStorage();
         RgStorage.ResetCameraStorage();
     }
-    
+
     void Context::Update()
     {
         auto& RgStorage = GetStorage();

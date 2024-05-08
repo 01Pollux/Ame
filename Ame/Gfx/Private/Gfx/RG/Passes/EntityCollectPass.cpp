@@ -36,9 +36,9 @@ namespace Ame::Gfx::RG::Std
                     auto& CounterBufferView  = RgStorage.GetResourceViewHandle(Names::EntityDispatchCounter("Main"));
                     auto& DispatchBufferView = RgStorage.GetResourceViewHandle(Names::EntityDispatchBuffer("Main"));
 
-                    //auto Set = CommandList->AllocateSets(0)[0];
-                    //Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());
-                    //CommandList->SetDescriptorSet(0, Set);
+                    // auto Set = CommandList->AllocateSets(0)[0];
+                    // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());
+                    // CommandList->SetDescriptorSet(0, Set);
 
                     // CommandList->ClearBuffer({ .storageBuffer = Counter.Unwrap(),
                     //                            .setIndexInPipelineLayout

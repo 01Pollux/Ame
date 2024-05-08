@@ -34,8 +34,7 @@ namespace Ame::Gfx::RG::Std
                         Desc.format);
                 })
             .Execute(
-                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
-                {
+                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList) {
                 });
     }
 } // namespace Ame::Gfx::RG::Std

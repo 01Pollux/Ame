@@ -32,9 +32,9 @@ namespace Ame::Gfx::RG
 
         m_FrameResource.Viewport = Viewport;
 
-        m_FrameResource.EngineTime    = EngineTime;
-        m_FrameResource.GameTime      = GameTime;
-        m_FrameResource.DeltaTime     = DeltaTime;
+        m_FrameResource.EngineTime = EngineTime;
+        m_FrameResource.GameTime   = GameTime;
+        m_FrameResource.DeltaTime  = DeltaTime;
 
         m_FrameResource.CurrentCamera = CameraEntity;
 
