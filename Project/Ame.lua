@@ -39,7 +39,6 @@ end
 -- 
 
 local clang_format = path_from_root("/.clang-format")
-print("clang_format: " .. clang_format)
 add_extrafiles(clang_format)
 
 includes("Core.lua")

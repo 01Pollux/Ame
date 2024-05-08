@@ -52,11 +52,11 @@ private:
         Rhi::Device& RhiDevice)
     {
         double FPS = 1.0 / Timer.GetDeltaTime();
-        RhiDevice.GetWindow().SetTitle(StringU8::formatted("{} - FPS: {:.2f}", m_Title, FPS));
+        RhiDevice.GetWindow().SetTitle(String::formatted("{} - FPS: {:.2f}", m_Title, FPS));
     }
 
 private:
-    StringU8  m_Title;
+    String  m_Title;
     Co::timer m_TitleTimer;
 };
 
@@ -73,7 +73,7 @@ AME_MAIN(Argc, Argv)
 
     for (size_t i = 0; i < NumberOfApps; i++)
     {
-        StringU8 Name = StringU8::formatted("Sample {}", i);
+        String Name = String::formatted("Sample {}", i);
         Tasks.emplace_back(Executor->submit(
             [Runtime, Name]
             {

@@ -50,12 +50,12 @@ private:
         Rhi::Device& RhiDevice)
     {
         double   FPS   = 1.0 / Timer.GetDeltaTime();
-        StringU8 Title = StringU8::formatted("{} - FPS: {:.2f}", m_Title, FPS);
+        String Title = String::formatted("{} - FPS: {:.2f}", m_Title, FPS);
         RhiDevice.GetWindow().SetTitle(Title);
     }
 
 private:
-    StringU8  m_Title;
+    String  m_Title;
     Co::timer m_TitleTimer;
 };
 

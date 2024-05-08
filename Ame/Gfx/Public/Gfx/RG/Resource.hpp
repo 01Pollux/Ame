@@ -38,7 +38,7 @@ namespace Ame::Gfx::RG
 #ifndef AME_DIST
             return m_Name;
 #else
-            return StringUtils::Empty<StringU8>;
+            return StringUtils::Empty<String>;
 #endif
         }
 

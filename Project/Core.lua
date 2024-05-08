@@ -17,6 +17,13 @@ target_end()
 
 --
 
+target("Resource")
+    ame_header_library("Ame", "Resource", "static", "Ame/Resource")
+    add_deps("Core", {public = true, inherit = true})
+target_end()
+
+--
+
 target("Windowing")
     ame_header_library("Ame", "Windowing", "static", "Ame/Windowing")
     add_deps("Core", {public = true, inherit = true})

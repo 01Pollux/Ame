@@ -8,6 +8,7 @@ rule("mode.Debug")
                 target:set("optimize", "none")
             end
             target:add("defines", "AME_DEBUG")
+            target:add("defines", "AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
             target:set("policy", "build.sanitizer.address", true)
         end
     end)
