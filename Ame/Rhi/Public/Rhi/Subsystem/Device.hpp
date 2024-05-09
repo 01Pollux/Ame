@@ -6,7 +6,10 @@
 
 namespace Ame::Rhi
 {
-    struct DeviceSubsystem : SingleSubsystem<Device>, kgr::supplied, kgr::final
+    struct DeviceSubsystem : SingleSubsystem<
+                                 Device>,
+                             kgr::supplied,
+                             kgr::final
     {
     };
 

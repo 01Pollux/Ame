@@ -8,7 +8,7 @@
 
 namespace Ame
 {
-    class IFrame;
+    class EngineFrame;
     class FrameTimer;
 } // namespace Ame
 
@@ -20,8 +20,8 @@ namespace Ame::Ecs
 
     public:
         Universe(
-            IFrame&     Frame,
-            FrameTimer& Timer);
+            EngineFrame& Frame,
+            FrameTimer&  Timer);
 
         Universe(const Universe&) = delete;
         Universe(Universe&& Other);

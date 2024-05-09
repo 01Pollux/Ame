@@ -1,17 +1,15 @@
 #pragma once
 
 #include <Core/Signals/Frame.hpp>
-#include <Frame/Timer.hpp>
+#include <Frame/FrameTimer.hpp>
 
 namespace Ame
 {
-    class IFrame
+    class EngineFrame
     {
     public:
-        IFrame(
+        EngineFrame(
             FrameTimer& Timer);
-
-        virtual ~IFrame() = default;
 
         void Run();
 
@@ -37,8 +35,8 @@ namespace Ame
         /// </summary>
         [[nodiscard]] bool IsRunning() const;
 
-    protected:
-        virtual void DoTick() = 0;
+    private:
+        void DoTick();
 
     private:
         Ref<FrameTimer> m_Timer;

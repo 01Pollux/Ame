@@ -15,13 +15,13 @@ struct DispatchDesc
 
 //
 
-AME_RESOURCE(ConstantBuffer<FrameDesc>, FrameInfo, b, 0, 1);
+AME_RESOURCE(ConstantBuffer<FrameDesc>, FrameInfo, b, 0, 0);
 
-AME_RESOURCE(StructuredBuffer<Transform>, Transforms, t, 0, 0);
-AME_RESOURCE(StructuredBuffer<RenderInstance>, RenderInstances, t, 0, 0);
+AME_RESOURCE(StructuredBuffer<Transform>, Transforms, t, 0, 1);
+AME_RESOURCE(StructuredBuffer<RenderInstance>, RenderInstances, t, 1, 1);
 
-AME_RESOURCE(RWBuffer<uint>, Commands, u, 1, 0);
-AME_RESOURCE(RWBuffer<uint>, CommandCount, u, 2, 0);
+AME_RESOURCE(RWBuffer<uint>, Commands, u, 0, 2);
+AME_RESOURCE(RWBuffer<uint>, CommandCount, u, 1, 2);
 
 AME_PUSH_CONSTANT(DispatchDesc, DispatchData, 0);
 

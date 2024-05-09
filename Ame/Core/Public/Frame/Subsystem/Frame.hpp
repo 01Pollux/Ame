@@ -2,27 +2,18 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Frame/SyncFrame.hpp>
-#include <Frame/AsyncFrame.hpp>
-
 #include <Frame/Subsystem/Timer.hpp>
+
+#include <Frame/EngineFrame.hpp>
 
 namespace Ame
 {
-    struct SyncFrameSubsystem;
-    struct AsyncFrameSubsystem;
-
-    struct FrameSubsystem : AbstractSubsystem<IFrame>, kgr::defaults_to<SyncFrameSubsystem>
+    struct EngineFrameSubsystem : SingleSubsystem<
+                                EngineFrame,
+                                Dependency<FrameTimerSubsystem>>,
+                            kgr::final
     {
     };
 
-    struct SyncFrameSubsystem : AutoWiredSingleSubsystem<SyncFrame>, kgr::overrides<FrameSubsystem>, kgr::final
-    {
-    };
-
-    struct AsyncFrameSubsystem : AutoWiredSingleSubsystem<AsyncFrame>, kgr::overrides<FrameSubsystem>, kgr::final
-    {
-    };
-
-    auto service_map(const IFrame&) -> FrameSubsystem;
+    auto service_map(const EngineFrame&) -> EngineFrameSubsystem;
 } // namespace Ame

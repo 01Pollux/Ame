@@ -8,7 +8,7 @@
 
 namespace Ame
 {
-    class IFrame;
+    class EngineFrame;
     class FrameTimer;
 
     namespace Rhi
@@ -31,7 +31,7 @@ namespace Ame::Gfx
 
     public:
         Renderer(
-            IFrame&        Frame,
+            EngineFrame&   Frame,
             FrameTimer&    Timer,
             Rhi::Device&   Device,
             Ecs::Universe& Universe);
@@ -69,7 +69,7 @@ namespace Ame::Gfx
         void OnEndFrame();
 
     private:
-        Ref<IFrame>        m_Frame;
+        Ref<EngineFrame>   m_Frame;
         Ref<FrameTimer>    m_Timer;
         Ref<Rhi::Device>   m_Device;
         Ref<Ecs::Universe> m_Universe;

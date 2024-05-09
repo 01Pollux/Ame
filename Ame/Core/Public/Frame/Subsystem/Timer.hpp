@@ -2,11 +2,13 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Frame/Timer.hpp>
+#include <Frame/FrameTimer.hpp>
 
 namespace Ame
 {
-    struct FrameTimerSubsystem : SingleSubsystem<FrameTimer>, kgr::final
+    struct FrameTimerSubsystem : SingleSubsystem<
+                                     FrameTimer>,
+                                 kgr::final
     {
     };
 

@@ -60,8 +60,16 @@ namespace Ame
     ///
     /// It hold and injects the service as a shared pointer to the supplied instance.
     /// </summary>
-    template<typename Ty>
-    using ExternSharedSubsystem = kgr::extern_shared_service<Ty>;
+    template<typename Ty, typename... ArgsTy>
+    struct ExternSharedSubsystem : SharedSubsystem<Ty, ArgsTy...>, kgr::supplied
+    {
+        using SharedSubsystem<Ty, ArgsTy...>::SharedSubsystem;
+
+        static auto construct(std::shared_ptr<Ty> Instance) -> kgr::inject_result<std::shared_ptr<Ty>>
+        {
+            return kgr::inject(std::move(Instance));
+        }
+    };
 
     /// <summary>
     /// This class is a abstract service that a kgr::single_service can override.
@@ -89,31 +97,4 @@ namespace Ame
     {
         auto forward() -> std::unique_ptr<Ty>;
     };
-
-    //
-
-    /// <summary>
-    /// The following aliases are indirect maps for autowired services.
-    ///
-    /// kgr::autowire is also a autowire tag to use instead of dependencies
-    /// </summary>
-    using Autowire       = kgr::autowire;
-    using AutowireSingle = kgr::autowire_single;
-    using AutowireUnique = kgr::autowire_unique;
-    using AutowireShared = kgr::autowire_shared;
-
-    template<typename MapTy, std::size_t MaxDeps = kgr::detail::default_max_dependency>
-    using MappedAutowire = kgr::mapped_autowire<MapTy, MaxDeps>;
-
-    template<typename Ty, typename MapTy = kgr::map<>, std::size_t MaxDeps = kgr::detail::default_max_dependency>
-    using AutoWiredSubsystem = kgr::autowire_service<Ty, MapTy, MaxDeps>;
-
-    template<typename Ty, typename MapTy = kgr::map<>, std::size_t MaxDeps = kgr::detail::default_max_dependency>
-    using AutoWiredSingleSubsystem = kgr::autowire_single_service<Ty, MapTy, MaxDeps>;
-
-    template<typename Ty, typename MapTy = kgr::map<>, std::size_t MaxDeps = kgr::detail::default_max_dependency>
-    using AutoWiredUniqueSubsystem = kgr::autowire_unique_service<Ty, MapTy, MaxDeps>;
-
-    template<typename Ty, typename MapTy = kgr::map<>, std::size_t MaxDeps = kgr::detail::default_max_dependency>
-    using AutoWiredSharedSubsystem = kgr::autowire_shared_service<Ty, MapTy, MaxDeps>;
 } // namespace Ame

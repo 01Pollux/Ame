@@ -9,7 +9,11 @@
 
 namespace Ame::Ecs
 {
-    struct UniverseSubsystem : AutoWiredSingleSubsystem<Universe>, kgr::final
+    struct UniverseSubsystem : SingleSubsystem<
+                                   Universe,
+                                   Dependency<EngineFrameSubsystem,
+                                              FrameTimerSubsystem>>,
+                               kgr::final
     {
     };
 

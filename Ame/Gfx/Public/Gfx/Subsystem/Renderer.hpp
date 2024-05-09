@@ -11,7 +11,13 @@
 
 namespace Ame::Gfx
 {
-    struct RendererSubsystem : AutoWiredSingleSubsystem<Renderer>, kgr::final
+    struct RendererSubsystem : SingleSubsystem<
+                                   Renderer,
+                                   Dependency<EngineFrameSubsystem,
+                                              FrameTimerSubsystem,
+                                              Rhi::DeviceSubsystem,
+                                              Ecs::UniverseSubsystem>>,
+                               kgr::final
     {
     };
 

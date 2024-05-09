@@ -7,7 +7,7 @@ namespace Ame::Gfx::RG
     {
         auto& World = *m_Universe.get().GetActiveWorld();
 
-        m_WorldData->RenderRule =
+        m_WorldData.RenderRule =
             World.CreateRule<
                      RenderInstance,
                      const Ecs::Component::Transform,

@@ -1,13 +1,13 @@
 #include <Ecs/Universe.hpp>
-#include <Frame/Frame.hpp>
+#include <Frame/EngineFrame.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Ecs
 {
     Universe::Universe(
-        IFrame&     Frame,
-        FrameTimer& Timer)
+        EngineFrame& Frame,
+        FrameTimer&  Timer)
     {
         m_OnUpdate = {
             Frame.OnUpdate()
@@ -137,8 +137,9 @@ namespace Ame::Ecs
     {
         if (m_ActiveWorld != NewWorld)
         {
+            auto OldWorld = m_ActiveWorld;
             m_ActiveWorld = NewWorld;
-            OnWorldChange().Broadcast(*this, { m_ActiveWorld, NewWorld });
+            OnWorldChange().Broadcast(*this, { OldWorld, NewWorld });
         }
     }
 } // namespace Ame::Ecs

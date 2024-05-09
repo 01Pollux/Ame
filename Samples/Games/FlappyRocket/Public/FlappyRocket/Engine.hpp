@@ -21,6 +21,6 @@ namespace Ame::FlappyRocket
         void CreateWorld();
 
     private:
-        FlappyRocketGame m_Game;
+        UPtr<FlappyRocketGame> m_Game;
     };
 } // namespace Ame::FlappyRocket

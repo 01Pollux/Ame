@@ -36,7 +36,7 @@ namespace Ame::Gfx::RG
             }
         };
 
-        m_WorldData->TransformObserver =
+        m_WorldData.TransformObserver =
             World.CreateObserver<const Ecs::Component::Transform>()
                 .with<const Ecs::Component::BaseRenderableTag>()
                 .event(flecs::OnSet)

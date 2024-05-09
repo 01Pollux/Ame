@@ -4,6 +4,7 @@
 
 namespace Ame::Rhi
 {
+    using DescriptorType            = nri::DescriptorType;
     using DescriptorRangeDesc       = nri::DescriptorRangeDesc;
     using DynamicConstantBufferDesc = nri::DynamicConstantBufferDesc;
     using DescriptorSetDesc         = nri::DescriptorSetDesc;

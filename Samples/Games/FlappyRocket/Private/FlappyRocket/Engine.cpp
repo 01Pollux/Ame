@@ -1,8 +1,6 @@
 #include <FlappyRocket/Engine.hpp>
-
 #include <Rhi/Subsystem/Device.hpp>
-#include <Gfx/Subsystem/Renderer.hpp>
-#include <Ecs/Subsystem/Universe.hpp>
+#include <FlappyRocket/Subsystem/Game.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -26,7 +24,7 @@ namespace Ame::FlappyRocket
 
         SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
 
-        m_Game = FlappyRocketGame(GetSubsystem<Gfx::RendererSubsystem>(), GetSubsystem<Ecs::UniverseSubsystem>());
+        m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
         CreateWorld();
     }
 
@@ -38,7 +36,7 @@ namespace Ame::FlappyRocket
 
     void FlappyRocketEngine::CreateWorld()
     {
-        m_Game.ResetWorld();
-        m_Game.AddAllEntities();
+        m_Game->ResetWorld();
+        m_Game->AddAllEntities();
     }
 } // namespace Ame::FlappyRocket

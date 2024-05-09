@@ -9,10 +9,11 @@ namespace Ame::Gfx::RG
         m_Universe(Universe),
         m_CoreResources(Resources)
     {
-        m_WorldData = {
+        m_OnWorldChange = {
             m_Universe.get().OnWorldChange().ObjectSignal(),
             [this](auto& Universe, auto& ChangeData)
             {
+                m_WorldData = {};
                 if (ChangeData.NewWorld)
                 {
                     CreateTransformObserver();

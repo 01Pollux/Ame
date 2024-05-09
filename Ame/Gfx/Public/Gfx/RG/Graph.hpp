@@ -3,7 +3,7 @@
 #include <Gfx/RG/PassStorage.hpp>
 #include <Gfx/RG/Context.hpp>
 
-#include <Frame/Timer.hpp>
+#include <Frame/FrameTimer.hpp>
 #include <Rhi/Device/Device.hpp>
 
 namespace Ame::Gfx::RG

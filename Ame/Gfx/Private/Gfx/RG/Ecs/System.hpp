@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Ecs/Signals/Universe.OnWorldChangeHelper.hpp>
+#include <Ecs/Signals/Universe.hpp>
+#include <Ecs/Universe.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
@@ -31,7 +32,7 @@ namespace Ame::Gfx::RG
     public:
         [[nodiscard]] CameraRenderRule& GetCameraRule() noexcept
         {
-            return m_WorldData->RenderRule;
+            return m_WorldData.RenderRule;
         }
 
     private:
@@ -42,6 +43,7 @@ namespace Ame::Gfx::RG
         Ref<Ecs::Universe> m_Universe;
         Ref<CoreResources> m_CoreResources;
 
-        Signals::OnWorldChangeHelper<EntityDesc> m_WorldData;
+        Signals::OnWorldChange::Handle m_OnWorldChange;
+        EntityDesc                     m_WorldData;
     };
 } // namespace Ame::Gfx::RG

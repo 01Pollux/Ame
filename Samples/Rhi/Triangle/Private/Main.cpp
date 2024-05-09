@@ -35,7 +35,7 @@ protected:
 
         auto& RhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
         auto& Coroutine = *GetSubsystem<CoroutineSubsystem>();
-        auto& Frame     = GetSubsystem<FrameSubsystem>();
+        auto& Frame     = GetSubsystem<EngineFrameSubsystem>();
 
         m_PipelineStateTask = CreateBasicPipeline(
             Coroutine,

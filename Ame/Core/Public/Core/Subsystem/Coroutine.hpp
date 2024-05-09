@@ -6,9 +6,11 @@
 
 namespace Ame
 {
-    struct CoroutineSubsystem : ExternSharedSubsystem<Co::runtime>, kgr::final
+    struct CoroutineSubsystem : SingleSubsystem<
+                                    Co::runtime>,
+                                kgr::final
     {
     };
 
-    auto service_map(const Ptr<Co::runtime>&) -> CoroutineSubsystem;
+    auto service_map(const Co::runtime&) -> CoroutineSubsystem;
 } // namespace Ame

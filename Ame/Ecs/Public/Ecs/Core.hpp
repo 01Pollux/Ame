@@ -29,7 +29,7 @@ namespace Ame::Ecs
         Unique& operator=(
             Unique&& Other) noexcept
         {
-            if (this != &Other)
+            if (this != std::addressof(Other))
             {
                 Reset();
                 m_Entity = std::exchange(Other.m_Entity, Ty{});
@@ -107,6 +107,7 @@ namespace Ame::Ecs
                 {
                     m_Entity.Reset();
                 }
+                m_Entity = Ty{};
             }
         }
 

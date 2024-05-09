@@ -1,6 +1,6 @@
 #include <Gfx/Renderer.hpp>
 
-#include <Frame/Frame.hpp>
+#include <Frame/EngineFrame.hpp>
 #include <Rhi/Device/Device.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
@@ -9,7 +9,7 @@
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        IFrame&        Frame,
+        EngineFrame&        Frame,
         FrameTimer&    Timer,
         Rhi::Device&   Device,
         Ecs::Universe& Universe) :

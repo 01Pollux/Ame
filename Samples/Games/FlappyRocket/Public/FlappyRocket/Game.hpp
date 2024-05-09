@@ -1,7 +1,19 @@
 #pragma once
 
-#include <Gfx/Renderer.hpp>
 #include <Ecs/Universe.hpp>
+
+namespace Ame::Gfx
+{
+    namespace Cache
+    {
+        class PipelineLayoutCache;
+    } // namespace Cache
+    namespace RG
+    {
+        class Graph;
+    } // namespace RG
+    class Renderer;
+} // namespace Ame::Gfx
 
 namespace Ame::FlappyRocket
 {
@@ -12,10 +24,10 @@ namespace Ame::FlappyRocket
         static inline const String CameraName = "Camera";
 
     public:
-        FlappyRocketGame() = default;
         FlappyRocketGame(
-            Gfx::Renderer& Renderer,
-            Ecs::Universe& EcsUniverse);
+            Ecs::Universe&                   EcsUniverse,
+            Gfx::Renderer&                   Renderer,
+            Gfx::Cache::PipelineLayoutCache& LayoutCache);
 
     public:
         /// <summary>
@@ -33,7 +45,8 @@ namespace Ame::FlappyRocket
         /// Setup the render graph for the game
         /// </summary>
         void SetupRenderGraph(
-            Gfx::RG::Graph& RenderGraph);
+            Gfx::RG::Graph&                  RenderGraph,
+            Gfx::Cache::PipelineLayoutCache& LayoutCache);
 
     private:
         Ecs::Universe* m_EcsUniverse = nullptr;
