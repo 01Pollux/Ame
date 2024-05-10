@@ -22,8 +22,6 @@ target("Resource")
     add_deps("Core", {public = true, inherit = true})
 target_end()
 
---
-
 target("Windowing")
     ame_header_library("Ame", "Windowing", "static", "Ame/Windowing")
     add_deps("Core", {public = true, inherit = true})
@@ -51,7 +49,7 @@ target_end()
 
 target("Gfx")
     ame_header_library("Ame", "Gfx", "static", "Ame/Gfx")
-    add_deps({ "Ecs" }, {public = true, inherit = true})
+    add_deps({ "Ecs", "Resource" }, {public = true, inherit = true})
 target_end()
 
 --

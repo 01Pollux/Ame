@@ -11,12 +11,12 @@
 
 namespace Ame::Asset
 {
-    class IStorage;
+    class Storage;
     class Manager;
 
     class IAssetPackage
     {
-        friend class IStorage;
+        friend class Storage;
         friend class Manager;
 
     protected:
@@ -27,12 +27,7 @@ namespace Ame::Asset
 
     public:
         IAssetPackage(
-            IStorage&    Storage,
-            Co::runtime& Runtime) :
-            m_Storage(Storage),
-            m_Runtime(Runtime)
-        {
-        }
+            Storage& Storage);
 
         IAssetPackage(const IAssetPackage&) = delete;
         IAssetPackage(IAssetPackage&&)      = delete;
@@ -100,8 +95,14 @@ namespace Ame::Asset
             const Asset::Handle& AssetGuid,
             bool                 Force) = 0;
 
+    private:
+        /// <summary>
+        /// Used for sanity checks against mounting to multiple storages.
+        /// </summary>
+        [[nodiscard]] Storage& GetStorage() const;
+
     protected:
-        Ref<IStorage>    m_Storage;
+        Ref<Storage>     m_Storage;
         Ref<Co::runtime> m_Runtime;
 
         AssetCacheMap             m_Cache;

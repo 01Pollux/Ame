@@ -6,7 +6,7 @@
 namespace Ame::Asset
 {
     class IAsset;
-    class IStorage;
+    class Storage;
     class Manager;
     using Handle = Guid;
 } // namespace Ame::Asset

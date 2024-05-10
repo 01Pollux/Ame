@@ -12,8 +12,7 @@ namespace Ame::Asset
 
     public:
         DirectoryAssetPackage(
-            IStorage&             Storage,
-            Co::runtime&          Runtime,
+            Storage&              Storage,
             std::filesystem::path Path);
 
         [[nodiscard]] Co::generator<const Asset::Handle&> GetAssets() override;

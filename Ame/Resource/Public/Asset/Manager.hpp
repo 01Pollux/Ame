@@ -6,13 +6,13 @@ namespace Ame::Asset
 {
     class IAsset;
     class IAssetPackage;
-    class IStorage;
+    class Storage;
 
     class Manager
     {
     public:
         Manager(
-            IStorage&    Storage,
+            Storage&    Storage,
             Co::runtime& Runtime) :
             m_Storage(Storage),
             m_Runtime(Runtime)
@@ -76,7 +76,7 @@ namespace Ame::Asset
             const Handle& AssetGuid);
 
     private:
-        Ref<IStorage>    m_Storage;
+        Ref<Storage>    m_Storage;
         Ref<Co::runtime> m_Runtime;
     };
 } // namespace Ame::Asset

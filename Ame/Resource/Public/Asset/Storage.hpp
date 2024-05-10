@@ -2,11 +2,14 @@
 
 #include <Core/Enum.hpp>
 
+#include <regex>
+#include <vector>
+#include <map>
+
 #include <Core/Coroutine.hpp>
 #include <Asset/Handle.hpp>
 #include <Asset/Handler.hpp>
-
-#include <regex>
+#include <Asset/Manager.hpp>
 
 namespace Ame::Asset
 {
@@ -46,45 +49,44 @@ namespace Ame::Asset
         PackageFlags Flags = PackageFlags::Disk;
     };
 
-    class IStorage
+    class Storage
     {
+        using AssetPackageList = std::vector<UPtr<IAssetPackage>>;
+        friend class IAssetPackage;
+
     public:
-        using IocParams = Ptr<Co::runtime>;
+        Storage(
+            Co::runtime& Runtime);
 
-        IStorage(
-            Co::runtime& Runtime) :
-            m_Runtime(Runtime)
-        {
-        }
+        Storage(const Storage&) = delete;
+        Storage(Storage&&)      = default;
 
-        IStorage(const IStorage&) = delete;
-        IStorage(IStorage&&)      = delete;
+        Storage& operator=(const Storage&) = delete;
+        Storage& operator=(Storage&&)      = default;
 
-        IStorage& operator=(const IStorage&) = delete;
-        IStorage& operator=(IStorage&&)      = delete;
+        ~Storage();
 
-        virtual ~IStorage() = default;
-
+    public:
         /// <summary>
         /// Adds an asset to the storage system.
         /// </summary>
-        virtual Co::result<void> SaveAsset(
-            const AddDesc& Desc) = 0;
+        Co::result<void> SaveAsset(
+            const AddDesc& Desc);
 
         /// <summary>
         /// Removes an asset from the storage system.
         /// </summary>
-        virtual void RemoveAsset(
-            const Handle& AssetGuid) = 0;
+        void RemoveAsset(
+            const Handle& AssetGuid);
 
     public:
         /// <summary>
         /// Registers an asset handler.
         /// Not thread safe.
         /// </summary>
-        virtual void RegisterHandler(
+        void RegisterHandler(
             size_t              Id,
-            UPtr<IAssetHandler> Handler) = 0;
+            UPtr<IAssetHandler> Handler);
 
         /// <summary>
         /// Registers an asset handler.
@@ -102,36 +104,36 @@ namespace Ame::Asset
         /// Unregisters an asset handler.
         /// Not thread safe.
         /// </summary>
-        virtual void UnregisterHandler(
-            size_t Id) = 0;
+        void UnregisterHandler(
+            size_t Id);
 
         /// <summary>
         /// Gets the asset handler for the specified asset.
         /// Not thread safe.
         /// </summary>
-        virtual IAssetHandler* GetHandler(
+        IAssetHandler* GetHandler(
             const Ptr<IAsset>& Asset,
-            size_t*            Id = nullptr) = 0;
+            size_t*            Id = nullptr);
 
         /// <summary>
         /// Gets the asset handler for the specified id.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] virtual IAssetHandler* GetHandler(
-            size_t Id) = 0;
+        [[nodiscard]] IAssetHandler* GetHandler(
+            size_t Id);
 
         /// <summary>
         /// Get the associated asset manager.
         /// </summary>
-        [[nodiscard]] virtual Manager& GetManager() = 0;
+        [[nodiscard]] Manager& GetManager();
 
-    protected:
+    private:
         /// <summary>
         /// Mounts an asset package.
         /// Not thread safe.
         /// </summary>
-        virtual IAssetPackage* Mount(
-            UPtr<IAssetPackage> Package) = 0;
+        IAssetPackage* Mount(
+            UPtr<IAssetPackage> Package);
 
     public:
         /// <summary>
@@ -143,15 +145,15 @@ namespace Ame::Asset
         IAssetPackage* Mount(
             ArgsTy&&... Args)
         {
-            return Mount(std::make_unique<Ty>(*this, m_Runtime, std::forward<Args>(Args)...));
+            return Mount(std::make_unique<Ty>(*this, std::forward<ArgsTy>(Args)...));
         }
 
         /// <summary>
         /// Unmounts an asset package.
         /// Not thread safe.
         /// </summary>
-        virtual void Unmount(
-            IAssetPackage* Package) = 0;
+        void Unmount(
+            IAssetPackage* Package);
 
         /// <summary>
         /// Helper function to exports all packages to disk.
@@ -170,15 +172,15 @@ namespace Ame::Asset
         /// Gets the asset package with the specified name.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] virtual Co::generator<IAssetPackage*> GetPackages(
-            const PackageFlags& Flags = PackageFlags::Disk) = 0;
+        [[nodiscard]] Co::generator<IAssetPackage*> GetPackages(
+            const PackageFlags& Flags = PackageFlags::Disk);
 
         /// <summary>
         /// Gets all assets in all packages.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] virtual Co::generator<PackageAndAsset> GetAllAssets(
-            const PackageFlags& Flags = PackageFlags::Disk) = 0;
+        [[nodiscard]] Co::generator<PackageAndAsset> GetAllAssets(
+            const PackageFlags& Flags = PackageFlags::Disk);
 
     public:
         /// <summary>
@@ -202,9 +204,19 @@ namespace Ame::Asset
             const std::regex&   PathRegex,
             const PackageFlags& Flags = PackageFlags::Disk);
 
-    protected:
+    private:
+        /// <summary>
+        /// Used for initializing package and preventing mounts from multiple storages.
+        /// </summary>
+        [[nodiscard]] Co::runtime& GetRuntime() const;
+
+    private:
         Ref<Co::runtime> m_Runtime;
+        Manager          m_Manager;
+
+        AssetPackageList                      m_Packages;
+        std::map<size_t, UPtr<IAssetHandler>> m_Handlers;
     };
 
-    using StorageUPtr = UPtr<IStorage>;
+    using StorageUPtr = UPtr<Storage>;
 } // namespace Ame::Asset

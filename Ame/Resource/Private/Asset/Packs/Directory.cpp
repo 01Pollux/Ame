@@ -16,10 +16,9 @@
 namespace Ame::Asset
 {
     DirectoryAssetPackage::DirectoryAssetPackage(
-        IStorage&             Storage,
-        Co::runtime&          Runtime,
+        Storage&              Storage,
         std::filesystem::path Path) :
-        IAssetPackage(Storage, Runtime),
+        IAssetPackage(Storage),
         m_RootPath(std::move(Path))
     {
         auto& Logger = Log::Asset();
@@ -193,7 +192,6 @@ namespace Ame::Asset
         auto Executor = m_Runtime.get().background_executor();
         co_await Co::resume_on(Executor);
         SaveAssetAndDependencies(Asset);
-
     }
 
     bool DirectoryAssetPackage::RemoveAsset(
