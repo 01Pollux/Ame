@@ -199,5 +199,4 @@ namespace Ame::Asset
     public:                              \
         AME_STANDARD_ASSET_HANDLER_BODY; \
     };
-
 } // namespace Ame::Asset

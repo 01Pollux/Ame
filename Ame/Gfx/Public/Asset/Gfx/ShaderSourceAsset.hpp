@@ -1,0 +1,34 @@
+#pragma once
+
+#include <Asset/Asset.hpp>
+#include <Gfx/Cache/ShaderCache.hpp>
+
+namespace Ame::Asset::Gfx
+{
+    class ShaderSourceAsset : public IAsset
+    {
+        using ShaderCache = Ame::Gfx::Cache::ShaderCache;
+
+    public:
+        static constexpr size_t UID = 19456857095889080;
+
+        class Handler;
+
+    public:
+        ShaderSourceAsset(
+            ShaderCache&  Cache,
+            String        ShaderSource,
+            const Handle& AssetGuid,
+            String        Path);
+
+        /// <summary>
+        /// Load the shader cache from settings
+        /// </summary>
+        [[nodiscard]] Co::result<Rhi::ShaderBytecode> Load(
+            const Rhi::ShaderCompileDesc& Desc);
+
+    private:
+        Ref<ShaderCache> m_Cache;
+        String           m_ShaderSource;
+    };
+} // namespace Ame::Asset::Gfx

@@ -17,6 +17,8 @@ namespace Ame::Asset
 
     Storage::~Storage() = default;
 
+    //
+
     Manager& Storage::GetManager()
     {
         return m_Manager;
