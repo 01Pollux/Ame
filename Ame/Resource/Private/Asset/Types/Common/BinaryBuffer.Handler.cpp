@@ -1,6 +1,6 @@
-#include <Asset/Handlers/BinaryBuffer.hpp>
+#include <Asset/Types/Common/BinaryBuffer.Handle.hpp>
 
-namespace Ame::Asset
+namespace Ame::Asset::Common
 {
     bool BinaryBufferAsset::Handler::CanHandle(
         const Ptr<IAsset>& Resource)
@@ -28,4 +28,4 @@ namespace Ame::Asset
         auto Buffer = dynamic_cast<const BinaryBufferAsset*>(Asset.get());
         Stream.write(std::bit_cast<const char*>(Buffer->GetData()), Buffer->GetSize());
     }
-} // namespace Ame::Asset
+} // namespace Ame::Asset::Common

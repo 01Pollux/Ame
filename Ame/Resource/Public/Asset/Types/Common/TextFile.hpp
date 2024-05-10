@@ -3,7 +3,7 @@
 #include <Asset/Asset.hpp>
 #include <optional>
 
-namespace Ame::Asset
+namespace Ame::Asset::Common
 {
     class TextFileAsset : public IAsset
     {

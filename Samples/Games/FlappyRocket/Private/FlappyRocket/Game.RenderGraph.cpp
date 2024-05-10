@@ -10,12 +10,13 @@ namespace Ame::FlappyRocket
     namespace RG = Gfx::RG;
 
     void FlappyRocketGame::SetupRenderGraph(
-        Gfx::RG::Graph&                  RenderGraph,
-        Gfx::Cache::PipelineLayoutCache& LayoutCache)
+        Gfx::RG::Graph&                 RenderGraph,
+        Gfx::Cache::PipelineStateCache& PipelineStateCache)
     {
         auto& PassStorage = RenderGraph.GetPassStorage();
 
         PassStorage.NewPass<RG::Std::EntityCollectPass>(
-            *m_EcsUniverse);
+            *m_EcsUniverse,
+            PipelineStateCache);
     }
 } // namespace Ame::FlappyRocket

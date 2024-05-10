@@ -3,6 +3,11 @@
 #include <Gfx/RG/Pass.hpp>
 #include <Ecs/Universe.hpp>
 
+namespace Ame::Gfx::Cache
+{
+    class PipelineStateCache;
+} // namespace Ame::Gfx::Cache
+
 namespace Ame::Gfx::RG::Std
 {
     class EntityCollectPass : public Pass
@@ -19,9 +24,11 @@ namespace Ame::Gfx::RG::Std
         };
 
         EntityCollectPass(
-            Ecs::Universe& Universe);
+            Ecs::Universe&             Universe,
+            Cache::PipelineStateCache& PipelineStateCache);
 
     private:
-        Ref<Ecs::Universe> m_Universe;
+        Ref<Ecs::Universe>             m_Universe;
+        Ref<Cache::PipelineStateCache> m_PipelineStateCache;
     };
 } // namespace Ame::Gfx::RG::Std

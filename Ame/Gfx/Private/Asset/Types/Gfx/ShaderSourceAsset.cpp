@@ -1,4 +1,4 @@
-#include <Asset/Gfx/ShaderSourceAsset.hpp>
+#include <Asset/Types/Gfx/ShaderSourceAsset.hpp>
 
 namespace Ame::Asset::Gfx
 {

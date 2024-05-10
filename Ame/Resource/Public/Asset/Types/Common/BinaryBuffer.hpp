@@ -2,7 +2,7 @@
 
 #include <Asset/Asset.hpp>
 
-namespace Ame::Asset
+namespace Ame::Asset::Common
 {
     class BinaryBufferAsset : public IAsset
     {

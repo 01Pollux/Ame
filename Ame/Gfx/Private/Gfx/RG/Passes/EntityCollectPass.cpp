@@ -1,13 +1,26 @@
 #include <Gfx/RG/Passes/EntityCollectPass.hpp>
 
+#include <Gfx/Cache/PipelineStateCache.hpp>
+
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
 
 namespace Ame::Gfx::RG::Std
 {
     EntityCollectPass::EntityCollectPass(
-        Ecs::Universe& Universe) :
-        m_Universe(Universe)
+        Ecs::Universe&             Universe,
+        Cache::PipelineStateCache& PipelineStateCache) :
+        m_Universe(Universe),
+        m_PipelineStateCache(PipelineStateCache)
     {
+        try
+        {
+        m_PipelineStateCache.get().Load(Cache::PipelineStateCache::Type::EntityCollectPass).get();
+        }
+        catch (const std::exception& ex)
+        {
+            printf("%s\n", ex.what());
+        }
+
         Name("EntityCollectPass")
             .SetFlags(PassFlags::Compute)
             .Build(
@@ -35,6 +48,10 @@ namespace Ame::Gfx::RG::Std
                 {
                     auto& CounterBufferView  = RgStorage.GetResourceViewHandle(Names::EntityDispatchCounter("Main"));
                     auto& DispatchBufferView = RgStorage.GetResourceViewHandle(Names::EntityDispatchBuffer("Main"));
+
+                    auto PipelineState = m_PipelineStateCache.get()
+                                             .Load(Cache::PipelineStateCache::Type::EntityCollectPass)
+                                             .get();
 
                     // auto Set = CommandList->AllocateSets(0)[0];
                     // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());

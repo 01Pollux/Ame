@@ -19,7 +19,7 @@ namespace Ame::Asset
             co_return Package->LoadAsset(AssetGuid, LoadTemp);
         }
 
-        throw AssetNotFoundException(AssetGuid);
+        co_return nullptr;
     }
 
     Co::result<Ptr<IAsset>> Manager::LoadAsync(
@@ -39,7 +39,7 @@ namespace Ame::Asset
             }
         }
 
-        throw AssetNotFoundException(AssetGuid);
+        co_return nullptr;
     }
 
     Ptr<IAsset> Manager::Load(
@@ -57,7 +57,7 @@ namespace Ame::Asset
             }
         }
 
-        throw AssetNotFoundException(AssetGuid);
+        return nullptr;
     }
 
     Ptr<IAsset> Manager::Load(
@@ -70,7 +70,7 @@ namespace Ame::Asset
             return Package->LoadAsset(AssetGuid, LoadTemp);
         }
 
-        throw AssetNotFoundException(AssetGuid);
+        return nullptr;
     }
 
     Co::result<Ptr<IAsset>> Manager::ReloadAsync(
@@ -119,7 +119,7 @@ namespace Ame::Asset
             }
         }
 
-        throw AssetNotFoundException(AssetGuid);
+        return false;
     }
 
     bool Manager::RequestUnload(
@@ -136,6 +136,6 @@ namespace Ame::Asset
             }
         }
 
-        throw AssetNotFoundException(AssetGuid);
+        return false;
     }
 } // namespace Ame::Asset

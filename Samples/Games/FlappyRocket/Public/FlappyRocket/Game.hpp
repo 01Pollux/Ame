@@ -6,7 +6,7 @@ namespace Ame::Gfx
 {
     namespace Cache
     {
-        class PipelineLayoutCache;
+        class PipelineStateCache;
     } // namespace Cache
     namespace RG
     {
@@ -25,9 +25,9 @@ namespace Ame::FlappyRocket
 
     public:
         FlappyRocketGame(
-            Ecs::Universe&                   EcsUniverse,
-            Gfx::Renderer&                   Renderer,
-            Gfx::Cache::PipelineLayoutCache& LayoutCache);
+            Ecs::Universe&                  EcsUniverse,
+            Gfx::Renderer&                  Renderer,
+            Gfx::Cache::PipelineStateCache& PipelineStateCache);
 
     public:
         /// <summary>
@@ -45,8 +45,8 @@ namespace Ame::FlappyRocket
         /// Setup the render graph for the game
         /// </summary>
         void SetupRenderGraph(
-            Gfx::RG::Graph&                  RenderGraph,
-            Gfx::Cache::PipelineLayoutCache& LayoutCache);
+            Gfx::RG::Graph&                 RenderGraph,
+            Gfx::Cache::PipelineStateCache& PipelineStateCache);
 
     private:
         Ecs::Universe* m_EcsUniverse = nullptr;

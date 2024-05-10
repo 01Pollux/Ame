@@ -4,7 +4,7 @@
 
 #include <Ecs/Subsystem/Universe.hpp>
 #include <Gfx/Subsystem/Renderer.hpp>
-#include <Gfx/Subsystem/PipelineLayoutCache.hpp>
+#include <Gfx/Subsystem/PipelineStateCache.hpp>
 
 #include <FlappyRocket/Game.hpp>
 
@@ -14,7 +14,7 @@ namespace Ame::FlappyRocket
                                            FlappyRocketGame,
                                            Dependency<Ecs::UniverseSubsystem,
                                                       Gfx::RendererSubsystem,
-                                                      Gfx::Cache::PipelineLayoutCacheSubsystem>>,
+                                                      Gfx::Cache::PipelineStateCacheSubsystem>>,
                                        kgr::final
     {
     };

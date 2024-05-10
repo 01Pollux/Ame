@@ -11,12 +11,12 @@
 namespace Ame::FlappyRocket
 {
     FlappyRocketGame::FlappyRocketGame(
-        Ecs::Universe&                   EcsUniverse,
-        Gfx::Renderer&                   Renderer,
-        Gfx::Cache::PipelineLayoutCache& LayoutCache) :
+        Ecs::Universe&                  EcsUniverse,
+        Gfx::Renderer&                  Renderer,
+        Gfx::Cache::PipelineStateCache& PipelineStateCache) :
         m_EcsUniverse(&EcsUniverse)
     {
-        SetupRenderGraph(Renderer.GetRenderGraph(), LayoutCache);
+        SetupRenderGraph(Renderer.GetRenderGraph(), PipelineStateCache);
     }
 
     //
