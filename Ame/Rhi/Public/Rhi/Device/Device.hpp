@@ -48,6 +48,11 @@ namespace Ame::Rhi
         /// Get the graphics API used by the device.
         /// </summary>
         [[nodiscard]] GraphicsAPI GetGraphicsAPI() const;
+        
+        /// <summary>
+        /// Get the graphics API used by the device.
+        /// </summary>
+        [[nodiscard]] const char* GetGraphicsAPIName() const;
 
         /// <summary>
         /// Get the device description.

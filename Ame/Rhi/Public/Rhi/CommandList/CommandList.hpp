@@ -61,12 +61,12 @@ namespace Ame::Rhi
         /// Set constants.
         /// </summary>
         template<typename Ty>
-            requires std::is_standard_layout_v<Ty>
+            requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
         void SetConstants(
             uint32_t  ConstantIndex,
             const Ty& Data)
         {
-            SetConstants(ConstantIndex, &Data, sizeof(Ty));
+            SetConstants(ConstantIndex, std::addressof(Data), sizeof(Ty));
         }
 
         /// <summary>

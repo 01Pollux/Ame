@@ -33,7 +33,7 @@ namespace Ame::Gfx::Cache
         /// <summary>
         /// Load or get a pipeline layout from cache.
         /// </summary>
-        [[nodiscard]] Co::result<Ptr<Rhi::PipelineLayout>> Load(
+        Co::result<Ptr<Rhi::PipelineLayout>> Load(
             Type LayoutType);
 
     private:

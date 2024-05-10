@@ -41,6 +41,21 @@ namespace Ame::Rhi
         return m_Impl ? m_Impl->GetGraphicsAPI() : GraphicsAPI::Null;
     }
 
+    const char* Device::GetGraphicsAPIName() const
+    {
+        switch (GetGraphicsAPI())
+        {
+        case GraphicsAPI::Null:
+            return "null";
+        case GraphicsAPI::DirectX12:
+            return "d3d12";
+        case GraphicsAPI::Vulkan:
+            return "vk";
+        default:
+            std::unreachable();
+        }
+    }
+
     const DeviceDesc& Device::GetDesc() const
     {
         return m_Impl->GetDesc();

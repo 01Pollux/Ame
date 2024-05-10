@@ -5,7 +5,7 @@
 #include <Rhi/Subsystem/Device.hpp>
 #include <Core/Subsystem/Coroutine.hpp>
 
-#include <Gfx/Cache/StdPipelineLayouts.hpp>
+#include <Gfx/Cache/PipelineLayoutCache.hpp>
 
 namespace Ame::Gfx::Cache
 {

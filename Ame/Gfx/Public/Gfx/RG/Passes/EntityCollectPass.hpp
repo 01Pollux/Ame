@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Gfx/RG/Pass.hpp>
-#include <Gfx/Cache/StdPipelineLayouts.hpp>
 #include <Ecs/Universe.hpp>
 
 namespace Ame::Gfx::RG::Std
@@ -20,11 +19,9 @@ namespace Ame::Gfx::RG::Std
         };
 
         EntityCollectPass(
-            Ecs::Universe&              Universe,
-            Cache::PipelineLayoutCache& LayoutCache);
+            Ecs::Universe& Universe);
 
     private:
-        Ref<Ecs::Universe>              m_Universe;
-        Ref<Cache::PipelineLayoutCache> m_LayoutCache;
+        Ref<Ecs::Universe> m_Universe;
     };
 } // namespace Ame::Gfx::RG::Std

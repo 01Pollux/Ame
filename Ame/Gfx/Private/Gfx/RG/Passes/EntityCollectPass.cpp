@@ -5,10 +5,8 @@
 namespace Ame::Gfx::RG::Std
 {
     EntityCollectPass::EntityCollectPass(
-        Ecs::Universe& Universe,
-        Cache::PipelineLayoutCache& LayoutCache) :
-        m_Universe(Universe),
-        m_LayoutCache(LayoutCache)
+        Ecs::Universe& Universe) :
+        m_Universe(Universe)
     {
         Name("EntityCollectPass")
             .SetFlags(PassFlags::Compute)
@@ -35,12 +33,8 @@ namespace Ame::Gfx::RG::Std
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
-                    auto Layout = m_LayoutCache.get().Load(Cache::PipelineLayoutCache::Type::EntityCollectPass);
-
                     auto& CounterBufferView  = RgStorage.GetResourceViewHandle(Names::EntityDispatchCounter("Main"));
                     auto& DispatchBufferView = RgStorage.GetResourceViewHandle(Names::EntityDispatchBuffer("Main"));
-
-                    CommandList->SetPipelineLayout(Layout.get());
 
                     // auto Set = CommandList->AllocateSets(0)[0];
                     // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());

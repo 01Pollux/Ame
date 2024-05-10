@@ -16,7 +16,6 @@ namespace Ame::FlappyRocket
         auto& PassStorage = RenderGraph.GetPassStorage();
 
         PassStorage.NewPass<RG::Std::EntityCollectPass>(
-            *m_EcsUniverse,
-            LayoutCache);
+            *m_EcsUniverse);
     }
 } // namespace Ame::FlappyRocket

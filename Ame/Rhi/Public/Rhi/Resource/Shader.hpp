@@ -118,7 +118,7 @@ namespace Ame::Rhi
             Co::executor_tag,
             Co::executor&            Executor,
             GraphicsAPI              Api,
-            StringView             ShaderSource,
+            StringView               ShaderSource,
             const ShaderCompileDesc& CompileDesc);
 
         [[nodiscard]] static ShaderBytecode Compile(
@@ -207,9 +207,9 @@ namespace Ame::Rhi
         }
 
     private:
-        uint8_t*   m_Bytecode;
-        size_t     m_Size;
-        ShaderType m_Stage;
-        bool       m_Owning = false;
+        uint8_t*   m_Bytecode = nullptr;
+        size_t     m_Size     = 0;
+        ShaderType m_Stage    = ShaderType::NONE;
+        bool       m_Owning   = false;
     };
 } // namespace Ame::Rhi

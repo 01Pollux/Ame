@@ -1,10 +1,12 @@
 #pragma once
 
-#include <cryptopp/cryptlib.h>
-
 #include <istream>
 #include <string>
 #include <array>
+
+#include <cryptopp/cryptlib.h>
+
+#include <Core/String.hpp>
 
 namespace Ame::Concepts
 {
@@ -28,12 +30,12 @@ namespace Ame::Util
     /// Helper function to update crypto from trivial type
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy, typename Ty>
-        requires std::is_trivially_copyable_v<Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     static void UpdateCrypto(
         CryptoAlgoTy& Hasher,
         const Ty&     Value)
     {
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Value), sizeof(Ty));
+        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(std::addressof(Value)), sizeof(Ty));
     }
 
     /// <summary>
@@ -59,12 +61,12 @@ namespace Ame::Util
     /// Helper function to convert digest to string
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
-    [[nodiscard]] static std::string DigestStringify(
+    [[nodiscard]] static String DigestStringify(
         const CryptoDigest<CryptoAlgoTy>& Digest)
     {
         constexpr const char Lut[] = "0123456789ABCDEF";
 
-        std::string Output;
+        String Output;
         Output.reserve(2 * std::size(Digest));
         for (CryptoPP::byte c : Digest)
         {
@@ -91,7 +93,7 @@ namespace Ame::Util
     /// Helper function to finalize digest to string
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
-    [[nodiscard]] static std::string FinalizeDigestToString(
+    [[nodiscard]] static String FinalizeDigestToString(
         CryptoAlgoTy& Hasher)
     {
         CryptoDigest<CryptoAlgoTy> Digest;
