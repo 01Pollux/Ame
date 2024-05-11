@@ -12,13 +12,23 @@ namespace Ame::Gfx::RG
     void ResourceStorage::UpdateCoreResources()
     {
         auto& FrameResource = m_Resources[Names::FrameResource];
-        if (!FrameResource)
+        if (!FrameResource) [[unlikely]]
         {
             FrameResource.Import(m_CoreResources->GetFrameResource());
-            FrameResource.CreateBufferView(
-                Names::FrameResourceMainView,
-                Rhi::BufferViewDesc{ .Type = Rhi::BufferViewType::ConstantBuffer });
         }
+
+        FrameResource.CreateBufferView(
+            Names::FrameResourceMainView,
+            m_CoreResources->GetFrameResourceViewDesc());
+
+        auto& TransformTable = m_Resources[Names::TransformsTable];
+        if (!TransformTable || *TransformTable.AsBuffer() != m_CoreResources->GetTransformBuffer().GetBuffer()) [[unlikely]]
+        {
+            TransformTable.Import(m_CoreResources->GetTransformBuffer().GetBuffer());
+        }
+
+        auto& RenderInstanceTable = m_Resources[Names::RenderInstancesTable];
+        RenderInstanceTable.Import(Rhi::Buffer(nullptr));
     }
 
     void ResourceStorage::UpdateFrameResource(
@@ -33,5 +43,12 @@ namespace Ame::Gfx::RG
         CheckLockState(false);
         m_CoreResources->UpdateFrameResource(EngineTime, GameTime, DeltaTime, CameraEntity, Transform, Projection, Viewport);
         m_CoreResources->CollectEntities();
+
+        auto& RenderInstanceTable = m_Resources[Names::RenderInstancesTable];
+        if (m_CoreResources->GetEntitiesCount())
+        {
+            auto& CurRenderInstanceTable = m_CoreResources->GetInstancesTableBuffer().GetBuffer();
+            RenderInstanceTable.Import(CurRenderInstanceTable);
+        }
     }
 } // namespace Ame::Gfx::RG

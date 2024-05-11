@@ -46,6 +46,18 @@ namespace Ame::Gfx::RG
 
     //
 
+    Rhi::BufferViewDesc CoreResources::GetFrameResourceViewDesc() const
+    {
+        auto&   DeviceDesc = m_Device.get().GetDesc();
+        uint8_t FrameIndex = m_Device.get().GetFrameIndex();
+        size_t  Size       = Rhi::GetConstantBufferSize(DeviceDesc, sizeof(FrameResourceGPU), 0);
+        size_t  Offset     = Size * FrameIndex;
+
+        return Rhi::BufferViewDesc{ .Range{ Offset, Size }, .Type = Rhi::BufferViewType::ConstantBuffer };
+    }
+
+    //
+
     Rhi::Buffer CoreResources::AllocateFrameResource(
         Rhi::Device& Device)
     {

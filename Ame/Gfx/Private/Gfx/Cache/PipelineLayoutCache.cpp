@@ -30,7 +30,7 @@ namespace Ame::Gfx::Cache
         {
         case Type::EntityCollectPass:
         {
-            Rhi::DescriptorRangeDesc FrameDescriptor[]{
+            Rhi::DescriptorRangeDesc FrameData[]{
                 { .descriptorNum  = 1,
                   .descriptorType = Rhi::DescriptorType::CONSTANT_BUFFER,
                   .shaderStages   = Rhi::ShaderBits::COMPUTE_SHADER }
@@ -51,13 +51,13 @@ namespace Ame::Gfx::Cache
             //
 
             Rhi::DescriptorSetDesc Sets[]{
-                { .registerSpace = 1, .ranges = FrameDescriptor, .rangeNum = Rhi::Count32(FrameDescriptor) },
+                { .registerSpace = 1, .ranges = FrameData, .rangeNum = Rhi::Count32(FrameData) },
                 { .registerSpace = 2, .ranges = EntityData, .rangeNum = Rhi::Count32(EntityData) },
                 { .registerSpace = 3, .ranges = CommandInfo, .rangeNum = Rhi::Count32(CommandInfo) },
             };
 
             Rhi::PushConstantDesc PushConstants[]{
-                { .size         = Device.GetDrawIndexedCommandSize(),
+                { .size         = sizeof(uint32_t) * 4, // contains DrawOffset, DrawCount, CommandOffset, CounterOffset
                   .shaderStages = Rhi::ShaderBits::COMPUTE_SHADER }
             };
 

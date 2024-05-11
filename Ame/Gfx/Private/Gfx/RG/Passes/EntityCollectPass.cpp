@@ -23,37 +23,81 @@ namespace Ame::Gfx::RG::Std
                     auto  EntityCount = std::max(World.CreateFilter<const Ecs::Component::BaseRenderable>().build().count(), MinEntities);
 
                     RgResolver.CreateBuffer(
-                        Names::EntityDispatchCounter,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * EntityCount, BufferAlignment) });
-                    RgResolver.CreateBuffer(
-                        Names::EntityDispatchBuffer,
+                        Names::EntityCommandBuffer,
                         Rhi::BufferDesc{ Math::AlignUp(sizeof(DispatchDesc) * EntityCount, BufferAlignment) });
+                    RgResolver.CreateBuffer(
+                        Names::EntityCommandCounter,
+                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * EntityCount, BufferAlignment) });
+
+                    //
+
+                    RgResolver.ReadBuffer(
+                        Names::TransformsTable("CollectPass"),
+                        Rhi::ShaderType::COMPUTE_SHADER);
+
+                    RgResolver.ReadBuffer(
+                        Names::RenderInstancesTable("CollectPass"),
+                        Rhi::ShaderType::COMPUTE_SHADER);
 
                     RgResolver.WriteBuffer(
-                        Names::EntityDispatchCounter("Main"),
+                        Names::EntityCommandCounter("CollectPass"),
                         Rhi::ShaderBits::COMPUTE_SHADER,
                         Rhi::ResourceFormat::R32_UINT);
                     RgResolver.WriteBuffer(
-                        Names::EntityDispatchBuffer("Main"),
+                        Names::EntityCommandBuffer("CollectPass"),
                         Rhi::ShaderBits::COMPUTE_SHADER,
                         Rhi::ResourceFormat::R32_UINT);
                 })
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
-                    auto& CounterBufferView  = RgStorage.GetResourceViewHandle(Names::EntityDispatchCounter("Main"));
-                    auto& DispatchBufferView = RgStorage.GetResourceViewHandle(Names::EntityDispatchBuffer("Main"));
+                    auto& TransformsTable      = RgStorage.GetResourceViewHandle(Names::TransformsTable("CollectPass"));
+                    auto& RenderInstancesTable = RgStorage.GetResourceViewHandle(Names::RenderInstancesTable("CollectPass"));
+                    auto& CommandsView         = RgStorage.GetResourceViewHandle(Names::EntityCommandBuffer("CollectPass"));
+                    auto& CounterView          = RgStorage.GetResourceViewHandle(Names::EntityCommandCounter("CollectPass"));
 
                     auto PipelineState = m_PipelineStateCache.get()
                                              .Load(Cache::PipelineStateCache::Type::EntityCollectPass)
                                              .get();
 
                     CommandList->SetPipelineLayout(PipelineState->GetLayout());
-                    CommandList->SetPipelineState(PipelineState);
 
-                    auto FrameDescriptor = CommandList->AllocateSet(0);
-                    auto EntityData      = CommandList->AllocateSet(1);
-                    auto CommandInfo     = CommandList->AllocateSet(2);
+                    //
+
+                    auto FrameDataSet   = CommandList->AllocateSet(0);
+                    auto EntityDataSet  = CommandList->AllocateSet(1);
+                    auto CommandInfoSet = CommandList->AllocateSet(2);
+
+                    nri::Descriptor* FrameDescriptors[]{
+                        RgStorage.GetFrameResourceHandle().Unwrap()
+                    };
+
+                    nri::Descriptor* EntityDescriptors[]{
+                        TransformsTable.Unwrap(),
+                        RenderInstancesTable.Unwrap()
+                    };
+
+                    nri::Descriptor* CommandInfoDescriptors[]{
+                        CommandsView.Unwrap(),
+                        CounterView.Unwrap()
+                    };
+
+                    DispatchDesc DispatchConstants{};
+
+                    FrameDataSet.SetRange(0, { FrameDescriptors, Rhi::Count32(FrameDescriptors) });
+                    EntityDataSet.SetRange(0, { EntityDescriptors, Rhi::Count32(EntityDescriptors) });
+                    CommandInfoSet.SetRange(0, { CommandInfoDescriptors, Rhi::Count32(CommandInfoDescriptors) });
+
+                    //
+                    CommandList->SetDescriptorSet(0, FrameDataSet);
+                    CommandList->SetDescriptorSet(1, EntityDataSet);
+                    CommandList->SetDescriptorSet(2, CommandInfoSet);
+                    CommandList->SetConstants(0, DispatchConstants);
+
+                    //
+
+                    CommandList->SetPipelineState(PipelineState);
+                    CommandList->Dispatch(1);
 
                     // auto Set = CommandList->AllocateSets(0)[0];
                     // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());

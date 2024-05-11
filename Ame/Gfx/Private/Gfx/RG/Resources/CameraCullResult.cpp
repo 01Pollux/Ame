@@ -2,6 +2,8 @@
 
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
 
+#include <Log/Wrapper.hpp>
+
 namespace Ame::Gfx::RG
 {
     CameraCullResult::CameraCullResult(
@@ -29,6 +31,12 @@ namespace Ame::Gfx::RG
         {
             co_yield Row;
         }
+    }
+
+    const InstanceBuffer& CameraCullResult::GetInstancesTableBuffer() const
+    {
+        Log::Renderer().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
+        return m_Cameras[m_CurrentCamera].AllInstances;
     }
 
     //

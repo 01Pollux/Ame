@@ -337,6 +337,19 @@ namespace Ame::Rhi
 
     //
 
+    void CommandListImpl::Dispatch(
+        uint32_t X,
+        uint32_t Y,
+        uint32_t Z)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdDispatch(*m_CommandBuffer, { .x = X, .y = Y, .z = Z });
+    }
+
+    //
+
     void CommandListImpl::CopyBuffer(
         const BufferCopyDesc& Src,
         const BufferCopyDesc& Dst,

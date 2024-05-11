@@ -69,7 +69,7 @@ namespace Ame::Rhi
 
     //
 
-    std::vector<DescriptorSet> CommandList::AllocateSet(
+    DescriptorSet CommandList::AllocateSet(
         uint32_t LayoutSlot,
         uint32_t VariableCount)
     {
@@ -172,6 +172,16 @@ namespace Ame::Rhi
     void CommandList::EndRendering()
     {
         m_Impl.get().EndRendering();
+    }
+
+    //
+
+    void CommandList::Dispatch(
+        uint32_t X,
+        uint32_t Y,
+        uint32_t Z)
+    {
+        m_Impl.get().Dispatch(X, Y, Z);
     }
 
     //

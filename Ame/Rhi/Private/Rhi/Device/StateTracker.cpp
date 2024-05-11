@@ -194,16 +194,20 @@ namespace Ame::Rhi
         auto Buffers  = FlushBuffers();
         auto Textures = FlushTextures(NriCore);
 
-        nri::BarrierGroupDesc Barriers{
-            .globals    = m_GlobalBarriersCache.data(),
-            .buffers    = Buffers.data(),
-            .textures   = Textures.data(),
-            .globalNum  = static_cast<uint16_t>(m_GlobalBarriersCache.size()),
-            .bufferNum  = static_cast<uint16_t>(Buffers.size()),
-            .textureNum = static_cast<uint16_t>(Textures.size())
-        };
+        // dont perfom call if there is no state to transition to
+        if (!Buffers.empty() || !Textures.empty() || !m_GlobalBarriersCache.empty())
+        {
+            nri::BarrierGroupDesc Barriers{
+                .globals    = m_GlobalBarriersCache.data(),
+                .buffers    = Buffers.data(),
+                .textures   = Textures.data(),
+                .globalNum  = static_cast<uint16_t>(m_GlobalBarriersCache.size()),
+                .bufferNum  = static_cast<uint16_t>(Buffers.size()),
+                .textureNum = static_cast<uint16_t>(Textures.size())
+            };
 
-        NriCore.CmdBarrier(CommandBuffer, Barriers);
+            NriCore.CmdBarrier(CommandBuffer, Barriers);
+        }
 
         m_PendingStates.Buffers.clear();
         m_PendingStates.Textures.clear();
@@ -224,6 +228,12 @@ namespace Ame::Rhi
                 .before = CurrentState,
                 .after  = CollapseStates(States)
             };
+
+            if (ResourceBarrier.before.stages == ResourceBarrier.after.stages &&
+                ResourceBarrier.before.access == ResourceBarrier.after.access)
+            {
+                continue;
+            }
 
             CurrentState = ResourceBarrier.after;
             Barriers.push_back(std::move(ResourceBarrier));

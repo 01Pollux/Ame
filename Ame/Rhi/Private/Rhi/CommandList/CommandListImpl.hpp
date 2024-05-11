@@ -196,6 +196,15 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Dispatch compute operation
+        /// </summary>
+        void Dispatch(
+            uint32_t X,
+            uint32_t Y = 1,
+            uint32_t Z = 1);
+
+    public:
+        /// <summary>
         /// Perform a copy from buffer to buffer
         /// Copy the rest of buffer if size is 0
         /// </summary>

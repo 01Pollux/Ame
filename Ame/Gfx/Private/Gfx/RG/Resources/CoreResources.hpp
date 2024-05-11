@@ -17,11 +17,13 @@ namespace Ame::Gfx::RG
 
     public:
         [[nodiscard]] const Rhi::Buffer&      GetFrameResource() const;
+        [[nodiscard]] Rhi::BufferViewDesc     GetFrameResourceViewDesc() const;
         [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;
 
     public:
         [[nodiscard]] uint32_t              GetEntitiesCount() const;
         [[nodiscard]] CamerCullRowGenerator GetEntities() const;
+        [[nodiscard]] const InstanceBuffer& GetInstancesTableBuffer() const;
 
     public:
         [[nodiscard]] const AABBBuffer&      GetAABBBuffer() const;

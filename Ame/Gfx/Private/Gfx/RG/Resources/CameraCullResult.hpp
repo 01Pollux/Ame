@@ -100,6 +100,7 @@ namespace Ame::Gfx::RG
     public:
         [[nodiscard]] uint32_t                  GetEntitiesCount() const;
         [[nodiscard]] Co::generator<const Row&> GetEntities() const;
+        [[nodiscard]] const InstanceBuffer&     GetInstancesTableBuffer() const;
 
     public:
         /// <summary>

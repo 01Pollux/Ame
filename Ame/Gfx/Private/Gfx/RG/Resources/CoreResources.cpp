@@ -42,6 +42,11 @@ namespace Ame::Gfx::RG
     {
         return m_CameraCullResult.GetEntities();
     }
+    
+    const InstanceBuffer& CoreResources::GetInstancesTableBuffer() const
+    {
+        return m_CameraCullResult.GetInstancesTableBuffer();
+    }
 
     //
 

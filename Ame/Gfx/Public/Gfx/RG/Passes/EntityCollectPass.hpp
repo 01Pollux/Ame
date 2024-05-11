@@ -18,9 +18,10 @@ namespace Ame::Gfx::RG::Std
 
         struct DispatchDesc
         {
-            uint32_t IndexOffset;
-            uint32_t IndexCount;
-            uint32_t VertexOffset;
+            uint32_t DrawOffset;
+            uint32_t DrawCount;
+            uint32_t CommandOffset;
+            uint32_t CounterOffset;
         };
 
         EntityCollectPass(

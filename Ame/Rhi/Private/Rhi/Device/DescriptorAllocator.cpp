@@ -57,10 +57,9 @@ namespace Ame::Rhi
         return m_Pool;
     }
 
-    std::vector<DescriptorSet> DescriptorAllocator::Allocate(
+    DescriptorSet DescriptorAllocator::Allocate(
         const nri::PipelineLayout& Layout,
         uint32_t                   LayoutSlot,
-        uint32_t                   InstanceCount,
         uint32_t                   VariableCount)
     {
         auto& Nri     = m_RhiDevice->GetNRI();

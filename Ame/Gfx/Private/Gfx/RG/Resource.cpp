@@ -54,7 +54,7 @@ namespace Ame::Gfx::RG
     void ResourceHandle::Import(
         Rhi::Texture Texture)
     {
-        m_Desc     = Texture.GetDesc();
+        m_Desc     = Texture ? Texture.GetDesc() : Rhi::TextureDesc{};
         m_Resource = std::move(Texture);
 
         m_ImportViewsChanged = true;
@@ -64,7 +64,7 @@ namespace Ame::Gfx::RG
     void ResourceHandle::Import(
         Rhi::Buffer Buffer)
     {
-        m_Desc     = Buffer.GetDesc();
+        m_Desc     = Buffer ? Buffer.GetDesc() : Rhi::BufferDesc{};
         m_Resource = std::move(Buffer);
 
         m_ImportViewsChanged = true;

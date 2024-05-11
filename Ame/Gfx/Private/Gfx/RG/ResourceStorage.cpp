@@ -12,6 +12,7 @@ namespace Ame::Gfx::RG
         m_Device(Device),
         m_CoreResources(std::make_unique<CoreResources>(Device, Universe))
     {
+        UpdateCoreResources();
     }
 
     ResourceStorage::~ResourceStorage() = default;
@@ -36,23 +37,6 @@ namespace Ame::Gfx::RG
     {
         auto Iter = m_Resources.find(ViewId.GetResource());
         return Iter != m_Resources.end() ? Iter->second.ContainsView(ViewId) : false;
-    }
-
-    //
-
-    const ResourceHandle& ResourceStorage::GetFrameResource() const
-    {
-        return GetResource(Names::FrameResource);
-    }
-
-    const Rhi::ResourceView& ResourceStorage::GetFrameResourceHandle() const
-    {
-        return GetResourceViewHandle(Names::FrameResourceMainView);
-    }
-
-    const FrameResourceCPU& ResourceStorage::GetFrameResourceData() const
-    {
-        return m_CoreResources->GetFrameResourceData();
     }
 
     //
