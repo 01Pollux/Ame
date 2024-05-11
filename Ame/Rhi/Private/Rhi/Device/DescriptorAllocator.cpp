@@ -66,21 +66,26 @@ namespace Ame::Rhi
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        if (InstanceCount == 1)
-        {
-            nri::DescriptorSet* Set = nullptr;
-            NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, &Set, 1, VariableCount);
-            return { DescriptorSet{ m_RhiDevice, Set } };
-        }
-        else
-        {
-            std::vector<nri::DescriptorSet*> NriDescriptorSets(InstanceCount);
-            NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, NriDescriptorSets.data(), InstanceCount, VariableCount);
+        nri::DescriptorSet* Set = nullptr;
+        NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, &Set, 1, VariableCount);
+        return { DescriptorSet{ m_RhiDevice, Set } };
+    }
 
-            return NriDescriptorSets |
-                   std::views::transform([this](nri::DescriptorSet* Set)
-                                         { return DescriptorSet{ m_RhiDevice, Set }; }) |
-                   std::ranges::to<std::vector>();
-        }
+    std::vector<DescriptorSet> DescriptorAllocator::Allocate(
+        const nri::PipelineLayout& Layout,
+        uint32_t                   LayoutSlot,
+        uint32_t                   InstanceCount,
+        uint32_t                   VariableCount)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        std::vector<nri::DescriptorSet*> NriDescriptorSets(InstanceCount);
+        NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, NriDescriptorSets.data(), InstanceCount, VariableCount);
+
+        return NriDescriptorSets |
+               std::views::transform([this](nri::DescriptorSet* Set)
+                                     { return DescriptorSet{ m_RhiDevice, Set }; }) |
+               std::ranges::to<std::vector>();
     }
 } // namespace Ame::Rhi

@@ -69,6 +69,13 @@ namespace Ame::Rhi
 
     //
 
+    std::vector<DescriptorSet> CommandList::AllocateSet(
+        uint32_t LayoutSlot,
+        uint32_t VariableCount)
+    {
+        return m_Impl.get().AllocateSet(LayoutSlot, VariableCount);
+    }
+
     std::vector<DescriptorSet> CommandList::AllocateSets(
         uint32_t LayoutSlot,
         uint32_t InstanceCount,

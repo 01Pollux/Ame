@@ -51,6 +51,10 @@ namespace Ame::Gfx::RG::Std
                     CommandList->SetPipelineLayout(PipelineState->GetLayout());
                     CommandList->SetPipelineState(PipelineState);
 
+                    auto FrameDescriptor = CommandList->AllocateSet(0);
+                    auto EntityData      = CommandList->AllocateSet(1);
+                    auto CommandInfo     = CommandList->AllocateSet(2);
+
                     // auto Set = CommandList->AllocateSets(0)[0];
                     // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());
                     // CommandList->SetDescriptorSet(0, Set);

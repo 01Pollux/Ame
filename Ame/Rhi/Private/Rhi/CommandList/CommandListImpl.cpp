@@ -170,6 +170,13 @@ namespace Ame::Rhi
 
     //
 
+    DescriptorSet CommandListImpl::AllocateSet(
+        uint32_t LayoutSlot,
+        uint32_t VariableCount)
+    {
+        return m_DescriptorAllocator.Allocate(m_PipelineLayout->Unwrap(), LayoutSlot, VariableCount);
+    }
+
     std::vector<DescriptorSet> CommandListImpl::AllocateSets(
         uint32_t LayoutSlot,
         uint32_t InstanceCount,

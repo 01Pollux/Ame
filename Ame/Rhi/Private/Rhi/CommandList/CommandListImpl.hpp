@@ -100,6 +100,13 @@ namespace Ame::Rhi
         /// <summary>
         /// Allocate descriptor sets for the pipeline layout.
         /// </summary>
+        [[nodiscard]] DescriptorSet AllocateSet(
+            uint32_t LayoutSlot,
+            uint32_t VariableCount);
+
+        /// <summary>
+        /// Allocate descriptor sets for the pipeline layout.
+        /// </summary>
         [[nodiscard]] std::vector<DescriptorSet> AllocateSets(
             uint32_t LayoutSlot,
             uint32_t InstanceCount,

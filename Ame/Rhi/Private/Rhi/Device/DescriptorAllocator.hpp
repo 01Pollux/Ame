@@ -37,6 +37,14 @@ namespace Ame::Rhi
         [[nodiscard]] nri::DescriptorPool* GetPool() noexcept;
 
         /// <summary>
+        /// Allocate descriptor set.
+        /// </summary>
+        [[nodiscard]] DescriptorSet Allocate(
+            const nri::PipelineLayout& Layout,
+            uint32_t                   LayoutSlot,
+            uint32_t                   VariableCount);
+
+        /// <summary>
         /// Allocate descriptor sets.
         /// </summary>
         [[nodiscard]] std::vector<DescriptorSet> Allocate(
