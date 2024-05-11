@@ -35,9 +35,7 @@ namespace Ame
         /// <summary>
         /// Initialize the engine
         /// </summary>
-        virtual void Initialize()
-        {
-        }
+        virtual void Initialize();
 
         /// <summary>
         /// Shutdown the engine

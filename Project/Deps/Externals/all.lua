@@ -1,9 +1,10 @@
+includes("boost.lua")
 includes("glfw.lua")
 includes("nri.lua")
 includes("concurrencpp.lua")
 includes("kangaru.lua")
 
-add_requires("boost")
+add_requires("ame.boost")
 add_requires("mimalloc")
 add_requires("ame.kangaru")
 add_requires("spdlog")

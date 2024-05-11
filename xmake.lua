@@ -13,4 +13,6 @@ elseif is_plat("linux") then
     add_defines("AME_PLATFORM_LINUX")
 end
 
+add_defines("NOMINMAX")
+
 includes("Project/Ame.lua")

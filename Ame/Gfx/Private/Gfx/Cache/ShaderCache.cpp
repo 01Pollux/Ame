@@ -191,11 +191,10 @@ namespace Ame::Gfx::Cache
         const PermutationKey&         Key,
         const Rhi::ShaderCompileDesc& Desc)
     {
+        auto CompileTask = Rhi::ShaderCompiler::CompileAsync({}, *Executor, m_Device.get().GetGraphicsAPI(), SourceCode, Desc, &m_AssetStorage.get());
+
         Co::scoped_async_lock Lock  = co_await FileInfo.Mutex.lock(Executor);
         CacheMap*             Cache = FileInfo.GetCache<CacheMap>();
-
-        auto   Bytecode = Rhi::ShaderBytecode::Compile(m_Device.get().GetGraphicsAPI(), SourceCode, Desc);
-        size_t BlobSize = ShaderDataHelper::CalculateBlobSize(Bytecode);
 
         ShaderData* Blob = nullptr;
 
@@ -208,6 +207,8 @@ namespace Ame::Gfx::Cache
             Cache->erase(Iter);
         }
 
+        auto   Bytecode = co_await CompileTask;
+        size_t BlobSize = ShaderDataHelper::CalculateBlobSize(Bytecode);
         for (uint32_t i = 1; i <= GrowAttempts; i++)
         {
             try

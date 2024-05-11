@@ -1,8 +1,5 @@
 #include <Asset/Types/Common/TextFile.hpp>
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-
 namespace Ame::Asset::Common
 {
     TextFileAsset::TextFileAsset(

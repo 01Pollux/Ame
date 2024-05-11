@@ -4,7 +4,12 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <concurrencpp/concurrencpp.h>
 
-#include <Rhi/Resource/Shader.hpp>
+#include <Rhi/Resource/Shader.Compiler.hpp>
+
+namespace Ame::Asset
+{
+    class Storage;
+} // namespace Ame::Asset
 
 namespace Ame::Gfx::Cache
 {
@@ -42,10 +47,12 @@ namespace Ame::Gfx::Cache
 
     public:
         ShaderCache(
-            Rhi::Device& Device,
-            Co::runtime& Runtime) :
+            Rhi::Device&    Device,
+            Co::runtime&    Runtime,
+            Asset::Storage& Storage) :
             m_Device(Device),
-            m_Runtime(Runtime)
+            m_Runtime(Runtime),
+            m_AssetStorage(Storage)
         {
         }
 
@@ -102,8 +109,9 @@ namespace Ame::Gfx::Cache
             const Rhi::ShaderCompileDesc& Desc);
 
     private:
-        Ref<Rhi::Device> m_Device;
-        Ref<Co::runtime> m_Runtime;
+        Ref<Rhi::Device>    m_Device;
+        Ref<Co::runtime>    m_Runtime;
+        Ref<Asset::Storage> m_AssetStorage;
 
         FileCacheMap   m_Cache;
         Co::async_lock m_Mutex;

@@ -4,6 +4,7 @@
 
 #include <Rhi/Subsystem/Device.hpp>
 #include <Core/Subsystem/Coroutine.hpp>
+#include <Asset/Subsystem/Storage.hpp>
 
 #include <Gfx/Cache/ShaderCache.hpp>
 
@@ -13,7 +14,8 @@ namespace Ame::Gfx::Cache
                                       ShaderCache,
                                       Dependency<
                                           Rhi::DeviceSubsystem,
-                                          CoroutineSubsystem>>,
+                                          CoroutineSubsystem,
+                                          Asset::StorageSubsystem>>,
                                   kgr::final
     {
     };

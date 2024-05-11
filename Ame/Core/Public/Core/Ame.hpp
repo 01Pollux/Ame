@@ -8,8 +8,6 @@
 #include <optional>
 #include <expected>
 
-#include <boost/core/noncopyable.hpp>
-
 namespace concurrencpp
 {
     class runtime;

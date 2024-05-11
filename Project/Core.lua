@@ -1,7 +1,7 @@
 target("Core")
     ame_header_library("Ame", "Core", "static", "Ame/Core")
     add_packages(
-        "boost",
+        "ame.boost",
         "mimalloc",
         "ame.kangaru",
         "spdlog",
@@ -12,7 +12,13 @@ target("Core")
         "glm",
         "ame.concurrencpp",
         "ame.glfw",
-        {public = true, inherit = true, configs = {shared = false}})
+        {
+            public = true,
+            inherit = true, 
+            configs = {
+                shared = false
+            }
+        })
 target_end()
 
 --
@@ -35,7 +41,7 @@ target("Rhi")
         "ame.nri",
         "directxshadercompiler",
         {public = true, inherit = true})
-    add_deps("Windowing", {public = true, inherit = true})
+    add_deps({ "Windowing", "Resource" }, {public = true, inherit = true})
 target_end()
 
 --
@@ -49,7 +55,7 @@ target_end()
 
 target("Gfx")
     ame_header_library("Ame", "Gfx", "static", "Ame/Gfx")
-    add_deps({ "Ecs", "Resource" }, {public = true, inherit = true})
+    add_deps("Ecs", {public = true, inherit = true})
 target_end()
 
 --

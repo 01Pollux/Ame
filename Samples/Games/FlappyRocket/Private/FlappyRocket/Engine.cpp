@@ -1,6 +1,10 @@
 #include <FlappyRocket/Engine.hpp>
+
 #include <Rhi/Subsystem/Device.hpp>
+#include <Asset/Subsystem/Storage.hpp>
 #include <FlappyRocket/Subsystem/Game.hpp>
+
+#include <Asset/Packs/Directory.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -23,6 +27,9 @@ namespace Ame::FlappyRocket
         BaseEngine::Initialize();
 
         SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
+
+        auto& AssetStorage = GetSubsystem<Asset::StorageSubsystem>();
+        AssetStorage.Mount<Asset::DirectoryAssetPackage>();
 
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
         CreateWorld();
