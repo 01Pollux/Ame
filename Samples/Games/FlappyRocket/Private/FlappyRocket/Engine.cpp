@@ -12,11 +12,12 @@ namespace Ame::FlappyRocket
 {
     FlappyRocketEngine::FlappyRocketEngine()
     {
-        Log::Logger::Register(Log::Names::Engine, "Logs/Engine.log");
-        Log::Logger::Register(Log::Names::Rhi, "Logs/Engine.log");
-        Log::Logger::Register(Log::Names::Renderer, "Logs/Engine.log");
-        Log::Logger::Register(Log::Names::Ecs, "Logs/Engine.log");
-        Log::Logger::Register(Log::Names::Client, "Logs/FlappyRocket.log");
+        Log::Logger::Register(Log::Names::Engine, "Engine.log");
+        Log::Logger::Register(Log::Names::Rhi, "Engine.log");
+        Log::Logger::Register(Log::Names::Renderer, "Engine.log");
+        Log::Logger::Register(Log::Names::Ecs, "Engine.log");
+        Log::Logger::Register(Log::Names::Asset, "Engine.log");
+        Log::Logger::Register(Log::Names::Client, "FlappyRocket.log");
 
         Log::Engine().SetLevel(Log::LogLevel::Warning);
         Log::Client().SetLevel(Log::LogLevel::Trace);
@@ -25,11 +26,11 @@ namespace Ame::FlappyRocket
     void FlappyRocketEngine::Initialize()
     {
         BaseEngine::Initialize();
-
+        
         SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
 
         auto& AssetStorage = GetSubsystem<Asset::StorageSubsystem>();
-        AssetStorage.Mount<Asset::DirectoryAssetPackage>();
+        AssetStorage.Mount<Asset::DirectoryAssetPackage>("Shared/Assets");
 
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
         CreateWorld();

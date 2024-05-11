@@ -1,8 +1,8 @@
 {
     "Guid": "543a88b3-ab53-4a3f-95dc-f2c38998c352",
-    "Path": "Shaders\/Core\/FrameData.hlsli.aamd",
+    "Path": "Engine\/Shaders\/Core\/FrameData.hlsli.aamd",
     "LoaderData": "",
     "Dependencies": "",
     "LoaderId": "131732813173286877",
-    "Hash": "27C0E97F517708EFDA663D715A2763705101EC950620FDA60314172E5D1325FE"
+    "Hash": "0B2296A354BD61267F352B2CDAC47F361F5F29413F38B3DFEA1CC1146AF96EC7"
 }

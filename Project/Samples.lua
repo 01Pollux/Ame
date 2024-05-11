@@ -28,4 +28,14 @@ target_end()
 
 target("FlappyRocket")
     ame_header_executable("Samples/Games", "FlappyRocket", "Samples/Games/FlappyRocket")
+    after_build(function(target)
+        local targetdir = target:targetdir() .. "/Shared/Assets"
+        print ("Copying assets to " .. targetdir)
+        if not os.isdir(targetdir) then
+            print("Creating asset directory")
+            os.mkdir(targetdir)
+        end
+        -- copy folder /Assets to targetdir
+        os.cp("Assets/*", targetdir)
+    end)
 target_end()

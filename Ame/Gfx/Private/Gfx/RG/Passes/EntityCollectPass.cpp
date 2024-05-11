@@ -12,14 +12,7 @@ namespace Ame::Gfx::RG::Std
         m_Universe(Universe),
         m_PipelineStateCache(PipelineStateCache)
     {
-        try
-        {
-        m_PipelineStateCache.get().Load(Cache::PipelineStateCache::Type::EntityCollectPass).get();
-        }
-        catch (const std::exception& ex)
-        {
-            printf("%s\n", ex.what());
-        }
+        m_PipelineStateCache.get().Load(Cache::PipelineStateCache::Type::EntityCollectPass);
 
         Name("EntityCollectPass")
             .SetFlags(PassFlags::Compute)
@@ -38,10 +31,12 @@ namespace Ame::Gfx::RG::Std
 
                     RgResolver.WriteBuffer(
                         Names::EntityDispatchCounter("Main"),
-                        Rhi::ShaderBits::COMPUTE_SHADER);
+                        Rhi::ShaderBits::COMPUTE_SHADER,
+                        Rhi::ResourceFormat::R32_UINT);
                     RgResolver.WriteBuffer(
                         Names::EntityDispatchBuffer("Main"),
-                        Rhi::ShaderBits::COMPUTE_SHADER);
+                        Rhi::ShaderBits::COMPUTE_SHADER,
+                        Rhi::ResourceFormat::R32_UINT);
                 })
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
@@ -52,6 +47,9 @@ namespace Ame::Gfx::RG::Std
                     auto PipelineState = m_PipelineStateCache.get()
                                              .Load(Cache::PipelineStateCache::Type::EntityCollectPass)
                                              .get();
+
+                    CommandList->SetPipelineLayout(PipelineState->GetLayout());
+                    CommandList->SetPipelineState(PipelineState);
 
                     // auto Set = CommandList->AllocateSets(0)[0];
                     // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());

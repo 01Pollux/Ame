@@ -2,8 +2,10 @@
 
 #include <Asset/Handle.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <FileSystem/Path.hpp>
 #include <span>
+
+#include <FileSystem/Path.hpp>
+#include <Asset/Handle.hpp>
 
 namespace Ame::Asset
 {

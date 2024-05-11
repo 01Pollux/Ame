@@ -51,21 +51,23 @@ namespace Ame::Gfx::Cache
             //
 
             Rhi::DescriptorSetDesc Sets[]{
-                { .registerSpace = 0, .ranges = FrameDescriptor, .rangeNum = Rhi::Count32(FrameDescriptor) },
-                { .registerSpace = 1, .ranges = EntityData, .rangeNum = Rhi::Count32(EntityData) },
-                { .registerSpace = 2, .ranges = CommandInfo, .rangeNum = Rhi::Count32(CommandInfo) },
+                { .registerSpace = 1, .ranges = FrameDescriptor, .rangeNum = Rhi::Count32(FrameDescriptor) },
+                { .registerSpace = 2, .ranges = EntityData, .rangeNum = Rhi::Count32(EntityData) },
+                { .registerSpace = 3, .ranges = CommandInfo, .rangeNum = Rhi::Count32(CommandInfo) },
             };
 
             Rhi::PushConstantDesc PushConstants[]{
-                { .size = Device.GetDrawIndexedCommandSize(), .shaderStages = Rhi::ShaderBits::COMPUTE_SHADER }
+                { .size         = Device.GetDrawIndexedCommandSize(),
+                  .shaderStages = Rhi::ShaderBits::COMPUTE_SHADER }
             };
 
             Rhi::PipelineLayoutDesc Desc{
-                .descriptorSets   = Sets,
-                .pushConstants    = PushConstants,
-                .descriptorSetNum = Rhi::Count32(Sets),
-                .pushConstantNum  = Rhi::Count32(PushConstants),
-                .shaderStages     = Rhi::ShaderBits::COMPUTE_SHADER
+                .descriptorSets                     = Sets,
+                .pushConstants                      = PushConstants,
+                .descriptorSetNum                   = Rhi::Count32(Sets),
+                .pushConstantNum                    = Rhi::Count32(PushConstants),
+                .shaderStages                       = Rhi::ShaderBits::COMPUTE_SHADER,
+                .enableD3D12DrawParametersEmulation = true
             };
 
             co_return co_await Device.CreatePipelineLayout({}, Executor, Desc);

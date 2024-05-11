@@ -28,10 +28,10 @@ namespace Ame::Gfx::Cache
 
     [[nodiscard]] static Co::result<Rhi::ShaderBytecode> LoadAndCompile(
         Co::executor_tag,
-        Co::executor&                 Executor,
-        Asset::Storage&               Storage,
-        const Asset::Handle&          Handle,
-        const Rhi::ShaderCompileDesc& Desc)
+        Co::executor&          Executor,
+        Asset::Storage&        Storage,
+        const Asset::Handle&   Handle,
+        Rhi::ShaderCompileDesc Desc)
     {
         auto Shader = co_await LoadShader({}, Executor, Storage, Handle);
         co_return Shader ? (co_await Shader->Load(Desc)) : Rhi::ShaderBytecode{};
@@ -77,7 +77,7 @@ namespace Ame::Gfx::Cache
                 .Stage = Rhi::ShaderType::COMPUTE_SHADER
             };
 
-            ShaderTasks.emplace_back(LoadAndCompile({}, Executor, m_AssetStorage, ShaderGuid, ShaderDesc));
+            ShaderTasks.emplace_back(LoadAndCompile({}, Executor, m_AssetStorage, ShaderGuid, std::move(ShaderDesc)));
             break;
         }
 

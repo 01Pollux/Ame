@@ -46,11 +46,25 @@ namespace Ame::Rhi
             return E_FAIL;
         }
 
-        String PathToAsset = std::format("Shaders/{}", Strings::To<String>(FileName));
+        auto       FileNameStr = Strings::To<String>(FileName);
+        std::regex PathToAsset(std::format(".*{}", FileNameStr));
 
         using namespace EnumBitOperators;
 
-        auto Handle = m_AssetStorage->FindAsset(PathToAsset, Asset::PackageFlags::Disk | Asset::PackageFlags::Memory).Guid;
+        auto AssetIter   = m_AssetStorage->FindAssets(PathToAsset);
+        auto FirstHandle = AssetIter.begin();
+
+        if (FirstHandle == AssetIter.end()) [[unlikely]]
+        {
+            return E_FAIL;
+        }
+
+        if (AssetIter.begin() != AssetIter.end()) [[unlikely]]
+        {
+            Log::Rhi().Warning("Multiple assets found for path: {}, taking the first one {}", FileNameStr, FirstHandle->Guid.ToString());
+        }
+
+        auto Handle = FirstHandle->Guid;
         if (Handle.is_nil()) [[unlikely]]
         {
             return E_FAIL;

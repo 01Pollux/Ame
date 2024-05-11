@@ -36,8 +36,6 @@ end
 
 -- 
 
--- 
-
 local clang_format = path_from_root("/.clang-format")
 add_extrafiles(clang_format)
 

@@ -49,7 +49,7 @@
 #define AME_RESOURCE(type, name, regType, bindingIndex, setIndex) \
 		type name : register(regType##bindingIndex, space##setIndex)
 
-#define AME_PUSH_CONSTANT(type, name, bindingIndex)
+#define AME_PUSH_CONSTANT(type, name, bindingIndex) \
 		[[vk::push_constant]] type name
 
     // Draw parameters (full support, requires SPV_KHR_shader_draw_parameters)

@@ -1,8 +1,8 @@
 {
-  "Guid": "c3fbdbaf-490b-4415-bc99-3b6a3ba84d6f",
-  "Path": "Shaders\/StdPasses\/EntityCollectPass.hlsl.aamd",
-  "LoaderData": "",
-  "Dependencies": "",
-  "LoaderId": "19456857095889080",
-  "Hash": "A5F4F9777297A8BEB801E9EAE9F03FB3B10AD05B560B26D06EC6F71223334B21"
+    "Guid": "c3fbdbaf-490b-4415-bc99-3b6a3ba84d6f",
+    "Path": "Engine\/Shaders\/StdPasses\/EntityCollectPass.hlsl.aamd",
+    "LoaderData": "",
+    "Dependencies": "",
+    "LoaderId": "19456857095889080",
+    "Hash": "36176C1A8911A1CBA30F1406E1421AA4A4623271C14CF25F0BBF4CD24ACDA82B"
 }

@@ -1,7 +1,7 @@
 #ifndef AME_CORE_CAMERADATA_H
 #define AME_CORE_CAMERADATA_H
 
-#include "../Core/Ame.hlsli"
+#include "Ame.hlsli"
 
 struct FrameDesc
 {

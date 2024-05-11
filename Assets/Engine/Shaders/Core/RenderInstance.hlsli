@@ -1,7 +1,7 @@
 #ifndef AME_CORE_INSTANCEDATA_H
 #define AME_CORE_INSTANCEDATA_H
 
-#include "../Core/Ame.hlsli"
+#include "Ame.hlsli"
 
 struct RenderInstance
 {

@@ -33,7 +33,7 @@ namespace Ame::Gfx::Cache
         [[nodiscard]] static size_t CalculateBlobSize(
             const Rhi::ShaderBytecode& ByteCode)
         {
-            return sizeof(ShaderData) + ByteCode.GetSize() - 1;
+            return ByteCode ? sizeof(ShaderData) + ByteCode.GetSize() - 1 : 0;
         }
 
         [[nodiscard]] static Rhi::ShaderBytecode ToByteCode(
@@ -209,23 +209,26 @@ namespace Ame::Gfx::Cache
 
         auto   Bytecode = co_await CompileTask;
         size_t BlobSize = ShaderDataHelper::CalculateBlobSize(Bytecode);
-        for (uint32_t i = 1; i <= GrowAttempts; i++)
+        if (BlobSize)
         {
-            try
+            for (uint32_t i = 1; i <= GrowAttempts; i++)
             {
-                if (!Blob)
+                try
                 {
-                    Blob = ShaderDataHelper::AllocateBlob(FileInfo.File, BlobSize);
-                    ShaderDataHelper::FromBytecode(FileInfo.File, *Blob, Bytecode);
+                    if (!Blob)
+                    {
+                        Blob = ShaderDataHelper::AllocateBlob(FileInfo.File, BlobSize);
+                        ShaderDataHelper::FromBytecode(FileInfo.File, *Blob, Bytecode);
+                    }
+                    Cache->emplace(Key, Blob->DataHandle);
+                    break;
                 }
-                Cache->emplace(Key, Blob->DataHandle);
-                break;
-            }
-            catch (const bip::bad_alloc&)
-            {
-                auto GrowSize = Cache->size() * PermutationCacheSize + i * PermutationGrowSize;
-                FileInfo.Grow(GrowSize);
-                Cache = FileInfo.GetCache<CacheMap>();
+                catch (const bip::bad_alloc&)
+                {
+                    auto GrowSize = Cache->size() * PermutationCacheSize + i * PermutationGrowSize;
+                    FileInfo.Grow(GrowSize);
+                    Cache = FileInfo.GetCache<CacheMap>();
+                }
             }
         }
         co_return Bytecode;

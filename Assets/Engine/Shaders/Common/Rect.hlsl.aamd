@@ -1,8 +1,8 @@
 {
-    "Guid": "fb81bad3-e1de-4bce-bc80-2e73574af17a",
-    "Path": "Shaders\/Common\/Rect.hlsl.aamd",
-    "LoaderData": "",
-    "Dependencies": "",
-    "LoaderId": "19456857095889080",
-    "Hash": "A580BD21BD580455B0F735E83D0054614E90DC4F3D2B928A4252010E604C21BD"
+  "Guid": "fb81bad3-e1de-4bce-bc80-2e73574af17a",
+  "Path": "Engine\/Shaders\/Common\/Rect.hlsl.aamd",
+  "LoaderData": "",
+  "Dependencies": "",
+  "LoaderId": "19456857095889080",
+  "Hash": "A580BD21BD580455B0F735E83D0054614E90DC4F3D2B928A4252010E604C21BD"
 }

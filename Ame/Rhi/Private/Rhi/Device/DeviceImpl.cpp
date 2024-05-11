@@ -359,9 +359,10 @@ namespace Ame::Rhi
                 .instanceExtensionNum = static_cast<uint32_t>(Desc.RequiredInstanceExtensions.size()),
                 .deviceExtensions     = Desc.RequiredDeviceExtensions.data(),
                 .deviceExtensionNum   = static_cast<uint32_t>(Desc.RequiredDeviceExtensions.size()) },
-            .enableNRIValidation     = Desc.EnableApiValidationLayer,
-            .enableAPIValidation     = Desc.EnableApiValidationLayer,
-            .disableVulkanRayTracing = Desc.RayTracingFeatures == DeviceFeatureType::Disabled
+            .enableNRIValidation                = Desc.EnableApiValidationLayer,
+            .enableAPIValidation                = Desc.EnableApiValidationLayer,
+            .enableD3D12DrawParametersEmulation = true,
+            .disableVulkanRayTracing            = Desc.RayTracingFeatures == DeviceFeatureType::Disabled
         };
 
         auto SwapchainFeatures = Desc.Window.has_value() ? DeviceFeatureType::Required : DeviceFeatureType::Disabled;
