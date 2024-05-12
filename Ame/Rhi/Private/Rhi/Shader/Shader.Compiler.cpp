@@ -146,16 +146,16 @@ namespace Ame::Rhi
     Co::result<ShaderBytecode> ShaderCompiler::CompileAsync(
         Co::executor_tag,
         Co::executor&            Executor,
-        GraphicsAPI              Api,
+        Device&                  RhiDevice,
         StringView               ShaderSource,
         const ShaderCompileDesc& CompileDesc,
         Asset::Storage*          AssetStorage)
     {
-        co_return Compile(Api, ShaderSource, CompileDesc, AssetStorage);
+        co_return Compile(RhiDevice, ShaderSource, CompileDesc, AssetStorage);
     }
 
     ShaderBytecode ShaderCompiler::Compile(
-        GraphicsAPI              Api,
+        Device&                  RhiDevice,
         StringView               ShaderSource,
         const ShaderCompileDesc& Desc,
         Asset::Storage*          AssetStorage)
@@ -171,7 +171,7 @@ namespace Ame::Rhi
         //
 
         auto ShaderCodeBlob = LoadShaderFromString(ShaderUtil::GetComPtr(Utils), ShaderSource);
-        auto Options        = CompileShaderOption(Api, Desc);
+        auto Options        = CompileShaderOption(RhiDevice, Desc);
         auto Data           = CompileShader(
             ShaderUtil::GetComPtr(Compiler),
             ShaderUtil::GetComPtr(Utils),
@@ -180,7 +180,7 @@ namespace Ame::Rhi
             AssetStorage);
 
         ShaderBytecode Shader;
-        if (Data && ValidateShader(Api, ShaderUtil::GetComPtr(Validator), ShaderUtil::GetComPtr(Utils), Data))
+        if (Data && ValidateShader(Options.Api, ShaderUtil::GetComPtr(Validator), ShaderUtil::GetComPtr(Utils), Data))
         {
             uint8_t* CompiledShaderCode = static_cast<uint8_t*>(Data->GetBufferPointer());
 

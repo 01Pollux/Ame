@@ -35,8 +35,8 @@ package("ame.nri")
     end)
 
     on_install(function (package)
-        -- in xmake, append 'install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})' to CMakeLists.txt
         local text = [[
+
 # Export NVAPI
 if (INPUT_LIB_NVAPI_FOUND)
     add_library (NVAPI INTERFACE)

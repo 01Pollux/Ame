@@ -11,9 +11,10 @@ namespace Ame::Rhi
     struct CompileShaderOption
     {
         std::vector<const wchar_t*> FinalOptions;
+        GraphicsAPI                 Api;
 
         CompileShaderOption(
-            GraphicsAPI              Api,
+            Device&                  RhiDevice,
             const ShaderCompileDesc& Desc);
 
     private:

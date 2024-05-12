@@ -1,5 +1,6 @@
 #include <Rhi/Shader/Shader.Options.hpp>
 #include <Rhi/Device/SprivBinding.hpp>
+#include <Rhi/Device/Device.hpp>
 
 namespace Ame::Rhi
 {
@@ -81,21 +82,21 @@ namespace Ame::Rhi
         switch (Stage)
         {
         case ShaderType::COMPUTE_SHADER:
-            return L"COMPUTE_SHADER=1";
+            return L"-DCOMPUTE_SHADER=1";
         case ShaderType::VERTEX_SHADER:
-            return L"VERTEX_SHADER=1";
+            return L"-DVERTEX_SHADER=1";
         case ShaderType::TESS_CONTROL_SHADER:
-            return L"HULL_SHADER=1";
+            return L"-DHULL_SHADER=1";
         case ShaderType::TESS_EVALUATION_SHADER:
-            return L"DOMAIN_SHADER=1";
+            return L"-DDOMAIN_SHADER=1";
         case ShaderType::GEOMETRY_SHADER:
-            return L"GEOMETRY_SHADER=1";
+            return L"-DGEOMETRY_SHADER=1";
         case ShaderType::FRAGMENT_SHADER:
-            return L"PIXEL_SHADER=1";
+            return L"-DPIXEL_SHADER=1";
         case ShaderType::MESH_CONTROL_SHADER:
-            return L"AMPLIFICATION_SHADER=1";
+            return L"-DAMPLIFICATION_SHADER=1";
         case ShaderType::MESH_EVALUATION_SHADER:
-            return L"MESHSHADER_Main";
+            return L"-DMESHSHADER_Main";
         default:
             std::unreachable();
         }
@@ -263,19 +264,27 @@ namespace Ame::Rhi
     //
 
     CompileShaderOption::CompileShaderOption(
-        GraphicsAPI              Api,
+        Device&                  RhiDevice,
         const ShaderCompileDesc& Desc) :
+        Api(RhiDevice.GetGraphicsAPI()),
         Model(GetShaderModel(Desc.Stage, Desc.Profile)),
         DefineMacro(GetShaderMacro(Desc.Stage))
     {
+        auto& RhiDesc = RhiDevice.GetDesc();
+
         FinalOptions = {
             DXC_ARG_OPTIMIZATION_LEVEL3,
             DXC_ARG_ALL_RESOURCES_BOUND,
             L"-HV 2021",
             L"-E", GetShaderEntryPointWide(Desc.Stage),
             L"-T", Model.c_str(),
-            L"-D", DefineMacro.c_str()
+            DefineMacro.c_str()
         };
+
+        if (RhiDesc.isDrawParametersEmulationEnabled)
+        {
+            FinalOptions.emplace_back(L"-DAME_ENABLE_DRAW_PARAMETERS_EMULATION=1");
+        }
 
 #ifndef AME_DIST
         using namespace EnumBitOperators;
@@ -295,12 +304,12 @@ namespace Ame::Rhi
         {
         case GraphicsAPI::DirectX12:
         {
-            FinalOptions.emplace_back(L"-D AME_SHADER_COMPILER_D3D12=1");
+            FinalOptions.emplace_back(L"-DAME_SHADER_COMPILER_D3D12=1");
             break;
         }
         case GraphicsAPI::Vulkan:
         {
-            FinalOptions.emplace_back(L"-D AME_SHADER_COMPILER_SPIRV=1");
+            FinalOptions.emplace_back(L"-DAME_SHADER_COMPILER_SPIRV=1");
             FinalOptions.emplace_back(L"-spirv");
             FinalOptions.emplace_back(L"-fvk-use-dx-layout");
 
@@ -317,14 +326,13 @@ namespace Ame::Rhi
         for (auto& [Key, Value] : Desc.Defines)
         {
             MacrosCombined.emplace_back(std::format(
-                L"{}={}",
+                L"-D{}={}",
                 Key,
                 Value.empty() ? L"1" : Value.data()));
         }
 
         for (auto& Macro : MacrosCombined)
         {
-            FinalOptions.emplace_back(L"-D");
             FinalOptions.emplace_back(Macro.c_str());
         }
     }

@@ -107,13 +107,13 @@ namespace Ame::Rhi
         [[nodiscard]] static Co::result<ShaderBytecode> CompileAsync(
             Co::executor_tag,
             Co::executor&            Executor,
-            GraphicsAPI              Api,
+            Device&                  RhiDevice,
             StringView               ShaderSource,
             const ShaderCompileDesc& CompileDesc,
             Asset::Storage*          AssetStorage = nullptr);
 
         [[nodiscard]] static ShaderBytecode Compile(
-            GraphicsAPI              Api,
+            Device&                  RhiDevice,
             StringView               ShaderSource,
             const ShaderCompileDesc& CompileDesc,
             Asset::Storage*          AssetStorage = nullptr);

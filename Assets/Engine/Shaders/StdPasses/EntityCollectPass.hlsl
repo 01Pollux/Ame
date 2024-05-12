@@ -50,7 +50,6 @@ void CS_Main(uint threadId : SV_DispatchThreadId)
 		
 		uint commandIndex;
 		InterlockedAdd(s_DrawCount, 1, commandIndex);
-		commandIndex += index;
 		drawHelper.FillDrawIndexedDesc(commandIndex, instance.IndexCount, 1, instance.IndexOffset, instance.VertexOffset, 0);
 	}
 	
