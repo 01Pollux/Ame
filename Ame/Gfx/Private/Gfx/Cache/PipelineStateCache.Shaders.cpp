@@ -6,6 +6,8 @@
 #include <Asset/Storage.hpp>
 #include <Asset/Types/Gfx/ShaderSourceAsset.hpp>
 
+#include <Log/Wrapper.hpp>
+
 namespace Ame::Gfx::Cache
 {
     using ShaderSourceAsset = Ptr<Asset::Gfx::ShaderSourceAsset>;
@@ -34,7 +36,13 @@ namespace Ame::Gfx::Cache
         Rhi::ShaderCompileDesc Desc)
     {
         auto Shader = co_await LoadShader({}, Executor, Storage, Handle);
-        co_return Shader ? (co_await Shader->Load(Desc)) : Rhi::ShaderBytecode{};
+        if (!Shader)
+        {
+            Log::Renderer().Error("Failed to load shader: {}", Handle.ToString());
+            co_return Rhi::ShaderBytecode{};
+        }
+
+        co_return co_await Shader->Load(Desc);
     }
 
     //

@@ -30,6 +30,7 @@ rule("mode.Release")
                 target:set("strip", "all")
             end
             target:add("cxflags", "-DNDEBUG")
+            target:add("defines", "AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
             target:add("defines", "AME_RELEASE")
         end
     end)
@@ -51,6 +52,7 @@ rule("mode.Dist")
                 target:set("strip", "all")
             end
             target:add("cxflags", "-DNDEBUG")
+            target:add("defines", "AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
             target:add("defines", "AME_DIST")
         end
     end)

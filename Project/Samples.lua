@@ -36,7 +36,7 @@ target("FlappyRocket")
             os.mkdir(targetdir)
         end
         -- copy folder /Assets to targetdir
-        os.cp("Assets/(**)", targetdir)
+        os.cp("Assets/*", targetdir)
     end)
     after_install(function(target)
         local targetdir = target:installdir() .. "/bin/Shared/Assets"
@@ -46,6 +46,6 @@ target("FlappyRocket")
             os.mkdir(targetdir)
         end
         -- copy folder /Assets to targetdir
-        os.cp("Assets/(**)", targetdir)
+        os.cp("Assets/*", targetdir)
     end)
 target_end()
