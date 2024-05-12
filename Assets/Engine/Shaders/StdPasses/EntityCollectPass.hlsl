@@ -9,7 +9,6 @@ struct DispatchDesc
 {
 	uint DrawOffset;
 	uint DrawCount;
-	uint CommandOffset;
 	uint CounterOffset;
 };
 
@@ -38,7 +37,9 @@ void CS_Main(uint threadId : SV_DispatchThreadId)
 	drawHelper.Initialize(Commands, CommandCount);
 	
 	if (threadId == 0)
+	{
 		s_DrawCount = 0;
+	}
 
 	GroupMemoryBarrierWithGroupSync();
 
@@ -49,12 +50,14 @@ void CS_Main(uint threadId : SV_DispatchThreadId)
 		
 		uint commandIndex;
 		InterlockedAdd(s_DrawCount, 1, commandIndex);
-		commandIndex += DispatchData.CommandOffset;
+		commandIndex += index;
 		drawHelper.FillDrawIndexedDesc(commandIndex, instance.IndexCount, 1, instance.IndexOffset, instance.VertexOffset, 0);
 	}
 	
 	GroupMemoryBarrierWithGroupSync();
 
 	if (threadId == 0)
+	{
 		CommandCount[DispatchData.CounterOffset] = s_DrawCount;
+	}
 }

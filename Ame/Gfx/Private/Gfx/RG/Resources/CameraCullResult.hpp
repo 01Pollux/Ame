@@ -1,13 +1,12 @@
 #pragma once
 
 #include <boost/container/flat_set.hpp>
-#include <Core/Coroutine.hpp>
-
-#include <Rhi/Resource/PipelineState.hpp>
 
 #include <Gfx/RG/Resources/VertexBuffer.hpp>
 #include <Gfx/RG/Resources/IndexBuffer.hpp>
 #include <Gfx/RG/Resources/InstanceBuffer.hpp>
+
+#include <Gfx/RG/EntityStore.hpp>
 
 namespace Ame::Ecs::Component
 {
@@ -82,24 +81,13 @@ namespace Ame::Gfx::RG
         };
 
     public:
-        struct Row
-        {
-            Rhi::Buffer             VtxBuffer;
-            Rhi::Buffer             IdxBuffer;
-            Ptr<Rhi::PipelineState> PipelineState;
-            uint32_t                Count = 1;
-
-            Row(StagedGroup Group);
-        };
-
-    public:
         CameraCullResult(
             Rhi::Device&          RhiDevice,
             const CameraCullDesc& Desc = {});
 
     public:
         [[nodiscard]] uint32_t                  GetEntitiesCount() const;
-        [[nodiscard]] Co::generator<const Row&> GetEntities() const;
+        [[nodiscard]] EntityStore::RowGenerator GetEntities() const;
         [[nodiscard]] const InstanceBuffer&     GetInstancesTableBuffer() const;
 
     public:
@@ -141,7 +129,7 @@ namespace Ame::Gfx::RG
         void FinalizeStaging();
 
     private:
-        using Data               = std::vector<Row>;
+        using DataList           = std::vector<EntityStore::Row>;
         using CameraStorages     = std::vector<CameraStorage>;
         using FlatStagedEntities = boost::container::flat_multiset<StagedEntity>;
         using FlatStagedGroups   = boost::container::flat_multiset<StagedGroup>;
@@ -156,11 +144,9 @@ namespace Ame::Gfx::RG
         FlatStagedGroups   m_StagedGroups;
 
         CameraStorages m_Cameras;
-        Data           m_Rows;
+        DataList       m_Rows;
         int8_t         m_CurrentCamera = -1;
 
         uint32_t m_EntitiesCount = 0;
     };
-
-    using CamerCullRowGenerator = Co::generator<const CameraCullResult::Row&>;
 } // namespace Ame::Gfx::RG

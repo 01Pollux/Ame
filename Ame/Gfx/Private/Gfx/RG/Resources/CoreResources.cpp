@@ -38,7 +38,7 @@ namespace Ame::Gfx::RG
         return m_CameraCullResult.GetEntitiesCount();
     }
 
-    CamerCullRowGenerator CoreResources::GetEntities() const
+    EntityStore::RowGenerator CoreResources::GetEntities() const
     {
         return m_CameraCullResult.GetEntities();
     }

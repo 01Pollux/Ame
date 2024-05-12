@@ -3,6 +3,7 @@
 #include <map>
 #include <Gfx/RG/Resource.hpp>
 #include <Gfx/RG/Resources/FrameResource.hpp>
+#include <Gfx/RG/EntityStore.hpp>
 
 namespace Ame::Ecs
 {
@@ -50,6 +51,9 @@ namespace Ame::Gfx::RG
         /// </summary>
         [[nodiscard]] bool ContainsResourceView(
             const ResourceViewId& ViewId);
+
+    public:
+        [[nodiscard]] EntityStore GetEntityStore() const;
 
     public:
         /// <summary>

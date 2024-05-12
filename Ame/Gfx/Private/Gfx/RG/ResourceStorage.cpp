@@ -41,6 +41,13 @@ namespace Ame::Gfx::RG
 
     //
 
+    EntityStore ResourceStorage::GetEntityStore() const
+    {
+        return EntityStore(m_CoreResources->GetEntities(), m_CoreResources->GetEntitiesCount());
+    }
+
+    //
+
     const ResourceHandle& ResourceStorage::GetResource(
         const ResourceId& Id) const
     {

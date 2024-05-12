@@ -82,31 +82,38 @@ namespace Ame::Gfx::RG::Std
                         CounterView.Unwrap()
                     };
 
-                    DispatchDesc DispatchConstants{};
-
                     FrameDataSet.SetRange(0, { FrameDescriptors, Rhi::Count32(FrameDescriptors) });
                     EntityDataSet.SetRange(0, { EntityDescriptors, Rhi::Count32(EntityDescriptors) });
                     CommandInfoSet.SetRange(0, { CommandInfoDescriptors, Rhi::Count32(CommandInfoDescriptors) });
 
                     //
+
                     CommandList->SetDescriptorSet(0, FrameDataSet);
                     CommandList->SetDescriptorSet(1, EntityDataSet);
                     CommandList->SetDescriptorSet(2, CommandInfoSet);
-                    CommandList->SetConstants(0, DispatchConstants);
 
                     //
 
                     CommandList->SetPipelineState(PipelineState);
-                    CommandList->Dispatch(1);
 
-                    // auto Set = CommandList->AllocateSets(0)[0];
-                    // Set.SetDynamicBuffer(0, CounterBufferView.Unwrap());
-                    // CommandList->SetDescriptorSet(0, Set);
+                    auto EntStore = RgStorage.GetEntityStore();
+                    for (auto& Row : EntStore.GetCountedRows())
+                    {
+                        DispatchDesc DispatchConstants{
+                            .DrawOffset    = Row.DrawOffset,
+                            .DrawCount     = Row->Count,
+                            .CounterOffset = Row.CounterOffset
+                        };
+                        CommandList->SetConstants(0, DispatchConstants);
 
-                    // CommandList->ClearBuffer({ .storageBuffer = Counter.Unwrap(),
-                    //                            .setIndexInPipelineLayout
+                        CommandList->ClearBuffer(
+                            { .storageBuffer            = CounterView.Unwrap(),
+                              .setIndexInPipelineLayout = 2,
+                              .rangeIndex               = 1,
+                              .offsetInRange            = Row.CounterOffset });
 
-                    //});
+                        CommandList->Dispatch(1);
+                    }
                 });
     }
 } // namespace Ame::Gfx::RG::Std

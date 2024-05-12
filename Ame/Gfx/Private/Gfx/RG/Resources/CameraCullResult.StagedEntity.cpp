@@ -51,15 +51,4 @@ namespace Ame::Gfx::RG
     {
         return RMSDistance <=> Other.RMSDistance;
     }
-
-    //
-
-    CameraCullResult::Row::Row(
-        StagedGroup Group) :
-        VtxBuffer(std::move(Group.VtxBuffer)),
-        IdxBuffer(std::move(Group.IdxBuffer)),
-        PipelineState(Group.GetFirstRenderable().PipelineState),
-        Count(Group.Entities.size())
-    {
-    }
 } // namespace Ame::Gfx::RG

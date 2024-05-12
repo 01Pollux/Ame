@@ -20,7 +20,6 @@ namespace Ame::Gfx::RG::Std
         {
             uint32_t DrawOffset;
             uint32_t DrawCount;
-            uint32_t CommandOffset;
             uint32_t CounterOffset;
         };
 

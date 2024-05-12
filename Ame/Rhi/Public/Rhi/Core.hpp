@@ -65,23 +65,6 @@ namespace Ame::Rhi
     //
 
     template<typename Ty>
-    [[nodiscard]] constexpr size_t ByteSizeOf(
-        const Ty& Value)
-    {
-        // if constexpr has begin and end, use them
-        if constexpr (requires { Value.begin(); Value.end(); })
-        {
-            return std::distance(Value.begin(), Value.end()) * sizeof(typename Ty::value_type);
-        }
-        else
-        {
-            return sizeof(Value);
-        }
-    }
-
-    //
-
-    template<typename Ty>
     [[nodiscard]] constexpr size_t Count64(
         const Ty& Value)
     {
@@ -89,12 +72,14 @@ namespace Ame::Rhi
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr size_t Size64()
     {
         return sizeof(Ty);
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr size_t Size64(
         const Ty&)
     {
@@ -111,12 +96,14 @@ namespace Ame::Rhi
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr uint32_t Size32()
     {
         return static_cast<uint32_t>(sizeof(Ty));
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr uint32_t Size32(
         const Ty&)
     {
@@ -133,12 +120,14 @@ namespace Ame::Rhi
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr uint16_t Size16()
     {
         return static_cast<uint16_t>(sizeof(Ty));
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr uint16_t Size16(
         const Ty&)
     {
@@ -155,12 +144,14 @@ namespace Ame::Rhi
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr uint8_t Size8()
     {
         return static_cast<uint8_t>(sizeof(Ty));
     }
 
     template<typename Ty>
+        requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     [[nodiscard]] constexpr uint8_t Size8(
         const Ty&)
     {

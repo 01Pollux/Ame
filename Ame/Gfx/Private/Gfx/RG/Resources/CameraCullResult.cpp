@@ -25,7 +25,7 @@ namespace Ame::Gfx::RG
         return m_EntitiesCount;
     }
 
-    CamerCullRowGenerator CameraCullResult::GetEntities() const
+    EntityStore::RowGenerator CameraCullResult::GetEntities() const
     {
         for (auto& Row : m_Rows)
         {
@@ -61,6 +61,9 @@ namespace Ame::Gfx::RG
 
     void CameraCullResult::Upload()
     {
+        m_Rows.clear();
+        m_EntitiesCount = 0;
+
         if (m_StagedEntities.empty())
         {
             return;
@@ -75,7 +78,6 @@ namespace Ame::Gfx::RG
 
     void CameraCullResult::PrepareForUpload()
     {
-        m_Rows.clear();
         m_Rows.reserve(m_StagedEntities.size());
 
         // Create a new camera storage if needed
@@ -169,11 +171,15 @@ namespace Ame::Gfx::RG
 
     void CameraCullResult::FinalizeStaging()
     {
-        m_EntitiesCount = 0;
         for (auto& Group : m_StagedGroups)
         {
-            m_Rows.emplace_back(std::move(Group));
-            m_EntitiesCount += Group.Entities.size();
+            auto Count = static_cast<uint32_t>(Group.Entities.size());
+            m_EntitiesCount += Count;
+            m_Rows.emplace_back(
+                std::move(Group.VtxBuffer),
+                std::move(Group.IdxBuffer),
+                Group.GetFirstRenderable().PipelineState,
+                Count);
         }
 
         m_StagedGroups.clear();

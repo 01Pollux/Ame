@@ -57,7 +57,7 @@ namespace Ame::Gfx::Cache
             };
 
             Rhi::PushConstantDesc PushConstants[]{
-                { .size         = sizeof(uint32_t) * 4, // contains DrawOffset, DrawCount, CommandOffset, CounterOffset
+                { .size         = Rhi::Size32<uint32_t>() * 3, // contains DrawOffset, DrawCount, CounterOffset
                   .shaderStages = Rhi::ShaderBits::COMPUTE_SHADER }
             };
 
