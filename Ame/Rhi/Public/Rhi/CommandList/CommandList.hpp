@@ -70,19 +70,12 @@ namespace Ame::Rhi
         }
 
         /// <summary>
-        /// Set descriptor sets.
-        /// </summary>
-        void SetDescriptorSet(
-            uint32_t             LayoutSlot,
-            const DescriptorSet& DescriptorSets);
-
-        /// <summary>
-        /// Set descriptor sets with dynamic offsets.
+        /// Set descriptor sets with dynamic offsets if not null.
         /// </summary>
         void SetDescriptorSet(
             uint32_t             LayoutSlot,
             const DescriptorSet& DescriptorSets,
-            uint32_t             DynamicBufferOffset);
+            const uint32_t*      DynamicBufferOffset = nullptr);
 
         /// <summary>
         /// Mandatory state, if enabled (can be set only once)

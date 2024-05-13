@@ -47,17 +47,10 @@ namespace Ame::Rhi
 
     void CommandList::SetDescriptorSet(
         uint32_t             LayoutSlot,
-        const DescriptorSet& DescriptorSets)
-    {
-        m_Impl.get().SetDescriptorSet(LayoutSlot, DescriptorSets, nullptr);
-    }
-
-    void CommandList::SetDescriptorSet(
-        uint32_t             LayoutSlot,
         const DescriptorSet& DescriptorSets,
-        uint32_t             DynamicBufferOffset)
+        const uint32_t*      DynamicBufferOffset)
     {
-        m_Impl.get().SetDescriptorSet(LayoutSlot, DescriptorSets, &DynamicBufferOffset);
+        m_Impl.get().SetDescriptorSet(LayoutSlot, DescriptorSets, DynamicBufferOffset);
     }
 
     void CommandList::SetSamplePositions(

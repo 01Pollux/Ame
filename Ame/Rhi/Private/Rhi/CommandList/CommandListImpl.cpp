@@ -150,7 +150,7 @@ namespace Ame::Rhi
     void CommandListImpl::SetDescriptorSet(
         uint32_t             LayoutSlot,
         const DescriptorSet& DescriptorSets,
-        uint32_t*            DynamicBufferOffset)
+        const uint32_t*      DynamicBufferOffset)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
