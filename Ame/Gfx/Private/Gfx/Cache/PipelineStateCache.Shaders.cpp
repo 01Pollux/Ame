@@ -10,6 +10,13 @@
 
 namespace Ame::Gfx::Cache
 {
+    namespace Guids
+    {
+        static constexpr const char* s_EntityCollectPass = "c3fbdbaf-490b-4415-bc99-3b6a3ba84d6f";
+    } // namespace Guids
+
+    //
+
     using ShaderSourceAsset = Ptr<Asset::Gfx::ShaderSourceAsset>;
 
     //
@@ -79,7 +86,7 @@ namespace Ame::Gfx::Cache
         {
         case Type::EntityCollectPass:
         {
-            auto ShaderGuid = Asset::Handle::FromString("c3fbdbaf-490b-4415-bc99-3b6a3ba84d6f");
+            auto ShaderGuid = Asset::Handle::FromString(Guids::s_EntityCollectPass);
 
             Rhi::ShaderCompileDesc ShaderDesc{
                 .Stage = Rhi::ShaderType::COMPUTE_SHADER

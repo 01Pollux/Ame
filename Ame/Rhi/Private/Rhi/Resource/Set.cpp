@@ -37,7 +37,6 @@ namespace Ame::Rhi
         uint32_t               BufferOffset,
         const nri::Descriptor* Buffer)
     {
-
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
