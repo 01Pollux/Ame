@@ -24,23 +24,23 @@ namespace Ame::Rhi
     }
 
     void DescriptorSet::SetDynamicBuffers(
-        uint32_t                          BufferOffset,
+        uint32_t                          BaseBufferInSet,
         std::span<const nri::Descriptor*> Buffers)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        NriCore.UpdateDynamicConstantBuffers(*Unwrap(), BufferOffset, Count32(Buffers), Buffers.data());
+        NriCore.UpdateDynamicConstantBuffers(*Unwrap(), BaseBufferInSet, Count32(Buffers), Buffers.data());
     }
 
     void DescriptorSet::SetDynamicBuffer(
-        uint32_t               BufferOffset,
+        uint32_t               BaseBufferInSet,
         const nri::Descriptor* Buffer)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        NriCore.UpdateDynamicConstantBuffers(*Unwrap(), BufferOffset, 1, &Buffer);
+        NriCore.UpdateDynamicConstantBuffers(*Unwrap(), BaseBufferInSet, 1, &Buffer);
     }
 
     void DescriptorSet::CopyTo(

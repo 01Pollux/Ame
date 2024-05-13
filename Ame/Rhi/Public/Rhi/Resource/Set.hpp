@@ -41,14 +41,14 @@ namespace Ame::Rhi
         /// Set the dynamic buffers.
         /// </summary>
         void SetDynamicBuffers(
-            uint32_t                          BufferOffset,
+            uint32_t                          BaseBufferInSet,
             std::span<const nri::Descriptor*> Buffers);
 
         /// <summary>
         /// Set the dynamic buffers.
         /// </summary>
         void SetDynamicBuffer(
-            uint32_t               BufferOffset,
+            uint32_t               BaseBufferInSet,
             const nri::Descriptor* Buffer);
 
         /// <summary>
