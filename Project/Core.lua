@@ -57,6 +57,7 @@ target("Gfx")
     ame_utils:add_library("Ame", "static", "Ame/Gfx")
     add_deps("Ecs", {public = true, inherit = true})
 target_end()
+ame_utils:add_tests("Gfx", "Ame/Gfx", "Gfx")
 
 --
 

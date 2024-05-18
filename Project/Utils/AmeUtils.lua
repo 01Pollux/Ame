@@ -1,17 +1,5 @@
 ame_utils = {}
 
-function _ame_header_tests(path)
-    local test_files = os.files(file_utils:path_from_root(path .. "/Tests/**.cpp"))
-    if table.empty(test_files) ~= true then
-        for _, file in ipairs(test_files) do
-            add_tests(file_utils:get_file_name_without_extension(file), {
-                files = file,
-                package = "doctest",
-                defines = "DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN" })
-        end
-    end
-end
-
 function _ame_add_sources_if_not_empty(path)
     local source_files = file_utils:path_from_root(path .. "/**.cpp")
     if table.empty(source_files) ~= true then
@@ -29,8 +17,6 @@ end
 function ame_utils:add_library(group, kind, path)
     set_group(group)
     set_kind(kind)
-    
-    _ame_header_tests(path)
 
     _ame_add_sources_if_not_empty(path .. "/Private")
 
@@ -55,6 +41,25 @@ end
 function ame_utils:add_binary(group, path)
     ame_utils:add_library(group, "binary", path)
     add_deps("Engine", {public = true})
+end
+
+function ame_utils:add_tests(group, path, target_name)
+    local test_files = os.files(file_utils:path_from_root(path .. "/Tests/**.cpp"))
+    if table.empty(test_files) ~= true then
+        for _, file in ipairs(test_files) do
+            local file_name = file_utils:get_file_name_without_extension(file)
+            target(group .. "_" .. file_name)
+                set_group("Tests/" .. group)
+                set_kind("binary")
+                add_filegroups("", {rootdir = "../" .. path .. "/Tests/"})
+
+                -- add_defines("BOOST_AUTO_TEST_MAIN")
+                add_packages("boost_ut", {public = false})
+                add_files(file)
+                add_deps(target_name, {public = false})
+            target_end()
+        end
+    end
 end
 
 function ame_utils:install_assets()

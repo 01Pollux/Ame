@@ -5,7 +5,7 @@ includes("concurrencpp.lua")
 includes("kangaru.lua")
 
 
-add_requires("doctest")
+add_requires("boost_ut", {configs = {shared = true}})
 add_requires("ame.boost")
 add_requires("mimalloc")
 add_requires("ame.kangaru")
