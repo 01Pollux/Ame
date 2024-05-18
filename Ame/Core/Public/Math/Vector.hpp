@@ -10,14 +10,17 @@ namespace Ame::Math
     using Vector2  = glm::vec2;
     using Vector2I = glm::ivec2;
     using Vector2U = glm::uvec2;
+    using Vector2B = glm::bvec2;
 
     using Vector3  = glm::vec3;
     using Vector3I = glm::ivec3;
     using Vector3U = glm::uvec3;
+    using Vector3B = glm::bvec3;
 
     using Vector4  = glm::vec4;
     using Vector4I = glm::ivec4;
     using Vector4U = glm::uvec4;
+    using Vector4B = glm::bvec4;
 
     using Quaternion = glm::quat;
 } // namespace Ame::Math

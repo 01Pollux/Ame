@@ -27,7 +27,7 @@ namespace Ame::Rhi
 
     struct InputAssemblyDesc
     {
-        TopologyType         Topology;
+        TopologyType         Topology            = TopologyType::TRIANGLE_LIST;
         uint8_t              TessControlPointNum = 0;
         PrimitiveRestartType PrimitiveRestart    = PrimitiveRestartType::DISABLED;
     };
@@ -57,7 +57,7 @@ namespace Ame::Rhi
     struct MultisampleDesc
     {
         uint32_t SampleMask                = 0;
-        uint8_t  SampleNum                 = 1;
+        uint8_t  SampleCount               = 1;
         bool     AlphaToCoverageEnable : 1 = false;
         // Requires "isSampleLocationSupported"
         bool ProgrammableSampleLocations : 1 = false;
@@ -111,12 +111,14 @@ namespace Ame::Rhi
 
     struct OutputMergerDesc
     {
-        std::span<RenderTargetDesc> RenderTargets;
-        ResourceFormat              DepthStencilFormat = ResourceFormat::UNKNOWN;
-        DepthTargetDesc             DepthTarget;
-        StencilTargetDesc           StencilTarget;
-        LogicFunc                   ColorLogicFunc = LogicFunc::NONE;
+        std::span<const RenderTargetDesc> RenderTargets;
+        ResourceFormat                    DepthStencilFormat = ResourceFormat::UNKNOWN;
+        DepthTargetDesc                   DepthTarget;
+        StencilTargetDesc                 StencilTarget;
+        LogicFunc                         ColorLogicFunc = LogicFunc::NONE;
     };
+
+    //
 
     struct GraphicsPipelineDesc
     {
@@ -126,7 +128,7 @@ namespace Ame::Rhi
         RasterizationDesc Rasterizer;
         OutputMergerDesc  OutputMerger;
 
-        std::span<ShaderDesc> Shaders;
+        std::span<const ShaderDesc> Shaders;
 
         // Optional
         const VertexInputDesc* VertexInput = nullptr;

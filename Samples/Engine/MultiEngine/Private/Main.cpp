@@ -23,7 +23,7 @@ protected:
 
         Log::Engine().Trace("Initializing Sample...");
         InitializeWindow(
-            *GetSubsystem<CoroutineSubsystem>(),
+            GetSubsystem<CoroutineSubsystem>(),
             GetSubsystem<Rhi::DeviceSubsystem>());
     }
 
@@ -52,11 +52,11 @@ private:
         Rhi::Device& RhiDevice)
     {
         double FPS = 1.0 / Timer.GetDeltaTime();
-        RhiDevice.GetWindow().SetTitle(String::formatted("{} - FPS: {:.2f}", m_Title, FPS));
+        RhiDevice.GetWindow().SetTitle(std::format("{} - FPS: {:.2f}", m_Title, FPS));
     }
 
 private:
-    String  m_Title;
+    String    m_Title;
     Co::timer m_TitleTimer;
 };
 

@@ -231,7 +231,7 @@ namespace std
             size_t Hash = 0;
 
             Ame::HashCombine(Hash, Desc.SampleMask);
-            Ame::HashCombine(Hash, Desc.SampleNum);
+            Ame::HashCombine(Hash, Desc.SampleCount);
             Ame::HashCombine(Hash, Desc.AlphaToCoverageEnable);
             Ame::HashCombine(Hash, Desc.ProgrammableSampleLocations);
 

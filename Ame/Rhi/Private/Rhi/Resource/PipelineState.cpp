@@ -72,7 +72,7 @@ namespace Ame::Rhi
     {
         return {
             .sampleMask                  = Desc.SampleMask,
-            .sampleNum                   = Desc.SampleNum,
+            .sampleNum                   = Desc.SampleCount,
             .alphaToCoverage             = Desc.AlphaToCoverageEnable,
             .programmableSampleLocations = Desc.ProgrammableSampleLocations
         };
