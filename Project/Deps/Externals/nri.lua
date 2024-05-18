@@ -3,7 +3,6 @@ package("ame.nri")
     set_homepage("https://github.com/NVIDIAGameWorks/NRI")
     set_description("NRI is a low-level abstract render interface which currently supports three backends: D3D11, D3D12 and Vulkan (VK).")
     set_license("MIT")
-    add_rpathdirs("$ORIGIN")
 
     add_urls("https://github.com/NVIDIAGameWorks/NRI.git")
 

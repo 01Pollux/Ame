@@ -4,6 +4,8 @@ includes("nri.lua")
 includes("concurrencpp.lua")
 includes("kangaru.lua")
 
+
+add_requires("doctest")
 add_requires("ame.boost")
 add_requires("mimalloc")
 add_requires("ame.kangaru")

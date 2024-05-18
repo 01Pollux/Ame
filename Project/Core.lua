@@ -1,5 +1,5 @@
 target("Core")
-    ame_header_library("Ame", "Core", "static", "Ame/Core")
+    ame_utils:add_library("Ame", "static", "Ame/Core")
     add_packages(
         "ame.boost",
         "mimalloc",
@@ -24,19 +24,19 @@ target_end()
 --
 
 target("Resource")
-    ame_header_library("Ame", "Resource", "static", "Ame/Resource")
+    ame_utils:add_library("Ame", "static", "Ame/Resource")
     add_deps("Core", {public = true, inherit = true})
 target_end()
 
 target("Windowing")
-    ame_header_library("Ame", "Windowing", "static", "Ame/Windowing")
+    ame_utils:add_library("Ame", "static", "Ame/Windowing")
     add_deps("Core", {public = true, inherit = true})
 target_end()
 
 --
 
 target("Rhi")
-    ame_header_library("Ame", "Rhi", "static", "Ame/Rhi")
+    ame_utils:add_library("Ame", "static", "Ame/Rhi")
     add_packages(
         "ame.nri",
         "directxshadercompiler",
@@ -47,20 +47,20 @@ target_end()
 --
 
 target("Ecs")
-    ame_header_library("Ame", "Ecs", "static", "Ame/Ecs")
+    ame_utils:add_library("Ame", "static", "Ame/Ecs")
     add_deps("Rhi", {public = true, inherit = true})
 target_end()
 
 --
 
 target("Gfx")
-    ame_header_library("Ame", "Gfx", "static", "Ame/Gfx")
+    ame_utils:add_library("Ame", "static", "Ame/Gfx")
     add_deps("Ecs", {public = true, inherit = true})
 target_end()
 
 --
 
 target("Engine")
-    ame_header_library("Ame", "Engine", "static", "Ame/Engine")
+    ame_utils:add_library("Ame", "static", "Ame/Engine")
     add_deps({ "Gfx" }, {public = true, inherit = true})
 target_end()

@@ -1,51 +1,32 @@
 target("SimpleLog")
-    ame_header_executable("Samples/Engine", "Simple Log", "Samples/Engine/SimpleLog")
+    ame_utils:add_binary("Samples/Engine", "Samples/Engine/SimpleLog")
 target_end()
 
 target("SimpleWindow")
-    ame_header_executable("Samples/Engine", "Simple Window", "Samples/Engine/SimpleWindow")
+    ame_utils:add_binary("Samples/Engine", "Samples/Engine/SimpleWindow")
 target_end()
 
 target("MultiEngine")
-    ame_header_executable("Samples/Engine", "MultiEngine", "Samples/Engine/MultiEngine")
+    ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiEngine")
 target_end()
 
 target("MultiRhi OneEngine")
-    ame_header_executable("Samples/Engine", "MultiRhi OneEngine", "Samples/Engine/MultiRhi OneEngine")
+    ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiRhi OneEngine")
 target_end()
 
 target("MultiRhi MultiEngine")
-    ame_header_executable("Samples/Engine", "MultiRhi MultiEngine", "Samples/Engine/MultiRhi MultiEngine")
+    ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiRhi MultiEngine")
 target_end()
 
 --
 
 target("Triangle")
-    ame_header_executable("Samples/Rhi", "Triangle", "Samples/Rhi/Triangle")
+    ame_utils:add_binary("Samples/Rhi", "Samples/Rhi/Triangle")
 target_end()
 
 --
 
 target("FlappyRocket")
-    ame_header_executable("Samples/Games", "FlappyRocket", "Samples/Games/FlappyRocket")
-    after_build(function(target)
-        local targetdir = target:targetdir() .. "/Shared/Assets"
-        print ("Copying assets to " .. targetdir)
-        if not os.isdir(targetdir) then
-            print("Creating asset directory")
-            os.mkdir(targetdir)
-        end
-        -- copy folder /Assets to targetdir
-        os.cp("Assets/*", targetdir)
-    end)
-    after_install(function(target)
-        local targetdir = target:installdir() .. "/bin/Shared/Assets"
-        print ("Copying assets to " .. targetdir)
-        if not os.isdir(targetdir) then
-            print("Creating asset directory")
-            os.mkdir(targetdir)
-        end
-        -- copy folder /Assets to targetdir
-        os.cp("Assets/*", targetdir)
-    end)
+    ame_utils:add_binary("Samples/Games", "Samples/Games/FlappyRocket")
+    ame_utils:install_assets()
 target_end()
