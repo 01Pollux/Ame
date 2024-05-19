@@ -25,6 +25,8 @@ namespace Ame::Rhi
         friend CommandList;
 
     public:
+        static constexpr bool EnableDrawParametersEmulation = true;
+
         Device();
         explicit Device(
             const DeviceCreateDesc& Desc);
@@ -48,7 +50,7 @@ namespace Ame::Rhi
         /// Get the graphics API used by the device.
         /// </summary>
         [[nodiscard]] GraphicsAPI GetGraphicsAPI() const;
-        
+
         /// <summary>
         /// Get the graphics API used by the device.
         /// </summary>

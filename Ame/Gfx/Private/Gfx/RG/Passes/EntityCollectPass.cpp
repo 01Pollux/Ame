@@ -41,11 +41,11 @@ namespace Ame::Gfx::RG::Std
 
                     RgResolver.WriteBuffer(
                         Names::EntityCommandCounter("CollectPass"),
-                        Rhi::ShaderBits::COMPUTE_SHADER,
+                        Rhi::ShaderType::COMPUTE_SHADER,
                         Rhi::ResourceFormat::R32_UINT);
                     RgResolver.WriteBuffer(
                         Names::EntityCommandBuffer("CollectPass"),
-                        Rhi::ShaderBits::COMPUTE_SHADER,
+                        Rhi::ShaderType::COMPUTE_SHADER,
                         Rhi::ResourceFormat::R32_UINT);
                 })
             .Execute(

@@ -72,7 +72,7 @@ namespace Ame::Gfx::RG
 
     void Resolver::WriteBuffer(
         const ResourceViewId&   ViewId,
-        Rhi::ShaderBits         Shaders,
+        Rhi::ShaderType         Shaders,
         Rhi::ResourceFormat     Format,
         const Rhi::BufferRange& Range)
     {
@@ -109,7 +109,7 @@ namespace Ame::Gfx::RG
     void Resolver::WriteTexture(
         const ResourceViewId&       ViewId,
         const Rhi::TextureViewDesc& ViewDesc,
-        Rhi::ShaderBits             Shaders)
+        Rhi::ShaderType             Shaders)
     {
         WriteTexture(ViewId, ViewDesc, { Rhi::AccessBits::SHADER_RESOURCE_STORAGE, Shaders }, Rhi::TextureUsageBits::SHADER_RESOURCE_STORAGE);
         SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE_STORAGE);
@@ -119,7 +119,7 @@ namespace Ame::Gfx::RG
         const ResourceViewId& ViewId)
     {
         WriteResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::COPY_SOURCE, Rhi::ShaderBits::NONE });
+        AppendResourceState(ViewId, { Rhi::AccessBits::COPY_SOURCE, Rhi::ShaderType::NONE });
         SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::COPY_SOURCE);
     }
 
@@ -127,7 +127,7 @@ namespace Ame::Gfx::RG
 
     void Resolver::WriteRenderTarget(
         const ResourceViewId&          ViewId,
-        Rhi::ShaderBits                Shaders,
+        Rhi::ShaderType                Shaders,
         const RtvCustomDesc&           RtvDesc,
         Rhi::ResourceFormat            Format,
         const Rhi::TextureSubresource& Subresource)
@@ -162,7 +162,7 @@ namespace Ame::Gfx::RG
 
     void Resolver::WriteRenderTarget(
         const ResourceViewId&          ViewId,
-        Rhi::ShaderBits                Shaders,
+        Rhi::ShaderType                Shaders,
         Rhi::ResourceFormat            Format,
         const Rhi::TextureSubresource& Subresource)
     {
@@ -195,7 +195,7 @@ namespace Ame::Gfx::RG
 
     void Resolver::WriteDepthStencil(
         const ResourceViewId&          ViewId,
-        Rhi::ShaderBits                Shaders,
+        Rhi::ShaderType                Shaders,
         const DsvCustomDesc&           DsvDesc,
         Rhi::ResourceFormat            Format,
         const Rhi::TextureSubresource& Subresource)
@@ -230,7 +230,7 @@ namespace Ame::Gfx::RG
 
     void Resolver::WriteDepthStencil(
         const ResourceViewId&          ViewId,
-        Rhi::ShaderBits                Shaders,
+        Rhi::ShaderType                Shaders,
         Rhi::ResourceFormat            Format,
         const Rhi::TextureSubresource& Subresource)
     {
@@ -288,7 +288,7 @@ namespace Ame::Gfx::RG
     void Resolver::ReadTexture(
         const ResourceViewId&       ViewId,
         const Rhi::TextureViewDesc& ViewDesc,
-        Rhi::ShaderBits             Shaders)
+        Rhi::ShaderType             Shaders)
     {
         ReadResourceEmpty(ViewId.GetResource());
         AppendResourceState(ViewId, { Rhi::AccessBits::SHADER_RESOURCE, Shaders });
@@ -302,14 +302,14 @@ namespace Ame::Gfx::RG
         const ResourceViewId& ViewId)
     {
         ReadResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::COPY_DESTINATION, Rhi::ShaderBits::NONE });
+        AppendResourceState(ViewId, { Rhi::AccessBits::COPY_DESTINATION, Rhi::ShaderType::NONE });
         SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::COPY_DESTINATION);
     }
 
     void Resolver::ReadDepthStencil(
         const ResourceViewId&       ViewId,
         const Rhi::TextureViewDesc& ViewDesc,
-        Rhi::ShaderBits             Shaders)
+        Rhi::ShaderType             Shaders)
     {
         ReadResourceEmpty(ViewId.GetResource());
         AppendResourceState(ViewId, { Rhi::AccessBits::DEPTH_STENCIL_READ, Shaders });
@@ -329,13 +329,13 @@ namespace Ame::Gfx::RG
         auto& States = Iter.first->second;
         if (Iter.second)
         {
-            States.stages = Rhi::ShaderBits::NONE;
+            States.stages = Rhi::ShaderType::NONE;
         }
 
         States.access |= State.access;
-        if (State.stages != Rhi::ShaderBits::NONE)
+        if (State.stages != Rhi::ShaderType::NONE)
         {
-            if (States.stages == Rhi::ShaderBits::NONE)
+            if (States.stages == Rhi::ShaderType::NONE)
             {
                 States.stages = State.stages;
             }

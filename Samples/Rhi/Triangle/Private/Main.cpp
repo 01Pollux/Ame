@@ -188,10 +188,10 @@ private:
         Rhi::DescriptorRangeDesc Ranges[]{
             { .descriptorNum  = 1,
               .descriptorType = Rhi::DescriptorType::TEXTURE,
-              .shaderStages   = Rhi::ShaderBits::FRAGMENT_SHADER },
+              .shaderStages   = Rhi::ShaderType::FRAGMENT_SHADER },
             { .descriptorNum  = 1,
               .descriptorType = Rhi::DescriptorType::SAMPLER,
-              .shaderStages   = Rhi::ShaderBits::FRAGMENT_SHADER }
+              .shaderStages   = Rhi::ShaderType::FRAGMENT_SHADER }
         };
 
         Rhi::DescriptorSetDesc DescriptorSets[]{

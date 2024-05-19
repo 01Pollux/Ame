@@ -298,7 +298,7 @@ namespace Ame::Rhi
         auto& CurBackbuffer = GetBackbuffer();
 
         Rhi::AccessLayoutStage State{
-            .stages = Rhi::ShaderBits::ALL
+            .stages = Rhi::ShaderType::ALL
         };
         if (Present)
         {
@@ -361,7 +361,7 @@ namespace Ame::Rhi
                 .deviceExtensionNum   = static_cast<uint32_t>(Desc.RequiredDeviceExtensions.size()) },
             .enableNRIValidation                = Desc.EnableApiValidationLayer,
             .enableAPIValidation                = Desc.EnableApiValidationLayer,
-            .enableD3D12DrawParametersEmulation = true,
+            .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation,
             .disableVulkanRayTracing            = Desc.RayTracingFeatures == DeviceFeatureType::Disabled
         };
 

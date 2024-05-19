@@ -51,15 +51,17 @@ namespace Ame::Gfx::Shading
         Rhi::LogicFunc                 ColorLogicFunc = Rhi::LogicFunc::NONE;
     };
 
+    using MaterialShaderStorage = std::vector<Rhi::ShaderBytecode>;
+
     //
 
     struct MaterialPipelineState
     {
-        InputAssemblyState               InputAssembly;
-        RasterizerState                  Rasterizer;
-        OutputMergerState                OutputMerger;
-        Opt<MultiSampleState>            MultiSample;
-        std::vector<Rhi::ShaderBytecode> Shaders;
+        InputAssemblyState    InputAssembly;
+        RasterizerState       Rasterizer;
+        OutputMergerState     OutputMerger;
+        Opt<MultiSampleState> MultiSample;
+        MaterialShaderStorage Shaders;
     };
 
     //

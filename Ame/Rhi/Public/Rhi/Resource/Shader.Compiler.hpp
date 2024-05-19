@@ -67,7 +67,7 @@ namespace Ame::Rhi
         SPV_KHR_vulkan_memory_model
     };
 
-    enum class ShaderFlags : uint32_t
+    enum class ShaderCompileFlags : uint32_t
     {
         None = 0,
 
@@ -94,9 +94,9 @@ namespace Ame::Rhi
         ShaderProfile         Profile            = ShaderProfile::_6_5;
         ShaderVulkanMemLayout VulkanMemoryLayout = ShaderVulkanMemLayout::Dx;
 
-        ShaderFlags Flags{
+        ShaderCompileFlags Flags{
 #ifdef AME_DEBUG
-            ShaderFlags::Debug
+            ShaderCompileFlags::Debug
 #endif
         };
     };

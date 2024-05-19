@@ -15,7 +15,6 @@ namespace Ame::Rhi
     struct ComputePipelineDesc;
 
     using ResourceFormat = nri::Format;
-    using ShaderBits     = nri::StageBits;
     using ShaderType     = nri::StageBits;
     using ShaderDesc     = nri::ShaderDesc;
     using MemoryLocation = nri::MemoryLocation;
@@ -39,4 +38,56 @@ namespace Ame::Rhi
 
     struct BufferViewDesc;
     struct TextureViewDesc;
+
+    //
+
+    struct ShaderFlags
+    {
+        ShaderType Flags = ShaderType::NONE;
+
+        void Set(
+            ShaderFlags ToSet,
+            bool        Value = true)
+        {
+            Set(ToSet.Flags, Value);
+        }
+
+        void Set(
+            ShaderType ToSet,
+            bool       Value = true)
+        {
+            if (Value)
+            {
+                if (ToSet == Rhi::ShaderType::ALL || Flags == Rhi::ShaderType::NONE)
+                {
+                    Flags = ToSet;
+                }
+                else if (Flags != Rhi::ShaderType::ALL)
+                {
+                    Flags |= ToSet;
+                }
+            }
+            else
+            {
+                if (ToSet == Rhi::ShaderType::ALL)
+                {
+                    Flags = Rhi::ShaderType::NONE;
+                }
+                else if (Flags != Rhi::ShaderType::NONE)
+                {
+                    Flags = static_cast<Rhi::ShaderType>(static_cast<uint32_t>(Flags) & ~static_cast<uint32_t>(ToSet));
+                }
+            }
+        }
+
+        [[nodiscard]] static ShaderFlags All()
+        {
+            return { ShaderType::ALL };
+        }
+
+        [[nodiscard]] static ShaderFlags None()
+        {
+            return { ShaderType::NONE };
+        }
+    };
 } // namespace Ame::Rhi

@@ -15,67 +15,75 @@
 namespace Ame::Gfx::Shading
 {
     PropertyDescriptor& PropertyDescriptor::IntImpl(
-        const String& PropName,
-        uint8_t       Dims)
+        const String&    PropName,
+        Rhi::ShaderFlags Flags,
+        uint8_t          Dims)
     {
-        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Int, Dims });
+        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Int, Dims }, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::FloatImpl(
-        const String& PropName,
-        uint8_t       Dims)
+        const String&    PropName,
+        Rhi::ShaderFlags Flags,
+        uint8_t          Dims)
     {
-        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Float, Dims });
+        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Float, Dims }, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::BoolImpl(
-        const String& PropName,
-        uint8_t       Dims)
+        const String&    PropName,
+        Rhi::ShaderFlags Flags,
+        uint8_t          Dims)
     {
-        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Bool, Dims });
+        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Bool, Dims }, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::Matrix2x2Impl(
-        const String& PropName,
-        uint8_t       Dims)
+        const String&    PropName,
+        Rhi::ShaderFlags Flags,
+        uint8_t          Dims)
     {
-        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Matrix2x2, Dims });
+        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Matrix2x2, Dims }, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::Matrix3x3Impl(
-        const String& PropName,
-        uint8_t       Dims)
+        const String&    PropName,
+        Rhi::ShaderFlags Flags,
+        uint8_t          Dims)
     {
-        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Matrix3x3, Dims });
+        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Matrix3x3, Dims }, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::Matrix4x4Impl(
-        const String& PropName,
-        uint8_t       Dims)
+        const String&    PropName,
+        Rhi::ShaderFlags Flags,
+        uint8_t          Dims)
     {
-        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Matrix4x4, Dims });
+        InsertProp(PropName, { ResourceType::Scalar, ResourceDataType::Matrix4x4, Dims }, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::StructImpl(
         const String&             PropName,
-        const PropertyDescriptor& Descriptor)
+        const PropertyDescriptor& Descriptor,
+        Rhi::ShaderFlags          Flags)
     {
-        InsertStruct(PropName, Descriptor);
+        InsertStruct(PropName, Descriptor, Flags);
         return *this;
     }
 
     PropertyDescriptor& PropertyDescriptor::Resource(
         const String&    PropName,
         ResourceType     Type,
-        ResourceDataType DataType)
+        ResourceDataType DataType,
+        Rhi::ShaderFlags Flags)
     {
-        InsertProp(PropName, { Type, DataType, 1 });
+        m_Resources.emplace_back(ResourceInfo{ { Type, DataType, 1 }, Flags, PropName });
         return *this;
     }
 
@@ -84,6 +92,11 @@ namespace Ame::Gfx::Shading
     uint32_t PropertyDescriptor::GetStructSize() const
     {
         return m_AlignedSize;
+    }
+
+    Rhi::ShaderFlags PropertyDescriptor::GetStructAccessFlags() const
+    {
+        return m_ShaderBits;
     }
 
     uint32_t PropertyDescriptor::GetOffset(
@@ -95,6 +108,28 @@ namespace Ame::Gfx::Shading
                                   AME_PROPDESC_META(AME_PROPDESC_METAOFFSET))
                        .value_or(InvalidOffset); })
             .value_or(InvalidOffset);
+    }
+
+    //
+
+    uint32_t PropertyDescriptor::GetResourceCount() const
+    {
+        return static_cast<uint32_t>(m_Resources.size());
+    }
+
+    auto PropertyDescriptor::GetResources() const -> Co::generator<CRef<ResourceInfo>>
+    {
+        for (auto& Prop : m_Resources)
+        {
+            co_yield Prop;
+        }
+    }
+
+    //
+
+    bool PropertyDescriptor::IsEmpty() const
+    {
+        return m_Tree.empty();
     }
 
     //
@@ -160,7 +195,8 @@ namespace Ame::Gfx::Shading
 
     void PropertyDescriptor::InsertProp(
         const String&      PropName,
-        const PropertInfo& Info)
+        const PropertInfo& Info,
+        Rhi::ShaderFlags   Flags)
     {
         uint32_t Size   = GetSize(Info.Type, Info.DataType, Info.Dims);
         uint32_t Offset = AdvanceSize(Size);
@@ -172,12 +208,19 @@ namespace Ame::Gfx::Shading
         Meta.put(AME_PROPDESC_METATYPE, std::to_underlying(Info.Type));
         Meta.put(AME_PROPDESC_METADATATYPE, std::to_underlying(Info.DataType));
         Meta.put(AME_PROPDESC_METAOFFSET, Offset);
+
+        m_ShaderBits.Set(Flags);
     }
 
     void PropertyDescriptor::InsertStruct(
         const String&             PropName,
-        const PropertyDescriptor& Descriptor)
+        const PropertyDescriptor& Descriptor,
+        Rhi::ShaderFlags          Flags)
     {
+#ifdef AME_DEBUG
+        Log::Renderer().Assert(Descriptor.GetResourceCount() == 0, "Structs cannot contain resources");
+#endif
+
         PadToBoundaries();
 
         uint32_t Size   = Descriptor.GetStructSize();
@@ -192,7 +235,10 @@ namespace Ame::Gfx::Shading
         Meta.put(AME_PROPDESC_METAOFFSET, Offset);
 
         TraverseAppendOffset(Prop, Offset);
+        m_ShaderBits.Set(Flags);
     }
+
+    //
 
     void PropertyDescriptor::TraverseAppendOffset(
         PropertyTree& Subtree,

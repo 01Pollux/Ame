@@ -68,7 +68,9 @@ namespace Ame::Gfx::Shading
         RWTexture3D,
 
         TextureCube,
-        TextureCubeArray
+        TextureCubeArray,
+
+        Sampler
     };
 
     //

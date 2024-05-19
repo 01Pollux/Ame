@@ -289,7 +289,7 @@ namespace Ame::Rhi
 #ifndef AME_DIST
         using namespace EnumBitOperators;
 
-        if ((Desc.Flags & ShaderFlags::Debug) != ShaderFlags::None)
+        if ((Desc.Flags & ShaderCompileFlags::Debug) != ShaderCompileFlags::None)
         {
             FinalOptions.emplace_back(DXC_ARG_DEBUG);
             FinalOptions.emplace_back(L"-Qembed_debug");

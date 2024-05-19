@@ -73,6 +73,9 @@ namespace Ame
     using Ref = std::reference_wrapper<Ty>;
 
     template<typename Ty>
+    using CRef = std::reference_wrapper<const Ty>;
+
+    template<typename Ty>
     using Opt = std::optional<Ty>;
 
     template<typename Ty, typename ErrTy = std::exception_ptr>
