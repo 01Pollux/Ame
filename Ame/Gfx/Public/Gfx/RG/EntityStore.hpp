@@ -1,9 +1,12 @@
 #pragma once
 
 #include <Core/Coroutine.hpp>
-
-#include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Buffer.hpp>
+
+namespace Ame::Gfx::Shading
+{
+    class Material;
+} // namespace Ame::Gfx::Shading
 
 namespace Ame::Gfx::RG
 {
@@ -12,19 +15,19 @@ namespace Ame::Gfx::RG
     public:
         struct Row
         {
-            Rhi::Buffer             VtxBuffer;
-            Rhi::Buffer             IdxBuffer;
-            Ptr<Rhi::PipelineState> PipelineState;
-            uint32_t                Count = 1;
+            Rhi::Buffer                 VtxBuffer;
+            Rhi::Buffer                 IdxBuffer;
+            Ptr<Gfx::Shading::Material> Material;
+            uint32_t                    Count = 1;
 
             Row(
-                Rhi::Buffer             Vtx,
-                Rhi::Buffer             Idx,
-                Ptr<Rhi::PipelineState> Pso,
-                uint32_t                Count) :
+                Rhi::Buffer                 Vtx,
+                Rhi::Buffer                 Idx,
+                Ptr<Gfx::Shading::Material> Material,
+                uint32_t                    Count) :
                 VtxBuffer(std::move(Vtx)),
                 IdxBuffer(std::move(Idx)),
-                PipelineState(std::move(Pso)),
+                Material(std::move(Material)),
                 Count(Count)
             {
             }

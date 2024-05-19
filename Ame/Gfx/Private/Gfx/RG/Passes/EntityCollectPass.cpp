@@ -10,7 +10,8 @@ namespace Ame::Gfx::RG::Std
         Ecs::Universe&             Universe,
         Cache::PipelineStateCache& PipelineStateCache) :
         m_Universe(Universe),
-        m_PipelineStateCache(PipelineStateCache)
+        m_PipelineStateCache(PipelineStateCache),
+        m_MaxEntitiesCount(MinEntities)
     {
         m_PipelineStateCache.get().Load(Cache::PipelineStateCache::Type::EntityCollectPass);
 
@@ -19,15 +20,21 @@ namespace Ame::Gfx::RG::Std
             .Build(
                 [this](Resolver& RgResolver)
                 {
-                    auto& World       = *m_Universe.get().GetActiveWorld();
-                    auto  EntityCount = std::max(World.CreateFilter<const Ecs::Component::BaseRenderable>().build().count(), MinEntities);
+                    auto& World = *m_Universe.get().GetActiveWorld();
+
+                    auto CurEntityCount =
+                        static_cast<uint32_t>(World.CreateFilter<
+                                                       const Ecs::Component::BaseRenderable>()
+                                                  .build()
+                                                  .count());
+                    m_MaxEntitiesCount = Math::AlignUp(std::max(CurEntityCount, m_MaxEntitiesCount), MinEntities);
 
                     RgResolver.CreateBuffer(
                         Names::EntityCommandBuffer,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(DispatchDesc) * EntityCount, BufferAlignment) });
+                        Rhi::BufferDesc{ Math::AlignUp(sizeof(DispatchDesc) * m_MaxEntitiesCount, BufferAlignment) });
                     RgResolver.CreateBuffer(
                         Names::EntityCommandCounter,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * EntityCount, BufferAlignment) });
+                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * m_MaxEntitiesCount, BufferAlignment) });
 
                     //
 

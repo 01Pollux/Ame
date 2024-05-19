@@ -101,4 +101,30 @@ namespace std
             return Hash;
         }
     };
+
+    template<>
+    struct hash<Ame::Rhi::SamplerDesc>
+    {
+        size_t operator()(
+            const Ame::Rhi::SamplerDesc& Desc) const noexcept
+        {
+            size_t Hash = 0;
+
+            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.min));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.mag));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.mip));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.ext));
+            Ame::HashCombine(Hash, Desc.anisotropy);
+            Ame::HashCombine(Hash, Desc.mipBias);
+            Ame::HashCombine(Hash, Desc.mipMin);
+            Ame::HashCombine(Hash, Desc.mipMax);
+            Ame::HashCombine(Hash, std::to_underlying(Desc.addressModes.u));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.addressModes.v));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.addressModes.w));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.compareFunc));
+            Ame::HashCombine(Hash, std::to_underlying(Desc.borderColor));
+
+            return Hash;
+        }
+    };
 } // namespace std

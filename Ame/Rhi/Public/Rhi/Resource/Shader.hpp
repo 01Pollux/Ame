@@ -19,7 +19,7 @@ namespace Ame::Rhi
     [[nodiscard]] const wchar_t* GetShaderEntryPointWide(
         ShaderType Stage);
 
-    class ShaderBytecode : public NonCopyable
+    class ShaderBytecode
     {
     public:
         ShaderBytecode() = default;
@@ -35,6 +35,7 @@ namespace Ame::Rhi
         {
         }
 
+        ShaderBytecode(const ShaderBytecode&) = delete;
         ShaderBytecode(
             ShaderBytecode&& Other) noexcept :
             m_Bytecode(Other.m_Bytecode),
@@ -48,6 +49,7 @@ namespace Ame::Rhi
             Other.m_Owning   = false;
         }
 
+        ShaderBytecode& operator=(const ShaderBytecode&) = delete;
         ShaderBytecode& operator=(
             ShaderBytecode&& Other) noexcept
         {

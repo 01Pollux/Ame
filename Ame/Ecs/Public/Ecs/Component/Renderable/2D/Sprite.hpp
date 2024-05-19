@@ -1,17 +1,23 @@
 #pragma once
 
 #include <Math/Colors.hpp>
-#include <Rhi/Resource/PipelineState.hpp>
+#include <Ecs/Component/Renderable/BaseRenderable.hpp>
+
+namespace Ame::Gfx::Shading
+{
+    class Material;
+} // namespace Ame::Gfx::Shading
 
 namespace Ame::Ecs::Component
 {
     struct Sprite
     {
-        Ptr<Rhi::PipelineState> PipelineState = nullptr;
-        uint32_t                CameraMask    = 0xFFFF'FFFF;
+        Ptr<Gfx::Shading::Material> Material = nullptr;
 
-        std::vector<Math::Vector3> Vertices;
-        std::vector<uint16_t>      Indices;
+        uint32_t CameraMask = 0xFFFF'FFFF;
+
+        std::vector<VertexInput> Vertices;
+        std::vector<uint16_t>    Indices;
 
         Math::Color4  ModulationColor = Colors::White;
         Math::Vector2 UVStart         = Math::Vector2(0.0f, 0.0f);
@@ -20,12 +26,32 @@ namespace Ame::Ecs::Component
         [[nodiscard]] static Sprite Quad() noexcept
         {
             return {
-                .Vertices = {
-                    Math::Vector3(-0.5f, -0.5f, 0.0f),
-                    Math::Vector3(0.5f, -0.5f, 0.0f),
-                    Math::Vector3(0.5f, 0.5f, 0.0f),
-                    Math::Vector3(-0.5f, 0.5f, 0.0f) },
-                .Indices = { 0, 1, 2, 2, 3, 0 }
+                .Vertices{
+                    {
+                        .Position = Math::Vector3(-0.5f, -0.5f, 0.0f),
+                        .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
+                        .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
+                        .TexCoord = Math::Vector2(0.0f, 0.0f),
+                    },
+                    {
+                        .Position = Math::Vector3(-0.5f, 0.5f, 0.0f),
+                        .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
+                        .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
+                        .TexCoord = Math::Vector2(0.0f, 1.0f),
+                    },
+                    {
+                        .Position = Math::Vector3(0.5f, 0.5f, 0.0f),
+                        .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
+                        .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
+                        .TexCoord = Math::Vector2(1.0f, 1.0f),
+                    },
+                    {
+                        .Position = Math::Vector3(0.5f, -0.5f, 0.0f),
+                        .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
+                        .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
+                        .TexCoord = Math::Vector2(1.0f, 0.0f),
+                    } },
+                .Indices{ 0, 1, 2, 2, 3, 0 }
             };
         }
     };

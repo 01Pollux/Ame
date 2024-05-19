@@ -2,18 +2,25 @@
 
 #include <Ecs/Universe.hpp>
 
-namespace Ame::Gfx
+namespace Ame
 {
-    namespace Cache
+    namespace Gfx
     {
-        class PipelineStateCache;
-    } // namespace Cache
-    namespace RG
+        namespace Cache
+        {
+            class PipelineStateCache;
+        } // namespace Cache
+        namespace RG
+        {
+            class Graph;
+        } // namespace RG
+        class Renderer;
+    } // namespace Gfx
+    namespace Asset
     {
-        class Graph;
-    } // namespace RG
-    class Renderer;
-} // namespace Ame::Gfx
+        class Storage;
+    } // namespace Asset
+} // namespace Ame
 
 namespace Ame::FlappyRocket
 {
@@ -25,6 +32,7 @@ namespace Ame::FlappyRocket
 
     public:
         FlappyRocketGame(
+            Rhi::Device&                    Device,
             Ecs::Universe&                  EcsUniverse,
             Gfx::Renderer&                  Renderer,
             Gfx::Cache::PipelineStateCache& PipelineStateCache);
@@ -49,6 +57,7 @@ namespace Ame::FlappyRocket
             Gfx::Cache::PipelineStateCache& PipelineStateCache);
 
     private:
-        Ecs::Universe* m_EcsUniverse = nullptr;
+        Rhi::Device*    m_Device       = nullptr;
+        Ecs::Universe*  m_EcsUniverse  = nullptr;
     };
 } // namespace Ame::FlappyRocket

@@ -7,8 +7,8 @@ namespace Ame::Gfx::RG
     std::partial_ordering CameraCullResult::StagedEntity::operator<=>(
         const StagedEntity& Other) const noexcept
     {
-        auto PsoA = Renderable.get().PipelineState.get();
-        auto PsoB = Other.Renderable.get().PipelineState.get();
+        auto MatA = Renderable.get().Material.get();
+        auto MatB = Other.Renderable.get().Material.get();
 
         auto VtxA = Renderable.get().Vertex.RhiBuffer.Unwrap();
         auto VtxB = Other.Renderable.get().Vertex.RhiBuffer.Unwrap();
@@ -16,7 +16,7 @@ namespace Ame::Gfx::RG
         auto IdxA = Renderable.get().Index.RhiBuffer.Unwrap();
         auto IdxB = Other.Renderable.get().Index.RhiBuffer.Unwrap();
 
-        return std::tie(PsoA, VtxA, IdxA, Distance) <=> std::tie(PsoB, VtxB, IdxB, Other.Distance);
+        return std::tie(MatA, VtxA, IdxA, Distance) <=> std::tie(MatB, VtxB, IdxB, Other.Distance);
     }
 
     //

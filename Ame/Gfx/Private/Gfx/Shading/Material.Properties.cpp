@@ -1,5 +1,10 @@
+#include <ranges>
+#include <boost/functional/hash.hpp>
+
 #include <Gfx/Shading/Material.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Rhi/Hash/Resource.hpp>
+#include <Rhi/Hash/View.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -9,14 +14,19 @@ namespace Ame::Gfx::Shading
         const String& PropertyName,
         bool          Local)
     {
-        m_PropertyLocalMap[GetPropertyRootPath(PropertyName)] = Local;
+        // using empty string for user data properties
+        bool IsUserData = PropertyName.contains('.');
+
+        m_PropertyLocalMap[IsUserData ? UserDataPropertyTag : PropertyName] = Local;
     }
 
     bool Material::IsLocal(
-        const String& Property) const
+        const String& PropertyName) const
     {
-        auto RootPath = GetPropertyRootPath(Property);
-        auto Iter     = m_PropertyLocalMap.find(RootPath);
+        // using empty string for user data properties
+        bool IsUserData = PropertyName.contains('.');
+
+        auto Iter = m_PropertyLocalMap.find(IsUserData ? UserDataPropertyTag : PropertyName);
         return Iter != m_PropertyLocalMap.end() ? Iter->second : false;
     }
 
@@ -96,17 +106,44 @@ namespace Ame::Gfx::Shading
 
     //
 
-    String Material::GetPropertyRootPath(
-        const String& Path)
+    void Material::InvalidateHash()
     {
-        auto First = Path.find_first_of('.');
-        if (First == String::npos)
+        m_PropertiesHash.reset();
+    }
+
+    void Material::UpdateHash() const
+    {
+        auto UserData     = IsLocal(UserDataPropertyTag) ? m_LocalData.Properties.GetUserData() : m_SharedData->Properties.GetUserData();
+        auto UserDataSize = m_SharedData->Properties.GetSizeOfUserData();
+
+        uint64_t Hash = boost::hash_range(UserData, UserData + UserDataSize);
+
+        auto LocalResources  = m_LocalData.Properties.GetResources();
+        auto SharedResources = m_SharedData->Properties.GetResources();
+
+        for (auto [Local, Shared] : std::views::zip(LocalResources, SharedResources))
         {
-            return Path;
+            const RhiResourceType& Resource = IsLocal(Shared->first) ? Local->second : Shared->second;
+
+            std::visit(
+                VariantVisitor{
+                    [&](const BufferResource& Buffer)
+                    {
+                        boost::hash_combine(Hash, Buffer.Buffer.get());
+                        boost::hash_combine(Hash, std::hash<Rhi::BufferViewDesc>{}(Buffer.ViewDesc));
+                    },
+                    [&](const TextureResource& Texture)
+                    {
+                        boost::hash_combine(Hash, Texture.Texture.get());
+                        boost::hash_combine(Hash, std::hash<Rhi::TextureViewDesc>{}(Texture.ViewDesc));
+                    },
+                    [&](const SamplerResource& Sampler)
+                    {
+                        boost::hash_combine(Hash, std::hash<Rhi::SamplerDesc>{}(Sampler.ViewDesc));
+                    } },
+                Resource);
         }
-        else
-        {
-            return Path.substr(0, First);
-        }
+
+        m_PropertiesHash = Hash;
     }
 } // namespace Ame::Gfx::Shading

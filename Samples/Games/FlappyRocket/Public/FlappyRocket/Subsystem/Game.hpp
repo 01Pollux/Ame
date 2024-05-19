@@ -2,6 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
+#include <Rhi/Subsystem/Device.hpp>
 #include <Ecs/Subsystem/Universe.hpp>
 #include <Gfx/Subsystem/Renderer.hpp>
 #include <Gfx/Subsystem/PipelineStateCache.hpp>
@@ -12,9 +13,11 @@ namespace Ame::FlappyRocket
 {
     struct FlappyRocketGameSubsystem : UniqueSubsystem<
                                            FlappyRocketGame,
-                                           Dependency<Ecs::UniverseSubsystem,
-                                                      Gfx::RendererSubsystem,
-                                                      Gfx::Cache::PipelineStateCacheSubsystem>>,
+                                           Dependency<
+                                               Rhi::DeviceSubsystem,
+                                               Ecs::UniverseSubsystem,
+                                               Gfx::RendererSubsystem,
+                                               Gfx::Cache::PipelineStateCacheSubsystem>>,
                                        kgr::final
     {
     };

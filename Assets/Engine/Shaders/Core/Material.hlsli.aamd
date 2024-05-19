@@ -1,6 +1,6 @@
 {
     "Guid": "f36bdee6-ac57-48b3-b2bc-4a798afa86a8",
-    "Path": "Engine\/Shaders\/Core\/Scene.hlsli.aamd",
+    "Path": "Engine\/Shaders\/Core\/Material.hlsli.aamd",
     "LoaderData": "",
     "Dependencies": "",
     "LoaderId": "131732813173286877",

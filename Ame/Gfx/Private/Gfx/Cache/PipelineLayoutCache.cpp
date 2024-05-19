@@ -5,7 +5,7 @@
 
 namespace Ame::Gfx::Cache
 {
-    namespace ConstantDescriptorRanges = Constants::DescriptorRanges;
+    namespace CD = Constants::DescriptorRanges;
 
     //
 
@@ -36,19 +36,6 @@ namespace Ame::Gfx::Cache
         {
         case Type::EntityCollectPass:
         {
-            Rhi::DescriptorRangeDesc FrameData[]{
-                { .baseRegisterIndex = ConstantDescriptorRanges::FrameData_RegisterIndex,
-                  .descriptorNum     = 1,
-                  .descriptorType    = Rhi::DescriptorType::CONSTANT_BUFFER,
-                  .shaderStages      = Rhi::ShaderType::COMPUTE_SHADER }
-            };
-
-            Rhi::DescriptorRangeDesc EntityData[]{
-                { .descriptorNum  = 2,
-                  .descriptorType = Rhi::DescriptorType::STRUCTURED_BUFFER,
-                  .shaderStages   = Rhi::ShaderType::COMPUTE_SHADER }
-            };
-
             Rhi::DescriptorRangeDesc CommandInfo[]{
                 { .descriptorNum  = 2,
                   .descriptorType = Rhi::DescriptorType::STORAGE_BUFFER,
@@ -58,8 +45,8 @@ namespace Ame::Gfx::Cache
             //
 
             Rhi::DescriptorSetDesc Sets[]{
-                { .registerSpace = ConstantDescriptorRanges::FrameData_RegisterSpace, .ranges = FrameData, .rangeNum = Rhi::Count32(FrameData) },
-                { .registerSpace = 2, .ranges = EntityData, .rangeNum = Rhi::Count32(EntityData) },
+                CD::FrameSetDesc,
+                CD::EntitySetDesc,
                 { .registerSpace = 3, .ranges = CommandInfo, .rangeNum = Rhi::Count32(CommandInfo) },
             };
 

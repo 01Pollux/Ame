@@ -1,6 +1,6 @@
 {
     "Guid": "ec3a0144-1dda-4c9a-9aab-74d47775e089",
-    "Path": "Engine\/Shaders\/StdPasses\/Generic.hlsl.aamd",
+    "Path": "Engine\/Shaders\/StdShaders\/Generic.hlsl.aamd",
     "LoaderData": "",
     "Dependencies": "",
     "LoaderId": "19456857095889080",

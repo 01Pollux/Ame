@@ -12,7 +12,7 @@ namespace Ame::Ecs::Module
     {
         FlecsWorld.module<Renderable2DModule>();
 
-        RenderableModule::AttachRenderable(FlecsWorld.component<Component::Sprite>())
+        FlecsWorld.component<Component::Sprite>()
             .on_set(
                 [](Ecs::Entity Entity, Component::Sprite& Sprite)
                 {
@@ -24,8 +24,8 @@ namespace Ame::Ecs::Module
                     Renderable.Index.View  = Sprite.Indices.data();
                     Renderable.Index.Count = static_cast<uint32_t>(Sprite.Indices.size());
 
-                    Renderable.PipelineState = Sprite.PipelineState;
-                    Renderable.CameraMask    = Sprite.CameraMask;
+                    Renderable.Material   = Sprite.Material;
+                    Renderable.CameraMask = Sprite.CameraMask;
 
                     Entity.MarkModified<Component::BaseRenderable>();
                 });

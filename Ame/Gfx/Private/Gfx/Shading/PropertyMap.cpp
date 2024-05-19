@@ -116,6 +116,14 @@ namespace Ame::Gfx::Shading
         return std::get<SamplerResource>(Iter->second);
     }
 
+    auto PropertyMap::GetResources() const -> Co::generator<ResourceMap::const_iterator>
+    {
+        for (auto Iter = m_Resources.begin(); Iter != m_Resources.end(); ++Iter)
+        {
+            co_yield Iter;
+        }
+    }
+
     //
 
     void PropertyMap::WriteUserData(
@@ -144,6 +152,11 @@ namespace Ame::Gfx::Shading
 #endif
 
         std::memcpy(Data, m_UserDataBuffer.get() + Offset, Size);
+    }
+
+    const uint8_t* PropertyMap::GetUserData() const
+    {
+        return m_UserDataBuffer.get();
     }
 
     uint32_t PropertyMap::GetSizeOfUserData() const

@@ -19,23 +19,23 @@ namespace Ame::Gfx::Shading
     //
 
     Material::SharedData::SharedData(
-        Rhi::Device&                 RhiDevice,
-        Ptr<Rhi::PipelineLayout>     PipelineLayout,
-        const MaterialPipelineState& PipelineState,
-        const PropertyDescriptor&    Descriptor) :
+        Rhi::Device&              RhiDevice,
+        Ptr<Rhi::PipelineLayout>  PipelineLayout,
+        MaterialPipelineState     PipelineState,
+        const PropertyDescriptor& Descriptor) :
         LocalData(Descriptor),
-        CommonState(RhiDevice, PipelineLayout, PipelineState)
+        CommonState(RhiDevice, PipelineLayout, std::move(PipelineState))
     {
     }
 
     //
 
     Material::Material(
-        Rhi::Device&                 RhiDevice,
-        Ptr<Rhi::PipelineLayout>     PipelineLayout,
-        const MaterialPipelineState& PipelineState,
-        const PropertyDescriptor&    Descriptor) :
-        m_SharedData(std::make_shared<SharedData>(RhiDevice, PipelineLayout, PipelineState, Descriptor)),
+        Rhi::Device&              RhiDevice,
+        Ptr<Rhi::PipelineLayout>  PipelineLayout,
+        MaterialPipelineState     PipelineState,
+        const PropertyDescriptor& Descriptor) :
+        m_SharedData(std::make_shared<SharedData>(RhiDevice, PipelineLayout, std::move(PipelineState), Descriptor)),
         m_LocalData(Descriptor)
     {
     }

@@ -1,14 +1,15 @@
 #pragma once
 
-#include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Buffer.hpp>
+#include <Ecs/Component/Renderable/VertexInput.hpp>
+
+namespace Ame::Gfx::Shading
+{
+    class Material;
+} // namespace Ame::Gfx::Shading
 
 namespace Ame::Ecs::Component
 {
-    struct BaseRenderableTag
-    {
-    };
-
     /// <summary>
     /// Internal component for entities that are renderable.
     ///
@@ -39,10 +40,13 @@ namespace Ame::Ecs::Component
             }
         };
 
+        // must be either uint16_t or uint32_t
         BufferView Index;
+
+        // must be of type VertexInput
         BufferView Vertex;
 
-        Ptr<Rhi::PipelineState> PipelineState;
+        Ptr<Gfx::Shading::Material> Material;
 
         uint32_t CameraMask = 0xFFFF'FFFF;
     };

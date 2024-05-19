@@ -16,9 +16,9 @@ namespace Ame::Gfx::Shading
 
     public:
         MaterialCommonState(
-            Rhi::Device&                 RhiDevice,
-            Ptr<Rhi::PipelineLayout>     PipelineLayout,
-            const MaterialPipelineState& PipelineState);
+            Rhi::Device&             RhiDevice,
+            Ptr<Rhi::PipelineLayout> PipelineLayout,
+            MaterialPipelineState    PipelineState);
 
     public:
         [[nodiscard]] Rhi::Device& GetDevice() const;

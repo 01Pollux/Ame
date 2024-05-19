@@ -7,15 +7,17 @@ namespace Ame::Gfx::Shading
 {
     class Material
     {
+        static constexpr const char* UserDataPropertyTag = "";
+
     public:
         using PropertyHash = uint64_t;
 
     public:
         Material(
-            Rhi::Device&                 RhiDevice,
-            Ptr<Rhi::PipelineLayout>     PipelineLayout,
-            const MaterialPipelineState& PipelineState,
-            const PropertyDescriptor&    Descriptor);
+            Rhi::Device&              RhiDevice,
+            Ptr<Rhi::PipelineLayout>  PipelineLayout,
+            MaterialPipelineState     PipelineState,
+            const PropertyDescriptor& Descriptor);
 
         Material(
             const Material* Mat);
@@ -144,13 +146,6 @@ namespace Ame::Gfx::Shading
             void*         Value,
             size_t        Size) const;
 
-    public:
-        /// <summary>
-        /// Get the root path of a property
-        /// </summary>
-        [[nodiscard]] static String GetPropertyRootPath(
-            const String& Path);
-
     private:
         void InvalidateHash();
         void UpdateHash() const;
@@ -173,10 +168,10 @@ namespace Ame::Gfx::Shading
             MaterialCommonState CommonState;
 
             SharedData(
-                Rhi::Device&                 RhiDevice,
-                Ptr<Rhi::PipelineLayout>     PipelineLayout,
-                const MaterialPipelineState& PipelineState,
-                const PropertyDescriptor&    Descriptor);
+                Rhi::Device&              RhiDevice,
+                Ptr<Rhi::PipelineLayout>  PipelineLayout,
+                MaterialPipelineState     PipelineState,
+                const PropertyDescriptor& Descriptor);
         };
 
         Ptr<SharedData>  m_SharedData;

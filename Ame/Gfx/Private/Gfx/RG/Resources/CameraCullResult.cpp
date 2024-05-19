@@ -127,9 +127,10 @@ namespace Ame::Gfx::RG
         auto First = m_StagedEntities.begin();
         auto Last  = First;
 
-        Rhi::Buffer         VtxBuffer;
-        Rhi::Buffer         IdxBuffer;
-        Rhi::PipelineState* LastPso = nullptr;
+        Rhi::Buffer VtxBuffer;
+        Rhi::Buffer IdxBuffer;
+
+        Gfx::Shading::Material* LastMaterial = nullptr;
 
         for (auto& [Renderable, Instance, Distance] : m_StagedEntities)
         {
@@ -146,10 +147,10 @@ namespace Ame::Gfx::RG
 
             Storage.AllInstances.Rent(Instance);
 
-            if (Renderable.get().PipelineState.get() != LastPso)
+            if (Renderable.get().Material.get() != LastMaterial)
             {
-                NewRow  = true;
-                LastPso = Renderable.get().PipelineState.get();
+                NewRow       = true;
+                LastMaterial = Renderable.get().Material.get();
             }
 
             if (NewRow)
@@ -178,7 +179,7 @@ namespace Ame::Gfx::RG
             m_Rows.emplace_back(
                 std::move(Group.VtxBuffer),
                 std::move(Group.IdxBuffer),
-                Group.GetFirstRenderable().PipelineState,
+                Group.GetFirstRenderable().Material,
                 Count);
         }
 

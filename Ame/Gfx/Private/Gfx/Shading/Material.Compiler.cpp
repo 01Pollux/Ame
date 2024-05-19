@@ -6,23 +6,26 @@
 
 namespace Ame::Gfx::Shading
 {
-    namespace ConstantDescriptorRanges = Constants::DescriptorRanges;
+    namespace CD = Constants::DescriptorRanges;
 
     //
 
     struct MaterialLayoutDesc
     {
+        static constexpr uint32_t InitialSetCount  = 2;
+        static constexpr uint32_t MaterialSetCount = InitialSetCount + 1;
+
     public:
         MaterialLayoutDesc(
             const PropertyDescriptor& Descriptor) :
-            m_FrameData{ .baseRegisterIndex = ConstantDescriptorRanges::FrameData_RegisterIndex,
-                         .descriptorNum     = 1,
-                         .descriptorType    = Rhi::DescriptorType::CONSTANT_BUFFER },
+            m_FrameData(CD::FrameRangeDesc),
+            m_EntityData(CD::EntityRangeDesc),
             m_Sets{
-                { .registerSpace = ConstantDescriptorRanges::FrameData_RegisterSpace, .ranges = &m_FrameData, .rangeNum = 1 },
-                { .registerSpace = 20 }
+                { .registerSpace = CD::FrameData_RegisterIndex, .ranges = &m_FrameData, .rangeNum = 1 },
+                { .registerSpace = CD::EntityData_RegisterIndex, .ranges = &m_EntityData, .rangeNum = 1 },
+                { .registerSpace = CD::MaterialData_RegisterSpace }
             },
-            m_SetCount(1)
+            m_SetCount(InitialSetCount)
         {
             FillDescriptorSet(Descriptor);
         }
@@ -122,19 +125,21 @@ namespace Ame::Gfx::Shading
             }
             else
             {
-                m_ShaderBits.Set(Rhi::ShaderType::ALL);
+                m_ShaderBits.Set(Rhi::ShaderType::GRAPHICS_SHADERS);
             }
 
-            m_FrameData.shaderStages = m_ShaderBits.Flags;
+            m_FrameData.shaderStages  = m_ShaderBits.Flags;
+            m_EntityData.shaderStages = m_ShaderBits.Flags;
         }
 
     private:
         Rhi::DescriptorRangeDesc m_FrameData;
+        Rhi::DescriptorRangeDesc m_EntityData;
 
         Rhi::DynamicConstantBufferDesc        m_UserData{};
         std::vector<Rhi::DescriptorRangeDesc> m_ResourceDatas;
 
-        Rhi::DescriptorSetDesc m_Sets[2];
+        Rhi::DescriptorSetDesc m_Sets[MaterialSetCount];
         uint32_t               m_SetCount;
 
         Rhi::ShaderFlags m_ShaderBits;
@@ -151,11 +156,11 @@ namespace Ame::Gfx::Shading
     //
 
     Co::result<Ptr<Material>> MaterialCompiler::Compile(
-        Rhi::Device&                 RhiDevice,
-        const MaterialPipelineState& PipelineState,
-        const PropertyDescriptor&    Descriptor)
+        Rhi::Device&              RhiDevice,
+        MaterialPipelineState     PipelineState,
+        const PropertyDescriptor& Descriptor)
     {
         auto Layout = co_await CreatePipelineLayout(RhiDevice, Descriptor);
-        co_return std::make_shared<Material>(RhiDevice, std::move(Layout), PipelineState, Descriptor);
+        co_return std::make_shared<Material>(RhiDevice, std::move(Layout), std::move(PipelineState), Descriptor);
     }
 } // namespace Ame::Gfx::Shading

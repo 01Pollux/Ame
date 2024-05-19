@@ -30,5 +30,6 @@ namespace Ame::Gfx::RG::Std
     private:
         Ref<Ecs::Universe>             m_Universe;
         Ref<Cache::PipelineStateCache> m_PipelineStateCache;
+        uint32_t                       m_MaxEntitiesCount;
     };
 } // namespace Ame::Gfx::RG::Std

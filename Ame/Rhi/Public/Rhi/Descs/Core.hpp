@@ -21,7 +21,14 @@ namespace Ame::Rhi
 
     using BufferDesc  = nri::BufferDesc;
     using TextureDesc = nri::TextureDesc;
-    using SamplerDesc = nri::SamplerDesc;
+
+    using SamplerFilter       = nri::Filter;
+    using SamplerFilterExt    = nri::FilterExt;
+    using SamplerFilters      = nri::Filters;
+    using SamplerAddressMode  = nri::AddressMode;
+    using SamplerAddressModes = nri::AddressModes;
+    using SamplerBorderColor  = nri::BorderColor;
+    using SamplerDesc         = nri::SamplerDesc;
 
     using TextureRegionDesc     = nri::TextureRegionDesc;
     using TextureDataLayoutDesc = nri::TextureDataLayoutDesc;

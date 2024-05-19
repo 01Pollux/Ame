@@ -44,6 +44,11 @@ namespace Ame::Gfx::Shading
         [[nodiscard]] const SamplerResource& ReadSampler(
             const String& Property) const;
 
+        /// <summary>
+        /// Get the resources of this material
+        /// </summary>
+        [[nodiscard]] Co::generator<ResourceMap::const_iterator> GetResources() const;
+
     public:
         /// <summary>
         /// Write a scalar value to the property map
@@ -60,6 +65,11 @@ namespace Ame::Gfx::Shading
             const String& Name,
             void*         Data,
             size_t        Size) const;
+
+        /// <summary>
+        /// Get the user data of this material
+        /// </summary>
+        [[nodiscard]] const uint8_t* GetUserData() const;
 
         /// <summary>
         /// Get the size of the user data of this material

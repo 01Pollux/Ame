@@ -1,15 +1,34 @@
 #include <ranges>
+#include <boost/container_hash/hash.hpp>
 
 #include <Rhi/Device/Device.hpp>
 #include <Gfx/Shading/Material.CommonState.hpp>
+#include <Gfx/Constants.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Gfx::Shading
 {
+    namespace CS = Constants::Shading;
+
+    MaterialCommonState::MaterialCommonState(
+        Rhi::Device&             RhiDevice,
+        Ptr<Rhi::PipelineLayout> PipelineLayout,
+        MaterialPipelineState    PipelineState) :
+        m_RhiDevice(RhiDevice),
+        m_PipelineLayout(PipelineLayout),
+        m_PipelineStateDesc(std::move(PipelineState))
+    {
+    }
+
     Rhi::Device& MaterialCommonState::GetDevice() const
     {
         return m_RhiDevice;
+    }
+
+    Ptr<Rhi::PipelineLayout> MaterialCommonState::GetPipelineLayout() const
+    {
+        return m_PipelineLayout;
     }
 
     Co::result<Ptr<Rhi::PipelineState>> MaterialCommonState::GetPipelineState(
@@ -76,6 +95,8 @@ namespace Ame::Gfx::Shading
                                   { return Bytecode.GetDesc(); }) |
             std::ranges::to<std::vector>();
 
+        CS::MaterialVertexDesc VertexDesc;
+
         Rhi::GraphicsPipelineDesc Desc{
             .Layout        = PipelineLayout,
             .InputAssembly = PipelineState.InputAssembly,
@@ -87,6 +108,7 @@ namespace Ame::Gfx::Shading
                 .StencilTarget      = OutputMerger.StencilTarget,
                 .ColorLogicFunc     = OutputMerger.ColorLogicFunc },
             .Shaders     = ShaderDescs,
+            .VertexInput = &VertexDesc,
             .Multisample = PipelineState.MultiSample ? &MultiSample : nullptr
         };
 
