@@ -15,13 +15,13 @@ struct VSInput
 {
 	float3 Position : POSITION;
 	float3 Normal : NORMAL;
-	float3 Tagent : NORMAL;
+	float3 Tagent : TANGENT;
 	float2 TexCoord : TEXCOORD;
 };
 
 #define MATERIALDATA_REGISTERSPACE 20
 
-#define AME_MATERIAL_RESOURCE(type, name, regType, bindingIndex) AME_RESOURCE(type, name, regType, bindingIndex, MATERIALDATA_REGISTERSPACE)
+#define AME_MATERIAL_RESOURCE(type, name, regType, bindingIndex) AME_RESOURCE(type, name, regType, bindingIndex, 20)
 
 AME_RESOURCE(StructuredBuffer<Transform>, g_Transforms, t, 0, 2);
 AME_RESOURCE(StructuredBuffer<RenderInstance>, g_RenderInstances, t, 1, 2);

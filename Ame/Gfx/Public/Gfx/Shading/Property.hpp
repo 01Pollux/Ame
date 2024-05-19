@@ -77,22 +77,22 @@ namespace Ame::Gfx::Shading
 
     struct BufferResource
     {
-        Ptr<Rhi::Buffer>    Buffer;
-        Rhi::BufferViewDesc ViewDesc;
-        Rhi::ResourceView   View;
+        Ptr<Rhi::Buffer>       Buffer;
+        Rhi::BufferViewDesc    ViewDesc;
+        Ptr<Rhi::ResourceView> View;
     };
 
     struct TextureResource
     {
-        Ptr<Rhi::Texture>    Texture;
-        Rhi::TextureViewDesc ViewDesc;
-        Rhi::ResourceView    View;
+        Ptr<Rhi::Texture>      Texture;
+        Rhi::TextureViewDesc   ViewDesc;
+        Ptr<Rhi::ResourceView> View;
     };
 
     struct SamplerResource
     {
-        Rhi::SamplerDesc  ViewDesc;
-        Rhi::ResourceView View;
+        Rhi::SamplerDesc       ViewDesc;
+        Ptr<Rhi::ResourceView> View;
     };
 
     using RhiResourceType = std::variant<

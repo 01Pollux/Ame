@@ -61,13 +61,25 @@ namespace Ame::Gfx::Shading
             Rhi::TextureViewDesc     ViewDesc);
 
         void Set(
+            const String&   Property,
+            TextureResource Texture);
+
+        void Set(
             const String&           Property,
             const Ptr<Rhi::Buffer>& Buffer,
             Rhi::BufferViewDesc     ViewDesc);
 
         void Set(
+            const String&  Property,
+            BufferResource Buffer);
+
+        void Set(
             const String&    Property,
             Rhi::SamplerDesc SamplerDesc);
+
+        void Set(
+            const String&   Property,
+            SamplerResource Sampler);
 
     public:
         template<typename Ty>

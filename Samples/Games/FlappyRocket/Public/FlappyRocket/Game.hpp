@@ -9,6 +9,7 @@ namespace Ame
         namespace Cache
         {
             class PipelineStateCache;
+            class ShaderCache;
         } // namespace Cache
         namespace RG
         {
@@ -35,7 +36,8 @@ namespace Ame::FlappyRocket
             Rhi::Device&                    Device,
             Ecs::Universe&                  EcsUniverse,
             Gfx::Renderer&                  Renderer,
-            Gfx::Cache::PipelineStateCache& PipelineStateCache);
+            Gfx::Cache::PipelineStateCache& PipelineStateCache,
+            Gfx::Cache::ShaderCache&        ShaderCache);
 
     public:
         /// <summary>
@@ -57,7 +59,8 @@ namespace Ame::FlappyRocket
             Gfx::Cache::PipelineStateCache& PipelineStateCache);
 
     private:
-        Rhi::Device*    m_Device       = nullptr;
-        Ecs::Universe*  m_EcsUniverse  = nullptr;
+        Rhi::Device*             m_Device      = nullptr;
+        Ecs::Universe*           m_EcsUniverse = nullptr;
+        Gfx::Cache::ShaderCache* m_ShaderCache = nullptr;
     };
 } // namespace Ame::FlappyRocket

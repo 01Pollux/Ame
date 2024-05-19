@@ -5,44 +5,83 @@
 namespace Ame::Gfx::Shading
 {
     PropertyMap::PropertyMap(
-        const PropertyDescriptor& Descriptor)
+        const PropertyDescriptor& Descriptor) :
+        m_UserData(Descriptor)
     {
+        if (m_UserData.GetStructSize() > 0)
+        {
+            m_UserDataBuffer = std::make_unique<uint8_t[]>(m_UserData.GetStructSize());
+        }
+
+        for (auto& Resource : Descriptor.GetResources())
+        {
+            switch (Resource.get().Type)
+            {
+            case ResourceType::Buffer:
+            case ResourceType::RWBuffer:
+            case ResourceType::StructuredBuffer:
+            case ResourceType::RWStructuredBuffer:
+                m_Resources[Resource.get().PropName] = BufferResource();
+                break;
+
+            case ResourceType::Texture1D:
+            case ResourceType::Texture1DArray:
+            case ResourceType::Texture2D:
+            case ResourceType::Texture2DArray:
+            case ResourceType::Texture2DMS:
+            case ResourceType::Texture2DMSArray:
+            case ResourceType::Texture3D:
+            case ResourceType::TextureCube:
+            case ResourceType::TextureCubeArray:
+            case ResourceType::RWTexture1D:
+            case ResourceType::RWTexture1DArray:
+            case ResourceType::RWTexture2D:
+            case ResourceType::RWTexture2DArray:
+            case ResourceType::RWTexture3D:
+                m_Resources[Resource.get().PropName] = TextureResource();
+                break;
+
+            case ResourceType::Sampler:
+                m_Resources[Resource.get().PropName] = SamplerResource();
+                break;
+
+            default:
+                std::unreachable();
+            }
+        }
     }
 
     PropertyMap::PropertyMap(
-        const PropertyMap* Other)
+        const PropertyMap* Other) :
+        m_UserData(Other->m_UserData),
+        m_Resources(Other->m_Resources)
     {
+        if (m_UserData.GetStructSize() > 0)
+        {
+            m_UserDataBuffer = std::make_unique<uint8_t[]>(m_UserData.GetStructSize());
+            std::copy(Other->GetUserData(), Other->GetUserData() + m_UserData.GetStructSize(), m_UserDataBuffer.get());
+        }
     }
 
     //
 
     void PropertyMap::WriteTexture(
-        const String&            Property,
-        const Ptr<Rhi::Texture>& Texture,
-        Rhi::TextureViewDesc     ViewDesc)
+        const String&   Property,
+        TextureResource Texture)
     {
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
         Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
         Log::Renderer().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
-        Log::Renderer().Assert(ViewDesc.Type == Rhi::TextureViewType::AnyShaderResource ||
-                                   ViewDesc.Type == Rhi::TextureViewType::AnyUnorderedAccess,
-                               "Texture view type is not shader resource nor unordered access");
-
 #endif
 
-        auto& Resource = std::get<TextureResource>(Iter->second);
-
-        Resource.Texture  = Texture;
-        Resource.ViewDesc = std::move(ViewDesc);
-        Resource.View     = Texture->CreateView(Resource.ViewDesc);
+        Iter->second = std::move(Texture);
     }
 
     void PropertyMap::WriteBuffer(
-        const String&           Property,
-        const Ptr<Rhi::Buffer>& Buffer,
-        Rhi::BufferViewDesc     ViewDesc)
+        const String&  Property,
+        BufferResource Buffer)
     {
         auto Iter = m_Resources.find(Property);
 
@@ -51,31 +90,24 @@ namespace Ame::Gfx::Shading
         Log::Renderer().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
 #endif
 
-        auto& Resource = std::get<BufferResource>(Iter->second);
-
-        Resource.Buffer   = Buffer;
-        Resource.ViewDesc = std::move(ViewDesc);
-        Resource.View     = Buffer->CreateView(Resource.ViewDesc);
+        Iter->second = std::move(Buffer);
     }
 
     void PropertyMap::WriteSampler(
-        const String&            Property,
-        Rhi::SamplerResourceView Sampler,
-        Rhi::SamplerDesc         SamplerDesc)
+        const String&   Property,
+        SamplerResource Sampler)
     {
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
         Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
         Log::Renderer().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
-        Log::Renderer().Assert(Sampler.IsOwning(), "Sampler resource is not owning");
 #endif
 
-        auto& Resource = std::get<SamplerResource>(Iter->second);
-
-        Resource.ViewDesc = std::move(SamplerDesc);
-        Resource.View     = std::move(Sampler);
+        Iter->second = std::move(Sampler);
     }
+
+    //
 
     const TextureResource& PropertyMap::ReadTexture(
         const String& Property) const
@@ -118,7 +150,7 @@ namespace Ame::Gfx::Shading
 
     auto PropertyMap::GetResources() const -> Co::generator<ResourceMap::const_iterator>
     {
-        for (auto Iter = m_Resources.begin(); Iter != m_Resources.end(); ++Iter)
+        for (auto Iter = m_Resources.begin(); Iter != m_Resources.end(); Iter++)
         {
             co_yield Iter;
         }

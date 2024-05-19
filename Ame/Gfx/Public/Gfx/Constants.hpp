@@ -12,7 +12,7 @@ namespace Ame::Gfx::Constants
 
         struct MaterialVertexDesc : Rhi::VertexInputDesc
         {
-            static constexpr uint32_t MaxVertexAttributes = 3;
+            static constexpr uint32_t MaxVertexAttributes = 4;
 
             MaterialVertexDesc()
             {
@@ -31,7 +31,8 @@ namespace Ame::Gfx::Constants
             nri::VertexAttributeDesc m_Attributes[MaxVertexAttributes]{
                 { .d3d{ "POSITION" }, .vk{ 0 }, .offset = offsetof(MaterialVertex, Position), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
                 { .d3d{ "NORMAL" }, .vk{ 1 }, .offset = offsetof(MaterialVertex, Normal), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
-                { .d3d{ "TEXCOORD" }, .vk{ 2 }, .offset = offsetof(MaterialVertex, TexCoord), .format = Rhi::ResourceFormat::RG32_SFLOAT }
+                { .d3d{ "TANGENT" }, .vk{ 2 }, .offset = offsetof(MaterialVertex, Normal), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
+                { .d3d{ "TEXCOORD" }, .vk{ 3 }, .offset = offsetof(MaterialVertex, TexCoord), .format = Rhi::ResourceFormat::RG32_SFLOAT }
             };
 
             nri::VertexStreamDesc m_Streams[1]{

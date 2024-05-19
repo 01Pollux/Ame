@@ -21,19 +21,16 @@ namespace Ame::Gfx::Shading
 
     public:
         void WriteTexture(
-            const String&            Property,
-            const Ptr<Rhi::Texture>& Texture,
-            Rhi::TextureViewDesc     ViewDesc);
+            const String&   Property,
+            TextureResource Texture);
 
         void WriteBuffer(
-            const String&           Property,
-            const Ptr<Rhi::Buffer>& Buffer,
-            Rhi::BufferViewDesc     ViewDesc);
+            const String&  Property,
+            BufferResource Buffer);
 
         void WriteSampler(
-            const String&            Property,
-            Rhi::SamplerResourceView Sampler,
-            Rhi::SamplerDesc         SamplerDesc);
+            const String&   Property,
+            SamplerResource Sampler);
 
         [[nodiscard]] const TextureResource& ReadTexture(
             const String& Property) const;

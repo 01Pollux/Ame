@@ -6,6 +6,7 @@
 #include <Ecs/Subsystem/Universe.hpp>
 #include <Gfx/Subsystem/Renderer.hpp>
 #include <Gfx/Subsystem/PipelineStateCache.hpp>
+#include <Gfx/Subsystem/ShaderCache.hpp>
 
 #include <FlappyRocket/Game.hpp>
 
@@ -17,7 +18,8 @@ namespace Ame::FlappyRocket
                                                Rhi::DeviceSubsystem,
                                                Ecs::UniverseSubsystem,
                                                Gfx::RendererSubsystem,
-                                               Gfx::Cache::PipelineStateCacheSubsystem>>,
+                                               Gfx::Cache::PipelineStateCacheSubsystem,
+                                               Gfx::Cache::ShaderCacheSubsystem>>,
                                        kgr::final
     {
     };

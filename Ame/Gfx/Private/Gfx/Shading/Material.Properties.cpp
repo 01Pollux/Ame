@@ -37,9 +37,28 @@ namespace Ame::Gfx::Shading
         const Ptr<Rhi::Texture>& Texture,
         Rhi::TextureViewDesc     ViewDesc)
     {
+#ifdef AME_DEBUG
+        Log::Renderer().Assert(
+            ViewDesc.Type == Rhi::TextureViewType::AnyShaderResource ||
+                ViewDesc.Type == Rhi::TextureViewType::AnyUnorderedAccess,
+            "Texture view type is not shader resource nor unordered access");
+#endif
+
+        TextureResource Resource{
+            .Texture  = Texture,
+            .ViewDesc = std::move(ViewDesc),
+            .View     = std::make_shared<Rhi::ResourceView>(Texture->CreateView(Resource.ViewDesc))
+        };
+        Set(Property, std::move(Resource));
+    }
+
+    void Material::Set(
+        const String&   Property,
+        TextureResource Texture)
+    {
         InvalidateHash();
         auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.WriteTexture(Property, Texture, std::move(ViewDesc));
+        Properties.WriteTexture(Property, std::move(Texture));
     }
 
     void Material::Set(
@@ -47,20 +66,44 @@ namespace Ame::Gfx::Shading
         const Ptr<Rhi::Buffer>& Buffer,
         Rhi::BufferViewDesc     ViewDesc)
     {
+        BufferResource Resource{
+            .Buffer   = Buffer,
+            .ViewDesc = std::move(ViewDesc),
+            .View     = std::make_shared<Rhi::ResourceView>(Buffer->CreateView(Resource.ViewDesc))
+        };
+        Set(Property, std::move(Resource));
+    }
+
+    void Material::Set(
+        const String&  Property,
+        BufferResource Buffer)
+    {
         InvalidateHash();
         auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.WriteBuffer(Property, Buffer, std::move(ViewDesc));
+        Properties.WriteBuffer(Property, std::move(Buffer));
     }
 
     void Material::Set(
         const String&    Property,
         Rhi::SamplerDesc SamplerDesc)
     {
-        InvalidateHash();
-        auto&                    Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Rhi::SamplerResourceView Sampler(m_SharedData->CommonState.GetDevice(), SamplerDesc);
-        Properties.WriteSampler(Property, std::move(Sampler), std::move(SamplerDesc));
+        SamplerResource Resource{
+            .ViewDesc = std::move(SamplerDesc),
+            .View     = std::make_shared<Rhi::SamplerResourceView>(m_SharedData->CommonState.GetDevice(), SamplerDesc)
+        };
+        Set(Property, std::move(Resource));
     }
+
+    void Material::Set(
+        const String&   Property,
+        SamplerResource Sampler)
+    {
+        InvalidateHash();
+        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
+        Properties.WriteSampler(Property, std::move(Sampler));
+    }
+
+    //
 
     const TextureResource& Material::GetTexture(
         const String& Property) const
@@ -94,6 +137,8 @@ namespace Ame::Gfx::Shading
         auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
         Properties.WriteUserData(Property, Value, Size);
     }
+
+    //
 
     void Material::GetScalar(
         const String& Property,

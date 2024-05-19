@@ -2,7 +2,7 @@
 
 #include <Gfx/Renderer.hpp>
 #include <Gfx/Shading/Material.Compiler.hpp>
-#include <Rhi/Resource/Shader.Compiler.hpp>
+#include <Gfx/Cache/ShaderCache.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
@@ -18,9 +18,11 @@ namespace Ame::FlappyRocket
         Rhi::Device&                    Device,
         Ecs::Universe&                  EcsUniverse,
         Gfx::Renderer&                  Renderer,
-        Gfx::Cache::PipelineStateCache& PipelineStateCache) :
+        Gfx::Cache::PipelineStateCache& PipelineStateCache,
+        Gfx::Cache::ShaderCache&        ShaderCache) :
         m_Device(&Device),
-        m_EcsUniverse(&EcsUniverse)
+        m_EcsUniverse(&EcsUniverse),
+        m_ShaderCache(&ShaderCache)
     {
         SetupRenderGraph(Renderer.GetRenderGraph(), PipelineStateCache);
     }
@@ -37,7 +39,8 @@ namespace Ame::FlappyRocket
     //
 
     [[nodiscard]] static Ptr<Gfx::Shading::Material> CreateMaterial(
-        Rhi::Device& Device)
+        Rhi::Device&             Device,
+        Gfx::Cache::ShaderCache& ShaderCache)
     {
         namespace GS = Gfx::Shading;
 
@@ -47,18 +50,10 @@ namespace Ame::FlappyRocket
         Rhi::ShaderCompileDesc CompileDesc;
 
         CompileDesc.Stage = Rhi::ShaderType::VERTEX_SHADER;
-        PipelineState.Shaders.emplace_back(
-            Rhi::ShaderCompiler::Compile(
-                Device,
-                s_ShaderSource,
-                CompileDesc));
+        PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
 
         CompileDesc.Stage = Rhi::ShaderType::FRAGMENT_SHADER;
-        PipelineState.Shaders.emplace_back(
-            Rhi::ShaderCompiler::Compile(
-                Device,
-                s_ShaderSource,
-                CompileDesc));
+        PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
 
         return GS::MaterialCompiler::Compile(
                    Device,
@@ -74,7 +69,7 @@ namespace Ame::FlappyRocket
         auto Player       = World.CreateEntity(PlayerName);
         auto PlayerSprite = Ecs::Component::Sprite::Quad();
 
-        PlayerSprite.Material = CreateMaterial(*m_Device);
+        PlayerSprite.Material = CreateMaterial(*m_Device, *m_ShaderCache);
 
         Player.AddComponent(std::move(PlayerSprite));
         Player.AddComponent<Ecs::Component::Transform>();

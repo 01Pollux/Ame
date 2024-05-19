@@ -17,9 +17,9 @@ namespace Ame::Rhi
     {
     }
 
-    HRESULT __stdcall ShaderIncludeHandler::LoadSource(
-        LPCWSTR    FileName,
-        IDxcBlob** IncludeSourceBlob)
+    HRESULT STDMETHODCALLTYPE ShaderIncludeHandler::LoadSource(
+        _In_ LPCWSTR                             FileName,
+        _COM_Outptr_result_maybenull_ IDxcBlob** IncludeSourceBlob)
     {
         *IncludeSourceBlob = nullptr;
 
