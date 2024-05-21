@@ -37,7 +37,7 @@ namespace Ame::FlappyRocket
     }
 
     //
-
+   
     [[nodiscard]] static Ptr<Gfx::Shading::Material> CreateMaterial(
         Rhi::Device&             Device,
         Gfx::Cache::ShaderCache& ShaderCache)

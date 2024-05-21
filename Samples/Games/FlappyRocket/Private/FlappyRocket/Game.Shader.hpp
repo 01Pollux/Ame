@@ -7,26 +7,16 @@ namespace Ame::FlappyRocket
 
 //
 
-struct VSOutput
-{
-	float4 Position : SV_POSITION;
-	float3 Normal : NORMAL;
-	float2 TexCoord : TEXCOORD;
-};
-
-typedef VSOutput PSInput;
-
-//
-
-AME_MATERIAL_RESOURCE(Texture2D<float4>, p_Albedo, t, 0);
+AME_MATERIAL_RESOURCE(Texture2D<float4>, p_BasecolorMap, t, 0);
 AME_MATERIAL_RESOURCE(SamplerState, p_Sampler, s, 1);
 
 //
 
-VSOutput VS_Main(
-	VSInput input)
+[shader("vertex")]
+Ecs_PSInput VS_Main(
+	Ecs_VSInput input)
 {
-	VSOutput output = (VSOutput) 0;
+	Ecs_PSInput output = (Ecs_PSInput) 0;
 	
 	RenderInstance instance = g_RenderInstances[g_InstanceInfo.InstanceIndex];
 	Transform transform = g_Transforms[instance.TransformIndex];
@@ -34,18 +24,24 @@ VSOutput VS_Main(
 	output.Position = float4(input.Position, 1.0f);
 	output.Position = mul(output.Position, transform.World);
 	
-	output.Normal = input.Normal;
+	output.NormalWS = mul(float4(input.Normal, 0.0f), transform.World).xyz;
+	output.TangentWS = mul(float4(input.Tangent, 0.0f), transform.World).xyz;
+	output.BitangentWS = normalize(cross(output.NormalWS, output.TangentWS));
+
 	output.TexCoord = input.TexCoord;
 	
 	return output;
 }
 
-float4 PS_Main(
-	PSInput input) : SV_TARGET
+export MaterialFragment PS_Main(
+	Ecs_PSInput input)
 {
-	//float4 albedo = p_Albedo.Sample(p_Sampler, input.TexCoord);
-	//return albedo;
-	return float4(1.0f, 0.0f, 0.0f, 1.0f);
+	MaterialFragment fragment = (MaterialFragment) 0;
+	
+	//fragment.BaseColor = p_BasecolorMap.Sample(p_Sampler, input.TexCoord).xyz;
+	fragment.BaseColor = float3(1.0f, 1.0f, 1.0f);
+	
+	return fragment;
 }
 )";
 } // namespace Ame::FlappyRocket

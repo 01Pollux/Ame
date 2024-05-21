@@ -1,5 +1,5 @@
-#ifndef AME_CORE_CAMERADATA_H
-#define AME_CORE_CAMERADATA_H
+#ifndef AME_CORE_FRAMEDATA_H
+#define AME_CORE_FRAMEDATA_H
 
 #include "Ame.hlsli"
 
