@@ -8,7 +8,7 @@ namespace Ame
     {
         namespace Cache
         {
-            class PipelineStateCache;
+            class CommonPipelineState;
             class ShaderCache;
             class MaterialBindingCache;
         } // namespace Cache
@@ -37,7 +37,7 @@ namespace Ame::FlappyRocket
             Rhi::Device&                      Device,
             Ecs::Universe&                    EcsUniverse,
             Gfx::Renderer&                    Renderer,
-            Gfx::Cache::PipelineStateCache&   PipelineStateCache,
+            Gfx::Cache::CommonPipelineState&  CommonPipelines,
             Gfx::Cache::ShaderCache&          ShaderCache,
             Gfx::Cache::MaterialBindingCache& MaterialCache);
 
@@ -58,7 +58,7 @@ namespace Ame::FlappyRocket
         /// </summary>
         void SetupRenderGraph(
             Gfx::RG::Graph&                   RenderGraph,
-            Gfx::Cache::PipelineStateCache&   PipelineStateCache,
+            Gfx::Cache::CommonPipelineState&  CommonPipelines,
             Gfx::Cache::MaterialBindingCache& MaterialCache);
 
     private:

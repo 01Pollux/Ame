@@ -7,7 +7,7 @@
 
 namespace Ame::Gfx::Cache
 {
-    class PipelineLayoutCache
+    class CommonPipelineLayout
     {
     public:
         enum class Type
@@ -21,7 +21,7 @@ namespace Ame::Gfx::Cache
         using CacheLoadList = std::array<Co::result<void>, std::to_underlying(Type::Count)>;
 
     public:
-        PipelineLayoutCache(
+        CommonPipelineLayout(
             Rhi::Device& Device,
             Co::runtime& Runtime) :
             m_Device(Device),

@@ -12,14 +12,14 @@ namespace Ame::FlappyRocket
 
     void FlappyRocketGame::SetupRenderGraph(
         Gfx::RG::Graph&                   RenderGraph,
-        Gfx::Cache::PipelineStateCache&   PipelineStateCache,
+        Gfx::Cache::CommonPipelineState&  CommonPipelines,
         Gfx::Cache::MaterialBindingCache& MaterialCache)
     {
         auto& PassStorage = RenderGraph.GetPassStorage();
 
         PassStorage.NewPass<RG::Std::EntityCollectPass>(
             *m_EcsUniverse,
-            PipelineStateCache);
+            CommonPipelines);
         PassStorage.NewPass<RG::Std::GBufferPass>(
             MaterialCache);
     }

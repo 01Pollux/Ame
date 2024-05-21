@@ -31,4 +31,4 @@ namespace Ame::Asset::Common
     {
         Stream << dynamic_cast<const TextFileAsset*>(Asset.get())->Get();
     }
-} // namespace Ame::Asset
+} // namespace Ame::Asset::Common

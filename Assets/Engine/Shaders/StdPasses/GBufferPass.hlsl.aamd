@@ -1,0 +1,8 @@
+{
+  "Guid": "cc6ace89-e692-43c7-8e33-069e1f71fd7a",
+  "Path": "Engine\/Shaders\/StdPasses\/GBufferPass.hlsl.aamd",
+  "LoaderData": "",
+  "Dependencies": "",
+  "LoaderId": "19456857095889080",
+  "Hash": "36176C1A8911A1CBA30F1406E1421AA4A4623271C14CF25F0BBF4CD24ACDA82B"
+}

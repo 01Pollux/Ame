@@ -22,4 +22,4 @@ namespace Ame::Asset::Common
         MarkDirty();
         m_Text = Text;
     }
-} // namespace Ame::Asset
+} // namespace Ame::Asset::Common

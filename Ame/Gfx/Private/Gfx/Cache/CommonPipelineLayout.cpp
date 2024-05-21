@@ -1,4 +1,4 @@
-#include <Gfx/Cache/PipelineLayoutCache.hpp>
+#include <Gfx/Cache/CommonPipelineLayout.hpp>
 #include <Rhi/Device/Device.hpp>
 
 #include <Gfx/Constants.hpp>
@@ -9,7 +9,7 @@ namespace Ame::Gfx::Cache
 
     //
 
-    Co::result<Ptr<Rhi::PipelineLayout>> PipelineLayoutCache::Load(
+    Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineLayout::Load(
         Type LayoutType)
     {
         auto Index = std::to_underlying(LayoutType);
@@ -27,7 +27,7 @@ namespace Ame::Gfx::Cache
 
     //
 
-    Co::result<Ptr<Rhi::PipelineLayout>> PipelineLayoutCache::Create(
+    Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineLayout::Create(
         Rhi::Device&  Device,
         Co::executor& Executor,
         Type          LayoutType)

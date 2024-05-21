@@ -10,6 +10,8 @@ struct InstanceInfo
 	uint InstanceIndex;
 };
 
+MaterialFragment PSM_Main(Ecs_PSInput input);
+
 #define MATERIALDATA_REGISTERSPACE 20
 
 #define AME_MATERIAL_RESOURCE(type, name, regType, bindingIndex) AME_RESOURCE(type, name, regType, bindingIndex, 20)

@@ -4,10 +4,11 @@
 #include <Ecs/Universe.hpp>
 
 #include <Gfx/Cache/MaterialBindingCache.hpp>
+#include <Gfx/Cache/ShaderCache.hpp>
 
 namespace Ame::Gfx::Cache
 {
-    class PipelineStateCache;
+    class CommonPipelineState;
 } // namespace Ame::Gfx::Cache
 
 namespace Ame::Gfx::RG::Std

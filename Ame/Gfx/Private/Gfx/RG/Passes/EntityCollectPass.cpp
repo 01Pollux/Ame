@@ -1,6 +1,6 @@
 #include <Gfx/RG/Passes/EntityCollectPass.hpp>
 
-#include <Gfx/Cache/PipelineStateCache.hpp>
+#include <Gfx/Cache/CommonPipelineState.hpp>
 #include <Gfx/Constants.hpp>
 
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
@@ -12,13 +12,13 @@ namespace Ame::Gfx::RG::Std
     //
 
     EntityCollectPass::EntityCollectPass(
-        Ecs::Universe&             Universe,
-        Cache::PipelineStateCache& PipelineStateCache) :
+        Ecs::Universe&              Universe,
+        Cache::CommonPipelineState& CommonPipelines) :
         m_Universe(Universe),
-        m_PipelineStateCache(PipelineStateCache),
+        m_CommonPipelines(CommonPipelines),
         m_MaxEntitiesCount(MinEntities)
     {
-        m_PipelineStateCache.get().Load(Cache::PipelineStateCache::Type::EntityCollectPass);
+        m_CommonPipelines.get().Load(Cache::CommonPipelineState::Type::EntityCollectPass);
 
         Name("EntityCollectPass")
             .SetFlags(PassFlags::Compute)
@@ -67,8 +67,8 @@ namespace Ame::Gfx::RG::Std
                     auto& CommandsView         = RgStorage.GetResourceViewHandle(Names::EntityCommandBuffer("CollectPass"));
                     auto& CounterView          = RgStorage.GetResourceViewHandle(Names::EntityCommandCounter("CollectPass"));
 
-                    auto PipelineState = m_PipelineStateCache.get()
-                                             .Load(Cache::PipelineStateCache::Type::EntityCollectPass)
+                    auto PipelineState = m_CommonPipelines.get()
+                                             .Load(Cache::CommonPipelineState::Type::EntityCollectPass)
                                              .get();
 
                     CommandList->SetPipelineLayout(PipelineState->GetLayout());

@@ -9,7 +9,7 @@
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        EngineFrame&        Frame,
+        EngineFrame&   Frame,
         FrameTimer&    Timer,
         Rhi::Device&   Device,
         Ecs::Universe& Universe) :

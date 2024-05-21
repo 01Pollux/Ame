@@ -69,7 +69,7 @@ namespace Ame::Gfx::Shading
         ///
         /// The pixel shader is required.
         /// The pixel shader must be a library shader.
-        /// The pixel shader must have a 'PSMain' entry point with [shader("pixel")] attribute.
+        /// The pixel shader must have a 'PSM_Main' entry point with no [shader("...")] attribute.
         /// The pixel shader input layout must be same as 'VSToPS'.
         /// The pixel shader output layout must be same as 'MaterialFragment'.
         /// </summary>

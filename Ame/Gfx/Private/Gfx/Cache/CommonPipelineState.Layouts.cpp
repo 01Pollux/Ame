@@ -1,23 +1,23 @@
 #include <ranges>
 
-#include <Gfx/Cache/PipelineStateCache.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Gfx/Cache/CommonPipelineState.hpp>
 
 namespace Ame::Gfx::Cache
 {
-    Co::result<Ptr<Rhi::PipelineLayout>> PipelineStateCache::PrepareLayout(
+    Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineState::PrepareLayout(
         Type PipelineType)
     {
-        return m_LayoutCache.get().Load(GetLayoutType(PipelineType));
+        return m_CommonLayouts.get().Load(GetLayoutType(PipelineType));
     }
 
-    PipelineLayoutCache::Type PipelineStateCache::GetLayoutType(
+    CommonPipelineLayout::Type CommonPipelineState::GetLayoutType(
         Type PipelineType)
     {
         switch (PipelineType)
         {
         case Type::EntityCollectPass:
-            return PipelineLayoutCache::Type::EntityCollectPass;
+            return CommonPipelineLayout::Type::EntityCollectPass;
 
         default:
             std::unreachable();

@@ -18,14 +18,14 @@ namespace Ame::FlappyRocket
         Rhi::Device&                      Device,
         Ecs::Universe&                    EcsUniverse,
         Gfx::Renderer&                    Renderer,
-        Gfx::Cache::PipelineStateCache&   PipelineStateCache,
+        Gfx::Cache::CommonPipelineState&  CommonPipelines,
         Gfx::Cache::ShaderCache&          ShaderCache,
         Gfx::Cache::MaterialBindingCache& MaterialCache) :
         m_Device(&Device),
         m_EcsUniverse(&EcsUniverse),
         m_ShaderCache(&ShaderCache)
     {
-        SetupRenderGraph(Renderer.GetRenderGraph(), PipelineStateCache, MaterialCache);
+        SetupRenderGraph(Renderer.GetRenderGraph(), CommonPipelines, MaterialCache);
     }
 
     //

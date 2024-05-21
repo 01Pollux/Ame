@@ -1,7 +1,6 @@
-#include <ranges>
-
-#include <Gfx/Cache/PipelineStateCache.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Gfx/Cache/CommonShader.hpp>
+#include <Gfx/Cache/CommonShader.ShaderGuids.hpp>
 
 #include <Asset/Storage.hpp>
 #include <Asset/Types/Gfx/ShaderSourceAsset.hpp>
@@ -10,16 +9,7 @@
 
 namespace Ame::Gfx::Cache
 {
-    namespace Guids
-    {
-        static constexpr const char* s_EntityCollectPass = "c3fbdbaf-490b-4415-bc99-3b6a3ba84d6f";
-    } // namespace Guids
-
-    //
-
     using ShaderSourceAsset = Ptr<Asset::Gfx::ShaderSourceAsset>;
-
-    //
 
     [[nodiscard]] static Co::result<ShaderSourceAsset> LoadShader(
         Co::executor_tag,
@@ -54,44 +44,46 @@ namespace Ame::Gfx::Cache
 
     //
 
-    auto PipelineStateCache::ShaderTable::Create(
-        ShaderTaskStorage Tasks) -> Co::result<ShaderTable>
+    Co::result<Rhi::ShaderBytecode> CommonShader::Load(
+        Type ShaderType)
     {
-        ShaderTable Table;
-
-        Table.Shaders.reserve(Tasks.size());
-        Table.ShaderDescs.reserve(Tasks.size());
-
-        for (auto& Shader : Tasks)
+        auto Index = std::to_underlying(ShaderType);
+        if (!m_Caches[Index])
         {
-            Table.Shaders.emplace_back(co_await Shader);
-            Table.ShaderDescs.emplace_back(Table.Shaders.back().GetDesc());
+            auto                  Executor = m_Runtime.get().background_executor();
+            Co::scoped_async_lock Lock     = co_await m_Mutex.lock(Executor);
+            if (!m_Caches[Index])
+            {
+                m_Caches[Index] = co_await Create(*Executor, m_AssetStorage, ShaderType);
+            }
         }
-
-        co_return Table;
+        co_return m_Caches[Index].Borrow();
     }
 
-    //
-
-    auto PipelineStateCache::PrepareShaders(
-        Type PipelineType) -> Co::result<ShaderTaskStorage>
+    Co::result<Rhi::ShaderBytecode> CommonShader::Create(
+        Co::executor&   Executor,
+        Asset::Storage& AssetStorage,
+        Type            ShaderType)
     {
-        auto& Executor = *m_Runtime.get().background_executor();
+        using namespace EnumBitOperators;
 
-        ShaderTaskStorage ShaderTasks;
+        Asset::Handle          ShaderGuid;
+        Rhi::ShaderCompileDesc ShaderDesc;
 
-        uint32_t ShaderIndex = std::to_underlying(PipelineType);
-
-        switch (PipelineType)
+        switch (ShaderType)
         {
-        case Type::EntityCollectPass:
+        case Type::EntityCollectPass_CS:
         {
-            auto ShaderGuid = Asset::Handle::FromString(Guids::s_EntityCollectPass);
-
-            Rhi::ShaderCompileDesc ShaderDesc;
+            ShaderGuid = Asset::Handle::FromString(ShaderGuids::s_EntityCollectPass);
             ShaderDesc.SetStage(Rhi::ShaderType::COMPUTE_SHADER);
+            break;
+        }
 
-            ShaderTasks.emplace_back(LoadAndCompile({}, Executor, m_AssetStorage, ShaderGuid, std::move(ShaderDesc)));
+        case Type::GBufferPass_PS:
+        {
+            ShaderGuid = Asset::Handle::FromString(ShaderGuids::s_BufferCollectPass);
+            ShaderDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
+            ShaderDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
             break;
         }
 
@@ -99,6 +91,6 @@ namespace Ame::Gfx::Cache
             std::unreachable();
         }
 
-        co_return ShaderTasks;
+        co_return co_await LoadAndCompile({}, Executor, AssetStorage, ShaderGuid, std::move(ShaderDesc));
     }
 } // namespace Ame::Gfx::Cache

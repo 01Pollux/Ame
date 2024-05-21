@@ -1,11 +1,11 @@
 #include <ranges>
 
-#include <Gfx/Cache/PipelineStateCache.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Gfx/Cache/CommonPipelineState.hpp>
 
 namespace Ame::Gfx::Cache
 {
-    Co::result<Ptr<Rhi::PipelineState>> PipelineStateCache::Load(
+    Co::result<Ptr<Rhi::PipelineState>> CommonPipelineState::Load(
         Type PipelineType)
     {
         auto Index = std::to_underlying(PipelineType);
@@ -28,7 +28,7 @@ namespace Ame::Gfx::Cache
 
     //
 
-    Co::result<Ptr<Rhi::PipelineState>> PipelineStateCache::Create(
+    Co::result<Ptr<Rhi::PipelineState>> CommonPipelineState::Create(
         Rhi::Device&                    Device,
         Co::executor&                   Executor,
         const Ptr<Rhi::PipelineLayout>& Layout,

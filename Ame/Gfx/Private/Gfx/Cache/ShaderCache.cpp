@@ -3,8 +3,8 @@
 #include <boost/interprocess/containers/map.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>
 
-#include <Gfx/Cache/ShaderCache.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Gfx/Cache/ShaderCache.hpp>
 
 #include <cryptopp/sha.h>
 #include <Util/Crypto.hpp>

@@ -26,7 +26,7 @@ namespace Ame::FlappyRocket
     void FlappyRocketEngine::Initialize()
     {
         BaseEngine::Initialize();
-        
+
         SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
 
         auto& AssetStorage = GetSubsystem<Asset::StorageSubsystem>();

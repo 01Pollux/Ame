@@ -21,7 +21,7 @@ namespace Ame::Asset
 
     AssetMetaDataDef::AssetMetaDataDef(
         const Handle& AssetGuid,
-        String      Path) :
+        String        Path) :
         m_IsDirty(true)
     {
         SetGuid(AssetGuid);

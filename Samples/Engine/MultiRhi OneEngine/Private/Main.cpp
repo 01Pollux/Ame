@@ -70,7 +70,7 @@ private:
     }
 
 private:
-    String  m_Title;
+    String    m_Title;
     Co::timer m_SecondaryTimer;
 
     Rhi::Device m_SecondaryDevice;

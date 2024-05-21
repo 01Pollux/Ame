@@ -5,7 +5,9 @@
 
 #include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Shader.hpp>
-#include <Gfx/Cache/PipelineLayoutCache.hpp>
+
+#include <Gfx/Cache/CommonPipelineLayout.hpp>
+#include <Gfx/Cache/CommonShader.hpp>
 
 namespace Ame::Asset
 {
@@ -14,7 +16,7 @@ namespace Ame::Asset
 
 namespace Ame::Gfx::Cache
 {
-    class PipelineStateCache
+    class CommonPipelineState
     {
         using ShaderTaskStorage = std::vector<Co::result<Rhi::ShaderBytecode>>;
         using ShaderStorage     = std::vector<Rhi::ShaderBytecode>;
@@ -41,15 +43,15 @@ namespace Ame::Gfx::Cache
         using CacheList = std::array<Ptr<Rhi::PipelineState>, std::to_underlying(Type::Count)>;
 
     public:
-        PipelineStateCache(
-            Rhi::Device&         Device,
-            Co::runtime&         Runtime,
-            PipelineLayoutCache& LayoutCache,
-            Asset::Storage&      Storage) :
+        CommonPipelineState(
+            Rhi::Device&          Device,
+            Co::runtime&          Runtime,
+            CommonPipelineLayout& CommonLayouts,
+            CommonShader&         CommonShaders) :
             m_Device(Device),
             m_Runtime(Runtime),
-            m_LayoutCache(LayoutCache),
-            m_AssetStorage(Storage)
+            m_CommonLayouts(CommonLayouts),
+            m_CommonShaders(CommonShaders)
         {
         }
 
@@ -77,7 +79,7 @@ namespace Ame::Gfx::Cache
         /// <summary>
         /// Load or get a pipeline layout from cache.
         /// </summary>
-        [[nodiscard]] static PipelineLayoutCache::Type GetLayoutType(
+        [[nodiscard]] static CommonPipelineLayout::Type GetLayoutType(
             Type PipelineType);
 
         /// <summary>
@@ -94,8 +96,8 @@ namespace Ame::Gfx::Cache
         Ref<Rhi::Device> m_Device;
         Ref<Co::runtime> m_Runtime;
 
-        Ref<PipelineLayoutCache> m_LayoutCache;
-        Ref<Asset::Storage>      m_AssetStorage;
+        Ref<CommonPipelineLayout> m_CommonLayouts;
+        Ref<CommonShader>         m_CommonShaders;
 
         CacheList      m_Caches;
         Co::async_lock m_Mutex;
