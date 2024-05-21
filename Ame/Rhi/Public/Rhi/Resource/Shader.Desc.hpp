@@ -101,5 +101,7 @@ namespace Ame::Rhi
             ShaderCompileFlags::Debug
 #endif
         };
+
+        bool ShouldValidate() const;
     };
 } // namespace Ame::Rhi

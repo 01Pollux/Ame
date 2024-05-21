@@ -34,8 +34,8 @@ namespace Ame::Rhi
             Asset::Storage* AssetStorage);
 
         void Validate(
-            GraphicsAPI        Api,
-            ShaderCompileFlags Flags);
+            GraphicsAPI              Api,
+            const ShaderCompileDesc& Desc);
 
     private:
         CComPtr<IDxcValidator>      m_Validator;

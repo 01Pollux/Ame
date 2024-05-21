@@ -313,9 +313,7 @@ namespace Ame::Rhi
             DefineMacro.c_str()
         };
 
-        // dxc failed : Must disable validation for unsupported lib_6_1 or lib_6_2 targets.
-        if ((IsLibrary && Desc.Profile <= ShaderProfile::_6_2) ||
-            (Desc.Flags & ShaderCompileFlags::NoValidation) != ShaderCompileFlags::NoValidation)
+        if (Desc.ShouldValidate())
         {
             FinalOptions.emplace_back(L"-Vd");
         }

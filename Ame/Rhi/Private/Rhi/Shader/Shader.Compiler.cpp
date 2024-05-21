@@ -15,7 +15,7 @@ namespace Ame::Rhi
         LoadDxc();
         LoadSourceCode(ShaderSource);
         Compile(AssetStorage);
-        Validate(RhiDevice.GetGraphicsAPI(), Desc.Flags);
+        Validate(RhiDevice.GetGraphicsAPI(), Desc);
     }
 
     ShaderBytecode ShaderCompilerLibrary::GetBytecode() const
@@ -120,8 +120,8 @@ namespace Ame::Rhi
     }
 
     void ShaderCompilerLibrary::Validate(
-        GraphicsAPI        Api,
-        ShaderCompileFlags Flags)
+        GraphicsAPI              Api,
+        const ShaderCompileDesc& Desc)
     {
         using namespace EnumBitOperators;
 
@@ -135,8 +135,7 @@ namespace Ame::Rhi
             return;
         }
 
-        // Only validate the shader if it is not a library shader or if the validation flag is not set.
-        if ((Flags & (ShaderCompileFlags::NoValidation | ShaderCompileFlags::LibraryShader)) != ShaderCompileFlags::None)
+        if (!Desc.ShouldValidate())
         {
             return;
         }
