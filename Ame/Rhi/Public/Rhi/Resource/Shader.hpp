@@ -103,6 +103,11 @@ namespace Ame::Rhi
             return m_Size;
         }
 
+        [[nodiscard]] ShaderType GetStage() const
+        {
+            return m_Stage;
+        }
+
     private:
         uint8_t*   m_Bytecode = nullptr;
         size_t     m_Size     = 0;

@@ -8,43 +8,42 @@ namespace Ame::Rhi
     /// Get the shader entry model.
     /// </summary>
     [[nodiscard]] static WideString GetShaderTargetProfile(
-        bool          IsLibrary,
         ShaderType    Stage,
         ShaderProfile Profile)
     {
-        WideString Model = IsLibrary ? L"lib" : L"";
+        WideString Model;
 
-        if (!IsLibrary)
+        switch (Stage)
         {
-            switch (Stage)
-            {
-            case ShaderType::COMPUTE_SHADER:
-                Model = L"cs";
-                break;
-            case ShaderType::VERTEX_SHADER:
-                Model = L"vs";
-                break;
-            case ShaderType::GEOMETRY_SHADER:
-                Model = L"gs";
-                break;
-            case ShaderType::TESS_CONTROL_SHADER:
-                Model = L"hs";
-                break;
-            case ShaderType::TESS_EVALUATION_SHADER:
-                Model = L"ds";
-                break;
-            case ShaderType::FRAGMENT_SHADER:
-                Model = L"ps";
-                break;
-            case ShaderType::MESH_CONTROL_SHADER:
-                Model = L"as";
-                break;
-            case ShaderType::MESH_EVALUATION_SHADER:
-                Model = L"ms";
-                break;
-            default:
-                std::unreachable();
-            }
+        case LibraryShaderType:
+            Model = L"lib";
+            break;
+        case ShaderType::COMPUTE_SHADER:
+            Model = L"cs";
+            break;
+        case ShaderType::VERTEX_SHADER:
+            Model = L"vs";
+            break;
+        case ShaderType::GEOMETRY_SHADER:
+            Model = L"gs";
+            break;
+        case ShaderType::TESS_CONTROL_SHADER:
+            Model = L"hs";
+            break;
+        case ShaderType::TESS_EVALUATION_SHADER:
+            Model = L"ds";
+            break;
+        case ShaderType::FRAGMENT_SHADER:
+            Model = L"ps";
+            break;
+        case ShaderType::MESH_CONTROL_SHADER:
+            Model = L"as";
+            break;
+        case ShaderType::MESH_EVALUATION_SHADER:
+            Model = L"ms";
+            break;
+        default:
+            std::unreachable();
         }
 
         switch (Profile)
@@ -72,28 +71,6 @@ namespace Ame::Rhi
         }
 
         return Model;
-    }
-
-    //
-
-    WideString CompileShaderOption::GetTargetProfile(
-        ShaderType    Stage,
-        ShaderProfile Profile)
-    {
-        return GetShaderTargetProfile(false, Stage, Profile);
-    }
-
-    WideString CompileShaderOption::GetTargetProfile(
-        ShaderCompileFlags Flags,
-        ShaderType         Stage,
-        ShaderProfile      Profile)
-    {
-        using namespace EnumBitOperators;
-
-        //
-
-        bool IsLibrary = (Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
-        return GetShaderTargetProfile(IsLibrary, Stage, Profile);
     }
 
     //
@@ -292,9 +269,9 @@ namespace Ame::Rhi
         Device&                  RhiDevice,
         const ShaderCompileDesc& Desc) :
         Api(RhiDevice.GetGraphicsAPI()),
-        TargetProfile(GetTargetProfile(Desc.Flags, Desc.Stage, Desc.Profile)),
-        EntryPoint(GetShaderEntryPointWide(Desc.Stage)),
-        DefineMacro(GetShaderMacro(Desc.Stage))
+        TargetProfile(GetShaderTargetProfile(Desc.GetStage(), Desc.Profile)),
+        EntryPoint(GetShaderEntryPointWide(Desc.GetStageUnchecked())),
+        DefineMacro(GetShaderMacro(Desc.GetStageUnchecked()))
     {
         using namespace EnumBitOperators;
 

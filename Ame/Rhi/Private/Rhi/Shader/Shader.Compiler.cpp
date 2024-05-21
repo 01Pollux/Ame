@@ -10,7 +10,7 @@ namespace Ame::Rhi
         const ShaderCompileDesc& Desc,
         Asset::Storage*          AssetStorage) :
         m_CompileOptions(RhiDevice, Desc),
-        m_ShaderStage(Desc.Stage)
+        m_ShaderStage(Desc.GetStage())
     {
         LoadDxc();
         LoadSourceCode(ShaderSource);

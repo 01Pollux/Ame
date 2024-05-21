@@ -13,4 +13,25 @@ namespace Ame::Rhi
         return !(NoValidation ||
                  (IsLibrary && Profile <= ShaderProfile::_6_2));
     }
+
+    //
+
+    ShaderType ShaderCompileDesc::GetStage() const
+    {
+        using namespace EnumBitOperators;
+
+        bool IsLibrary = (Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
+        return IsLibrary ? LibraryShaderType : Stage;
+    }
+
+    ShaderType ShaderCompileDesc::GetStageUnchecked() const
+    {
+        return Stage;
+    }
+
+    void ShaderCompileDesc::SetStage(
+        ShaderType Type)
+    {
+        Stage = Type;
+    }
 } // namespace Ame::Rhi

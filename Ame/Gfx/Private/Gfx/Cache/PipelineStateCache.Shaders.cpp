@@ -88,9 +88,8 @@ namespace Ame::Gfx::Cache
         {
             auto ShaderGuid = Asset::Handle::FromString(Guids::s_EntityCollectPass);
 
-            Rhi::ShaderCompileDesc ShaderDesc{
-                .Stage = Rhi::ShaderType::COMPUTE_SHADER
-            };
+            Rhi::ShaderCompileDesc ShaderDesc;
+            ShaderDesc.SetStage(Rhi::ShaderType::COMPUTE_SHADER);
 
             ShaderTasks.emplace_back(LoadAndCompile({}, Executor, m_AssetStorage, ShaderGuid, std::move(ShaderDesc)));
             break;

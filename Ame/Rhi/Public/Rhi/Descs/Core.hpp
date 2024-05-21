@@ -15,8 +15,11 @@ namespace Ame::Rhi
     struct ComputePipelineDesc;
 
     using ResourceFormat = nri::Format;
-    using ShaderType     = nri::StageBits;
-    using ShaderDesc     = nri::ShaderDesc;
+
+    using ShaderType                              = nri::StageBits;
+    using ShaderDesc                              = nri::ShaderDesc;
+    static constexpr ShaderType LibraryShaderType = ShaderType::NONE;
+
     using MemoryLocation = nri::MemoryLocation;
 
     using BufferDesc  = nri::BufferDesc;

@@ -92,16 +92,33 @@ namespace Ame::Rhi
         ShaderMacroList                    Defines;
         std::vector<ShaderVulkanExtension> SpirvExtensions{ ShaderVulkanExtension::KHR };
 
-        ShaderType            Stage              = ShaderType::NONE;
         ShaderProfile         Profile            = ShaderProfile::_6_5;
         ShaderVulkanMemLayout VulkanMemoryLayout = ShaderVulkanMemLayout::Dx;
-
-        ShaderCompileFlags Flags{
+        ShaderCompileFlags    Flags{
 #ifdef AME_DEBUG
             ShaderCompileFlags::Debug
 #endif
         };
 
         bool ShouldValidate() const;
+
+        /// <summary>
+        /// Get the shader, returns LibraryShaderType if the shader is a library
+        /// </summary>
+        [[nodiscard]] ShaderType GetStage() const;
+
+        /// <summary>
+        /// Get stage directly without checking if the shader is library
+        /// </summary>
+        [[nodiscard]] ShaderType GetStageUnchecked() const;
+
+        /// <summary>
+        /// Set shader type
+        /// </summary>
+        void SetStage(
+            ShaderType Type);
+
+    private:
+        ShaderType Stage = ShaderType::NONE;
     };
 } // namespace Ame::Rhi

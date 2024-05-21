@@ -128,6 +128,25 @@ namespace Ame::Gfx::Cache
         co_return Result;
     }
 
+    Co::result<Rhi::ShaderBytecode> ShaderCache::Link(
+        Rhi::ShaderCompileDesc           Desc,
+        std::vector<Rhi::ShaderBytecode> Shaders)
+    {
+        auto Executor = m_Runtime.get().background_executor();
+
+        auto FileTask = CreateOrOpenFile({}, Executor, Shaders);
+        auto Key      = GeneratePermutationKey(Desc);
+
+        auto File   = co_await FileTask;
+        auto Result = co_await LoadFromCache({}, Executor, *File, Key, Desc);
+
+        if (!Result)
+        {
+            Result = co_await LinkAndInsertToCache({}, Executor, *File, Shaders, Key, Desc);
+        }
+        co_return Result;
+    }
+
     //
 
     auto ShaderCache::CreateOrOpenFile(
@@ -136,18 +155,41 @@ namespace Ame::Gfx::Cache
         StringView               SourceCode) -> Co::result<MappedFileInfo*>
     {
         CryptoPP::SHA256 Hasher;
+        Hasher.Update(ShaderSourceHash, std::size(ShaderSourceHash));
         Hasher.Update(std::bit_cast<const CryptoPP::byte*>(SourceCode.data()), SourceCode.size());
         auto Hash = Util::FinalizeDigestToString(Hasher);
+        co_return co_await CreateOrOpenFile({}, Executor, Hash);
+    }
 
-        auto Iter = m_Cache.find(Hash);
+    auto ShaderCache::CreateOrOpenFile(
+        Co::executor_tag,
+        const Ptr<Co::executor>&       Executor,
+        std::span<Rhi::ShaderBytecode> Shaders) -> Co::result<MappedFileInfo*>
+    {
+        CryptoPP::SHA256 Hasher;
+        Hasher.Update(LibraryShaderHash, std::size(LibraryShaderHash));
+        for (auto& Shader : Shaders)
+        {
+            Hasher.Update(Shader.GetBytecode(), Shader.GetSize());
+        }
+        auto Hash = Util::FinalizeDigestToString(Hasher);
+        co_return co_await CreateOrOpenFile({}, Executor, Hash);
+    }
+
+    auto ShaderCache::CreateOrOpenFile(
+        Co::executor_tag,
+        const Ptr<Co::executor>& Executor,
+        const String&            FileKey) -> Co::result<MappedFileInfo*>
+    {
+        auto Iter = m_Cache.find(FileKey);
         if (Iter == m_Cache.end())
         {
             Co::scoped_async_lock Lock = co_await m_Mutex.lock(Executor);
 
-            Iter = m_Cache.find(Hash);
+            Iter = m_Cache.find(FileKey);
             if (Iter == m_Cache.end())
             {
-                auto FileName = GenerateCacheFileName(m_Device, Hash);
+                auto FileName = GenerateCacheFileName(m_Device, FileKey);
                 Iter          = m_Cache.emplace(FileName, std::move(FileName)).first;
             }
         }
@@ -172,7 +214,7 @@ namespace Ame::Gfx::Cache
         if (Iter != Cache->end())
         {
             auto Blob     = ShaderDataHelper::ToBlob(FileInfo.File, Iter->second);
-            auto ByteCode = ShaderDataHelper::ToByteCode(FileInfo.File, *Blob, Desc.Stage);
+            auto ByteCode = ShaderDataHelper::ToByteCode(FileInfo.File, *Blob, Desc.GetStage());
             if (ByteCode)
             {
                 Result = std::move(ByteCode);
@@ -192,7 +234,29 @@ namespace Ame::Gfx::Cache
         const Rhi::ShaderCompileDesc& Desc)
     {
         auto CompileTask = Rhi::ShaderCompiler::CompileAsync({}, *Executor, m_Device, SourceCode, Desc, &m_AssetStorage.get());
+        co_return co_await InsertToCache({}, Executor, FileInfo, std::move(CompileTask), Key, Desc);
+    }
 
+    Co::result<Rhi::ShaderBytecode> ShaderCache::LinkAndInsertToCache(
+        Co::executor_tag,
+        const Ptr<Co::executor>&       Executor,
+        MappedFileInfo&                FileInfo,
+        std::span<Rhi::ShaderBytecode> Shaders,
+        const PermutationKey&          Key,
+        const Rhi::ShaderCompileDesc&  Desc)
+    {
+        auto CompileTask = Rhi::ShaderCompiler::LinkAsync({}, *Executor, m_Device, Desc, Shaders);
+        co_return co_await InsertToCache({}, Executor, FileInfo, std::move(CompileTask), Key, Desc);
+    }
+
+    Co::result<Rhi::ShaderBytecode> ShaderCache::InsertToCache(
+        Co::executor_tag,
+        const Ptr<Co::executor>&        Executor,
+        MappedFileInfo&                 FileInfo,
+        Co::result<Rhi::ShaderBytecode> FinalShader,
+        const PermutationKey&           Key,
+        const Rhi::ShaderCompileDesc&   Desc)
+    {
         Co::scoped_async_lock Lock  = co_await FileInfo.Mutex.lock(Executor);
         CacheMap*             Cache = FileInfo.GetCache<CacheMap>();
 
@@ -207,8 +271,8 @@ namespace Ame::Gfx::Cache
             Cache->erase(Iter);
         }
 
-        auto   Bytecode = co_await CompileTask;
-        size_t BlobSize = ShaderDataHelper::CalculateBlobSize(Bytecode);
+        auto   CompiledShader = co_await FinalShader;
+        size_t BlobSize       = ShaderDataHelper::CalculateBlobSize(CompiledShader);
         if (BlobSize)
         {
             for (uint32_t i = 1; i <= GrowAttempts; i++)
@@ -218,7 +282,7 @@ namespace Ame::Gfx::Cache
                     if (!Blob)
                     {
                         Blob = ShaderDataHelper::AllocateBlob(FileInfo.File, BlobSize);
-                        ShaderDataHelper::FromBytecode(FileInfo.File, *Blob, Bytecode);
+                        ShaderDataHelper::FromBytecode(FileInfo.File, *Blob, CompiledShader);
                     }
                     Cache->emplace(Key, Blob->DataHandle);
                     break;
@@ -231,7 +295,7 @@ namespace Ame::Gfx::Cache
                 }
             }
         }
-        co_return Bytecode;
+        co_return CompiledShader;
     }
 
     //
@@ -257,7 +321,9 @@ namespace Ame::Gfx::Cache
         {
             Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Extension), sizeof(Extension));
         }
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Stage), sizeof(Desc.Stage));
+
+        auto Stage = Desc.GetStage();
+        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Stage), sizeof(Stage));
         Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Profile), sizeof(Desc.Profile));
         Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.VulkanMemoryLayout), sizeof(Desc.VulkanMemoryLayout));
         Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Flags), sizeof(Desc.Flags));

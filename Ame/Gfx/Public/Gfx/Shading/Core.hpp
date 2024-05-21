@@ -66,7 +66,7 @@ namespace Ame::Gfx::Shading
         /// The vertex shader is required.
         /// The vertex shader input layout must be same as 'MaterialVertex'.
         /// The vertex shader output layout must be same as 'VSToPS'.
-        /// 
+        ///
         /// The pixel shader is required.
         /// The pixel shader must be a library shader.
         /// The pixel shader must have a 'PSMain' entry point with [shader("pixel")] attribute.
@@ -74,6 +74,8 @@ namespace Ame::Gfx::Shading
         /// The pixel shader output layout must be same as 'MaterialFragment'.
         /// </summary>
         MaterialShaderStorage Shaders;
+
+        [[nodiscard]] const Rhi::ShaderBytecode& FindShader(Rhi::ShaderType Type) const;
     };
 
     //

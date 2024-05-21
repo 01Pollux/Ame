@@ -19,21 +19,6 @@ namespace Ame::Rhi
             Device&                  RhiDevice,
             const ShaderCompileDesc& Desc);
 
-        /// <summary>
-        /// Get the shader entry model.
-        /// </summary>
-        [[nodiscard]] static WideString GetTargetProfile(
-            ShaderCompileFlags Flags,
-            ShaderType         Stage,
-            ShaderProfile      Profile);
-
-        /// <summary>
-        /// Get the shader entry model.
-        /// </summary>
-        [[nodiscard]] static WideString GetTargetProfile(
-            ShaderType    Stage,
-            ShaderProfile Profile);
-
     private:
         WideString DefineMacro;
 

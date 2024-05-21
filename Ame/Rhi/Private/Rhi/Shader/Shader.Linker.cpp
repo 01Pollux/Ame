@@ -9,7 +9,7 @@ namespace Ame::Rhi
         const ShaderCompileDesc&        Desc,
         std::span<const ShaderBytecode> Shaders) :
         m_CompileOptions(RhiDevice, Desc),
-        m_ShaderStage(Desc.Stage)
+        m_ShaderStage(Desc.GetStage())
     {
         LoadDxc();
         LoadBlobs(Shaders);

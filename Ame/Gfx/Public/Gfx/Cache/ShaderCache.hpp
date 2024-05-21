@@ -15,6 +15,9 @@ namespace Ame::Gfx::Cache
 {
     class ShaderCache
     {
+        static constexpr const uint8_t ShaderSourceHash[]{ 0x41, 0x53, 0x53 };  // AME SHADER SOURCE
+        static constexpr const uint8_t LibraryShaderHash[]{ 0x41, 0x4C, 0x53 }; // AME LIBRARY SHADER
+
         static constexpr uint32_t PermutationCacheSize  = 10 * 1024; // 10KB
         static constexpr uint32_t PermutationGrowFactor = 10;
         static constexpr uint32_t PermutationGrowSize   = PermutationCacheSize * PermutationGrowFactor;
@@ -64,6 +67,13 @@ namespace Ame::Gfx::Cache
             StringView             SourceCode,
             Rhi::ShaderCompileDesc Desc);
 
+        /// <summary>
+        /// Load or get a pipeline layout from cache.
+        /// </summary>
+        Co::result<Rhi::ShaderBytecode> Link(
+            Rhi::ShaderCompileDesc           Desc,
+            std::vector<Rhi::ShaderBytecode> Shaders);
+
     private:
         /// <summary>
         /// Create or open a cache file.
@@ -74,6 +84,23 @@ namespace Ame::Gfx::Cache
             StringView               SourceCode);
 
         /// <summary>
+        /// Create or open a cache file.
+        /// </summary>
+        [[nodiscard]] Co::result<MappedFileInfo*> CreateOrOpenFile(
+            Co::executor_tag,
+            const Ptr<Co::executor>&       Executor,
+            std::span<Rhi::ShaderBytecode> Shaders);
+
+        /// <summary>
+        /// Create or open a cache file.
+        /// </summary>
+        [[nodiscard]] Co::result<MappedFileInfo*> CreateOrOpenFile(
+            Co::executor_tag,
+            const Ptr<Co::executor>& Executor,
+            const String&            FileKey);
+
+    private:
+        /// <summary>
         /// Load a shader from cache by key.
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> LoadFromCache(
@@ -83,6 +110,7 @@ namespace Ame::Gfx::Cache
             const PermutationKey&         Key,
             const Rhi::ShaderCompileDesc& Desc);
 
+    private:
         /// <summary>
         /// Load a shader from cache by key.
         /// </summary>
@@ -93,6 +121,28 @@ namespace Ame::Gfx::Cache
             StringView                    SourceCode,
             const PermutationKey&         Key,
             const Rhi::ShaderCompileDesc& Desc);
+
+        /// <summary>
+        /// Load a shader from cache by key.
+        /// </summary>
+        [[nodiscard]] Co::result<Rhi::ShaderBytecode> LinkAndInsertToCache(
+            Co::executor_tag,
+            const Ptr<Co::executor>&       Executor,
+            MappedFileInfo&                FileInfo,
+            std::span<Rhi::ShaderBytecode> Shaders,
+            const PermutationKey&          Key,
+            const Rhi::ShaderCompileDesc&  Desc);
+
+        /// <summary>
+        /// Load a shader from cache by key.
+        /// </summary>
+        [[nodiscard]] Co::result<Rhi::ShaderBytecode> InsertToCache(
+            Co::executor_tag,
+            const Ptr<Co::executor>&        Executor,
+            MappedFileInfo&                 FileInfo,
+            Co::result<Rhi::ShaderBytecode> FinalShader,
+            const PermutationKey&           Key,
+            const Rhi::ShaderCompileDesc&   Desc);
 
     private:
         /// <summary>

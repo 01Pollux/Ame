@@ -160,6 +160,14 @@ namespace Ame::Gfx::Shading
         MaterialPipelineState     PipelineState,
         const PropertyDescriptor& Descriptor)
     {
+#ifndef AME_DIST
+        if (!PipelineState.FindShader(Rhi::ShaderType::VERTEX_SHADER) ||
+            !PipelineState.FindShader(Rhi::LibraryShaderType))
+        {
+            co_return nullptr;
+        }
+#endif
+
         auto Layout = co_await CreatePipelineLayout(RhiDevice, Descriptor);
         co_return std::make_shared<Material>(RhiDevice, std::move(Layout), std::move(PipelineState), Descriptor);
     }

@@ -50,11 +50,11 @@ namespace Ame::FlappyRocket
 
         Rhi::ShaderCompileDesc CompileDesc;
 
-        CompileDesc.Stage = Rhi::ShaderType::VERTEX_SHADER;
+        CompileDesc.SetStage(Rhi::ShaderType::VERTEX_SHADER);
         PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
 
         CompileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
-        CompileDesc.Stage = Rhi::ShaderType::FRAGMENT_SHADER;
+        CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
         PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
 
         return GS::MaterialCompiler::Compile(
