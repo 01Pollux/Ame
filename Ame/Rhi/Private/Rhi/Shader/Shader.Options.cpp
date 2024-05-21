@@ -7,47 +7,48 @@ namespace Ame::Rhi
     /// <summary>
     /// Get the shader entry model.
     /// </summary>
-    [[nodiscard]] static WideString GetShaderModel(
+    [[nodiscard]] static WideString GetShaderTargetProfile(
+        bool          IsLibrary,
         ShaderType    Stage,
         ShaderProfile Profile)
     {
-        WideString Model;
+        WideString Model = IsLibrary ? L"lib" : L"";
 
-        switch (Stage)
+        if (!IsLibrary)
         {
-        case ShaderType::COMPUTE_SHADER:
-            Model = L"cs";
-            break;
-        case ShaderType::VERTEX_SHADER:
-            Model = L"vs";
-            break;
-        case ShaderType::GEOMETRY_SHADER:
-            Model = L"gs";
-            break;
-        case ShaderType::TESS_CONTROL_SHADER:
-            Model = L"hs";
-            break;
-        case ShaderType::TESS_EVALUATION_SHADER:
-            Model = L"ds";
-            break;
-        case ShaderType::FRAGMENT_SHADER:
-            Model = L"ps";
-            break;
-        case ShaderType::MESH_CONTROL_SHADER:
-            Model = L"as";
-            break;
-        case ShaderType::MESH_EVALUATION_SHADER:
-            Model = L"ms";
-            break;
-        default:
-            std::unreachable();
+            switch (Stage)
+            {
+            case ShaderType::COMPUTE_SHADER:
+                Model = L"cs";
+                break;
+            case ShaderType::VERTEX_SHADER:
+                Model = L"vs";
+                break;
+            case ShaderType::GEOMETRY_SHADER:
+                Model = L"gs";
+                break;
+            case ShaderType::TESS_CONTROL_SHADER:
+                Model = L"hs";
+                break;
+            case ShaderType::TESS_EVALUATION_SHADER:
+                Model = L"ds";
+                break;
+            case ShaderType::FRAGMENT_SHADER:
+                Model = L"ps";
+                break;
+            case ShaderType::MESH_CONTROL_SHADER:
+                Model = L"as";
+                break;
+            case ShaderType::MESH_EVALUATION_SHADER:
+                Model = L"ms";
+                break;
+            default:
+                std::unreachable();
+            }
         }
 
         switch (Profile)
         {
-        case ShaderProfile::_6_0:
-            Model += L"_6_0";
-            break;
         case ShaderProfile::_6_1:
             Model += L"_6_1";
             break;
@@ -72,6 +73,30 @@ namespace Ame::Rhi
 
         return Model;
     }
+
+    //
+
+    WideString CompileShaderOption::GetTargetProfile(
+        ShaderType    Stage,
+        ShaderProfile Profile)
+    {
+        return GetShaderTargetProfile(false, Stage, Profile);
+    }
+
+    WideString CompileShaderOption::GetTargetProfile(
+        ShaderCompileFlags Flags,
+        ShaderType         Stage,
+        ShaderProfile      Profile)
+    {
+        using namespace EnumBitOperators;
+
+        //
+
+        bool IsLibrary = (Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
+        return GetShaderTargetProfile(IsLibrary, Stage, Profile);
+    }
+
+    //
 
     /// <summary>
     /// Get the shader define macro.
@@ -267,19 +292,33 @@ namespace Ame::Rhi
         Device&                  RhiDevice,
         const ShaderCompileDesc& Desc) :
         Api(RhiDevice.GetGraphicsAPI()),
-        Model(GetShaderModel(Desc.Stage, Desc.Profile)),
+        TargetProfile(GetTargetProfile(Desc.Flags, Desc.Stage, Desc.Profile)),
+        EntryPoint(GetShaderEntryPointWide(Desc.Stage)),
         DefineMacro(GetShaderMacro(Desc.Stage))
     {
+        using namespace EnumBitOperators;
+
+        //
+
+        bool IsLibrary = (Desc.Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
+
         auto& RhiDesc = RhiDevice.GetDesc();
 
         FinalOptions = {
             DXC_ARG_OPTIMIZATION_LEVEL3,
             DXC_ARG_ALL_RESOURCES_BOUND,
             L"-HV 2021",
-            L"-E", GetShaderEntryPointWide(Desc.Stage),
-            L"-T", Model.c_str(),
+            L"-E", EntryPoint,
+            L"-T", TargetProfile.c_str(),
             DefineMacro.c_str()
         };
+
+        // dxc failed : Must disable validation for unsupported lib_6_1 or lib_6_2 targets.
+        if ((IsLibrary && Desc.Profile <= ShaderProfile::_6_2) ||
+            (Desc.Flags & ShaderCompileFlags::NoValidation) != ShaderCompileFlags::NoValidation)
+        {
+            FinalOptions.emplace_back(L"-Vd");
+        }
 
         if (RhiDesc.isDrawParametersEmulationEnabled)
         {

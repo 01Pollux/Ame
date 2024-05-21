@@ -58,8 +58,8 @@
 #define AME_DECLARE_DRAW_PARAMETERS \
         int AME_VERTEX_ID_OFFSET : SV_VertexID, \
         uint AME_INSTANCE_ID_OFFSET : SV_InstanceID, \
-        [[vk::builtin("BaseVertex")]] int AME_BASE_VERTEX : _SV_Nothing, \
-        [[vk::builtin("BaseInstance")]] uint AME_BASE_INSTANCE : _SV_Nothing
+        [[vk::builtin("BaseVertex")]] int AME_BASE_VERTEX : _SV_Nothing1, \
+        [[vk::builtin("BaseInstance")]] uint AME_BASE_INSTANCE : _SV_Nothing2
 
 #define AME_VERTEX_ID (AME_VERTEX_ID_OFFSET - AME_BASE_VERTEX)
 #define AME_INSTANCE_ID (AME_INSTANCE_ID_OFFSET - AME_BASE_INSTANCE)

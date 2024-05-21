@@ -10,15 +10,31 @@ namespace Ame::Rhi
 {
     struct CompileShaderOption
     {
-        std::vector<const wchar_t*> FinalOptions;
-        GraphicsAPI                 Api;
+        WideString                   TargetProfile;
+        const WideChar*              EntryPoint = nullptr;
+        std::vector<const WideChar*> FinalOptions;
+        GraphicsAPI                  Api;
 
         CompileShaderOption(
             Device&                  RhiDevice,
             const ShaderCompileDesc& Desc);
 
+        /// <summary>
+        /// Get the shader entry model.
+        /// </summary>
+        [[nodiscard]] static WideString GetTargetProfile(
+            ShaderCompileFlags Flags,
+            ShaderType         Stage,
+            ShaderProfile      Profile);
+
+        /// <summary>
+        /// Get the shader entry model.
+        /// </summary>
+        [[nodiscard]] static WideString GetTargetProfile(
+            ShaderType    Stage,
+            ShaderProfile Profile);
+
     private:
-        WideString Model;
         WideString DefineMacro;
 
         std::vector<WideString> RegisterShift;

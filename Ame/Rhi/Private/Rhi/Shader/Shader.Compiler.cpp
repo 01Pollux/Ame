@@ -1,67 +1,106 @@
-#include <map>
-
-#include <Rhi/Device/Device.hpp>
-
-#include <Rhi/Shader/Shader.Options.hpp>
-#include <Rhi/Shader/Shader.Handler.hpp>
-#include <Rhi/Resource/Shader.Compiler.hpp>
+#include <Rhi/Shader/Shader.Compiler.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi
 {
-    template<typename Ty>
-    using CComPtr = ShaderUtil::CComPtr<Ty>;
+    ShaderCompilerLibrary::ShaderCompilerLibrary(
+        Device&                  RhiDevice,
+        StringView               ShaderSource,
+        const ShaderCompileDesc& Desc,
+        Asset::Storage*          AssetStorage) :
+        m_CompileOptions(RhiDevice, Desc),
+        m_ShaderStage(Desc.Stage)
+    {
+        LoadDxc();
+        LoadSourceCode(ShaderSource);
+        Compile(AssetStorage);
+        Validate(RhiDevice.GetGraphicsAPI(), Desc.Flags);
+    }
+
+    ShaderBytecode ShaderCompilerLibrary::GetBytecode() const
+    {
+        if (!m_CompiledBlob)
+        {
+            return {};
+        }
+
+        uint8_t* CompiledShaderCode = static_cast<uint8_t*>(m_CompiledBlob->GetBufferPointer());
+
+        size_t CodeSize = m_CompiledBlob->GetBufferSize();
+        auto   CodePtr  = std::make_unique<uint8_t[]>(CodeSize);
+
+        std::copy(CompiledShaderCode, CompiledShaderCode + CodeSize, CodePtr.get());
+        return ShaderBytecode(CodePtr.release(), CodeSize, m_ShaderStage);
+    }
 
     //
 
-    /// <summary>
-    /// Precompile the shader.
-    /// </summary>
-    [[nodiscard]] static CComPtr<IDxcBlob> CompileShader(
-        IDxcCompiler3*            Compiler,
-        IDxcUtils*                Utils,
-        std::span<const wchar_t*> Options,
-        IDxcBlobEncoding*         ShaderCodeBlob,
-        Asset::Storage*           AssetStorage)
+    void ShaderCompilerLibrary::LoadDxc()
     {
-        CComPtr<IDxcIncludeHandler> DefaultIncludeHandler;
-        ShaderUtil::ThrowShaderException(Utils->CreateDefaultIncludeHandler(&DefaultIncludeHandler));
+        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcValidator, IID_PPV_ARGS(&m_Validator)));
+        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_Utils)));
+        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&m_Compiler)));
+        ShaderUtil::ThrowShaderException(m_Utils->CreateDefaultIncludeHandler(&m_DefaultIncludeHandler));
+    }
 
+    void ShaderCompilerLibrary::LoadSourceCode(
+        StringView ShaderSource)
+    {
+        ShaderUtil::ThrowShaderException(m_Utils->CreateBlobFromPinned(
+            ShaderSource.data(),
+            static_cast<uint32_t>(ShaderSource.size()),
+            DXC_CP_UTF8,
+            &m_SourceCodeBlob));
+    }
+
+    void ShaderCompilerLibrary::Compile(
+        Asset::Storage* AssetStorage)
+    {
         DxcBuffer Buffer{
-            .Ptr      = ShaderCodeBlob->GetBufferPointer(),
-            .Size     = ShaderCodeBlob->GetBufferSize(),
+            .Ptr      = m_SourceCodeBlob->GetBufferPointer(),
+            .Size     = m_SourceCodeBlob->GetBufferSize(),
             .Encoding = DXC_CP_ACP
         };
 
         CComPtr<IDxcResult> Result;
         {
             HRESULT Hr = S_OK;
-            if (AssetStorage)
+            if (AssetStorage) [[likely]]
             {
                 ShaderIncludeHandler IncludeHandler(
-                    Utils,
-                    ShaderUtil::GetComPtr(DefaultIncludeHandler),
+                    m_Utils.Get(),
+                    ShaderUtil::GetComPtr(m_DefaultIncludeHandler),
                     AssetStorage);
-                Hr = Compiler->Compile(
+
+                Hr = m_Compiler->Compile(
                     &Buffer,
-                    Options.data(),
-                    uint32_t(Options.size()),
+                    m_CompileOptions.FinalOptions.data(),
+                    static_cast<uint32_t>(m_CompileOptions.FinalOptions.size()),
                     &IncludeHandler,
                     IID_PPV_ARGS(&Result));
             }
             else
             {
-                Hr = Compiler->Compile(
+                Hr = m_Compiler->Compile(
                     &Buffer,
-                    Options.data(),
-                    uint32_t(Options.size()),
+                    m_CompileOptions.FinalOptions.data(),
+                    static_cast<uint32_t>(m_CompileOptions.FinalOptions.size()),
                     nullptr,
                     IID_PPV_ARGS(&Result));
             }
-
             ShaderUtil::ThrowShaderException(Hr);
+        }
 
+        HRESULT Status;
+        if (FAILED(Result->GetStatus(&Status)))
+        {
+            Log::Rhi().Error("Failed to get the status of the compilation.");
+            return;
+        }
+
+        if (FAILED(Status))
+        {
             CComPtr<IDxcBlobUtf8> Error;
             if (SUCCEEDED(Result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(&Error), nullptr)) &&
                 (Error &&
@@ -69,76 +108,78 @@ namespace Ame::Rhi
             {
                 size_t StrLen = Error->GetStringLength();
                 Log::Rhi().Error(StringView(Error->GetStringPointer(), StrLen));
-                return {};
+                return;
             }
         }
 
-        CComPtr<IDxcBlob> Data;
         ShaderUtil::ThrowShaderException(
             Result->GetOutput(
                 DXC_OUT_OBJECT,
-                IID_PPV_ARGS(&Data),
+                IID_PPV_ARGS(&m_CompiledBlob),
                 nullptr));
-
-        return Data;
     }
 
-    /// <summary>
-    /// Validate the shader. (D3D12 only), returns true always for other graphics api
-    /// </summary>
-    [[nodiscard]] static bool ValidateShader(
+    void ShaderCompilerLibrary::Validate(
         GraphicsAPI        Api,
-        IDxcValidator*     Validator,
-        IDxcUtils*         Utils,
-        CComPtr<IDxcBlob>& Data)
+        ShaderCompileFlags Flags)
     {
-        if (Api == GraphicsAPI::DirectX12)
+        using namespace EnumBitOperators;
+
+        if (Api != GraphicsAPI::DirectX12)
         {
-            CComPtr<IDxcOperationResult> OperationResult;
-            ShaderUtil::ThrowShaderException(Validator->Validate(
-                ShaderUtil::GetComPtr(Data),
-                DxcValidatorFlags_InPlaceEdit,
-                &OperationResult));
+            return;
+        }
 
-            HRESULT Status;
-            ShaderUtil::ThrowShaderException(OperationResult->GetStatus(&Status));
+        if (!m_CompiledBlob)
+        {
+            return;
+        }
 
-            if (FAILED(Status))
+        // Only validate the shader if it is not a library shader or if the validation flag is not set.
+        if ((Flags & (ShaderCompileFlags::NoValidation | ShaderCompileFlags::LibraryShader)) != ShaderCompileFlags::None)
+        {
+            return;
+        }
+
+        CComPtr<IDxcOperationResult> OperationResult;
+        ShaderUtil::ThrowShaderException(m_Validator->Validate(
+            ShaderUtil::GetComPtr(m_CompiledBlob),
+            DxcValidatorFlags_InPlaceEdit,
+            &OperationResult));
+
+        HRESULT Status;
+        ShaderUtil::ThrowShaderException(OperationResult->GetStatus(&Status));
+
+        if (FAILED(Status))
+        {
+            CComPtr<IDxcBlobEncoding> Error;
+            CComPtr<IDxcBlobUtf8>     ErrorUtf8;
+
+            OperationResult->GetErrorBuffer(&Error);
+            if (Error)
             {
-                CComPtr<IDxcBlobEncoding> Error;
-                CComPtr<IDxcBlobUtf8>     ErrorUtf8;
-
-                OperationResult->GetErrorBuffer(&Error);
-                Utils->GetBlobAsUtf8(ShaderUtil::GetComPtr(Error), &ErrorUtf8);
-
-                Log::Rhi().Error(StringView(ErrorUtf8->GetStringPointer(), ErrorUtf8->GetBufferSize()));
-                return false;
+                m_Utils->GetBlobAsUtf8(ShaderUtil::GetComPtr(Error), &ErrorUtf8);
             }
             else
             {
-                Data = nullptr;
-                ShaderUtil::ThrowShaderException(OperationResult->GetResult(&Data));
+                Log::Rhi().Error("Failed to get the error buffer.");
             }
+
+            if (ErrorUtf8)
+            {
+                Log::Rhi().Error(StringView(ErrorUtf8->GetStringPointer(), ErrorUtf8->GetBufferSize()));
+            }
+            else
+            {
+                Log::Rhi().Error("Failed to get the error buffer.");
+            }
+            return;
         }
-        return true;
-    }
-
-    //
-
-    /// <summary>
-    /// Load shader blob from string.
-    /// </summary>
-    [[nodiscard]] static CComPtr<IDxcBlobEncoding> LoadShaderFromString(
-        IDxcUtils* Utils,
-        StringView ShaderSource)
-    {
-        CComPtr<IDxcBlobEncoding> ShaderCodeBlob;
-        ShaderUtil::ThrowShaderException(Utils->CreateBlobFromPinned(
-            ShaderSource.data(),
-            uint32_t(ShaderSource.size()),
-            DXC_CP_UTF8,
-            &ShaderCodeBlob));
-        return ShaderCodeBlob;
+        else
+        {
+            m_CompiledBlob = nullptr;
+            ShaderUtil::ThrowShaderException(OperationResult->GetResult(&m_CompiledBlob));
+        }
     }
 
     //
@@ -148,10 +189,10 @@ namespace Ame::Rhi
         Co::executor&            Executor,
         Device&                  RhiDevice,
         StringView               ShaderSource,
-        const ShaderCompileDesc& CompileDesc,
+        const ShaderCompileDesc& Desc,
         Asset::Storage*          AssetStorage)
     {
-        co_return Compile(RhiDevice, ShaderSource, CompileDesc, AssetStorage);
+        co_return Compile(RhiDevice, ShaderSource, Desc, AssetStorage);
     }
 
     ShaderBytecode ShaderCompiler::Compile(
@@ -160,37 +201,11 @@ namespace Ame::Rhi
         const ShaderCompileDesc& Desc,
         Asset::Storage*          AssetStorage)
     {
-        CComPtr<IDxcValidator> Validator;
-        CComPtr<IDxcUtils>     Utils;
-        CComPtr<IDxcCompiler3> Compiler;
-
-        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcValidator, IID_PPV_ARGS(&Validator)));
-        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&Utils)));
-        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&Compiler)));
-
-        //
-
-        auto ShaderCodeBlob = LoadShaderFromString(ShaderUtil::GetComPtr(Utils), ShaderSource);
-        auto Options        = CompileShaderOption(RhiDevice, Desc);
-        auto Data           = CompileShader(
-            ShaderUtil::GetComPtr(Compiler),
-            ShaderUtil::GetComPtr(Utils),
-            Options.FinalOptions,
-            ShaderUtil::GetComPtr(ShaderCodeBlob),
+        ShaderCompilerLibrary Library(
+            RhiDevice,
+            ShaderSource,
+            Desc,
             AssetStorage);
-
-        ShaderBytecode Shader;
-        if (Data && ValidateShader(Options.Api, ShaderUtil::GetComPtr(Validator), ShaderUtil::GetComPtr(Utils), Data))
-        {
-            uint8_t* CompiledShaderCode = static_cast<uint8_t*>(Data->GetBufferPointer());
-
-            size_t CodeSize = Data->GetBufferSize();
-            auto   CodePtr  = std::make_unique<uint8_t[]>(CodeSize);
-
-            std::copy(CompiledShaderCode, CompiledShaderCode + CodeSize, CodePtr.get());
-            Shader = ShaderBytecode(CodePtr.release(), CodeSize, Desc.Stage);
-        }
-
-        return Shader;
+        return Library.GetBytecode();
     }
 } // namespace Ame::Rhi
