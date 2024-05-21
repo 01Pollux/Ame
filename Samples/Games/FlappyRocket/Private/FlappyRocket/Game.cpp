@@ -42,6 +42,7 @@ namespace Ame::FlappyRocket
         Rhi::Device&             Device,
         Gfx::Cache::ShaderCache& ShaderCache)
     {
+        using namespace EnumBitOperators;
         namespace GS = Gfx::Shading;
 
         GS::MaterialPipelineState PipelineState;
@@ -52,6 +53,7 @@ namespace Ame::FlappyRocket
         CompileDesc.Stage = Rhi::ShaderType::VERTEX_SHADER;
         PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
 
+        CompileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
         CompileDesc.Stage = Rhi::ShaderType::FRAGMENT_SHADER;
         PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
 
