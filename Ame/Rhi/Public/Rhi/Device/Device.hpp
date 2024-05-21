@@ -309,6 +309,5 @@ namespace Ame::Rhi
 
     private:
         UPtr<DeviceImpl> m_Impl;
-        uint32_t         m_DrawIndexedCommandSize = 0;
     };
 } // namespace Ame::Rhi

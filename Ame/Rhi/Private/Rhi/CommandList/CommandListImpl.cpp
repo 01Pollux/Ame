@@ -327,6 +327,24 @@ namespace Ame::Rhi
         NriCore.CmdDrawIndexed(*m_CommandBuffer, Desc);
     }
 
+    void CommandListImpl::DrawIndirect(
+        const DrawIndirectDesc& Desc)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdDrawIndirect(*m_CommandBuffer, *Desc.DrawBuffer, Desc.DrawOffset, Desc.MaxDrawCount, m_RhiDevice->GetDrawIndexedCommandSize(), Desc.CounterBuffer, Desc.CounterOffset);
+    }
+
+    void CommandListImpl::DrawIndirectIndexed(
+        const DrawIndirectDesc& Desc)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+
+        NriCore.CmdDrawIndexedIndirect(*m_CommandBuffer, *Desc.DrawBuffer, Desc.DrawOffset, Desc.MaxDrawCount, m_RhiDevice->GetDrawIndexedCommandSize(), Desc.CounterBuffer, Desc.CounterOffset);
+    }
+
     void CommandListImpl::EndRendering()
     {
         auto& Nri     = m_RhiDevice->GetNRI();

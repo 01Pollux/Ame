@@ -131,7 +131,7 @@ namespace Ame::Gfx::RG
         {
             Rhi::CommandListMarker PassMarker(CommandList, PassInfo.RgPass->GetName().data());
 
-            bool NoSetup = (PassInfo.RgPass->GetFlags() & PassFlags::NoSetups) == PassFlags::None;
+            bool NoSetup = (PassInfo.RgPass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;
             switch (PassInfo.RgPass->GetQueueType())
             {
             case PassFlags::Graphics:

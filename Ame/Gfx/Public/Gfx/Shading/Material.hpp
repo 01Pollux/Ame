@@ -10,7 +10,8 @@ namespace Ame::Gfx::Shading
         static constexpr const char* UserDataPropertyTag = "";
 
     public:
-        using PropertyHash = uint64_t;
+        using PropertyHash     = uint64_t;
+        using ResourceIterator = PropertyMap::ResourceMap::const_iterator;
 
     public:
         Material(
@@ -103,6 +104,11 @@ namespace Ame::Gfx::Shading
 
     public:
         /// <summary>
+        /// Set the pipeline layout of this material
+        /// </summary>
+        [[nodiscard]] Ptr<Rhi::PipelineLayout> GetPipelineLayout() const;
+
+        /// <summary>
         /// Set the pipeline state of this material
         /// </summary>
         [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> GetPipelineState(
@@ -114,33 +120,16 @@ namespace Ame::Gfx::Shading
         /// </summary>
         [[nodiscard]] PropertyHash GetHash() const;
 
+    public:
         /// <summary>
         /// Get the size of the user data of this material
         /// </summary>
         [[nodiscard]] uint32_t GetSizeOfUserData() const;
 
-    public:
-        struct PropertyIterator
-        {
-            Ref<String>      Name;
-            ResourceType     Type;
-            ResourceDataType DataType;
-        };
-
-        struct ResourceIterator : PropertyIterator
-        {
-            Ref<Rhi::ResourceView> View;
-        };
-
-        struct UserDataIterator : PropertyIterator
-        {
-            const void* Data;
-        };
-
         /// <summary>
-        /// Get all resources of this material
+        /// Get the user data of this material
         /// </summary>
-        [[nodiscard]] Co::generator<UserDataIterator> GetUserDatas() const;
+        [[nodiscard]] const void* GetUserData() const;
 
         /// <summary>
         /// Get all resources of this material

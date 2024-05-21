@@ -15,16 +15,17 @@
 namespace Ame::FlappyRocket
 {
     FlappyRocketGame::FlappyRocketGame(
-        Rhi::Device&                    Device,
-        Ecs::Universe&                  EcsUniverse,
-        Gfx::Renderer&                  Renderer,
-        Gfx::Cache::PipelineStateCache& PipelineStateCache,
-        Gfx::Cache::ShaderCache&        ShaderCache) :
+        Rhi::Device&                      Device,
+        Ecs::Universe&                    EcsUniverse,
+        Gfx::Renderer&                    Renderer,
+        Gfx::Cache::PipelineStateCache&   PipelineStateCache,
+        Gfx::Cache::ShaderCache&          ShaderCache,
+        Gfx::Cache::MaterialBindingCache& MaterialCache) :
         m_Device(&Device),
         m_EcsUniverse(&EcsUniverse),
         m_ShaderCache(&ShaderCache)
     {
-        SetupRenderGraph(Renderer.GetRenderGraph(), PipelineStateCache);
+        SetupRenderGraph(Renderer.GetRenderGraph(), PipelineStateCache, MaterialCache);
     }
 
     //
@@ -37,7 +38,7 @@ namespace Ame::FlappyRocket
     }
 
     //
-   
+
     [[nodiscard]] static Ptr<Gfx::Shading::Material> CreateMaterial(
         Rhi::Device&             Device,
         Gfx::Cache::ShaderCache& ShaderCache)

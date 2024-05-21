@@ -10,7 +10,6 @@ namespace Ame::Rhi
         const DeviceCreateDesc& Desc) :
         m_Impl(std::make_unique<DeviceImpl>(Desc))
     {
-        m_DrawIndexedCommandSize = GetDesc().isDrawParametersEmulationEnabled ? sizeof(Rhi::DrawIndexedBaseDesc) : sizeof(Rhi::DrawIndexedDesc);
     }
 
     Device::Device(Device&&)            = default;
@@ -78,7 +77,7 @@ namespace Ame::Rhi
 
     uint32_t Device::GetDrawIndexedCommandSize() const
     {
-        return m_DrawIndexedCommandSize;
+        return m_Impl->GetDrawIndexedCommandSize();
     }
 
     //

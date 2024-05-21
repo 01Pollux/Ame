@@ -34,6 +34,6 @@ namespace Ame::Gfx::RG
             const ResourceViewId&     DepthStencil) const;
 
     private:
-        Rhi::CommandList* m_CommandList;
+        Rhi::CommandList* m_CommandList = nullptr;
     };
 } // namespace Ame::Gfx::RG

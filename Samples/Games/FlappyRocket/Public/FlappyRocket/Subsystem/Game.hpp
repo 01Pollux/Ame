@@ -7,6 +7,7 @@
 #include <Gfx/Subsystem/Renderer.hpp>
 #include <Gfx/Subsystem/PipelineStateCache.hpp>
 #include <Gfx/Subsystem/ShaderCache.hpp>
+#include <Gfx/Subsystem/MaterialBindingCache.hpp>
 
 #include <FlappyRocket/Game.hpp>
 
@@ -19,7 +20,8 @@ namespace Ame::FlappyRocket
                                                Ecs::UniverseSubsystem,
                                                Gfx::RendererSubsystem,
                                                Gfx::Cache::PipelineStateCacheSubsystem,
-                                               Gfx::Cache::ShaderCacheSubsystem>>,
+                                               Gfx::Cache::ShaderCacheSubsystem,
+                                               Gfx::Cache::MaterialBindingCacheSubsystem>>,
                                        kgr::final
     {
     };

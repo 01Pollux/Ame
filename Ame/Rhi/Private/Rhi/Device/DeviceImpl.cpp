@@ -36,6 +36,8 @@ namespace Ame::Rhi
         }
 
         SuppressWarningsIfNeeded(Desc);
+
+        m_DrawIndexedCommandSize = GetDesc().isDrawParametersEmulationEnabled ? sizeof(Rhi::DrawIndexedBaseDesc) : sizeof(Rhi::DrawIndexedDesc);
     }
 
     DeviceImpl::~DeviceImpl()
@@ -87,6 +89,11 @@ namespace Ame::Rhi
     uint8_t DeviceImpl::GetFrameCountInFlight() const
     {
         return m_FrameManager.GetFrameCountInFlight();
+    }
+
+    uint32_t DeviceImpl::GetDrawIndexedCommandSize() const
+    {
+        return m_DrawIndexedCommandSize;
     }
 
     //

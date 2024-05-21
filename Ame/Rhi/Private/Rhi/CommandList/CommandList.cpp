@@ -162,6 +162,18 @@ namespace Ame::Rhi
         m_Impl.get().Draw(Desc);
     }
 
+    void CommandList::DrawIndirect(
+        const DrawIndirectDesc& Desc)
+    {
+        m_Impl.get().DrawIndirect(Desc);
+    }
+
+    void CommandList::DrawIndirectIndexed(
+        const DrawIndirectDesc& Desc)
+    {
+        m_Impl.get().DrawIndirectIndexed(Desc);
+    }
+
     void CommandList::EndRendering()
     {
         m_Impl.get().EndRendering();

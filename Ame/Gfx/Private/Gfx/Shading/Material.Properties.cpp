@@ -32,6 +32,29 @@ namespace Ame::Gfx::Shading
 
     //
 
+    uint32_t Material::GetSizeOfUserData() const
+    {
+        return m_SharedData->Properties.GetSizeOfUserData();
+    }
+
+    const void* Material::GetUserData() const
+    {
+        return IsLocal(UserDataPropertyTag) ? m_LocalData.Properties.GetUserData() : m_SharedData->Properties.GetUserData();
+    }
+
+    auto Material::GetResources() const -> Co::generator<ResourceIterator>
+    {
+        auto LocalResources  = m_LocalData.Properties.GetResources();
+        auto SharedResources = m_SharedData->Properties.GetResources();
+
+        for (auto [Local, Shared] : std::views::zip(LocalResources, SharedResources))
+        {
+            co_yield (IsLocal(Shared->first) ? Local : Shared);
+        }
+    }
+
+    //
+
     void Material::Set(
         const String&            Property,
         const Ptr<Rhi::Texture>& Texture,

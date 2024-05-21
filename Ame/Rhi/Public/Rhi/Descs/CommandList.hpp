@@ -16,4 +16,14 @@ namespace Ame::Rhi
     using DrawIndexedDesc     = nri::DrawIndexedDesc;
     using DrawIndexedBaseDesc = nri::DrawIndexedBaseDesc;
     using DispatchDesc        = nri::DispatchDesc;
+
+    struct DrawIndirectDesc
+    {
+        nri::Buffer* DrawBuffer;
+        uint64_t     DrawOffset;
+        uint64_t     MaxDrawCount;
+
+        nri::Buffer* CounterBuffer = nullptr;
+        uint64_t     CounterOffset = 0;
+    };
 } // namespace Ame::Rhi

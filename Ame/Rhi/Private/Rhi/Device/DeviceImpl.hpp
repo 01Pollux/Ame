@@ -72,6 +72,11 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] uint8_t GetFrameCountInFlight() const;
 
+        /// <summary>
+        /// Helper function to get the size of draw indexed command size for indirect execution of command list
+        /// </summary>
+        [[nodiscard]] uint32_t GetDrawIndexedCommandSize() const;
+
     public:
         /// <summary>
         /// Get the clear color.
@@ -320,5 +325,7 @@ namespace Ame::Rhi
         Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
         Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
         Util::TypedCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
+
+        uint32_t m_DrawIndexedCommandSize = 0;
     };
 } // namespace Ame::Rhi

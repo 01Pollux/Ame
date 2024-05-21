@@ -43,11 +43,13 @@ namespace Ame::Gfx::Constants
 
     namespace DescriptorRanges
     {
+        static constexpr uint32_t MaterialData_SetIndex      = 20;
         static constexpr uint32_t MaterialData_RegisterSpace = 20;
 
         //
 
         static constexpr uint32_t FrameData_RegisterIndex = 0;
+        static constexpr uint32_t FrameData_SetIndex      = 0;
         static constexpr uint32_t FrameData_RegisterSpace = 1;
 
         static constexpr Rhi::DescriptorRangeDesc FrameRangeDesc{
@@ -66,6 +68,7 @@ namespace Ame::Gfx::Constants
         //
 
         static constexpr uint32_t EntityData_RegisterIndex = 0;
+        static constexpr uint32_t EntityData_SetIndex      = 1;
         static constexpr uint32_t EntityData_RegisterSpace = 2;
 
         enum class EntityDataTypes : uint8_t

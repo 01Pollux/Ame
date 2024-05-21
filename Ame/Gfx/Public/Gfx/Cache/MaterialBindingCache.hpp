@@ -24,6 +24,7 @@ namespace Ame::Gfx::Cache
         struct SetCache
         {
             Rhi::DescriptorSet DescriptorSet;
+            bool               WasSet              = false;
             uint32_t           DynamicBufferOffset = InvalidDynamicBufferOffset;
         };
 
@@ -43,8 +44,7 @@ namespace Ame::Gfx::Cache
         /// </summary>
         void Bind(
             Rhi::CommandList&        CommandList,
-            const Shading::Material& Material,
-            uint32_t                 MaterialSetIndex);
+            const Shading::Material& Material);
 
     private:
         /// <summary>
@@ -53,7 +53,6 @@ namespace Ame::Gfx::Cache
         void CreatePropertyBlock(
             Rhi::CommandList&        CommandList,
             const Shading::Material& Material,
-            uint32_t                 MaterialSetIndex,
             SetCache&                Set);
 
         /// <summary>

@@ -54,6 +54,13 @@ namespace Ame::Gfx::Shading
         return std::make_shared<Material>(this);
     }
 
+    //
+
+    Ptr<Rhi::PipelineLayout> Material::GetPipelineLayout() const
+    {
+        return m_SharedData->CommonState.GetPipelineLayout();
+    }
+
     Co::result<Ptr<Rhi::PipelineState>> Material::GetPipelineState(
         const MaterialRenderState& RenderState) const
     {
@@ -69,10 +76,5 @@ namespace Ame::Gfx::Shading
             UpdateHash();
         }
         return *m_PropertiesHash;
-    }
-
-    uint32_t Material::GetSizeOfUserData() const
-    {
-        return m_SharedData->Properties.GetSizeOfUserData();
     }
 } // namespace Ame::Gfx::Shading

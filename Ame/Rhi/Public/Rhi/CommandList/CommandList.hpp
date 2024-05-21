@@ -186,6 +186,18 @@ namespace Ame::Rhi
             const DrawIndexedDesc& Desc);
 
         /// <summary>
+        /// Perform an indirect draw call.
+        /// </summary>
+        void DrawIndirect(
+            const DrawIndirectDesc& Desc);
+
+        /// <summary>
+        /// Perform an indirect indexed draw call.
+        /// </summary>
+        void DrawIndirectIndexed(
+            const DrawIndirectDesc& Desc);
+
+        /// <summary>
         /// End rendering.
         /// </summary>
         void EndRendering();

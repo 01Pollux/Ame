@@ -54,6 +54,12 @@ namespace Ame::Gfx::Shading
             boost::hash_combine(Hash, std::to_underlying(RT));
         }
         boost::hash_combine(Hash, std::to_underlying(RenderState.DepthTargetFormat));
+        for (auto& Shader : RenderState.ShadersToLink)
+        {
+            auto Start = Shader.GetBytecode();
+            auto End   = Start + Shader.GetSize();
+            boost::hash_range(Hash, Start, End);
+        }
         return Hash;
     }
 
@@ -102,15 +108,23 @@ namespace Ame::Gfx::Shading
             .InputAssembly = PipelineState.InputAssembly,
             .Rasterizer    = PipelineState.Rasterizer,
             .OutputMerger{
-                .RenderTargets      = RenderTargets,
-                .DepthStencilFormat = RenderState.DepthTargetFormat,
-                .DepthTarget        = OutputMerger.DepthTarget,
-                .StencilTarget      = OutputMerger.StencilTarget,
-                .ColorLogicFunc     = OutputMerger.ColorLogicFunc },
+                .RenderTargets  = RenderTargets,
+                .DepthTarget    = OutputMerger.DepthTarget,
+                .StencilTarget  = OutputMerger.StencilTarget,
+                .ColorLogicFunc = OutputMerger.ColorLogicFunc },
             .Shaders     = ShaderDescs,
             .VertexInput = &VertexDesc,
             .Multisample = PipelineState.MultiSample ? &MultiSample : nullptr
         };
+
+        if (RenderState.DepthTargetFormat != Rhi::ResourceFormat::UNKNOWN)
+        {
+            Desc.OutputMerger.DepthStencilFormat = RenderState.DepthTargetFormat;
+        }
+        else
+        {
+            Desc.OutputMerger.DepthTarget.WriteEnable = false;
+        }
 
         co_return RhiDevice.CreatePipelineState(Desc);
     }

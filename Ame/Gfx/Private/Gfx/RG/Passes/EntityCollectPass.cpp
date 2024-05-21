@@ -1,11 +1,16 @@
 #include <Gfx/RG/Passes/EntityCollectPass.hpp>
 
 #include <Gfx/Cache/PipelineStateCache.hpp>
+#include <Gfx/Constants.hpp>
 
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
 
 namespace Ame::Gfx::RG::Std
 {
+    namespace CD = Constants::DescriptorRanges;
+
+    //
+
     EntityCollectPass::EntityCollectPass(
         Ecs::Universe&             Universe,
         Cache::PipelineStateCache& PipelineStateCache) :
@@ -41,7 +46,6 @@ namespace Ame::Gfx::RG::Std
                     RgResolver.ReadBuffer(
                         Names::TransformsTable("CollectPass"),
                         Rhi::ShaderType::COMPUTE_SHADER);
-
                     RgResolver.ReadBuffer(
                         Names::RenderInstancesTable("CollectPass"),
                         Rhi::ShaderType::COMPUTE_SHADER);
@@ -71,9 +75,9 @@ namespace Ame::Gfx::RG::Std
 
                     //
 
-                    auto FrameDataSet   = CommandList->AllocateSet(0);
-                    auto EntityDataSet  = CommandList->AllocateSet(1);
-                    auto CommandInfoSet = CommandList->AllocateSet(2);
+                    auto FrameDataSet   = CommandList->AllocateSet(CD::FrameData_SetIndex);
+                    auto EntityDataSet  = CommandList->AllocateSet(CD::EntityData_SetIndex);
+                    auto CommandInfoSet = CommandList->AllocateSet(CommandInfo_SetIndex);
 
                     nri::Descriptor* FrameDescriptors[]{
                         RgStorage.GetFrameResourceHandle().Unwrap()
@@ -95,9 +99,9 @@ namespace Ame::Gfx::RG::Std
 
                     //
 
-                    CommandList->SetDescriptorSet(0, FrameDataSet);
-                    CommandList->SetDescriptorSet(1, EntityDataSet);
-                    CommandList->SetDescriptorSet(2, CommandInfoSet);
+                    CommandList->SetDescriptorSet(CD::FrameData_SetIndex, FrameDataSet);
+                    CommandList->SetDescriptorSet(CD::EntityData_SetIndex, EntityDataSet);
+                    CommandList->SetDescriptorSet(CommandInfo_SetIndex, CommandInfoSet);
 
                     //
 

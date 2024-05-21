@@ -16,6 +16,8 @@ namespace Ame::Gfx::RG::Std
         static constexpr int32_t  MinEntities     = 1'024;
         static constexpr uint32_t BufferAlignment = 0xFFFF;
 
+        static constexpr uint32_t CommandInfo_SetIndex = 2;
+
         struct DispatchDesc
         {
             uint32_t DrawOffset;

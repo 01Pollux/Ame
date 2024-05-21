@@ -33,6 +33,7 @@ namespace Ame::Gfx::Cache
         enum class Type
         {
             EntityCollectPass,
+            GBufferPass,
 
             Count
         };

@@ -82,7 +82,8 @@ namespace Ame::Gfx::Shading
 
     struct MaterialRenderState
     {
-        std::span<Rhi::ResourceFormat> RenderTargetFormats;
-        Rhi::ResourceFormat            DepthTargetFormat = Rhi::ResourceFormat::UNKNOWN;
+        std::span<const Rhi::ResourceFormat> RenderTargetFormats;
+        Rhi::ResourceFormat                  DepthTargetFormat = Rhi::ResourceFormat::UNKNOWN;
+        std::span<const Rhi::ShaderBytecode> ShadersToLink;
     };
 } // namespace Ame::Gfx::Shading
