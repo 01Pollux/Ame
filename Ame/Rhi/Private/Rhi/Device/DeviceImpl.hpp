@@ -308,6 +308,12 @@ namespace Ame::Rhi
         /// </summary>
         void SuppressWarningsIfNeeded(
             const DeviceCreateDesc& Desc);
+        
+        /// <summary>
+        /// Enables validation if needed.
+        /// </summary>
+        void EnableValidationIfNeeded(
+            const DeviceCreateDesc& Desc);
 
     private:
         NRIBridge            m_NRI;

@@ -88,8 +88,8 @@ namespace Ame::Gfx::Cache
         /// </summary>
         [[nodiscard]] Co::result<MappedFileInfo*> CreateOrOpenFile(
             Co::executor_tag,
-            const Ptr<Co::executor>&       Executor,
-            std::span<Rhi::ShaderBytecode> Shaders);
+            const Ptr<Co::executor>&             Executor,
+            std::span<const Rhi::ShaderBytecode> Shaders);
 
         /// <summary>
         /// Create or open a cache file.
@@ -127,11 +127,11 @@ namespace Ame::Gfx::Cache
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> LinkAndInsertToCache(
             Co::executor_tag,
-            const Ptr<Co::executor>&       Executor,
-            MappedFileInfo&                FileInfo,
-            std::span<Rhi::ShaderBytecode> Shaders,
-            const PermutationKey&          Key,
-            const Rhi::ShaderCompileDesc&  Desc);
+            const Ptr<Co::executor>&             Executor,
+            MappedFileInfo&                      FileInfo,
+            std::span<const Rhi::ShaderBytecode> Shaders,
+            const PermutationKey&                Key,
+            const Rhi::ShaderCompileDesc&        Desc);
 
         /// <summary>
         /// Load a shader from cache by key.
@@ -146,17 +146,17 @@ namespace Ame::Gfx::Cache
 
     private:
         /// <summary>
+        /// Generate permutation key from shader compile desc.
+        /// </summary>
+        [[nodiscard]] static PermutationKey GeneratePermutationKey(
+            const Rhi::ShaderCompileDesc& Desc);
+
+        /// <summary>
         /// Generate file cache name
         /// </summary>
         [[nodiscard]] static String GenerateCacheFileName(
             Rhi::Device&  Device,
             const String& Hash);
-
-        /// <summary>
-        /// Generate permutation key from shader compile desc.
-        /// </summary>
-        [[nodiscard]] static PermutationKey GeneratePermutationKey(
-            const Rhi::ShaderCompileDesc& Desc);
 
     private:
         Ref<Rhi::Device>    m_Device;

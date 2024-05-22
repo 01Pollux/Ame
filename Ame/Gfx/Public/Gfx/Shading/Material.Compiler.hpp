@@ -3,6 +3,11 @@
 #include <Core/Coroutine.hpp>
 #include <Gfx/Shading/PropertyDescriptor.hpp>
 
+namespace Ame::Gfx::Cache
+{
+    class ShaderCache;
+} // namespace Ame::Gfx::Cache
+
 namespace Ame::Gfx::Shading
 {
     class MaterialCompiler
@@ -13,6 +18,7 @@ namespace Ame::Gfx::Shading
         /// </summary>
         [[nodiscard]] static Co::result<Ptr<Material>> Compile(
             Rhi::Device&              RhiDevice,
+            Gfx::Cache::ShaderCache&  ShaderCache,
             MaterialPipelineState     PipelineState,
             const PropertyDescriptor& Descriptor);
     };

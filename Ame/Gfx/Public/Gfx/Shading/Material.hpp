@@ -16,6 +16,7 @@ namespace Ame::Gfx::Shading
     public:
         Material(
             Rhi::Device&              RhiDevice,
+            Gfx::Cache::ShaderCache&  ShaderCache,
             Ptr<Rhi::PipelineLayout>  PipelineLayout,
             MaterialPipelineState     PipelineState,
             const PropertyDescriptor& Descriptor);
@@ -170,6 +171,7 @@ namespace Ame::Gfx::Shading
 
             SharedData(
                 Rhi::Device&              RhiDevice,
+                Gfx::Cache::ShaderCache&  ShaderCache,
                 Ptr<Rhi::PipelineLayout>  PipelineLayout,
                 MaterialPipelineState     PipelineState,
                 const PropertyDescriptor& Descriptor);

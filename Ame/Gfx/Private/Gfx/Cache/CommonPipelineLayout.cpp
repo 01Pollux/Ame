@@ -45,8 +45,8 @@ namespace Ame::Gfx::Cache
             //
 
             Rhi::DescriptorSetDesc Sets[]{
-                CD::FrameSetDesc,
-                CD::EntitySetDesc,
+                CD::FrameSetDesc<Rhi::ShaderType::COMPUTE_SHADER>,
+                CD::EntitySetDesc<Rhi::ShaderType::COMPUTE_SHADER>,
                 { .registerSpace = 3, .ranges = CommandInfo, .rangeNum = Rhi::Count32(CommandInfo) },
             };
 

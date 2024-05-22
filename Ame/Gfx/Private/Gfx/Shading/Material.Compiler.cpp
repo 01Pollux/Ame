@@ -18,11 +18,11 @@ namespace Ame::Gfx::Shading
     public:
         MaterialLayoutDesc(
             const PropertyDescriptor& Descriptor) :
-            m_FrameData(CD::FrameRangeDesc),
-            m_EntityData(CD::EntityRangeDesc),
+            m_FrameData(CD::FrameRangeDesc<>),
+            m_EntityData(CD::EntityRangeDesc<>),
             m_Sets{
-                { .registerSpace = CD::FrameData_RegisterIndex, .ranges = &m_FrameData, .rangeNum = 1 },
-                { .registerSpace = CD::EntityData_RegisterIndex, .ranges = &m_EntityData, .rangeNum = 1 },
+                { .registerSpace = CD::FrameData_RegisterSpace, .ranges = &m_FrameData, .rangeNum = 1 },
+                { .registerSpace = CD::EntityData_RegisterSpace, .ranges = &m_EntityData, .rangeNum = 1 },
                 { .registerSpace = CD::MaterialData_RegisterSpace }
             },
             m_SetCount(InitialSetCount)
@@ -157,6 +157,7 @@ namespace Ame::Gfx::Shading
 
     Co::result<Ptr<Material>> MaterialCompiler::Compile(
         Rhi::Device&              RhiDevice,
+        Gfx::Cache::ShaderCache&  ShaderCache,
         MaterialPipelineState     PipelineState,
         const PropertyDescriptor& Descriptor)
     {
@@ -169,6 +170,6 @@ namespace Ame::Gfx::Shading
 #endif
 
         auto Layout = co_await CreatePipelineLayout(RhiDevice, Descriptor);
-        co_return std::make_shared<Material>(RhiDevice, std::move(Layout), std::move(PipelineState), Descriptor);
+        co_return std::make_shared<Material>(RhiDevice, ShaderCache, std::move(Layout), std::move(PipelineState), Descriptor);
     }
 } // namespace Ame::Gfx::Shading

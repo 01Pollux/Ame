@@ -119,6 +119,8 @@ namespace Ame::Rhi
                 nullptr));
     }
 
+    //
+
     void ShaderCompilerLibrary::Validate(
         GraphicsAPI              Api,
         const ShaderCompileDesc& Desc)

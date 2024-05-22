@@ -83,7 +83,7 @@ namespace Ame::Rhi
             return m_Bytecode != nullptr;
         }
 
-        [[nodiscard]] ShaderBytecode Borrow()
+        [[nodiscard]] ShaderBytecode Borrow() const
         {
             return ShaderBytecode{
                 m_Bytecode,

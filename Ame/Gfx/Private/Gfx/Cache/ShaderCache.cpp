@@ -7,7 +7,7 @@
 #include <Gfx/Cache/ShaderCache.hpp>
 
 #include <cryptopp/sha.h>
-#include <Util/Crypto.hpp>
+#include <Rhi/Hash/Shader.Crypto.hpp>
 
 namespace bip = boost::interprocess;
 
@@ -163,8 +163,8 @@ namespace Ame::Gfx::Cache
 
     auto ShaderCache::CreateOrOpenFile(
         Co::executor_tag,
-        const Ptr<Co::executor>&       Executor,
-        std::span<Rhi::ShaderBytecode> Shaders) -> Co::result<MappedFileInfo*>
+        const Ptr<Co::executor>&             Executor,
+        std::span<const Rhi::ShaderBytecode> Shaders) -> Co::result<MappedFileInfo*>
     {
         CryptoPP::SHA256 Hasher;
         Hasher.Update(LibraryShaderHash, std::size(LibraryShaderHash));
@@ -239,11 +239,11 @@ namespace Ame::Gfx::Cache
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::LinkAndInsertToCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&       Executor,
-        MappedFileInfo&                FileInfo,
-        std::span<Rhi::ShaderBytecode> Shaders,
-        const PermutationKey&          Key,
-        const Rhi::ShaderCompileDesc&  Desc)
+        const Ptr<Co::executor>&             Executor,
+        MappedFileInfo&                      FileInfo,
+        std::span<const Rhi::ShaderBytecode> Shaders,
+        const PermutationKey&                Key,
+        const Rhi::ShaderCompileDesc&        Desc)
     {
         auto CompileTask = Rhi::ShaderCompiler::LinkAsync({}, *Executor, m_Device, Desc, Shaders);
         co_return co_await InsertToCache({}, Executor, FileInfo, std::move(CompileTask), Key, Desc);
@@ -300,34 +300,18 @@ namespace Ame::Gfx::Cache
 
     //
 
+    auto ShaderCache::GeneratePermutationKey(
+        const Rhi::ShaderCompileDesc& Desc) -> PermutationKey
+    {
+        CryptoPP::SHA256 Hasher;
+        Util::UpdateCrypto(Hasher, Desc);
+        return Util::FinalizeDigest(Hasher);
+    }
+
     String ShaderCache::GenerateCacheFileName(
         Rhi::Device&  Device,
         const String& Hash)
     {
         return std::format("{}_{}{}.acs", std::filesystem::temp_directory_path().string(), Hash, Device.GetGraphicsAPIName());
-    }
-
-    auto ShaderCache::GeneratePermutationKey(
-        const Rhi::ShaderCompileDesc& Desc) -> PermutationKey
-    {
-        CryptoPP::SHA256 Hasher;
-
-        for (auto& [Key, Value] : Desc.Defines)
-        {
-            Hasher.Update(std::bit_cast<const CryptoPP::byte*>(Key.c_str()), sizeof(Key[0]) * Key.size());
-            Hasher.Update(std::bit_cast<const CryptoPP::byte*>(Value.c_str()), sizeof(Value[0]) * Value.size());
-        }
-        for (auto Extension : Desc.SpirvExtensions)
-        {
-            Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Extension), sizeof(Extension));
-        }
-
-        auto Stage = Desc.GetStage();
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Stage), sizeof(Stage));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Profile), sizeof(Desc.Profile));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.VulkanMemoryLayout), sizeof(Desc.VulkanMemoryLayout));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Flags), sizeof(Desc.Flags));
-
-        return Util::FinalizeDigest(Hasher);
     }
 } // namespace Ame::Gfx::Cache

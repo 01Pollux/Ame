@@ -35,9 +35,14 @@ namespace Ame::Rhi
 
         void Link();
 
+        void Validate(
+            GraphicsAPI              Api,
+            const ShaderCompileDesc& Desc);
+
     private:
-        CComPtr<IDxcUtils>  m_Utils;
-        CComPtr<IDxcLinker> m_Linker;
+        CComPtr<IDxcValidator> m_Validator;
+        CComPtr<IDxcUtils>     m_Utils;
+        CComPtr<IDxcLinker>    m_Linker;
 
         CompileShaderOption m_CompileOptions;
         ShaderType          m_ShaderStage;

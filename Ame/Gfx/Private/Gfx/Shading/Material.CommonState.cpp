@@ -3,19 +3,23 @@
 
 #include <Rhi/Device/Device.hpp>
 #include <Gfx/Shading/Material.CommonState.hpp>
+#include <Gfx/Cache/ShaderCache.hpp>
 #include <Gfx/Constants.hpp>
+
+#include <cryptopp/sha.h>
+#include <Rhi/Hash/Shader.Crypto.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Gfx::Shading
 {
-    namespace CS = Constants::Shading;
-
     MaterialCommonState::MaterialCommonState(
         Rhi::Device&             RhiDevice,
+        Gfx::Cache::ShaderCache& ShaderCache,
         Ptr<Rhi::PipelineLayout> PipelineLayout,
         MaterialPipelineState    PipelineState) :
         m_RhiDevice(RhiDevice),
+        m_ShaderCache(ShaderCache),
         m_PipelineLayout(PipelineLayout),
         m_PipelineStateDesc(std::move(PipelineState))
     {
@@ -38,7 +42,7 @@ namespace Ame::Gfx::Shading
         auto& PipelineState = m_PipelineStates[Hash];
         if (!PipelineState)
         {
-            PipelineState = co_await CreatePipelineState(m_RhiDevice, m_PipelineLayout, m_PipelineStateDesc, RenderState);
+            PipelineState = co_await CreatePipelineState(RenderState);
         }
         co_return PipelineState;
     }
@@ -46,67 +50,101 @@ namespace Ame::Gfx::Shading
     //
 
     auto MaterialCommonState::GetStateHash(
-        const MaterialRenderState& RenderState) -> PipelineStateHash
+        const MaterialRenderState& RenderState) const -> PipelineStateHash
     {
-        PipelineStateHash Hash = 0;
+        CryptoPP::SHA256 Hasher;
+
         for (auto RT : RenderState.RenderTargetFormats)
         {
-            boost::hash_combine(Hash, std::to_underlying(RT));
+            Util::UpdateCrypto(Hasher, std::to_underlying(RT));
         }
-        boost::hash_combine(Hash, std::to_underlying(RenderState.DepthTargetFormat));
-        for (auto& Shader : RenderState.ShadersToLink)
+        Util::UpdateCrypto(Hasher, std::to_underlying(RenderState.DepthTargetFormat));
+
+        for (auto& Shader : RenderState.ShaderLink.Shaders)
         {
-            auto Start = Shader.GetBytecode();
-            auto End   = Start + Shader.GetSize();
-            boost::hash_range(Hash, Start, End);
+            Util::UpdateCrypto(Hasher, Shader);
         }
-        return Hash;
+        Util::UpdateCrypto(Hasher, RenderState.ShaderLink.CompileDesc);
+
+        return Util::FinalizeDigest(Hasher);
+    }
+
+    //
+
+    Co::result<Rhi::ShaderBytecode> MaterialCommonState::CreatePixelShader(
+        const MaterialRenderState& RenderState) const
+    {
+        MaterialShaderStorage PixelShader;
+
+        PixelShader.reserve(RenderState.ShaderLink.Shaders.size() + 1);
+        PixelShader.emplace_back(m_PipelineStateDesc.FindShader(Rhi::LibraryShaderType).Borrow());
+
+        for (auto& Shader : RenderState.ShaderLink.Shaders)
+        {
+            PixelShader.emplace_back(Shader.Borrow());
+        }
+
+        co_return co_await m_ShaderCache.get().Link(RenderState.ShaderLink.CompileDesc, std::move(PixelShader));
+    }
+
+    Co::result<std::vector<Rhi::ShaderDesc>> MaterialCommonState::GetShaderDescs(
+        const Rhi::ShaderBytecode& PixelShader) const
+    {
+        std::vector<Rhi::ShaderDesc> ShaderDescs;
+        ShaderDescs.reserve(m_PipelineStateDesc.Shaders.size());
+
+        for (auto& Shader : m_PipelineStateDesc.Shaders)
+        {
+            if (Shader.GetStage() == Rhi::LibraryShaderType) [[unlikely]]
+            {
+                ShaderDescs.emplace_back(PixelShader.GetDesc());
+            }
+            else
+            {
+                ShaderDescs.emplace_back(Shader.GetDesc());
+            }
+        }
+
+        co_return ShaderDescs;
     }
 
     //
 
     Co::result<Ptr<Rhi::PipelineState>> MaterialCommonState::CreatePipelineState(
-        Rhi::Device&                 RhiDevice,
-        Ptr<Rhi::PipelineLayout>     PipelineLayout,
-        const MaterialPipelineState& PipelineState,
-        const MaterialRenderState&   RenderState)
+        const MaterialRenderState& RenderState) const
     {
-        auto& OutputMerger = PipelineState.OutputMerger;
+        auto& OutputMerger = m_PipelineStateDesc.OutputMerger;
 
-        std::vector<Rhi::RenderTargetDesc> RenderTargets;
-        RenderTargets.reserve(RenderState.RenderTargetFormats.size());
-        for (uint32_t i = 0; i < RenderState.RenderTargetFormats.size(); i++)
-        {
-            RenderTargets.emplace_back(
-                Rhi::RenderTargetDesc{
-                    .Format      = RenderState.RenderTargetFormats[i],
-                    .Color       = OutputMerger.RenderTargets[i].Color,
-                    .Alpha       = OutputMerger.RenderTargets[i].Alpha,
-                    .WriteMask   = OutputMerger.RenderTargets[i].WriteMask,
-                    .BlendEnable = OutputMerger.RenderTargets[i].BlendEnable });
-        }
+        auto RenderTargets =
+            RenderState.RenderTargetFormats |
+            std::views::transform([&](auto RT)
+                                  { return Rhi::RenderTargetDesc{
+                                        .Format      = RT,
+                                        .Color       = OutputMerger.RenderTarget.Color,
+                                        .Alpha       = OutputMerger.RenderTarget.Alpha,
+                                        .WriteMask   = OutputMerger.RenderTarget.WriteMask,
+                                        .BlendEnable = OutputMerger.RenderTarget.BlendEnable
+                                    }; }) |
+            std::ranges::to<std::vector>();
 
         Rhi::MultisampleDesc MultiSample;
-        if (PipelineState.MultiSample)
+        if (m_PipelineStateDesc.MultiSample)
         {
             MultiSample = Rhi::MultisampleDesc{
-                .SampleCount           = PipelineState.MultiSample->SampleCount,
-                .AlphaToCoverageEnable = PipelineState.MultiSample->AlphaToCoverageEnable
+                .SampleCount           = m_PipelineStateDesc.MultiSample->SampleCount,
+                .AlphaToCoverageEnable = m_PipelineStateDesc.MultiSample->AlphaToCoverageEnable
             };
         }
 
-        auto ShaderDescs =
-            PipelineState.Shaders |
-            std::views::transform([](const Rhi::ShaderBytecode& Bytecode) -> Rhi::ShaderDesc
-                                  { return Bytecode.GetDesc(); }) |
-            std::ranges::to<std::vector>();
+        auto PixelShader = co_await CreatePixelShader(RenderState);
+        auto ShaderDescs = co_await GetShaderDescs(PixelShader);
 
-        CS::MaterialVertexDesc VertexDesc;
+        MaterialVertexDesc VertexDesc;
 
         Rhi::GraphicsPipelineDesc Desc{
-            .Layout        = PipelineLayout,
-            .InputAssembly = PipelineState.InputAssembly,
-            .Rasterizer    = PipelineState.Rasterizer,
+            .Layout        = m_PipelineLayout,
+            .InputAssembly = m_PipelineStateDesc.InputAssembly,
+            .Rasterizer    = m_PipelineStateDesc.Rasterizer,
             .OutputMerger{
                 .RenderTargets  = RenderTargets,
                 .DepthTarget    = OutputMerger.DepthTarget,
@@ -114,9 +152,10 @@ namespace Ame::Gfx::Shading
                 .ColorLogicFunc = OutputMerger.ColorLogicFunc },
             .Shaders     = ShaderDescs,
             .VertexInput = &VertexDesc,
-            .Multisample = PipelineState.MultiSample ? &MultiSample : nullptr
+            .Multisample = m_PipelineStateDesc.MultiSample ? &MultiSample : nullptr
         };
 
+        Desc.Rasterizer.ViewportNum = Rhi::Count8(RenderState.RenderTargetFormats);
         if (RenderState.DepthTargetFormat != Rhi::ResourceFormat::UNKNOWN)
         {
             Desc.OutputMerger.DepthStencilFormat = RenderState.DepthTargetFormat;
@@ -126,6 +165,6 @@ namespace Ame::Gfx::Shading
             Desc.OutputMerger.DepthTarget.WriteEnable = false;
         }
 
-        co_return RhiDevice.CreatePipelineState(Desc);
+        co_return m_RhiDevice.get().CreatePipelineState(Desc);
     }
 } // namespace Ame::Gfx::Shading

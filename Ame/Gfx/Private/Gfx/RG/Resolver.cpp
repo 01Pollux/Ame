@@ -1,6 +1,8 @@
 #include <Gfx/RG/Resolver.hpp>
 #include <Gfx/RG/ResourceStorage.hpp>
 
+#include <Rhi/Device/Device.hpp>
+
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Gfx::RG
@@ -16,6 +18,11 @@ namespace Ame::Gfx::RG
     Rhi::Device& Resolver::GetDevice() const
     {
         return m_Storage.GetDevice();
+    }
+
+    const Rhi::TextureDesc& Resolver::GetBackbufferDesc() const
+    {
+        return GetDevice().GetBackBufferDesc();
     }
 
     const FrameResourceCPU& Resolver::GetFrameResourceData() const

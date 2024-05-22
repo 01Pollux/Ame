@@ -19,6 +19,11 @@ namespace Ame::Gfx::RG
         [[nodiscard]] Rhi::Device& GetDevice() const;
 
         /// <summary>
+        /// Helper function to get backbuffer desc
+        /// </summary>
+        [[nodiscard]] const Rhi::TextureDesc& GetBackbufferDesc() const;
+
+        /// <summary>
         /// Get frame resource
         /// </summary>
         [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;

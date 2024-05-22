@@ -20,11 +20,12 @@ namespace Ame::Gfx::Shading
 
     Material::SharedData::SharedData(
         Rhi::Device&              RhiDevice,
+        Gfx::Cache::ShaderCache&  ShaderCache,
         Ptr<Rhi::PipelineLayout>  PipelineLayout,
         MaterialPipelineState     PipelineState,
         const PropertyDescriptor& Descriptor) :
         LocalData(Descriptor),
-        CommonState(RhiDevice, PipelineLayout, std::move(PipelineState))
+        CommonState(RhiDevice, ShaderCache, PipelineLayout, std::move(PipelineState))
     {
     }
 
@@ -32,10 +33,11 @@ namespace Ame::Gfx::Shading
 
     Material::Material(
         Rhi::Device&              RhiDevice,
+        Gfx::Cache::ShaderCache&  ShaderCache,
         Ptr<Rhi::PipelineLayout>  PipelineLayout,
         MaterialPipelineState     PipelineState,
         const PropertyDescriptor& Descriptor) :
-        m_SharedData(std::make_shared<SharedData>(RhiDevice, PipelineLayout, std::move(PipelineState), Descriptor)),
+        m_SharedData(std::make_shared<SharedData>(RhiDevice, ShaderCache, PipelineLayout, std::move(PipelineState), Descriptor)),
         m_LocalData(Descriptor)
     {
     }

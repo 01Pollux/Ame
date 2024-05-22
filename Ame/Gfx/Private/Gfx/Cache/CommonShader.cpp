@@ -81,7 +81,7 @@ namespace Ame::Gfx::Cache
 
         case Type::GBufferPass_PS:
         {
-            ShaderGuid = Asset::Handle::FromString(ShaderGuids::s_BufferCollectPass);
+            ShaderGuid = Asset::Handle::FromString(ShaderGuids::s_GBufferPass);
             ShaderDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
             ShaderDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
             break;

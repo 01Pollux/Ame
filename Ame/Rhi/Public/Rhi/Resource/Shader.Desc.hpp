@@ -72,9 +72,8 @@ namespace Ame::Rhi
 
         LibraryShader = 1 << 0,
 
-        Debug                = 1 << 1,
-        DisableOptimizations = 1 << 2,
-        NoValidation         = 1 << 3,
+        Debug        = 1 << 1,
+        NoValidation = 1 << 3,
 
         OptimizationLevel0 = 1 << 4,
         OptimizationLevel1 = 1 << 5,

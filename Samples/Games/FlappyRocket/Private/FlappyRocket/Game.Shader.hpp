@@ -5,20 +5,23 @@ namespace Ame::FlappyRocket
     static constexpr const char* s_ShaderSource = R"(
 #include "../Core/Material.hlsli"
 
-//
+AME_ENABLE_DRAW_PARAMETERS;
 
-AME_MATERIAL_RESOURCE(Texture2D<float4>, p_BasecolorMap, t, 0);
-AME_MATERIAL_RESOURCE(SamplerState, p_Sampler, s, 1);
+//
+//
+//AME_MATERIAL_RESOURCE(Texture2D<float4>, p_BasecolorMap, t, 0);
+//AME_MATERIAL_RESOURCE(SamplerState, p_Sampler, s, 1);
 
 //
 
 [shader("vertex")]
 Ecs_PSInput VS_Main(
-	Ecs_VSInput input)
+	Ecs_VSInput input,
+	AME_DECLARE_DRAW_PARAMETERS)
 {
 	Ecs_PSInput output = (Ecs_PSInput) 0;
 	
-	RenderInstance instance = g_RenderInstances[g_InstanceInfo.InstanceIndex];
+	RenderInstance instance = g_RenderInstances[AME_INSTANCE_ID_OFFSET];
 	Transform transform = g_Transforms[instance.TransformIndex];
 	
 	output.Position = float4(input.Position, 1.0f);
@@ -33,7 +36,7 @@ Ecs_PSInput VS_Main(
 	return output;
 }
 
-export MaterialFragment PS_Main(
+export MaterialFragment PSM_Main(
 	Ecs_PSInput input)
 {
 	MaterialFragment fragment = (MaterialFragment) 0;

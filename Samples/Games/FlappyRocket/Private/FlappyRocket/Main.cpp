@@ -9,6 +9,7 @@ AME_MAIN(Argc, Argv)
     EngineBuilder()
         .Title("Flappy Rocket")
         .RendererBackend(Rhi::DeviceType::DirectX12)
+        .ValidationLayer()
         .Build()
         .Run();
 }

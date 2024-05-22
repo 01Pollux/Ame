@@ -36,6 +36,7 @@ namespace Ame::Rhi
         }
 
         SuppressWarningsIfNeeded(Desc);
+        EnableValidationIfNeeded(Desc);
 
         m_DrawIndexedCommandSize = GetDesc().isDrawParametersEmulationEnabled ? sizeof(Rhi::DrawIndexedBaseDesc) : sizeof(Rhi::DrawIndexedDesc);
     }
@@ -468,6 +469,29 @@ namespace Ame::Rhi
                 InfoQueue->AddStorageFilterEntries(&Filter);
                 InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
                 InfoQueue->Release();
+            }
+#endif
+        }
+#endif
+    }
+
+    void DeviceImpl::EnableValidationIfNeeded(
+        const DeviceCreateDesc& Desc)
+    {
+
+#ifndef AME_DIST
+        auto GraphicsAPI = GetGraphicsAPI();
+        if (Desc.EnableApiValidationLayer && GraphicsAPI == GraphicsAPI::DirectX12) [[likely]]
+        {
+#ifdef AME_PLATFORM_WINDOWS
+            auto& NriCore = *m_NRI.GetCoreInterface();
+            auto  Device  = static_cast<ID3D12Device*>(NriCore.GetDeviceNativeObject(*m_Device));
+
+            ID3D12Debug* DebugController = nullptr;
+            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&DebugController))))
+            {
+                DebugController->EnableDebugLayer();
+                DebugController->Release();
             }
 #endif
         }

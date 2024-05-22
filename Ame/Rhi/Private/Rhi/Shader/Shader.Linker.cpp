@@ -15,6 +15,7 @@ namespace Ame::Rhi
         LoadBlobs(Shaders);
         RegisterLibraries();
         Link();
+        Validate(RhiDevice.GetGraphicsAPI(), Desc);
     }
 
     ShaderBytecode ShaderLinkerLibrary::GetBytecode() const
@@ -37,6 +38,7 @@ namespace Ame::Rhi
 
     void ShaderLinkerLibrary::LoadDxc()
     {
+        ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcValidator, IID_PPV_ARGS(&m_Validator)));
         ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&m_Utils)));
         ShaderUtil::ThrowShaderException(DxcCreateInstance(CLSID_DxcLinker, IID_PPV_ARGS(&m_Linker)));
     }
@@ -124,6 +126,70 @@ namespace Ame::Rhi
         }
 
         ShaderUtil::ThrowShaderException(Result->GetResult(&m_CompiledBlob));
+    }
+
+    //
+
+    void ShaderLinkerLibrary::Validate(
+        GraphicsAPI              Api,
+        const ShaderCompileDesc& Desc)
+    {
+        using namespace EnumBitOperators;
+
+        if (Api != GraphicsAPI::DirectX12)
+        {
+            return;
+        }
+
+        if (!m_CompiledBlob)
+        {
+            return;
+        }
+
+        if (!Desc.ShouldValidate())
+        {
+            return;
+        }
+
+        CComPtr<IDxcOperationResult> OperationResult;
+        ShaderUtil::ThrowShaderException(m_Validator->Validate(
+            ShaderUtil::GetComPtr(m_CompiledBlob),
+            DxcValidatorFlags_InPlaceEdit,
+            &OperationResult));
+
+        HRESULT Status;
+        ShaderUtil::ThrowShaderException(OperationResult->GetStatus(&Status));
+
+        if (FAILED(Status))
+        {
+            CComPtr<IDxcBlobEncoding> Error;
+            CComPtr<IDxcBlobUtf8>     ErrorUtf8;
+
+            OperationResult->GetErrorBuffer(&Error);
+            if (Error)
+            {
+                m_Utils->GetBlobAsUtf8(ShaderUtil::GetComPtr(Error), &ErrorUtf8);
+            }
+            else
+            {
+                Log::Rhi().Error("Failed to get the error buffer.");
+            }
+
+            if (ErrorUtf8)
+            {
+                Log::Rhi().Error(StringView(ErrorUtf8->GetStringPointer(), ErrorUtf8->GetBufferSize()));
+            }
+            else
+            {
+                Log::Rhi().Error("Failed to get the error buffer.");
+            }
+            return;
+        }
+        else
+        {
+            m_CompiledBlob = nullptr;
+            ShaderUtil::ThrowShaderException(OperationResult->GetResult(&m_CompiledBlob));
+        }
     }
 
     //

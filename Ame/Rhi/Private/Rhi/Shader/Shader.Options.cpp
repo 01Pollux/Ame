@@ -277,12 +277,9 @@ namespace Ame::Rhi
 
         //
 
-        bool IsLibrary = (Desc.Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
-
         auto& RhiDesc = RhiDevice.GetDesc();
 
         FinalOptions = {
-            DXC_ARG_OPTIMIZATION_LEVEL3,
             DXC_ARG_ALL_RESOURCES_BOUND,
             L"-HV 2021",
             L"-E", EntryPoint,
@@ -298,6 +295,37 @@ namespace Ame::Rhi
         if (RhiDesc.isDrawParametersEmulationEnabled)
         {
             FinalOptions.emplace_back(L"-DAME_ENABLE_DRAW_PARAMETERS_EMULATION=1");
+        }
+
+#ifdef AME_DIST
+        FinalOptions.emplace_back(DXC_ARG_OPTIMIZATION_LEVEL3);
+#else
+        if ((Desc.Flags & ShaderCompileFlags::OptimizationLevel3) != ShaderCompileFlags::None)
+        {
+            FinalOptions.emplace_back(DXC_ARG_OPTIMIZATION_LEVEL3);
+        }
+        else if ((Desc.Flags & ShaderCompileFlags::OptimizationLevel2) != ShaderCompileFlags::None)
+        {
+            FinalOptions.emplace_back(DXC_ARG_OPTIMIZATION_LEVEL2);
+        }
+        else if ((Desc.Flags & ShaderCompileFlags::OptimizationLevel1) != ShaderCompileFlags::None)
+        {
+            FinalOptions.emplace_back(DXC_ARG_OPTIMIZATION_LEVEL1);
+        }
+        else if ((Desc.Flags & ShaderCompileFlags::OptimizationLevel0) != ShaderCompileFlags::None)
+        {
+            FinalOptions.emplace_back(DXC_ARG_OPTIMIZATION_LEVEL0);
+        }
+#endif
+
+        if ((Desc.Flags & ShaderCompileFlags::RowMajor) != ShaderCompileFlags::None)
+        {
+            FinalOptions.emplace_back(DXC_ARG_PACK_MATRIX_ROW_MAJOR);
+        }
+
+        if ((Desc.Flags & ShaderCompileFlags::TreatWarningsAsErrors) != ShaderCompileFlags::None)
+        {
+            FinalOptions.emplace_back(DXC_ARG_WARNINGS_ARE_ERRORS);
         }
 
 #ifndef AME_DIST

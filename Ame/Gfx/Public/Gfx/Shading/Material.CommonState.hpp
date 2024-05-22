@@ -6,17 +6,23 @@
 #include <Gfx/Shading/PropertyDescriptor.hpp>
 #include <Rhi/Resource/Shader.hpp>
 
+namespace Ame::Gfx::Cache
+{
+    class ShaderCache;
+} // namespace Ame::Gfx::Cache
+
 namespace Ame::Gfx::Shading
 {
     class MaterialCommonState
     {
     public:
-        using PipelineStateHash = uint64_t;
+        using PipelineStateHash = std::array<uint8_t, 32>;
         using PipelineStateMap  = std::map<PipelineStateHash, Ptr<Rhi::PipelineState>>;
 
     public:
         MaterialCommonState(
             Rhi::Device&             RhiDevice,
+            Gfx::Cache::ShaderCache& ShaderCache,
             Ptr<Rhi::PipelineLayout> PipelineLayout,
             MaterialPipelineState    PipelineState);
 
@@ -38,17 +44,30 @@ namespace Ame::Gfx::Shading
         /// <summary>
         /// Get the hash of the pipeline state
         /// </summary>
-        [[nodiscard]] static PipelineStateHash GetStateHash(
-            const MaterialRenderState& RenderState);
+        [[nodiscard]] PipelineStateHash GetStateHash(
+            const MaterialRenderState& RenderState) const;
 
-        [[nodiscard]] static Co::result<Ptr<Rhi::PipelineState>> CreatePipelineState(
-            Rhi::Device&                 RhiDevice,
-            Ptr<Rhi::PipelineLayout>     PipelineLayout,
-            const MaterialPipelineState& PipelineState,
-            const MaterialRenderState&   RenderState);
+        /// <summary>
+        /// Create the pixel shader for the material
+        /// </summary>
+        [[nodiscard]] Co::result<Rhi::ShaderBytecode> CreatePixelShader(
+            const MaterialRenderState& RenderState) const;
+
+        /// <summary>
+        /// Get shader descs for pipeline state
+        /// </summary>
+        [[nodiscard]] Co::result<std::vector<Rhi::ShaderDesc>> GetShaderDescs(
+            const Rhi::ShaderBytecode& PixelShader) const;
+
+        /// <summary>
+        /// Create pipeline state for the material
+        /// </summary>
+        [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> CreatePipelineState(
+            const MaterialRenderState& RenderState) const;
 
     private:
-        Ref<Rhi::Device> m_RhiDevice;
+        Ref<Rhi::Device>             m_RhiDevice;
+        Ref<Gfx::Cache::ShaderCache> m_ShaderCache;
 
         Ptr<Rhi::PipelineLayout>     m_PipelineLayout;
         std::vector<Rhi::ShaderDesc> m_ShaderDescs;

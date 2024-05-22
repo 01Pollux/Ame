@@ -4,7 +4,9 @@
 #include <Core/String.hpp>
 
 #include <Rhi/Descs/Pipeline.hpp>
-#include <Rhi/Resource/Shader.hpp>
+#include <Rhi/Resource/Shader.Compiler.hpp>
+
+#include <Gfx/Shading/Constants.hpp>
 
 namespace Ame::Gfx::Shading
 {
@@ -45,10 +47,10 @@ namespace Ame::Gfx::Shading
 
     struct OutputMergerState
     {
-        std::vector<RenderTargetState> RenderTargets;
-        Rhi::DepthTargetDesc           DepthTarget;
-        Rhi::StencilTargetDesc         StencilTarget;
-        Rhi::LogicFunc                 ColorLogicFunc = Rhi::LogicFunc::NONE;
+        RenderTargetState      RenderTarget;
+        Rhi::DepthTargetDesc   DepthTarget;
+        Rhi::StencilTargetDesc StencilTarget;
+        Rhi::LogicFunc         ColorLogicFunc = Rhi::LogicFunc::NONE;
     };
 
     using MaterialShaderStorage = std::vector<Rhi::ShaderBytecode>;
@@ -75,15 +77,22 @@ namespace Ame::Gfx::Shading
         /// </summary>
         MaterialShaderStorage Shaders;
 
-        [[nodiscard]] const Rhi::ShaderBytecode& FindShader(Rhi::ShaderType Type) const;
+        [[nodiscard]] const Rhi::ShaderBytecode& FindShader(
+            Rhi::ShaderType Type) const;
     };
 
     //
+
+    struct MaterialShaderLink
+    {
+        MaterialShaderStorage  Shaders;
+        Rhi::ShaderCompileDesc CompileDesc;
+    };
 
     struct MaterialRenderState
     {
         std::span<const Rhi::ResourceFormat> RenderTargetFormats;
         Rhi::ResourceFormat                  DepthTargetFormat = Rhi::ResourceFormat::UNKNOWN;
-        std::span<const Rhi::ShaderBytecode> ShadersToLink;
+        MaterialShaderLink                   ShaderLink;
     };
 } // namespace Ame::Gfx::Shading

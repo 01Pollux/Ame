@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include <Gfx/RG/Passes/GBufferPass.hpp>
 
 #include <Gfx/Shading/Material.hpp>
@@ -5,19 +7,41 @@
 
 namespace Ame::Gfx::RG::Std
 {
+    using namespace EnumBitOperators;
     namespace CD = Constants::DescriptorRanges;
 
     //
 
     GBufferPass::GBufferPass(
+        Cache::CommonShader&         CommonShaders,
         Cache::MaterialBindingCache& MaterialCache) :
+        m_CommonShaders(CommonShaders),
         m_MaterialCache(MaterialCache)
     {
+        m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS);
+
         Name("GBufferPass")
             .SetFlags(PassFlags::Graphics)
             .Build(
                 [this](Resolver& RgResolver)
                 {
+                    auto& FrameData = RgResolver.GetFrameResourceData();
+                    auto  Desc      = RgResolver.GetBackbufferDesc();
+                    Desc.usageMask  = {};
+
+                    for (auto [Id, Format] : std::views::zip(RenderTargetIds, RenderTargetFormats))
+                    {
+                        Desc.format = Format;
+                        RgResolver.CreateTexture(Id, Desc);
+                        RgResolver.WriteRenderTarget(Id("Main"), Rhi::ShaderType::DRAW, Format);
+                    }
+
+                    Desc.format = DepthTargetFormat;
+                    RgResolver.CreateTexture(DepthTargetId, Desc);
+                    RgResolver.WriteDepthStencil(DepthTargetId("Main"), Rhi::ShaderType::DRAW, DepthTargetFormat);
+
+                    //
+
                     RgResolver.ReadBuffer(
                         Names::EntityCommandCounter("GBufferPass"),
                         Rhi::ShaderType::GRAPHICS_SHADERS,
@@ -54,7 +78,12 @@ namespace Ame::Gfx::RG::Std
                     EntityDataSet.SetRange(0, { EntityDescriptors, Rhi::Count32(EntityDescriptors) });
 
                     //
-                    return;
+
+                    Shading::MaterialShaderLink GBufferShaders;
+
+                    GBufferShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS).get().Borrow());
+
+                    GBufferShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
 
                     auto EntStore = RgStorage.GetEntityStore();
                     for (auto& Row : EntStore.GetCountedRows())
@@ -65,8 +94,9 @@ namespace Ame::Gfx::RG::Std
                         CommandList->SetDescriptorSet(CD::EntityData_SetIndex, EntityDataSet);
 
                         auto PipelineState = Row->Material->GetPipelineState(
-                                                              { GBufferFormats,
-                                                                DepthFormat })
+                                                              { RenderTargetFormats,
+                                                                DepthTargetFormat,
+                                                                std::move(GBufferShaders) })
                                                  .get();
                         CommandList->SetPipelineState(PipelineState);
 
