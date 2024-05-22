@@ -55,6 +55,7 @@ namespace Ame::Gfx::RG::Std
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
+                    return;
                     auto& TransformsTable      = RgStorage.GetResourceViewHandle(Names::TransformsTable("CollectPass"));
                     auto& RenderInstancesTable = RgStorage.GetResourceViewHandle(Names::RenderInstancesTable("CollectPass"));
 

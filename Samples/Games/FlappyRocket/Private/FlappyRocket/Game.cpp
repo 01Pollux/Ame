@@ -48,7 +48,9 @@ namespace Ame::FlappyRocket
         namespace GS = Gfx::Shading;
 
         GS::MaterialPipelineState PipelineState;
-        GS::PropertyDescriptor    Descriptor;
+        PipelineState.Rasterizer.Cull = Rhi::CullMode::NONE;
+        
+        GS::PropertyDescriptor Descriptor;
 
         Rhi::ShaderCompileDesc CompileDesc;
 
@@ -81,6 +83,6 @@ namespace Ame::FlappyRocket
 
         auto Camera = World.CreateEntity(CameraName);
         Camera.AddComponent<Ecs::Component::Camera>();
-        Camera.AddComponent<Ecs::Component::Transform>(Math::Mat::Identity<Math::Matrix3x3>, Math::Vec::Backward<Math::Vector3> * 2.f);
+        Camera.AddComponent<Ecs::Component::Transform>(Math::Mat::Identity<Math::Matrix3x3>, Math::Vec::Backward<Math::Vector3> * 10.f);
     }
 } // namespace Ame::FlappyRocket

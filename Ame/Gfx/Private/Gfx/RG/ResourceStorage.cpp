@@ -94,7 +94,7 @@ namespace Ame::Gfx::RG
         const Rhi::BufferDesc& Desc)
     {
         CheckLockState(false);
-        m_Resources[Id].SetDynamic(Desc);
+        m_Resources[Id].SetDynamic(Id, Desc);
     }
 
     void ResourceStorage::DeclareTexture(
@@ -102,7 +102,7 @@ namespace Ame::Gfx::RG
         const Rhi::TextureDesc& Desc)
     {
         CheckLockState(false);
-        m_Resources[Id].SetDynamic(Desc);
+        m_Resources[Id].SetDynamic(Id, Desc);
     }
 
     //

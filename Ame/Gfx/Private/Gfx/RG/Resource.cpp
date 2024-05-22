@@ -59,6 +59,9 @@ namespace Ame::Gfx::RG
 
         m_ImportViewsChanged = true;
         m_IsImported         = true;
+#ifndef AME_DIST
+        m_Name.clear();
+#endif
     }
 
     void ResourceHandle::Import(
@@ -69,9 +72,13 @@ namespace Ame::Gfx::RG
 
         m_ImportViewsChanged = true;
         m_IsImported         = true;
+#ifndef AME_DIST
+        m_Name.clear();
+#endif
     }
 
     void ResourceHandle::SetDynamic(
+        const ResourceId&   Id,
         const ResourceDesc& Desc)
     {
         std::visit(
@@ -87,6 +94,9 @@ namespace Ame::Gfx::RG
                 [](const auto&) {} },
             m_Resource);
         m_Desc = Desc;
+#ifndef AME_DIST
+        m_Name = Id.GetName();
+#endif
     }
 
     //
@@ -196,7 +206,12 @@ namespace Ame::Gfx::RG
                     }
 
                     m_DescHash = Hash;
-                    m_Resource.emplace<Rhi::Texture>(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
+
+                    Rhi::Texture Texture(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
+#ifndef AME_DIST
+                    Texture.SetName(m_Name.c_str());
+#endif
+                    m_Resource.emplace<Rhi::Texture>(std::move(Texture));
 
                     ChangedResource = true;
                 },
@@ -210,8 +225,12 @@ namespace Ame::Gfx::RG
                         return;
                     }
 
+                    Rhi::Buffer Buffer(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
+#ifndef AME_DIST
+                    Buffer.SetName(m_Name.c_str());
+#endif
                     m_DescHash = Hash;
-                    m_Resource.emplace<Rhi::Buffer>(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
+                    m_Resource.emplace<Rhi::Buffer>(std::move(Buffer));
 
                     ChangedResource = true;
                 },
@@ -235,9 +254,8 @@ namespace Ame::Gfx::RG
             },
             [&](const Rhi::TextureViewDesc& ViewDesc)
             {
-                const auto& Tex     = std::get<Rhi::Texture>(m_Resource);
-                auto&       TexDesc = Tex.GetDesc();
-                RhiView             = Tex.CreateView(ViewDesc);
+                const auto& Tex = std::get<Rhi::Texture>(m_Resource);
+                RhiView         = Tex.CreateView(ViewDesc);
             }
         };
 

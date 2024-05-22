@@ -190,6 +190,7 @@ namespace Ame::Gfx::RG
         /// Set resource desc and change resource to be dynamic (not imported)
         /// </summary>
         void SetDynamic(
+            const ResourceId&   Id,
             const ResourceDesc& Desc);
 
     public:
@@ -268,13 +269,18 @@ namespace Ame::Gfx::RG
         void Release();
 
     private:
+#ifndef AME_DIST
+        String m_Name;
+#endif
+
         ResourceType m_Resource;
 
         ResourceDesc m_Desc;
         size_t       m_DescHash = 0;
 
         ResourceViewMapType m_Views;
-        bool                m_ImportViewsChanged : 1 = false;
-        bool                m_IsImported         : 1 = false;
+
+        bool m_ImportViewsChanged : 1 = false;
+        bool m_IsImported         : 1 = false;
     };
 } // namespace Ame::Gfx::RG
