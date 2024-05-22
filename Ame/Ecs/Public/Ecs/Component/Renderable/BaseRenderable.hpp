@@ -20,24 +20,45 @@ namespace Ame::Ecs::Component
     {
         struct BufferView
         {
-            const void* View  = nullptr;
-            uint32_t    Count = 0;
-            Rhi::Buffer RhiBuffer;
+            nri::Buffer* NriBuffer = nullptr;
 
-            [[nodiscard]] bool HasUniqueBuffer() const
-            {
-                return RhiBuffer;
-            }
+            const void* CpuView_Or_Offset = nullptr;
 
-            [[nodiscard]] size_t GetUniqueBufferOffset() const
-            {
-                return std::bit_cast<size_t>(View);
-            }
+            uint32_t Num    = 0;
+            uint32_t Stride = 0;
 
-            [[nodiscard]] bool IsLocal() const
-            {
-                return !HasUniqueBuffer();
-            }
+            static BufferView Local(
+                void*  Data,
+                size_t Count,
+                size_t Stride);
+
+            static BufferView Shared(
+                nri::Buffer* Buffer,
+                size_t       Offset,
+                size_t       Count,
+                size_t       Stride);
+
+            /// <summary>
+            /// Get the offset of the buffer.
+            /// The buffer MUST be unique to access the offset.
+            /// </summary>
+            [[nodiscard]] size_t Offset() const;
+
+            /// <summary>
+            /// Get the cpu data of the buffer.
+            /// The buffer MUST be local to access the cpu data.
+            /// </summary>
+            [[nodiscard]] const void* CpuData() const;
+
+            /// <summary>
+            /// Check to see if the buffer is unique.
+            /// </summary>
+            [[nodiscard]] bool HasUniqueBuffer() const;
+
+            /// <summary>
+            /// Check to see if the buffer is local and dynamic.
+            /// </summary>
+            [[nodiscard]] bool IsLocal() const;
         };
 
         // must be either uint16_t or uint32_t

@@ -49,18 +49,18 @@ namespace Ame::Gfx::RG
         {
             using EntityList = std::span<const StagedEntity>;
 
-            Rhi::Buffer VtxBuffer;
-            Rhi::Buffer IdxBuffer;
-            EntityList  Entities;
-            double      RMSDistance = 0.;
+            nri::Buffer* VtxBuffer;
+            nri::Buffer* IdxBuffer;
+            EntityList   Entities;
+            double       RMSDistance = 0.;
 
             StagedGroup(
                 std::span<const StagedEntity> Group,
-                Rhi::Buffer                   VtxBuffer,
-                Rhi::Buffer                   IdxBuffer);
+                nri::Buffer*                  VtxBuffer,
+                nri::Buffer*                  IdxBuffer);
 
-            const Ecs::Component::BaseRenderable& GetFirstRenderable() const;
-            const RenderInstance&                 GetFirstInstance() const;
+            [[nodiscard]] Rhi::IndexType         GetIndexType() const;
+            [[nodiscard]] Ptr<Shading::Material> GetMaterial() const;
 
             std::partial_ordering operator<=>(const StagedGroup& Other) const noexcept;
         };
@@ -78,6 +78,7 @@ namespace Ame::Gfx::RG
                 const Rhi::Util::SlotBasedBufferDesc&  InstanceDesc);
 
             void Reset();
+            void Flush();
         };
 
     public:
@@ -89,6 +90,7 @@ namespace Ame::Gfx::RG
         [[nodiscard]] uint32_t                  GetEntitiesCount() const;
         [[nodiscard]] EntityStore::RowGenerator GetEntities() const;
         [[nodiscard]] const InstanceBuffer&     GetInstancesTableBuffer() const;
+        [[nodiscard]] InstanceBuffer&           GetInstancesTableBuffer();
 
     public:
         /// <summary>

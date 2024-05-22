@@ -1,6 +1,7 @@
 #include <ranges>
 
 #include <Gfx/RG/Passes/GBufferPass.hpp>
+#include <Rhi/Resource/VertexView.hpp>
 
 #include <Gfx/Shading/Material.hpp>
 #include <Gfx/Constants.hpp>
@@ -82,10 +83,16 @@ namespace Ame::Gfx::RG::Std
                     Shading::MaterialShaderLink GBufferShaders;
 
                     GBufferShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS).get().Borrow());
-
                     GBufferShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
 
+                    Shading::MaterialRenderState RenderState{
+                        RenderTargetFormats,
+                        DepthTargetFormat,
+                        std::move(GBufferShaders)
+                    };
+
                     auto EntStore = RgStorage.GetEntityStore();
+
                     for (auto& Row : EntStore.GetCountedRows())
                     {
                         m_MaterialCache.get().Bind(*CommandList, *Row->Material);
@@ -93,12 +100,11 @@ namespace Ame::Gfx::RG::Std
                         CommandList->SetDescriptorSet(CD::FrameData_SetIndex, FrameDataSet);
                         CommandList->SetDescriptorSet(CD::EntityData_SetIndex, EntityDataSet);
 
-                        auto PipelineState = Row->Material->GetPipelineState(
-                                                              { RenderTargetFormats,
-                                                                DepthTargetFormat,
-                                                                std::move(GBufferShaders) })
-                                                 .get();
+                        auto PipelineState = Row->Material->GetPipelineState(RenderState).get();
                         CommandList->SetPipelineState(PipelineState);
+
+                        CommandList->SetVertexBuffer({ .Buffer = Row->VtxBuffer });
+                        CommandList->SetIndexBuffer({ .Buffer = Row->IdxBuffer, .Type = Row->IndexType });
 
                         CommandList->DrawIndirectIndexed(
                             { .DrawBuffer    = CommandsBuffer.AsBuffer()->Unwrap(),

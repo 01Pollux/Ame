@@ -23,15 +23,16 @@ namespace Ame::Gfx::RG
     public:
         [[nodiscard]] uint32_t                  GetEntitiesCount() const;
         [[nodiscard]] EntityStore::RowGenerator GetEntities() const;
-        [[nodiscard]] const InstanceBuffer&     GetInstancesTableBuffer() const;
 
     public:
         [[nodiscard]] const AABBBuffer&      GetAABBBuffer() const;
         [[nodiscard]] const TransformBuffer& GetTransformBuffer() const;
+        [[nodiscard]] const InstanceBuffer&  GetInstancesTableBuffer() const;
 
     public:
         [[nodiscard]] AABBBuffer&      GetAABBBuffer();
         [[nodiscard]] TransformBuffer& GetTransformBuffer();
+        [[nodiscard]] InstanceBuffer&  GetInstancesTableBuffer();
 
     public:
         /// <summary>

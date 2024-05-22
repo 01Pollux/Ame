@@ -14,13 +14,13 @@ struct DispatchDesc
 
 //
 
-AME_RESOURCE(ConstantBuffer<FrameDesc>, FrameInfo, b, 0, 1);
+AME_RESOURCE(ConstantBuffer<FrameDesc>, g_FrameInfo, b, 0, 1);
 
-AME_RESOURCE(StructuredBuffer<Transform>, Transforms, t, 0, 2);
-AME_RESOURCE(StructuredBuffer<RenderInstance>, RenderInstances, t, 1, 2);
+AME_RESOURCE(StructuredBuffer<Transform>, g_Transforms, t, 0, 2);
+AME_RESOURCE(StructuredBuffer<RenderInstance>, g_RenderInstances, t, 1, 2);
 
-AME_RESOURCE(RWBuffer<uint>, Commands, u, 0, 3);
-AME_RESOURCE(RWBuffer<uint>, CommandCount, u, 1, 3);
+AME_RESOURCE(RWBuffer<uint>, g_Commands, u, 0, 3);
+AME_RESOURCE(RWBuffer<uint>, g_CommandCount, u, 1, 3);
 
 AME_PUSH_CONSTANT(DispatchDesc, DispatchData, 0);
 
@@ -34,7 +34,7 @@ groupshared uint s_DrawCount;
 void CS_Main(uint threadId : SV_DispatchThreadId)
 {
 	DrawHelper drawHelper;
-	drawHelper.Initialize(Commands, CommandCount);
+	drawHelper.Initialize(g_Commands);
 	
 	if (threadId == 0)
 	{
@@ -46,7 +46,7 @@ void CS_Main(uint threadId : SV_DispatchThreadId)
 	for (uint i = threadId; i < DispatchData.DrawCount; i += BLOCK_SIZE)
 	{
 		uint index = DispatchData.DrawOffset + i;
-		RenderInstance instance = RenderInstances[index];
+		RenderInstance instance = g_RenderInstances[index];
 		
 		uint commandIndex;
 		InterlockedAdd(s_DrawCount, 1, commandIndex);
@@ -57,6 +57,6 @@ void CS_Main(uint threadId : SV_DispatchThreadId)
 
 	if (threadId == 0)
 	{
-		CommandCount[DispatchData.CounterOffset] = s_DrawCount;
+		g_CommandCount[DispatchData.CounterOffset] = s_DrawCount;
 	}
 }

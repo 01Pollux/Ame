@@ -7,13 +7,13 @@ namespace Ame::Rhi
 {
     struct VertexBufferView
     {
-        Rhi::Buffer Buffer;
-        uint64_t    Offset = 0;
+        nri::Buffer* Buffer = nullptr;
+        uint64_t     Offset = 0;
     };
 
     struct IndexBufferView
     {
-        Rhi::Buffer    Buffer;
+        nri::Buffer*   Buffer = nullptr;
         uint64_t       Offset = 0;
         Rhi::IndexType Type   = Rhi::IndexType::UINT16;
     };

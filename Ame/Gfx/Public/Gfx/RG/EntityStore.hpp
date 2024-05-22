@@ -15,18 +15,22 @@ namespace Ame::Gfx::RG
     public:
         struct Row
         {
-            Rhi::Buffer                 VtxBuffer;
-            Rhi::Buffer                 IdxBuffer;
+            nri::Buffer*   VtxBuffer;
+            nri::Buffer*   IdxBuffer;
+            Rhi::IndexType IndexType;
+
             Ptr<Gfx::Shading::Material> Material;
             uint32_t                    Count = 1;
 
             Row(
-                Rhi::Buffer                 Vtx,
-                Rhi::Buffer                 Idx,
+                nri::Buffer*                Vtx,
+                nri::Buffer*                Idx,
+                Rhi::IndexType              IdxType,
                 Ptr<Gfx::Shading::Material> Material,
                 uint32_t                    Count) :
-                VtxBuffer(std::move(Vtx)),
-                IdxBuffer(std::move(Idx)),
+                VtxBuffer(Vtx),
+                IdxBuffer(Idx),
+                IndexType(IdxType),
                 Material(std::move(Material)),
                 Count(Count)
             {

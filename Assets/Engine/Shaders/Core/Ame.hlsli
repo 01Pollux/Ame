@@ -129,12 +129,10 @@
 class DrawHelper
 {
 	RWBuffer<uint> CommandBuffer;
-    RWBuffer<uint> CommandCount;
     
-    void Initialize(RWBuffer<uint> commandBuffer, RWBuffer<uint> commandCount)
+    void Initialize(RWBuffer<uint> commandBuffer)
 	{
 		CommandBuffer = commandBuffer;
-		CommandCount = commandCount;
 	}
     
     void FillDrawDesc(uint cmdIndex, uint vertexNum, uint instanceNum, uint baseVertex, uint baseInstance)

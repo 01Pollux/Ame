@@ -1,6 +1,8 @@
 #include <Gfx/RG/Ecs/System.hpp>
 #include <Gfx/RG/Resources/CoreResources.hpp>
 
+#include <glm/gtc/type_ptr.hpp>
+
 namespace Ame::Gfx::RG
 {
     void EcsSystemHooks::CreateTransformObserver()
@@ -21,9 +23,10 @@ namespace Ame::Gfx::RG
                 {
                     if (InstanceInfo.TransformIndex == TransformBuffer.InvalidIndex)
                     {
-                        InstanceInfo.TransformIndex = TransformBuffer.Rent(Transform);
+                        InstanceInfo.TransformIndex = TransformBuffer.Rent();
                     }
-                    TransformBuffer.Write(InstanceInfo.TransformIndex, Transform);
+                    auto Mat = Transform.ToMat4x4Transposed();
+                    TransformBuffer.Write(InstanceInfo.TransformIndex, glm::value_ptr(Mat), sizeof(Mat));
                 }
                 else
                 {

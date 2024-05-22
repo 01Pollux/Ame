@@ -24,8 +24,10 @@ Ecs_PSInput VS_Main(
 	RenderInstance instance = g_RenderInstances[AME_INSTANCE_ID_OFFSET];
 	Transform transform = g_Transforms[instance.TransformIndex];
 	
-	output.Position = float4(input.Position, 1.0f);
-	output.Position = mul(output.Position, transform.World);
+	float4 PositionWS = float4(input.Position, 1.0f);
+	PositionWS = mul(transform.World, PositionWS);
+	output.Position = mul(g_FrameInfo.ViewProjection, PositionWS);
+	output.PositionWS = PositionWS.xyz;
 	
 	output.NormalWS = mul(float4(input.Normal, 0.0f), transform.World).xyz;
 	output.TangentWS = mul(float4(input.Tangent, 0.0f), transform.World).xyz;

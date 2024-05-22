@@ -106,7 +106,9 @@ namespace Ame::Gfx
     void Renderer::OnRender()
     {
         auto RenderIter =
-            [this](Ecs::Iterator Iter, const Ecs::Component::Transform* Transforms, const Ecs::Component::Camera* Cameras)
+            [this](Ecs::Iterator                    Iter,
+                   const Ecs::Component::Transform* Transforms,
+                   const Ecs::Component::Camera*    Cameras)
         {
             for (auto i : Iter)
             {

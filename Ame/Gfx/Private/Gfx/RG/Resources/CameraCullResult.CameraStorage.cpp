@@ -21,4 +21,11 @@ namespace Ame::Gfx::RG
         DynamicIndices.Reset();
         AllInstances.Reset();
     }
+
+    void CameraCullResult::CameraStorage::Flush()
+    {
+        DynamicVertices.FlushAll();
+        DynamicIndices.FlushAll();
+        AllInstances.Flush();
+    }
 } // namespace Ame::Gfx::RG

@@ -18,11 +18,8 @@ namespace Ame::Ecs::Module
                 {
                     auto& Renderable = Entity.GetComponentMut<Component::BaseRenderable>();
 
-                    Renderable.Vertex.View  = Sprite.Vertices.data();
-                    Renderable.Vertex.Count = static_cast<uint32_t>(Sprite.Vertices.size());
-
-                    Renderable.Index.View  = Sprite.Indices.data();
-                    Renderable.Index.Count = static_cast<uint32_t>(Sprite.Indices.size());
+                    Renderable.Vertex = Component::BaseRenderable::BufferView::Local(Sprite.Vertices.data(), Sprite.Vertices.size(), sizeof(Sprite.Vertices[0]));
+                    Renderable.Index  = Component::BaseRenderable::BufferView::Local(Sprite.Indices.data(), Sprite.Indices.size(), sizeof(Sprite.Indices[0]));
 
                     Renderable.Material   = Sprite.Material;
                     Renderable.CameraMask = Sprite.CameraMask;

@@ -293,7 +293,7 @@ namespace Ame::Rhi
 
         for (const auto& VertexBuffer : VertexBuffers)
         {
-            NriBuffers.push_back(VertexBuffer.Buffer.Unwrap());
+            NriBuffers.push_back(VertexBuffer.Buffer);
             Offsets.push_back(VertexBuffer.Offset);
         }
 
@@ -306,7 +306,7 @@ namespace Ame::Rhi
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
 
-        NriCore.CmdSetIndexBuffer(*m_CommandBuffer, *IndexBuffer.Buffer.Unwrap(), IndexBuffer.Offset, IndexBuffer.Type);
+        NriCore.CmdSetIndexBuffer(*m_CommandBuffer, *IndexBuffer.Buffer, IndexBuffer.Offset, IndexBuffer.Type);
     }
 
     void CommandListImpl::Draw(

@@ -43,11 +43,6 @@ namespace Ame::Gfx::RG
         return m_CameraCullResult.GetEntities();
     }
 
-    const InstanceBuffer& CoreResources::GetInstancesTableBuffer() const
-    {
-        return m_CameraCullResult.GetInstancesTableBuffer();
-    }
-
     //
 
     const AABBBuffer& CoreResources::GetAABBBuffer() const
@@ -60,6 +55,11 @@ namespace Ame::Gfx::RG
         return m_TransformBuffer;
     }
 
+    const InstanceBuffer& CoreResources::GetInstancesTableBuffer() const
+    {
+        return m_CameraCullResult.GetInstancesTableBuffer();
+    }
+
     //
 
     AABBBuffer& CoreResources::GetAABBBuffer()
@@ -70,5 +70,10 @@ namespace Ame::Gfx::RG
     TransformBuffer& CoreResources::GetTransformBuffer()
     {
         return m_TransformBuffer;
+    }
+
+    InstanceBuffer& CoreResources::GetInstancesTableBuffer()
+    {
+        return m_CameraCullResult.GetInstancesTableBuffer();
     }
 } // namespace Ame::Gfx::RG

@@ -10,11 +10,11 @@ namespace Ame::Gfx::RG
         auto MatA = Renderable.get().Material.get();
         auto MatB = Other.Renderable.get().Material.get();
 
-        auto VtxA = Renderable.get().Vertex.RhiBuffer.Unwrap();
-        auto VtxB = Other.Renderable.get().Vertex.RhiBuffer.Unwrap();
+        auto VtxA = Renderable.get().Vertex.NriBuffer;
+        auto VtxB = Other.Renderable.get().Vertex.NriBuffer;
 
-        auto IdxA = Renderable.get().Index.RhiBuffer.Unwrap();
-        auto IdxB = Other.Renderable.get().Index.RhiBuffer.Unwrap();
+        auto IdxA = Renderable.get().Index.NriBuffer;
+        auto IdxB = Other.Renderable.get().Index.NriBuffer;
 
         return std::tie(MatA, VtxA, IdxA, Distance) <=> std::tie(MatB, VtxB, IdxB, Other.Distance);
     }
@@ -22,11 +22,11 @@ namespace Ame::Gfx::RG
     //
 
     CameraCullResult::StagedGroup::StagedGroup(
-        EntityList  Group,
-        Rhi::Buffer VtxBuffer,
-        Rhi::Buffer IdxBuffer) :
-        VtxBuffer(std::move(VtxBuffer)),
-        IdxBuffer(std::move(IdxBuffer)),
+        EntityList   Group,
+        nri::Buffer* VtxBuffer,
+        nri::Buffer* IdxBuffer) :
+        VtxBuffer(VtxBuffer),
+        IdxBuffer(IdxBuffer),
         Entities(std::move(Group))
     {
         for (auto& Entity : Entities)
@@ -36,14 +36,14 @@ namespace Ame::Gfx::RG
         RMSDistance /= Entities.size();
     }
 
-    const Ecs::Component::BaseRenderable& CameraCullResult::StagedGroup::GetFirstRenderable() const
+    Rhi::IndexType CameraCullResult::StagedGroup::GetIndexType() const
     {
-        return Entities.front().Renderable;
+        return Entities.front().Renderable.get().Index.Stride == sizeof(uint16_t) ? Rhi::IndexType::UINT16 : Rhi::IndexType::UINT32;
     }
 
-    const RenderInstance& CameraCullResult::StagedGroup::GetFirstInstance() const
+    Ptr<Shading::Material> CameraCullResult::StagedGroup::GetMaterial() const
     {
-        return Entities.front().Instance;
+        return Entities.front().Renderable.get().Material;
     }
 
     std::partial_ordering CameraCullResult::StagedGroup::operator<=>(
