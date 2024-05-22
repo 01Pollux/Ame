@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Math/Vector.hpp>
 #include <Math/Matrix.hpp>
 
@@ -52,16 +53,6 @@ namespace Ame::Ecs::Component
             float OrthographicSize = 1.0f;
 
             /// <summary>
-            /// Whether the viewport is using client width and height.
-            /// </summary>
-            bool ClientWidth : 1 = true;
-
-            /// <summary>
-            /// Whether the viewport is using client width and height.
-            /// </summary>
-            bool ClientHeight : 1 = true;
-
-            /// <summary>
             /// Maintain the x field of view when resizing.
             /// </summary>
             bool MaintainXFov : 1 = true;
@@ -82,10 +73,15 @@ namespace Ame::Ecs::Component
             CameraType Type = CameraType::Perspective);
 
     public:
-        /// <summary>
-        /// The viewport of the camera.
-        /// </summary>
-        Viewport Viewport;
+        void SetViewport(
+			const Viewport& Viewport);
+
+        void SetType(
+			CameraType Type);
+
+		[[nodiscard]] const Viewport& GetViewport() const;
+
+		[[nodiscard]] CameraType GetType() const;
 
         /// <summary>
         /// The culling mask of the camera.
@@ -97,20 +93,28 @@ namespace Ame::Ecs::Component
         /// </summary>
         int Priority = 0;
 
-        /// <summary>
-        /// The type of the camera.
-        /// </summary>
-        CameraType Type = CameraType::Perspective;
-
     public:
         /// <summary>
         /// Get the projection matrix of the viewport.
         /// </summary>
-        [[nodiscard]] Math::Matrix4x4 GetProjectionMatrix() const;
+        [[nodiscard]] const Math::Matrix4x4& GetProjectionMatrix() const;
 
         /// <summary>
         /// Get viewport size.
         /// </summary>
         [[nodiscard]] Math::Vector2 GetViewporSize() const;
+
+    private:
+        /// <summary>
+        /// The viewport of the camera.
+        /// </summary>
+        Viewport m_Viewport;
+
+        /// <summary>
+        /// The type of the camera.
+        /// </summary>
+        CameraType m_Type = CameraType::Perspective;
+
+        mutable Opt<Math::Matrix4x4> m_ProjectionMatrixCache;
     };
 } // namespace Ame::Ecs::Component

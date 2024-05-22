@@ -6,15 +6,43 @@ namespace Ame::Ecs::Component
 {
     Camera::Camera(
         CameraType Type) :
-        Type(Type)
+        m_Type(Type)
     {
         if (Type == CameraType::Orthographic)
         {
-            Viewport.FieldOfView = 90.0f;
-            Viewport.NearPlane   = -1.f;
-            Viewport.FarPlane    = 1.f;
+            m_Viewport.FieldOfView = 90.0f;
+            m_Viewport.NearPlane   = -1.f;
+            m_Viewport.FarPlane    = 1.f;
         }
     }
+
+    //
+
+    void Camera::SetViewport(
+        const Viewport& Viewport)
+    {
+        m_Viewport = Viewport;
+		m_ProjectionMatrixCache.reset();
+    }
+
+    void Camera::SetType(
+        CameraType Type)
+    {
+        m_Type = Type;
+        m_ProjectionMatrixCache.reset();
+    }
+
+    auto Camera::GetViewport() const -> const Viewport&
+    {
+        return m_Viewport;
+    }
+
+    CameraType Camera::GetType() const
+    {
+        return m_Type;
+    }
+
+    //
 
     float Camera::Viewport::AspectRatio() const
     {
@@ -59,13 +87,17 @@ namespace Ame::Ecs::Component
         }
     }
 
-    Math::Matrix4x4 Camera::GetProjectionMatrix() const
+    const Math::Matrix4x4& Camera::GetProjectionMatrix() const
     {
-        return Viewport.ProjectionMatrix(Type);
+        if (!m_ProjectionMatrixCache)
+        {
+            m_ProjectionMatrixCache = m_Viewport.ProjectionMatrix(m_Type);
+        }
+        return *m_ProjectionMatrixCache;
     }
 
     Math::Vector2 Camera::GetViewporSize() const
     {
-        return { Viewport.Width, Viewport.Height };
+        return { m_Viewport.Width, m_Viewport.Height };
     }
 } // namespace Ame::Ecs::Component
