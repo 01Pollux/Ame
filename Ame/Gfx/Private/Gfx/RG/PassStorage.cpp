@@ -45,7 +45,6 @@ namespace Ame::Gfx::RG
     void PassStorage::Build(
         Context& RgContext)
     {
-
         if (m_Passes.empty()) [[unlikely]]
         {
             RgContext.Build({});
@@ -97,14 +96,11 @@ namespace Ame::Gfx::RG
             for (size_t j = i + 1; j < m_Passes.size(); j++)
             {
                 auto& OtherResolver = Builders[j].RgResolver;
-                bool  Depends       = false;
-
                 for (auto& OtherPassRead : OtherResolver.m_ResourcesRead)
                 {
                     if (CurResolver.m_ResourcesWritten.contains(OtherPassRead))
                     {
                         Adjacencies.push_back(j);
-                        Depends = true;
                         break;
                     }
                 }

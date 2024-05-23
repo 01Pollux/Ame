@@ -33,7 +33,7 @@ namespace Ame::Gfx::RG
         /// Reset camera storage resources
         /// </summary>
         void Reset();
-        
+
         /// <summary>
         /// Update core storage resources incase of changes
         /// </summary>
@@ -61,14 +61,6 @@ namespace Ame::Gfx::RG
         /// </summary>
         void Build(
             DependencyLevelListType&& Levels);
-
-        /// <summary>
-        /// Resolve the transitions in the render graph
-        /// </summary>
-        void ResolveTransitions(
-            DependencyLevel* ThisLevel,
-            DependencyLevel* NextLevel,
-            DependencyLevel* PrevLevel);
 
     private:
         Ref<Rhi::Device>             m_Device;

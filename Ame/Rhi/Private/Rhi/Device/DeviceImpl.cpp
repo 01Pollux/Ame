@@ -39,6 +39,8 @@ namespace Ame::Rhi
         EnableValidationIfNeeded(Desc);
 
         m_DrawIndexedCommandSize = GetDesc().isDrawParametersEmulationEnabled ? sizeof(Rhi::DrawIndexedBaseDesc) : sizeof(Rhi::DrawIndexedDesc);
+
+        m_ResourceStateTracker.Initialize(&GetDesc());
     }
 
     DeviceImpl::~DeviceImpl()

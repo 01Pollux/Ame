@@ -41,7 +41,14 @@ namespace Ame::Gfx::RG::Std
                     RgResolver.CreateTexture(DepthTargetId, Desc);
                     RgResolver.WriteDepthStencil(DepthTargetId("Main"), Rhi::ShaderType::DRAW, DepthTargetFormat);
 
-                    //
+                    ////
+
+                    RgResolver.ReadBuffer(
+                        Names::TransformsTable("GBufferPass"),
+                        Rhi::ShaderType::COMPUTE_SHADER);
+                    RgResolver.ReadBuffer(
+                        Names::RenderInstancesTable("GBufferPass"),
+                        Rhi::ShaderType::COMPUTE_SHADER);
 
                     RgResolver.ReadBuffer(
                         Names::EntityCommandCounter("GBufferPass"),
@@ -55,9 +62,8 @@ namespace Ame::Gfx::RG::Std
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
-                    return;
-                    auto& TransformsTable      = RgStorage.GetResourceViewHandle(Names::TransformsTable("CollectPass"));
-                    auto& RenderInstancesTable = RgStorage.GetResourceViewHandle(Names::RenderInstancesTable("CollectPass"));
+                    auto& TransformsTable      = RgStorage.GetResourceViewHandle(Names::TransformsTable("GBufferPass"));
+                    auto& RenderInstancesTable = RgStorage.GetResourceViewHandle(Names::RenderInstancesTable("GBufferPass"));
 
                     auto& CommandsBuffer = RgStorage.GetResource(Names::EntityCommandBuffer);
                     auto& CounterBuffer  = RgStorage.GetResource(Names::EntityCommandCounter);

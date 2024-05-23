@@ -353,7 +353,6 @@ namespace Ame::Rhi
         {
             FinalOptions.emplace_back(L"-DAME_SHADER_COMPILER_SPIRV=1");
             FinalOptions.emplace_back(L"-spirv");
-            FinalOptions.emplace_back(L"-fvk-use-dx-layout");
 
             AddSpirvExtensions(Desc.SpirvExtensions, FinalOptions);
             AddSpirvLayout(Desc, RegisterShift, FinalOptions);

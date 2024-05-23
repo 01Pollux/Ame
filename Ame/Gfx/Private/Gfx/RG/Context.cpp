@@ -64,31 +64,5 @@ namespace Ame::Gfx::RG
         DependencyLevelListType&& Levels)
     {
         m_Levels = std::move(Levels);
-
-        for (size_t i = 0; i < m_Levels.size(); i++)
-        {
-            auto ThisLevel = &m_Levels[i];
-            auto NextLevel = (i + 1 < m_Levels.size()) ? &m_Levels[i + 1] : nullptr;
-            auto PrevLevel = (i > 0) ? &m_Levels[i - 1] : nullptr;
-
-            ResolveTransitions(ThisLevel, NextLevel, PrevLevel);
-        }
-    }
-
-    //
-
-    void Context::ResolveTransitions(
-        DependencyLevel* ThisLevel,
-        DependencyLevel*,
-        DependencyLevel* PrevLevel)
-    {
-        if (PrevLevel)
-        {
-            auto& BufferTransitions  = ThisLevel->m_BufferStatesToTransitions;
-            auto& TextureTransitions = ThisLevel->m_TextureStatesToTransitions;
-
-            BufferTransitions.merge(PrevLevel->m_BufferStatesToTransitions);
-            TextureTransitions.merge(PrevLevel->m_TextureStatesToTransitions);
-        }
     }
 } // namespace Ame::Gfx::RG

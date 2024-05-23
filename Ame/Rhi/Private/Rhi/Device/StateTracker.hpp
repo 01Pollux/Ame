@@ -72,6 +72,13 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Initialize the state tracker
+        /// </summary>
+        void Initialize(
+            const nri::DeviceDesc* DeviceDesc);
+
+    public:
+        /// <summary>
         /// Require a buffer to be in a certain state
         /// if Append is true, the state will be appended to the current state
         /// </summary>
@@ -199,6 +206,14 @@ namespace Ame::Rhi
             nri::AccessBits Next);
 
     private:
+        /// <summary>
+        /// Strip unsupported stages
+        /// </summary>
+        void StripUnsupportedStages(
+            nri::StageBits& Stages);
+
+    private:
+        const nri::DeviceDesc*   m_DeviceDesc = nullptr;
         CurrentResourceStateMaps m_CurrentStates;
         PendingResourceStateMaps m_PendingStates;
         GlobalBarrierList        m_GlobalBarriersCache;

@@ -27,6 +27,14 @@ namespace Ame::Rhi
 
     //
 
+    void ResourceStateTracker::Initialize(
+        const nri::DeviceDesc* DeviceDesc)
+    {
+        m_DeviceDesc = DeviceDesc;
+    }
+
+    //
+
     void ResourceStateTracker::RequireState(
         nri::Buffer*     Buffer,
         nri::AccessStage State,
@@ -42,6 +50,7 @@ namespace Ame::Rhi
         }
 
         auto& PendingStates = m_PendingStates.Buffers[Buffer];
+        StripUnsupportedStages(State.stages);
         PendingStates.push_back(State);
     }
 
@@ -81,6 +90,8 @@ namespace Ame::Rhi
         {
             ArrayCount = Desc.arraySize - ArraySlice;
         }
+
+        StripUnsupportedStages(State.stages);
 
         auto& PendingStates = m_PendingStates.Textures[Texture];
         for (auto [Mip, Array] : ForEachSubresource(MipLevel, MipCount, ArraySlice, ArrayCount))
@@ -380,5 +391,21 @@ namespace Ame::Rhi
 
         return (Current == Next) ||
                ((Current & ReadOnlyStates) && (static_cast<uint32_t>(Current & Next) == static_cast<uint32_t>(Next)));
+    }
+
+    //
+
+    void ResourceStateTracker::StripUnsupportedStages(
+        nri::StageBits& Stages)
+    {
+        if (!m_DeviceDesc->isMeshShaderSupported)
+        {
+            Stages = static_cast<nri::StageBits>(static_cast<uint32_t>(Stages) & ~static_cast<uint32_t>(nri::StageBits::MESH_SHADERS));
+        }
+
+        if (!m_DeviceDesc->isRayTracingSupported)
+        {
+            Stages = static_cast<nri::StageBits>(static_cast<uint32_t>(Stages) & ~static_cast<uint32_t>(nri::StageBits::RAY_TRACING_SHADERS));
+        }
     }
 } // namespace Ame::Rhi
