@@ -207,6 +207,20 @@ namespace Ame::Rhi
 
     private:
         /// <summary>
+        /// Compare two access stages
+        /// </summary>
+        [[nodiscard]] bool AreStateEqual(
+            nri::AccessStage A,
+            nri::AccessStage B) const;
+
+        /// <summary>
+        /// Compare two states
+        /// </summary>
+        [[nodiscard]] bool AreStateEqual(
+            const nri::AccessLayoutStage& A,
+            const nri::AccessLayoutStage& B) const;
+
+        /// <summary>
         /// Strip unsupported stages
         /// </summary>
         void StripUnsupportedStages(

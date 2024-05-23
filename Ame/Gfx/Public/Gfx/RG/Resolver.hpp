@@ -210,7 +210,7 @@ namespace Ame::Gfx::RG
         }
 
         /// <summary>
-        /// Read from vertex buffer resource
+        /// Read from constant buffer resource
         /// </summary>
         void ReadConstantBuffer(
             const ResourceViewId&   ViewId,
@@ -222,9 +222,46 @@ namespace Ame::Gfx::RG
                 Rhi::BufferViewDesc{
                     .Range  = Range,
                     .Format = Rhi::ResourceFormat::UNKNOWN,
-                    .Type   = Rhi::BufferViewType::ShaderResource },
+                    .Type   = Rhi::BufferViewType::ConstantBuffer },
                 { Rhi::AccessBits::CONSTANT_BUFFER, Shaders },
                 Rhi::BufferUsageBits::CONSTANT_BUFFER);
+        }
+
+        /// <summary>
+        /// Read from structured buffer resource
+        /// </summary>
+        void ReadStructuredBuffer(
+            const ResourceViewId&   ViewId,
+            Rhi::StageBits          Shaders,
+            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+        {
+            ReadBuffer(
+                ViewId,
+                Rhi::BufferViewDesc{
+                    .Range  = Range,
+                    .Format = Rhi::ResourceFormat::UNKNOWN,
+                    .Type   = Rhi::BufferViewType::ShaderResource },
+                { Rhi::AccessBits::SHADER_RESOURCE, Shaders },
+                Rhi::BufferUsageBits::SHADER_RESOURCE);
+        }
+
+        /// <summary>
+        /// Read from structured buffer resource
+        /// </summary>
+        void ReadTypedBuffer(
+            const ResourceViewId&   ViewId,
+            Rhi::StageBits          Shaders,
+            Rhi::ResourceFormat     Format,
+            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+        {
+            ReadBuffer(
+                ViewId,
+                Rhi::BufferViewDesc{
+                    .Range  = Range,
+                    .Format = Format,
+                    .Type   = Rhi::BufferViewType::ShaderResource },
+                { Rhi::AccessBits::SHADER_RESOURCE, Shaders },
+                Rhi::BufferUsageBits::SHADER_RESOURCE);
         }
 
         /// <summary>
@@ -238,7 +275,7 @@ namespace Ame::Gfx::RG
                 ViewId,
                 Rhi::BufferViewDesc{
                     .Range  = Range,
-                    .Format = Rhi::ResourceFormat::UNKNOWN,
+                    .Format = Rhi::ResourceFormat::R32_UINT,
                     .Type   = Rhi::BufferViewType::ShaderResource },
                 { Rhi::AccessBits::ARGUMENT_BUFFER, Rhi::StageBits::INDIRECT },
                 Rhi::BufferUsageBits::ARGUMENT_BUFFER);

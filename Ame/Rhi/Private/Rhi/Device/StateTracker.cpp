@@ -240,8 +240,7 @@ namespace Ame::Rhi
                 .after  = CollapseStates(States)
             };
 
-            if (ResourceBarrier.before.stages == ResourceBarrier.after.stages &&
-                ResourceBarrier.before.access == ResourceBarrier.after.access)
+            if (AreStateEqual(ResourceBarrier.before, ResourceBarrier.after))
             {
                 continue;
             }
@@ -280,9 +279,6 @@ namespace Ame::Rhi
 
         std::vector<nri::TextureBarrierDesc> Barriers;
 
-        auto ALSEquals = [](const nri::AccessLayoutStage& A, const nri::AccessLayoutStage& B)
-        { return A.access == B.access && A.layout == B.layout && A.stages == B.stages; };
-
         for (auto& [Index, NewSubresources] : NewStates)
         {
             auto& CurrentState  = CurrentSubresources[Index];
@@ -307,7 +303,8 @@ namespace Ame::Rhi
 
             // If any old subresource states do not match or any of the new states do not match
             // then performing single transition barrier for all subresources is not possible
-            if (ALSEquals(OldState, FirstOldState) || !ALSEquals(FinalNewState, FirstNewState))
+            if (AreStateEqual(OldState, FirstOldState) ||
+                !AreStateEqual(FinalNewState, FirstNewState))
             {
                 StatesMatch = false;
             }
@@ -391,6 +388,57 @@ namespace Ame::Rhi
 
         return (Current == Next) ||
                ((Current & ReadOnlyStates) && (static_cast<uint32_t>(Current & Next) == static_cast<uint32_t>(Next)));
+    }
+
+    //
+
+    bool ResourceStateTracker::AreStateEqual(
+        nri::AccessStage A,
+        nri::AccessStage B) const
+    {
+        switch (m_DeviceDesc->graphicsAPI)
+        {
+        case nri::GraphicsAPI::D3D12:
+        {
+            // if (!m_DeviceDesc->areEnhancedBarriersSupported)
+            {
+                // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
+                return A.access == B.access;
+            }
+        }
+            [[fallthrough]];
+        case nri::GraphicsAPI::VULKAN:
+        {
+            return A.access == B.access &&
+                   A.stages == B.stages;
+        }
+        }
+        return false;
+    }
+
+    bool ResourceStateTracker::AreStateEqual(
+        const nri::AccessLayoutStage& A,
+        const nri::AccessLayoutStage& B) const
+    {
+        switch (m_DeviceDesc->graphicsAPI)
+        {
+        case nri::GraphicsAPI::D3D12:
+        {
+            // if (!m_DeviceDesc->areEnhancedBarriersSupported)
+            {
+                // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
+                return A.access == B.access;
+            }
+        }
+            [[fallthrough]];
+        case nri::GraphicsAPI::VULKAN:
+        {
+            return A.access == B.access &&
+                   A.stages == B.stages &&
+                   A.layout == B.layout;
+        }
+        }
+        return false;
     }
 
     //

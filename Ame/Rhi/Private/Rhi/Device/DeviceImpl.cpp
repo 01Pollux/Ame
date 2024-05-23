@@ -459,7 +459,8 @@ namespace Ame::Rhi
             if (InfoQueue)
             {
                 D3D12_MESSAGE_ID DisableMessageIDs[] = {
-                    D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE
+                    D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,
+                    D3D12_MESSAGE_ID_RESOURCE_BARRIER_MATCHING_STATES
                 };
 
                 D3D12_INFO_QUEUE_FILTER Filter{
