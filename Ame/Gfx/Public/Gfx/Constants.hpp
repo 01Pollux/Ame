@@ -8,7 +8,7 @@ namespace Ame::Gfx::Constants::DescriptorRanges
     static constexpr uint32_t FrameData_SetIndex      = 0;
     static constexpr uint32_t FrameData_RegisterSpace = 1;
 
-    template<typename Rhi::ShaderType ShaderTypes = Rhi::ShaderType::NONE>
+    template<typename Rhi::StageBits ShaderTypes = Rhi::StageBits::NONE>
     static constexpr Rhi::DescriptorRangeDesc FrameRangeDesc{
         .baseRegisterIndex = FrameData_RegisterIndex,
         .descriptorNum     = 1,
@@ -16,7 +16,7 @@ namespace Ame::Gfx::Constants::DescriptorRanges
         .shaderStages      = ShaderTypes
     };
 
-    template<typename Rhi::ShaderType ShaderTypes = Rhi::ShaderType::NONE>
+    template<typename Rhi::StageBits ShaderTypes = Rhi::StageBits::NONE>
     static constexpr Rhi::DescriptorSetDesc FrameSetDesc{
         .registerSpace = FrameData_RegisterSpace,
         .ranges        = &FrameRangeDesc<ShaderTypes>,
@@ -37,7 +37,7 @@ namespace Ame::Gfx::Constants::DescriptorRanges
         Count
     };
 
-    template<typename Rhi::ShaderType ShaderTypes = Rhi::ShaderType::NONE>
+    template<typename Rhi::StageBits ShaderTypes = Rhi::StageBits::NONE>
     static constexpr Rhi::DescriptorRangeDesc EntityRangeDesc{
         .baseRegisterIndex = EntityData_RegisterIndex,
         .descriptorNum     = std::to_underlying(EntityDataTypes::Count),
@@ -45,7 +45,7 @@ namespace Ame::Gfx::Constants::DescriptorRanges
         .shaderStages      = ShaderTypes
     };
 
-    template<typename Rhi::ShaderType ShaderTypes = Rhi::ShaderType::NONE>
+    template<typename Rhi::StageBits ShaderTypes = Rhi::StageBits::NONE>
     static constexpr Rhi::DescriptorSetDesc EntitySetDesc{
         .registerSpace = EntityData_RegisterSpace,
         .ranges        = &EntityRangeDesc<ShaderTypes>,

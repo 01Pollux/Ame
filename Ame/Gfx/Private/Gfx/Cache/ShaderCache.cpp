@@ -245,7 +245,7 @@ namespace Ame::Gfx::Cache
         const PermutationKey&                Key,
         const Rhi::ShaderCompileDesc&        Desc)
     {
-        auto CompileTask = Rhi::ShaderCompiler::LinkAsync({}, *Executor, m_Device, Desc, Shaders);
+        auto CompileTask = Rhi::ShaderCompiler::LinkAsync({}, *Executor, m_Device, Desc, Shaders, &m_AssetStorage.get());
         co_return co_await InsertToCache({}, Executor, FileInfo, std::move(CompileTask), Key, Desc);
     }
 

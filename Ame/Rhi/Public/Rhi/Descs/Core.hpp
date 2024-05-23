@@ -14,10 +14,13 @@ namespace Ame::Rhi
     struct GraphicsPipelineDesc;
     struct ComputePipelineDesc;
 
-    using ResourceFormat = nri::Format;
+    using ResourceFormat        = nri::Format;
+    using AttachmentContentType = nri::AttachmentContentType;
 
-    using ShaderType                              = nri::StageBits;
-    using ShaderDesc                              = nri::ShaderDesc;
+    using ShaderType = nri::StageBits;
+    using StageBits  = nri::StageBits;
+    using ShaderDesc = nri::ShaderDesc;
+
     static constexpr ShaderType LibraryShaderType = ShaderType::NONE;
 
     using MemoryLocation = nri::MemoryLocation;

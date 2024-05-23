@@ -25,7 +25,8 @@ namespace Ame::Rhi
             Co::executor&                   Executor,
             Device&                         RhiDevice,
             const ShaderCompileDesc&        LinkDesc,
-            std::span<const ShaderBytecode> Shaders);
+            std::span<const ShaderBytecode> Shaders,
+            Asset::Storage*                 AssetStorage = nullptr);
 
     public:
         [[nodiscard]] static ShaderBytecode Compile(
@@ -37,6 +38,7 @@ namespace Ame::Rhi
         [[nodiscard]] static ShaderBytecode Link(
             Device&                         RhiDevice,
             const ShaderCompileDesc&        LinkDesc,
-            std::span<const ShaderBytecode> Shaders);
+            std::span<const ShaderBytecode> Shaders,
+            Asset::Storage*                 AssetStorage = nullptr);
     };
 } // namespace Ame::Rhi

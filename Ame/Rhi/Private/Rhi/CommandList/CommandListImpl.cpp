@@ -158,9 +158,16 @@ namespace Ame::Rhi
         NriCore.CmdSetDescriptorSet(*m_CommandBuffer, LayoutSlot, *DescriptorSets.Unwrap(), DynamicBufferOffset);
     }
 
+    void CommandListImpl::UnsetDescriptorSet(
+        uint32_t LayoutSlot)
+    {
+        auto& Nri     = m_RhiDevice->GetNRI();
+        auto& NriCore = *Nri.GetCoreInterface();
+    }
+
     void CommandListImpl::SetSamplePositions(
-        std::span<SamplePosition> Positions,
-        Sample_t                  SampleCount)
+        std::span<const SamplePosition> Positions,
+        Sample_t                        SampleCount)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
@@ -208,8 +215,8 @@ namespace Ame::Rhi
     }
 
     void CommandListImpl::ClearAttachments(
-        std::span<ClearDesc>   Clears,
-        std::span<ClearRegion> Regions)
+        std::span<const ClearDesc>   Clears,
+        std::span<const ClearRegion> Regions)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
@@ -218,7 +225,7 @@ namespace Ame::Rhi
     }
 
     void CommandListImpl::ClearAttachments(
-        std::span<ClearDesc> Clears)
+        std::span<const ClearDesc> Clears)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
@@ -227,7 +234,7 @@ namespace Ame::Rhi
     }
 
     void CommandListImpl::SetViewports(
-        std::span<Viewport> Viewports)
+        std::span<const Viewport> Viewports)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();
@@ -236,7 +243,7 @@ namespace Ame::Rhi
     }
 
     void CommandListImpl::SetScissorRects(
-        std::span<ScissorRect> ScissorRects)
+        std::span<const ScissorRect> ScissorRects)
     {
         auto& Nri     = m_RhiDevice->GetNRI();
         auto& NriCore = *Nri.GetCoreInterface();

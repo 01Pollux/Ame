@@ -22,6 +22,12 @@ namespace Ame::Rhi
             const ShaderCompileDesc& Desc,
             Asset::Storage*          AssetStorage);
 
+        [[nodiscard]] static ShaderCompilerLibrary SpirvWorkaround(
+            Device&                         RhiDevice,
+            std::span<const ShaderBytecode> ShaderCodes,
+            const ShaderCompileDesc&        Desc,
+            Asset::Storage*                 AssetStorage);
+
         [[nodiscard]] ShaderBytecode GetBytecode() const;
 
     private:

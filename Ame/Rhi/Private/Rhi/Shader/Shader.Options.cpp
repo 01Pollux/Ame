@@ -287,9 +287,9 @@ namespace Ame::Rhi
             DefineMacro.c_str()
         };
 
-        if (Desc.ShouldValidate())
+        if (!Desc.ShouldValidate())
         {
-            FinalOptions.emplace_back(L"-Vd");
+            FinalOptions.emplace_back(DXC_ARG_SKIP_VALIDATION);
         }
 
         if (RhiDesc.isDrawParametersEmulationEnabled)

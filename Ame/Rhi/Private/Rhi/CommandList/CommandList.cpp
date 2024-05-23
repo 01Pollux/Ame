@@ -53,9 +53,15 @@ namespace Ame::Rhi
         m_Impl.get().SetDescriptorSet(LayoutSlot, DescriptorSets, DynamicBufferOffset);
     }
 
+    void CommandList::UnsetDescriptorSet(
+        uint32_t LayoutSlot)
+    {
+        m_Impl.get().UnsetDescriptorSet(LayoutSlot);
+    }
+
     void CommandList::SetSamplePositions(
-        std::span<SamplePosition> Positions,
-        Sample_t                  SampleCount)
+        std::span<const SamplePosition> Positions,
+        Sample_t                        SampleCount)
     {
         m_Impl.get().SetSamplePositions(Positions, SampleCount);
     }
@@ -87,28 +93,40 @@ namespace Ame::Rhi
     }
 
     void CommandList::ClearAttachments(
-        std::span<ClearDesc>   Clears,
-        std::span<ClearRegion> Regions)
+        std::span<const ClearDesc>   Clears,
+        std::span<const ClearRegion> Regions)
     {
         m_Impl.get().ClearAttachments(Clears, Regions);
     }
 
     void CommandList::ClearAttachments(
-        std::span<ClearDesc> Clears)
+        std::span<const ClearDesc> Clears)
     {
         m_Impl.get().ClearAttachments(Clears);
     }
 
     void CommandList::SetViewports(
-        std::span<Viewport> Viewports)
+        std::span<const Viewport> Viewports)
     {
         m_Impl.get().SetViewports(Viewports);
     }
 
+    void CommandList::SetViewport(
+        const Viewport& Viewport)
+    {
+        SetViewports({ &Viewport, 1 });
+    }
+
     void CommandList::SetScissorRects(
-        std::span<ScissorRect> ScissorRects)
+        std::span<const ScissorRect> ScissorRects)
     {
         m_Impl.get().SetScissorRects(ScissorRects);
+    }
+
+    void CommandList::SetScissorRect(
+        const ScissorRect& ScissorRects)
+    {
+        SetScissorRects({ &ScissorRects, 1 });
     }
 
     void CommandList::SetStencilReference(

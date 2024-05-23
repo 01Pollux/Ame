@@ -57,9 +57,9 @@ namespace Ame::Gfx::RG
                 auto& Handle  = RgStorage.GetResource(RtvViewId.GetResource());
                 auto  Texture = Handle.AsTexture();
 
-                ClearDescs[i].attachmentContentType = nri::AttachmentContentType::COLOR;
+                ClearDescs[i].attachmentContentType = Rhi::AttachmentContentType::COLOR;
                 ClearDescs[i].colorAttachmentIndex  = i;
-                nri::Color32f& ClearColor           = ClearDescs[i].value.color32f;
+                auto& ClearColor                    = ClearDescs[i].value.color32f;
                 if (RtvDesc.ForceColor)
                 {
                     ClearColor.x = RtvDesc.ClearColor.r;
@@ -99,14 +99,14 @@ namespace Ame::Gfx::RG
             case EDSClearType::Depth:
             {
                 ClearDesc.value.depthStencil.depth = DsvDesc.Depth;
-                ClearDesc.attachmentContentType    = nri::AttachmentContentType::DEPTH;
+                ClearDesc.attachmentContentType    = Rhi::AttachmentContentType::DEPTH;
 
                 break;
             }
             case EDSClearType::Stencil:
             {
                 ClearDesc.value.depthStencil.stencil = DsvDesc.Stencil;
-                ClearDesc.attachmentContentType      = nri::AttachmentContentType::STENCIL;
+                ClearDesc.attachmentContentType      = Rhi::AttachmentContentType::STENCIL;
 
                 break;
             }
@@ -114,7 +114,7 @@ namespace Ame::Gfx::RG
             {
                 ClearDesc.value.depthStencil.depth   = DsvDesc.Depth;
                 ClearDesc.value.depthStencil.stencil = DsvDesc.Stencil;
-                ClearDesc.attachmentContentType      = nri::AttachmentContentType::DEPTH_STENCIL;
+                ClearDesc.attachmentContentType      = Rhi::AttachmentContentType::DEPTH_STENCIL;
 
                 break;
             }

@@ -18,9 +18,15 @@ namespace Ame::Gfx::RG
 {
     struct CameraCullDesc
     {
-        Rhi::Util::BlockBasedBufferDesc VertexDesc;
-        Rhi::Util::BlockBasedBufferDesc IndexDesc;
-        Rhi::Util::SlotBasedBufferDesc  InstanceDesc;
+        Rhi::Util::BlockBasedBufferDesc VertexDesc{
+            .UsageFlags = Rhi::BufferUsageBits::VERTEX_BUFFER
+        };
+        Rhi::Util::BlockBasedBufferDesc IndexDesc{
+            .UsageFlags = Rhi::BufferUsageBits::INDEX_BUFFER
+        };
+        Rhi::Util::SlotBasedBufferDesc InstanceDesc{
+            .UsageFlags = Rhi::BufferUsageBits::SHADER_RESOURCE,
+        };
         // Estimated number of unique objects per camera
         uint32_t EstimatedRowSize       = 1024;
         uint32_t EstimatedEntitiesCount = 1024 * 4;

@@ -38,7 +38,7 @@ Ecs_PSInput VS_Main(
 	return output;
 }
 
-export MaterialFragment PSM_Main(
+AME_EXPORT MaterialFragment PSM_Main(
 	Ecs_PSInput input)
 {
 	MaterialFragment fragment = (MaterialFragment) 0;

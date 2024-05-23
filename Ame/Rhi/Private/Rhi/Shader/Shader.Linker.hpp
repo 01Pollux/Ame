@@ -20,6 +20,7 @@ namespace Ame::Rhi
     public:
         ShaderLinkerLibrary(
             Device&                         RhiDevice,
+            Rhi::GraphicsAPI                Api,
             const ShaderCompileDesc&        Desc,
             std::span<const ShaderBytecode> Shaders);
 

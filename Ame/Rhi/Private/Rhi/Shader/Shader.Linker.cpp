@@ -1,4 +1,5 @@
 #include <Rhi/Shader/Shader.Linker.hpp>
+#include <Rhi/Shader/Shader.Compiler.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -6,6 +7,7 @@ namespace Ame::Rhi
 {
     ShaderLinkerLibrary::ShaderLinkerLibrary(
         Device&                         RhiDevice,
+        Rhi::GraphicsAPI                Api,
         const ShaderCompileDesc&        Desc,
         std::span<const ShaderBytecode> Shaders) :
         m_CompileOptions(RhiDevice, Desc),
@@ -15,7 +17,7 @@ namespace Ame::Rhi
         LoadBlobs(Shaders);
         RegisterLibraries();
         Link();
-        Validate(RhiDevice.GetGraphicsAPI(), Desc);
+        Validate(Api, Desc);
     }
 
     ShaderBytecode ShaderLinkerLibrary::GetBytecode() const
@@ -199,17 +201,29 @@ namespace Ame::Rhi
         Co::executor&                   Executor,
         Device&                         RhiDevice,
         const ShaderCompileDesc&        Desc,
-        std::span<const ShaderBytecode> Shaders)
+        std::span<const ShaderBytecode> Shaders,
+        Asset::Storage*                 AssetStorage)
     {
-        co_return Link(RhiDevice, Desc, Shaders);
+        co_return Link(RhiDevice, Desc, Shaders, AssetStorage);
     }
 
     ShaderBytecode ShaderCompiler::Link(
         Device&                         RhiDevice,
         const ShaderCompileDesc&        Desc,
-        std::span<const ShaderBytecode> Shaders)
+        std::span<const ShaderBytecode> Shaders,
+        Asset::Storage*                 AssetStorage)
     {
-        ShaderLinkerLibrary Library(RhiDevice, Desc, Shaders);
-        return Library.GetBytecode();
+        auto Api = RhiDevice.GetGraphicsAPI();
+
+        if (Api == Rhi::GraphicsAPI::Vulkan)
+        {
+            auto Library = ShaderCompilerLibrary::SpirvWorkaround(RhiDevice, Shaders, Desc, AssetStorage);
+            return Library.GetBytecode();
+        }
+        else
+        {
+            ShaderLinkerLibrary Library(RhiDevice, Api, Desc, Shaders);
+            return Library.GetBytecode();
+        }
     }
 } // namespace Ame::Rhi

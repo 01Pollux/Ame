@@ -71,7 +71,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void WriteBuffer(
             const ResourceViewId&   ViewId,
-            Rhi::ShaderType         Shaders,
+            Rhi::StageBits          Shaders,
             Rhi::ResourceFormat     Format = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::BufferRange& Range  = Rhi::EntireBuffer);
 
@@ -92,7 +92,7 @@ namespace Ame::Gfx::RG
         void WriteTexture(
             const ResourceViewId&       ViewId,
             const Rhi::TextureViewDesc& ViewDesc,
-            Rhi::ShaderType             Shaders);
+            Rhi::StageBits              Shaders);
 
         /// <summary>
         /// Write to texture resource as copy destination
@@ -105,7 +105,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void WriteRenderTarget(
             const ResourceViewId&          ViewId,
-            Rhi::ShaderType                Shaders,
+            Rhi::StageBits                 Shaders,
             const RtvCustomDesc&           RtvDesc,
             Rhi::ResourceFormat            Format,
             const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
@@ -115,7 +115,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void WriteRenderTarget(
             const ResourceViewId&          ViewId,
-            Rhi::ShaderType                Shaders,
+            Rhi::StageBits                 Shaders,
             Rhi::ResourceFormat            Format,
             const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
 
@@ -124,7 +124,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void WriteDepthStencil(
             const ResourceViewId&          ViewId,
-            Rhi::ShaderType                Shaders,
+            Rhi::StageBits                 Shaders,
             const DsvCustomDesc&           DsvDesc,
             Rhi::ResourceFormat            Format,
             const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
@@ -134,7 +134,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void WriteDepthStencil(
             const ResourceViewId&          ViewId,
-            Rhi::ShaderType                Shaders,
+            Rhi::StageBits                 Shaders,
             Rhi::ResourceFormat            Format,
             const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
 
@@ -161,7 +161,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadBuffer(
             const ResourceViewId&   ViewId,
-            Rhi::ShaderType         Shaders,
+            Rhi::StageBits          Shaders,
             Rhi::ResourceFormat     Format = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::BufferRange& Range  = Rhi::EntireBuffer)
         {
@@ -171,8 +171,8 @@ namespace Ame::Gfx::RG
                     .Range  = Range,
                     .Format = Format,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { nri::AccessBits::SHADER_RESOURCE, Shaders },
-                nri::BufferUsageBits::SHADER_RESOURCE);
+                { Rhi::AccessBits::SHADER_RESOURCE, Shaders },
+                Rhi::BufferUsageBits::SHADER_RESOURCE);
         }
 
         /// <summary>
@@ -180,17 +180,16 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadVertexBuffer(
             const ResourceViewId&   ViewId,
-            Rhi::ShaderType         Shaders,
             const Rhi::BufferRange& Range = Rhi::EntireBuffer)
         {
             ReadBuffer(
                 ViewId,
                 Rhi::BufferViewDesc{
                     .Range  = Range,
-                    .Format = nri::Format::UNKNOWN,
+                    .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { nri::AccessBits::VERTEX_BUFFER, Shaders },
-                nri::BufferUsageBits::VERTEX_BUFFER);
+                { Rhi::AccessBits::VERTEX_BUFFER, Rhi::StageBits::VERTEX_SHADER },
+                Rhi::BufferUsageBits::VERTEX_BUFFER);
         }
 
         /// <summary>
@@ -198,17 +197,16 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadIndexBuffer(
             const ResourceViewId&   ViewId,
-            Rhi::ShaderType         Shaders,
             const Rhi::BufferRange& Range = Rhi::EntireBuffer)
         {
             ReadBuffer(
                 ViewId,
                 Rhi::BufferViewDesc{
                     .Range  = Range,
-                    .Format = nri::Format::UNKNOWN,
+                    .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { nri::AccessBits::INDEX_BUFFER, Shaders },
-                nri::BufferUsageBits::INDEX_BUFFER);
+                { Rhi::AccessBits::INDEX_BUFFER, Rhi::StageBits::INDEX_INPUT },
+                Rhi::BufferUsageBits::INDEX_BUFFER);
         }
 
         /// <summary>
@@ -216,17 +214,17 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadConstantBuffer(
             const ResourceViewId&   ViewId,
-            Rhi::ShaderType         Shaders,
+            Rhi::StageBits          Shaders,
             const Rhi::BufferRange& Range = Rhi::EntireBuffer)
         {
             ReadBuffer(
                 ViewId,
                 Rhi::BufferViewDesc{
                     .Range  = Range,
-                    .Format = nri::Format::UNKNOWN,
+                    .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { nri::AccessBits::CONSTANT_BUFFER, Shaders },
-                nri::BufferUsageBits::CONSTANT_BUFFER);
+                { Rhi::AccessBits::CONSTANT_BUFFER, Shaders },
+                Rhi::BufferUsageBits::CONSTANT_BUFFER);
         }
 
         /// <summary>
@@ -234,17 +232,16 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadIndirectBuffer(
             const ResourceViewId&   ViewId,
-            Rhi::ShaderType         Shaders,
             const Rhi::BufferRange& Range = Rhi::EntireBuffer)
         {
             ReadBuffer(
                 ViewId,
                 Rhi::BufferViewDesc{
                     .Range  = Range,
-                    .Format = nri::Format::UNKNOWN,
+                    .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { nri::AccessBits::ARGUMENT_BUFFER, Shaders },
-                nri::BufferUsageBits::ARGUMENT_BUFFER);
+                { Rhi::AccessBits::ARGUMENT_BUFFER, Rhi::StageBits::INDIRECT },
+                Rhi::BufferUsageBits::ARGUMENT_BUFFER);
         }
 
     public:
@@ -254,7 +251,7 @@ namespace Ame::Gfx::RG
         void ReadTexture(
             const ResourceViewId&       ViewId,
             const Rhi::TextureViewDesc& ViewDesc,
-            Rhi::ShaderType             Shaders);
+            Rhi::StageBits              Shaders);
 
         /// <summary>
         /// Read from texture resource as copy destination
@@ -268,7 +265,7 @@ namespace Ame::Gfx::RG
         void ReadDepthStencil(
             const ResourceViewId&       ViewId,
             const Rhi::TextureViewDesc& ViewDesc,
-            Rhi::ShaderType             Shaders);
+            Rhi::StageBits              Shaders);
 
     private:
         /// <summary>

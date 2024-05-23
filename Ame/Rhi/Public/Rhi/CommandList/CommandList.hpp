@@ -78,12 +78,18 @@ namespace Ame::Rhi
             const uint32_t*      DynamicBufferOffset = nullptr);
 
         /// <summary>
+        /// Set descriptor sets with dynamic offsets if not null.
+        /// </summary>
+        void UnsetDescriptorSet(
+            uint32_t LayoutSlot);
+
+        /// <summary>
         /// Mandatory state, if enabled (can be set only once)
         /// Interacts with PSL enabled pipelines. Affects any depth-stencil operations, including clear and copy
         /// </summary>
         void SetSamplePositions(
-            std::span<SamplePosition> Positions,
-            Sample_t                  SampleCount);
+            std::span<const SamplePosition> Positions,
+            Sample_t                        SampleCount);
 
     public:
         /// <summary>
@@ -113,26 +119,38 @@ namespace Ame::Rhi
         /// Clear render targets and depth-stencil buffer.
         /// </summary>
         void ClearAttachments(
-            std::span<ClearDesc>   Clears,
-            std::span<ClearRegion> Regions);
+            std::span<const ClearDesc>   Clears,
+            std::span<const ClearRegion> Regions);
 
         /// <summary>
         /// Clear render targets and depth-stencil buffer.
         /// </summary>
         void ClearAttachments(
-            std::span<ClearDesc> Clears);
+            std::span<const ClearDesc> Clears);
 
         /// <summary>
         /// Set viewport of the render target.
         /// </summary>
         void SetViewports(
-            std::span<Viewport> Viewports);
+            std::span<const Viewport> Viewports);
+
+        /// <summary>
+        /// Set viewport of the render target.
+        /// </summary>
+        void SetViewport(
+            const Viewport& Viewport);
 
         /// <summary>
         /// Set scissor rects of the render target.
         /// </summary>
         void SetScissorRects(
-            std::span<ScissorRect> ScissorRects);
+            std::span<const ScissorRect> ScissorRects);
+
+        /// <summary>
+        /// Set scissor rects of the render target.
+        /// </summary>
+        void SetScissorRect(
+            const ScissorRect& ScissorRects);
 
         /// <summary>
         /// Set stencil reference value.

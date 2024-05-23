@@ -16,8 +16,8 @@ namespace Ame::Gfx::RG
         std::vector<ResourceViewId>                       RenderTargets,
         ResourceViewId                                    DepthStencil,
         std::set<ResourceId>                              ResourceToCreate,
-        const std::map<ResourceViewId, nri::AccessStage>& ResourceStates,
-        const std::map<ResourceId, nri::Layout>&          TextureLayouts)
+        const std::map<ResourceViewId, Rhi::AccessStage>& ResourceStates,
+        const std::map<ResourceId, Rhi::LayoutType>&      TextureLayouts)
     {
         m_Passes.emplace_back(RenderPassInfo{
             .RgPass        = std::move(RgPass),

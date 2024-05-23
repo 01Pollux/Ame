@@ -99,7 +99,9 @@ namespace Ame::Rhi
 #endif
         };
 
-        bool ShouldValidate() const;
+        [[nodiscard]] bool ShouldValidate() const;
+
+        [[nodiscard]] bool IsLibraryShader() const;
 
         /// <summary>
         /// Get the shader, returns LibraryShaderType if the shader is a library

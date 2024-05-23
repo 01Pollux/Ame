@@ -14,8 +14,34 @@ namespace Ame::Rhi
     {
         LoadDxc();
         LoadSourceCode(ShaderSource);
+
+        auto Api = RhiDevice.GetGraphicsAPI();
+        // As of right now, spirv doesn't support library shaders.
+        // We will need to compile all shaders at once by constructing them manually.
+        if (Api == Rhi::GraphicsAPI::Vulkan &&
+            Desc.IsLibraryShader())
+        {
+            m_CompiledBlob = std::move(m_SourceCodeBlob);
+            return;
+        }
+
         Compile(AssetStorage);
-        Validate(RhiDevice.GetGraphicsAPI(), Desc);
+        Validate(Api, Desc);
+    }
+
+    ShaderCompilerLibrary ShaderCompilerLibrary::SpirvWorkaround(
+        Device&                         RhiDevice,
+        std::span<const ShaderBytecode> ShaderCodes,
+        const ShaderCompileDesc&        Desc,
+        Asset::Storage*                 AssetStorage)
+    {
+        String SourceCode;
+        for (const auto& ShaderCode : ShaderCodes)
+        {
+            SourceCode += StringView(std::bit_cast<const char*>(ShaderCode.GetBytecode()), ShaderCode.GetSize());
+            SourceCode += "\n";
+        }
+        return ShaderCompilerLibrary(RhiDevice, SourceCode, Desc, AssetStorage);
     }
 
     ShaderBytecode ShaderCompilerLibrary::GetBytecode() const
@@ -91,6 +117,7 @@ namespace Ame::Rhi
             }
             ShaderUtil::ThrowShaderException(Hr);
         }
+        m_SourceCodeBlob = nullptr;
 
         HRESULT Status;
         if (FAILED(Result->GetStatus(&Status)))

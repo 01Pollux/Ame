@@ -46,6 +46,8 @@
 
 #ifdef AME_SHADER_COMPILER_SPIRV
 
+#define AME_EXPORT
+
 #define AME_RESOURCE(type, name, regType, bindingIndex, setIndex) \
 		type name : register(regType##bindingIndex, space##setIndex)
 
@@ -67,6 +69,7 @@
 
 #else // AME_SHADER_COMPILER_SPIRV
 
+#define AME_EXPORT export
 
 #define AME_RESOURCE(type, name, regType, bindingIndex, setIndex) \
 		type name : register( regType##bindingIndex, space##setIndex )
