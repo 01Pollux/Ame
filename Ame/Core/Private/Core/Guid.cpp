@@ -54,8 +54,8 @@ namespace Ame
 namespace std
 {
     size_t hash<Ame::Guid>::operator()(
-        const Ame::Guid& Value) const noexcept
+        const Ame::Guid& value) const noexcept
     {
-        return boost::uuids::hash_value(Value);
+        return boost::uuids::hash_value(value);
     };
 } // namespace std

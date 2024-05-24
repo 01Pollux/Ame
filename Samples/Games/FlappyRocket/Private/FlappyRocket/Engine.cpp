@@ -14,7 +14,7 @@ namespace Ame::FlappyRocket
     {
         Log::Logger::Register(Log::Names::Engine, "Engine.log");
         Log::Logger::Register(Log::Names::Rhi, "Engine.log");
-        Log::Logger::Register(Log::Names::Renderer, "Engine.log");
+        Log::Logger::Register(Log::Names::Gfx, "Engine.log");
         Log::Logger::Register(Log::Names::Ecs, "Engine.log");
         Log::Logger::Register(Log::Names::Asset, "Engine.log");
         Log::Logger::Register(Log::Names::Client, "FlappyRocket.log");

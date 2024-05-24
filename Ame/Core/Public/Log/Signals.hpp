@@ -13,4 +13,4 @@ namespace Ame::Signals::Data
     };
 } // namespace Ame::Signals::Data
 
-AME_SIGNAL_INSTANCE_DECL(const Ame::Log::Logger, OnLog, const Data::Log& /*LogData*/);
+AME_SIGNAL_INSTANCE_DECL(const Ame::Log::Logger, OnLog, const Data::Log& /*logData*/);

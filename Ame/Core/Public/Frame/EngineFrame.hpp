@@ -9,7 +9,7 @@ namespace Ame
     {
     public:
         EngineFrame(
-            FrameTimer& Timer);
+            FrameTimer& frameTimer);
 
         void Run();
 

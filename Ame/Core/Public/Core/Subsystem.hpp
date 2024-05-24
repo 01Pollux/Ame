@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <Core/Ame.hpp>
@@ -65,9 +66,9 @@ namespace Ame
     {
         using SharedSubsystem<Ty, ArgsTy...>::SharedSubsystem;
 
-        static auto construct(std::shared_ptr<Ty> Instance) -> kgr::inject_result<std::shared_ptr<Ty>>
+        static auto construct(std::shared_ptr<Ty> instance) -> kgr::inject_result<std::shared_ptr<Ty>>
         {
-            return kgr::inject(std::move(Instance));
+            return kgr::inject(std::move(instance));
         }
     };
 

@@ -35,7 +35,7 @@ namespace Ame::Gfx::Cache
         auto Shader = co_await LoadShader({}, Executor, Storage, Handle);
         if (!Shader)
         {
-            Log::Renderer().Error("Failed to load shader: {}", Handle.ToString());
+            Log::Gfx().Error("Failed to load shader: {}", Handle.ToString());
             co_return Rhi::ShaderBytecode{};
         }
 

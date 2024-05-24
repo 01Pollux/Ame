@@ -20,85 +20,85 @@ namespace Ame::Allocator
         };
 
         explicit Buddy(
-            size_t Size)
+            size_t size)
         {
-            m_FreeOffsets.emplace(0, Size);
-            m_FreeSizes.emplace(Size, m_FreeOffsets.begin());
+            m_FreeOffsets.emplace(0, size);
+            m_FreeSizes.emplace(size, m_FreeOffsets.begin());
         }
 
         [[nodiscard]] Handle Allocate(
-            size_t Size,
-            size_t Alignement = 1)
+            size_t size,
+            size_t alignement = 1)
         {
-            Size = Math::AlignUp(Size, Alignement);
+            size = Math::AlignUp(size, alignement);
 
-            Handle Hndl;
-            auto   It = m_FreeSizes.lower_bound(Size);
-            while (It != m_FreeSizes.end())
+            Handle handle;
+            auto   iter = m_FreeSizes.lower_bound(size);
+            while (iter != m_FreeSizes.end())
             {
-                size_t OldOffset   = It->second->first;
-                size_t Offset      = Math::AlignUp(OldOffset, Alignement);
-                size_t DeltaOffset = Offset - OldOffset;
-                size_t AlignedSize = It->first - DeltaOffset;
+                size_t oldOffset   = iter->second->first;
+                size_t offset      = Math::AlignUp(oldOffset, alignement);
+                size_t diffOffset  = offset - oldOffset;
+                size_t alignedSize = iter->first - diffOffset;
 
-                if (AlignedSize < Size)
+                if (alignedSize < size)
                 {
-                    ++It;
+                    ++iter;
                     continue;
                 }
 
-                Hndl.Size   = Size;
-                Hndl.Offset = Offset;
+                handle.Size   = size;
+                handle.Offset = offset;
 
-                m_FreeOffsets.erase(It->second);
-                m_FreeSizes.erase(It);
+                m_FreeOffsets.erase(iter->second);
+                m_FreeSizes.erase(iter);
 
-                if (AlignedSize != Size)
+                if (alignedSize != size)
                 {
-                    size_t NewSize = AlignedSize - Size;
-                    auto   Iter    = m_FreeOffsets.emplace(Hndl.Offset + Size, NewSize);
-                    m_FreeSizes.emplace(NewSize, Iter.first);
+                    size_t newSize  = alignedSize - size;
+                    auto   freeIter = m_FreeOffsets.emplace(handle.Offset + size, newSize);
+                    m_FreeSizes.emplace(newSize, freeIter.first);
                 }
 
-                if (DeltaOffset)
+                if (diffOffset)
                 {
-                    auto Iter = m_FreeOffsets.emplace(OldOffset, DeltaOffset);
-                    m_FreeSizes.emplace(DeltaOffset, Iter.first);
+                    auto freeIter = m_FreeOffsets.emplace(oldOffset, diffOffset);
+                    m_FreeSizes.emplace(diffOffset, freeIter.first);
                 }
                 break;
             }
-            return Hndl;
+            return handle;
         }
 
         void Free(
-            Handle Hndl)
+            Handle handle)
         {
-            auto It = m_FreeOffsets.lower_bound(Hndl.Offset);
-            if (It != m_FreeOffsets.end())
+            auto iter = m_FreeOffsets.lower_bound(handle.Offset);
+            if (iter != m_FreeOffsets.end())
             {
-                if (It->first == Hndl.Offset + Hndl.Size)
+                if (iter->first == handle.Offset + handle.Size)
                 {
-                    Hndl.Size += It->second;
+                    handle.Size += iter->second;
 
-                    m_FreeSizes.erase(It->second);
-                    It = m_FreeOffsets.erase(It);
+                    m_FreeSizes.erase(iter->second);
+                    iter = m_FreeOffsets.erase(iter);
                 }
             }
-            if (It != m_FreeOffsets.begin())
+            if (iter != m_FreeOffsets.begin())
             {
-                --It;
-                if (It->first + It->second == Hndl.Offset)
+                --iter;
+                if (iter->first + iter->second == handle.Offset)
                 {
-                    Hndl.Offset = It->first;
-                    Hndl.Size += It->second;
+                    handle.Offset = iter->first;
+                    handle.Size += iter->second;
 
-                    m_FreeSizes.erase(It->second);
-                    m_FreeOffsets.erase(It);
+                    m_FreeSizes.erase(iter->second);
+                    m_FreeOffsets.erase(iter);
                 }
             }
-            auto Offset = m_FreeOffsets.emplace(Hndl.Offset, Hndl.Size);
-            m_FreeSizes.emplace(Hndl.Size, Offset.first);
-            Hndl.Size = 0;
+            auto freeIter = m_FreeOffsets.emplace(handle.Offset, handle.Size);
+            m_FreeSizes.emplace(handle.Size, freeIter.first);
+            handle.Size = 0;
         }
 
     private:

@@ -3,10 +3,10 @@
 #include <Core/Allocator.hpp>
 
 #include <concepts>
-#include <utility>
+#include <expected>
 #include <memory>
 #include <optional>
-#include <expected>
+#include <utility>
 
 namespace concurrencpp
 {
@@ -58,7 +58,7 @@ namespace Ame::DbgImpl
 {
 #ifdef _MSC_VER
 
-    inline void debug_break()
+    inline void DebugBreak()
     {
         __debugbreak();
     }
@@ -165,23 +165,23 @@ namespace Ame::DbgImpl
 #ifndef DEBUG_BREAK_IMPL
 #error "debugbreak.h is not supported on this target"
 #elif DEBUG_BREAK_IMPL == DEBUG_BREAK_USE_TRAP_INSTRUCTION
-    __attribute__((always_inline)) __inline__ static void debug_break()
+    __attribute__((always_inline)) __inline__ static void DebugBreak()
     {
         trap_instruction();
     }
 #elif DEBUG_BREAK_IMPL == DEBUG_BREAK_USE_BULTIN_DEBUGTRAP
-    __attribute__((always_inline)) __inline__ static void debug_break()
+    __attribute__((always_inline)) __inline__ static void DebugBreak()
     {
         __builtin_debugtrap();
     }
 #elif DEBUG_BREAK_IMPL == DEBUG_BREAK_USE_BULTIN_TRAP
-    __attribute__((always_inline)) __inline__ static void debug_break()
+    __attribute__((always_inline)) __inline__ static void DebugBreak()
     {
         __builtin_trap();
     }
 #elif DEBUG_BREAK_IMPL == DEBUG_BREAK_USE_SIGTRAP
 #include <signal.h>
-    __attribute__((always_inline)) __inline__ static void debug_break()
+    __attribute__((always_inline)) __inline__ static void DebugBreak()
     {
         raise(SIGTRAP);
     }
@@ -196,4 +196,4 @@ namespace Ame::DbgImpl
 #endif /* ifdef _MSC_VER */
 } // namespace Ame::DbgImpl
 
-#define AME_DEBUG_BREAK Ame::DbgImpl::debug_break()
+#define AME_DEBUG_BREAK Ame::DbgImpl::DebugBreak()

@@ -8,14 +8,15 @@ namespace Ame
     class FrameTimer
     {
     public:
+        using steady_clock = std::chrono::steady_clock;
+        using time_point   = steady_clock::time_point;
+        using seconds_type = std::chrono::seconds;
+
+    public:
         FrameTimer()
         {
             SetTimeScale(1.f);
         }
-
-        using steady_clock = std::chrono::steady_clock;
-        using time_point   = steady_clock::time_point;
-        using seconds_type = std::chrono::seconds;
 
         /// <summary>
         /// Get total elapsed time for the current level
@@ -41,7 +42,7 @@ namespace Ame
         /// Set time scale
         /// </summary>
         void SetTimeScale(
-            float TimeScale);
+            float timeScale);
 
         /// <summary>
         /// Reset game timer

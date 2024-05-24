@@ -218,7 +218,7 @@ namespace Ame::Gfx::Shading
         Rhi::ShaderFlags          Flags)
     {
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Descriptor.GetResourceCount() == 0, "Structs cannot contain resources");
+        Log::Gfx().Assert(Descriptor.GetResourceCount() == 0, "Structs cannot contain resources");
 #endif
 
         PadToBoundaries();

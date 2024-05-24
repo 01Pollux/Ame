@@ -6,10 +6,10 @@ namespace Ame
 {
     template<class T>
     inline void HashCombine(
-        std::size_t& Seed,
-        const T&     V)
+        std::size_t& seed,
+        const T&     value)
     {
-        constexpr uint64_t GoldenRatio = 0x9e3779b9;
-        Seed ^= std::hash<T>{}(V) + GoldenRatio + (Seed << 6) + (Seed >> 2);
+        constexpr uint64_t c_GoldenRatio = 0x9e3779b9;
+        seed ^= std::hash<T>{}(value) + c_GoldenRatio + (seed << 6) + (seed >> 2);
     }
 } // namespace Ame

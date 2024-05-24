@@ -3,8 +3,8 @@
 namespace Ame
 {
     EngineFrame::EngineFrame(
-        FrameTimer& Timer) :
-        m_Timer(Timer)
+        FrameTimer& frameTimer) :
+        m_Timer(frameTimer)
     {
     }
 

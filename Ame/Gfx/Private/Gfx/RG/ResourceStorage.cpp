@@ -67,7 +67,7 @@ namespace Ame::Gfx::RG
         CheckLockState(false);
 
         auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
         return Iter->second.GetViewDescMut(ViewId);
     }
 
@@ -75,7 +75,7 @@ namespace Ame::Gfx::RG
         const ResourceViewId& ViewId) const
     {
         auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
         return Iter->second.GetViewDesc(ViewId);
     }
 
@@ -83,7 +83,7 @@ namespace Ame::Gfx::RG
         const ResourceViewId& ViewId) const
     {
         auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
         return Iter->second.GetViewHandle(ViewId);
     }
 
@@ -113,7 +113,7 @@ namespace Ame::Gfx::RG
     {
         CheckLockState(false);
 
-        AME_LOG_ASSERT(Log::Renderer(), Buffer, "Buffer is nullptr");
+        AME_LOG_ASSERT(Log::Gfx(), Buffer, "Buffer is nullptr");
         m_Resources[Id].Import(Buffer);
     }
 
@@ -123,7 +123,7 @@ namespace Ame::Gfx::RG
     {
         CheckLockState(false);
 
-        AME_LOG_ASSERT(Log::Renderer(), Texture, "Texture is nullptr");
+        AME_LOG_ASSERT(Log::Gfx(), Texture, "Texture is nullptr");
         m_Resources[Id].Import(Texture);
     }
 
@@ -146,7 +146,7 @@ namespace Ame::Gfx::RG
         CheckLockState(false);
 
         auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
         return Iter->second.CreateBufferView(ViewId, std::move(ViewDesc));
     }
 
@@ -157,7 +157,7 @@ namespace Ame::Gfx::RG
         CheckLockState(false);
 
         auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Renderer(), Iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
         return Iter->second.CreateTextureView(ViewId, std::move(ViewDesc));
     }
 
@@ -181,7 +181,7 @@ namespace Ame::Gfx::RG
         bool Locked) const
     {
 #ifndef AME_DIST
-        AME_LOG_ASSERT(Log::Renderer(), m_Locked == Locked, "ResourceStorage is{} locked", Locked ? "" : "n't");
+        AME_LOG_ASSERT(Log::Gfx(), m_Locked == Locked, "ResourceStorage is{} locked", Locked ? "" : "n't");
 #endif
     }
 } // namespace Ame::Gfx::RG

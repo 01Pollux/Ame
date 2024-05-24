@@ -5,7 +5,7 @@
 
 namespace Ame::Geometry
 {
-    static constexpr Math::Vector3 s_BoxOffset[8]{
+    static constexpr Math::Vector3 c_BoxOffset[8]{
         { -1.0f, -1.0f, 1.0f },
         { 1.0f, -1.0f, 1.0f },
         { 1.0f, 1.0f, 1.0f },

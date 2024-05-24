@@ -18,19 +18,19 @@ namespace Ame::IO
         template<bool = OwnsMemory>
             requires(OwnsMemory)
         BasicMemDevice(
-            CharT* Container,
-            size_t Size) :
-            m_Container(std::move(Container)),
-            m_Size(Size)
+            CharT* container,
+            size_t size) :
+            m_Container(std::move(container)),
+            m_Size(size)
         {
         }
 
         template<bool = OwnsMemory>
             requires(!OwnsMemory)
         BasicMemDevice(
-            size_t Size) :
-            m_Container(std::make_unique<CharT[]>(Size)),
-            m_Size(Size)
+            size_t size) :
+            m_Container(std::make_unique<CharT[]>(size)),
+            m_Size(size)
         {
         }
 
@@ -39,16 +39,16 @@ namespace Ame::IO
             CharT*          s,
             std::streamsize n)
         {
-            const auto BytesToRead = std::min(n, static_cast<std::streamsize>(m_Size - m_Position));
-            if (BytesToRead == 0)
+            const auto bytesToRead = std::min(n, static_cast<std::streamsize>(m_Size - m_Position));
+            if (bytesToRead == 0)
             {
                 return -1;
             }
             else
             {
-                std::copy_n(m_Container.get() + m_Position, BytesToRead, s);
-                m_Position += BytesToRead;
-                return BytesToRead;
+                std::copy_n(m_Container.get() + m_Position, bytesToRead, s);
+                m_Position += bytesToRead;
+                return bytesToRead;
             }
         }
 
@@ -56,16 +56,16 @@ namespace Ame::IO
             const CharT*    s,
             std::streamsize n)
         {
-            const auto BytesToWrite = std::min(n, static_cast<std::streamsize>(m_Size - m_Position));
-            if (BytesToWrite == 0)
+            const auto bytesToWrite = std::min(n, static_cast<std::streamsize>(m_Size - m_Position));
+            if (bytesToWrite == 0)
             {
                 return -1;
             }
             else
             {
-                std::copy_n(s, BytesToWrite, m_Container.get() + m_Position);
-                m_Position += BytesToWrite;
-                return BytesToWrite;
+                std::copy_n(s, bytesToWrite, m_Container.get() + m_Position);
+                m_Position += bytesToWrite;
+                return bytesToWrite;
             }
         }
 

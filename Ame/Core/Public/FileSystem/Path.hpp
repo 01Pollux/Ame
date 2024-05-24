@@ -8,12 +8,12 @@ namespace Ame::FileSystem
     /// Convert the path to a unix path.
     /// </summary>
     static void MakeUnixPath(
-        std::filesystem::path& Path)
+        std::filesystem::path& path)
     {
 #if AME_PLATFORM_WINDOWS
-        auto Str = std::move(Path.native());
-        std::replace(Str.begin(), Str.end(), L'\\', L'/');
-        Path = std::move(Str);
+        auto str = std::move(path.native());
+        std::replace(str.begin(), str.end(), L'\\', L'/');
+        path = std::move(str);
 #endif
     }
 
@@ -21,12 +21,12 @@ namespace Ame::FileSystem
     /// Convert the path to a unix path.
     /// </summary>
     [[nodiscard]] static std::filesystem::path ConvertToUnixPath(
-        const std::filesystem::path& Path)
+        const std::filesystem::path& path)
     {
 #if AME_PLATFORM_WINDOWS
-        auto Copy = Path;
-        MakeUnixPath(Copy);
-        return Copy;
+        auto copy = path;
+        MakeUnixPath(copy);
+        return copy;
 #else
         return Path;
 #endif

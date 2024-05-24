@@ -35,13 +35,13 @@ namespace Ame::Gfx::RG
 
     const InstanceBuffer& CameraCullResult::GetInstancesTableBuffer() const
     {
-        Log::Renderer().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
+        Log::Gfx().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
         return m_Cameras[m_CurrentCamera].AllInstances;
     }
 
     InstanceBuffer& CameraCullResult::GetInstancesTableBuffer()
     {
-        Log::Renderer().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
+        Log::Gfx().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
         return m_Cameras[m_CurrentCamera].AllInstances;
     }
 

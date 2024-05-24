@@ -9,9 +9,9 @@
 namespace Ame
 {
     struct EngineFrameSubsystem : SingleSubsystem<
-                                EngineFrame,
-                                Dependency<FrameTimerSubsystem>>,
-                            kgr::final
+                                      EngineFrame,
+                                      Dependency<FrameTimerSubsystem>>,
+                                  kgr::final
     {
     };
 

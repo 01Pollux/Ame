@@ -22,10 +22,10 @@ namespace Ame::Math
         Ty Size;
 
         constexpr explicit RectT(
-            const Ty& Position = {},
-            const Ty& Size     = {}) noexcept :
-            Position(Position),
-            Size(Size)
+            const Ty& position = {},
+            const Ty& size     = {}) noexcept :
+            Position(position),
+            Size(size)
         {
         }
 

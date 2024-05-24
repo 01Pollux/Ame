@@ -25,37 +25,37 @@ namespace Ame
         constexpr TVersion() = default;
 
         constexpr TVersion(
-            ValueType Maj,
-            ValueType Min,
-            ValueType Build = 0,
-            ValueType Rev   = 0) noexcept :
-            m_Major(Maj),
-            m_Minor(Min),
-            m_Build(Build),
-            m_Revision(Rev)
+            ValueType maj,
+            ValueType min,
+            ValueType build = 0,
+            ValueType rev   = 0) noexcept :
+            m_Major(maj),
+            m_Minor(min),
+            m_Build(build),
+            m_Revision(rev)
         {
         }
 
         constexpr explicit TVersion(
-            const std::array<ValueType, 4>& Arr) noexcept :
-            m_Major(Arr[0]),
-            m_Minor(Arr[1]),
-            m_Build(Arr[2]),
-            m_Revision(Arr[3])
+            const std::array<ValueType, 4>& arr) noexcept :
+            m_Major(arr[0]),
+            m_Minor(arr[1]),
+            m_Build(arr[2]),
+            m_Revision(arr[3])
         {
         }
 
         template<Concepts::StringType StrTy>
         constexpr explicit TVersion(
-            const StrTy& Str) noexcept :
-            TVersion(FromString(Str))
+            const StrTy& str) noexcept :
+            TVersion(FromString(str))
         {
         }
 
         [[nodiscard]] constexpr ValueType operator[](
-            Type Ty) const noexcept
+            Type type) const noexcept
         {
-            switch (Ty)
+            switch (type)
             {
             case Type::Major:
                 return m_Major;
@@ -70,9 +70,9 @@ namespace Ame
         }
 
         [[nodiscard]] constexpr ValueType& operator[](
-            Type Ty) noexcept
+            Type type) noexcept
         {
-            switch (Ty)
+            switch (type)
             {
             case Type::Major:
                 return m_Major;
@@ -148,21 +148,21 @@ namespace Ame
         /// </summary>
         template<Concepts::StringType StrTy>
         [[nodiscard]] static constexpr TVersion FromString(
-            const StrTy& Str)
+            const StrTy& str)
         {
-            int      Iter   = 0;
-            Type     CurVer = Type::Major;
-            TVersion Ver;
+            int      iter   = 0;
+            Type     curVer = Type::Major;
+            TVersion version;
 
-            for (const auto C : Str)
+            for (const auto C : str)
             {
-                if (CurVer > Type::Revision)
+                if (curVer > Type::Revision)
                     break;
 
                 if (C == '.')
                 {
-                    Iter   = 0;
-                    CurVer = Type(int(CurVer) + 1);
+                    iter   = 0;
+                    curVer = Type(int(curVer) + 1);
                     continue;
                 }
                 else if (C < '0' || C > '9')
@@ -170,13 +170,13 @@ namespace Ame
                     break;
                 }
 
-                Iter *= 10;
-                Iter += C - '0';
+                iter *= 10;
+                iter += C - '0';
 
-                Ver[CurVer] = Iter;
+                version[curVer] = iter;
             }
 
-            return Ver;
+            return version;
         }
 
         constexpr auto operator<=>(

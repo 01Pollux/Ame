@@ -1,16 +1,16 @@
 #pragma once
 
-#include <map>
-#include <set>
-#include <functional>
-#include <mutex>
 #include <atomic>
+#include <functional>
+#include <map>
+#include <mutex>
+#include <set>
 
 #include <Core/Ame.hpp>
 
 namespace Ame
 {
-    static constexpr uint64_t InvalidSignalHandle = static_cast<uint64_t>(~0ull);
+    static constexpr uint64_t c_InvalidSignalHandle = static_cast<uint64_t>(~0ull);
 
     template<typename... ArgsTy>
     class Signal
@@ -30,41 +30,41 @@ namespace Ame
         /// </summary>
         template<std::invocable<ArgsTy...> FnTy>
         uint64_t Listen(
-            FnTy&& Listener)
+            FnTy&& listener)
         {
-            std::scoped_lock AddLock(m_AddOrDropMutex);
-            uint64_t         Id = m_NextHandle++;
+            std::scoped_lock addLock(m_AddOrDropMutex);
+            uint64_t         id = m_NextHandle++;
             if (m_RunMutex.try_lock())
             {
-                std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
-                m_Listeners.emplace(Id, std::forward<FnTy>(Listener));
+                std::scoped_lock runLock(std::adopt_lock, m_RunMutex);
+                m_Listeners.emplace(id, std::forward<FnTy>(listener));
                 m_ListenerCount.fetch_add(1, std::memory_order_relaxed);
             }
             else
             {
-                m_PendingAdd.emplace(Id, std::forward<FnTy>(Listener));
+                m_PendingAdd.emplace(id, std::forward<FnTy>(listener));
             }
 
-            return Id;
+            return id;
         }
 
         /// <summary>
         /// Remove a listener from the delegate list
         /// </summary>
         void Drop(
-            uint64_t Id)
+            uint64_t id)
         {
-            std::scoped_lock DropLock(m_AddOrDropMutex);
+            std::scoped_lock dropLock(m_AddOrDropMutex);
             if (m_RunMutex.try_lock())
             {
-                std::scoped_lock RunLock(std::adopt_lock, m_RunMutex);
-                m_Listeners.erase(Id);
+                std::scoped_lock runLock(std::adopt_lock, m_RunMutex);
+                m_Listeners.erase(id);
                 m_ListenerCount.fetch_sub(1, std::memory_order_relaxed);
             }
             else
             {
-                m_PendingAdd.erase(Id);
-                m_PendingDrop.insert(Id);
+                m_PendingAdd.erase(id);
+                m_PendingDrop.insert(id);
             }
         }
 
@@ -72,7 +72,7 @@ namespace Ame
         /// Invoke the listeners with the given arguments
         /// </summary>
         void Broadcast(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
             // Skip broadcasting if there are no listeners
             if (m_ListenerCount.load(std::memory_order_relaxed) == 0)
@@ -81,19 +81,19 @@ namespace Ame
             }
 
             {
-                std::scoped_lock RunLock(m_RunMutex);
-                for (auto& Listener : m_Listeners)
+                std::scoped_lock runLock(m_RunMutex);
+                for (auto& listener : m_Listeners)
                 {
-                    Listener.second(std::forward<ArgsTy>(Args)...);
+                    listener.second(std::forward<ArgsTy>(args)...);
                 }
             }
             {
-                std::scoped_lock AddDropLock(m_AddOrDropMutex);
+                std::scoped_lock addDropLock(m_AddOrDropMutex);
 
                 m_Listeners.merge(m_PendingAdd);
-                for (uint64_t Id : m_PendingDrop)
+                for (uint64_t id : m_PendingDrop)
                 {
-                    m_Listeners.erase(Id);
+                    m_Listeners.erase(id);
                 }
             }
         }
@@ -124,19 +124,19 @@ namespace Ame
 
         [[nodiscard]] auto& StaticSignal() noexcept
         {
-            return m_StaticSignal;
+            return g_m_StaticSignal;
         }
 
         void Broadcast(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
-            m_ObjectSignal.Broadcast(std::forward<ArgsTy>(Args)...);
-            m_StaticSignal.Broadcast(std::forward<ArgsTy>(Args)...);
+            m_ObjectSignal.Broadcast(std::forward<ArgsTy>(args)...);
+            g_m_StaticSignal.Broadcast(std::forward<ArgsTy>(args)...);
         }
 
     private:
         Signal<ArgsTy...>               m_ObjectSignal;
-        static inline Signal<ArgsTy...> m_StaticSignal;
+        static inline Signal<ArgsTy...> g_m_StaticSignal;
     };
 
     //
@@ -148,32 +148,32 @@ namespace Ame
         SignalHandle() = default;
         template<std::invocable<ArgsTy...> FnTy>
         SignalHandle(
-            Signal<ArgsTy...>& Sig,
-            FnTy&&             Delegate) :
-            m_Signal(&Sig),
-            m_Id(m_Signal->Listen(std::forward<FnTy>(Delegate)))
+            Signal<ArgsTy...>& sig,
+            FnTy&&             delegate) :
+            m_Signal(&sig),
+            m_Id(m_Signal->Listen(std::forward<FnTy>(delegate)))
         {
         }
 
         SignalHandle(
-            const SignalHandle& Other) = delete;
+            const SignalHandle& other) = delete;
         SignalHandle(
-            SignalHandle&& Other) noexcept :
-            m_Signal(std::exchange(Other.m_Signal, nullptr)),
-            m_Id(std::exchange(Other.m_Id, InvalidSignalHandle))
+            SignalHandle&& other) noexcept :
+            m_Signal(std::exchange(other.m_Signal, nullptr)),
+            m_Id(std::exchange(other.m_Id, c_InvalidSignalHandle))
         {
         }
 
         SignalHandle& operator=(
-            const SignalHandle& Other) = delete;
+            const SignalHandle& other) = delete;
         SignalHandle& operator=(
-            SignalHandle&& Other) noexcept
+            SignalHandle&& other) noexcept
         {
-            if (this != &Other)
+            if (this != &other)
             {
                 Drop();
-                m_Signal = std::exchange(Other.m_Signal, nullptr);
-                m_Id     = std::exchange(Other.m_Id, InvalidSignalHandle);
+                m_Signal = std::exchange(other.m_Signal, nullptr);
+                m_Id     = std::exchange(other.m_Id, c_InvalidSignalHandle);
             }
             return *this;
         }
@@ -188,12 +188,12 @@ namespace Ame
         /// </summary>
         template<std::invocable<ArgsTy...> FnTy>
         void Attach(
-            Signal<ArgsTy...>& Sig,
-            FnTy&&             Delegate)
+            Signal<ArgsTy...>& sig,
+            FnTy&&             delegate)
         {
             Drop();
-            m_Signal = &Sig;
-            m_Id     = m_Signal->Listen(std::forward<FnTy>(Delegate));
+            m_Signal = &sig;
+            m_Id     = m_Signal->Listen(std::forward<FnTy>(delegate));
         }
 
         /// <summary>
@@ -212,14 +212,14 @@ namespace Ame
             if (m_Signal)
             {
                 m_Signal->Drop(m_Id);
-                m_Id     = InvalidSignalHandle;
+                m_Id     = c_InvalidSignalHandle;
                 m_Signal = nullptr;
             }
         }
 
     private:
         Signal<ArgsTy...>* m_Signal = nullptr;
-        uint64_t           m_Id     = InvalidSignalHandle;
+        uint64_t           m_Id     = c_InvalidSignalHandle;
     };
 
     //
@@ -232,28 +232,28 @@ namespace Ame
 
         template<std::invocable<ArgsTy...> FnTy>
         Handle(
-            Signal<ArgsTy...>& Sig,
-            FnTy&&             Delegate) :
-            m_Handle(Sig, std::forward<FnTy>(Delegate))
+            Signal<ArgsTy...>& sig,
+            FnTy&&             delegate) :
+            m_Handle(sig, std::forward<FnTy>(delegate))
         {
         }
 
         Handle(
-            const Handle& Other) = delete;
+            const Handle& other) = delete;
         Handle(
-            Handle&& Other) noexcept :
-            m_Handle(std::move(Other.m_Handle))
+            Handle&& other) noexcept :
+            m_Handle(std::move(other.m_Handle))
         {
         }
 
         Handle& operator=(
-            const Handle& Other) = delete;
+            const Handle& other) = delete;
         Handle& operator=(
-            Handle&& Other) noexcept
+            Handle&& other) noexcept
         {
-            if (this != &Other)
+            if (this != &other)
             {
-                m_Handle = std::move(Other.m_Handle);
+                m_Handle = std::move(other.m_Handle);
             }
             return *this;
         }

@@ -15,15 +15,15 @@ namespace spdlog
 #define AME_LOG_TYPE(Type)                                                      \
     template<typename... ArgsTy>                                                \
     void Type(                                                                  \
-        const std::format_string<ArgsTy...> Message,                            \
-        ArgsTy&&... Args) const                                                 \
+        const std::format_string<ArgsTy...> message,                            \
+        ArgsTy&&... args) const                                                 \
     {                                                                           \
-        Log(LogLevel::Type, std::move(Message), std::forward<ArgsTy>(Args)...); \
+        Log(LogLevel::Type, std::move(message), std::forward<ArgsTy>(args)...); \
     }                                                                           \
     void Type(                                                                  \
-        StringView Message)                                                     \
+        StringView message)                                                     \
     {                                                                           \
-        LogMessage(LogLevel::Type, Message);                                    \
+        LogMessage(LogLevel::Type, message);                                    \
     }
 
 #ifndef AME_DIST
@@ -45,43 +45,43 @@ namespace Ame::Log
         }
 
         Logger(
-            StringView TagName,
-            StringView FileName,
-            SinkList   Sinks);
+            StringView tagName,
+            StringView fileName,
+            SinkList   sinks);
 
     public:
         /// <summary>
         /// Register a logger
         /// </summary>
         static void Register(
-            const String& TagName,
-            StringView    FileName,
-            SinkList      Sinks);
+            const String& tagName,
+            StringView    fileName,
+            SinkList      sinks);
 
         /// <summary>
         /// Register a logger
         /// </summary>
         static void Register(
-            const String& TagName,
-            StringView    FileName);
+            const String& tagName,
+            StringView    fileName);
 
         /// <summary>
         /// Register a null logger
         /// </summary>
         static void RegisterNull(
-            const String& TagName);
+            const String& tagName);
 
         /// <summary>
         /// Unregister a logger
         /// </summary>
         static void Unregister(
-            const String& TagName);
+            const String& tagName);
 
         /// <summary>
         /// Get global logger
         /// </summary>
         [[nodiscard]] static Logger& GetLogger(
-            const String& Name);
+            const String& name);
 
         /// <summary>
         /// Close all loggers
@@ -93,32 +93,32 @@ namespace Ame::Log
         /// Test if a log level can be logged
         /// </summary>
         [[nodiscard]] bool CanLog(
-            LogLevel Level) const noexcept;
+            LogLevel level) const noexcept;
 
     public:
         /// <summary>
         /// Log a message
         /// </summary>
         void LogMessage(
-            LogLevel   Level,
-            StringView Message) const;
+            LogLevel   level,
+            StringView message) const;
 
         /// <summary>
         /// Log a message
         /// </summary>
         template<typename... ArgsTy>
         void Log(
-            LogLevel                            Level,
-            const std::format_string<ArgsTy...> Message,
-            ArgsTy&&... Args) const
+            LogLevel                            level,
+            const std::format_string<ArgsTy...> message,
+            ArgsTy&&... args) const
         {
             if constexpr (sizeof...(ArgsTy) == 0)
             {
-                LogMessage(Level, Message.get());
+                LogMessage(level, message.get());
             }
             else
             {
-                LogMessage(Level, std::format(std::move(Message), std::forward<ArgsTy>(Args)...));
+                LogMessage(level, std::format(std::move(message), std::forward<ArgsTy>(args)...));
             }
         }
 
@@ -131,14 +131,14 @@ namespace Ame::Log
 
         template<typename... ArgsTy>
         void Assert(
-            bool                                Condition,
-            const std::format_string<ArgsTy...> Message,
-            ArgsTy&&... Args) const
+            bool                                condition,
+            const std::format_string<ArgsTy...> message,
+            ArgsTy&&... args) const
         {
 #ifndef AME_DIST
-            if (!Condition)
+            if (!condition)
             {
-                Fatal(std::move(Message), std::forward<ArgsTy>(Args)...);
+                Fatal(std::move(message), std::forward<ArgsTy>(args)...);
                 AME_DEBUG_BREAK;
             }
 #endif
@@ -146,13 +146,13 @@ namespace Ame::Log
 
         template<typename... ArgsTy>
         void Validate(
-            bool                                Condition,
-            const std::format_string<ArgsTy...> Message,
-            ArgsTy&&... Args) const
+            bool                                condition,
+            const std::format_string<ArgsTy...> message,
+            ArgsTy&&... args) const
         {
-            if (!Condition)
+            if (!condition)
             {
-                Fatal(std::move(Message), std::forward<ArgsTy>(Args)...);
+                Fatal(std::move(message), std::forward<ArgsTy>(args)...);
                 std::unreachable();
             }
         }
@@ -162,7 +162,7 @@ namespace Ame::Log
         /// Set the current log level
         /// </summary>
         void SetLevel(
-            LogLevel Level);
+            LogLevel level);
 
         /// <summary>
         /// Get the current log level

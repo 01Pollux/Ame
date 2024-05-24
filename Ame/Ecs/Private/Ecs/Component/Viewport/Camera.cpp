@@ -83,7 +83,7 @@ namespace Ame::Ecs::Component
                 FarPlane);
         }
         default:
-            return Math::Mat::Identity<Math::Matrix4x4>;
+            return Math::Mat::c_Identity<Math::Matrix4x4>;
         }
     }
 

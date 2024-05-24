@@ -32,10 +32,10 @@ namespace Ame::Util
     template<Concepts::CryptoAlgorithm CryptoAlgoTy, typename Ty>
         requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
     static void UpdateCrypto(
-        CryptoAlgoTy& Hasher,
-        const Ty&     Value)
+        CryptoAlgoTy& hasher,
+        const Ty&     value)
     {
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(std::addressof(Value)), sizeof(Ty));
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&value), sizeof(Ty));
     }
 
     /// <summary>
@@ -43,17 +43,17 @@ namespace Ame::Util
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     static void UpdateCrypto(
-        CryptoAlgoTy& Hasher,
-        std::istream& Stream,
-        size_t        Size)
+        CryptoAlgoTy& hasher,
+        std::istream& stream,
+        size_t        size)
     {
-        CryptoPP::byte Bytes[64];
-        while (Size > 0 && Stream.good())
+        CryptoPP::byte buffer[64];
+        while (size > 0 && stream.good())
         {
-            size_t ReadSize = std::min(Size, std::size(Bytes));
-            Stream.read(std::bit_cast<char*>(&Bytes[0]), ReadSize);
-            Hasher.Update(Bytes, ReadSize);
-            Size -= ReadSize;
+            size_t readSize = std::min(size, std::size(buffer));
+            stream.read(std::bit_cast<char*>(&buffer[0]), readSize);
+            hasher.Update(buffer, readSize);
+            size -= readSize;
         }
     }
 
@@ -62,19 +62,19 @@ namespace Ame::Util
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     [[nodiscard]] static String DigestStringify(
-        const CryptoDigest<CryptoAlgoTy>& Digest)
+        const CryptoDigest<CryptoAlgoTy>& digest)
     {
-        constexpr const char Lut[] = "0123456789ABCDEF";
+        constexpr const char lut[] = "0123456789ABCDEF";
 
-        String Output;
-        Output.reserve(2 * std::size(Digest));
-        for (CryptoPP::byte c : Digest)
+        String output;
+        output.reserve(2 * std::size(digest));
+        for (CryptoPP::byte c : digest)
         {
-            Output.push_back(Lut[c >> 4]);
-            Output.push_back(Lut[c & 15]);
+            output.push_back(lut[c >> 4]);
+            output.push_back(lut[c & 15]);
         }
 
-        return Output;
+        return output;
     }
 
     /// <summary>
@@ -82,11 +82,11 @@ namespace Ame::Util
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     [[nodiscard]] static auto FinalizeDigest(
-        CryptoAlgoTy& Hasher)
+        CryptoAlgoTy& hasher)
     {
-        CryptoDigest<CryptoAlgoTy> Digest;
-        Hasher.Final(Digest.data());
-        return Digest;
+        CryptoDigest<CryptoAlgoTy> digest;
+        hasher.Final(digest.data());
+        return digest;
     }
 
     /// <summary>
@@ -94,10 +94,10 @@ namespace Ame::Util
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     [[nodiscard]] static String FinalizeDigestToString(
-        CryptoAlgoTy& Hasher)
+        CryptoAlgoTy& hasher)
     {
-        CryptoDigest<CryptoAlgoTy> Digest;
-        Hasher.Final(Digest.data());
-        return DigestStringify<CryptoAlgoTy>(Digest);
+        CryptoDigest<CryptoAlgoTy> digest;
+        hasher.Final(digest.data());
+        return DigestStringify<CryptoAlgoTy>(digest);
     }
 } // namespace Ame::Util

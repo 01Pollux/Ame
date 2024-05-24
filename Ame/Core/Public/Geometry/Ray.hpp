@@ -11,10 +11,10 @@ namespace Ame::Geometry
 
         Ray() = default;
         Ray(
-            const Math::Vector3& Origin,
-            const Math::Vector3& Direction) :
-            Origin(Origin),
-            Direction(Direction)
+            const Math::Vector3& origin,
+            const Math::Vector3& direction) :
+            Origin(origin),
+            Direction(direction)
         {
         }
 
@@ -33,11 +33,11 @@ namespace Ame::Geometry
         /// Returns a ray that has been transformed by the given matrix.
         /// </summary>
         [[nodiscard]] Ray Transform(
-            const Math::Matrix4x4& Mat) const
+            const Math::Matrix4x4& mat) const
         {
             return Ray(
-                Math::Vector3(Mat * Math::Vector4(Origin, 1.0f)),
-                Math::Vector3(Mat * Math::Vector4(Direction, 0.0f)));
+                Math::Vector3(mat * Math::Vector4(Origin, 1.0f)),
+                Math::Vector3(mat * Math::Vector4(Direction, 0.0f)));
         }
 
         /// <summary>
@@ -45,11 +45,11 @@ namespace Ame::Geometry
         /// Disjoint are parallel
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            const Ray& Other,
+            const Ray& other,
             float*     T = nullptr,
             float*     S = nullptr)
         {
-            Math::Vector3 V1V2 = glm::cross(Other.Origin, Origin);
+            Math::Vector3 V1V2 = glm::cross(other.Origin, Origin);
             float         Dot2 = glm::pow(glm::dot(V1V2, V1V2), 2.f);
 
             if (!Dot2)
@@ -59,7 +59,7 @@ namespace Ame::Geometry
 
             if (T || S)
             {
-                Math::Matrix3x3 M(Other.Origin - Origin, Other.Direction, V1V2);
+                Math::Matrix3x3 M(other.Origin - Origin, other.Direction, V1V2);
                 Math::Vector3   R = glm::inverse(M) * Math::Vector3(0.f, 0.f, 1.f);
 
                 if (T)

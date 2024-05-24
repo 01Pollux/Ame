@@ -19,13 +19,13 @@ namespace Ame::Log
 
     namespace Names
     {
-        static constexpr const char* Engine   = "Engine";
-        static constexpr const char* Ecs      = "Ecs";
-        static constexpr const char* Client   = "Client";
-        static constexpr const char* Editor   = "Editor";
-        static constexpr const char* Asset    = "Asset";
-        static constexpr const char* Window   = "Window";
-        static constexpr const char* Rhi      = "RHI";
-        static constexpr const char* Renderer = "Rhi";
+        static constexpr const char* Engine = "Engine";
+        static constexpr const char* Ecs    = "Ecs";
+        static constexpr const char* Client = "Client";
+        static constexpr const char* Editor = "Editor";
+        static constexpr const char* Asset  = "Asset";
+        static constexpr const char* Window = "Window";
+        static constexpr const char* Rhi    = "RHI";
+        static constexpr const char* Gfx    = "Gfx";
     } // namespace Names
 } // namespace Ame::Log

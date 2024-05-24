@@ -6,7 +6,7 @@ namespace Ame::Geometry
     std::array<Math::Plane, 6> Frustum::GetPlanes() const
     {
         // Create 6 planes
-        std::array Planes{
+        std::array planes{
             Math::Plane(0.0f, 0.0f, -1.0f, Near),
             Math::Plane(0.0f, 0.0f, 1.0f, -Far),
             Math::Plane(1.0f, 0.0f, -RightSlope, 0.0f),
@@ -14,90 +14,90 @@ namespace Ame::Geometry
             Math::Plane(0.0f, 1.0f, -TopSlope, 0.0f),
             Math::Plane(0.0f, -1.0f, BottomSlope, 0.0f)
         };
-        for (auto& Plane : Planes)
+        for (auto& plane : planes)
         {
-            Plane.Transform(Orientation, Origin);
-            Plane.Normalize();
+            plane.Transform(Orientation, Origin);
+            plane.Normalize();
         }
-        return Planes;
+        return planes;
     }
 
     //
 
     void Frustum::Transform(
-        const Math::Vector3&    Scale,
-        const Math::Quaternion& Rotation,
-        const Math::Vector3&    Translation)
+        const Math::Vector3&    scale,
+        const Math::Quaternion& rotation,
+        const Math::Vector3&    translation)
     {
         // Composite the frustum rotation and the transform rotation.
-        Orientation = Orientation * Rotation;
+        Orientation = Orientation * rotation;
 
         // Transform the origin.
-        Origin = glm::rotate(Rotation, Origin * Scale) + Translation;
+        Origin = glm::rotate(rotation, Origin * scale) + translation;
 
-        float L = glm::length(Scale);
+        float l = glm::length(scale);
 
         // Scale the near and far distances (the slopes remain the same).
-        Near = Near * L;
-        Far  = Far * L;
+        Near = Near * l;
+        Far  = Far * l;
     }
 
     //
 
     ContainmentType Frustum::Contains(
-        const AABB& Box) const
+        const AABB& box) const
     {
-        return Box.Contains(GetPlanes());
+        return box.Contains(GetPlanes());
     }
 
     ContainmentType Frustum::Contains(
-        const Frustum& Fr) const
+        const Frustum& fr) const
     {
-        return Fr.Contains(GetPlanes());
+        return fr.Contains(GetPlanes());
     }
 
     ContainmentType Frustum::Contains(
-        std::span<const Math::Plane> Planes) const
+        std::span<const Math::Plane> planes) const
     {
         // Set w of the origin to one so we can dot4 with a plane.
-        Math::Vector4 OriginW1(Origin, 1.f);
+        Math::Vector4 originW1(Origin, 1.f);
 
         // Build the corners of the frustum (in world space).
-        Math::Vector4 RightTop(RightSlope, TopSlope, 1.0f, 0.0f);
-        Math::Vector4 RightBottom(RightSlope, BottomSlope, 1.0f, 0.0f);
-        Math::Vector4 LeftTop(LeftSlope, TopSlope, 1.0f, 0.0f);
-        Math::Vector4 LeftBottom(LeftSlope, BottomSlope, 1.0f, 0.0f);
+        Math::Vector4 rightTop(RightSlope, TopSlope, 1.0f, 0.0f);
+        Math::Vector4 rightBottom(RightSlope, BottomSlope, 1.0f, 0.0f);
+        Math::Vector4 leftTop(LeftSlope, TopSlope, 1.0f, 0.0f);
+        Math::Vector4 leftBottom(LeftSlope, BottomSlope, 1.0f, 0.0f);
 
-        RightTop    = glm::rotate(Orientation, RightTop);
-        RightBottom = glm::rotate(Orientation, RightBottom);
-        LeftTop     = glm::rotate(Orientation, LeftTop);
-        LeftBottom  = glm::rotate(Orientation, LeftBottom);
+        rightTop    = glm::rotate(Orientation, rightTop);
+        rightBottom = glm::rotate(Orientation, rightBottom);
+        leftTop     = glm::rotate(Orientation, leftTop);
+        leftBottom  = glm::rotate(Orientation, leftBottom);
 
-        std::array Corners{
-            RightTop * Near + OriginW1,
-            RightBottom * Near + OriginW1,
-            LeftTop * Near + OriginW1,
-            LeftBottom * Near + OriginW1,
-            RightTop * Far + OriginW1,
-            RightBottom * Far + OriginW1,
-            LeftTop * Far + OriginW1,
-            LeftBottom * Far + OriginW1
+        std::array corners{
+            rightTop * Near + originW1,
+            rightBottom * Near + originW1,
+            leftTop * Near + originW1,
+            leftBottom * Near + originW1,
+            rightTop * Far + originW1,
+            rightBottom * Far + originW1,
+            leftTop * Far + originW1,
+            leftBottom * Far + originW1
         };
 
-        bool AnyOutside = false, AllInside = false;
-        Planes[0].IntersectFrustum(Corners, AnyOutside, AllInside);
+        bool anyOutside = false, allInside = false;
+        planes[0].IntersectFrustum(corners, anyOutside, allInside);
 
-        for (size_t i = 1; i < Planes.size(); i++)
+        for (size_t i = 1; i < planes.size(); i++)
         {
-            bool CurAnyOutside, CurAllInside;
-            Planes[i].IntersectFrustum(Corners, CurAnyOutside, CurAllInside);
+            bool curAnyOutside, curAllInside;
+            planes[i].IntersectFrustum(corners, curAnyOutside, curAllInside);
 
-            AnyOutside |= CurAnyOutside;
-            AllInside &= CurAllInside;
+            anyOutside |= curAnyOutside;
+            allInside &= curAllInside;
         }
 
-        return AnyOutside  ? ContainmentType::Disjoint
-               : AllInside ? ContainmentType::Contains
+        return anyOutside  ? ContainmentType::Disjoint
+               : allInside ? ContainmentType::Contains
                            : ContainmentType::Intersects;
     }
 } // namespace Ame::Geometry

@@ -17,7 +17,7 @@ namespace Ame::FlappyRocket
     FlappyRocketGame::FlappyRocketGame(
         Rhi::Device&                      Device,
         Ecs::Universe&                    EcsUniverse,
-        Gfx::Renderer&                    Renderer,
+        Gfx::Renderer&                    renderer,
         Gfx::Cache::ShaderCache&          ShaderCache,
         Gfx::Cache::CommonShader&         CommonShaders,
         Gfx::Cache::CommonPipelineState&  CommonPipelines,
@@ -26,7 +26,7 @@ namespace Ame::FlappyRocket
         m_EcsUniverse(&EcsUniverse),
         m_ShaderCache(&ShaderCache)
     {
-        SetupRenderGraph(Renderer.GetRenderGraph(), CommonShaders, CommonPipelines, MaterialCache);
+        SetupRenderGraph(renderer.GetRenderGraph(), CommonShaders, CommonPipelines, MaterialCache);
     }
 
     //
@@ -49,7 +49,7 @@ namespace Ame::FlappyRocket
 
         GS::MaterialPipelineState PipelineState;
         PipelineState.Rasterizer.Cull = Rhi::CullMode::NONE;
-        
+
         GS::PropertyDescriptor Descriptor;
 
         Rhi::ShaderCompileDesc CompileDesc;
@@ -83,6 +83,6 @@ namespace Ame::FlappyRocket
 
         auto Camera = World.CreateEntity(CameraName);
         Camera.AddComponent<Ecs::Component::Camera>();
-        Camera.AddComponent<Ecs::Component::Transform>(Math::Mat::Identity<Math::Matrix3x3>, Math::Vec::Backward<Math::Vector3> * 10.f);
+        Camera.AddComponent<Ecs::Component::Transform>(Math::Mat::c_Identity<Math::Matrix3x3>, Math::Vec::c_Backward<Math::Vector3> * 10.f);
     }
 } // namespace Ame::FlappyRocket

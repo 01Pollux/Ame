@@ -27,28 +27,28 @@ namespace Ame::Concepts
                          std::is_same_v<Ty, Math::Matrix4x4> ||
                          std::is_same_v<Ty, Math::Matrix4x4I> ||
                          std::is_same_v<Ty, Math::Matrix4x4U>;
-}
+} // namespace Ame::Concepts
 
 namespace Ame::Math::Mat
 {
     template<Concepts::MatrixType Ty>
-    inline constexpr Ty Zero{ 0.f };
+    inline constexpr Ty c_Zero{ 0.f };
 
     template<Concepts::MatrixType Ty>
-    inline constexpr Ty Identity{ 1.f };
+    inline constexpr Ty c_Identity{ 1.f };
 } // namespace Ame::Math::Mat
 
 namespace boost::serialization
 {
     template<typename ArchiveTy, Ame::Concepts::MatrixType Ty>
-    void serialize(
-        ArchiveTy& Archive,
-        Ty&        Mat,
+    void Serialize(
+        ArchiveTy& archive,
+        Ty&        mat,
         uint32_t)
     {
-        for (typename Ty::length_type i = 0; i < Mat.length(); i++)
+        for (typename Ty::length_type i = 0; i < mat.length(); i++)
         {
-            Archive& Mat[i];
+            archive& mat[i];
         }
     }
 } // namespace boost::serialization

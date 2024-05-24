@@ -61,7 +61,7 @@ namespace Ame::Gfx::Shading
         Rhi::TextureViewDesc     ViewDesc)
     {
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(
+        Log::Gfx().Assert(
             ViewDesc.Type == Rhi::TextureViewType::AnyShaderResource ||
                 ViewDesc.Type == Rhi::TextureViewType::AnyUnorderedAccess,
             "Texture view type is not shader resource nor unordered access");

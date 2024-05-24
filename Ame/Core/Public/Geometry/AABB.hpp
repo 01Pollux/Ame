@@ -10,7 +10,7 @@ namespace Ame::Geometry
         /// <summary>
         /// Center of the box.
         /// </summary>
-        Math::Vector3 Center = Math::Vec::Zero<Math::Vector3>;
+        Math::Vector3 Center = Math::Vec::c_Zero<Math::Vector3>;
 
         /// <summary>
         /// Distance from the center to each side.
@@ -22,11 +22,11 @@ namespace Ame::Geometry
         /// Construct a new AABB from a center and extents.
         /// </summary>
         void FromMinMax(
-            const Math::Vector3& Min,
-            const Math::Vector3& Max)
+            const Math::Vector3& min,
+            const Math::Vector3& max)
         {
-            Center  = (Min + Max) / 2.0f;
-            Extents = (Max - Min) / 2.0f;
+            Center  = (min + max) / 2.0f;
+            Extents = (max - min) / 2.0f;
         }
 
     public:
@@ -44,36 +44,36 @@ namespace Ame::Geometry
         /// Transform the aabb
         /// </summary>
         void Transform(
-            const Math::TransformMatrix& Tr)
+            const Math::TransformMatrix& tr)
         {
-            Transform(Tr.GetScale(), Tr.GetRotation(), Tr.GetPosition());
+            Transform(tr.GetScale(), tr.GetRotation(), tr.GetPosition());
         }
 
         /// <summary>
         /// Transform the aabb
         /// </summary>
         void Transform(
-            const Math::Vector3&    Scale,
-            const Math::Quaternion& Rotation,
-            const Math::Vector3&    Translation);
+            const Math::Vector3&    scale,
+            const Math::Quaternion& rotation,
+            const Math::Vector3&    translation);
 
     public:
         /// <summary>
         /// Check collision
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            const AABB& Box) const;
+            const AABB& box) const;
 
         /// <summary>
         /// Check collision
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            const Frustum& Fr) const;
+            const Frustum& fr) const;
 
         /// <summary>
         /// Check collision
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            std::span<const Math::Plane> Planes) const;
+            std::span<const Math::Plane> planes) const;
     };
 } // namespace Ame::Geometry

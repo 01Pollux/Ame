@@ -15,7 +15,7 @@ namespace Ame::Gfx::Shading
             }
         }
 
-        Log::Renderer().Fatal("Shader not found");
+        Log::Gfx().Fatal("Shader not found");
         std::unreachable();
     }
 } // namespace Ame::Gfx::Shading

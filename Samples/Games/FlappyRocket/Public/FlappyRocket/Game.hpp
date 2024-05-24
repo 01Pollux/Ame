@@ -17,7 +17,7 @@ namespace Ame
         {
             class Graph;
         } // namespace RG
-        class Renderer;
+        class Gfx;
     } // namespace Gfx
     namespace Asset
     {
@@ -37,7 +37,7 @@ namespace Ame::FlappyRocket
         FlappyRocketGame(
             Rhi::Device&                      Device,
             Ecs::Universe&                    EcsUniverse,
-            Gfx::Renderer&                    Renderer,
+            Gfx::Renderer&                    renderer,
             Gfx::Cache::ShaderCache&          ShaderCache,
             Gfx::Cache::CommonShader&         CommonShaders,
             Gfx::Cache::CommonPipelineState&  CommonPipelines,

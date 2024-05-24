@@ -10,12 +10,12 @@ namespace Ame::Geometry
         /// <summary>
         /// Quaternion representing rotation.
         /// </summary>
-        Math::Quaternion Orientation = Math::Vec::Identity<Math::Quaternion>;
+        Math::Quaternion Orientation = Math::Vec::c_Identity<Math::Quaternion>;
 
         /// <summary>
         /// Origin of the frustum (and projection).
         /// </summary>
-        Math::Vector3 Origin = Math::Vec::Zero<Math::Vector3>;
+        Math::Vector3 Origin = Math::Vec::c_Zero<Math::Vector3>;
 
         /// <summary>
         /// Positive X (X/Z)
@@ -47,10 +47,10 @@ namespace Ame::Geometry
         Frustum() = default;
 
         Frustum(
-            const Math::Matrix4x4& InvProjection)
+            const Math::Matrix4x4& invProjection)
         {
             // Corners of the projection frustum in homogenous space.
-            constexpr Math::Vector4 HomogenousPoints[6]{
+            constexpr Math::Vector4 c_HomogenousPoints[6]{
                 { 1.0f, 0.0f, 1.0f, 1.0f },  // right (at far plane)
                 { -1.0f, 0.0f, 1.0f, 1.0f }, // left
                 { 0.0f, 1.0f, 1.0f, 1.0f },  // top
@@ -60,24 +60,24 @@ namespace Ame::Geometry
             };
 
             // Compute the frustum corners in world space.
-            Math::Vector4 Points[6]{
-                InvProjection * HomogenousPoints[0],
-                InvProjection * HomogenousPoints[1],
-                InvProjection * HomogenousPoints[2],
-                InvProjection * HomogenousPoints[3],
-                InvProjection * HomogenousPoints[4],
-                InvProjection * HomogenousPoints[5]
+            Math::Vector4 points[6]{
+                invProjection * c_HomogenousPoints[0],
+                invProjection * c_HomogenousPoints[1],
+                invProjection * c_HomogenousPoints[2],
+                invProjection * c_HomogenousPoints[3],
+                invProjection * c_HomogenousPoints[4],
+                invProjection * c_HomogenousPoints[5]
             };
 
             // Compute the slopes.
-            RightSlope  = Points[0].x / Points[0].z;
-            LeftSlope   = Points[1].x / Points[1].z;
-            TopSlope    = Points[2].y / Points[2].z;
-            BottomSlope = Points[3].y / Points[3].z;
+            RightSlope  = points[0].x / points[0].z;
+            LeftSlope   = points[1].x / points[1].z;
+            TopSlope    = points[2].y / points[2].z;
+            BottomSlope = points[3].y / points[3].z;
 
             // Compute near and far.
-            Near = Points[4].z / Points[4].w;
-            Far  = Points[5].z / Points[5].w;
+            Near = points[4].z / points[4].w;
+            Far  = points[5].z / points[5].w;
         }
 
     public:
@@ -91,36 +91,36 @@ namespace Ame::Geometry
         /// Transform the frustum
         /// </summary>
         void Transform(
-            const Math::TransformMatrix& Tr)
+            const Math::TransformMatrix& transform)
         {
-            Transform(Tr.GetScale(), Tr.GetRotation(), Tr.GetPosition());
+            Transform(transform.GetScale(), transform.GetRotation(), transform.GetPosition());
         }
 
         /// <summary>
         /// Transform the frustum
         /// </summary>
         void Transform(
-            const Math::Vector3&    Scale,
-            const Math::Quaternion& Rotation,
-            const Math::Vector3&    Translation);
+            const Math::Vector3&    scale,
+            const Math::Quaternion& rotation,
+            const Math::Vector3&    translation);
 
     public:
         /// <summary>
         /// Check collision
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            const AABB& Box) const;
+            const AABB& box) const;
 
         /// <summary>
         /// Check collision
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            const Frustum& Fr) const;
+            const Frustum& fr) const;
 
         /// <summary>
         /// Check collision
         /// </summary>
         [[nodiscard]] ContainmentType Contains(
-            std::span<const Math::Plane> Planes) const;
+            std::span<const Math::Plane> planes) const;
     };
 } // namespace Ame::Geometry

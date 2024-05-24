@@ -1,9 +1,9 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 namespace Ame::Math
 {
@@ -48,59 +48,59 @@ namespace Ame::Math::Vec
     {
         template<Concepts::VectorType Ty>
         [[nodiscard]] static constexpr Ty MakeVec(
-            int X,
-            int Y)
+            int x,
+            int y)
         {
-            Ty Vec{};
-            Vec.x = static_cast<Ty::value_type>(X);
-            Vec.y = static_cast<Ty::value_type>(Y);
-            return Vec;
+            Ty vec;
+            vec.x = static_cast<Ty::value_type>(x);
+            vec.y = static_cast<Ty::value_type>(y);
+            return vec;
         }
     } // namespace Impl
 
     //
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty One{ 1 };
+    static constexpr Ty c_One{ 1 };
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Zero{ 0 };
+    static constexpr Ty c_Zero{ 0 };
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Up = Impl::MakeVec<Ty>(0, 1);
+    static constexpr Ty c_Up = Impl::MakeVec<Ty>(0, 1);
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Down = Impl::MakeVec<Ty>(0, -1);
+    static constexpr Ty c_Down = Impl::MakeVec<Ty>(0, -1);
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Left = Impl::MakeVec<Ty>(-1, 0);
+    static constexpr Ty c_Left = Impl::MakeVec<Ty>(-1, 0);
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Right = Impl::MakeVec<Ty>(1, 0);
+    static constexpr Ty c_Right = Impl::MakeVec<Ty>(1, 0);
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Forward{ 0, 0, 1 };
+    static constexpr Ty c_Forward{ 0, 0, 1 };
 
     template<Concepts::VectorType Ty>
-    static constexpr Ty Backward{ 0, 0, -1 };
+    static constexpr Ty c_Backward{ 0, 0, -1 };
 
     //
 
     template<Concepts::QuaternionType Ty>
-    inline constexpr Ty Identity{ 1, 0, 0, 0 };
+    inline constexpr Ty c_Identity{ 1, 0, 0, 0 };
 } // namespace Ame::Math::Vec
 
 namespace boost::serialization
 {
     template<typename ArchiveTy, Ame::Concepts::VectorType Ty>
-    void serialize(
-        ArchiveTy& Archive,
-        Ty&        Vec,
+    void Serialize(
+        ArchiveTy& archive,
+        Ty&        vec,
         uint32_t)
     {
-        for (typename Ty::length_type i = 0; i < Vec.length(); i++)
+        for (typename Ty::length_type i = 0; i < vec.length(); i++)
         {
-            Archive& Vec[i];
+            archive& vec[i];
         }
     }
 } // namespace boost::serialization

@@ -72,8 +72,8 @@ namespace Ame::Gfx::Shading
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Renderer().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
+        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
 #endif
 
         Iter->second = std::move(Texture);
@@ -86,8 +86,8 @@ namespace Ame::Gfx::Shading
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Renderer().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
+        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
 #endif
 
         Iter->second = std::move(Buffer);
@@ -100,8 +100,8 @@ namespace Ame::Gfx::Shading
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Renderer().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
+        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
 #endif
 
         Iter->second = std::move(Sampler);
@@ -115,8 +115,8 @@ namespace Ame::Gfx::Shading
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Renderer().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
+        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
 #endif
 
         return std::get<TextureResource>(Iter->second);
@@ -128,8 +128,8 @@ namespace Ame::Gfx::Shading
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Renderer().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
+        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
 #endif
 
         return std::get<BufferResource>(Iter->second);
@@ -141,8 +141,8 @@ namespace Ame::Gfx::Shading
         auto Iter = m_Resources.find(Property);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Renderer().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
+        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
 #endif
 
         return std::get<SamplerResource>(Iter->second);
@@ -166,7 +166,7 @@ namespace Ame::Gfx::Shading
         uint32_t Offset = m_UserData.GetOffset(Name);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Offset + Size <= GetSizeOfUserData(), "User data buffer overflow");
+        Log::Gfx().Assert(Offset + Size <= GetSizeOfUserData(), "User data buffer overflow");
 #endif
 
         std::memcpy(m_UserDataBuffer.get() + Offset, Data, Size);
@@ -180,7 +180,7 @@ namespace Ame::Gfx::Shading
         uint32_t Offset = m_UserData.GetOffset(Name);
 
 #ifdef AME_DEBUG
-        Log::Renderer().Assert(Offset + Size <= m_UserData.GetStructSize(), "User data buffer overflow");
+        Log::Gfx().Assert(Offset + Size <= m_UserData.GetStructSize(), "User data buffer overflow");
 #endif
 
         std::memcpy(Data, m_UserDataBuffer.get() + Offset, Size);

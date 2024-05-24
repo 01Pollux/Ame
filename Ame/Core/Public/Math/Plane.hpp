@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Math/Vector.hpp>
 #include <Math/Matrix.hpp>
+#include <Math/Vector.hpp>
 #include <glm/gtx/norm.hpp>
 #include <span>
 
@@ -18,20 +18,20 @@ namespace Ame::Math
         }
 
         Plane(
-            const Vector3& Point,
-            const Vector3& Normal) :
-            Vector4(Normal, -glm::dot(Point, Normal))
+            const Vector3& point,
+            const Vector3& normal) :
+            Vector4(normal, -glm::dot(point, normal))
         {
         }
 
         Plane(
-            const Vector3& P0,
-            const Vector3& P1,
-            const Vector3& P2) :
-            Vector4(glm::cross(P1 - P0, P2 - P0), 0.f)
+            const Vector3& p0,
+            const Vector3& p1,
+            const Vector3& p2) :
+            Vector4(glm::cross(p1 - p0, p2 - p0), 0.f)
         {
             Normalize();
-            w = -glm::dot(AsVec3(), P0);
+            w = -glm::dot(AsVec3(), p0);
         }
 
     public:
@@ -89,18 +89,18 @@ namespace Ame::Math
         /// Get the distance from the point
         /// </summary>
         [[nodiscard]] float GetDistanceTo(
-            const Vector3& Point) const
+            const Vector3& point) const
         {
-            return glm::dot(GetNormal(), Point) + GetDistance();
+            return glm::dot(GetNormal(), point) + GetDistance();
         }
 
         /// <summary>
         /// Project point in plane
         /// </summary>
         [[nodiscard]] Vector3 Project(
-            const Vector3& Point) const
+            const Vector3& point) const
         {
-            return Point - GetNormal() * GetDistanceTo(Point);
+            return point - GetNormal() * GetDistanceTo(point);
         }
 
     public:
@@ -108,49 +108,49 @@ namespace Ame::Math
         /// Check intersection between plane and point
         /// </summary>
         void IntersectAxisAlignedBox(
-            const Vector4& Center,
-            const Vector3& Extents,
-            bool&          Outside,
-            bool&          Inside) const
+            const Vector4& center,
+            const Vector3& extents,
+            bool&          outside,
+            bool&          inside) const
         {
             // Compute the distance to the center of the box.
-            float Dist = glm::dot(Center, AsVec4());
+            float dist = glm::dot(center, AsVec4());
 
             // Project the axes of the box onto the normal of the plane.  Half the
             // length of the projection (sometime called the "radius") is equal to
             // h(u) * abs(n dot b(u))) + h(v) * abs(n dot b(v)) + h(w) * abs(n dot b(w))
             // where h(i) are extents of the box, n is the plane normal, and b(i) are the
             // axes of the box. In this case b(i) = [(1,0,0), (0,1,0), (0,0,1)].
-            float Radius = glm::dot(Extents, glm::abs(AsVec3()));
+            float radius = glm::dot(extents, glm::abs(AsVec3()));
 
             // Outside the plane?
-            Outside = Dist > Radius;
+            outside = dist > radius;
 
             // Fully inside the plane?
-            Inside = Dist < -Radius;
+            inside = dist < -radius;
         }
 
         /// <summary>
         /// Check intersection between plane and sphere
         /// </summary>
         void IntersectFrustum(
-            std::span<const Vector4> Points,
-            bool&                    Outside,
-            bool&                    Inside) const
+            std::span<const Vector4> points,
+            bool&                    outside,
+            bool&                    inside) const
         {
-            float Min = std::numeric_limits<float>::max(),
-                  Max = std::numeric_limits<float>::lowest();
+            float min = std::numeric_limits<float>::max(),
+                  max = std::numeric_limits<float>::lowest();
 
-            Vector3 Vec3 = AsVec3();
-            for (auto& Point : Points)
+            Vector3 vec3 = AsVec3();
+            for (auto& point : points)
             {
-                float Dist = glm::distance(Vec3, Vector3(Point));
-                Min        = glm::min(Min, Dist);
-                Max        = glm::max(Max, Dist);
+                float dist = glm::distance(vec3, Vector3(point));
+                min        = glm::min(min, dist);
+                max        = glm::max(max, dist);
             }
 
-            Outside = Min > -w;
-            Inside  = Max < -w;
+            outside = min > -w;
+            inside  = max < -w;
         }
 
     public:
@@ -158,12 +158,12 @@ namespace Ame::Math
         /// Transform plane by matrix
         /// </summary>
         void Transform(
-            const Matrix4x4& M)
+            const Matrix4x4& m)
         {
-            Vector4 R = w * M[3];
-            R         = z * M[2] + R;
-            R         = y * M[1] + R;
-            AsVec4()  = x * M[0] + R;
+            Vector4 r = w * m[3];
+            r         = z * m[2] + r;
+            r         = y * m[1] + r;
+            AsVec4()  = x * m[0] + r;
 
             w = glm::length(AsVec3());
             AsVec3() /= w;
@@ -173,12 +173,12 @@ namespace Ame::Math
         /// Transform plane by rotation and translation
         /// </summary>
         void Transform(
-            const Quaternion& Rotation,
-            const Vector3&    Translation)
+            const Quaternion& rotation,
+            const Vector3&    translation)
         {
-            Vector3 Normal = Rotation * Vector4(AsVec3(), 0.f);
-            float   D      = w - glm::dot(Normal, Translation);
-            *this          = Plane(Normal, D);
+            Vector3 normal = rotation * Vector4(AsVec3(), 0.f);
+            float   d      = w - glm::dot(normal, translation);
+            *this          = Plane(normal, d);
         }
 
         /// <summary>

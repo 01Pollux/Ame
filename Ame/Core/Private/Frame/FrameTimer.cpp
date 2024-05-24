@@ -25,14 +25,15 @@ namespace Ame
     }
 
     void FrameTimer::SetTimeScale(
-        float TimeScale)
+        float timeScale)
     {
         // We were paused and now we are unpaused
-        if (m_TimeScale <= std::numeric_limits<float>::epsilon() && TimeScale > std::numeric_limits<float>::epsilon())
+        if (m_TimeScale <= std::numeric_limits<float>::epsilon() &&
+            timeScale > std::numeric_limits<float>::epsilon())
         {
             m_PrevTime = steady_clock::now();
         }
-        m_TimeScale = TimeScale;
+        m_TimeScale = timeScale;
     }
 
     void FrameTimer::Reset()

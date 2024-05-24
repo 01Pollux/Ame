@@ -14,9 +14,9 @@ namespace Ame
         /// </summary>
         template<typename Ty, typename... ArgsTy>
         bool RegisterSubsystem(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
-            return m_Container.emplace<Ty>(std::forward<ArgsTy>(Args)...);
+            return m_Container.emplace<Ty>(std::forward<ArgsTy>(args)...);
         }
 
         /// <summary>
@@ -72,9 +72,9 @@ namespace Ame
         /// It will call rebase() with a predicate as parameter.
         /// </summary>
         void Rebase(
-            const Container& Other)
+            const Container& other)
         {
-            m_Container.rebase(Other.m_Container);
+            m_Container.rebase(other.m_Container);
         }
 
         /// <summary>
@@ -86,10 +86,10 @@ namespace Ame
         /// </summary>
         template<typename FnTy>
         void Rebase(
-            const Container& Other,
-            FnTy&&           Predicate)
+            const Container& other,
+            FnTy&&           predicate)
         {
-            m_Container.rebase(Other.m_Container, std::forward<FnTy>(Predicate));
+            m_Container.rebase(other.m_Container, std::forward<FnTy>(predicate));
         }
 
     private:

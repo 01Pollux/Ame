@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Math/Vector.hpp>
 #include <Math/Matrix.hpp>
+#include <Math/Vector.hpp>
 
 #include <glm/gtx/matrix_interpolation.hpp>
 #include <glm/gtx/transform.hpp>
@@ -17,17 +17,17 @@ namespace Ame::Math
     {
     public:
         TransformMatrix(
-            const Matrix3x3& Basis    = Mat::Identity<Matrix3x3>,
-            const Vector3&   Position = Vec::Zero<Vector3>) :
-            m_Basis(Basis),
-            m_Position(Position)
+            const Matrix3x3& basis    = Mat::c_Identity<Matrix3x3>,
+            const Vector3&   position = Vec::c_Zero<Vector3>) :
+            m_Basis(basis),
+            m_Position(position)
         {
         }
 
         TransformMatrix(
-            const Matrix4x4& Transform) :
-            m_Basis(Transform),
-            m_Position(Transform[3])
+            const Matrix4x4& transform) :
+            m_Basis(transform),
+            m_Position(transform[3])
         {
         }
 
@@ -37,11 +37,11 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Matrix3x3 GetBasisNormalized() const noexcept
         {
-            auto Basis = m_Basis;
-            Basis[0]   = glm::normalize(Basis[0]);
-            Basis[1]   = glm::normalize(Basis[1]);
-            Basis[2]   = glm::normalize(Basis[2]);
-            return Basis;
+            auto basis = m_Basis;
+            basis[0]   = glm::normalize(basis[0]);
+            basis[1]   = glm::normalize(basis[1]);
+            basis[2]   = glm::normalize(basis[2]);
+            return basis;
         }
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace Ame::Math
         /// Set basis of transform
         /// </summary>
         void SetBasis(
-            const Matrix3x3& Basis) noexcept
+            const Matrix3x3& basis) noexcept
         {
-            m_Basis = Basis;
+            m_Basis = basis;
         }
 
     public:
@@ -82,20 +82,20 @@ namespace Ame::Math
         /// Set rotation of transform
         /// </summary>
         void SetRotation(
-            const Quaternion& Rotation) noexcept
+            const Quaternion& rotation) noexcept
         {
-            auto Scale = GetScale();
-            m_Basis    = glm::mat3_cast(Rotation);
-            SetScale(Scale);
+            auto scale = GetScale();
+            m_Basis    = glm::mat3_cast(rotation);
+            SetScale(scale);
         }
 
         /// <summary>
         /// Accumulate rotation of transform
         /// </summary>
         void AppendRotation(
-            const Quaternion& Rotation) noexcept
+            const Quaternion& rotation) noexcept
         {
-            SetRotation(GetRotation() * Rotation);
+            SetRotation(GetRotation() * rotation);
         }
 
     public:
@@ -111,18 +111,18 @@ namespace Ame::Math
         /// Set rotation of transform
         /// </summary>
         void SetRotationEuler(
-            const Vector3& Rotation) noexcept
+            const Vector3& rotation) noexcept
         {
-            SetRotation(Quaternion(Rotation));
+            SetRotation(Quaternion(rotation));
         }
 
         /// <summary>
         /// Accumulate rotation of transform
         /// </summary>
         void AppendRotationEuler(
-            const Vector3& Rotation) noexcept
+            const Vector3& rotation) noexcept
         {
-            SetRotation(GetRotation() * Quaternion(Rotation));
+            SetRotation(GetRotation() * Quaternion(rotation));
         }
 
     public:
@@ -130,21 +130,21 @@ namespace Ame::Math
         /// Get axis angle of transform
         /// </summary>
         [[nodiscard]] float GetAxisAngle(
-            Vector3& Axis) const noexcept
+            Vector3& axis) const noexcept
         {
-            float Angle;
-            glm::axisAngle(Matrix4x4(GetBasisNormalized()), Axis, Angle);
-            return Angle;
+            float angle;
+            glm::axisAngle(Matrix4x4(GetBasisNormalized()), axis, angle);
+            return angle;
         }
 
         /// <summary>
         /// Set axis angle of transform
         /// </summary>
         void SetAxisAngle(
-            const Vector3& Axis,
-            float          Angle) noexcept
+            const Vector3& axis,
+            float          angle) noexcept
         {
-            SetRotation(glm::angleAxis(Angle, Axis));
+            SetRotation(glm::angleAxis(angle, axis));
         }
 
     public:
@@ -177,49 +177,49 @@ namespace Ame::Math
         /// Apply pitch rotation to transform
         /// </summary>
         void AppendPitch(
-            float Delta)
+            float delta)
         {
-            auto& Right = GetBasis()[0];
-            auto& Up    = GetBasis()[1];
-            auto& Look  = GetBasis()[2];
+            auto& right = GetBasis()[0];
+            auto& up    = GetBasis()[1];
+            auto& look  = GetBasis()[2];
 
-            Matrix4x4 Rotation = glm::rotate(Delta, Right);
+            Matrix4x4 rotation = glm::rotate(delta, right);
 
-            Look = glm::normalize(Rotation * Vector4(Look, 0.f));
-            Up   = glm::normalize(Rotation * Vector4(Up, 0.f));
+            look = glm::normalize(rotation * Vector4(look, 0.f));
+            up   = glm::normalize(rotation * Vector4(up, 0.f));
         }
 
         /// <summary>
         /// Apply yaw rotation to transform
         /// </summary>
         void AppendYaw(
-            float Delta)
+            float delta)
         {
-            auto& Right = GetBasis()[0];
-            auto& Up    = GetBasis()[1];
-            auto& Look  = GetBasis()[2];
+            auto& right = GetBasis()[0];
+            auto& up    = GetBasis()[1];
+            auto& look  = GetBasis()[2];
 
-            Matrix4x4 Rotation = glm::rotate(Delta, Vec::Up<Vector3>);
+            Matrix4x4 rotation = glm::rotate(delta, Vec::c_Up<Vector3>);
 
-            Right = glm::normalize(Rotation * Vector4(Right, 0.f));
-            Look  = glm::normalize(Rotation * Vector4(Look, 0.f));
-            Up    = glm::normalize(Rotation * Vector4(Up, 0.f));
+            right = glm::normalize(rotation * Vector4(right, 0.f));
+            look  = glm::normalize(rotation * Vector4(look, 0.f));
+            up    = glm::normalize(rotation * Vector4(up, 0.f));
         }
 
         /// <summary>
         /// Apply roll rotation to transform
         /// </summary>
         void AppendRoll(
-            float Delta)
+            float delta)
         {
-            auto& Right = GetBasis()[0];
-            auto& Up    = GetBasis()[1];
-            auto& Look  = GetBasis()[2];
+            auto& right = GetBasis()[0];
+            auto& up    = GetBasis()[1];
+            auto& look  = GetBasis()[2];
 
-            Matrix4x4 Rotation = glm::rotate(Delta, Look);
+            Matrix4x4 rotation = glm::rotate(delta, look);
 
-            Right = glm::normalize(Rotation * Vector4(Right, 0.f));
-            Up    = glm::normalize(Rotation * Vector4(Up, 0.f));
+            right = glm::normalize(rotation * Vector4(right, 0.f));
+            up    = glm::normalize(rotation * Vector4(up, 0.f));
         }
 
     public:
@@ -239,20 +239,20 @@ namespace Ame::Math
         /// Set scale of transform
         /// </summary>
         void SetScale(
-            const Vector3& Scale) noexcept
+            const Vector3& scale) noexcept
         {
-            m_Basis[0] = glm::normalize(m_Basis[0]) * Scale.x;
-            m_Basis[1] = glm::normalize(m_Basis[1]) * Scale.y;
-            m_Basis[2] = glm::normalize(m_Basis[2]) * Scale.z;
+            m_Basis[0] = glm::normalize(m_Basis[0]) * scale.x;
+            m_Basis[1] = glm::normalize(m_Basis[1]) * scale.y;
+            m_Basis[2] = glm::normalize(m_Basis[2]) * scale.z;
         }
 
         /// <summary>
         /// Accumulate scale of transform
         /// </summary>
         void AppendScale(
-            const Vector3& Scale) noexcept
+            const Vector3& scale) noexcept
         {
-            SetScale(GetScale() * Scale);
+            SetScale(GetScale() * scale);
         }
 
     public:
@@ -276,9 +276,9 @@ namespace Ame::Math
         /// Set position of transform
         /// </summary>
         void SetPosition(
-            const Vector3& Position) noexcept
+            const Vector3& position) noexcept
         {
-            m_Position = Position;
+            m_Position = position;
         }
 
     public:
@@ -309,16 +309,16 @@ namespace Ame::Math
 
     public:
         [[nodiscard]] TransformMatrix operator*(
-            const TransformMatrix& Other) const noexcept
+            const TransformMatrix& other) const noexcept
         {
-            return TransformMatrix(GetBasis() * Other.GetBasis(), GetPosition() + Other.GetPosition());
+            return TransformMatrix(GetBasis() * other.GetBasis(), GetPosition() + other.GetPosition());
         }
 
         TransformMatrix& operator*=(
-            const TransformMatrix& Other) noexcept
+            const TransformMatrix& other) noexcept
         {
-            m_Basis *= Other.m_Basis;
-            m_Position += Other.m_Position;
+            m_Basis *= other.m_Basis;
+            m_Position += other.m_Position;
             return *this;
         }
 
@@ -326,11 +326,11 @@ namespace Ame::Math
         friend class boost::serialization::access;
 
         template<typename ArchiveTy>
-        void serialize(
-            ArchiveTy& Archive,
+        void Serialize(
+            ArchiveTy& archive,
             uint32_t)
         {
-            Archive & m_Basis & m_Position;
+            archive & m_Basis & m_Position;
         }
 
     private:

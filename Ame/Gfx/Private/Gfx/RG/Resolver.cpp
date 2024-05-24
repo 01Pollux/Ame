@@ -71,7 +71,7 @@ namespace Ame::Gfx::RG
     void Resolver::WriteResourceEmpty(
         ResourceId Id)
     {
-        AME_LOG_ASSERT(Log::Renderer(), m_Storage.ContainsResource(Id), "Resource '{}' doesn't exists", Id.GetName());
+        AME_LOG_ASSERT(Log::Gfx(), m_Storage.ContainsResource(Id), "Resource '{}' doesn't exists", Id.GetName());
         m_ResourcesWritten.emplace(Id);
     }
 
@@ -226,7 +226,7 @@ namespace Ame::Gfx::RG
             ViewDesc.Type = Rhi::TextureViewType::DepthStencil2D;
             break;
         case Rhi::TextureType::TEXTURE_3D:
-            Log::Renderer().Warning("DepthStencilViewDesc doesn't support 3D textures");
+            Log::Gfx().Warning("DepthStencilViewDesc doesn't support 3D textures");
             return;
         }
 
@@ -257,7 +257,7 @@ namespace Ame::Gfx::RG
             ViewDesc.Type = Rhi::TextureViewType::DepthStencil2D;
             break;
         case Rhi::TextureType::TEXTURE_3D:
-            Log::Renderer().Warning("DepthStencilViewDesc doesn't support 3D textures");
+            Log::Gfx().Warning("DepthStencilViewDesc doesn't support 3D textures");
             return;
         }
 
@@ -271,7 +271,7 @@ namespace Ame::Gfx::RG
     void Resolver::ReadResourceEmpty(
         const ResourceId& Id)
     {
-        AME_LOG_ASSERT(Log::Renderer(), m_Storage.ContainsResource(Id), "Resource '{}' doesn't exists", Id.GetName());
+        AME_LOG_ASSERT(Log::Gfx(), m_Storage.ContainsResource(Id), "Resource '{}' doesn't exists", Id.GetName());
         m_ResourcesRead.emplace(Id);
     }
 

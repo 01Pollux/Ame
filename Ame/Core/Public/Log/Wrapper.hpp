@@ -11,7 +11,7 @@ namespace Ame::Log
     {
         return Logger::GetLogger(Names::Engine);
     }
-    
+
     /// <summary>
     /// Get the ecs's logger
     /// </summary>
@@ -61,10 +61,10 @@ namespace Ame::Log
     }
 
     /// <summary>
-    /// Get the renderer's logger
+    /// Get the gfx's logger
     /// </summary>
-    [[nodiscard]] static Logger& Renderer()
+    [[nodiscard]] static Logger& Gfx()
     {
-        return Logger::GetLogger(Names::Renderer);
+        return Logger::GetLogger(Names::Gfx);
     }
 } // namespace Ame::Log

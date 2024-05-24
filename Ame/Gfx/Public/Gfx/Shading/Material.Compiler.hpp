@@ -18,7 +18,7 @@ namespace Ame::Gfx::Shading
         /// </summary>
         [[nodiscard]] static Co::result<Ptr<Material>> Compile(
             Rhi::Device&              RhiDevice,
-            Gfx::Cache::ShaderCache&  ShaderCache,
+            Cache::ShaderCache&       ShaderCache,
             MaterialPipelineState     PipelineState,
             const PropertyDescriptor& Descriptor);
     };
