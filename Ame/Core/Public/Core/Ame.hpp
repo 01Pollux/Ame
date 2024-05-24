@@ -22,30 +22,6 @@ namespace Ame
     {
         using ArgsTy::operator()...;
     };
-
-    struct NoBaseImpl
-    {
-    };
-
-    class NonCopyable : NoBaseImpl
-    {
-    public:
-        NonCopyable()  = default;
-        ~NonCopyable() = default;
-
-        NonCopyable(const NonCopyable&)            = delete;
-        NonCopyable& operator=(const NonCopyable&) = delete;
-    };
-
-    class NonMovable : NoBaseImpl
-    {
-    public:
-        NonMovable()  = default;
-        ~NonMovable() = default;
-
-        NonMovable(NonMovable&&)            = delete;
-        NonMovable& operator=(NonMovable&&) = delete;
-    };
 } // namespace Ame
 
 template<typename ToTy, typename FromTy>

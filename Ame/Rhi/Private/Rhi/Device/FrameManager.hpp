@@ -9,8 +9,19 @@ namespace Ame::Rhi
 {
     class NRIBridge;
 
-    class FrameManager : public NonCopyable, public NonMovable
+    class FrameManager
     {
+    public:
+        FrameManager() = default;
+
+        FrameManager(const FrameManager&)            = delete;
+        FrameManager& operator=(const FrameManager&) = delete;
+
+        FrameManager(FrameManager&&)            = delete;
+        FrameManager& operator=(FrameManager&&) = delete;
+
+        ~FrameManager() = default;
+
     public:
         void Initialize(
             DeviceImpl&                     RhiDevice,
@@ -100,10 +111,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the current frame.
         /// </summary>
-        [[nodiscard]] auto& GetCurrentFrame() const noexcept
-        {
-            return m_FrameWrapper.Frames[GetFrameIndex()];
-        }
+        [[nodiscard]] Rhi::Frame& GetCurrentFrame() const noexcept;
 
     private:
         FrameWrapper m_FrameWrapper;

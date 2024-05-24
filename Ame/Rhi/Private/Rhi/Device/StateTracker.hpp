@@ -23,7 +23,7 @@ namespace Ame::Rhi
                 return (MipLevel << 16) | ArraySlice;
             }
 
-            constexpr SubresourceIndex(
+            constexpr explicit SubresourceIndex(
                 uint32_t Index) :
                 MipLevel(Index >> 16),
                 ArraySlice(Index & 0xFFFF)

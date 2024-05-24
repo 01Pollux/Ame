@@ -27,7 +27,7 @@ namespace Ame::Asset
 
     public:
         IAssetPackage(
-            Storage& Storage);
+            Storage& AssetStorage);
 
         IAssetPackage(const IAssetPackage&) = delete;
         IAssetPackage(IAssetPackage&&)      = delete;

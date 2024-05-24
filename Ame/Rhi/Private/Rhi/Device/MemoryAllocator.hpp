@@ -100,7 +100,7 @@ namespace Ame::Rhi
             }
         };
 
-        struct Block : public NonCopyable
+        struct Block
         {
             DeviceImpl*      RhiDevice = nullptr;
             nri::Memory*     Memory    = nullptr;
@@ -112,7 +112,10 @@ namespace Ame::Rhi
                 size_t          Size,
                 nri::MemoryType Type);
 
+            Block(const Block&) = delete;
             Block(Block&& Other) noexcept;
+
+            Block& operator=(const Block&) = delete;
             Block& operator=(Block&& Other) noexcept;
 
             ~Block();

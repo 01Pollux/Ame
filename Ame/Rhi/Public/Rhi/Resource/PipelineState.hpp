@@ -4,14 +4,19 @@
 
 namespace Ame::Rhi
 {
-    class PipelineState final : public NonCopyable,
-                                public NonMovable
+    class PipelineState final
     {
     public:
         PipelineState(
             Device&             RhiDevice,
             Ptr<PipelineLayout> Layout,
             nri::Pipeline&      Pipeline);
+
+        PipelineState(const PipelineState&) = delete;
+        PipelineState(PipelineState&&)      = delete;
+
+        PipelineState& operator=(const PipelineState&) = delete;
+        PipelineState& operator=(PipelineState&&)      = delete;
 
         ~PipelineState();
 

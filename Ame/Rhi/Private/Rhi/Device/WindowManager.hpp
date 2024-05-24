@@ -9,12 +9,18 @@
 
 namespace Ame::Rhi
 {
-    class WindowManager : public NonCopyable, public NonMovable
+    class WindowManager
     {
     public:
         WindowManager(
             DeviceImpl&             RhiDevice,
             const DeviceCreateDesc& Desc);
+
+        WindowManager(const WindowManager&) = delete;
+        WindowManager(WindowManager&&)      = delete;
+
+        WindowManager& operator=(const WindowManager&) = delete;
+        WindowManager& operator=(WindowManager&&)      = delete;
 
         ~WindowManager();
 

@@ -16,7 +16,7 @@ namespace Ame::Gfx::Shading
         static constexpr uint32_t MaterialSetCount = InitialSetCount + 1;
 
     public:
-        MaterialLayoutDesc(
+        explicit MaterialLayoutDesc(
             const PropertyDescriptor& Descriptor) :
             m_FrameData(CD::FrameRangeDesc<>),
             m_EntityData(CD::EntityRangeDesc<>),

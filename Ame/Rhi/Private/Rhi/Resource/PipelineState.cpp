@@ -127,7 +127,7 @@ namespace Ame::Rhi
 
     struct NriOutputMergerDesc
     {
-        NriOutputMergerDesc(
+        explicit NriOutputMergerDesc(
             const OutputMergerDesc& Desc) :
             m_Desc(Desc)
         {

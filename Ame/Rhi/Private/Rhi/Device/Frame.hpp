@@ -9,9 +9,19 @@ namespace Ame::Rhi
 {
     class MemoryAllocator;
 
-    class Frame : public NonCopyable,
-                  public NonMovable
+    class Frame
     {
+    public:
+        Frame() = default;
+
+        Frame(const Frame&) = delete;
+        Frame(Frame&&)      = delete;
+
+        Frame& operator=(const Frame&) = delete;
+        Frame& operator=(Frame&&)      = delete;
+
+        ~Frame() = default;
+
     public:
         /// <summary>
         /// Initializes the frame resource.

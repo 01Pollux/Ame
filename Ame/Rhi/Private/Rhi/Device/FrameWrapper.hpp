@@ -7,8 +7,7 @@
 
 namespace Ame::Rhi
 {
-    struct FrameWrapper : public NonCopyable,
-                          public NonMovable
+    struct FrameWrapper
     {
         nri::Fence*   Fence = nullptr;
         UPtr<Frame[]> Frames;

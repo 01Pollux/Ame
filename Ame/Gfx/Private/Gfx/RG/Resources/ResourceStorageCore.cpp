@@ -52,9 +52,9 @@ namespace Ame::Gfx::RG
 
         //
 
-        auto& RenderInstanceTable = m_Resources[Names::RenderInstancesTable];
         if (m_CoreResources->GetEntitiesCount())
         {
+            auto& RenderInstanceTable    = m_Resources[Names::RenderInstancesTable];
             auto& CurRenderInstanceTable = m_CoreResources->GetInstancesTableBuffer();
             CurRenderInstanceTable.Flush();
             RenderInstanceTable.Import(CurRenderInstanceTable.GetBuffer());

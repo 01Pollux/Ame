@@ -15,7 +15,6 @@ namespace Ame::Gfx::RG
             auto& TransformBuffer = m_CoreResources.get().GetTransformBuffer();
             for (size_t i : Iter)
             {
-                auto&       Transform = Transforms[i];
                 Ecs::Entity Entity(Iter.entity(i));
 
                 auto& InstanceInfo = Entity.GetComponentMut<RenderInstance>();
@@ -25,7 +24,7 @@ namespace Ame::Gfx::RG
                     {
                         InstanceInfo.TransformIndex = TransformBuffer.Rent();
                     }
-                    auto Mat = Transform.ToMat4x4Transposed();
+                    auto Mat = Transforms[i].ToMat4x4Transposed();
                     TransformBuffer.Write(InstanceInfo.TransformIndex, glm::value_ptr(Mat), sizeof(Mat));
                 }
                 else

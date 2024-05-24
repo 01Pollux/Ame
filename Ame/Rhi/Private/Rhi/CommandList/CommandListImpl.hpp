@@ -7,9 +7,19 @@
 
 namespace Ame::Rhi
 {
-    class CommandListImpl : public NonCopyable,
-                            public NonMovable
+    class CommandListImpl
     {
+    public:
+        CommandListImpl() = default;
+
+        CommandListImpl(const CommandListImpl&)            = delete;
+        CommandListImpl& operator=(const CommandListImpl&) = delete;
+
+        CommandListImpl(CommandListImpl&&)            = delete;
+        CommandListImpl& operator=(CommandListImpl&&) = delete;
+
+        ~CommandListImpl() = default;
+
     public:
         /// <summary>
         /// Initialize command list.

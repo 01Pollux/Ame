@@ -74,6 +74,11 @@ namespace Ame::Rhi
         GetCurrentFrame().DeferRelease(Pipeline);
     }
 
+    Rhi::Frame& FrameManager::GetCurrentFrame() const noexcept
+    {
+        return m_FrameWrapper.Frames[GetFrameIndex()];
+    }
+
     //
 
     uint64_t FrameManager::GetFrameCount() const
