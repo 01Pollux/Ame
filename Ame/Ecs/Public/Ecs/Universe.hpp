@@ -20,14 +20,18 @@ namespace Ame::Ecs
 
     public:
         Universe(
-            EngineFrame& Frame,
-            FrameTimer&  Timer);
+            EngineFrame& engineFrame,
+            FrameTimer&  frameTimer);
 
-        Universe(const Universe&) = delete;
-        Universe(Universe&& Other);
+        Universe(
+            const Universe&) = delete;
+        Universe(
+            Universe&& other);
 
-        Universe& operator=(const Universe&) = delete;
-        Universe& operator=(Universe&& Other);
+        Universe& operator=(
+            const Universe&) = delete;
+        Universe& operator=(
+            Universe&& other);
 
         ~Universe();
 
@@ -36,25 +40,25 @@ namespace Ame::Ecs
         /// Add a world to the universe.
         /// </summary>
         World& CreateWorld(
-            const String& Name);
+            const String& name);
 
         /// <summary>
         /// Remove a world from the universe.
         /// </summary>
         void RemoveWorld(
-            const String& Name);
+            const String& name);
 
         /// <summary>
         /// Check if the universe has a world.
         /// </summary>
         bool HasWorld(
-            const String& Name);
+            const String& name);
 
         /// <summary>
         /// Get the world by name.
         /// </summary>
         [[nodiscard]] World& GetWorld(
-            const String& Name);
+            const String& name);
 
     public:
         /// <summary>
@@ -62,7 +66,7 @@ namespace Ame::Ecs
         /// If the world does not exist, it will be set to nullptr.
         /// </summary>
         void SetActiveWorld(
-            World* EcsWorld);
+            World* world);
 
         /// <summary>
         /// Check if the universe has an active world.
@@ -89,13 +93,13 @@ namespace Ame::Ecs
         /// Progress current active worlds.
         /// </summary>
         void ProgressActiveWorld(
-            double DeltaTime);
+            double deltaTime);
 
         /// <summary>
         /// Change the world.
         /// </summary>
         void InvokeChangeWorld(
-            World* NewWorld);
+            World* newWorld);
 
     private:
         Signals::OnUpdate::Handle m_OnUpdate;

@@ -7,12 +7,12 @@
 namespace Ame::Ecs::Module
 {
     StandardModule::StandardModule(
-        flecs::world& FlecsWorld)
+        flecs::world& flecsWorld)
     {
-        FlecsWorld.module<StandardModule>();
+        flecsWorld.module<StandardModule>();
 
-        FlecsWorld.import <Module::MathModule>();
-        FlecsWorld.import <Module::ViewportModule>();
-        FlecsWorld.import <Module::RenderableModule>();
+        flecsWorld.import <Module::MathModule>();
+        flecsWorld.import <Module::ViewportModule>();
+        flecsWorld.import <Module::RenderableModule>();
     }
 } // namespace Ame::Ecs::Module

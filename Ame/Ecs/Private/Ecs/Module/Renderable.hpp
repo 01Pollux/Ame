@@ -10,6 +10,6 @@ namespace Ame::Ecs::Module
     {
     public:
         RenderableModule(
-            flecs::world& FlecsWorld);
+            flecs::world& flecsWorld);
     };
 } // namespace Ame::Ecs::Module

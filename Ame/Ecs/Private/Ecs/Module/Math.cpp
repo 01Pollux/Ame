@@ -5,10 +5,10 @@
 namespace Ame::Ecs::Module
 {
     MathModule::MathModule(
-        flecs::world& FlecsWorld)
+        flecs::world& flecsWorld)
     {
-        FlecsWorld.module<MathModule>();
+        flecsWorld.module<MathModule>();
 
-        FlecsWorld.component<Component::Transform>();
+        flecsWorld.component<Component::Transform>();
     }
 } // namespace Ame::Ecs::Module

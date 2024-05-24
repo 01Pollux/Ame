@@ -13,26 +13,28 @@ namespace Ame::Ecs
     public:
         Unique() = default;
         Unique(
-            const Ty& Entity) :
-            m_Entity(Entity)
+            const Ty& entity) :
+            m_Entity(entity)
         {
         }
 
-        Unique(const Unique&) = delete;
         Unique(
-            Unique&& Other) noexcept :
-            m_Entity(std::exchange(Other.m_Entity, Ty{}))
+            const Unique&) = delete;
+        Unique(
+            Unique&& other) noexcept :
+            m_Entity(std::exchange(other.m_Entity, Ty{}))
         {
         }
 
-        Unique& operator=(const Unique&) = delete;
         Unique& operator=(
-            Unique&& Other) noexcept
+            const Unique&) = delete;
+        Unique& operator=(
+            Unique&& other) noexcept
         {
-            if (this != std::addressof(Other))
+            if (this != std::addressof(other))
             {
                 Reset();
-                m_Entity = std::exchange(Other.m_Entity, Ty{});
+                m_Entity = std::exchange(other.m_Entity, Ty{});
             }
 
             return *this;

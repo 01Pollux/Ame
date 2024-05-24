@@ -8,23 +8,23 @@
 namespace Ame::Ecs::Module
 {
     Renderable2DModule::Renderable2DModule(
-        flecs::world& FlecsWorld)
+        flecs::world& flecsWorld)
     {
-        FlecsWorld.module<Renderable2DModule>();
+        flecsWorld.module<Renderable2DModule>();
 
-        FlecsWorld.component<Component::Sprite>()
+        flecsWorld.component<Component::Sprite>()
             .on_set(
-                [](Ecs::Entity Entity, Component::Sprite& Sprite)
+                [](Ecs::Entity entity, Component::Sprite& sprite)
                 {
-                    auto& Renderable = Entity.GetComponentMut<Component::BaseRenderable>();
+                    auto& renderable = entity.GetComponentMut<Component::BaseRenderable>();
 
-                    Renderable.Vertex = Component::BaseRenderable::BufferView::Local(Sprite.Vertices.data(), Sprite.Vertices.size(), sizeof(Sprite.Vertices[0]));
-                    Renderable.Index  = Component::BaseRenderable::BufferView::Local(Sprite.Indices.data(), Sprite.Indices.size(), sizeof(Sprite.Indices[0]));
+                    renderable.Vertex = Component::BaseRenderable::BufferView::Local(sprite.Vertices.data(), sprite.Vertices.size(), sizeof(sprite.Vertices[0]));
+                    renderable.Index  = Component::BaseRenderable::BufferView::Local(sprite.Indices.data(), sprite.Indices.size(), sizeof(sprite.Indices[0]));
 
-                    Renderable.Material   = Sprite.Material;
-                    Renderable.CameraMask = Sprite.CameraMask;
+                    renderable.Material   = sprite.Material;
+                    renderable.CameraMask = sprite.CameraMask;
 
-                    Entity.MarkModified<Component::BaseRenderable>();
+                    entity.MarkModified<Component::BaseRenderable>();
                 });
     }
 } // namespace Ame::Ecs::Module

@@ -13,43 +13,49 @@ namespace Ame::Ecs
 
         Entity() = default;
         Entity(
-            flecs::entity FlecsEntity);
+            flecs::entity flecsEntity);
+
+    public:
+        operator bool() const;
 
         /// <summary>
         /// Release the entity.
         /// </summary>
-        void Reset();
+        void Reset(
+            bool withChildren = false);
 
-    public:
-        operator bool() const;
+        /// <summary>
+        /// Release all children of the entity.
+        /// </summary>
+        void RemoveAllChildren();
 
     public:
         /// <summary>
         /// Get the children of the entity.
         /// </summary>
         [[nodiscard]] std::vector<Entity> GetChildren(
-            bool AllowDisabled = true) const;
+            bool allowDisabled = true) const;
 
     public:
         /// <summary>
         /// Get the parent of the entity.
         /// </summary>
         void SetParent(
-            const Entity& Parent = Entity::Null);
+            const Entity& parent = Entity::Null);
 
     public:
         template<typename Ty, typename... ArgsTy>
         void AddComponent(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
-            m_Entity.emplace<Ty>(std::forward<ArgsTy>(Args)...);
+            m_Entity.emplace<Ty>(std::forward<ArgsTy>(args)...);
         }
 
         template<typename Ty>
         void AddComponent(
-            Ty&& Data)
+            Ty&& data)
         {
-            m_Entity.emplace<Ty>(std::forward<Ty>(Data));
+            m_Entity.emplace<Ty>(std::forward<Ty>(data));
         }
 
         template<typename Ty>

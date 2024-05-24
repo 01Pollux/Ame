@@ -3,31 +3,31 @@
 namespace Ame::EcsUtil
 {
     String GetUniqueEntityName(
-        const flecs::world&  FlecsWorld,
-        const char*          Name,
-        const flecs::entity& FlecsParent)
+        const flecs::world&  world,
+        const char*          name,
+        const flecs::entity& parent)
     {
-        bool IsValidName = Name && *Name && Name[0] != '\0';
+        bool isValidName = name && *name && name[0] != '\0';
 
-        String NewName{ IsValidName ? Name : "Entity" };
-        String NewNameTmp = NewName;
+        String newName{ isValidName ? name : "Entity" };
+        String newNameTmp = newName;
 
         size_t Idx = 0;
-        if (FlecsParent)
+        if (parent)
         {
-            while (FlecsParent.lookup(NewName.c_str()))
+            while (parent.lookup(newName.c_str()))
             {
-                NewName = std::format("{}_{}", NewNameTmp, ++Idx);
+                newName = std::format("{}_{}", newNameTmp, ++Idx);
             }
         }
         else
         {
-            while (FlecsWorld.lookup(NewName.c_str()))
+            while (world.lookup(newName.c_str()))
             {
-                NewName = std::format("{}_{}", NewNameTmp, ++Idx);
+                newName = std::format("{}_{}", newNameTmp, ++Idx);
             }
         }
 
-        return NewName;
+        return newName;
     }
 } // namespace Ame::EcsUtil

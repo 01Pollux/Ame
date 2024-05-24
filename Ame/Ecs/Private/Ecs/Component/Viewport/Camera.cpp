@@ -5,10 +5,10 @@
 namespace Ame::Ecs::Component
 {
     Camera::Camera(
-        CameraType Type) :
-        m_Type(Type)
+        CameraType type) :
+        m_Type(type)
     {
-        if (Type == CameraType::Orthographic)
+        if (type == CameraType::Orthographic)
         {
             m_Viewport.FieldOfView = 90.0f;
             m_Viewport.NearPlane   = -1.f;
@@ -19,16 +19,16 @@ namespace Ame::Ecs::Component
     //
 
     void Camera::SetViewport(
-        const Viewport& Viewport)
+        const Viewport& viewport)
     {
-        m_Viewport = Viewport;
-		m_ProjectionMatrixCache.reset();
+        m_Viewport = viewport;
+        m_ProjectionMatrixCache.reset();
     }
 
     void Camera::SetType(
-        CameraType Type)
+        CameraType type)
     {
-        m_Type = Type;
+        m_Type = type;
         m_ProjectionMatrixCache.reset();
     }
 
@@ -50,9 +50,9 @@ namespace Ame::Ecs::Component
     }
 
     Math::Matrix4x4 Camera::Viewport::ProjectionMatrix(
-        CameraType Type) const
+        CameraType type) const
     {
-        switch (Type)
+        switch (type)
         {
         case CameraType::Perspective:
         {
@@ -65,20 +65,20 @@ namespace Ame::Ecs::Component
         }
         case CameraType::Orthographic:
         {
-            float XAxisMultiplier = 1.f;
-            float YAxisMultiplier = 1.f / AspectRatio();
+            float xAxisMultiplier = 1.f;
+            float yAxisMultiplier = 1.f / AspectRatio();
 
             if (!MaintainXFov)
             {
-                std::swap(XAxisMultiplier, YAxisMultiplier);
+                std::swap(xAxisMultiplier, yAxisMultiplier);
             }
 
-            float HalfSize = OrthographicSize / 2.f;
+            float halfSize = OrthographicSize / 2.f;
             return glm::ortho(
-                -HalfSize * XAxisMultiplier,
-                HalfSize * XAxisMultiplier,
-                -HalfSize * YAxisMultiplier,
-                HalfSize * YAxisMultiplier,
+                -halfSize * xAxisMultiplier,
+                halfSize * xAxisMultiplier,
+                -halfSize * yAxisMultiplier,
+                halfSize * yAxisMultiplier,
                 NearPlane,
                 FarPlane);
         }

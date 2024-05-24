@@ -6,33 +6,34 @@
 namespace Ame::Ecs
 {
     Universe::Universe(
-        EngineFrame& Frame,
-        FrameTimer&  Timer)
+        EngineFrame& engineFrame,
+        FrameTimer&  frameTimer)
     {
         m_OnUpdate = {
-            Frame.OnUpdate()
+            engineFrame.OnUpdate()
                 .ObjectSignal(),
-            [this, &Timer]
-            { ProgressActiveWorld(Timer.GetDeltaTime()); }
+            [this, &frameTimer]
+            { ProgressActiveWorld(frameTimer.GetDeltaTime()); }
         };
     }
 
-    Universe::Universe(Universe&& Other) :
-        m_OnUpdate(std::move(Other.m_OnUpdate)),
-        m_Worlds(std::move(Other.m_Worlds)),
-        m_ActiveWorld(std::exchange(Other.m_ActiveWorld, nullptr))
+    Universe::Universe(
+        Universe&& other) :
+        m_OnUpdate(std::move(other.m_OnUpdate)),
+        m_Worlds(std::move(other.m_Worlds)),
+        m_ActiveWorld(std::exchange(other.m_ActiveWorld, nullptr))
     {
     }
 
     Universe& Universe::operator=(
-        Universe&& Other)
+        Universe&& other)
     {
-        if (this != &Other)
+        if (this != &other)
         {
             InvokeChangeWorld(nullptr);
-            m_OnUpdate    = std::move(Other.m_OnUpdate);
-            m_Worlds      = std::move(Other.m_Worlds);
-            m_ActiveWorld = std::exchange(Other.m_ActiveWorld, nullptr);
+            m_OnUpdate    = std::move(other.m_OnUpdate);
+            m_Worlds      = std::move(other.m_Worlds);
+            m_ActiveWorld = std::exchange(other.m_ActiveWorld, nullptr);
         }
         return *this;
     }
@@ -45,65 +46,65 @@ namespace Ame::Ecs
     //
 
     World& Universe::CreateWorld(
-        const String& Name)
+        const String& name)
     {
 #ifdef AME_DEBUG
-        if (m_Worlds.contains(Name))
+        if (m_Worlds.contains(name))
         {
             Log::Ecs().Error("Universe::CreateWorld: World already exists");
-            return m_Worlds.at(Name);
+            return m_Worlds.at(name);
         }
 #endif
-        return m_Worlds.emplace(Name, World{ Name }).first->second;
+        return m_Worlds.emplace(name, World{ name }).first->second;
     }
 
     void Universe::RemoveWorld(
-        const String& Name)
+        const String& name)
     {
-        auto Iter = m_Worlds.find(Name);
-        if (Iter != m_Worlds.end())
+        auto iter = m_Worlds.find(name);
+        if (iter != m_Worlds.end())
         {
-            if (&Iter->second == m_ActiveWorld)
+            if (&iter->second == m_ActiveWorld)
             {
                 m_ActiveWorld = nullptr;
             }
-            m_Worlds.erase(Iter);
+            m_Worlds.erase(iter);
         }
     }
 
     bool Universe::HasWorld(
-        const String& Name)
+        const String& name)
     {
-        return m_Worlds.contains(Name);
+        return m_Worlds.contains(name);
     }
 
     World& Universe::GetWorld(
-        const String& Name)
+        const String& name)
     {
-        return m_Worlds.at(Name);
+        return m_Worlds.at(name);
     }
 
     //
 
     void Universe::SetActiveWorld(
-        World* EcsWorld)
+        World* world)
     {
 #ifdef AME_DEBUG
-        if (EcsWorld)
+        if (world)
         {
-            for (auto& [Name, World] : m_Worlds)
+            for (auto& [name, curWorld] : m_Worlds)
             {
-                if (&World == EcsWorld)
+                if (&curWorld == world)
                 {
-                    InvokeChangeWorld(EcsWorld);
+                    InvokeChangeWorld(world);
                     return;
                 }
             }
-            EcsWorld = nullptr;
+            world = nullptr;
             Log::Ecs().Error("Universe::SetActiveWorld: World not found");
         }
 #endif
-        InvokeChangeWorld(EcsWorld);
+        InvokeChangeWorld(world);
     }
 
     bool Universe::HasActiveWorld() const
@@ -124,22 +125,22 @@ namespace Ame::Ecs
     //
 
     void Universe::ProgressActiveWorld(
-        double DeltaTime)
+        double deltaTime)
     {
         if (m_ActiveWorld)
         {
-            m_ActiveWorld->Progress(DeltaTime);
+            m_ActiveWorld->Progress(deltaTime);
         }
     }
 
     void Universe::InvokeChangeWorld(
-        World* NewWorld)
+        World* newWorld)
     {
-        if (m_ActiveWorld != NewWorld)
+        if (m_ActiveWorld != newWorld)
         {
             auto OldWorld = m_ActiveWorld;
-            m_ActiveWorld = NewWorld;
-            OnWorldChange().Broadcast(*this, { OldWorld, NewWorld });
+            m_ActiveWorld = newWorld;
+            OnWorldChange().Broadcast(*this, { OldWorld, newWorld });
         }
     }
 } // namespace Ame::Ecs

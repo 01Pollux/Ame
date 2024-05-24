@@ -66,7 +66,7 @@ namespace Ame::Ecs::Component
             /// Get the projection matrix of the viewport.
             /// </summary>
             [[nodiscard]] Math::Matrix4x4 ProjectionMatrix(
-                CameraType Type) const;
+                CameraType type) const;
         };
 
         Camera(
@@ -74,14 +74,14 @@ namespace Ame::Ecs::Component
 
     public:
         void SetViewport(
-			const Viewport& Viewport);
+            const Viewport& viewport);
 
         void SetType(
-			CameraType Type);
+            CameraType type);
 
-		[[nodiscard]] const Viewport& GetViewport() const;
+        [[nodiscard]] const Viewport& GetViewport() const;
 
-		[[nodiscard]] CameraType GetType() const;
+        [[nodiscard]] CameraType GetType() const;
 
         /// <summary>
         /// The culling mask of the camera.

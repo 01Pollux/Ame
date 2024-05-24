@@ -4,39 +4,61 @@
 namespace Ame::Ecs
 {
     Entity::Entity(
-        flecs::entity FlecsEntity) :
-        m_Entity(FlecsEntity)
+        flecs::entity flecsEntity) :
+        m_Entity(flecsEntity)
     {
     }
 
-    void Entity::Reset()
-    {
-        m_Entity.destruct();
-        m_Entity = {};
-    }
+    //
 
     Entity::operator bool() const
     {
         return m_Entity.is_alive();
     }
 
+    void Entity::Reset(
+        bool withChildren)
+    {
+        if (!withChildren)
+        {
+            // Move children to parent of parent.
+            // and rename them to avoid name conflicts.
+            auto OurParent = m_Entity.parent();
+            for (auto& Child : GetChildren())
+            {
+                Child.SetParent(OurParent);
+            }
+        }
+
+        m_Entity.destruct();
+        m_Entity = {};
+    }
+
+    void Entity::RemoveAllChildren()
+    {
+        for (auto& Child : GetChildren())
+        {
+            Child.Reset();
+        }
+    }
+
     //
 
     std::vector<Entity> Entity::GetChildren(
-        bool AllowDisabled) const
+        bool allowDisabled) const
     {
-        std::vector<Entity> Children;
-        if (!AllowDisabled)
+        std::vector<Entity> children;
+        if (!allowDisabled)
         {
             m_Entity.children(
-                [&Children](flecs::entity Child)
+                [&children](flecs::entity Child)
                 {
-                    Children.emplace_back(Child);
+                    children.emplace_back(Child);
                 });
         }
         else
         {
-            auto Filter =
+            auto filter =
                 m_Entity.world()
                     .filter_builder()
                     .term(flecs::ChildOf, m_Entity)
@@ -44,27 +66,27 @@ namespace Ame::Ecs
                     .optional()
                     .build();
 
-            Filter.iter(
-                [&Children](flecs::iter& It)
+            filter.iter(
+                [&children](flecs::iter& It)
                 {
-                    Children.reserve(Children.size() + It.count());
+                    children.reserve(children.size() + It.count());
                     for (auto i = 0; i < It.count(); i++)
                     {
-                        Children.emplace_back(It.entity(i));
+                        children.emplace_back(It.entity(i));
                     }
                 });
         }
-        return Children;
+        return children;
     }
 
     //
 
     void Entity::SetParent(
-        const Entity& Parent)
+        const Entity& parent)
     {
-        auto SafeName = EcsUtil::GetUniqueEntityName(m_Entity.world(), m_Entity.name(), Parent.GetFlecsEntity());
+        auto SafeName = EcsUtil::GetUniqueEntityName(m_Entity.world(), m_Entity.name(), parent.GetFlecsEntity());
         m_Entity.set_name(SafeName.c_str());
-        m_Entity.child_of(Parent.GetFlecsEntity());
+        m_Entity.child_of(parent.GetFlecsEntity());
     }
 
     //

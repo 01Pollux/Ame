@@ -5,12 +5,12 @@
 namespace Ame::Ecs::Module
 {
     RenderableModule::RenderableModule(
-        flecs::world& FlecsWorld)
+        flecs::world& flecsWorld)
     {
-        FlecsWorld.module<RenderableModule>();
+        flecsWorld.module<RenderableModule>();
 
-        FlecsWorld.component<Component::BaseRenderable>();
+        flecsWorld.component<Component::BaseRenderable>();
 
-        FlecsWorld.import <Renderable2DModule>();
+        flecsWorld.import <Renderable2DModule>();
     }
 } // namespace Ame::Ecs::Module

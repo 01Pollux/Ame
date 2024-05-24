@@ -25,4 +25,4 @@ namespace Ame::Signals::Data
     };
 } // namespace Ame::Signals::Data
 
-AME_SIGNAL_INSTANCE_DECL(Ame::Ecs::Universe, OnWorldChange, const Data::WorldChange& /*ChangeData*/);
+AME_SIGNAL_INSTANCE_DECL(Ame::Ecs::Universe, OnWorldChange, const Data::WorldChange& /*changeData*/);

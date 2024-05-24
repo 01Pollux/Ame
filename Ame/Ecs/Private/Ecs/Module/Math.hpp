@@ -8,6 +8,6 @@ namespace Ame::Ecs::Module
     {
     public:
         MathModule(
-            flecs::world& FlecsWorld);
+            flecs::world& flecsWorld);
     };
 } // namespace Ame::Ecs::Module

@@ -28,15 +28,15 @@ namespace Ame::Ecs::Component
             uint32_t Stride = 0;
 
             static BufferView Local(
-                void*  Data,
-                size_t Count,
-                size_t Stride);
+                void*  data,
+                size_t count,
+                size_t stride);
 
             static BufferView Shared(
-                nri::Buffer* Buffer,
-                size_t       Offset,
-                size_t       Count,
-                size_t       Stride);
+                nri::Buffer* buffer,
+                size_t       offset,
+                size_t       count,
+                size_t       stride);
 
             /// <summary>
             /// Get the offset of the buffer.

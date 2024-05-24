@@ -19,32 +19,33 @@ namespace Ame::Ecs
     };
 
     World::World(
-        const String& Name)
+        const String& name)
     {
         {
-            std::lock_guard Lock(g_FlecsMutex);
+            std::lock_guard initLock(g_FlecsMutex);
             m_World = std::make_unique<flecs::world>();
-            m_World->set(WorldName{ Name });
+            m_World->set(WorldName{ name });
         }
         RegisterModules();
     }
 
-    World::World(World&& Other) noexcept :
-        m_World(std::move(Other.m_World))
+    World::World(
+        World&& other) noexcept :
+        m_World(std::move(other.m_World))
     {
     }
 
     World& World::operator=(
-        World&& Other) noexcept
+        World&& other) noexcept
     {
-        if (this != &Other)
+        if (this != &other)
         {
             if (m_World)
             {
-                std::lock_guard Lock(g_FlecsMutex);
+                std::lock_guard initLock(g_FlecsMutex);
                 m_World.reset();
             }
-            m_World = std::move(Other.m_World);
+            m_World = std::move(other.m_World);
         }
         return *this;
     }
@@ -61,56 +62,33 @@ namespace Ame::Ecs
     //
 
     Entity World::CreateEntity(
-        StringView    Name,
-        const Entity& Parent)
+        StringView    name,
+        const Entity& parent)
     {
-        auto FlecsEntity = m_World->entity();
-        if (Parent)
+        auto entity = m_World->entity();
+        if (parent)
         {
-            FlecsEntity.child_of(Parent);
+            entity.child_of(parent);
         }
-        auto SafeName = GetUniqueEntityName(Name.data(), Parent);
-        FlecsEntity.set_name(SafeName.c_str());
-        return Entity(FlecsEntity);
-    }
-
-    void World::DestroyEntity(
-        const Entity& EcsEntity,
-        bool          WithChildren)
-    {
-        auto& FlecsEntity = EcsEntity.GetFlecsEntity();
-
-        Log::Ecs().Assert(FlecsEntity.is_valid(), "Entity is not valid.");
-        Log::Ecs().Assert(FlecsEntity.world() == *m_World, "Entity is not from this world.");
-
-        if (!WithChildren)
-        {
-            // Move children to parent of parent.
-            // and rename them to avoid name conflicts.
-            auto OurParent = FlecsEntity.parent();
-            for (auto& Child : EcsEntity.GetChildren())
-            {
-                Child.SetParent(OurParent);
-            }
-        }
-
-        FlecsEntity.destruct();
+        auto safeName = GetUniqueEntityName(name.data(), parent);
+        entity.set_name(safeName.c_str());
+        return Entity(entity);
     }
 
     //
 
     String World::GetUniqueEntityName(
-        const char*   Name,
-        const Entity& Parent) const
+        const char*   name,
+        const Entity& parent) const
     {
-        return EcsUtil::GetUniqueEntityName(*m_World, Name, Parent.GetFlecsEntity());
+        return EcsUtil::GetUniqueEntityName(*m_World, name, parent.GetFlecsEntity());
     }
 
     //
 
     void World::Progress(
-        double DeltaTime)
+        double deltaTime)
     {
-        m_World->progress(DeltaTime);
+        m_World->progress(deltaTime);
     }
 } // namespace Ame::Ecs

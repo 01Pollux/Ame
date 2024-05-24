@@ -14,13 +14,17 @@ namespace Ame::Ecs
     {
     public:
         World(
-            const String& Name);
+            const String& name);
 
-        World(const World&) = delete;
-        World(World&&) noexcept;
+        World(
+            const World&) = delete;
+        World(
+            World&&) noexcept;
 
-        World& operator=(const World&) = delete;
-        World& operator=(World&&) noexcept;
+        World& operator=(
+            const World&) = delete;
+        World& operator=(
+            World&&) noexcept;
 
         ~World();
 
@@ -30,23 +34,16 @@ namespace Ame::Ecs
         /// If the entity's name is already in use, Name will be modified to be unique using 'CreateUniqueEntityName'.
         /// </summary>
         Entity CreateEntity(
-            StringView    Name,
-            const Entity& Parent = Entity::Null);
-
-        /// <summary>
-        /// Destroy an entity in the world.
-        /// </summary>
-        void DestroyEntity(
-            const Entity& EcsEntity,
-            bool          WithChildren = true);
+            StringView    name,
+            const Entity& parent = Entity::Null);
 
     public:
         /// <summary>
         /// Get unique entity name that is not already in use.
         /// </summary>
         [[nodiscard]] String GetUniqueEntityName(
-            const char*   Name,
-            const Entity& Parent = Entity::Null) const;
+            const char*   name,
+            const Entity& parent = Entity::Null) const;
 
     public:
         /// <summary>
@@ -103,7 +100,7 @@ namespace Ame::Ecs
         /// Progress the world.
         /// </summary>
         void Progress(
-            double DeltaTime);
+            double deltaTime);
 
     private:
         /// <summary>
