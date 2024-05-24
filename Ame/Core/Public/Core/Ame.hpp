@@ -24,15 +24,6 @@ namespace Ame
     };
 } // namespace Ame
 
-template<typename ToTy, typename FromTy>
-[[nodiscard]] ToTy validate_cast(FromTy* From)
-{
-#ifdef AME_DEBUG
-    return dynamic_cast<ToTy>(From);
-#else
-    return static_cast<ToTy>(From);
-#endif
-}
 
 namespace Ame
 {
