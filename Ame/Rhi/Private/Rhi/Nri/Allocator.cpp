@@ -1,8 +1,8 @@
-#include "Allocator.hpp"
+#include <Rhi/Nri/Allocator.hpp>
 
 namespace Ame::Rhi
 {
-    void* Ame::Rhi::NriAllocatorCallbackInterface::Allocate(
+    void* NriAllocatorCallbackInterface::Allocate(
         void*,
         size_t Size,
         size_t Alignment)

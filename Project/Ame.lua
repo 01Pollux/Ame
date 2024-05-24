@@ -3,7 +3,7 @@ includes("Utils.lua")
 
 set_languages("cxxlatest")
 
-local clang_format = file_utils:path_from_root("/.clang-format")
+local clang_format = file_utils:path_from_root(".clang-format")
 add_extrafiles(clang_format)
 
 includes("Core.lua")

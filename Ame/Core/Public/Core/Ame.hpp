@@ -24,7 +24,6 @@ namespace Ame
     };
 } // namespace Ame
 
-
 namespace Ame
 {
     template<typename Ty>
@@ -59,7 +58,7 @@ namespace Ame::DbgImpl
 {
 #ifdef _MSC_VER
 
-    [[noreturn]] inline void debug_break()
+    inline void debug_break()
     {
         __debugbreak();
     }

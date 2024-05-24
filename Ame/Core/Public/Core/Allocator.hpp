@@ -1,7 +1,5 @@
 #pragma once
 
-#include <mimalloc.h>
-
 /* ----------------------------------------------------------------------------
 Copyright (c) 2018-2020 Microsoft Research, Daan Leijen
 This is free software; you can redistribute it and/or modify it under the
@@ -32,94 +30,34 @@ terms of the MIT license. A copy of the license can be found in the file
 #define mi_decl_new_nothrow(n) mi_decl_nodiscard mi_decl_restrict
 #endif
 
-inline void operator delete(void* p) noexcept
-{
-    mi_free(p);
-};
-inline void operator delete[](void* p) noexcept
-{
-    mi_free(p);
-};
+void operator delete(void* p) noexcept;
+void operator delete[](void* p) noexcept;
 
-inline void operator delete(void* p, const std::nothrow_t&) noexcept
-{
-    mi_free(p);
-}
-inline void operator delete[](void* p, const std::nothrow_t&) noexcept
-{
-    mi_free(p);
-}
+void operator delete(void* p, const std::nothrow_t&) noexcept;
+void operator delete[](void* p, const std::nothrow_t&) noexcept;
 
-mi_decl_new(n) inline void* operator new(std::size_t n) noexcept(false)
-{
-    return mi_new(n);
-}
-mi_decl_new(n) inline void* operator new[](std::size_t n) noexcept(false)
-{
-    return mi_new(n);
-}
+mi_decl_new(n) void* operator new(std::size_t n) noexcept(false);
+mi_decl_new(n) void* operator new[](std::size_t n) noexcept(false);
 
-mi_decl_new_nothrow(n) inline void* operator new(std::size_t n, const std::nothrow_t&) noexcept
-{
-    return mi_new_nothrow(n);
-}
-mi_decl_new_nothrow(n) inline void* operator new[](std::size_t n, const std::nothrow_t&) noexcept
-{
-    return mi_new_nothrow(n);
-}
+mi_decl_new_nothrow(n) void* operator new(std::size_t n, const std::nothrow_t&) noexcept;
+mi_decl_new_nothrow(n) void* operator new[](std::size_t n, const std::nothrow_t&) noexcept;
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1916)
-inline void operator delete(void* p, std::size_t n) noexcept
-{
-    mi_free_size(p, n);
-};
-inline void operator delete[](void* p, std::size_t n) noexcept
-{
-    mi_free_size(p, n);
-};
+void operator delete(void* p, std::size_t n) noexcept;
+void operator delete[](void* p, std::size_t n) noexcept;
 #endif
 
 #if (__cplusplus > 201402L || defined(__cpp_aligned_new))
-inline void operator delete(void* p, std::align_val_t al) noexcept
-{
-    mi_free_aligned(p, static_cast<size_t>(al));
-}
-inline void operator delete[](void* p, std::align_val_t al) noexcept
-{
-    mi_free_aligned(p, static_cast<size_t>(al));
-}
-inline void operator delete(void* p, std::size_t n, std::align_val_t al) noexcept
-{
-    mi_free_size_aligned(p, n, static_cast<size_t>(al));
-}
-inline void operator delete[](void* p, std::size_t n, std::align_val_t al) noexcept
-{
-    mi_free_size_aligned(p, n, static_cast<size_t>(al));
-}
-inline void operator delete(void* p, std::align_val_t al, const std::nothrow_t&) noexcept
-{
-    mi_free_aligned(p, static_cast<size_t>(al));
-}
-inline void operator delete[](void* p, std::align_val_t al, const std::nothrow_t&) noexcept
-{
-    mi_free_aligned(p, static_cast<size_t>(al));
-}
+void operator delete(void* p, std::align_val_t al) noexcept;
+void operator delete[](void* p, std::align_val_t al) noexcept;
+void operator delete(void* p, std::size_t n, std::align_val_t al) noexcept;
+void operator delete[](void* p, std::size_t n, std::align_val_t al) noexcept;
+void operator delete(void* p, std::align_val_t al, const std::nothrow_t&) noexcept;
+void operator delete[](void* p, std::align_val_t al, const std::nothrow_t&) noexcept;
 
-inline void* operator new(std::size_t n, std::align_val_t al) noexcept(false)
-{
-    return mi_new_aligned(n, static_cast<size_t>(al));
-}
-inline void* operator new[](std::size_t n, std::align_val_t al) noexcept(false)
-{
-    return mi_new_aligned(n, static_cast<size_t>(al));
-}
-inline void* operator new(std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept
-{
-    return mi_new_aligned_nothrow(n, static_cast<size_t>(al));
-}
-inline void* operator new[](std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept
-{
-    return mi_new_aligned_nothrow(n, static_cast<size_t>(al));
-}
+void* operator new(std::size_t n, std::align_val_t al) noexcept(false);
+void* operator new[](std::size_t n, std::align_val_t al) noexcept(false);
+void* operator new(std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept;
+void* operator new[](std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept;
 #endif
 #endif

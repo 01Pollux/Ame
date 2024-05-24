@@ -173,6 +173,10 @@ namespace Ame::Log
         case LogLevel::Fatal:
             m_Logger->critical(Message);
             break;
+        default:
+        {
+            return;
+        }
         }
 
         StaticOnLog().Broadcast(*this, { Message, Level });
