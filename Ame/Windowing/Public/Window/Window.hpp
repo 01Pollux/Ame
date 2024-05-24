@@ -13,19 +13,20 @@ namespace Ame::Windowing
     {
     public:
         explicit Window(
-            const WindowDesc& Desc);
+            const WindowDesc& windowDesc);
 
-        Window(Window&& Other) noexcept :
-            m_Handle(std::exchange(Other.m_Handle, nullptr))
+        Window(
+            Window&& other) noexcept :
+            m_Handle(std::exchange(other.m_Handle, nullptr))
         {
         }
 
         Window& operator=(
-            Window&& Other) noexcept
+            Window&& other) noexcept
         {
-            if (this != &Other)
+            if (this != &other)
             {
-                m_Handle = std::exchange(Other.m_Handle, nullptr);
+                m_Handle = std::exchange(other.m_Handle, nullptr);
             }
             return *this;
         }
@@ -58,7 +59,7 @@ namespace Ame::Windowing
         /// Set the title of the window
         /// </summary>
         void SetTitle(
-            String Title);
+            String title);
 
         /// <summary>
         /// The position of the window in the screen
@@ -69,7 +70,7 @@ namespace Ame::Windowing
         /// Set the position of the window
         /// </summary>
         void SetPosition(
-            const Math::Vector2I& Position);
+            const Math::Vector2I& position);
 
         /// <summary>
         /// The size of the window
@@ -80,13 +81,13 @@ namespace Ame::Windowing
         /// Set the size of the window
         /// </summary>
         void SetSize(
-            const Math::Size2I& Size);
+            const Math::Size2I& size);
 
         /// <summary>
         /// Set window to fullscreen
         /// </summary>
         void SetFullscreen(
-            bool State);
+            bool Sstate);
 
         /// <summary>
         /// Whether the window is minimized or not
@@ -133,14 +134,14 @@ namespace Ame::Windowing
         /// The size of the image
         /// </param>
         void SetIcon(
-            void*                 IconData,
-            const Math::Vector2I& Size);
+            void*                 iconData,
+            const Math::Vector2I& size);
 
         /// <summary>
         /// Set whether the window is visible or not
         /// </summary>
         void SetVisible(
-            bool Show);
+            bool show);
 
         /// <summary>
         /// Set the current window to be made the active foreground window

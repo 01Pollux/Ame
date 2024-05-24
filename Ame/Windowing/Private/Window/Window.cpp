@@ -18,71 +18,71 @@ namespace Ame::Windowing
     }
 
     Window::Window(
-        const WindowDesc& Desc) :
-        m_Title(Desc.Title)
+        const WindowDesc& windowDesc) :
+        m_Title(windowDesc.Title)
     {
         {
-            std::scoped_lock Lock(s_GlfwInitMutex);
+            std::scoped_lock initLock(s_GlfwInitMutex);
             if (s_GlfwInitCount++ == 0)
             {
-                GLFWallocator GlfwAllocator{
-                    .allocate = [](size_t Size, void*)
-                    { return mi_malloc(Size); },
-                    .reallocate = [](void* Block, size_t Size, void*)
-                    { return mi_realloc(Block, Size); },
-                    .deallocate = [](void* Block, void*)
-                    { mi_free(Block); }
+                GLFWallocator glfwAllocator{
+                    .allocate = [](size_t size, void*)
+                    { return mi_malloc(size); },
+                    .reallocate = [](void* block, size_t size, void*)
+                    { return mi_realloc(block, size); },
+                    .deallocate = [](void* block, void*)
+                    { mi_free(block); }
                 };
 
                 glfwSetErrorCallback(GlfwErrorCallback);
-                glfwInitAllocator(&GlfwAllocator);
+                glfwInitAllocator(&glfwAllocator);
                 AME_LOG_ASSERT(Log::Window(), glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
             }
         }
 
-        GLFWmonitor*       Monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* Mode    = glfwGetVideoMode(Monitor);
+        GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
 
         {
 
-            std::scoped_lock Lock(s_GlfwCreateMutex);
+            std::scoped_lock createLock(s_GlfwCreateMutex);
 
             glfwDefaultWindowHints();
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
 #ifdef AME_PLATFORM_WINDOWS
-            glfwWindowHint(GLFW_TITLEBAR, !Desc.CustomTitleBar);
+            glfwWindowHint(GLFW_TITLEBAR, !windowDesc.CustomTitleBar);
 #else
-            glfwWindowHint(GLFW_DECORATED, !Desc.CustomTitleBar);
+            glfwWindowHint(GLFW_DECORATED, !windowDesc.CustomTitleBar);
 #endif
 
-            if (Desc.FullScreen)
+            if (windowDesc.FullScreen)
             {
-                m_Handle = glfwCreateWindow(Mode->width, Mode->height, Desc.Title, Monitor, nullptr);
+                m_Handle = glfwCreateWindow(mode->width, mode->height, windowDesc.Title, monitor, nullptr);
             }
             else
             {
-                m_Handle = glfwCreateWindow(Desc.Size.Width(), Desc.Size.Height(), Desc.Title, nullptr, nullptr);
+                m_Handle = glfwCreateWindow(windowDesc.Size.Width(), windowDesc.Size.Height(), windowDesc.Title, nullptr, nullptr);
             }
         }
 
-        if (Desc.FullScreen)
+        if (windowDesc.FullScreen)
         {
-            if (Desc.StartInMiddle)
+            if (windowDesc.StartInMiddle)
             {
-                int X = (Mode->width - Desc.Size.Width()) / 2;
-                int Y = (Mode->height - Desc.Size.Height()) / 2;
+                int X = (mode->width - windowDesc.Size.Width()) / 2;
+                int Y = (mode->height - windowDesc.Size.Height()) / 2;
 
                 glfwSetWindowPos(m_Handle, X, Y);
             }
 
-            if (Desc.Maximized)
+            if (windowDesc.Maximized)
             {
                 glfwMaximizeWindow(m_Handle);
             }
         }
 
-        if (Desc.NoResize)
+        if (windowDesc.NoResize)
         {
             glfwSetWindowAttrib(m_Handle, GLFW_RESIZABLE, GLFW_FALSE);
         }
@@ -94,45 +94,45 @@ namespace Ame::Windowing
 
         glfwSetWindowSizeCallback(
             m_Handle,
-            [](GLFWwindow* GlfwWindow, int Width, int Height)
+            [](GLFWwindow* glfwWindow, int width, int height)
             {
-                auto App = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
+                auto App = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
 
-                if (Width && Height)
+                if (width && height)
                 {
                     App->OnWindowSizeChanged().Broadcast(*App, App->m_WindowSize);
                 }
-                App->m_WindowSize = Math::Size2I{ Width, Height };
+                App->m_WindowSize = Math::Size2I{ width, height };
             });
 
         glfwSetWindowCloseCallback(
             m_Handle,
-            [](GLFWwindow* GlfwWindow)
+            [](GLFWwindow* glfwWindow)
             {
-                auto App = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
-                App->OnWindowClosed().Broadcast(*App);
+                auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+                window->OnWindowClosed().Broadcast(*window);
             });
 
-        if (Desc.CustomTitleBar)
+        if (windowDesc.CustomTitleBar)
         {
             glfwSetTitlebarHitTestCallback(
                 m_Handle,
-                [](GLFWwindow* GlfwWindow, int X, int Y, int* Hit)
+                [](GLFWwindow* glfwWindow, int x, int y, int* hit)
                 {
-                    auto App    = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
-                    bool WasHit = false;
-                    App->OnWindowTitleHitTest().Broadcast(*App, { X, Y }, WasHit);
-                    *Hit = WasHit;
+                    auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+                    bool wasHit = false;
+                    window->OnWindowTitleHitTest().Broadcast(*window, { x, y }, wasHit);
+                    *hit = wasHit;
                 });
         }
 
         glfwSetWindowIconifyCallback(
             m_Handle,
-            [](GLFWwindow* GlfwWindow, int Iconified)
+            [](GLFWwindow* glfwWindow, int iconified)
             {
-                auto App    = static_cast<Window*>(glfwGetWindowUserPointer(GlfwWindow));
-                bool WasHit = false;
-                App->OnWindowMinized().Broadcast(*App, Iconified);
+                auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
+                bool wasHit = false;
+                window->OnWindowMinized().Broadcast(*window, iconified);
             });
     }
 
@@ -140,7 +140,7 @@ namespace Ame::Windowing
     {
         glfwDestroyWindow(m_Handle);
 
-        std::scoped_lock Lock(s_GlfwInitMutex);
+        std::scoped_lock initLock(s_GlfwInitMutex);
         if (!--s_GlfwInitCount)
         {
             glfwTerminate();
@@ -168,35 +168,35 @@ namespace Ame::Windowing
     }
 
     void Window::SetTitle(
-        String Title)
+        String title)
     {
-        m_Title = std::move(Title);
+        m_Title = std::move(title);
         glfwSetWindowTitle(m_Handle, m_Title.c_str());
     }
 
     Math::Vector2I Window::GetPosition() const
     {
-        int X, Y;
-        glfwGetWindowPos(m_Handle, &X, &Y);
-        return { X, Y };
+        int x, y;
+        glfwGetWindowPos(m_Handle, &x, &y);
+        return { x, y };
     }
 
     void Window::SetPosition(
-        const Math::Vector2I& Position)
+        const Math::Vector2I& position)
     {
-        glfwSetWindowPos(m_Handle, Position.x, Position.y);
+        glfwSetWindowPos(m_Handle, position.x, position.y);
     }
 
     void Window::SetFullscreen(
-        bool State)
+        bool state)
     {
-        if (State)
+        if (state)
         {
-            GLFWmonitor*       Monitor = glfwGetPrimaryMonitor();
-            const GLFWvidmode* Mode    = glfwGetVideoMode(Monitor);
+            GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
+            const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
 
-            m_WindowSize = { Mode->width, Mode->height };
-            glfwSetWindowMonitor(m_Handle, Monitor, 0, 0, Mode->width, Mode->height, Mode->refreshRate);
+            m_WindowSize = { mode->width, mode->height };
+            glfwSetWindowMonitor(m_Handle, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
             glfwSetWindowAttrib(m_Handle, GLFW_DECORATED, GLFW_FALSE);
         }
         else
@@ -249,29 +249,29 @@ namespace Ame::Windowing
     }
 
     void Window::SetSize(
-        const Math::Size2I& Size)
+        const Math::Size2I& size)
     {
-        m_WindowSize = Size;
-        glfwSetWindowSize(m_Handle, Size.Width(), Size.Height());
+        m_WindowSize = size;
+        glfwSetWindowSize(m_Handle, size.Width(), size.Height());
     }
 
     void Window::SetIcon(
-        void*                 IconData,
-        const Math::Vector2I& Size)
+        void*                 iconData,
+        const Math::Vector2I& size)
     {
         // Set icon for window
-        GLFWimage Image{
-            .width  = Size.x,
-            .height = Size.y,
-            .pixels = const_cast<uint8_t*>(static_cast<const uint8_t*>(IconData))
+        GLFWimage glfwImage{
+            .width  = size.x,
+            .height = size.y,
+            .pixels = const_cast<uint8_t*>(static_cast<const uint8_t*>(iconData))
         };
-        glfwSetWindowIcon(m_Handle, 1, &Image);
+        glfwSetWindowIcon(m_Handle, 1, &glfwImage);
     }
 
     void Window::SetVisible(
-        bool Show)
+        bool show)
     {
-        if (Show)
+        if (show)
         {
             glfwShowWindow(m_Handle);
         }
