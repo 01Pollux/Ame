@@ -13,14 +13,14 @@ namespace Ame
 {
     void BaseEngine::Initialize()
     {
-        auto& AssetStorage = GetSubsystem<Asset::StorageSubsystem>();
+        auto& assetStorage = GetSubsystem<Asset::StorageSubsystem>();
 
-        AssetStorage.RegisterHandler<Asset::Common::TextFileAsset>();
-        AssetStorage.RegisterHandler<Asset::Common::BinaryBufferAsset>();
+        assetStorage.RegisterHandler<Asset::Common::TextFileAsset>();
+        assetStorage.RegisterHandler<Asset::Common::BinaryBufferAsset>();
 
         if (HasSubsystem<Gfx::RendererSubsystem>())
         {
-            AssetStorage.RegisterHandler<Asset::Gfx::ShaderSourceAsset>(
+            assetStorage.RegisterHandler<Asset::Gfx::ShaderSourceAsset>(
                 GetSubsystem<Gfx::Cache::ShaderCacheSubsystem>());
         }
     }

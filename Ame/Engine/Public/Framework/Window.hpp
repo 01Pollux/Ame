@@ -7,23 +7,6 @@
 
 namespace Ame::Framework
 {
-    static void foo()
-    {
-        constexpr auto px  = kgr::detail::is_emplace_valid<Rhi::DeviceSubsystem>::value;
-        constexpr auto pxs = kgr::detail::is_emplace_valid<Gfx::RendererSubsystem>::value;
-
-        using T            = Gfx::RendererSubsystem;
-        constexpr auto a   = kgr::detail::is_single<T>::value;
-        constexpr auto b   = kgr::detail::is_construction_valid<T>::value;
-        constexpr auto ba  = kgr::detail::service_check<T>::value;
-        constexpr auto baa = kgr::detail::shallow_service_check<T>::value;
-        constexpr auto bab = kgr::detail::dependency_check<T>::value;
-        constexpr auto bb  = kgr::detail::is_autocall_valid<T>::value;
-        constexpr auto bc  = kgr::detail::dependency_trait<kgr::detail::is_autocall_valid, T>::value;
-        constexpr auto c   = kgr::detail::is_construct_function_callable<T>::value;
-        constexpr auto d   = kgr::detail::is_service_constructible<T>::value;
-    }
-
     template<typename EngineType>
     class WindowApplication
     {
@@ -45,13 +28,13 @@ namespace Ame::Framework
     private:
         template<typename... ArgsTy>
         WindowApplication(
-            const Rhi::DeviceCreateDesc& RhiDesc,
-            const Co::runtime_options&   RuntimeOptions,
-            ArgsTy&&... Args) :
-            m_Engine(std::forward<ArgsTy>(Args)...)
+            const Rhi::DeviceCreateDesc& rhiDesc,
+            const Co::runtime_options&   runtimeOptions,
+            ArgsTy&&... args) :
+            m_Engine(std::forward<ArgsTy>(args)...)
         {
-            m_Engine.RegisterSubsystem<Rhi::DeviceSubsystem>(RhiDesc);
-            m_Engine.RegisterSubsystem<CoroutineSubsystem>(RuntimeOptions);
+            m_Engine.RegisterSubsystem<Rhi::DeviceSubsystem>(rhiDesc);
+            m_Engine.RegisterSubsystem<CoroutineSubsystem>(runtimeOptions);
             m_Engine.RegisterSubsystem<Gfx::RendererSubsystem>();
         }
 
@@ -64,141 +47,141 @@ namespace Ame::Framework
     {
     public:
         auto& Title(
-            const char* Title)
+            const char* title)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.Title = Title;
+            m_RhiDesc.Window->Window.Title = title;
             return *this;
         }
 
         auto& Size(
-            const Math::Vector2& Size)
+            const Math::Vector2& size)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.Size = Size;
+            m_RhiDesc.Window->Window.Size = size;
             return *this;
         }
 
         auto& CustomTitleBar(
-            bool Enable = true)
+            bool enable = true)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.CustomTitleBar = Enable;
+            m_RhiDesc.Window->Window.CustomTitleBar = enable;
             return *this;
         }
 
         auto& StartInMiddle(
-            bool Enable = true)
+            bool enable = true)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.StartInMiddle = Enable;
+            m_RhiDesc.Window->Window.StartInMiddle = enable;
             return *this;
         }
 
         auto& Fullscreen(
-            bool Enable = true)
+            bool enable = true)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.FullScreen = Enable;
+            m_RhiDesc.Window->Window.FullScreen = enable;
             return *this;
         }
 
         auto& Maximized(
-            bool Enable = true)
+            bool enable = true)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.Maximized = Enable;
+            m_RhiDesc.Window->Window.Maximized = enable;
             return *this;
         }
 
         auto& NoResize(
-            bool Enable = true)
+            bool enable = true)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Window.NoResize = Enable;
+            m_RhiDesc.Window->Window.NoResize = enable;
             return *this;
         }
 
         //
 
         auto& SwapChainFormat(
-            Rhi::SwapChainFormat Format)
+            Rhi::SwapChainFormat format)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->Format = Format;
+            m_RhiDesc.Window->Format = format;
             return *this;
         }
 
         auto& BackbufferCount(
-            uint32_t Count)
+            uint32_t count)
         {
             TryCreateWindowDesc();
-            m_RhiDesc.Window->BackbufferCount = Count;
+            m_RhiDesc.Window->BackbufferCount = count;
             return *this;
         }
 
         //
 
         auto& Adapter(
-            const Rhi::AdapterDesc& Adapter)
+            const Rhi::AdapterDesc& adapter)
         {
-            m_RhiDesc.Adapter = Adapter;
+            m_RhiDesc.Adapter = adapter;
             return *this;
         }
 
         auto& InstanceExtension(
-            const char* Extension)
+            const char* extension)
         {
-            m_RequiredInstanceExtensions.push_back(Extension);
+            m_RequiredInstanceExtensions.push_back(extension);
             return *this;
         }
 
         auto& DeviceExtension(
-            const char* Extension)
+            const char* extension)
         {
-            m_RequiredDeviceExtensions.push_back(Extension);
+            m_RequiredDeviceExtensions.push_back(extension);
             return *this;
         }
 
         auto& FramesInFlight(
-            uint32_t FramesInFlight)
+            uint32_t framesInFlight)
         {
-            m_RhiDesc.FramesInFlight = FramesInFlight;
+            m_RhiDesc.FramesInFlight = framesInFlight;
             return *this;
         }
 
         auto& RendererBackend(
-            Rhi::DeviceType Backend)
+            Rhi::DeviceType backend)
         {
-            m_RhiDesc.Type = Backend;
+            m_RhiDesc.Type = backend;
             return *this;
         }
 
         auto& RayTracing(
-            Rhi::DeviceFeatureType Feature = Rhi::DeviceFeatureType::Optional)
+            Rhi::DeviceFeatureType feature = Rhi::DeviceFeatureType::Optional)
         {
-            m_RhiDesc.RayTracingFeatures = Feature;
+            m_RhiDesc.RayTracingFeatures = feature;
             return *this;
         }
 
         auto& MeshShader(
-            Rhi::DeviceFeatureType Feature = Rhi::DeviceFeatureType::Optional)
+            Rhi::DeviceFeatureType feature = Rhi::DeviceFeatureType::Optional)
         {
-            m_RhiDesc.MeshShaderFeatures = Feature;
+            m_RhiDesc.MeshShaderFeatures = feature;
             return *this;
         }
 
         auto& ValidationLayer(
-            bool Enable = true)
+            bool enable = true)
         {
-            m_RhiDesc.EnableApiValidationLayer = Enable;
+            m_RhiDesc.EnableApiValidationLayer = enable;
             return *this;
         }
 
         auto& VSync(
-            bool Enable = true)
+            bool enable = true)
         {
-            m_RhiDesc.EnableVSync = Enable;
+            m_RhiDesc.EnableVSync = enable;
             return *this;
         }
 
@@ -209,16 +192,16 @@ namespace Ame::Framework
         }
 
         auto& RuntimeOptions(
-            const Co::runtime_options& RuntimeOptions)
+            const Co::runtime_options& runtimeOptions)
         {
-            m_RuntimeOptions = std::move(RuntimeOptions);
+            m_RuntimeOptions = runtimeOptions;
             return *this;
         }
 
     public:
         template<typename... ArgsTy>
         [[nodiscard]] WindowApplication Build(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
             if (!m_RhiDesc.Adapter)
             {
@@ -228,7 +211,7 @@ namespace Ame::Framework
             m_RhiDesc.RequiredInstanceExtensions = m_RequiredInstanceExtensions;
             m_RhiDesc.RequiredDeviceExtensions   = m_RequiredDeviceExtensions;
 
-            return { m_RhiDesc, m_RuntimeOptions, std::forward<ArgsTy>(Args)... };
+            return { m_RhiDesc, m_RuntimeOptions, std::forward<ArgsTy>(args)... };
         }
 
     private:

@@ -25,11 +25,11 @@ namespace Ame::Framework
     private:
         template<typename... ArgsTy>
         HeadlessApplication(
-            Ptr<Co::runtime> Runtime,
-            ArgsTy&&... Args) :
-            m_Engine(std::forward<ArgsTy>(Args)...)
+            const Co::runtime_options& runtimeOptions,
+            ArgsTy&&... args) :
+            m_Engine(std::forward<ArgsTy>(args)...)
         {
-            m_Engine.RegisterSubsystem<CoroutineSubsystem>(std::move(Runtime));
+            m_Engine.RegisterSubsystem<CoroutineSubsystem>(runtimeOptions);
         }
 
     private:
@@ -40,27 +40,32 @@ namespace Ame::Framework
     struct HeadlessApplication<EngineType>::Builder
     {
     public:
-        auto& Runtime(
-            Ptr<Co::runtime> Runtime)
+        auto& RuntimeOptions()
         {
-            m_Runtime = std::move(Runtime);
+            return m_RuntimeOptions;
+        }
+
+        auto& RuntimeOptions(
+            const Co::runtime_options& runtimeOptions)
+        {
+            m_RuntimeOptions = runtimeOptions;
             return *this;
         }
 
     public:
         template<typename... ArgsTy>
         [[nodiscard]] HeadlessApplication Build(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
             if (!m_Runtime)
             {
                 m_Runtime = std::make_shared<Co::runtime>();
             }
 
-            return { std::move(m_Runtime), std::forward<ArgsTy>(Args)... };
+            return { m_RuntimeOptions, std::forward<ArgsTy>(args)... };
         }
 
     private:
-        Ptr<Co::runtime> m_Runtime;
+        Co::runtime_options m_RuntimeOptions;
     };
 } // namespace Ame::Framework

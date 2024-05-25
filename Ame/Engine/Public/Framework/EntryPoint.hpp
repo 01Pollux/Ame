@@ -9,23 +9,23 @@ namespace Ame::Framework
     /// The entry point of the engine
     /// </summary>
     extern void Main(
-        int    Argc,
-        char** Argv);
+        int    argc,
+        char** argv);
 } // namespace Ame::Framework
 
 #define AME_MAIN_EXTERN(Argc, Argv)          \
     int main(                                \
-        int    Argc,                         \
-        char** Argv)                         \
+        int    argc,                         \
+        char** argv)                         \
     {                                        \
-        Ame::Framework::Main(Argc, Argv);    \
+        Ame::Framework::Main(argc, argv);    \
         Ame::Log::Logger::CloseAllLoggers(); \
         Ame::Rhi::Device::CleanupCheck();    \
         return 0;                            \
     }
 
-#define AME_MAIN(Argc, Argv)    \
-    AME_MAIN_EXTERN(Argc, Argv) \
+#define AME_MAIN(argc, argv)    \
+    AME_MAIN_EXTERN(argc, argv) \
     void Ame::Framework::Main(  \
-        int    Argc,            \
-        char** Argv)
+        int    argc,            \
+        char** argv)

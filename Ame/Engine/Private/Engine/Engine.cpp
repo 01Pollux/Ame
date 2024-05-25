@@ -8,17 +8,17 @@ namespace Ame
 {
     void BaseEngine::Run()
     {
-        EngineFrame& Frame = GetSubsystem<EngineFrameSubsystem>();
+        EngineFrame& engineFrame = GetSubsystem<EngineFrameSubsystem>();
 
         DoInitialize();
-        Frame.Run();
+        engineFrame.Run();
         DoShutdown();
     }
 
     void BaseEngine::Close()
     {
-        EngineFrame& Frame = GetSubsystem<EngineFrameSubsystem>();
-        Frame.Stop();
+        EngineFrame& engineFrame = GetSubsystem<EngineFrameSubsystem>();
+        engineFrame.Stop();
     }
 
     //
