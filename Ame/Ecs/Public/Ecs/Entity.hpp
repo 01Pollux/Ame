@@ -9,7 +9,7 @@ namespace Ame::Ecs
         friend class World;
 
     public:
-        static const Entity Null;
+        static const Entity c_Null;
 
         Entity() = default;
         Entity(
@@ -41,7 +41,7 @@ namespace Ame::Ecs
         /// Get the parent of the entity.
         /// </summary>
         void SetParent(
-            const Entity& parent = Entity::Null);
+            const Entity& parent = Entity::c_Null);
 
     public:
         template<typename Ty, typename... ArgsTy>
@@ -104,7 +104,7 @@ namespace Ame::Ecs
         flecs::entity m_Entity;
     };
 
-    inline const Entity Entity::Null = Entity{};
+    inline const Entity Entity::c_Null = Entity{};
 
     using UniqueEntity = Unique<Entity>;
 } // namespace Ame::Ecs

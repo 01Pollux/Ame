@@ -52,10 +52,10 @@ namespace Ame
         }
 
         m_CurrTime     = steady_clock::now();
-        auto DeltaTime = std::max(
+        auto deltaTime = std::max(
             std::chrono::duration_cast<fmilliseconds>(m_CurrTime - m_PrevTime).count() * .001,
             0.0);
-        m_DeltaTime = std::min(DeltaTime, 0.2) * m_TimeScale;
+        m_DeltaTime = std::min(deltaTime, 0.2) * m_TimeScale;
         m_PrevTime  = m_CurrTime;
 
         m_GameTime += m_DeltaTime;

@@ -35,7 +35,7 @@ namespace Ame::Ecs
         /// </summary>
         Entity CreateEntity(
             StringView    name,
-            const Entity& parent = Entity::Null);
+            const Entity& parent = Entity::c_Null);
 
     public:
         /// <summary>
@@ -43,7 +43,7 @@ namespace Ame::Ecs
         /// </summary>
         [[nodiscard]] String GetUniqueEntityName(
             const char*   name,
-            const Entity& parent = Entity::Null) const;
+            const Entity& parent = Entity::c_Null) const;
 
     public:
         /// <summary>

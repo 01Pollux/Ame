@@ -40,7 +40,7 @@ namespace Ame::Strings
     /// </summary>
     template<typename Ty>
         requires std::is_same_v<Ty, String> || std::is_same_v<Ty, WideString>
-    static Ty Empty = {};
+    static Ty c_Empty = {};
 
     /// <summary>
     /// Transform string to another type
@@ -59,20 +59,17 @@ namespace Ame::Strings
         {
             if (str.empty())
                 return {};
-            else
+            // from bigger type to smaller type, eg: wstring to string, u32string to u8string, etc...
+            if constexpr (sizeof(typename FromTy::value_type) > sizeof(typename ToTy::value_type))
             {
-                // from bigger type to smaller type, eg: wstring to string, u32string to u8string, etc...
-                if constexpr (sizeof(typename FromTy::value_type) > sizeof(typename ToTy::value_type))
-                {
-                    ToTy buf(str.size(), 0);
-                    std::transform(std::begin(str), std::end(str), std::begin(buf), [](const typename FromTy::value_type c)
-                                   { return static_cast<typename ToTy::value_type>(c); });
-                    return buf;
-                }
-                // from smaller type to bigger type, eg: string to wstring, etc...
-                else
-                    return { std::begin(str), std::end(str) };
+                ToTy buf(str.size(), 0);
+                std::transform(std::begin(str), std::end(str), std::begin(buf), [](const typename FromTy::value_type c)
+                               { return static_cast<typename ToTy::value_type>(c); });
+                return buf;
             }
+            // from smaller type to bigger type, eg: string to wstring, etc...
+            else
+                return { std::begin(str), std::end(str) };
         }
     }
 
@@ -254,13 +251,13 @@ namespace Ame::Strings
         constexpr size_t c_HashBasis = 14695981039346656037ULL;
         constexpr size_t c_HashPrime = 1099511628211ULL;
 
-        size_t Hash = c_HashBasis;
+        size_t hash = c_HashBasis;
         for (auto c : std::basic_string_view(str))
         {
-            Hash ^= c;
-            Hash *= c_HashPrime;
+            hash ^= c;
+            hash *= c_HashPrime;
         }
-        return Hash;
+        return hash;
     }
 } // namespace Ame::Strings
 

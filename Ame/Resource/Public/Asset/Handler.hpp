@@ -60,7 +60,7 @@ namespace Ame::Asset
         {
             Guid guid;
             archive >> guid;
-            if (guid != Guid::Null)
+            if (guid != Guid::c_Null)
             {
                 auto Iter = m_Assets.find(guid);
                 if (Iter != m_Assets.end())
@@ -88,7 +88,7 @@ namespace Ame::Asset
             for (const auto& guid : guids)
             {
                 Ptr<Ty> asset;
-                if (guid != Guid::Null)
+                if (guid != Guid::c_Null)
                 {
                     auto iter = m_Assets.find(guid);
                     if (iter != m_Assets.end())
@@ -142,7 +142,7 @@ namespace Ame::Asset
             }
             else
             {
-                archive << Guid::Null;
+                archive << Guid::c_Null;
             }
         }
 

@@ -41,7 +41,7 @@ namespace Ame::Asset
     Guid AssetMetaDataDef::GetGuid() const noexcept
     {
         auto Iter = m_MetaData.find("Guid");
-        return Iter != m_MetaData.not_found() ? Guid::FromString(Iter->second.get_value<std::string>()) : Guid::Null;
+        return Iter != m_MetaData.not_found() ? Guid::FromString(Iter->second.get_value<std::string>()) : Guid::c_Null;
     }
 
     void AssetMetaDataDef::SetGuid(

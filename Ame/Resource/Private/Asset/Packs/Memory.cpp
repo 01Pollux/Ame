@@ -33,7 +33,7 @@ namespace Ame::Asset
                 return guid;
             }
         }
-        return Guid::Null;
+        return Guid::c_Null;
     }
 
     Co::generator<Guid> MemoryAssetPackage::FindAssets(

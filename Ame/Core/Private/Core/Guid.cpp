@@ -12,39 +12,39 @@
 
 namespace Ame
 {
-    const Guid Guid::Null{};
+    const Guid Guid::c_Null{};
 
     String Guid::ToString() const
     {
-        String Str(36, '\0');
-        boost::uuids::to_chars(*this, Str.data());
-        return Str;
+        String str(36, '\0');
+        boost::uuids::to_chars(*this, str.data());
+        return str;
     }
 
-    String Guid::ToWideString() const
+    WideString Guid::ToWideString() const
     {
-        String Str(36, L'\0');
-        boost::uuids::to_chars(*this, Str.data());
-        return Str;
+        WideString str(36, L'\0');
+        boost::uuids::to_chars(*this, str.data());
+        return str;
     }
 
     Guid Guid::FromString(
-        StringView Id)
+        StringView id)
     {
-        return Guid{ boost::uuids::string_generator()(Id.begin(), Id.end()) };
+        return Guid{ boost::uuids::string_generator()(id.begin(), id.end()) };
     }
 
     Guid Guid::Random()
     {
-        Guid Id;
+        Guid id;
 
-        boost::uuids::random_generator Generator;
+        boost::uuids::random_generator generator;
         while (true)
         {
-            Generator().swap(Id);
-            if (Id != Null)
+            generator().swap(id);
+            if (id != c_Null)
             {
-                return Id;
+                return id;
             }
         }
         std::unreachable();

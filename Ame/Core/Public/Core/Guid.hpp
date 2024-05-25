@@ -13,24 +13,24 @@ namespace Ame
     struct Guid : boost::uuids::uuid
     {
     public:
-        static const Guid          Null;
-        static inline const String NullString = "00000000-0000-0000-0000-000000000000";
+        static const Guid          c_Null;
+        static inline const String c_NullString = "00000000-0000-0000-0000-000000000000";
 
     public:
         using uuid::uuid;
 
         constexpr Guid(
-            uint32_t data1   = 0,
-            uint16_t data2   = 0,
-            uint16_t data3   = 0,
-            uint8_t  data4_0 = 0,
-            uint8_t  data4_1 = 0,
-            uint8_t  data4_2 = 0,
-            uint8_t  data4_3 = 0,
-            uint8_t  data4_4 = 0,
-            uint8_t  data4_5 = 0,
-            uint8_t  data4_6 = 0,
-            uint8_t  data4_7 = 0)
+            uint32_t data1  = 0,
+            uint16_t data2  = 0,
+            uint16_t data3  = 0,
+            uint8_t  data40 = 0,
+            uint8_t  data41 = 0,
+            uint8_t  data42 = 0,
+            uint8_t  data43 = 0,
+            uint8_t  data44 = 0,
+            uint8_t  data45 = 0,
+            uint8_t  data46 = 0,
+            uint8_t  data47 = 0)
         {
             data[0]  = static_cast<uint8_t>(data1 >> 24);
             data[1]  = static_cast<uint8_t>(data1 >> 16);
@@ -40,14 +40,14 @@ namespace Ame
             data[5]  = static_cast<uint8_t>(data2);
             data[6]  = static_cast<uint8_t>(data3 >> 8);
             data[7]  = static_cast<uint8_t>(data3);
-            data[8]  = data4_0;
-            data[9]  = data4_1;
-            data[10] = data4_2;
-            data[11] = data4_3;
-            data[12] = data4_4;
-            data[13] = data4_5;
-            data[14] = data4_6;
-            data[15] = data4_7;
+            data[8]  = data40;
+            data[9]  = data41;
+            data[10] = data42;
+            data[11] = data43;
+            data[12] = data44;
+            data[13] = data45;
+            data[14] = data46;
+            data[15] = data47;
         }
 
         constexpr Guid(
@@ -90,13 +90,13 @@ namespace Ame
         /// <summary>
         /// Convert guid to wide string
         /// </summary>
-        [[nodiscard]] String ToWideString() const;
+        [[nodiscard]] WideString ToWideString() const;
 
         /// <summary>
         /// Generate guid from string
         /// </summary>
         [[nodiscard]] static Guid FromString(
-            StringView Id);
+            StringView id);
 
         /// <summary>
         /// Generate a random guid not null

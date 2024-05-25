@@ -80,7 +80,7 @@ namespace Ame::Asset
                 return { package, guid };
             }
         }
-        return { nullptr, Guid::Null };
+        return { nullptr, Guid::c_Null };
     }
 
     auto Storage::FindAssets(

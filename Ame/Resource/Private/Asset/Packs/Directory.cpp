@@ -71,7 +71,7 @@ namespace Ame::Asset
                 }
 
                 auto guid = metaData.GetGuid();
-                if (guid == Guid::Null)
+                if (guid == Guid::c_Null)
                 {
                     logger.Error("Asset", "Meta file '{}' does not have a Guid", metafilePath);
                     continue;
@@ -147,7 +147,7 @@ namespace Ame::Asset
     {
         RLock readLock(m_CacheMutex);
         auto  iter = m_AssetPath.find(path);
-        return iter != m_AssetPath.end() ? iter->second : Guid::Null;
+        return iter != m_AssetPath.end() ? iter->second : Guid::c_Null;
     }
 
     Co::generator<Guid> DirectoryAssetPackage::FindAssets(
@@ -216,7 +216,7 @@ namespace Ame::Asset
     {
         RLock readLock(m_CacheMutex);
         auto  iter = m_AssetPath.find(path);
-        return iter != m_AssetPath.end() ? iter->second : Guid::Null;
+        return iter != m_AssetPath.end() ? iter->second : Guid::c_Null;
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAsset(

@@ -48,7 +48,7 @@ namespace Ame::Asset
     {
     public:
         AssetNotFoundException(
-            const Guid& guid = Guid::Null) noexcept :
+            const Guid& guid = Guid::c_Null) noexcept :
             AssetException(guid, "Asset not found")
         {
         }
