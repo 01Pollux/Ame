@@ -6,6 +6,7 @@
 #include <Frame/Subsystem/Timer.hpp>
 #include <Rhi/Subsystem/Device.hpp>
 #include <Ecs/Subsystem/Universe.hpp>
+#include <Gfx/Subsystem/Graph.hpp>
 
 #include <Gfx/Renderer.hpp>
 
@@ -16,7 +17,8 @@ namespace Ame::Gfx
                                    Dependency<EngineFrameSubsystem,
                                               FrameTimerSubsystem,
                                               Rhi::DeviceSubsystem,
-                                              Ecs::UniverseSubsystem>>,
+                                              Ecs::UniverseSubsystem,
+                                              RG::GraphSubsystem>>,
                                kgr::final
     {
     };

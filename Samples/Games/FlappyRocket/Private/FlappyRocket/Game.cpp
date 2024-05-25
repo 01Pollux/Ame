@@ -15,18 +15,13 @@
 namespace Ame::FlappyRocket
 {
     FlappyRocketGame::FlappyRocketGame(
-        Rhi::Device&                      device,
-        Ecs::Universe&                    ecsUniverse,
-        Gfx::Renderer&                    renderer,
-        Gfx::Cache::ShaderCache&          shaderCache,
-        Gfx::Cache::CommonShader&         commonShaders,
-        Gfx::Cache::CommonPipelineState&  commonPipelines,
-        Gfx::Cache::MaterialBindingCache& materialCache) :
+        Rhi::Device&             device,
+        Ecs::Universe&           ecsUniverse,
+        Gfx::Cache::ShaderCache& shaderCache) :
         m_Device(&device),
         m_EcsUniverse(&ecsUniverse),
         m_ShaderCache(&shaderCache)
     {
-        SetupRenderGraph(renderer.GetRenderGraph(), commonShaders, commonPipelines, materialCache);
     }
 
     //

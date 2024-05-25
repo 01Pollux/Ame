@@ -33,7 +33,7 @@ namespace Ame
         /// This function will return a reference to the subsystem Ty.
         /// </summary>
         template<typename Ty>
-        [[nodiscard]] kgr::service_type<Ty> GetSubsystem()
+        kgr::service_type<Ty> GetSubsystem()
         {
             return m_Container.service<Ty>();
         }

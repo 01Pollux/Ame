@@ -9,16 +9,8 @@ namespace Ame
         namespace Cache
         {
             class ShaderCache;
-            class CommonShader;
-            class CommonPipelineState;
-            class MaterialBindingCache;
         } // namespace Cache
-        namespace RG
-        {
-            class Graph;
-        } // namespace RG
-        class Gfx;
-    } // namespace Gfx
+    }     // namespace Gfx
     namespace Asset
     {
         class Storage;
@@ -35,13 +27,9 @@ namespace Ame::FlappyRocket
 
     public:
         FlappyRocketGame(
-            Rhi::Device&                      device,
-            Ecs::Universe&                    ecsUniverse,
-            Gfx::Renderer&                    renderer,
-            Gfx::Cache::ShaderCache&          shaderCache,
-            Gfx::Cache::CommonShader&         commonShaders,
-            Gfx::Cache::CommonPipelineState&  commonPipelines,
-            Gfx::Cache::MaterialBindingCache& materialCache);
+            Rhi::Device&             device,
+            Ecs::Universe&           ecsUniverse,
+            Gfx::Cache::ShaderCache& shaderCache);
 
     public:
         /// <summary>
@@ -53,16 +41,6 @@ namespace Ame::FlappyRocket
         /// Add all entities to the world for the game
         /// </summary>
         void AddAllEntities();
-
-    private:
-        /// <summary>
-        /// Setup the render graph for the game
-        /// </summary>
-        void SetupRenderGraph(
-            Gfx::RG::Graph&                   renderGraph,
-            Gfx::Cache::CommonShader&         commonShaders,
-            Gfx::Cache::CommonPipelineState&  commonPipelines,
-            Gfx::Cache::MaterialBindingCache& materialCache);
 
     private:
         Rhi::Device*             m_Device      = nullptr;

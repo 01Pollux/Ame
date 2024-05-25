@@ -2,6 +2,7 @@
 
 #include <Frame/EngineFrame.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Gfx/RG/Graph.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
@@ -12,28 +13,30 @@ namespace Ame::Gfx
         EngineFrame&   engineFrame,
         FrameTimer&    frameTimer,
         Rhi::Device&   rhiDevice,
-        Ecs::Universe& universe) :
+        Ecs::Universe& universe,
+        RG::Graph&     renderGraph) :
         m_Frame(engineFrame),
         m_Timer(frameTimer),
         m_Device(rhiDevice),
-        m_Graph(frameTimer, rhiDevice, universe),
-        m_Universe(universe)
+        m_Universe(universe),
+        m_Graph(renderGraph)
     {
         if (!rhiDevice.IsHeadless())
         {
             m_OnWorldChange = {
                 universe.OnWorldChange()
                     .ObjectSignal(),
-                [this](auto& Universe, auto& ChangeData)
+                [this](auto& universe, auto& changeData)
                 {
                     m_CameraQuery.Reset();
-                    if (ChangeData.NewWorld)
+                    if (changeData.NewWorld)
                     {
                         m_CameraQuery =
-                            ChangeData.NewWorld
+                            changeData.NewWorld
                                 ->CreateQuery<const Ecs::Component::Transform, const Ecs::Component::Camera>()
                                 .order_by<const Ecs::Component::Camera>(
-                                    [](flecs::entity_t, auto a, flecs::entity_t, auto b) -> int
+                                    [](flecs::entity_t, auto a,
+                                       flecs::entity_t, auto b) -> int
                                     {
                                         return a->Priority - b->Priority;
                                     })
@@ -74,21 +77,9 @@ namespace Ame::Gfx
 
     //
 
-    RG::Graph& Renderer::GetRenderGraph()
-    {
-        return m_Graph;
-    }
-
-    const RG::Graph& Renderer::GetRenderGraph() const
-    {
-        return m_Graph;
-    }
-
-    //
-
     void Renderer::OnUpdate()
     {
-        m_Graph.Update();
+        m_Graph.get().Update();
     }
 
     void Renderer::OnStartFrame()
@@ -112,12 +103,12 @@ namespace Ame::Gfx
         {
             for (auto i : iter)
             {
-                m_Graph.UpdateFrameStorage(
+                m_Graph.get().UpdateFrameStorage(
                     iter.entity(i),
                     transforms[i],
                     cameras[i].GetProjectionMatrix(),
                     cameras[i].GetViewporSize());
-                m_Graph.Execute();
+                m_Graph.get().Execute();
             }
         };
         m_CameraQuery->iter(std::move(renderIter));

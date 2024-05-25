@@ -2,6 +2,7 @@
 
 #include <Rhi/Subsystem/Device.hpp>
 #include <Asset/Subsystem/Storage.hpp>
+#include <Gfx/Subsystem/Pipelines/DeferredPlusPipeline.hpp>
 #include <FlappyRocket/Subsystem/Game.hpp>
 
 #include <Asset/Packs/Directory.hpp>
@@ -31,6 +32,8 @@ namespace Ame::FlappyRocket
 
         auto& assetStorage = GetSubsystem<Asset::StorageSubsystem>();
         assetStorage.Mount<Asset::DirectoryAssetPackage>("Shared/Assets");
+
+        GetSubsystem<Gfx::RG::GraphRendererSubsystem>();
 
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
         CreateWorld();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Ame.hpp>
-#include <Gfx/RG/Graph.hpp>
 #include <Ecs/Universe.hpp>
 
 #include <Core/Signals/Frame.hpp>
@@ -21,6 +20,11 @@ namespace Ame
         struct Transform;
         struct Camera;
     } // namespace Ecs::Component
+
+    namespace Gfx::RG
+    {
+        class Graph;
+    } // namespace Gfx::RG
 } // namespace Ame
 
 namespace Ame::Gfx
@@ -36,18 +40,8 @@ namespace Ame::Gfx
             EngineFrame&   engineFrame,
             FrameTimer&    frameTimer,
             Rhi::Device&   rhiDevice,
-            Ecs::Universe& universe);
-
-    public:
-        /// <summary>
-        /// Get the render graph
-        /// </summary>
-        [[nodiscard]] const RG::Graph& GetRenderGraph() const;
-
-        /// <summary>
-        /// Get the render graph
-        /// </summary>
-        [[nodiscard]] RG::Graph& GetRenderGraph();
+            Ecs::Universe& universe,
+            RG::Graph&     renderGraph);
 
     private:
         /// <summary>
@@ -75,6 +69,7 @@ namespace Ame::Gfx
         Ref<FrameTimer>    m_Timer;
         Ref<Rhi::Device>   m_Device;
         Ref<Ecs::Universe> m_Universe;
+        Ref<RG::Graph>     m_Graph;
 
         Signals::OnWorldChange::Handle m_OnWorldChange;
 
@@ -83,7 +78,6 @@ namespace Ame::Gfx
         Signals::OnRender::Handle     m_OnRender;
         Signals::OnEndFrame::Handle   m_OnEndFrame;
 
-        RG::Graph         m_Graph;
         CameraRenderQuery m_CameraQuery;
     };
 } // namespace Ame::Gfx
