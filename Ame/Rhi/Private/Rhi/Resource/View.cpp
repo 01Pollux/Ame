@@ -359,7 +359,7 @@ namespace Ame::Rhi
         const Buffer& buffer) const noexcept
     {
         auto range = *this;
-        if (range.Size == RemainingSize<size_t>)
+        if (range.Size == c_RemainingSize<size_t>)
         {
             range.Size = buffer.GetDesc().size - range.Offset;
         }
@@ -370,7 +370,7 @@ namespace Ame::Rhi
         const Texture& texture) const noexcept
     {
         auto mipLevel = *this;
-        if (mipLevel.Count == RemainingSize<Mip_t>)
+        if (mipLevel.Count == c_RemainingSize<Mip_t>)
         {
             mipLevel.Count = texture.GetDesc().mipNum - mipLevel.Offset;
         }
@@ -381,7 +381,7 @@ namespace Ame::Rhi
         const Texture& texture) const noexcept
     {
         auto arraySlice = *this;
-        if (arraySlice.Count == RemainingSize<Dim_t>)
+        if (arraySlice.Count == c_RemainingSize<Dim_t>)
         {
             arraySlice.Count = texture.GetDesc().arraySize - arraySlice.Offset;
         }

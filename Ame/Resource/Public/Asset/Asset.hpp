@@ -39,7 +39,7 @@ namespace Ame::Asset
         /// Marks the asset as dirty.
         /// </summary>
         void MarkDirty(
-            bool IsDirty = true) noexcept;
+            bool isDirty = true) noexcept;
 
     protected:
         String     m_AssetPath;
@@ -62,7 +62,7 @@ namespace Ame::Asset
             Ptr<Ty>>;
 
     public:
-        static inline const Ptr<Ty> StaticNullPtr;
+        static inline const Ptr<Ty> c_NullPtr;
 
         AssetTaskPtr() :
             m_Asset(std::monostate{})

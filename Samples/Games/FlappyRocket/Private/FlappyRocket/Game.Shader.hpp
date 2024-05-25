@@ -2,7 +2,7 @@
 
 namespace Ame::FlappyRocket
 {
-    static constexpr const char* s_ShaderSource = R"(
+    static constexpr const char* c_ShaderSource = R"(
 #include "../Core/Material.hlsli"
 
 AME_ENABLE_DRAW_PARAMETERS;

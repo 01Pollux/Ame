@@ -45,24 +45,24 @@ struct Resource
 
     Shading::PropertyDescriptor substruct;
     substruct
-        .Int("x", 7);
+        .Int("x", Ame::Rhi::ShaderFlags::All(), 7);
 
     Shading::PropertyDescriptor struct1;
     struct1
         .Int("x")
-        .Struct("n", substruct, 4)
-        .Float("y", 19)
+        .Struct("n", substruct, Ame::Rhi::ShaderFlags::All(), 4)
+        .Float("y", Ame::Rhi::ShaderFlags::All(), 19)
         .Bool("z");
 
     Shading::PropertyDescriptor struct2;
     struct2
         .Int("x")
-        .Float("y", 17);
+        .Float("y", Ame::Rhi::ShaderFlags::All(), 17);
 
     Shading::PropertyDescriptor descriptor;
     descriptor
         .Struct("x1", struct1)
-        .Struct("x2", struct2, 2)
+        .Struct("x2", struct2, Ame::Rhi::ShaderFlags::All(), 2)
         .Struct("y1", struct1)
         .Struct("y2", struct2);
 

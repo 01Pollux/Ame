@@ -27,9 +27,9 @@ namespace Ame::Math
         }
 
         void Width(
-            value_type Val)
+            value_type val)
         {
-            this->x = Val;
+            this->x = val;
         }
 
         [[nodiscard]] value_type Height() const
@@ -38,9 +38,9 @@ namespace Ame::Math
         }
 
         void Height(
-            value_type Val)
+            value_type val)
         {
-            this->y = Val;
+            this->y = val;
         }
     };
 

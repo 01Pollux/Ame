@@ -45,16 +45,16 @@ namespace Ame::Rhi::Util
     class SlotBasedBuffer
     {
     public:
-        using Type                                = Ty;
-        static constexpr uint32_t SizePerInstance = sizeof(Type);
-        static constexpr uint32_t InvalidIndex    = std::numeric_limits<uint32_t>::max();
+        using Type                                  = Ty;
+        static constexpr uint32_t c_SizePerInstance = sizeof(Type);
+        static constexpr uint32_t c_InvalidIndex    = std::numeric_limits<uint32_t>::max();
 
         SlotBasedBuffer(
-            Device&                    RhiDevice,
-            const SlotBasedBufferDesc& Desc = {}) :
-            m_Device(RhiDevice),
+            Device&                    rhiDevice,
+            const SlotBasedBufferDesc& desc = {}) :
+            m_Device(rhiDevice),
             m_Stream(std::make_unique<Streaming::BufferOStream>()),
-            m_Desc(Desc)
+            m_Desc(desc)
         {
             uint32_t InitialCount = std::exchange(m_Desc.InstanceCount, 0);
             GrowSlots(InitialCount);
@@ -77,7 +77,7 @@ namespace Ame::Rhi::Util
             uint32_t    index,
             const Type& data)
         {
-            Write(index, std::addressof(data), SizePerInstance);
+            Write(index, std::addressof(data), c_SizePerInstance);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace Ame::Rhi::Util
         [[nodiscard]] size_t GetOffset(
             uint32_t index) const
         {
-            return Math::AlignUp(static_cast<size_t>(index) * SizePerInstance, m_Desc.Alignment);
+            return Math::AlignUp(static_cast<size_t>(index) * c_SizePerInstance, m_Desc.Alignment);
         }
 
         /// <summary>
@@ -251,8 +251,8 @@ namespace Ame::Rhi::Util
             uint32_t instanceCount)
         {
             BufferDesc desc{
-                .size            = SizePerInstance * instanceCount,
-                .structureStride = SizePerInstance,
+                .size            = c_SizePerInstance * instanceCount,
+                .structureStride = c_SizePerInstance,
                 .usageMask       = m_Desc.UsageFlags,
             };
 

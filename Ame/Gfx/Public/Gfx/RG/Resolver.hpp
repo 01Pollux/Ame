@@ -73,7 +73,7 @@ namespace Ame::Gfx::RG
             const ResourceViewId&   viewId,
             Rhi::StageBits          stages,
             Rhi::ResourceFormat     format = Rhi::ResourceFormat::UNKNOWN,
-            const Rhi::BufferRange& range  = Rhi::EntireBuffer);
+            const Rhi::BufferRange& range  = Rhi::c_EntireBuffer);
 
     private:
         /// <summary>
@@ -108,7 +108,7 @@ namespace Ame::Gfx::RG
             Rhi::StageBits                 stages,
             const RtvCustomDesc&           rtvDesc,
             Rhi::ResourceFormat            format,
-            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
+            const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
         /// <summary>
         /// Write resource as renter target with no clear operations
@@ -117,7 +117,7 @@ namespace Ame::Gfx::RG
             const ResourceViewId&          viewId,
             Rhi::StageBits                 stages,
             Rhi::ResourceFormat            format,
-            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
+            const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
         /// <summary>
         /// Write resource as depth stencil
@@ -127,7 +127,7 @@ namespace Ame::Gfx::RG
             Rhi::StageBits                 stages,
             const DsvCustomDesc&           dsvDesc,
             Rhi::ResourceFormat            format,
-            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
+            const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
         /// <summary>
         /// Write resource as depth stencil
@@ -136,7 +136,7 @@ namespace Ame::Gfx::RG
             const ResourceViewId&          viewId,
             Rhi::StageBits                 stages,
             Rhi::ResourceFormat            format,
-            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
+            const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
     public:
         /// <summary>
@@ -163,7 +163,7 @@ namespace Ame::Gfx::RG
             const ResourceViewId&   viewId,
             Rhi::StageBits          stages,
             Rhi::ResourceFormat     format = Rhi::ResourceFormat::UNKNOWN,
-            const Rhi::BufferRange& range  = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range  = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,
@@ -180,7 +180,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadVertexBuffer(
             const ResourceViewId&   viewId,
-            const Rhi::BufferRange& range = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,
@@ -197,7 +197,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadIndexBuffer(
             const ResourceViewId&   viewId,
-            const Rhi::BufferRange& range = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,
@@ -215,7 +215,7 @@ namespace Ame::Gfx::RG
         void ReadConstantBuffer(
             const ResourceViewId&   viewId,
             Rhi::StageBits          stages,
-            const Rhi::BufferRange& range = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,
@@ -233,7 +233,7 @@ namespace Ame::Gfx::RG
         void ReadStructuredBuffer(
             const ResourceViewId&   viewId,
             Rhi::StageBits          stages,
-            const Rhi::BufferRange& range = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,
@@ -252,7 +252,7 @@ namespace Ame::Gfx::RG
             const ResourceViewId&   viewId,
             Rhi::StageBits          stages,
             Rhi::ResourceFormat     format,
-            const Rhi::BufferRange& range = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,
@@ -269,7 +269,7 @@ namespace Ame::Gfx::RG
         /// </summary>
         void ReadIndirectBuffer(
             const ResourceViewId&   viewId,
-            const Rhi::BufferRange& range = Rhi::EntireBuffer)
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer)
         {
             ReadBuffer(
                 viewId,

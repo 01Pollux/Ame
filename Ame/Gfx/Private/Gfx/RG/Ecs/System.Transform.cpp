@@ -20,7 +20,7 @@ namespace Ame::Gfx::RG
                 auto& instanceInfo = entity.GetComponentMut<RenderInstance>();
                 if (iter.event() == flecs::OnSet)
                 {
-                    if (instanceInfo.TransformIndex == transformBuffer.InvalidIndex)
+                    if (instanceInfo.TransformIndex == transformBuffer.c_InvalidIndex)
                     {
                         instanceInfo.TransformIndex = transformBuffer.Rent();
                     }
@@ -29,10 +29,10 @@ namespace Ame::Gfx::RG
                 }
                 else
                 {
-                    if (instanceInfo.TransformIndex != transformBuffer.InvalidIndex)
+                    if (instanceInfo.TransformIndex != transformBuffer.c_InvalidIndex)
                     {
                         transformBuffer.Return(instanceInfo.TransformIndex);
-                        instanceInfo.TransformIndex = transformBuffer.InvalidIndex;
+                        instanceInfo.TransformIndex = transformBuffer.c_InvalidIndex;
                     }
                 }
             }

@@ -48,7 +48,7 @@ namespace Ame::Asset
         // First load all the meta files
         for (auto& metafilePath : GetFiles(m_RootPath))
         {
-            if (!metafilePath.ends_with(AssetMetaDataDef::s_MetaFileExtension))
+            if (!metafilePath.ends_with(AssetMetaDataDef::c_MetaFileExtension))
             {
                 continue;
             }
@@ -406,7 +406,7 @@ namespace Ame::Asset
                 {
                     iter = m_AssetMeta.emplace(guid, AssetMetaDataDef(guid, curAsset->GetPath())).first;
                     m_AssetPath.emplace(curAsset->GetPath(), guid);
-                    iter->second.SetMetaPath(std::format("{}{}", curAsset->GetPath(), AssetMetaDataDef::s_MetaFileExtension));
+                    iter->second.SetMetaPath(std::format("{}{}", curAsset->GetPath(), AssetMetaDataDef::c_MetaFileExtension));
                 }
                 metaData = &iter->second;
             }

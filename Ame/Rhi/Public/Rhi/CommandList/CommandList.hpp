@@ -269,7 +269,7 @@ namespace Ame::Rhi
         void RequireState(
             const Texture&            texture,
             const AccessLayoutStage&  state,
-            const TextureSubresource& subresource = AllSubresources,
+            const TextureSubresource& subresource = c_AllSubresources,
             bool                      append      = false);
 
         /// <summary>

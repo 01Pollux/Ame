@@ -13,7 +13,7 @@ namespace Ame::Rhi::Streaming
 
         explicit BufferView(
             Buffer      buffer,
-            BufferRange range = EntireBuffer) :
+            BufferRange range = c_EntireBuffer) :
             BufferRef(std::move(buffer)),
             Range(range.Transform(BufferRef))
         {

@@ -87,7 +87,7 @@ namespace Ame::Windowing
         /// Set window to fullscreen
         /// </summary>
         void SetFullscreen(
-            bool Sstate);
+            bool state);
 
         /// <summary>
         /// Whether the window is minimized or not

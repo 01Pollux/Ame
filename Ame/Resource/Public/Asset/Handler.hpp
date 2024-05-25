@@ -62,10 +62,10 @@ namespace Ame::Asset
             archive >> guid;
             if (guid != Guid::c_Null)
             {
-                auto Iter = m_Assets.find(guid);
-                if (Iter != m_Assets.end())
+                auto iter = m_Assets.find(guid);
+                if (iter != m_Assets.end())
                 {
-                    return std::dynamic_pointer_cast<Ty>(Iter->second);
+                    return std::dynamic_pointer_cast<Ty>(iter->second);
                 }
             }
             return nullptr;

@@ -22,7 +22,7 @@ namespace Ame::Ecs::Component
         {
             nri::Buffer* NriBuffer = nullptr;
 
-            const void* CpuView_Or_Offset = nullptr;
+            const void* CpuViewOrOffset = nullptr;
 
             uint32_t Count  = 0;
             uint32_t Stride = 0;

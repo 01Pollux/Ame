@@ -34,19 +34,19 @@ namespace Ame::Rhi::Util
     public:
         struct Handle
         {
-            static constexpr uint32_t InvalidValue = std::numeric_limits<uint32_t>::max();
+            static constexpr uint32_t c_InvalidValue = std::numeric_limits<uint32_t>::max();
 
-            uint32_t BlockSlot = InvalidValue;
-            uint32_t Offset    = InvalidValue;
-            uint32_t Size      = InvalidValue;
+            uint32_t BlockSlot = c_InvalidValue;
+            uint32_t Offset    = c_InvalidValue;
+            uint32_t Size      = c_InvalidValue;
 
             operator bool() const
             {
-                return BlockSlot != InvalidValue;
+                return BlockSlot != c_InvalidValue;
             }
         };
 
-        static constexpr Handle InvalidHandle = {};
+        static constexpr Handle c_InvalidHandle = {};
 
     public:
         BlockBasedBuffer(
@@ -126,9 +126,9 @@ namespace Ame::Rhi::Util
             const void* data,
             size_t      size)
         {
-            auto& Block = m_Blocks[slot];
-            Block.Stream->seekp(offset);
-            Block.Stream->write(std::bit_cast<const char*>(data), size);
+            auto& block = m_Blocks[slot];
+            block.Stream->seekp(offset);
+            block.Stream->write(std::bit_cast<const char*>(data), size);
         }
 
     public:

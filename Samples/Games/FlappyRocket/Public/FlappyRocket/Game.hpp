@@ -29,19 +29,19 @@ namespace Ame::FlappyRocket
 {
     class FlappyRocketGame
     {
-        static inline const String WorldName  = "Flappy Rocket";
-        static inline const String PlayerName = "Player";
-        static inline const String CameraName = "Camera";
+        static inline const String c_WorldName  = "Flappy Rocket";
+        static inline const String c_PlayerName = "Player";
+        static inline const String c_CameraName = "Camera";
 
     public:
         FlappyRocketGame(
-            Rhi::Device&                      Device,
-            Ecs::Universe&                    EcsUniverse,
+            Rhi::Device&                      device,
+            Ecs::Universe&                    ecsUniverse,
             Gfx::Renderer&                    renderer,
-            Gfx::Cache::ShaderCache&          ShaderCache,
-            Gfx::Cache::CommonShader&         CommonShaders,
-            Gfx::Cache::CommonPipelineState&  CommonPipelines,
-            Gfx::Cache::MaterialBindingCache& MaterialCache);
+            Gfx::Cache::ShaderCache&          shaderCache,
+            Gfx::Cache::CommonShader&         commonShaders,
+            Gfx::Cache::CommonPipelineState&  commonPipelines,
+            Gfx::Cache::MaterialBindingCache& materialCache);
 
     public:
         /// <summary>
@@ -59,10 +59,10 @@ namespace Ame::FlappyRocket
         /// Setup the render graph for the game
         /// </summary>
         void SetupRenderGraph(
-            Gfx::RG::Graph&                   RenderGraph,
-            Gfx::Cache::CommonShader&         CommonShaders,
-            Gfx::Cache::CommonPipelineState&  CommonPipelines,
-            Gfx::Cache::MaterialBindingCache& MaterialCache);
+            Gfx::RG::Graph&                   renderGraph,
+            Gfx::Cache::CommonShader&         commonShaders,
+            Gfx::Cache::CommonPipelineState&  commonPipelines,
+            Gfx::Cache::MaterialBindingCache& materialCache);
 
     private:
         Rhi::Device*             m_Device      = nullptr;

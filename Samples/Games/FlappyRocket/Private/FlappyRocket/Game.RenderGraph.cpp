@@ -11,18 +11,18 @@ namespace Ame::FlappyRocket
     namespace RG = Gfx::RG;
 
     void FlappyRocketGame::SetupRenderGraph(
-        Gfx::RG::Graph&                   RenderGraph,
-        Gfx::Cache::CommonShader&         CommonShaders,
-        Gfx::Cache::CommonPipelineState&  CommonPipelines,
-        Gfx::Cache::MaterialBindingCache& MaterialCache)
+        Gfx::RG::Graph&                   renderGraph,
+        Gfx::Cache::CommonShader&         commonShaders,
+        Gfx::Cache::CommonPipelineState&  commonPipelines,
+        Gfx::Cache::MaterialBindingCache& materialCache)
     {
-        auto& PassStorage = RenderGraph.GetPassStorage();
+        auto& passStorage = renderGraph.GetPassStorage();
 
-        PassStorage.NewPass<RG::Std::EntityCollectPass>(
+        passStorage.NewPass<RG::Std::EntityCollectPass>(
             *m_EcsUniverse,
-            CommonPipelines);
-        PassStorage.NewPass<RG::Std::GBufferPass>(
-            CommonShaders,
-            MaterialCache);
+            commonPipelines);
+        passStorage.NewPass<RG::Std::GBufferPass>(
+            commonShaders,
+            materialCache);
     }
 } // namespace Ame::FlappyRocket

@@ -12,8 +12,8 @@ namespace Ame::Asset
 
     struct AssetMetaDataDef
     {
-        static constexpr const char s_MetaFileExtension[]     = ".aamd"; // Ame Asset Meta Data
-        static constexpr size_t     s_MetaFileExtensionLength = std::size(s_MetaFileExtension) - 1;
+        static constexpr const char c_MetaFileExtension[]     = ".aamd"; // Ame Asset Meta Data
+        static constexpr size_t     c_MetaFileExtensionLength = std::size(c_MetaFileExtension) - 1;
 
         /// <summary>
         /// Creating an asset's metadata from an input stream.
@@ -102,7 +102,7 @@ namespace Ame::Asset
         /// Marks the asset as dirty.
         /// </summary>
         void SetDirty(
-            bool IsDirty = true) noexcept;
+            bool isDirty = true) noexcept;
 
         /// <summary>
         /// Get the asset's dependencies.

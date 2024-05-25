@@ -359,15 +359,15 @@ namespace Ame::Rhi
     {
         AtomBufferSubresourceStateList<false> combined{};
 
-        bool HasAllState = false;
+        bool hasAllState = false;
         for (auto& state : states)
         {
-            HasAllState |= state.stages == nri::StageBits::ALL;
+            hasAllState |= state.stages == nri::StageBits::ALL;
             combined.access |= state.access;
             combined.stages |= state.stages;
         }
 
-        if (HasAllState)
+        if (hasAllState)
         {
             combined.stages = nri::StageBits::ALL;
         }

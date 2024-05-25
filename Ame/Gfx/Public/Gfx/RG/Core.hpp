@@ -65,16 +65,16 @@ namespace Ame::Gfx::RG
 
     enum class TextureViewType
     {
-        _2D,
-        _2DArray,
-        _3D,
+        Texture2D,
+        Texture2DArray,
+        Texture3D,
     };
 
     //
 
     struct RtvCustomDesc
     {
-        Math::Color4 ClearColor = Colors::Black;
+        Math::Color4 ClearColor = Colors::c_Black;
 
         ERTClearType ClearType : 1 = ERTClearType::Ignore;
 

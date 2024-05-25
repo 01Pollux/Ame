@@ -9,7 +9,7 @@ namespace Ame::Log
     /// </summary>
     static Logger& Engine()
     {
-        return Logger::GetLogger(Names::Engine);
+        return Logger::GetLogger(Names::c_Engine);
     }
 
     /// <summary>
@@ -17,7 +17,7 @@ namespace Ame::Log
     /// </summary>
     static Logger& Ecs()
     {
-        return Logger::GetLogger(Names::Ecs);
+        return Logger::GetLogger(Names::c_Ecs);
     }
 
     /// <summary>
@@ -25,7 +25,7 @@ namespace Ame::Log
     /// </summary>
     [[nodiscard]] static Logger& Client()
     {
-        return Logger::GetLogger(Names::Client);
+        return Logger::GetLogger(Names::c_Client);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ namespace Ame::Log
     /// </summary>
     static Logger& Editor()
     {
-        return Logger::GetLogger(Names::Editor);
+        return Logger::GetLogger(Names::c_Editor);
     }
 
     /// <summary>
@@ -41,7 +41,7 @@ namespace Ame::Log
     /// </summary>
     [[nodiscard]] static Logger& Asset()
     {
-        return Logger::GetLogger(Names::Asset);
+        return Logger::GetLogger(Names::c_Asset);
     }
 
     /// <summary>
@@ -49,7 +49,7 @@ namespace Ame::Log
     /// </summary>
     [[nodiscard]] static Logger& Window()
     {
-        return Logger::GetLogger(Names::Window);
+        return Logger::GetLogger(Names::c_Window);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ namespace Ame::Log
     /// </summary>
     [[nodiscard]] static Logger& Rhi()
     {
-        return Logger::GetLogger(Names::Rhi);
+        return Logger::GetLogger(Names::c_Rhi);
     }
 
     /// <summary>
@@ -65,6 +65,6 @@ namespace Ame::Log
     /// </summary>
     [[nodiscard]] static Logger& Gfx()
     {
-        return Logger::GetLogger(Names::Gfx);
+        return Logger::GetLogger(Names::c_Gfx);
     }
 } // namespace Ame::Log

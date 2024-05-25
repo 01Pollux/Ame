@@ -15,7 +15,7 @@ namespace Ame::FlappyRocket
 
     private:
         void SetClearColor(
-            Rhi::Device& Device) const;
+            Rhi::Device& rhiDevice) const;
 
     private:
         void CreateWorld();

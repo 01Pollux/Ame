@@ -7,17 +7,17 @@ namespace Ame::Gfx::RG
 {
     class ResourceId
     {
-        static constexpr size_t InvalidId = std::numeric_limits<uint32_t>::max();
+        static constexpr size_t c_InvalidId = std::numeric_limits<uint32_t>::max();
 
     public:
         ResourceId() = default;
 
         explicit ResourceId(
-            StringView Name) :
-            m_Id(Name)
+            StringView name) :
+            m_Id(name)
 #ifndef AME_DIST
             ,
-            m_Name(Name)
+            m_Name(name)
 #endif
         {
         }
@@ -43,24 +43,24 @@ namespace Ame::Gfx::RG
         }
 
         auto operator<=>(
-            const ResourceId& Other) const noexcept
+            const ResourceId& other) const noexcept
         {
-            return m_Id <=> Other.m_Id;
+            return m_Id <=> other.m_Id;
         }
 
         operator bool() const noexcept
         {
-            return static_cast<size_t>(m_Id) != InvalidId;
+            return static_cast<size_t>(m_Id) != c_InvalidId;
         }
 
         /// <summary>
         /// Create a resource view id from this resource id
         /// </summary>
         [[nodiscard]] ResourceViewId operator()(
-            StringView ViewName) const;
+            StringView viewName) const;
 
     private:
-        StringHash m_Id = InvalidId;
+        StringHash m_Id = c_InvalidId;
 #ifndef AME_DIST
         String m_Name;
 #endif

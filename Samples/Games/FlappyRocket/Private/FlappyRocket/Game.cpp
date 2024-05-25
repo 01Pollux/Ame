@@ -15,74 +15,74 @@
 namespace Ame::FlappyRocket
 {
     FlappyRocketGame::FlappyRocketGame(
-        Rhi::Device&                      Device,
-        Ecs::Universe&                    EcsUniverse,
+        Rhi::Device&                      device,
+        Ecs::Universe&                    ecsUniverse,
         Gfx::Renderer&                    renderer,
-        Gfx::Cache::ShaderCache&          ShaderCache,
-        Gfx::Cache::CommonShader&         CommonShaders,
-        Gfx::Cache::CommonPipelineState&  CommonPipelines,
-        Gfx::Cache::MaterialBindingCache& MaterialCache) :
-        m_Device(&Device),
-        m_EcsUniverse(&EcsUniverse),
-        m_ShaderCache(&ShaderCache)
+        Gfx::Cache::ShaderCache&          shaderCache,
+        Gfx::Cache::CommonShader&         commonShaders,
+        Gfx::Cache::CommonPipelineState&  commonPipelines,
+        Gfx::Cache::MaterialBindingCache& materialCache) :
+        m_Device(&device),
+        m_EcsUniverse(&ecsUniverse),
+        m_ShaderCache(&shaderCache)
     {
-        SetupRenderGraph(renderer.GetRenderGraph(), CommonShaders, CommonPipelines, MaterialCache);
+        SetupRenderGraph(renderer.GetRenderGraph(), commonShaders, commonPipelines, materialCache);
     }
 
     //
 
     void FlappyRocketGame::ResetWorld()
     {
-        m_EcsUniverse->RemoveWorld(WorldName);
-        auto& World = m_EcsUniverse->CreateWorld(WorldName);
-        m_EcsUniverse->SetActiveWorld(&World);
+        m_EcsUniverse->RemoveWorld(c_WorldName);
+        auto& world = m_EcsUniverse->CreateWorld(c_WorldName);
+        m_EcsUniverse->SetActiveWorld(&world);
     }
 
     //
 
     [[nodiscard]] static Ptr<Gfx::Shading::Material> CreateMaterial(
-        Rhi::Device&             Device,
-        Gfx::Cache::ShaderCache& ShaderCache)
+        Rhi::Device&             device,
+        Gfx::Cache::ShaderCache& shaderCache)
     {
         using namespace EnumBitOperators;
         namespace GS = Gfx::Shading;
 
-        GS::MaterialPipelineState PipelineState;
-        PipelineState.Rasterizer.Cull = Rhi::CullMode::NONE;
+        GS::MaterialPipelineState pipelineState;
+        pipelineState.Rasterizer.Cull = Rhi::CullMode::NONE;
 
-        GS::PropertyDescriptor Descriptor;
+        GS::PropertyDescriptor descriptor;
 
-        Rhi::ShaderCompileDesc CompileDesc;
+        Rhi::ShaderCompileDesc compileDesc;
 
-        CompileDesc.SetStage(Rhi::ShaderType::VERTEX_SHADER);
-        PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
+        compileDesc.SetStage(Rhi::ShaderType::VERTEX_SHADER);
+        pipelineState.Shaders.emplace_back(shaderCache.Load(c_ShaderSource, compileDesc).get());
 
-        CompileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
-        CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
-        PipelineState.Shaders.emplace_back(ShaderCache.Load(s_ShaderSource, CompileDesc).get());
+        compileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
+        compileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
+        pipelineState.Shaders.emplace_back(shaderCache.Load(c_ShaderSource, compileDesc).get());
 
         return GS::MaterialCompiler::Compile(
-                   Device,
-                   ShaderCache,
-                   std::move(PipelineState),
-                   Descriptor)
+                   device,
+                   shaderCache,
+                   std::move(pipelineState),
+                   descriptor)
             .get();
     }
 
     void FlappyRocketGame::AddAllEntities()
     {
-        auto& World = *m_EcsUniverse->GetActiveWorld();
+        auto& world = *m_EcsUniverse->GetActiveWorld();
 
-        auto Player       = World.CreateEntity(PlayerName);
-        auto PlayerSprite = Ecs::Component::Sprite::Quad();
+        auto player       = world.CreateEntity(c_PlayerName);
+        auto playerSprite = Ecs::Component::Sprite::Quad();
 
-        PlayerSprite.Material = CreateMaterial(*m_Device, *m_ShaderCache);
+        playerSprite.Material = CreateMaterial(*m_Device, *m_ShaderCache);
 
-        Player.AddComponent(std::move(PlayerSprite));
-        Player.AddComponent<Ecs::Component::Transform>();
+        player.AddComponent(std::move(playerSprite));
+        player.AddComponent<Ecs::Component::Transform>();
 
-        auto Camera = World.CreateEntity(CameraName);
-        Camera.AddComponent<Ecs::Component::Camera>();
-        Camera.AddComponent<Ecs::Component::Transform>(Math::Mat::c_Identity<Math::Matrix3x3>, Math::Vec::c_Backward<Math::Vector3> * 10.f);
+        auto camera = world.CreateEntity(c_CameraName);
+        camera.AddComponent<Ecs::Component::Camera>();
+        camera.AddComponent<Ecs::Component::Transform>(Math::Mat::c_Identity<Math::Matrix3x3>, Math::Vec::c_Backward<Math::Vector3> * 10.f);
     }
 } // namespace Ame::FlappyRocket

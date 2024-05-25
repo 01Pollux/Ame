@@ -6,7 +6,7 @@
 namespace boost::serialization
 {
     class access;
-}
+} // namespace boost::serialization
 
 namespace Ame
 {

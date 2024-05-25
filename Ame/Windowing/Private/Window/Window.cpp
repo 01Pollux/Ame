@@ -11,10 +11,10 @@ namespace Ame::Windowing
     static std::mutex s_GlfwCreateMutex;
 
     static void GlfwErrorCallback(
-        int         Code,
-        const char* Description)
+        int         code,
+        const char* description)
     {
-        Log::Window().Error("GLFW Error: {0} ({1})", Description, Code);
+        Log::Window().Error("GLFW Error: {0} ({1})", description, code);
     }
 
     Window::Window(
@@ -70,10 +70,10 @@ namespace Ame::Windowing
         {
             if (windowDesc.StartInMiddle)
             {
-                int X = (mode->width - windowDesc.Size.Width()) / 2;
-                int Y = (mode->height - windowDesc.Size.Height()) / 2;
+                int x = (mode->width - windowDesc.Size.Width()) / 2;
+                int y = (mode->height - windowDesc.Size.Height()) / 2;
 
-                glfwSetWindowPos(m_Handle, X, Y);
+                glfwSetWindowPos(m_Handle, x, y);
             }
 
             if (windowDesc.Maximized)
@@ -96,13 +96,12 @@ namespace Ame::Windowing
             m_Handle,
             [](GLFWwindow* glfwWindow, int width, int height)
             {
-                auto App = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
-
+                auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
                 if (width && height)
                 {
-                    App->OnWindowSizeChanged().Broadcast(*App, App->m_WindowSize);
+                    window->OnWindowSizeChanged().Broadcast(*window, window->m_WindowSize);
                 }
-                App->m_WindowSize = Math::Size2I{ width, height };
+                window->m_WindowSize = Math::Size2I{ width, height };
             });
 
         glfwSetWindowCloseCallback(

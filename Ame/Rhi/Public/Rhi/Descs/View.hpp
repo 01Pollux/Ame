@@ -92,7 +92,7 @@ namespace Ame::Rhi
     //
 
     template<typename Ty>
-    static constexpr Ty RemainingSize = static_cast<Ty>(0);
+    static constexpr Ty c_RemainingSize = static_cast<Ty>(0);
 
     struct BufferRange
     {
@@ -114,7 +114,7 @@ namespace Ame::Rhi
             const Buffer& buffer) const noexcept;
     };
 
-    static constexpr BufferRange EntireBuffer = BufferRange(0, RemainingSize<size_t>);
+    static constexpr BufferRange c_EntireBuffer = BufferRange(0, c_RemainingSize<size_t>);
 
     //
 
@@ -124,10 +124,10 @@ namespace Ame::Rhi
         Mip_t Count  = 0;
 
         constexpr MipLevel(
-            Mip_t Offset = 0,
-            Mip_t Count  = 0) :
-            Offset(Offset),
-            Count(Count)
+            Mip_t offset = 0,
+            Mip_t count  = 0) :
+            Offset(offset),
+            Count(count)
         {
         }
 
@@ -138,7 +138,7 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr MipLevel EntireMipChain = MipLevel(0, RemainingSize<Mip_t>);
+    static constexpr MipLevel c_EntireMipChain = MipLevel(0, c_RemainingSize<Mip_t>);
 
     //
 
@@ -162,7 +162,7 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr ArraySlice EntireArray = ArraySlice(0, RemainingSize<Dim_t>);
+    static constexpr ArraySlice c_EntireArray = ArraySlice(0, c_RemainingSize<Dim_t>);
 
     //
 
@@ -172,8 +172,8 @@ namespace Ame::Rhi
         ArraySlice Array;
 
         constexpr TextureSubresource(
-            MipLevel   mips  = EntireMipChain,
-            ArraySlice array = EntireArray) :
+            MipLevel   mips  = c_EntireMipChain,
+            ArraySlice array = c_EntireArray) :
             Mips(mips),
             Array(array)
         {
@@ -186,13 +186,13 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr TextureSubresource AllSubresources = TextureSubresource(EntireMipChain, EntireArray);
+    static constexpr TextureSubresource c_AllSubresources = TextureSubresource(c_EntireMipChain, c_EntireArray);
 
     //
 
     struct BufferViewDesc
     {
-        BufferRange    Range  = EntireBuffer;
+        BufferRange    Range  = c_EntireBuffer;
         ResourceFormat Format = ResourceFormat::UNKNOWN;
         BufferViewType Type   = BufferViewType::ConstantBuffer;
 
@@ -203,7 +203,7 @@ namespace Ame::Rhi
     struct TextureViewDesc
     {
         TextureViewType    Type;
-        TextureSubresource Subresource = AllSubresources;
+        TextureSubresource Subresource = c_AllSubresources;
         ResourceFormat     Format      = ResourceFormat::UNKNOWN; // default to the format of the texture
         TextureViewFlags   Flags       = TextureViewFlags::None;
 

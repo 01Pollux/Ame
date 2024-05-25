@@ -24,6 +24,11 @@ namespace Ame::Rhi
 
     class DeviceImpl
     {
+    private:
+        using PipelineLayouCacheMap         = Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>;
+        using GraphicsPipelineStateCacheMap = Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>>;
+        using ComputePipelineStateCacheMap  = Util::TypedCache<ComputePipelineDesc, Ptr<PipelineState>>;
+
         friend class Device;
 
     public:
@@ -325,12 +330,12 @@ namespace Ame::Rhi
         nri::Device*       m_Device       = nullptr;
         nri::CommandQueue* m_CommandQueue = nullptr;
 
-        Math::Color4        m_ClearColor = Colors::Magenta;
+        Math::Color4        m_ClearColor = Colors::c_Magenta;
         BackbufferClearType m_ClearType  = BackbufferClearType::Color;
 
-        Util::TypedCache<PipelineLayoutDesc, Ptr<PipelineLayout>>  m_PipelineLayoutCache;
-        Util::TypedCache<GraphicsPipelineDesc, Ptr<PipelineState>> m_GraphicsPipelineCache;
-        Util::TypedCache<ComputePipelineDesc, Ptr<PipelineState>>  m_ComputePipelineCache;
+        PipelineLayouCacheMap         m_PipelineLayoutCache;
+        GraphicsPipelineStateCacheMap m_GraphicsPipelineCache;
+        ComputePipelineStateCacheMap  m_ComputePipelineCache;
 
         uint32_t m_DrawIndexedCommandSize = 0;
     };
