@@ -8,61 +8,61 @@
 namespace Ame::Asset
 {
     Co::result<void> Storage::SaveAsset(
-        const AddDesc& Desc)
+        const AddDesc& desc)
     {
-        AME_LOG_ASSERT(Log::Asset(), Desc.Asset != nullptr, "Asset is null");
+        AME_LOG_ASSERT(Log::Asset(), desc.Asset != nullptr, "Asset is null");
 
         using namespace EnumBitOperators;
 
-        IAssetPackage* Package = Desc.PreferredPackage;
-        if ((Desc.Flags & PackageFlags::Memory) == PackageFlags::Memory)
+        IAssetPackage* package = desc.PreferredPackage;
+        if ((desc.Flags & PackageFlags::Memory) == PackageFlags::Memory)
         {
-            Package = m_Packages.front().get();
+            package = m_Packages.front().get();
         }
-        else if (!Package)
+        else if (!package)
         {
             AME_LOG_ASSERT(Log::Asset(), m_Packages.size() > 1, "No packages mounted");
-            Package = std::next(m_Packages.begin())->get();
+            package = std::next(m_Packages.begin())->get();
         }
 #if AME_DEBUG
         else
         {
             if (std::ranges::find_if(
-                    m_Packages, [Package](const auto& CurPackage)
-                    { return CurPackage.get() == Package; }) == m_Packages.end())
+                    m_Packages, [package](const auto& curPackage)
+                    { return curPackage.get() == package; }) == m_Packages.end())
             {
                 AME_LOG_ASSERT(Log::Asset(), false, "Package not mounted");
             }
         }
 #endif
 
-        return Package->SaveAsset(Desc.Asset);
+        return package->SaveAsset(desc.Asset);
     }
 
     void Storage::RemoveAsset(
-        const Handle& AssetGuid)
+        const Guid& guid)
     {
-        for (auto& Package : m_Packages)
+        for (auto& package : m_Packages)
         {
-            if (Package->RemoveAsset(AssetGuid))
+            if (package->RemoveAsset(guid))
             {
                 return;
             }
         }
 
-        Log::Asset().Warning("Asset '{}' not found", AssetGuid.ToString());
+        Log::Asset().Warning("Asset '{}' not found", guid.ToString());
     }
 
     //
 
     auto Storage::GetAllAssets(
-        const PackageFlags& Flags) -> Co::generator<PackageAndAsset>
+        const PackageFlags& flags) -> Co::generator<PackageAndAsset>
     {
-        for (auto& Packages : GetPackages(Flags))
+        for (auto& package : GetPackages(flags))
         {
-            for (auto& AssetGuid : Packages->GetAssets())
+            for (auto& guid : package->GetAssets())
             {
-                co_yield { Packages, AssetGuid };
+                co_yield { package, guid };
             }
         }
     }
@@ -70,28 +70,28 @@ namespace Ame::Asset
     //
 
     auto Storage::FindAsset(
-        const String&       Path,
-        const PackageFlags& Flags) -> PackageAndAsset
+        const String&       path,
+        const PackageFlags& flags) -> PackageAndAsset
     {
-        for (auto& Package : GetPackages(Flags))
+        for (auto& package : GetPackages(flags))
         {
-            if (auto Asset = Package->FindAsset(Path); !Asset.is_nil())
+            if (auto guid = package->FindAsset(path); !guid.is_nil())
             {
-                return { Package, Asset };
+                return { package, guid };
             }
         }
-        return { nullptr, Asset::Handle::Null };
+        return { nullptr, Guid::Null };
     }
 
     auto Storage::FindAssets(
-        const std::regex&   PathRegex,
-        const PackageFlags& Flags) -> Co::generator<PackageAndAsset>
+        const std::regex&   pathRegex,
+        const PackageFlags& flags) -> Co::generator<PackageAndAsset>
     {
-        for (auto& Package : GetPackages(Flags))
+        for (auto& package : GetPackages(flags))
         {
-            for (auto& Asset : Package->FindAssets(PathRegex))
+            for (auto& guid : package->FindAssets(pathRegex))
             {
-                co_yield { Package, Asset };
+                co_yield { package, guid };
             }
         }
     }

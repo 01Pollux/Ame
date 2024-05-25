@@ -12,18 +12,18 @@ namespace Ame::Asset::Common
         class Handler;
 
         BinaryBufferAsset(
-            const Handle& AssetGuid,
-            String        Path) :
-            BinaryBufferAsset({}, AssetGuid, std::move(Path))
+            const Guid& guid,
+            String      path) :
+            BinaryBufferAsset({}, guid, std::move(path))
         {
         }
 
         BinaryBufferAsset(
-            std::vector<uint8_t> Buffer,
-            const Handle&        AssetGuid,
-            String               Path) :
-            IAsset(AssetGuid, std::move(Path)),
-            m_Buffer(std::move(Buffer))
+            std::vector<uint8_t> buffer,
+            const Guid&          guid,
+            String               path) :
+            IAsset(guid, std::move(path)),
+            m_Buffer(std::move(buffer))
         {
         }
 
@@ -48,9 +48,9 @@ namespace Ame::Asset::Common
         /// Set data of the buffer
         /// </summary>
         void SetData(
-            std::vector<uint8_t> Buffer)
+            std::vector<uint8_t> buffer)
         {
-            m_Buffer = std::move(Buffer);
+            m_Buffer = std::move(buffer);
         }
 
         /// <summary>
@@ -64,4 +64,4 @@ namespace Ame::Asset::Common
     private:
         std::vector<uint8_t> m_Buffer;
     };
-} // namespace Ame::Asset
+} // namespace Ame::Asset::Common

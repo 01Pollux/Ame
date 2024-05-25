@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Asset/Handle.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <span>
 
 #include <FileSystem/Path.hpp>
-#include <Asset/Handle.hpp>
+#include <Asset/Core.hpp>
 
 namespace Ame::Asset
 {
@@ -20,31 +19,31 @@ namespace Ame::Asset
         /// Creating an asset's metadata from an input stream.
         /// </summary>
         explicit AssetMetaDataDef(
-            std::istream& Stream);
+            std::istream& stream);
 
         /// <summary>
         /// Creating an empty asset's metadata.
         /// </summary>
         AssetMetaDataDef(
-            const Handle& AssetGuid,
-            String        Path);
+            const Guid& guid,
+            String      path);
 
         /// <summary>
         /// Creating an asset's metadata from an input stream.
         /// </summary>
         void Export(
-            std::ostream& Stream) const;
+            std::ostream& stream) const;
 
         /// <summary>
         /// Get the asset's GUID.
         /// </summary>
-        [[nodiscard]] Handle GetGuid() const noexcept;
+        [[nodiscard]] Guid GetGuid() const noexcept;
 
         /// <summary>
         /// Set the asset's GUID.
         /// </summary>
         void SetGuid(
-            const Handle& Guid) noexcept;
+            const Guid& guid) noexcept;
 
         /// <summary>
         /// Get the asset's hash.
@@ -55,7 +54,7 @@ namespace Ame::Asset
         /// Set the asset's hash.
         /// </summary>
         void SetHash(
-            String Hash) noexcept;
+            String hash) noexcept;
 
         /// <summary>
         /// Get the asset's loader id.
@@ -66,7 +65,7 @@ namespace Ame::Asset
         /// Set the asset's loader id.
         /// </summary>
         void SetLoaderId(
-            size_t Id) noexcept;
+            size_t id) noexcept;
 
         /// <summary>
         /// Get the asset's loader data.
@@ -92,7 +91,7 @@ namespace Ame::Asset
         /// Set the asset's metadata path.
         /// </summary>
         void SetMetaPath(
-            String Path);
+            String path);
 
         /// <summary>
         /// Query if the asset is dirty.
@@ -108,13 +107,13 @@ namespace Ame::Asset
         /// <summary>
         /// Get the asset's dependencies.
         /// </summary>
-        [[nodiscard]] Co::generator<Handle> GetDependencies() const;
+        [[nodiscard]] Co::generator<Guid> GetDependencies() const;
 
         /// <summary>
         /// Set the asset's dependencies.
         /// </summary>
         void SetDependencies(
-            std::span<String> Dependencies);
+            std::span<String> dependencies);
 
     private:
         AssetMetaData m_MetaData;

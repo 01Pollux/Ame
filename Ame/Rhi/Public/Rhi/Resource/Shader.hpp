@@ -83,6 +83,9 @@ namespace Ame::Rhi
             return m_Bytecode != nullptr;
         }
 
+        /// <summary>
+        /// Get reference of this bytecode without owning it
+        /// </summary>
         [[nodiscard]] ShaderBytecode Borrow() const
         {
             return ShaderBytecode{

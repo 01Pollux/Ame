@@ -3,14 +3,14 @@
 namespace Ame::Asset
 {
     IAsset::IAsset(
-        const Handle& AssetGuid,
-        String        Path) :
-        m_AssetGuid(AssetGuid),
-        m_AssetPath(std::move(Path))
+        const Guid& guid,
+        String      path) :
+        m_AssetGuid(guid),
+        m_AssetPath(std::move(path))
     {
     }
 
-    const Handle& IAsset::GetGuid() const noexcept
+    const Guid& IAsset::GetGuid() const noexcept
     {
         return m_AssetGuid;
     }
@@ -21,16 +21,16 @@ namespace Ame::Asset
     }
 
     void IAsset::SetPath(
-        String Path) noexcept
+        String path) noexcept
     {
-        m_AssetPath = std::move(Path);
+        m_AssetPath = std::move(path);
         MarkDirty();
     }
 
     void IAsset::MarkDirty(
-        bool IsDirty) noexcept
+        bool isDirty) noexcept
     {
-        m_IsDirty = IsDirty;
+        m_IsDirty = isDirty;
     }
 
     bool IAsset::IsDirty() const noexcept

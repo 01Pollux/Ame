@@ -8,9 +8,9 @@
 namespace Ame::Asset
 {
     Storage::Storage(
-        Co::runtime& Runtime) :
-        m_Runtime(Runtime),
-        m_Manager(*this, Runtime)
+        Co::runtime& coroutine) :
+        m_Runtime(coroutine),
+        m_Manager(*this, coroutine)
     {
         Mount<MemoryAssetPackage>();
     }

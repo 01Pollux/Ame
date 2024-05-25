@@ -15,9 +15,9 @@ namespace Ame::Asset::Common
         using IAsset::IAsset;
 
         TextFileAsset(
-            String      Text,
-            const Handle& AssetGuid,
-            String      Path);
+            String      text,
+            const Guid& guid,
+            String      path);
 
         /// <summary>
         /// Get string
@@ -28,9 +28,9 @@ namespace Ame::Asset::Common
         /// Get string
         /// </summary>
         void Set(
-            const String& Text);
+            const String& text);
 
     private:
         String m_Text;
     };
-} // namespace Ame::Asset
+} // namespace Ame::Asset::Common

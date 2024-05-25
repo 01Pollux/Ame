@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Asset/Handle.hpp>
+#include <Asset/Core.hpp>
 #include <variant>
 
 namespace Ame::Asset
@@ -9,15 +9,15 @@ namespace Ame::Asset
     {
     public:
         IAsset(
-            const Handle& AssetGuid,
-            String        Path);
+            const Guid& guid,
+            String      path);
 
         virtual ~IAsset() = default;
 
         /// <summary>
         /// Gets the asset guid.
         /// </summary>
-        [[nodiscard]] const Handle& GetGuid() const noexcept;
+        [[nodiscard]] const Guid& GetGuid() const noexcept;
 
         /// <summary>
         /// Get the asset path.
@@ -28,7 +28,7 @@ namespace Ame::Asset
         /// Set the asset path.
         /// </summary>
         void SetPath(
-            String Path) noexcept;
+            String path) noexcept;
 
         /// <summary>
         /// Query if the asset is dirty.
@@ -42,9 +42,9 @@ namespace Ame::Asset
             bool IsDirty = true) noexcept;
 
     protected:
-        String       m_AssetPath;
-        const Handle m_AssetGuid;
-        bool         m_IsDirty = true;
+        String     m_AssetPath;
+        const Guid m_AssetGuid;
+        bool       m_IsDirty = true;
     };
 
     using AssetPtr = Ptr<IAsset>;
@@ -70,39 +70,39 @@ namespace Ame::Asset
         }
 
         AssetTaskPtr(
-            Co::result<AssetPtr> Asset) :
-            m_Asset(std::move(Asset))
+            Co::result<AssetPtr> asset) :
+            m_Asset(std::move(asset))
         {
         }
 
         template<typename OTy = IAsset>
             requires std::is_base_of_v<IAsset, OTy>
         AssetTaskPtr(
-            Ptr<OTy> Asset)
+            Ptr<OTy> asset)
         {
-            SetFromBase(std::move(Asset));
+            SetFromBase(std::move(asset));
         }
 
         //
 
         void operator=(
-            Co::result<AssetPtr> Asset) noexcept
+            Co::result<AssetPtr> asset) noexcept
         {
-            m_Asset = std::move(Asset);
+            m_Asset = std::move(asset);
         }
 
         void operator=(
-            Ptr<Ty> Asset) noexcept
+            Ptr<Ty> asset) noexcept
         {
-            m_Asset = std::move(Asset);
+            m_Asset = std::move(asset);
         }
 
         template<typename BaseTy>
             requires std::is_base_of_v<Ty, BaseTy>
         void operator=(
-            AssetTaskPtr<BaseTy> Asset)
+            AssetTaskPtr<BaseTy> asset)
         {
-            SetFromBase(std::move(Asset));
+            SetFromBase(std::move(asset));
         }
 
         //
@@ -157,15 +157,15 @@ namespace Ame::Asset
     private:
         template<typename OTy>
         void SetFromBase(
-            Ptr<OTy> Asset)
+            Ptr<OTy> asset)
         {
             if constexpr (std::is_same_v<Ty, OTy>)
             {
-                m_Asset = std::move(Asset);
+                m_Asset = std::move(asset);
             }
             else
             {
-                m_Asset = std::dynamic_pointer_cast<Ty>(std::move(Asset));
+                m_Asset = std::dynamic_pointer_cast<Ty>(std::move(asset));
             }
         }
 

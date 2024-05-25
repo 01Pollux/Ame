@@ -9,7 +9,7 @@ namespace Ame::Asset::Gfx
     {
     public:
         Handler(
-            ShaderCache& Cache);
+            ShaderCache& shaderCache);
 
     public:
         AME_STANDARD_ASSET_HANDLER_BODY;

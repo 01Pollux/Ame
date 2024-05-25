@@ -20,14 +20,14 @@ namespace Ame::Asset
         friend class Manager;
 
     protected:
-        using AssetCacheMap = std::unordered_map<Asset::Handle, Ptr<IAsset>>;
+        using AssetCacheMap = std::unordered_map<Guid, Ptr<IAsset>>;
 
         using RLock  = std::shared_lock<std::shared_mutex>;
         using RWLock = std::unique_lock<std::shared_mutex>;
 
     public:
         IAssetPackage(
-            Storage& AssetStorage);
+            Storage& assetStorage);
 
         IAssetPackage(const IAssetPackage&) = delete;
         IAssetPackage(IAssetPackage&&)      = delete;
@@ -41,26 +41,26 @@ namespace Ame::Asset
         /// <summary>
         /// Get the assets in this package as a coroutine.
         /// </summary>
-        [[nodiscard]] virtual Co::generator<const Asset::Handle&> GetAssets() = 0;
+        [[nodiscard]] virtual Co::generator<Guid> GetAssets() = 0;
 
         /// <summary>
         /// Query if this package contains the given asset.
         /// </summary>
         [[nodiscard]] virtual bool ContainsAsset(
-            const Asset::Handle& AssetGuid) const = 0;
+            const Guid& guid) const = 0;
 
     public:
         /// <summary>
         /// Finds assets by path.
         /// </summary>
-        [[nodiscard]] virtual Asset::Handle FindAsset(
-            const String& Path) const = 0;
+        [[nodiscard]] virtual Guid FindAsset(
+            const String& path) const = 0;
 
         /// <summary>
         /// Finds assets by path as regex.
         /// </summary>
-        [[nodiscard]] virtual Co::generator<const Asset::Handle&> FindAssets(
-            const std::regex& PathRegex) const = 0;
+        [[nodiscard]] virtual Co::generator<Guid> FindAssets(
+            const std::regex& pathRegex) const = 0;
 
     public:
         /// <summary>
@@ -72,28 +72,28 @@ namespace Ame::Asset
         /// Add an asset to this package.
         /// </summary>
         virtual Co::result<void> SaveAsset(
-            Ptr<IAsset> Asset) = 0;
+            Ptr<IAsset> asset) = 0;
 
         /// <summary>
         /// Remove an asset from this package.
         /// </summary>
         virtual bool RemoveAsset(
-            const Asset::Handle& AssetGuid) = 0;
+            const Guid& guid) = 0;
 
     protected:
         /// <summary>
         /// Load an asset from this package.
         /// </summary>
         [[nodiscard]] virtual Ptr<IAsset> LoadAsset(
-            const Asset::Handle& AssetGuid,
-            bool                 LoadTemp) = 0;
+            const Guid& guid,
+            bool        loadTemp) = 0;
 
         /// <summary>
         /// Unload an asset from this package.
         /// </summary>
         virtual bool UnloadAsset(
-            const Asset::Handle& AssetGuid,
-            bool                 Force) = 0;
+            const Guid& guid,
+            bool        force) = 0;
 
     private:
         /// <summary>

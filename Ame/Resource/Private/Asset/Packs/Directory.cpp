@@ -16,149 +16,149 @@
 namespace Ame::Asset
 {
     DirectoryAssetPackage::DirectoryAssetPackage(
-        Storage&              Storage,
-        std::filesystem::path Path) :
-        IAssetPackage(Storage),
-        m_RootPath(std::move(Path))
+        Storage&              assetStorage,
+        std::filesystem::path path) :
+        IAssetPackage(assetStorage),
+        m_RootPath(std::move(path))
     {
-        auto& Logger = Log::Asset();
+        auto& logger = Log::Asset();
 
-        auto RootPathStr = m_RootPath.generic_string();
-        if (RootPathStr.empty() || RootPathStr.starts_with(".."))
+        auto rootPathStr = m_RootPath.generic_string();
+        if (rootPathStr.empty() || rootPathStr.starts_with(".."))
         {
-            Logger.Error("Path '{}' cannot be empty or start with '..'", RootPathStr);
+            logger.Error("Path '{}' cannot be empty or start with '..'", rootPathStr);
             return;
         }
 
         if (!std::filesystem::exists(m_RootPath))
         {
-            Logger.Trace("Path '{}' does not exist, creating a new one", RootPathStr);
+            logger.Trace("Path '{}' does not exist, creating a new one", rootPathStr);
             std::filesystem::create_directories(m_RootPath);
             return;
         }
 
         if (!std::filesystem::is_directory(m_RootPath))
         {
-            Logger.Error("Trying to create a directory asset package from a file '{}'", RootPathStr);
+            logger.Error("Trying to create a directory asset package from a file '{}'", rootPathStr);
             return;
         }
 
-        Logger.Trace("Loading assets from directory '{}'", RootPathStr);
+        logger.Trace("Loading assets from directory '{}'", rootPathStr);
 
         // First load all the meta files
-        for (auto& MetafilePath : GetFiles(m_RootPath))
+        for (auto& metafilePath : GetFiles(m_RootPath))
         {
-            if (!MetafilePath.ends_with(AssetMetaDataDef::s_MetaFileExtension))
+            if (!metafilePath.ends_with(AssetMetaDataDef::s_MetaFileExtension))
             {
                 continue;
             }
 
-            std::ifstream File(MetafilePath);
-            if (!File.is_open())
+            std::ifstream file(metafilePath);
+            if (!file.is_open())
             {
-                Logger.Error("Failed to open meta file '{}'", MetafilePath);
+                logger.Error("Failed to open meta file '{}'", metafilePath);
                 continue;
             }
 
             {
-                AssetMetaDataDef Metadata(File);
-                File.close();
+                AssetMetaDataDef metaData(file);
+                file.close();
 
-                if ((m_RootPath / Metadata.GetMetaPath()) != MetafilePath)
+                if ((m_RootPath / metaData.GetMetaPath()) != metafilePath)
                 {
-                    Logger.Error("Meta file '{}' has a different path than the one in meta file", MetafilePath);
+                    logger.Error("Meta file '{}' has a different path than the one in meta file", metafilePath);
                     continue;
                 }
 
-                auto Guid = Metadata.GetGuid();
-                if (Guid == Handle::Null)
+                auto guid = metaData.GetGuid();
+                if (guid == Guid::Null)
                 {
-                    Logger.Error("Asset", "Meta file '{}' does not have a Guid", MetafilePath);
+                    logger.Error("Asset", "Meta file '{}' does not have a Guid", metafilePath);
                     continue;
                 }
 
-                if (m_AssetMeta.contains(Guid))
+                if (m_AssetMeta.contains(guid))
                 {
-                    Logger.Error("Meta file '{}' has a Guid that is already in use", MetafilePath);
+                    logger.Error("Meta file '{}' has a Guid that is already in use", metafilePath);
                     continue;
                 }
 
-                auto AssetFile = m_RootPath / Metadata.GetAssetPath();
-                File.open(AssetFile, std::ios::ate | std::ios::binary);
+                auto assetPath = m_RootPath / metaData.GetAssetPath();
+                file.open(assetPath, std::ios::ate | std::ios::binary);
 
-                if (!File.is_open())
+                if (!file.is_open())
                 {
-                    Logger.Error("Failed to open asset file '{}'", AssetFile.string());
+                    logger.Error("Failed to open asset file '{}'", assetPath.string());
                     continue;
                 }
 
-                size_t FileSize = static_cast<size_t>(File.tellg());
-                File.seekg(std::ios::beg);
+                size_t fileSize = static_cast<size_t>(file.tellg());
+                file.seekg(std::ios::beg);
 
-                CryptoPP::SHA256 Hasher;
-                Util::UpdateCrypto(Hasher, File, FileSize);
-                auto CurrentHash = Util::FinalizeDigestToString(Hasher);
+                CryptoPP::SHA256 hasher;
+                Util::UpdateCrypto(hasher, file, fileSize);
+                auto currentHash = Util::FinalizeDigestToString(hasher);
 
-                auto ExpectedHash = Metadata.GetHash();
-                if (ExpectedHash.empty())
+                auto expectedHash = metaData.GetHash();
+                if (expectedHash.empty())
                 {
-                    Logger.Error("Meta file '{}' does not have a hash", MetafilePath);
+                    logger.Error("Meta file '{}' does not have a hash", metafilePath);
                     continue;
                 }
-                else if (CurrentHash != ExpectedHash)
+                else if (currentHash != expectedHash)
                 {
 #ifndef AME_ASSET_MGR_DISABLE_HASH_VALIDATION
                     Logger.Error("Asset file '{}' has a different hash than the one in meta file", AssetFile.string());
                     continue;
 #else
                     // Try to correct the hash
-                    Logger.Warning("Asset file '{}' has a different hash than the one in meta file", AssetFile.string());
-                    Metadata.SetHash(CurrentHash);
-                    Metadata.SetDirty();
+                    logger.Warning("Asset file '{}' has a different hash than the one in meta file", assetPath.string());
+                    metaData.SetHash(currentHash);
+                    metaData.SetDirty();
 
-                    ExportMeta(Metadata);
+                    ExportMeta(metaData);
 #endif
                 }
 
-                m_AssetPath.emplace(Metadata.GetAssetPath().string(), Guid);
-                m_AssetMeta.emplace(Guid, std::move(Metadata));
+                m_AssetPath.emplace(metaData.GetAssetPath().string(), guid);
+                m_AssetMeta.emplace(guid, std::move(metaData));
             }
         }
     }
 
-    Co::generator<const Asset::Handle&> DirectoryAssetPackage::GetAssets()
+    Co::generator<Guid> DirectoryAssetPackage::GetAssets()
     {
-        RLock Lock(m_CacheMutex);
-        for (auto& Guid : m_AssetMeta | std::views::keys)
+        RLock readLock(m_CacheMutex);
+        for (auto& guid : m_AssetMeta | std::views::keys)
         {
-            co_yield Guid;
+            co_yield Guid{ guid };
         }
     }
 
     bool DirectoryAssetPackage::ContainsAsset(
-        const Asset::Handle& AssetGuid) const
+        const Guid& guid) const
     {
-        RLock Lock(m_CacheMutex);
-        return m_AssetMeta.contains(AssetGuid);
+        RLock readLock(m_CacheMutex);
+        return m_AssetMeta.contains(guid);
     }
 
-    Asset::Handle DirectoryAssetPackage::FindAsset(
-        const String& Path) const
+    Guid DirectoryAssetPackage::FindAsset(
+        const String& path) const
     {
-        RLock Lock(m_CacheMutex);
-        auto  Iter = m_AssetPath.find(Path);
-        return Iter != m_AssetPath.end() ? Iter->second : Asset::Handle::Null;
+        RLock readLock(m_CacheMutex);
+        auto  iter = m_AssetPath.find(path);
+        return iter != m_AssetPath.end() ? iter->second : Guid::Null;
     }
 
-    Co::generator<const Asset::Handle&> DirectoryAssetPackage::FindAssets(
-        const std::regex& PathRegex) const
+    Co::generator<Guid> DirectoryAssetPackage::FindAssets(
+        const std::regex& pathRegex) const
     {
-        RLock Lock(m_CacheMutex);
-        for (auto& [Path, Handle] : m_AssetPath)
+        RLock readLock(m_CacheMutex);
+        for (auto& [path, guid] : m_AssetPath)
         {
-            if (std::regex_match(Path, PathRegex))
+            if (std::regex_match(path, pathRegex))
             {
-                co_yield Asset::Handle{ Handle };
+                co_yield Guid{ guid };
             }
         }
     }
@@ -169,84 +169,84 @@ namespace Ame::Asset
         {
             // Export all dirty assets
             {
-                RWLock Lock(m_CacheMutex);
-                for (auto& [Guid, Metadata] : m_AssetMeta)
+                RWLock readWriteLock(m_CacheMutex);
+                for (auto& [guid, metaData] : m_AssetMeta)
                 {
-                    if (!Metadata.IsDirty())
+                    if (!metaData.IsDirty())
                     {
                         continue;
                     }
 
-                    ExportMeta(Metadata);
+                    ExportMeta(metaData);
                 }
             }
         };
 
-        auto Executor = m_Runtime.get().background_executor();
-        return Executor->submit(std::move(ExportTask));
+        auto executor = m_Runtime.get().background_executor();
+        return executor->submit(std::move(ExportTask));
     }
 
     Co::result<void> DirectoryAssetPackage::SaveAsset(
-        Ptr<IAsset> Asset)
+        Ptr<IAsset> asset)
     {
-        auto Executor = m_Runtime.get().background_executor();
-        co_await Co::resume_on(Executor);
-        SaveAssetAndDependencies(Asset);
+        auto executor = m_Runtime.get().background_executor();
+        co_await Co::resume_on(executor);
+        SaveAssetAndDependencies(asset);
     }
 
     bool DirectoryAssetPackage::RemoveAsset(
-        const Asset::Handle& AssetGuid)
+        const Guid& guid)
     {
-        RWLock Lock(m_CacheMutex);
+        RWLock readWriteLock(m_CacheMutex);
 
-        auto Iter = m_AssetMeta.find(AssetGuid);
-        if (Iter == m_AssetMeta.end())
+        auto iter = m_AssetMeta.find(guid);
+        if (iter == m_AssetMeta.end())
         {
             return false;
         }
 
-        m_Cache.erase(AssetGuid);
-        m_AssetPath.erase(Iter->second.GetMetaPath().generic_string());
-        m_AssetMeta.erase(Iter);
+        m_Cache.erase(guid);
+        m_AssetPath.erase(iter->second.GetMetaPath().generic_string());
+        m_AssetMeta.erase(iter);
         return true;
     }
 
-    const Asset::Handle& DirectoryAssetPackage::GetGuidOfPath(
-        const String& Path) const
+    const Guid& DirectoryAssetPackage::GetGuidOfPath(
+        const String& path) const
     {
-        RLock Lock(m_CacheMutex);
-        auto  Iter = m_AssetPath.find(Path);
-        return Iter != m_AssetPath.end() ? Iter->second : Asset::Handle::Null;
+        RLock readLock(m_CacheMutex);
+        auto  iter = m_AssetPath.find(path);
+        return iter != m_AssetPath.end() ? iter->second : Guid::Null;
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAsset(
-        const Asset::Handle& AssetGuid,
-        bool                 LoadTemp)
+        const Guid& guid,
+        bool        loadTemp)
     {
         // The reason for checking if the asset is already loaded in the cache
         // is because we later will only load the asset if it's not already loaded
-        if (auto CacheAsset = LoadAssetFromCache(AssetGuid))
+        if (auto asset = LoadAssetFromCache(guid))
         {
-            return CacheAsset;
+            return asset;
         }
-        return LoadAssetAndDependencies(AssetGuid, LoadTemp);
+        return LoadAssetAndDependencies(guid, loadTemp);
     }
 
     bool DirectoryAssetPackage::UnloadAsset(
-        const Asset::Handle& AssetGuid,
-        bool                 Force)
+        const Guid& guid,
+        bool        force)
     {
-        RWLock Lock(m_CacheMutex);
+        RWLock readWriteLock(m_CacheMutex);
 
-        auto Iter = m_Cache.find(AssetGuid);
-        if (Iter == m_Cache.end())
+        auto iter = m_Cache.find(guid);
+        if (iter == m_Cache.end())
         {
-            m_Cache.erase(AssetGuid);
+            m_Cache.erase(guid);
         }
 
-        if (!Force && Iter->second.use_count() == 1)
+        if (!force && iter->second.use_count() == 1)
         {
-            m_Cache.erase(Iter);
+            m_Cache.erase(iter);
         }
         return true;
     }
@@ -254,221 +254,220 @@ namespace Ame::Asset
     //
 
     Co::generator<String> DirectoryAssetPackage::GetFiles(
-        const std::filesystem::path& Path)
+        const std::filesystem::path& path)
     {
-        for (auto& Entry : std::filesystem::recursive_directory_iterator(Path))
+        for (auto& entry : std::filesystem::recursive_directory_iterator(path))
         {
-            if (Entry.is_regular_file())
+            if (entry.is_regular_file())
             {
-                co_yield Entry.path().generic_string();
+                co_yield entry.path().generic_string();
             }
         }
     }
 
     void DirectoryAssetPackage::ExportMeta(
-        AssetMetaDataDef& Meta) const
+        AssetMetaDataDef& metaData) const
     {
-        std::filesystem::path MetaPath = m_RootPath / Meta.GetMetaPath();
-        std::filesystem::create_directories(MetaPath.parent_path());
+        std::filesystem::path metaPath = m_RootPath / metaData.GetMetaPath();
+        std::filesystem::create_directories(metaPath.parent_path());
 
-        std::ofstream Metafile(MetaPath, std::ios::out | std::ios::trunc);
-        Meta.Export(Metafile);
-        Meta.SetDirty(false);
+        std::ofstream metaFile(metaPath, std::ios::out | std::ios::trunc);
+        metaData.Export(metaFile);
+        metaData.SetDirty(false);
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAssetFromCache(
-        const Asset::Handle& AssetGuid)
+        const Guid& guid)
     {
-        RLock Lock(m_CacheMutex);
-        if (auto Iter = m_Cache.find(AssetGuid); Iter != m_Cache.end())
+        RLock readLock(m_CacheMutex);
+        if (auto iter = m_Cache.find(guid); iter != m_Cache.end())
         {
-            return Iter->second;
+            return iter->second;
         }
         return nullptr;
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAssetAndDependencies(
-        const Asset::Handle& AssetGuid,
-        bool                 LoadTemp)
+        const Guid& guid,
+        bool        loadTemp)
     {
-        std::stack<Handle> ToLoad;
-        ToLoad.push(AssetGuid);
+        std::stack<Guid> toLoad;
+        toLoad.push(guid);
 
-        Asset::DependencyReader  DepReader;
-        std::vector<Ptr<IAsset>> TempAssets;
+        DependencyReader         dependencyReader;
+        std::vector<Ptr<IAsset>> tempAssets;
 
-        while (!ToLoad.empty())
+        while (!toLoad.empty())
         {
-            auto& CurrentGuid = ToLoad.top();
+            auto& currentGuid = toLoad.top();
 
             // Check if asset is already loaded in cache
             // If not, check if it exists in the package
-            AssetMetaDataDef* Metadata = nullptr;
+            AssetMetaDataDef* metaData = nullptr;
             {
-                RLock Lock(m_CacheMutex);
-                auto  Iter = m_AssetMeta.find(CurrentGuid);
-                if (Iter == m_AssetMeta.end())
+                RLock readLock(m_CacheMutex);
+                auto  iter = m_AssetMeta.find(currentGuid);
+                if (iter == m_AssetMeta.end())
                 {
-                    throw AssetChildMetaNotFoundException(AssetGuid, CurrentGuid);
+                    throw AssetChildMetaNotFoundException(guid, currentGuid);
                 }
 
-                Metadata = &Iter->second;
+                metaData = &iter->second;
             }
 
             // If we need to load dependencies first, skip this asset and load the dependencies
-            bool NeedsDependenciesFirst = false;
+            bool needsDependenciesFirst = false;
 
             // Insert the assets that should be loaded first
             {
-                RLock Lock(m_CacheMutex);
-                for (auto& DepGuid : Metadata->GetDependencies())
+                RLock readLock(m_CacheMutex);
+                for (auto& depGuid : metaData->GetDependencies())
                 {
-                    if (auto CacheAsset = LoadAssetFromCache(DepGuid))
+                    if (auto asset = LoadAssetFromCache(depGuid))
                     {
-                        DepReader.Link(DepGuid, CacheAsset);
+                        dependencyReader.Link(depGuid, asset);
                     }
                     else
                     {
-                        ToLoad.push(std::move(DepGuid));
-                        NeedsDependenciesFirst = true;
+                        toLoad.push(std::move(depGuid));
+                        needsDependenciesFirst = true;
                     }
                 }
             }
-            if (NeedsDependenciesFirst)
+            if (needsDependenciesFirst)
             {
                 continue;
             }
 
-            auto AssetPath = m_RootPath / Metadata->GetAssetPath();
-            if (!std::filesystem::exists(AssetPath))
+            auto path = m_RootPath / metaData->GetAssetPath();
+            if (!std::filesystem::exists(path))
             {
-                throw AssetNotFoundException(AssetGuid, CurrentGuid);
+                throw AssetNotFoundException(guid, currentGuid);
             }
 
             //
             // Read asset file
             //
 
-            IAssetHandler* Handler = m_Storage.get().GetHandler(Metadata->GetLoaderId());
-            if (!Handler)
+            IAssetHandler* handler = m_Storage.get().GetHandler(metaData->GetLoaderId());
+            if (!handler)
             {
-                throw AssetWithNoHandlerException(AssetGuid, CurrentGuid);
+                throw AssetWithNoHandlerException(guid, currentGuid);
             }
 
-            std::ifstream AssetFile(AssetPath, std::ios::in | std::ios::binary);
-            if (!AssetFile.is_open())
+            std::ifstream assetFile(path, std::ios::in | std::ios::binary);
+            if (!assetFile.is_open())
             {
-                throw AssetNotFoundException(AssetGuid, CurrentGuid);
+                throw AssetNotFoundException(guid, currentGuid);
             }
 
-            auto Asset = Handler->Load(AssetFile, DepReader, CurrentGuid, AssetPath.string(), Metadata->GetLoaderData());
-            if (!Asset)
+            auto asset = handler->Load(assetFile, dependencyReader, currentGuid, path.string(), metaData->GetLoaderData());
+            if (!asset)
             {
-                throw AssetHandlerFailureException(AssetGuid, CurrentGuid);
+                throw AssetHandlerFailureException(guid, currentGuid);
             }
 
-            Asset->MarkDirty(false);
-            DepReader.Link(CurrentGuid, Asset);
+            asset->MarkDirty(false);
+            dependencyReader.Link(currentGuid, asset);
 
-            if (!LoadTemp) [[likely]]
+            if (!loadTemp) [[likely]]
             {
-                RWLock Lock(m_CacheMutex);
-                m_Cache.emplace(CurrentGuid, std::move(Asset));
+                RWLock readWriteLock(m_CacheMutex);
+                m_Cache.emplace(currentGuid, std::move(asset));
             }
 
-            TempAssets.emplace_back(std::move(Asset));
-            ToLoad.pop();
+            tempAssets.emplace_back(std::move(asset));
+            toLoad.pop();
         }
 
-        return TempAssets.empty() ? nullptr : TempAssets.back();
+        return tempAssets.empty() ? nullptr : tempAssets.back();
     }
 
     void DirectoryAssetPackage::SaveAssetAndDependencies(
-        Ptr<IAsset> FirstAsset)
+        Ptr<IAsset> firstAsset)
     {
-        std::queue<Ptr<IAsset>> ToSave;
-        ToSave.emplace(FirstAsset);
+        std::queue<Ptr<IAsset>> toSave;
+        toSave.emplace(firstAsset);
 
-        while (!ToSave.empty())
+        while (!toSave.empty())
         {
-            auto CurrentAsset = std::move(ToSave.front());
-            ToSave.pop();
+            auto curAsset = std::move(toSave.front());
+            toSave.pop();
 
-            auto& AssetGuid = CurrentAsset->GetGuid();
+            auto& guid = curAsset->GetGuid();
 
             // Check if asset already exists in the package
             // else add it to the package
-            AssetMetaDataDef* Metadata = nullptr;
+            AssetMetaDataDef* metaData = nullptr;
             {
-                RWLock Lock(m_CacheMutex);
-                auto   Iter = m_AssetMeta.find(AssetGuid);
-                if (Iter == m_AssetMeta.end())
+                RWLock readWriteLock(m_CacheMutex);
+                auto   iter = m_AssetMeta.find(guid);
+                if (iter == m_AssetMeta.end())
                 {
-                    Iter = m_AssetMeta.emplace(AssetGuid, AssetMetaDataDef(AssetGuid, CurrentAsset->GetPath())).first;
-                    m_AssetPath.emplace(CurrentAsset->GetPath(), AssetGuid);
-                    Iter->second.SetMetaPath(std::format("{}{}", CurrentAsset->GetPath(), AssetMetaDataDef::s_MetaFileExtension));
+                    iter = m_AssetMeta.emplace(guid, AssetMetaDataDef(guid, curAsset->GetPath())).first;
+                    m_AssetPath.emplace(curAsset->GetPath(), guid);
+                    iter->second.SetMetaPath(std::format("{}{}", curAsset->GetPath(), AssetMetaDataDef::s_MetaFileExtension));
                 }
-                Metadata = &Iter->second;
+                metaData = &iter->second;
             }
 
             //
             // Write asset file
             //
 
-            size_t         HandlerId;
-            IAssetHandler* Handler = m_Storage.get().GetHandler(CurrentAsset, &HandlerId);
-            if (!Handler)
+            auto [handler, handlerId] = m_Storage.get().GetHandler(curAsset);
+            if (!handler)
             {
-                Log::Asset().Error("Failed to get handler for asset '{}'", AssetGuid.ToString());
+                Log::Asset().Error("Failed to get handler for asset '{}'", guid.ToString());
                 continue;
             }
 
-            auto AssetPath = m_RootPath / Metadata->GetAssetPath();
-            std::filesystem::create_directories(AssetPath.parent_path());
+            auto assetPath = m_RootPath / metaData->GetAssetPath();
+            std::filesystem::create_directories(assetPath.parent_path());
 
-            std::fstream AssetFile(AssetPath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
-            if (!AssetFile.is_open())
+            std::fstream assetFile(assetPath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
+            if (!assetFile.is_open())
             {
-                Log::Asset().Error("Failed to open asset file '{}'", AssetPath.string());
+                Log::Asset().Error("Failed to open asset file '{}'", assetPath.string());
                 continue;
             }
 
-            DependencyWriter DepWriter;
-            Handler->Save(AssetFile, DepWriter, CurrentAsset, Metadata->GetLoaderData());
+            DependencyWriter dependencyWriter;
+            handler->Save(assetFile, dependencyWriter, curAsset, metaData->GetLoaderData());
 
             // Write dependencies to metadata
             {
-                std::vector<String> DepsInsertInMetadata;
+                std::vector<String> depsInMetaData;
 
-                auto& Dependencies = DepWriter.GetDependencies();
-                for (auto& Dep : DepWriter.GetDependencies())
+                auto& dependencies = dependencyWriter.GetDependencies();
+                for (auto& childAsset : dependencyWriter.GetDependencies())
                 {
-                    if (Dep->IsDirty())
+                    if (childAsset->IsDirty())
                     {
-                        ToSave.push(Dep);
+                        toSave.push(childAsset);
                     }
-                    DepsInsertInMetadata.emplace_back(Dep->GetGuid().ToString());
+                    depsInMetaData.emplace_back(childAsset->GetGuid().ToString());
                 }
-                Dependencies.clear();
+                dependencies.clear();
 
-                Metadata->SetDependencies(DepsInsertInMetadata);
+                metaData->SetDependencies(depsInMetaData);
             }
 
             //
             // Write file's hash
             //
 
-            size_t FileSize = static_cast<size_t>(AssetFile.tellg());
-            AssetFile.seekg(std::ios::beg);
+            size_t fileSize = static_cast<size_t>(assetFile.tellg());
+            assetFile.seekg(std::ios::beg);
 
-            CryptoPP::SHA256 Hasher;
-            Util::UpdateCrypto(Hasher, AssetFile, FileSize);
+            CryptoPP::SHA256 hasher;
+            Util::UpdateCrypto(hasher, assetFile, fileSize);
 
-            Metadata->SetLoaderId(HandlerId);
-            Metadata->SetHash(Util::FinalizeDigestToString(Hasher));
+            metaData->SetLoaderId(handlerId);
+            metaData->SetHash(Util::FinalizeDigestToString(hasher));
 
-            CurrentAsset->MarkDirty(false);
-            Metadata->SetDirty();
+            curAsset->MarkDirty(false);
+            metaData->SetDirty();
         }
     }
 } // namespace Ame::Asset

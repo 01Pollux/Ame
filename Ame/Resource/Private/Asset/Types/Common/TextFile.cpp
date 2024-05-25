@@ -3,11 +3,11 @@
 namespace Ame::Asset::Common
 {
     TextFileAsset::TextFileAsset(
-        String        Text,
-        const Handle& AssetGuid,
-        String        Path) :
-        IAsset(AssetGuid, std::move(Path)),
-        m_Text(std::move(Text))
+        String      text,
+        const Guid& guid,
+        String      path) :
+        IAsset(guid, std::move(path)),
+        m_Text(std::move(text))
     {
     }
 
@@ -17,9 +17,9 @@ namespace Ame::Asset::Common
     }
 
     void TextFileAsset::Set(
-        const String& Text)
+        const String& text)
     {
         MarkDirty();
-        m_Text = Text;
+        m_Text = text;
     }
 } // namespace Ame::Asset::Common

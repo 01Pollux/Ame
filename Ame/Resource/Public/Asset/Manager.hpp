@@ -1,21 +1,17 @@
 #pragma once
 
-#include <Asset/Handle.hpp>
+#include <Asset/Core.hpp>
 
 namespace Ame::Asset
 {
-    class IAsset;
-    class IAssetPackage;
-    class Storage;
-
     class Manager
     {
     public:
         Manager(
-            Storage&    Storage,
-            Co::runtime& Runtime) :
-            m_Storage(Storage),
-            m_Runtime(Runtime)
+            Storage&     assetStorage,
+            Co::runtime& coroutine) :
+            m_Storage(assetStorage),
+            m_Runtime(coroutine)
         {
         }
 
@@ -23,60 +19,60 @@ namespace Ame::Asset
         /// Load asynchronously an asset from the storage system.
         /// </summary>
         Co::result<Ptr<IAsset>> LoadAsync(
-            IAssetPackage* Package,
-            const Handle&  AssetGuid,
-            bool           LoadTemp = false);
+            IAssetPackage* package,
+            Guid           guid,
+            bool           loadTemp = false);
 
         /// <summary>
         /// Load asynchronously an asset from the storage system.
         /// </summary>
         Co::result<Ptr<IAsset>> LoadAsync(
-            const Handle& AssetGuid,
-            bool          LoadTemp = false);
+            Guid guid,
+            bool loadTemp = false);
 
         /// <summary>
         /// Load an asset from the storage system.
         /// </summary>
         Ptr<IAsset> Load(
-            IAssetPackage* Package,
-            const Handle&  AssetGuid,
-            bool           LoadTemp = false);
+            IAssetPackage* package,
+            const Guid&    guid,
+            bool           loadTemp = false);
 
         /// <summary>
         /// Load an asset from the storage system.
         /// </summary>
         Ptr<IAsset> Load(
-            const Handle& AssetGuid,
-            bool          LoadTemp = false);
+            const Guid& guid,
+            bool        loadTemp = false);
 
         /// <summary>
         /// Load asynchronously an asset from the storage system.
         /// </summary>
         Co::result<Ptr<IAsset>> ReloadAsync(
-            const Handle& AssetGuid);
+            Guid guid);
 
         /// <summary>
         /// Load asynchronously an asset from the storage system.
         /// </summary>
         Ptr<IAsset> Reload(
-            const Handle& AssetGuid);
+            const Guid& guid);
 
         /// <summary>
         /// Unload an asset from the storage system.
         /// </summary>
         /// <returns>The asset was unloaded successfully.</returns>
         bool Unload(
-            const Handle& AssetGuid);
+            const Guid& guid);
 
         /// <summary>
         /// Unload an asset from the storage system if it is not referenced anymore.
         /// </summary>
         /// <returns>The asset was unloaded successfully.</returns>
         bool RequestUnload(
-            const Handle& AssetGuid);
+            const Guid& guid);
 
     private:
-        Ref<Storage>    m_Storage;
+        Ref<Storage>     m_Storage;
         Ref<Co::runtime> m_Runtime;
     };
 } // namespace Ame::Asset

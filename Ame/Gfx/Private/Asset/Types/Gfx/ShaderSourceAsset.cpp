@@ -3,19 +3,19 @@
 namespace Ame::Asset::Gfx
 {
     ShaderSourceAsset::ShaderSourceAsset(
-        ShaderCache&  Cache,
-        String        ShaderSource,
-        const Handle& AssetGuid,
-        String        Path) :
-        IAsset(AssetGuid, std::move(Path)),
-        m_Cache(Cache),
-        m_ShaderSource(std::move(ShaderSource))
+        ShaderCache& shaderCache,
+        String       shaderSource,
+        const Guid&  guid,
+        String       path) :
+        IAsset(guid, std::move(path)),
+        m_Cache(shaderCache),
+        m_ShaderSource(std::move(shaderSource))
     {
     }
 
     Co::result<Rhi::ShaderBytecode> ShaderSourceAsset::Load(
-        const Rhi::ShaderCompileDesc& Desc)
+        const Rhi::ShaderCompileDesc& desc)
     {
-        return m_Cache.get().Load(m_ShaderSource, Desc);
+        return m_Cache.get().Load(m_ShaderSource, desc);
     }
 } // namespace Ame::Asset::Gfx

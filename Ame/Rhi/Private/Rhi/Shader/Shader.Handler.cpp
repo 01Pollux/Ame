@@ -59,15 +59,15 @@ namespace Ame::Rhi
             return E_FAIL;
         }
 
-        if (assetIter.begin() != assetIter.end()) [[unlikely]]
-        {
-            Log::Rhi().Warning("Multiple assets found for path: {}, taking the first one {}", fileNameStr, firstHandle->Guid.ToString());
-        }
-
-        auto handle = firstHandle->Guid;
+        auto handle = firstHandle->Handle;
         if (handle.is_nil()) [[unlikely]]
         {
             return E_FAIL;
+        }
+
+        if (assetIter.begin() != assetIter.end()) [[unlikely]]
+        {
+            Log::Rhi().Warning("Multiple assets found for path: {}, taking the first one {}", fileNameStr, handle.ToString());
         }
 
         auto& assetManager = m_AssetStorage->GetManager();

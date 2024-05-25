@@ -8,34 +8,34 @@
 namespace Ame::Asset
 {
     Co::result<Ptr<IAsset>> Manager::LoadAsync(
-        IAssetPackage* Package,
-        const Handle&  AssetGuid,
-        bool           LoadTemp)
+        IAssetPackage* package,
+        Guid           guid,
+        bool           loadTemp)
     {
-        if (Package->ContainsAsset(AssetGuid)) [[likely]]
+        if (package->ContainsAsset(guid)) [[likely]]
         {
-            auto Executor = m_Runtime.get().background_executor();
-            co_await Co::resume_on(Executor);
-            co_return Package->LoadAsset(AssetGuid, LoadTemp);
+            auto executor = m_Runtime.get().background_executor();
+            co_await Co::resume_on(executor);
+            co_return package->LoadAsset(guid, loadTemp);
         }
 
         co_return nullptr;
     }
 
     Co::result<Ptr<IAsset>> Manager::LoadAsync(
-        const Handle& AssetGuid,
-        bool          LoadTemp)
+        Guid guid,
+        bool loadTemp)
     {
         using namespace EnumBitOperators;
 
-        PackageFlags Flags = PackageFlags::Disk | PackageFlags::Memory;
-        for (auto Package : m_Storage.get().GetPackages(Flags))
+        PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
+        for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (Package->ContainsAsset(AssetGuid))
+            if (package->ContainsAsset(guid))
             {
-                auto Executor = m_Runtime.get().background_executor();
-                co_await Co::resume_on(Executor);
-                co_return Package->LoadAsset(AssetGuid, LoadTemp);
+                auto executor = m_Runtime.get().background_executor();
+                co_await Co::resume_on(executor);
+                co_return package->LoadAsset(guid, loadTemp);
             }
         }
 
@@ -43,17 +43,17 @@ namespace Ame::Asset
     }
 
     Ptr<IAsset> Manager::Load(
-        const Handle& AssetGuid,
-        bool          LoadTemp)
+        const Guid& guid,
+        bool        loadTemp)
     {
         using namespace EnumBitOperators;
 
         PackageFlags Flags = PackageFlags::Disk | PackageFlags::Memory;
-        for (auto Package : m_Storage.get().GetPackages(Flags))
+        for (auto package : m_Storage.get().GetPackages(Flags))
         {
-            if (Package->ContainsAsset(AssetGuid))
+            if (package->ContainsAsset(guid))
             {
-                return Package->LoadAsset(AssetGuid, LoadTemp);
+                return package->LoadAsset(guid, loadTemp);
             }
         }
 
@@ -61,59 +61,61 @@ namespace Ame::Asset
     }
 
     Ptr<IAsset> Manager::Load(
-        IAssetPackage* Package,
-        const Handle&  AssetGuid,
-        bool           LoadTemp)
+        IAssetPackage* package,
+        const Guid&    guid,
+        bool           loadTemp)
     {
-        if (Package->ContainsAsset(AssetGuid))
+        if (package->ContainsAsset(guid))
         {
-            return Package->LoadAsset(AssetGuid, LoadTemp);
+            return package->LoadAsset(guid, loadTemp);
         }
 
         return nullptr;
     }
 
     Co::result<Ptr<IAsset>> Manager::ReloadAsync(
-        const Handle& AssetGuid)
+        Guid guid)
     {
         using namespace EnumBitOperators;
 
-        PackageFlags Flags = PackageFlags::Disk | PackageFlags::Memory;
-        for (auto Package : m_Storage.get().GetPackages(Flags))
+        PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
+        for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (Package->UnloadAsset(AssetGuid, true))
+            if (package->UnloadAsset(guid, true))
             {
                 break;
             }
         }
-        return LoadAsync(AssetGuid);
+
+        return LoadAsync(guid);
     }
 
     Ptr<IAsset> Manager::Reload(
-        const Handle& AssetGuid)
+        const Guid& guid)
     {
         using namespace EnumBitOperators;
 
-        PackageFlags Flags = PackageFlags::Disk | PackageFlags::Memory;
-        for (auto Package : m_Storage.get().GetPackages(Flags))
+        PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
+        for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (Package->UnloadAsset(AssetGuid, true))
+            if (package->UnloadAsset(guid, true))
             {
                 break;
             }
         }
-        return Load(AssetGuid);
+
+        return Load(guid);
     }
 
     bool Manager::Unload(
-        const Handle& AssetGuid)
+        const Guid& guid)
     {
         using namespace EnumBitOperators;
 
-        PackageFlags Flags = PackageFlags::Disk | PackageFlags::Memory;
-        for (auto Package : m_Storage.get().GetPackages(Flags))
+        PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
+        for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (Package->UnloadAsset(AssetGuid, true))
+            if (package->UnloadAsset(guid, true))
             {
                 return true;
             }
@@ -123,14 +125,14 @@ namespace Ame::Asset
     }
 
     bool Manager::RequestUnload(
-        const Handle& AssetGuid)
+        const Guid& guid)
     {
         using namespace EnumBitOperators;
 
-        PackageFlags Flags = PackageFlags::Disk | PackageFlags::Memory;
-        for (auto Package : m_Storage.get().GetPackages(Flags))
+        PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
+        for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (Package->UnloadAsset(AssetGuid, false))
+            if (package->UnloadAsset(guid, false))
             {
                 return true;
             }

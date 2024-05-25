@@ -23,26 +23,26 @@ namespace Ame::Asset
         /// Query if this asset handler can handle the given asset.
         /// </summary>
         virtual bool CanHandle(
-            const Ptr<IAsset>& Asset) = 0;
+            const Ptr<IAsset>& asset) = 0;
 
         /// <summary>
         /// Load the asset from an input stream.
         /// </summary>
         virtual Ptr<IAsset> Load(
-            std::istream&                  Stream,
-            const Asset::DependencyReader& DepReader,
-            const Handle&                  AssetGuid,
-            String                         Path,
-            const AssetMetaData&           LoaderData) = 0;
+            std::istream&           stream,
+            const DependencyReader& dependencyReader,
+            const Guid&             guid,
+            String                  path,
+            const AssetMetaData&    loaderData) = 0;
 
         /// <summary>
         /// Save the asset to an output stream.
         /// </summary>
         virtual void Save(
-            std::iostream&     Stream,
-            DependencyWriter&  DepWriter,
-            const Ptr<IAsset>& Asset,
-            AssetMetaData&     LoaderData) = 0;
+            std::iostream&     stream,
+            DependencyWriter&  dependencyWriter,
+            const Ptr<IAsset>& asset,
+            AssetMetaData&     loaderData) = 0;
     };
 
     //
@@ -56,13 +56,13 @@ namespace Ame::Asset
         template<typename Ty, typename ArchiveTy>
             requires std::is_base_of_v<IAsset, Ty>
         [[nodiscard]] Ptr<Ty> ReadOne(
-            ArchiveTy& Archive) const
+            ArchiveTy& archive) const
         {
-            Handle AssetGuid;
-            Archive >> AssetGuid;
-            if (AssetGuid != Handle::Null)
+            Guid guid;
+            archive >> guid;
+            if (guid != Guid::Null)
             {
-                auto Iter = m_Assets.find(AssetGuid);
+                auto Iter = m_Assets.find(guid);
                 if (Iter != m_Assets.end())
                 {
                     return std::dynamic_pointer_cast<Ty>(Iter->second);
@@ -74,48 +74,51 @@ namespace Ame::Asset
         /// <summary>
         /// Read the dependencies of an asset.
         /// </summary>
-        template<typename Ty, typename ArchiveTy>
+        template<typename Ty = IAsset, typename ArchiveTy>
             requires std::is_base_of_v<IAsset, Ty>
         [[nodiscard]] auto ReadMany(
-            ArchiveTy& Archive) const
+            ArchiveTy& archive) const
         {
-            std::vector<Handle> ChildGuids;
-            Archive >> ChildGuids;
+            std::vector<Guid> guids;
+            archive >> guids;
 
-            std::vector<Ptr<Ty>> ChildAssets;
-            ChildAssets.reserve(ChildGuids.size());
+            std::vector<Ptr<Ty>> assets;
+            assets.reserve(guids.size());
 
-            for (const auto& ChildGuid : ChildGuids)
+            for (const auto& guid : guids)
             {
-                Ptr<Ty> Asset;
-                if (ChildGuid != Handle::Null)
+                Ptr<Ty> asset;
+                if (guid != Guid::Null)
                 {
-                    auto AssetIter = m_Assets.find(ChildGuid);
-                    if (AssetIter != m_Assets.end())
+                    auto iter = m_Assets.find(guid);
+                    if (iter != m_Assets.end())
                     {
-                        Asset = std::dynamic_pointer_cast<Ty>(AssetIter->second);
+                        asset = std::dynamic_pointer_cast<Ty>(iter->second);
                     }
                 }
-                ChildAssets.emplace_back(std::move(Asset));
+                if (asset)
+                {
+                    assets.emplace_back(std::move(asset));
+                }
             }
 
-            return ChildAssets;
+            return assets;
         }
 
     public:
         /// <summary>
-        /// Internal use only.
+        /// Internal use only for package reading.
         /// Link an asset for depdendency reading.
         /// </summary>
         void Link(
-            const Handle&      AssetGuid,
-            const Ptr<IAsset>& Asset)
+            const Guid&        guid,
+            const Ptr<IAsset>& asset)
         {
-            m_Assets.emplace(AssetGuid, Asset);
+            m_Assets.emplace(guid, asset);
         }
 
     private:
-        std::unordered_map<Handle, Ptr<IAsset>> m_Assets;
+        std::unordered_map<Guid, Ptr<IAsset>> m_Assets;
     };
 
     //
@@ -129,17 +132,17 @@ namespace Ame::Asset
         template<typename ArchiveTy, typename Ty>
             requires std::is_base_of_v<IAsset, Ty>
         void WriteOne(
-            ArchiveTy&     Archive,
-            const Ptr<Ty>& Asset)
+            ArchiveTy&     archive,
+            const Ptr<Ty>& asset)
         {
-            if (Asset)
+            if (asset)
             {
-                Archive << Asset->GetGuid();
-                m_Assets.emplace(Asset);
+                archive << asset->GetGuid();
+                m_Assets.emplace(asset);
             }
             else
             {
-                Archive << Handle::Null;
+                archive << Guid::Null;
             }
         }
 
@@ -148,21 +151,21 @@ namespace Ame::Asset
         /// </summary>
         template<typename ArchiveTy, typename Ty>
         void WriteMany(
-            ArchiveTy& Archive,
-            const Ty&  Assets)
+            ArchiveTy& archive,
+            const Ty&  assets)
         {
-            std::vector<Handle> Handles;
-            for (auto& Asset : Assets)
+            std::vector<Guid> handles;
+            for (auto& asset : assets)
             {
-                m_Assets.emplace(Asset);
-                Handles.emplace_back(Asset->GetGuid());
+                m_Assets.emplace(asset);
+                handles.emplace_back(asset->GetGuid());
             }
-            Archive << Handles;
+            archive << handles;
         }
 
     public:
         /// <summary>
-        /// Internal use only.
+        /// Internal use only for package writing.
         /// Get the dependencies of an asset.
         /// </summary>
         auto& GetDependencies() noexcept
@@ -178,20 +181,20 @@ namespace Ame::Asset
 
 #define AME_STANDARD_ASSET_HANDLER_BODY            \
     bool CanHandle(                                \
-        const Ptr<IAsset>& Asset) override;        \
+        const Ptr<IAsset>& asset) override;        \
                                                    \
     Ptr<IAsset> Load(                              \
-        std::istream&                  Stream,     \
-        const Asset::DependencyReader& DepReader,  \
-        const Handle&                  AssetGuid,  \
-        String                         Path,       \
-        const AssetMetaData&           LoaderData) override; \
+        std::istream&           stream,            \
+        const DependencyReader& dependencyReader,  \
+        const Guid&             guid,              \
+        String                  path,              \
+        const AssetMetaData&    loaderData) override; \
                                                    \
     void Save(                                     \
-        std::iostream&     Stream,                 \
-        DependencyWriter&  DepWriter,              \
-        const Ptr<IAsset>& Asset,                  \
-        AssetMetaData&     LoaderData) override
+        std::iostream&     stream,                 \
+        DependencyWriter&  dependencyWriter,       \
+        const Ptr<IAsset>& asset,                  \
+        AssetMetaData&     loaderData) override
 
 #define AME_STANDARD_ASSET_HANDLER(Name) \
     class Name : public IAssetHandler    \

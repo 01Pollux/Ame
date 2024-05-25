@@ -14,76 +14,76 @@ namespace Ame::Gfx::Cache
     [[nodiscard]] static Co::result<ShaderSourceAsset> LoadShader(
         Co::executor_tag,
         Co::executor&,
-        Asset::Storage&      Storage,
-        const Asset::Handle& Handle)
+        Asset::Storage& assetStorage,
+        const Guid&     handle)
     {
-        auto Asset = Storage.GetManager().LoadAsync(Handle, true);
-        if (auto Shader = std::dynamic_pointer_cast<Asset::Gfx::ShaderSourceAsset>(co_await Asset))
+        auto asset = assetStorage.GetManager().LoadAsync(handle, true);
+        if (auto assetShader = std::dynamic_pointer_cast<Asset::Gfx::ShaderSourceAsset>(co_await asset))
         {
-            co_return Shader;
+            co_return assetShader;
         }
         co_return nullptr;
     }
 
     [[nodiscard]] static Co::result<Rhi::ShaderBytecode> LoadAndCompile(
         Co::executor_tag,
-        Co::executor&          Executor,
-        Asset::Storage&        Storage,
-        const Asset::Handle&   Handle,
-        Rhi::ShaderCompileDesc Desc)
+        Co::executor&          executor,
+        Asset::Storage&        storage,
+        Guid                   guid,
+        Rhi::ShaderCompileDesc desc)
     {
-        auto Shader = co_await LoadShader({}, Executor, Storage, Handle);
-        if (!Shader)
+        auto assetShader = co_await LoadShader({}, executor, storage, guid);
+        if (!assetShader)
         {
-            Log::Gfx().Error("Failed to load shader: {}", Handle.ToString());
+            Log::Gfx().Error("Failed to load shader: {}", guid.ToString());
             co_return Rhi::ShaderBytecode{};
         }
 
-        co_return co_await Shader->Load(Desc);
+        co_return co_await assetShader->Load(desc);
     }
 
     //
 
     Co::result<Rhi::ShaderBytecode> CommonShader::Load(
-        Type ShaderType)
+        Type type)
     {
-        auto Index = std::to_underlying(ShaderType);
-        if (!m_Caches[Index])
+        auto index = std::to_underlying(type);
+        if (!m_Caches[index])
         {
             auto                  Executor = m_Runtime.get().background_executor();
             Co::scoped_async_lock Lock     = co_await m_Mutex.lock(Executor);
-            if (!m_Caches[Index])
+            if (!m_Caches[index])
             {
-                m_Caches[Index] = co_await Create(*Executor, m_AssetStorage, ShaderType);
+                m_Caches[index] = co_await Create(*Executor, m_AssetStorage, type);
             }
         }
-        co_return m_Caches[Index].Borrow();
+        co_return m_Caches[index].Borrow();
     }
 
     Co::result<Rhi::ShaderBytecode> CommonShader::Create(
-        Co::executor&   Executor,
-        Asset::Storage& AssetStorage,
-        Type            ShaderType)
+        Co::executor&   executor,
+        Asset::Storage& assetStorage,
+        Type            type)
     {
         using namespace EnumBitOperators;
 
-        Asset::Handle          ShaderGuid;
-        Rhi::ShaderCompileDesc ShaderDesc;
+        Guid                   guid;
+        Rhi::ShaderCompileDesc shaderDesc;
 
-        switch (ShaderType)
+        switch (type)
         {
         case Type::EntityCollectPass_CS:
         {
-            ShaderGuid = Asset::Handle::FromString(ShaderGuids::s_EntityCollectPass);
-            ShaderDesc.SetStage(Rhi::ShaderType::COMPUTE_SHADER);
+            guid = Guid::FromString(ShaderGuids::s_EntityCollectPass);
+            shaderDesc.SetStage(Rhi::ShaderType::COMPUTE_SHADER);
             break;
         }
 
         case Type::GBufferPass_PS:
         {
-            ShaderGuid = Asset::Handle::FromString(ShaderGuids::s_GBufferPass);
-            ShaderDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
-            ShaderDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
+            guid = Guid::FromString(ShaderGuids::s_GBufferPass);
+            shaderDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
+            shaderDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
             break;
         }
 
@@ -91,6 +91,6 @@ namespace Ame::Gfx::Cache
             std::unreachable();
         }
 
-        co_return co_await LoadAndCompile({}, Executor, AssetStorage, ShaderGuid, std::move(ShaderDesc));
+        co_return co_await LoadAndCompile({}, executor, assetStorage, std::move(guid), std::move(shaderDesc));
     }
 } // namespace Ame::Gfx::Cache

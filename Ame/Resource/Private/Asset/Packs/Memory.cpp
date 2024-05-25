@@ -4,47 +4,47 @@
 
 namespace Ame::Asset
 {
-    Co::generator<const Asset::Handle&> MemoryAssetPackage::GetAssets()
+    Co::generator<Guid> MemoryAssetPackage::GetAssets()
     {
-        RLock Lock(m_CacheMutex);
-        for (auto& Guid : m_Cache | std::views::keys)
+        RLock readLock(m_CacheMutex);
+        for (auto& guid : m_Cache | std::views::keys)
         {
-            co_yield Guid;
+            co_yield Guid{ guid };
         }
     }
 
     bool MemoryAssetPackage::ContainsAsset(
-        const Asset::Handle& AssetGuid) const
+        const Guid& guid) const
     {
-        RLock Lock(m_CacheMutex);
-        return m_Cache.contains(AssetGuid);
+        RLock readLock(m_CacheMutex);
+        return m_Cache.contains(guid);
     }
 
     //
 
-    Asset::Handle MemoryAssetPackage::FindAsset(
-        const String& Path) const
+    Guid MemoryAssetPackage::FindAsset(
+        const String& path) const
     {
-        RLock Lock(m_CacheMutex);
-        for (auto& [Guid, Asset] : m_Cache)
+        RLock readLock(m_CacheMutex);
+        for (auto& [guid, asset] : m_Cache)
         {
-            if (Asset->GetPath() == Path)
+            if (asset->GetPath() == path)
             {
-                return Guid;
+                return guid;
             }
         }
-        return Asset::Handle::Null;
+        return Guid::Null;
     }
 
-    Co::generator<const Asset::Handle&> MemoryAssetPackage::FindAssets(
-        const std::regex& PathRegex) const
+    Co::generator<Guid> MemoryAssetPackage::FindAssets(
+        const std::regex& pathRegex) const
     {
-        RLock Lock(m_CacheMutex);
-        for (auto& [Guid, Asset] : m_Cache)
+        RLock readLock(m_CacheMutex);
+        for (auto& [guid, asset] : m_Cache)
         {
-            if (std::regex_match(Asset->GetPath(), PathRegex))
+            if (std::regex_match(asset->GetPath(), pathRegex))
             {
-                co_yield Asset::Handle{ Guid };
+                co_yield Guid{ guid };
             }
         }
     }
@@ -57,44 +57,44 @@ namespace Ame::Asset
     }
 
     Co::result<void> MemoryAssetPackage::SaveAsset(
-        Ptr<IAsset> Asset)
+        Ptr<IAsset> asset)
     {
-        RWLock Lock(m_CacheMutex);
-        m_Cache[Asset->GetGuid()] = std::move(Asset);
+        RWLock readWriteLock(m_CacheMutex);
+        m_Cache[asset->GetGuid()] = std::move(asset);
         co_return;
     }
 
     bool MemoryAssetPackage::RemoveAsset(
-        const Asset::Handle& AssetGuid)
+        const Guid& guid)
     {
-        RWLock Lock(m_CacheMutex);
-        return m_Cache.erase(AssetGuid) > 0;
+        RWLock readWriteLock(m_CacheMutex);
+        return m_Cache.erase(guid) > 0;
     }
 
     Ptr<IAsset> MemoryAssetPackage::LoadAsset(
-        const Asset::Handle& AssetGuid,
+        const Guid& guid,
         bool)
     {
-        RWLock Lock(m_CacheMutex);
-        auto   Iter = m_Cache.find(AssetGuid);
-        return Iter != m_Cache.end() ? Iter->second : nullptr;
+        RWLock readWriteLock(m_CacheMutex);
+        auto   iter = m_Cache.find(guid);
+        return iter != m_Cache.end() ? iter->second : nullptr;
     }
 
     bool MemoryAssetPackage::UnloadAsset(
-        const Asset::Handle& AssetGuid,
-        bool                 Force)
+        const Guid& guid,
+        bool        force)
     {
-        RWLock Lock(m_CacheMutex);
+        RWLock readWriteLock(m_CacheMutex);
 
-        auto Iter = m_Cache.find(AssetGuid);
-        if (Iter == m_Cache.end())
+        auto iter = m_Cache.find(guid);
+        if (iter == m_Cache.end())
         {
             return false;
         }
 
-        if (!Force && Iter->second.use_count() == 1)
+        if (!force && iter->second.use_count() == 1)
         {
-            m_Cache.erase(Iter);
+            m_Cache.erase(iter);
         }
         return true;
     }

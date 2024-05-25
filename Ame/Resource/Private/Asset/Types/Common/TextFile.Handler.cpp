@@ -6,29 +6,29 @@
 namespace Ame::Asset::Common
 {
     bool TextFileAsset::Handler::CanHandle(
-        const Ptr<IAsset>& Resource)
+        const Ptr<IAsset>& asset)
     {
-        return dynamic_cast<TextFileAsset*>(Resource.get());
+        return dynamic_cast<TextFileAsset*>(asset.get());
     }
 
     Ptr<IAsset> TextFileAsset::Handler::Load(
-        std::istream&                  Stream,
-        const Asset::DependencyReader& DepReader,
-        const Handle&                  AssetGuid,
-        String                         Path,
-        const AssetMetaData&           LoaderData)
+        std::istream& stream,
+        const Asset::DependencyReader&,
+        const Guid& guid,
+        String      path,
+        const AssetMetaData&)
     {
-        std::stringstream Text;
-        Text << Stream.rdbuf();
-        return std::make_shared<TextFileAsset>(Text.str(), AssetGuid, std::move(Path));
+        std::stringstream text;
+        text << stream.rdbuf();
+        return std::make_shared<TextFileAsset>(text.str(), guid, std::move(path));
     }
 
     void TextFileAsset::Handler::Save(
-        std::iostream& Stream,
+        std::iostream& stream,
         DependencyWriter&,
-        const Ptr<IAsset>& Asset,
-        AssetMetaData&     LoaderData)
+        const Ptr<IAsset>& asset,
+        AssetMetaData&)
     {
-        Stream << dynamic_cast<const TextFileAsset*>(Asset.get())->Get();
+        stream << dynamic_cast<const TextFileAsset*>(asset.get())->Get();
     }
 } // namespace Ame::Asset::Common

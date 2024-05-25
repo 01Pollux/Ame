@@ -16,16 +16,16 @@ namespace Ame::Asset::Gfx
 
     public:
         ShaderSourceAsset(
-            ShaderCache&  Cache,
-            String        ShaderSource,
-            const Handle& AssetGuid,
-            String        Path);
+            ShaderCache& shaderCache,
+            String       shaderSource,
+            const Guid&  guid,
+            String       path);
 
         /// <summary>
         /// Load the shader cache from settings
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> Load(
-            const Rhi::ShaderCompileDesc& Desc);
+            const Rhi::ShaderCompileDesc& desc);
 
     private:
         Ref<ShaderCache> m_Cache;

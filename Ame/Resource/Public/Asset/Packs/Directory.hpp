@@ -7,82 +7,82 @@ namespace Ame::Asset
 {
     class DirectoryAssetPackage : public IAssetPackage
     {
-        using AssetMetaMap = std::unordered_map<Handle, AssetMetaDataDef>;
-        using AssetPathMap = std::unordered_map<String, Handle>;
+        using AssetMetaMap = std::unordered_map<Guid, AssetMetaDataDef>;
+        using AssetPathMap = std::unordered_map<String, Guid>;
 
     public:
         DirectoryAssetPackage(
-            Storage&              Storage,
-            std::filesystem::path Path);
+            Storage&              storage,
+            std::filesystem::path path);
 
-        [[nodiscard]] Co::generator<const Asset::Handle&> GetAssets() override;
+        [[nodiscard]] Co::generator<Guid> GetAssets() override;
 
         bool ContainsAsset(
-            const Asset::Handle& AssetGuid) const override;
+            const Guid& guid) const override;
 
     public:
-        Asset::Handle FindAsset(
-            const String& Path) const override;
+        Guid FindAsset(
+            const String& path) const override;
 
-        Co::generator<const Asset::Handle&> FindAssets(
-            const std::regex& PathRegex) const override;
+        Co::generator<Guid> FindAssets(
+            const std::regex& pathRegex) const override;
 
     public:
         Co::result<void> Export() override;
 
         Co::result<void> SaveAsset(
-            Ptr<IAsset> Asset) override;
+            Ptr<IAsset> asset) override;
 
         bool RemoveAsset(
-            const Asset::Handle& AssetGuid) override;
+            const Guid& guid) override;
 
     public:
         /// <summary>
         /// Get asset's guid from a path, or returns an empty guid if not found.
         /// </summary>
-        const Asset::Handle& GetGuidOfPath(
-            const String& Path) const;
+        const Guid& GetGuidOfPath(
+            const String& path) const;
 
     protected:
         Ptr<IAsset> LoadAsset(
-            const Asset::Handle& AssetGuid,
-            bool                 LoadTemp) override;
+            const Guid& guid,
+            bool        loadTemp) override;
 
         bool UnloadAsset(
-            const Asset::Handle& AssetGuid,
-            bool                 Force) override;
+            const Guid& guid,
+            bool        force) override;
 
     private:
         /// <summary>
         /// Get all files in the directory, recursively
         /// </summary>
         [[nodiscard]] static Co::generator<String> GetFiles(
-            const std::filesystem::path& Path);
+            const std::filesystem::path& path);
 
         /// <summary>
         /// Export all asset metadata to file
         /// </summary>
         void ExportMeta(
-            AssetMetaDataDef& Meta) const;
+            AssetMetaDataDef& meta) const;
 
         /// <summary>
         /// Load asset from the cache if it exists
         /// </summary>
         [[nodiscard]] Ptr<IAsset> LoadAssetFromCache(
-            const Asset::Handle& AssetGuid);
+            const Guid& guid);
 
         /// <summary>
         /// Load asset and its dependencies
         /// </summary>
         [[nodiscard]] Ptr<IAsset> LoadAssetAndDependencies(
-            const Asset::Handle& AssetGuid,
-            bool                 LoadTemp);
+            const Guid& guid,
+            bool        loadTemp);
 
         /// <summary>
         /// Save asset and its dependencies
         /// </summary>
         void SaveAssetAndDependencies(
-            Ptr<IAsset> FirstAsset);
+            Ptr<IAsset> asset);
 
     private:
         std::filesystem::path m_RootPath;

@@ -8,39 +8,39 @@
 namespace Ame::Asset
 {
     IAssetPackage* Storage::Mount(
-        UPtr<IAssetPackage> Package)
+        UPtr<IAssetPackage> package)
     {
 #ifndef AME_RELEASE
-        if (&Package->GetStorage() != this)
+        if (&package->GetStorage() != this)
         {
             Log::Asset().Error("Trying to mount an asset that part of this storage");
             return nullptr;
         }
 #endif
 
-        return m_Packages.emplace_back(std::move(Package)).get();
+        return m_Packages.emplace_back(std::move(package)).get();
     }
 
     void Storage::Unmount(
-        IAssetPackage* Package)
+        IAssetPackage* package)
     {
         std::erase_if(
-            m_Packages, [Package](const auto& CurPackage)
-            { return CurPackage.get() == Package; });
+            m_Packages, [package](const auto& CurPackage)
+            { return CurPackage.get() == package; });
     }
 
     //
 
     void Storage::ExportAll()
     {
-        std::vector<Co::result<void>> Futures;
+        std::vector<Co::result<void>> tasks;
 
-        for (auto& Package : GetPackages())
+        for (auto& package : GetPackages())
         {
-            Futures.emplace_back(Package->Export());
+            tasks.emplace_back(package->Export());
         }
 
-        for (auto& Future : Futures)
+        for (auto& Future : tasks)
         {
             try
             {
@@ -56,22 +56,22 @@ namespace Ame::Asset
     //
 
     Co::generator<IAssetPackage*> Storage::GetPackages(
-        const PackageFlags& Flags)
+        const PackageFlags& flags)
     {
         using namespace EnumBitOperators;
 
-        auto Iter = m_Packages.begin();
-        if ((Flags & PackageFlags::Memory) == PackageFlags::Memory)
+        auto iter = m_Packages.begin();
+        if ((flags & PackageFlags::Memory) == PackageFlags::Memory)
         {
-            co_yield Iter->get();
+            co_yield iter->get();
         }
 
-        ++Iter;
-        if ((Flags & PackageFlags::Disk) == PackageFlags::Disk) [[likely]]
+        ++iter;
+        if ((flags & PackageFlags::Disk) == PackageFlags::Disk) [[likely]]
         {
-            for (; Iter != m_Packages.end(); ++Iter)
+            for (; iter != m_Packages.end(); ++iter)
             {
-                co_yield Iter->get();
+                co_yield iter->get();
             }
         }
     }
@@ -79,14 +79,14 @@ namespace Ame::Asset
     //
 
     IAssetPackage* Storage::FindPackage(
-        const Handle&       AssetGuid,
-        const PackageFlags& Flags)
+        const Guid&         guid,
+        const PackageFlags& flags)
     {
-        for (auto& Package : GetPackages(Flags))
+        for (auto& package : GetPackages(flags))
         {
-            if (Package->ContainsAsset(AssetGuid))
+            if (package->ContainsAsset(guid))
             {
-                return Package;
+                return package;
             }
         }
         return nullptr;

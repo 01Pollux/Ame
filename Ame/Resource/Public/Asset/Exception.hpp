@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Asset/Handle.hpp>
 #include <exception>
+#include <Asset/Core.hpp>
 
 namespace Ame::Asset
 {
@@ -9,37 +9,37 @@ namespace Ame::Asset
     {
     public:
         AssetException(
-            const Handle& AssetGuid,
-            const char*   Message) noexcept :
-            runtime_error(std::format("{} '{}'", Message, AssetGuid.ToString())),
-            m_AssetGuid(AssetGuid)
+            const Guid& guid,
+            const char* message) noexcept :
+            runtime_error(std::format("{} '{}'", message, guid.ToString())),
+            m_AssetGuid(guid)
         {
         }
 
         AssetException(
-            const Handle& ParentGuid,
-            const Handle& ChildGuid,
-            const char*   Message) noexcept :
-            runtime_error(std::format("{} '{}::{}'", Message, ParentGuid.ToString(), ChildGuid.ToString())),
-            m_AssetGuid(ParentGuid)
+            const Guid& parentGuid,
+            const Guid& childGuid,
+            const char* message) noexcept :
+            runtime_error(std::format("{} '{}::{}'", message, parentGuid.ToString(), childGuid.ToString())),
+            m_AssetGuid(parentGuid)
         {
         }
 
-        [[nodiscard]] const Handle& GetAssetGuid() const noexcept
+        [[nodiscard]] const Guid& GetAssetGuid() const noexcept
         {
             return m_AssetGuid;
         }
 
     private:
-        const Handle m_AssetGuid;
+        const Guid m_AssetGuid;
     };
 
     class InvalidAssetTypeException : public AssetException
     {
     public:
         InvalidAssetTypeException(
-            const Handle& AssetGuid) noexcept :
-            AssetException(AssetGuid, "Invalid asset type")
+            const Guid& guid) noexcept :
+            AssetException(guid, "Invalid asset type")
         {
         }
     };
@@ -48,15 +48,15 @@ namespace Ame::Asset
     {
     public:
         AssetNotFoundException(
-            const Handle& AssetGuid = Handle::Null) noexcept :
-            AssetException(AssetGuid, "Asset not found")
+            const Guid& guid = Guid::Null) noexcept :
+            AssetException(guid, "Asset not found")
         {
         }
 
         AssetNotFoundException(
-            const Handle& ParentGuid,
-            const Handle& ChildGuid) noexcept :
-            AssetException(ParentGuid, ChildGuid, "Asset not found in meta file")
+            const Guid& parentGuid,
+            const Guid& childGuid) noexcept :
+            AssetException(parentGuid, childGuid, "Asset not found in meta file")
         {
         }
     };
@@ -65,15 +65,15 @@ namespace Ame::Asset
     {
     public:
         AssetWithNoHandlerException(
-            const Handle& AssetGuid) noexcept :
-            AssetException(AssetGuid, "Asset with no handler")
+            const Guid& guid) noexcept :
+            AssetException(guid, "Asset with no handler")
         {
         }
 
         AssetWithNoHandlerException(
-            const Handle& ParentGuid,
-            const Handle& ChildGuid) noexcept :
-            AssetException(ParentGuid, ChildGuid, "Asset with no handler")
+            const Guid& parentGuid,
+            const Guid& childGuid) noexcept :
+            AssetException(parentGuid, childGuid, "Asset with no handler")
         {
         }
     };
@@ -82,15 +82,15 @@ namespace Ame::Asset
     {
     public:
         AssetHandlerFailureException(
-            const Handle& AssetGuid) noexcept :
-            AssetException(AssetGuid, "Asset handler failure")
+            const Guid& guid) noexcept :
+            AssetException(guid, "Asset handler failure")
         {
         }
 
         AssetHandlerFailureException(
-            const Handle& ParentGuid,
-            const Handle& ChildGuid) noexcept :
-            AssetException(ParentGuid, ChildGuid, "Asset handler failure")
+            const Guid& parentGuid,
+            const Guid& childGuid) noexcept :
+            AssetException(parentGuid, childGuid, "Asset handler failure")
         {
         }
     };
@@ -99,9 +99,9 @@ namespace Ame::Asset
     {
     public:
         AssetChildMetaNotFoundException(
-            const Handle& ParentGuid,
-            const Handle& ChildGuid) noexcept :
-            AssetException(ParentGuid, ChildGuid, "Asset child not found in meta file")
+            const Guid& parentGuid,
+            const Guid& childGuid) noexcept :
+            AssetException(parentGuid, childGuid, "Asset child not found in meta file")
         {
         }
     };

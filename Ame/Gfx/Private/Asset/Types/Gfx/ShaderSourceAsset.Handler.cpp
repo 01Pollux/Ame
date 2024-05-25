@@ -3,46 +3,46 @@
 namespace Ame::Asset::Gfx
 {
     ShaderSourceAsset::Handler::Handler(
-        ShaderCache& Cache) :
-        m_Cache(Cache)
+        ShaderCache& shaderCache) :
+        m_Cache(shaderCache)
     {
     }
 
     bool ShaderSourceAsset::Handler::CanHandle(
-        const Ptr<IAsset>& Asset)
+        const Ptr<IAsset>& asset)
     {
-        auto ShaderSource = dynamic_cast<ShaderSourceAsset*>(Asset.get());
-        if (ShaderSource == nullptr)
+        auto shaderAsset = dynamic_cast<ShaderSourceAsset*>(asset.get());
+        if (shaderAsset == nullptr)
         {
             return false;
         }
-        return &ShaderSource->m_Cache == &m_Cache;
+        return &shaderAsset->m_Cache == &m_Cache;
     }
 
     Ptr<IAsset> ShaderSourceAsset::Handler::Load(
-        std::istream&                  Stream,
-        const Asset::DependencyReader& DepReader,
-        const Handle&                  AssetGuid,
-        String                         Path,
-        const AssetMetaData&           LoaderData)
+        std::istream& stream,
+        const Asset::DependencyReader&,
+        const Guid& guid,
+        String      path,
+        const AssetMetaData&)
     {
-        Stream.seekg(0, std::ios::end);
-        auto FileSize = Stream.tellg();
-        Stream.seekg(std::ios::beg);
+        stream.seekg(0, std::ios::end);
+        auto FileSize = stream.tellg();
+        stream.seekg(std::ios::beg);
 
         String ShaderCode(FileSize, '\0');
-        Stream.read(ShaderCode.data(), FileSize);
+        stream.read(ShaderCode.data(), FileSize);
 
-        return std::make_shared<ShaderSourceAsset>(m_Cache, std::move(ShaderCode), AssetGuid, std::move(Path));
+        return std::make_shared<ShaderSourceAsset>(m_Cache, std::move(ShaderCode), guid, std::move(path));
     }
 
     void ShaderSourceAsset::Handler::Save(
-        std::iostream&     Stream,
-        DependencyWriter&  DepWriter,
-        const Ptr<IAsset>& Asset,
-        AssetMetaData&     LoaderData)
+        std::iostream& stream,
+        DependencyWriter&,
+        const Ptr<IAsset>& asset,
+        AssetMetaData&)
     {
-        auto Shader = dynamic_cast<ShaderSourceAsset*>(Asset.get());
-        Stream.write(Shader->m_ShaderSource.data(), Shader->m_ShaderSource.size());
+        auto assetShader = dynamic_cast<ShaderSourceAsset*>(asset.get());
+        stream.write(assetShader->m_ShaderSource.data(), assetShader->m_ShaderSource.size());
     }
 } // namespace Ame::Asset::Gfx

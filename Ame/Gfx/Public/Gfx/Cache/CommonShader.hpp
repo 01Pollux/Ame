@@ -29,10 +29,10 @@ namespace Ame::Gfx::Cache
 
     public:
         CommonShader(
-            Co::runtime&    Runtime,
-            Asset::Storage& AssetStorage) :
-            m_Runtime(Runtime),
-            m_AssetStorage(AssetStorage)
+            Co::runtime&    coroutine,
+            Asset::Storage& assetStorage) :
+            m_Runtime(coroutine),
+            m_AssetStorage(assetStorage)
         {
         }
 
@@ -41,16 +41,16 @@ namespace Ame::Gfx::Cache
         /// Load or get a pipeline layout from cache.
         /// </summary>
         Co::result<Rhi::ShaderBytecode> Load(
-            Type ShaderType);
+            Type type);
 
     private:
         /// <summary>
         /// Get the pipeline layout desc.
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> Create(
-            Co::executor&   Executor,
-            Asset::Storage& AssetStorage,
-            Type            ShaderType);
+            Co::executor&   executor,
+            Asset::Storage& assetStorage,
+            Type            type);
 
     private:
         Ref<Co::runtime>    m_Runtime;
