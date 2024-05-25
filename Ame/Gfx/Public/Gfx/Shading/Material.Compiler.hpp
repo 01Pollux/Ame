@@ -17,9 +17,9 @@ namespace Ame::Gfx::Shading
         /// Compiles the material with the given parameters and descriptors
         /// </summary>
         [[nodiscard]] static Co::result<Ptr<Material>> Compile(
-            Rhi::Device&              RhiDevice,
-            Cache::ShaderCache&       ShaderCache,
-            MaterialPipelineState     PipelineState,
-            const PropertyDescriptor& Descriptor);
+            Rhi::Device&              rhiDevice,
+            Cache::ShaderCache&       shaderCache,
+            MaterialPipelineState     pipelineState,
+            const PropertyDescriptor& descriptor);
     };
 } // namespace Ame::Gfx::Shading

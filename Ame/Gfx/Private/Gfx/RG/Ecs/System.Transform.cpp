@@ -7,42 +7,42 @@ namespace Ame::Gfx::RG
 {
     void EcsSystemHooks::CreateTransformObserver()
     {
-        auto& World = *m_Universe.get().GetActiveWorld();
+        auto& world = *m_Universe.get().GetActiveWorld();
 
-        auto TransformObserverCallback =
-            [this](Ecs::Iterator& Iter, const Ecs::Component::Transform* Transforms)
+        auto transformObserverCallback =
+            [this](Ecs::Iterator& iter, const Ecs::Component::Transform* transforms)
         {
-            auto& TransformBuffer = m_CoreResources.get().GetTransformBuffer();
-            for (size_t i : Iter)
+            auto& transformBuffer = m_CoreResources.get().GetTransformBuffer();
+            for (size_t i : iter)
             {
-                Ecs::Entity Entity(Iter.entity(i));
+                Ecs::Entity entity(iter.entity(i));
 
-                auto& InstanceInfo = Entity.GetComponentMut<RenderInstance>();
-                if (Iter.event() == flecs::OnSet)
+                auto& instanceInfo = entity.GetComponentMut<RenderInstance>();
+                if (iter.event() == flecs::OnSet)
                 {
-                    if (InstanceInfo.TransformIndex == TransformBuffer.InvalidIndex)
+                    if (instanceInfo.TransformIndex == transformBuffer.InvalidIndex)
                     {
-                        InstanceInfo.TransformIndex = TransformBuffer.Rent();
+                        instanceInfo.TransformIndex = transformBuffer.Rent();
                     }
-                    auto Mat = Transforms[i].ToMat4x4Transposed();
-                    TransformBuffer.Write(InstanceInfo.TransformIndex, glm::value_ptr(Mat), sizeof(Mat));
+                    auto matrix = transforms[i].ToMat4x4Transposed();
+                    transformBuffer.Write(instanceInfo.TransformIndex, glm::value_ptr(matrix), sizeof(matrix));
                 }
                 else
                 {
-                    if (InstanceInfo.TransformIndex != TransformBuffer.InvalidIndex)
+                    if (instanceInfo.TransformIndex != transformBuffer.InvalidIndex)
                     {
-                        TransformBuffer.Return(InstanceInfo.TransformIndex);
-                        InstanceInfo.TransformIndex = TransformBuffer.InvalidIndex;
+                        transformBuffer.Return(instanceInfo.TransformIndex);
+                        instanceInfo.TransformIndex = transformBuffer.InvalidIndex;
                     }
                 }
             }
         };
 
         m_WorldData.TransformObserver =
-            World.CreateObserver<const Ecs::Component::Transform>()
+            world.CreateObserver<const Ecs::Component::Transform>()
                 .with<const Ecs::Component::BaseRenderable>()
                 .event(flecs::OnSet)
                 .event(flecs::OnRemove)
-                .iter(TransformObserverCallback);
+                .iter(transformObserverCallback);
     }
 } // namespace Ame::Gfx::RG

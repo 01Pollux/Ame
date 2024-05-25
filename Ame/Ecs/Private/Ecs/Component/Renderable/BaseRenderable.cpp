@@ -12,7 +12,7 @@ namespace Ame::Ecs::Component
     {
         return BufferView{
             .CpuView_Or_Offset = std::bit_cast<const void*>(data),
-            .Num               = static_cast<uint32_t>(count),
+            .Count             = static_cast<uint32_t>(count),
             .Stride            = static_cast<uint32_t>(stride)
         };
     }
@@ -26,7 +26,7 @@ namespace Ame::Ecs::Component
         return BufferView{
             .NriBuffer         = buffer,
             .CpuView_Or_Offset = std::bit_cast<const void*>(offset),
-            .Num               = static_cast<uint32_t>(count),
+            .Count             = static_cast<uint32_t>(count),
             .Stride            = static_cast<uint32_t>(stride)
         };
     }

@@ -34,8 +34,8 @@ namespace Ame::Gfx::Cache
 
     public:
         MaterialBindingCache(
-            Rhi::Device& Device,
-            EngineFrame& Frame);
+            Rhi::Device& rhiDevice,
+            EngineFrame& engineFrame);
 
     public:
         /// <summary>
@@ -43,28 +43,28 @@ namespace Ame::Gfx::Cache
         /// It either get the descriptor set from the cache or create a new one
         /// </summary>
         void Bind(
-            Rhi::CommandList&        CommandList,
-            const Shading::Material& Material);
+            Rhi::CommandList&        commandList,
+            const Shading::Material& material);
 
     private:
         /// <summary>
         /// Create a new descriptor set for the material
         /// </summary>
         void CreatePropertyBlock(
-            Rhi::CommandList&        CommandList,
-            const Shading::Material& Material,
-            SetCache&                Set);
+            Rhi::CommandList&        commandList,
+            const Shading::Material& material,
+            SetCache&                setCache);
 
         /// <summary>
         /// Get or create a descriptor set for the buffer
         /// </summary>
         [[nodiscard]] const nri::Descriptor* GetOrCreateConstantBufferDescriptor(
-            uint32_t BlockSlot);
+            uint32_t blockSlot);
 
     private:
         Signals::OnEndFrame::Handle m_EndFrameHandle;
 
-        SetCacheMap              m_SetCache;
+        SetCacheMap              m_SetCaches;
         BlockBuffer              m_DynamicBuffer;
         BlockBufferDescriptorMap m_DynamicBufferDescriptors;
     };

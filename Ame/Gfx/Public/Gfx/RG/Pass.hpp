@@ -34,11 +34,11 @@ namespace Ame::Gfx::RG
         /// Set the queue type of the pass
         /// </summary>
         Pass& SetFlags(
-            PassFlags Flags,
-            bool      Enable = true)
+            PassFlags flags,
+            bool      enable = true)
         {
             using namespace EnumBitOperators;
-            m_Flags |= Flags;
+            m_Flags |= flags;
             return *this;
         }
 
@@ -46,10 +46,10 @@ namespace Ame::Gfx::RG
         /// Get the name of the pass
         /// </summary>
         Pass& Name(
-            StringView Name)
+            StringView name)
         {
 #ifndef AME_DIST
-            m_Name = Name;
+            m_Name = name;
 #endif
             return *this;
         }
@@ -58,9 +58,9 @@ namespace Ame::Gfx::RG
         /// Initializes a build callback
         /// </summary>
         Pass& Build(
-            BuildFuncType&& BuildFunc)
+            BuildFuncType&& buildFunc)
         {
-            m_BuildFunc = std::move(BuildFunc);
+            m_BuildFunc = std::move(buildFunc);
             return *this;
         }
 
@@ -68,9 +68,9 @@ namespace Ame::Gfx::RG
         /// Initializes an execute callback
         /// </summary>
         Pass& Execute(
-            ExecuteFuncType&& ExecuteFunc)
+            ExecuteFuncType&& executeFunc)
         {
-            m_ExecuteFunc = std::move(ExecuteFunc);
+            m_ExecuteFunc = std::move(executeFunc);
             return *this;
         }
 
@@ -108,11 +108,11 @@ namespace Ame::Gfx::RG
         /// Build render pass
         /// </summary>
         void DoBuild(
-            Resolver& RgResolver)
+            Resolver& resolver)
         {
             if (m_BuildFunc) [[likely]]
             {
-                m_BuildFunc(RgResolver);
+                m_BuildFunc(resolver);
             }
         }
 
@@ -120,12 +120,12 @@ namespace Ame::Gfx::RG
         /// Execute render pass
         /// </summary>
         void DoExecute(
-            const ResourceStorage& RgStorage,
-            Rhi::CommandList*      CommandList)
+            const ResourceStorage& storage,
+            Rhi::CommandList*      commandList)
         {
             if (m_ExecuteFunc) [[likely]]
             {
-                m_ExecuteFunc(RgStorage, CommandList);
+                m_ExecuteFunc(storage, commandList);
             }
         }
 
@@ -151,11 +151,11 @@ namespace Ame::Gfx::RG
         /// Initializes a build callback
         /// </summary>
         TypedPass& Build(
-            BuildFuncType&& BuildFunc)
+            BuildFuncType&& buildFunc)
         {
             Pass::Build(
                 std::bind_front(
-                    std::move(BuildFunc),
+                    std::move(buildFunc),
                     std::ref(m_Data)));
             return *this;
         }
@@ -164,11 +164,11 @@ namespace Ame::Gfx::RG
         /// Initializes an execute callback
         /// </summary>
         TypedPass& Execute(
-            ExecuteFuncType&& ExecuteFunc)
+            ExecuteFuncType&& executeFunc)
         {
             Pass::Execute(
                 std::bind_front(
-                    std::move(ExecuteFunc),
+                    std::move(executeFunc),
                     std::cref(m_Data)));
             return *this;
         }

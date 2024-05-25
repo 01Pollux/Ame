@@ -10,14 +10,14 @@ namespace Ame::Gfx::Shading
         friend class Material;
 
     public:
-        struct PropertInfo
+        struct PropertyInfo
         {
             ResourceType     Type;
             ResourceDataType DataType;
             uint8_t          Dims;
         };
 
-        struct ResourceInfo : PropertInfo
+        struct ResourceInfo : PropertyInfo
         {
             Rhi::ShaderFlags ShaderFlags;
             String           PropName;
@@ -29,24 +29,27 @@ namespace Ame::Gfx::Shading
         using PropertyTree = boost::property_tree::ptree;
 
     public:
-#define AME_DECLARE_MEMBER_SCALAR(FuncName, ImplName, Dims)                                                                             \
-    PropertyDescriptor& FuncName(const String& PropName, Rhi::ShaderFlags ShaderFlags = Rhi::ShaderFlags::All(), uint8_t ArraySize = 1) \
-    {                                                                                                                                   \
-        if (ArraySize > 1)                                                                                                              \
-        {                                                                                                                               \
-            for (uint8_t i = 0; i < ArraySize - 1; i++)                                                                                 \
-            {                                                                                                                           \
-                PadToBoundaries();                                                                                                      \
-                ImplName(std::format("{}[{}]", PropName, i), ShaderFlags, Dims);                                                        \
-                PadToBoundaries();                                                                                                      \
-            }                                                                                                                           \
-            ImplName(std::format("{}[{}]", PropName, ArraySize - 1), ShaderFlags, Dims);                                                \
-        }                                                                                                                               \
-        else                                                                                                                            \
-        {                                                                                                                               \
-            ImplName(PropName, ShaderFlags, Dims);                                                                                      \
-        }                                                                                                                               \
-        return *this;                                                                                                                   \
+#define AME_DECLARE_MEMBER_SCALAR(FuncName, ImplName, Dims)                            \
+    PropertyDescriptor& FuncName(                                                      \
+        const String&    propertyName,                                                 \
+        Rhi::ShaderFlags flags     = Rhi::ShaderFlags::All(),                          \
+        uint8_t          arraySize = 1)                                                \
+    {                                                                                  \
+        if (arraySize > 1)                                                             \
+        {                                                                              \
+            for (uint8_t i = 0; i < arraySize - 1; i++)                                \
+            {                                                                          \
+                PadToBoundaries();                                                     \
+                ImplName(std::format("{}[{}]", propertyName, i), flags, Dims);         \
+                PadToBoundaries();                                                     \
+            }                                                                          \
+            ImplName(std::format("{}[{}]", propertyName, arraySize - 1), flags, Dims); \
+        }                                                                              \
+        else                                                                           \
+        {                                                                              \
+            ImplName(propertyName, flags, Dims);                                       \
+        }                                                                              \
+        return *this;                                                                  \
     }
 
         AME_DECLARE_MEMBER_SCALAR(Int, IntImpl, 1);
@@ -68,33 +71,42 @@ namespace Ame::Gfx::Shading
         AME_DECLARE_MEMBER_SCALAR(Matrix3x3, Matrix3x3Impl, 1);
         AME_DECLARE_MEMBER_SCALAR(Matrix4x4, Matrix4x4Impl, 1);
 
-        PropertyDescriptor& Struct(const String& PropName, const PropertyDescriptor& Descriptor, Rhi::ShaderFlags Flags = Rhi::ShaderFlags::All(), uint8_t ArraySize = 1)
+        PropertyDescriptor& Struct(
+            const String&             propertyName,
+            const PropertyDescriptor& descriptor,
+            Rhi::ShaderFlags          flags     = Rhi::ShaderFlags::All(),
+            uint8_t                   arraySize = 1)
         {
-            if (ArraySize > 1)
+            if (arraySize > 1)
             {
-                for (uint8_t i = 0; i < ArraySize; ++i)
+                for (uint8_t i = 0; i < arraySize; i++)
                 {
-                    StructImpl(std::format("{}[{}]", PropName, i), Descriptor, Flags);
+                    StructImpl(std::format("{}[{}]", propertyName, i), descriptor, flags);
                 }
             }
             else
             {
-                StructImpl(PropName, Descriptor, Flags);
+                StructImpl(propertyName, descriptor, flags);
             }
             return *this;
         }
-        PropertyDescriptor& Resource(const String& PropName, ResourceType Type, ResourceDataType DataType, Rhi::ShaderFlags Flags = Rhi::ShaderFlags::All());
+
+        PropertyDescriptor& Resource(
+            const String&    propertyName,
+            ResourceType     type,
+            ResourceDataType dataType,
+            Rhi::ShaderFlags flags = Rhi::ShaderFlags::All());
 
 #undef AME_DECLARE_MEMBER_SCALAR
 
     private:
-        PropertyDescriptor& IntImpl(const String& PropName, Rhi::ShaderFlags Flags, uint8_t Dims);
-        PropertyDescriptor& FloatImpl(const String& PropName, Rhi::ShaderFlags Flags, uint8_t Dims);
-        PropertyDescriptor& BoolImpl(const String& PropName, Rhi::ShaderFlags Flags, uint8_t Dims);
-        PropertyDescriptor& Matrix2x2Impl(const String& PropName, Rhi::ShaderFlags Flags, uint8_t Dims);
-        PropertyDescriptor& Matrix3x3Impl(const String& PropName, Rhi::ShaderFlags Flags, uint8_t Dims);
-        PropertyDescriptor& Matrix4x4Impl(const String& PropName, Rhi::ShaderFlags Flags, uint8_t Dims);
-        PropertyDescriptor& StructImpl(const String& PropName, const PropertyDescriptor& Descriptor, Rhi::ShaderFlags Flags);
+        PropertyDescriptor& IntImpl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
+        PropertyDescriptor& FloatImpl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
+        PropertyDescriptor& BoolImpl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
+        PropertyDescriptor& Matrix2x2Impl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
+        PropertyDescriptor& Matrix3x3Impl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
+        PropertyDescriptor& Matrix4x4Impl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
+        PropertyDescriptor& StructImpl(const String& propertyName, const PropertyDescriptor& descriptor, Rhi::ShaderFlags flags);
 
     public:
         /// <summary>
@@ -111,7 +123,7 @@ namespace Ame::Gfx::Shading
         /// Get offset of a property in the descriptor for user data, returns InvalidOffset if the property is not found or if its a resource
         /// </summary>
         [[nodiscard]] uint32_t GetOffset(
-            const String& PropName) const;
+            const String& propertyName) const;
 
     public:
         /// <summary>
@@ -135,34 +147,34 @@ namespace Ame::Gfx::Shading
         /// Get size of datatype and dimensions
         /// </summary>
         [[nodiscard]] static uint32_t GetSize(
-            ResourceType     Type,
-            ResourceDataType DataType,
-            uint8_t          Dims);
+            ResourceType     type,
+            ResourceDataType dataType,
+            uint8_t          dims);
 
         /// <summary>
         /// Increase the size of the descriptor userdata and return offset for the next property
         /// </summary>
         [[nodiscard]] uint32_t AdvanceSize(
-            uint32_t Size);
+            uint32_t size);
 
     private:
         void InsertProp(
-            const String&      PropName,
-            const PropertInfo& Info,
-            Rhi::ShaderFlags   Flags);
+            const String&       propertyName,
+            const PropertyInfo& propertyInfo,
+            Rhi::ShaderFlags    flags);
 
         void InsertStruct(
-            const String&             PropName,
-            const PropertyDescriptor& Descriptor,
-            Rhi::ShaderFlags          Flags);
+            const String&             propertyName,
+            const PropertyDescriptor& descriptor,
+            Rhi::ShaderFlags          flags);
 
     private:
         void TraverseAppendOffset(
-            PropertyTree& Subtree,
-            uint32_t      Offset);
+            PropertyTree& subtree,
+            uint32_t      offset);
 
         void InsertPadding(
-            uint32_t Size);
+            uint32_t size);
 
         void PadToBoundaries();
 

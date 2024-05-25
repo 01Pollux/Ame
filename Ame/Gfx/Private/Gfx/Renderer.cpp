@@ -9,20 +9,20 @@
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        EngineFrame&   Frame,
-        FrameTimer&    Timer,
-        Rhi::Device&   Device,
-        Ecs::Universe& Universe) :
-        m_Frame(Frame),
-        m_Timer(Timer),
-        m_Device(Device),
-        m_Graph(Timer, Device, Universe),
-        m_Universe(Universe)
+        EngineFrame&   engineFrame,
+        FrameTimer&    frameTimer,
+        Rhi::Device&   rhiDevice,
+        Ecs::Universe& universe) :
+        m_Frame(engineFrame),
+        m_Timer(frameTimer),
+        m_Device(rhiDevice),
+        m_Graph(frameTimer, rhiDevice, universe),
+        m_Universe(universe)
     {
-        if (!Device.IsHeadless())
+        if (!rhiDevice.IsHeadless())
         {
             m_OnWorldChange = {
-                Universe.OnWorldChange()
+                universe.OnWorldChange()
                     .ObjectSignal(),
                 [this](auto& Universe, auto& ChangeData)
                 {
@@ -43,28 +43,28 @@ namespace Ame::Gfx
             };
 
             m_OnUpdate = {
-                Frame.OnUpdate()
+                engineFrame.OnUpdate()
                     .ObjectSignal(),
                 [this]
                 { OnUpdate(); }
             };
 
             m_OnStartFrame = {
-                Frame.OnStartFrame()
+                engineFrame.OnStartFrame()
                     .ObjectSignal(),
                 [this]
                 { OnStartFrame(); }
             };
 
             m_OnRender = {
-                Frame.OnRender()
+                engineFrame.OnRender()
                     .ObjectSignal(),
                 [this]
                 { OnRender(); }
             };
 
             m_OnEndFrame = {
-                Frame.OnEndFrame()
+                engineFrame.OnEndFrame()
                     .ObjectSignal(),
                 [this]
                 { OnEndFrame(); }
@@ -105,22 +105,22 @@ namespace Ame::Gfx
 
     void Renderer::OnRender()
     {
-        auto RenderIter =
-            [this](Ecs::Iterator                    Iter,
-                   const Ecs::Component::Transform* Transforms,
-                   const Ecs::Component::Camera*    Cameras)
+        auto renderIter =
+            [this](Ecs::Iterator                    iter,
+                   const Ecs::Component::Transform* transforms,
+                   const Ecs::Component::Camera*    cameras)
         {
-            for (auto i : Iter)
+            for (auto i : iter)
             {
                 m_Graph.UpdateFrameStorage(
-                    Iter.entity(i),
-                    Transforms[i],
-                    Cameras[i].GetProjectionMatrix(),
-                    Cameras[i].GetViewporSize());
+                    iter.entity(i),
+                    transforms[i],
+                    cameras[i].GetProjectionMatrix(),
+                    cameras[i].GetViewporSize());
                 m_Graph.Execute();
             }
         };
-        m_CameraQuery->iter(std::move(RenderIter));
+        m_CameraQuery->iter(std::move(renderIter));
     }
 
     void Renderer::OnEndFrame()

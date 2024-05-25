@@ -7,10 +7,10 @@
 namespace Ame::Gfx::RG
 {
     ResourceStorage::ResourceStorage(
-        Rhi::Device&   Device,
-        Ecs::Universe& Universe) :
-        m_Device(Device),
-        m_CoreResources(std::make_unique<CoreResources>(Device, Universe))
+        Rhi::Device&   rhiDevice,
+        Ecs::Universe& universe) :
+        m_Device(rhiDevice),
+        m_CoreResources(std::make_unique<CoreResources>(rhiDevice, universe))
     {
         UpdateCoreResources();
     }
@@ -27,16 +27,16 @@ namespace Ame::Gfx::RG
     //
 
     bool ResourceStorage::ContainsResource(
-        const ResourceId& Id) const
+        const ResourceId& id) const
     {
-        return m_Resources.contains(Id);
+        return m_Resources.contains(id);
     }
 
     bool ResourceStorage::ContainsResourceView(
-        const ResourceViewId& ViewId)
+        const ResourceViewId& viewId)
     {
-        auto Iter = m_Resources.find(ViewId.GetResource());
-        return Iter != m_Resources.end() ? Iter->second.ContainsView(ViewId) : false;
+        auto iter = m_Resources.find(viewId.GetResource());
+        return iter != m_Resources.end() ? iter->second.ContainsView(viewId) : false;
     }
 
     //
@@ -49,82 +49,78 @@ namespace Ame::Gfx::RG
     //
 
     const ResourceHandle& ResourceStorage::GetResource(
-        const ResourceId& Id) const
+        const ResourceId& id) const
     {
-        return m_Resources.at(Id);
+        return m_Resources.at(id);
     }
 
     ResourceHandle& ResourceStorage::GetResourceMut(
-        const ResourceId& Id)
+        const ResourceId& id)
     {
         CheckLockState(false);
-        return m_Resources.at(Id);
+        return m_Resources.at(id);
     }
 
     ResourceViewDesc& ResourceStorage::GetResourceViewDescMut(
-        const ResourceViewId& ViewId)
+        const ResourceViewId& viewId)
     {
         CheckLockState(false);
 
-        auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.GetViewDescMut(ViewId);
+        auto iter = m_Resources.find(viewId.GetResource());
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        return iter->second.GetViewDescMut(viewId);
     }
 
     const ResourceViewDesc& ResourceStorage::GetResourceViewDesc(
-        const ResourceViewId& ViewId) const
+        const ResourceViewId& viewId) const
     {
-        auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.GetViewDesc(ViewId);
+        auto iter = m_Resources.find(viewId.GetResource());
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        return iter->second.GetViewDesc(viewId);
     }
 
     const Rhi::ResourceView& ResourceStorage::GetResourceViewHandle(
-        const ResourceViewId& ViewId) const
+        const ResourceViewId& viewId) const
     {
-        auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.GetViewHandle(ViewId);
+        auto iter = m_Resources.find(viewId.GetResource());
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        return iter->second.GetViewHandle(viewId);
     }
 
     //
 
     void ResourceStorage::DeclareBuffer(
-        const ResourceId&      Id,
+        const ResourceId&      id,
         const Rhi::BufferDesc& Desc)
     {
         CheckLockState(false);
-        m_Resources[Id].SetDynamic(Id, Desc);
+        m_Resources[id].SetDynamic(id, Desc);
     }
 
     void ResourceStorage::DeclareTexture(
-        const ResourceId&       Id,
+        const ResourceId&       id,
         const Rhi::TextureDesc& Desc)
     {
         CheckLockState(false);
-        m_Resources[Id].SetDynamic(Id, Desc);
+        m_Resources[id].SetDynamic(id, Desc);
     }
 
     //
 
     void ResourceStorage::ImportBuffer(
-        const ResourceId&  Id,
-        const Rhi::Buffer& Buffer)
+        const ResourceId& id,
+        Rhi::Buffer       buffer)
     {
         CheckLockState(false);
-
-        AME_LOG_ASSERT(Log::Gfx(), Buffer, "Buffer is nullptr");
-        m_Resources[Id].Import(Buffer);
+        m_Resources[id].Import(std::move(buffer));
     }
 
     void ResourceStorage::ImportTexture(
-        const ResourceId&   Id,
-        const Rhi::Texture& Texture)
+        const ResourceId& id,
+        Rhi::Texture      texture)
     {
         CheckLockState(false);
-
-        AME_LOG_ASSERT(Log::Gfx(), Texture, "Texture is nullptr");
-        m_Resources[Id].Import(Texture);
+        m_Resources[id].Import(std::move(texture));
     }
 
     //
@@ -140,25 +136,25 @@ namespace Ame::Gfx::RG
     }
 
     Rhi::BufferDesc& ResourceStorage::DeclareBufferView(
-        const ResourceViewId& ViewId,
-        ResourceViewDesc      ViewDesc)
+        const ResourceViewId& viewId,
+        ResourceViewDesc      desc)
     {
         CheckLockState(false);
 
-        auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.CreateBufferView(ViewId, std::move(ViewDesc));
+        auto iter = m_Resources.find(viewId.GetResource());
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        return iter->second.CreateBufferView(viewId, std::move(desc));
     }
 
     Rhi::TextureDesc& ResourceStorage::DeclareTextureView(
-        const ResourceViewId& ViewId,
-        ResourceViewDesc      ViewDesc)
+        const ResourceViewId& viewId,
+        ResourceViewDesc      desc)
     {
         CheckLockState(false);
 
-        auto Iter = m_Resources.find(ViewId.GetResource());
-        AME_LOG_ASSERT(Log::Gfx(), Iter != m_Resources.end(), "Resource doesn't exists");
-        return Iter->second.CreateTextureView(ViewId, std::move(ViewDesc));
+        auto iter = m_Resources.find(viewId.GetResource());
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        return iter->second.CreateTextureView(viewId, std::move(desc));
     }
 
     //
@@ -178,10 +174,10 @@ namespace Ame::Gfx::RG
     }
 
     void ResourceStorage::CheckLockState(
-        bool Locked) const
+        bool locked) const
     {
 #ifndef AME_DIST
-        AME_LOG_ASSERT(Log::Gfx(), m_Locked == Locked, "ResourceStorage is{} locked", Locked ? "" : "n't");
+        AME_LOG_ASSERT(Log::Gfx(), m_Locked == locked, "ResourceStorage is{} locked", locked ? "" : "n't");
 #endif
     }
 } // namespace Ame::Gfx::RG

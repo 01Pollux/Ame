@@ -6,30 +6,30 @@
 namespace Ame::Gfx::RG
 {
     ResourceHandle::ResourceHandle(
-        ResourceHandle&& Other) noexcept :
-        m_Resource(std::exchange(Other.m_Resource, std::monostate{})),
-        m_Desc(std::move(Other.m_Desc)),
-        m_DescHash(Other.m_DescHash),
-        m_Views(std::move(Other.m_Views)),
-        m_ImportViewsChanged(Other.m_ImportViewsChanged),
-        m_IsImported(Other.m_IsImported)
+        ResourceHandle&& other) noexcept :
+        m_Resource(std::exchange(other.m_Resource, std::monostate{})),
+        m_Desc(std::move(other.m_Desc)),
+        m_DescHash(other.m_DescHash),
+        m_Views(std::move(other.m_Views)),
+        m_ImportViewsChanged(other.m_ImportViewsChanged),
+        m_IsImported(other.m_IsImported)
     {
     }
 
     ResourceHandle& ResourceHandle::operator=(
-        ResourceHandle&& Other) noexcept
+        ResourceHandle&& other) noexcept
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            Other.m_Resource     = {};
-            m_Resource           = std::exchange(Other.m_Resource, std::monostate{});
-            m_Desc               = std::move(Other.m_Desc);
-            m_DescHash           = Other.m_DescHash;
-            m_Views              = std::move(Other.m_Views);
-            m_ImportViewsChanged = Other.m_ImportViewsChanged;
-            m_IsImported         = Other.m_IsImported;
+            other.m_Resource     = {};
+            m_Resource           = std::exchange(other.m_Resource, std::monostate{});
+            m_Desc               = std::move(other.m_Desc);
+            m_DescHash           = other.m_DescHash;
+            m_Views              = std::move(other.m_Views);
+            m_ImportViewsChanged = other.m_ImportViewsChanged;
+            m_IsImported         = other.m_IsImported;
         }
         return *this;
     }
@@ -52,34 +52,50 @@ namespace Ame::Gfx::RG
     }
 
     void ResourceHandle::Import(
-        Rhi::Texture Texture)
+        Rhi::Texture texture)
     {
-        m_Desc     = Texture ? Texture.GetDesc() : Rhi::TextureDesc{};
-        m_Resource = std::move(Texture);
+        if (texture)
+        {
+            m_Desc     = texture.GetDesc();
+            m_Resource = std::move(texture);
+        }
+        else
+        {
+            m_Resource = std::monostate();
+        }
 
         m_ImportViewsChanged = true;
         m_IsImported         = true;
+
 #ifndef AME_DIST
         m_Name.clear();
 #endif
     }
 
     void ResourceHandle::Import(
-        Rhi::Buffer Buffer)
+        Rhi::Buffer buffer)
     {
-        m_Desc     = Buffer ? Buffer.GetDesc() : Rhi::BufferDesc{};
-        m_Resource = std::move(Buffer);
+        if (buffer)
+        {
+            m_Desc     = buffer.GetDesc();
+            m_Resource = std::move(buffer);
+        }
+        else
+        {
+            m_Resource = std::monostate();
+        }
 
         m_ImportViewsChanged = true;
         m_IsImported         = true;
+
 #ifndef AME_DIST
         m_Name.clear();
 #endif
     }
 
     void ResourceHandle::SetDynamic(
-        const ResourceId&   Id,
-        const ResourceDesc& Desc)
+        const ResourceId&   id,
+        const ResourceDesc& desc)
     {
         std::visit(
             VariantVisitor{
@@ -93,9 +109,10 @@ namespace Ame::Gfx::RG
                 },
                 [](const auto&) {} },
             m_Resource);
-        m_Desc = Desc;
+        m_Desc = desc;
+
 #ifndef AME_DIST
-        m_Name = Id.GetName();
+        m_Name = id.GetName();
 #endif
     }
 
@@ -103,72 +120,72 @@ namespace Ame::Gfx::RG
 
     Opt<Rhi::Texture> ResourceHandle::AsTexture() const
     {
-        auto Texture = std::get_if<Rhi::Texture>(&m_Resource);
-        return Texture ? Opt{ *Texture } : std::nullopt;
+        auto texture = std::get_if<Rhi::Texture>(&m_Resource);
+        return texture ? Opt{ *texture } : std::nullopt;
     }
 
     Opt<Rhi::Buffer> ResourceHandle::AsBuffer() const
     {
-        auto Buffer = std::get_if<Rhi::Buffer>(&m_Resource);
-        return Buffer ? Opt{ *Buffer } : std::nullopt;
+        auto buffer = std::get_if<Rhi::Buffer>(&m_Resource);
+        return buffer ? Opt{ *buffer } : std::nullopt;
     }
 
     //
 
     nri::BufferDesc& ResourceHandle::CreateBufferView(
-        const ResourceViewId& ViewId,
-        ResourceViewDesc&&    ViewDesc)
+        const ResourceViewId& viewId,
+        ResourceViewDesc&&    desc)
     {
         if (IsImported())
         {
             m_ImportViewsChanged = true;
         }
 
-        auto& View = m_Views[ViewId.Get()];
-        View.Desc  = std::move(ViewDesc);
+        auto& view = m_Views[viewId.Get()];
+        view.Desc  = std::move(desc);
         return std::get<nri::BufferDesc>(m_Desc);
     }
 
     nri::TextureDesc& ResourceHandle::CreateTextureView(
-        const ResourceViewId& ViewId,
-        ResourceViewDesc&&    ViewDesc)
+        const ResourceViewId& viewId,
+        ResourceViewDesc&&    desc)
     {
         if (IsImported())
         {
             m_ImportViewsChanged = true;
         }
 
-        auto& View = m_Views[ViewId.Get()];
-        View.Desc  = std::move(ViewDesc);
+        auto& view = m_Views[viewId.Get()];
+        view.Desc  = std::move(desc);
         return std::get<nri::TextureDesc>(m_Desc);
     }
 
     //
 
     ResourceViewDesc& ResourceHandle::GetViewDescMut(
-        const ResourceViewId& ViewId)
+        const ResourceViewId& viewId)
     {
-        return m_Views.at(ViewId.Get()).Desc;
+        return m_Views.at(viewId.Get()).Desc;
     }
 
     const ResourceViewDesc& ResourceHandle::GetViewDesc(
-        const ResourceViewId& ViewId) const
+        const ResourceViewId& viewId) const
     {
-        return m_Views.at(ViewId.Get()).Desc;
+        return m_Views.at(viewId.Get()).Desc;
     }
 
     const Rhi::ResourceView& ResourceHandle::GetViewHandle(
-        const ResourceViewId& ViewId) const
+        const ResourceViewId& viewId) const
     {
-        return m_Views.at(ViewId.Get()).View;
+        return m_Views.at(viewId.Get()).View;
     }
 
     //
 
     bool ResourceHandle::ContainsView(
-        const ResourceViewId& ViewId) const
+        const ResourceViewId& viewId) const
     {
-        return m_Views.contains(ViewId.Get());
+        return m_Views.contains(viewId.Get());
     }
 
     bool ResourceHandle::IsImported() const noexcept
@@ -179,65 +196,56 @@ namespace Ame::Gfx::RG
     //
 
     void ResourceHandle::Reallocate(
-        Rhi::Device& RhiDevice)
+        Rhi::Device& rhiDevice)
     {
+        bool changedResource = false;
+
         if (IsImported())
         {
-            if (m_ImportViewsChanged)
-            {
-                RecreateViews();
-                m_ImportViewsChanged = false;
-            }
-            return;
+            changedResource = m_ImportViewsChanged &&
+                              !std::holds_alternative<std::monostate>(m_Resource);
+        }
+        else
+        {
+            std::visit(
+                VariantVisitor{
+                    [&](const Rhi::TextureDesc& desc)
+                    {
+                        size_t hash = std::hash<nri::TextureDesc>{}(desc);
+                        if (hash == m_DescHash)
+                        {
+                            return;
+                        }
+                        m_DescHash      = hash;
+                        changedResource = true;
+
+                        Rhi::Texture texture(rhiDevice, Rhi::MemoryLocation::DEVICE, desc);
+#ifndef AME_DIST
+                        texture.SetName(m_Name.c_str());
+#endif
+                        m_Resource.emplace<Rhi::Texture>(std::move(texture));
+                    },
+                    [&](const Rhi::BufferDesc& desc)
+                    {
+                        size_t hash = std::hash<nri::BufferDesc>{}(desc);
+                        if (hash == m_DescHash)
+                        {
+                            return;
+                        }
+                        m_DescHash      = hash;
+                        changedResource = true;
+
+                        Rhi::Buffer buffer(rhiDevice, Rhi::MemoryLocation::DEVICE, desc);
+#ifndef AME_DIST
+                        buffer.SetName(m_Name.c_str());
+#endif
+                        m_Resource.emplace<Rhi::Buffer>(std::move(buffer));
+                    },
+                },
+                m_Desc);
         }
 
-        bool ChangedResource = false;
-
-        std::visit(
-            VariantVisitor{
-                [&](const Rhi::TextureDesc& Desc)
-                {
-                    std::hash<nri::TextureDesc> Hasher;
-
-                    size_t Hash = Hasher(Desc);
-                    if (Hash == m_DescHash)
-                    {
-                        return;
-                    }
-
-                    m_DescHash = Hash;
-
-                    Rhi::Texture Texture(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
-#ifndef AME_DIST
-                    Texture.SetName(m_Name.c_str());
-#endif
-                    m_Resource.emplace<Rhi::Texture>(std::move(Texture));
-
-                    ChangedResource = true;
-                },
-                [&](const Rhi::BufferDesc& Desc)
-                {
-                    std::hash<nri::BufferDesc> Hasher;
-
-                    size_t Hash = Hasher(Desc);
-                    if (Hash == m_DescHash)
-                    {
-                        return;
-                    }
-
-                    Rhi::Buffer Buffer(RhiDevice, Rhi::MemoryLocation::DEVICE, Desc);
-#ifndef AME_DIST
-                    Buffer.SetName(m_Name.c_str());
-#endif
-                    m_DescHash = Hash;
-                    m_Resource.emplace<Rhi::Buffer>(std::move(Buffer));
-
-                    ChangedResource = true;
-                },
-            },
-            m_Desc);
-
-        if (ChangedResource)
+        if (changedResource)
         {
             RecreateViews();
         }
@@ -245,24 +253,24 @@ namespace Ame::Gfx::RG
 
     void ResourceHandle::RecreateViews()
     {
-        Rhi::ResourceView RhiView;
-        VariantVisitor    Visitor{
+        Rhi::ResourceView viewHandle;
+        VariantVisitor    visitor{
             [&](const Rhi::BufferViewDesc& ViewDesc)
             {
-                const auto& Buf = std::get<Rhi::Buffer>(m_Resource);
-                RhiView         = Buf.CreateView(ViewDesc);
+                const auto& buffer = std::get<Rhi::Buffer>(m_Resource);
+                viewHandle         = buffer.CreateView(ViewDesc);
             },
             [&](const Rhi::TextureViewDesc& ViewDesc)
             {
-                const auto& Tex = std::get<Rhi::Texture>(m_Resource);
-                RhiView         = Tex.CreateView(ViewDesc);
+                const auto& texture = std::get<Rhi::Texture>(m_Resource);
+                viewHandle          = texture.CreateView(ViewDesc);
             }
         };
 
-        for (auto& [Id, View] : m_Views)
+        for (auto& [id, view] : m_Views)
         {
-            std::visit(Visitor, View.Desc);
-            View.View = std::move(RhiView);
+            std::visit(visitor, view.Desc);
+            view.View = std::move(viewHandle);
         }
     }
 

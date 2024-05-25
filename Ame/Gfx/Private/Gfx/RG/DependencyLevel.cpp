@@ -11,49 +11,48 @@
 namespace Ame::Gfx::RG
 {
     void DependencyLevel::AddPass(
-        Context&                                          RgContext,
-        Pass*                                             RgPass,
-        std::vector<ResourceViewId>                       RenderTargets,
-        ResourceViewId                                    DepthStencil,
-        std::set<ResourceId>                              ResourceToCreate,
-        const std::map<ResourceViewId, Rhi::AccessStage>& ResourceStates,
-        const std::map<ResourceId, Rhi::LayoutType>&      TextureLayouts)
+        Context&                                          context,
+        Pass*                                             pass,
+        std::vector<ResourceViewId>                       renderTargets,
+        ResourceViewId                                    depthStencil,
+        std::set<ResourceId>                              resourceToCreate,
+        const std::map<ResourceViewId, Rhi::AccessStage>& resourceStates,
+        const std::map<ResourceId, Rhi::LayoutType>&      textureLayouts)
     {
         m_Passes.emplace_back(RenderPassInfo{
-            .RgPass        = std::move(RgPass),
-            .RenderTargets = std::move(RenderTargets),
-            .DepthStencil  = std::move(DepthStencil) });
+            .NodePass      = std::move(pass),
+            .RenderTargets = std::move(renderTargets),
+            .DepthStencil  = std::move(depthStencil) });
 
-        m_ResourcesToCreate.merge(std::move(ResourceToCreate));
+        m_ResourcesToCreate.merge(std::move(resourceToCreate));
 
-        auto& Storage = RgContext.GetStorage();
-
-        for (auto& [ViewId, State] : ResourceStates)
+        auto& resourceStorage = context.GetStorage();
+        for (auto& [viewId, state] : resourceStates)
         {
             std::visit(
                 VariantVisitor{
-                    [&](const Rhi::BufferViewDesc& View)
+                    [&](const Rhi::BufferViewDesc& view)
                     {
-                        auto& CurState = m_BufferStatesToTransitions[ViewId.GetResource()];
-                        CurState.access |= State.access;
-                        CurState.stages |= State.stages;
+                        auto& curState = m_BufferStatesToTransitions[viewId.GetResource()];
+                        curState.access |= state.access;
+                        curState.stages |= state.stages;
                     },
-                    [&](const Rhi::TextureViewDesc& View)
+                    [&](const Rhi::TextureViewDesc& view)
                     {
-                        auto& CurState = m_TextureStatesToTransitions[ViewId.GetResource()][View.Subresource];
-                        CurState.access |= State.access;
-                        CurState.stages |= State.stages;
+                        auto& curState = m_TextureStatesToTransitions[viewId.GetResource()][view.Subresource];
+                        curState.access |= state.access;
+                        curState.stages |= state.stages;
                     } },
-                Storage.GetResourceViewDesc(ViewId));
+                resourceStorage.GetResourceViewDesc(viewId));
         }
 
-        for (auto& [ResourceId, Layout] : TextureLayouts)
+        for (auto& [id, layout] : textureLayouts)
         {
-            auto& CurState = m_TextureStatesToTransitions[ResourceId];
-            for (auto& Iter : CurState)
+            auto& curState = m_TextureStatesToTransitions[id];
+            for (auto& iter : curState)
             {
-                auto& State  = Iter.second;
-                State.layout = Layout;
+                auto& state  = iter.second;
+                state.layout = layout;
             }
         }
     }
@@ -61,31 +60,31 @@ namespace Ame::Gfx::RG
     //
 
     void DependencyLevel::Execute(
-        Context&          RgContext,
-        Rhi::CommandList& CommandList) const
+        Context&          context,
+        Rhi::CommandList& commandList) const
     {
-        LockStorage(RgContext);
+        LockStorage(context);
 
-        ExecuteBarriers(RgContext, CommandList);
-        ExecutePasses(RgContext, CommandList);
+        ExecuteBarriers(context, commandList);
+        ExecutePasses(context, commandList);
 
-        UnlockStorage(RgContext);
+        UnlockStorage(context);
     }
 
     //
 
     void DependencyLevel::LockStorage(
-        Context& RgContext) const
+        Context& context) const
     {
-        auto& RgStorage = RgContext.GetStorage();
-        RgStorage.Lock();
+        auto& resourceStorage = context.GetStorage();
+        resourceStorage.Lock();
     }
 
     //
 
     void DependencyLevel::ExecuteBarriers(
-        Context&          RgContext,
-        Rhi::CommandList& CommandList) const
+        Context&          context,
+        Rhi::CommandList& commandList) const
     {
         if (m_BufferStatesToTransitions.empty() &&
             m_TextureStatesToTransitions.empty())
@@ -93,51 +92,51 @@ namespace Ame::Gfx::RG
             return;
         }
 
-        auto& RgStorage = RgContext.GetStorage();
+        auto& resourceStorage = context.GetStorage();
 
-        for (auto& [Resource, State] : m_BufferStatesToTransitions)
+        for (auto& [resource, state] : m_BufferStatesToTransitions)
         {
-            auto&       Handle = RgStorage.GetResource(Resource);
-            const auto& Buffer = *Handle.AsBuffer();
+            auto&       handle = resourceStorage.GetResource(resource);
+            const auto& buffer = *handle.AsBuffer();
 
-            CommandList.RequireState(Buffer, State);
+            commandList.RequireState(buffer, state);
         }
 
-        for (auto& [Resource, StateMap] : m_TextureStatesToTransitions)
+        for (auto& [resource, stateMap] : m_TextureStatesToTransitions)
         {
-            auto&       Handle  = RgStorage.GetResource(Resource);
-            const auto& Texture = *Handle.AsTexture();
+            auto&       handle  = resourceStorage.GetResource(resource);
+            const auto& texture = *handle.AsTexture();
 
-            for (auto& [SubresourceSet, State] : StateMap)
+            for (auto& [subresourceSet, state] : stateMap)
             {
-                CommandList.RequireState(Texture, State, SubresourceSet);
+                commandList.RequireState(texture, state, subresourceSet);
             }
         }
 
-        CommandList.CommitBarriers();
+        commandList.CommitBarriers();
     }
 
     //
 
     void DependencyLevel::ExecutePasses(
-        Context&          RgContext,
-        Rhi::CommandList& CommandList) const
+        Context&          context,
+        Rhi::CommandList& commandList) const
     {
         using namespace EnumBitOperators;
 
-        auto& RgStorage = RgContext.GetStorage();
+        auto& resourceStorage = context.GetStorage();
 
         for (auto& PassInfo : m_Passes)
         {
-            Rhi::CommandListMarker PassMarker(CommandList, PassInfo.RgPass->GetName().data());
+            Rhi::CommandListMarker marker(commandList, PassInfo.NodePass->GetName().data());
 
-            bool NoSetup = (PassInfo.RgPass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;
-            switch (PassInfo.RgPass->GetQueueType())
+            bool noSetup = (PassInfo.NodePass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;
+            switch (PassInfo.NodePass->GetQueueType())
             {
             case PassFlags::Graphics:
             {
-                GraphicsSetup RenderSetup(CommandList, RgStorage, !NoSetup, PassInfo.RenderTargets, PassInfo.DepthStencil);
-                PassInfo.RgPass->DoExecute(RgStorage, &CommandList);
+                GraphicsSetup RenderSetup(commandList, resourceStorage, !noSetup, PassInfo.RenderTargets, PassInfo.DepthStencil);
+                PassInfo.NodePass->DoExecute(resourceStorage, &commandList);
 
                 break;
             }
@@ -145,13 +144,13 @@ namespace Ame::Gfx::RG
             case PassFlags::Compute:
             case PassFlags::Transfer:
             {
-                PassInfo.RgPass->DoExecute(RgStorage, &CommandList);
+                PassInfo.NodePass->DoExecute(resourceStorage, &commandList);
                 break;
             }
 
             default:
             {
-                PassInfo.RgPass->DoExecute(RgStorage, nullptr);
+                PassInfo.NodePass->DoExecute(resourceStorage, nullptr);
                 break;
             }
             }
@@ -161,9 +160,9 @@ namespace Ame::Gfx::RG
     //
 
     void DependencyLevel::UnlockStorage(
-        Context& RgContext) const
+        Context& context) const
     {
-        auto& RgStorage = RgContext.GetStorage();
-        RgStorage.Unlock();
+        auto& resourceStorage = context.GetStorage();
+        resourceStorage.Unlock();
     }
 } // namespace Ame::Gfx::RG

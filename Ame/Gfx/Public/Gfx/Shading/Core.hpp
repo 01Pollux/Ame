@@ -78,7 +78,7 @@ namespace Ame::Gfx::Shading
         MaterialShaderStorage Shaders;
 
         [[nodiscard]] const Rhi::ShaderBytecode& FindShader(
-            Rhi::ShaderType Type) const;
+            Rhi::ShaderType type) const;
     };
 
     //

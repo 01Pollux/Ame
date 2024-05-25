@@ -22,10 +22,10 @@ namespace Ame::Gfx::Cache
 
     public:
         CommonPipelineLayout(
-            Rhi::Device& Device,
-            Co::runtime& Runtime) :
-            m_Device(Device),
-            m_Runtime(Runtime)
+            Rhi::Device& rhiDevice,
+            Co::runtime& coroutine) :
+            m_Device(rhiDevice),
+            m_Runtime(coroutine)
         {
         }
 
@@ -34,16 +34,16 @@ namespace Ame::Gfx::Cache
         /// Load or get a pipeline layout from cache.
         /// </summary>
         Co::result<Ptr<Rhi::PipelineLayout>> Load(
-            Type LayoutType);
+            Type type);
 
     private:
         /// <summary>
         /// Get the pipeline layout desc.
         /// </summary>
         [[nodiscard]] static Co::result<Ptr<Rhi::PipelineLayout>> Create(
-            Rhi::Device&  Device,
-            Co::executor& Executor,
-            Type          LayoutType);
+            Rhi::Device&  rhiDevice,
+            Co::executor& executor,
+            Type          type);
 
     private:
         Ref<Rhi::Device> m_Device;

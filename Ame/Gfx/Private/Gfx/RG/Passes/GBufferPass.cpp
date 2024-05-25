@@ -14,10 +14,10 @@ namespace Ame::Gfx::RG::Std
     //
 
     GBufferPass::GBufferPass(
-        Cache::CommonShader&         CommonShaders,
-        Cache::MaterialBindingCache& MaterialCache) :
-        m_CommonShaders(CommonShaders),
-        m_MaterialCache(MaterialCache)
+        Cache::CommonShader&         commonShaders,
+        Cache::MaterialBindingCache& materialCache) :
+        m_CommonShaders(commonShaders),
+        m_MaterialCache(materialCache)
     {
         m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS);
 
@@ -26,122 +26,122 @@ namespace Ame::Gfx::RG::Std
             .Build(
                 [this](Resolver& RgResolver)
                 {
-                    auto& FrameData = RgResolver.GetFrameResourceData();
-                    auto  Desc      = RgResolver.GetBackbufferDesc();
-                    Desc.usageMask  = {};
+                    auto& frameData       = RgResolver.GetFrameResourceData();
+                    auto  textureDesc     = RgResolver.GetBackbufferDesc();
+                    textureDesc.usageMask = {};
 
-                    for (auto [Id, Format] : std::views::zip(RenderTargetIds, RenderTargetFormats))
+                    for (auto [id, format] : std::views::zip(c_RenderTargetIds, c_RenderTargetFormats))
                     {
-                        Desc.format = Format;
-                        RgResolver.CreateTexture(Id, Desc);
-                        RgResolver.WriteRenderTarget(Id("Main"), Rhi::StageBits::DRAW, Format);
+                        textureDesc.format = format;
+                        RgResolver.CreateTexture(id, textureDesc);
+                        RgResolver.WriteRenderTarget(id("Main"), Rhi::StageBits::DRAW, format);
                     }
 
-                    Desc.format = DepthTargetFormat;
-                    RgResolver.CreateTexture(DepthTargetId, Desc);
-                    RgResolver.WriteDepthStencil(DepthTargetId("Main"), Rhi::StageBits::DRAW, DepthTargetFormat);
+                    textureDesc.format = c_DepthTargetFormat;
+                    RgResolver.CreateTexture(c_DepthTargetId, textureDesc);
+                    RgResolver.WriteDepthStencil(c_DepthTargetId("Main"), Rhi::StageBits::DRAW, c_DepthTargetFormat);
 
                     ////
 
                     RgResolver.ReadBuffer(
-                        Names::TransformsTable("GBufferPass"),
+                        Names::c_TransformsTable("GBufferPass"),
                         Rhi::StageBits::GRAPHICS_SHADERS);
                     RgResolver.ReadBuffer(
-                        Names::RenderInstancesTable("GBufferPass"),
+                        Names::c_RenderInstancesTable("GBufferPass"),
                         Rhi::StageBits::GRAPHICS_SHADERS);
 
                     RgResolver.ReadIndirectBuffer(
-                        Names::EntityCommandCounter("GBufferPass"));
+                        Names::c_EntityCommandCounter("GBufferPass"));
                     RgResolver.ReadIndirectBuffer(
-                        Names::EntityCommandBuffer("GBufferPass"));
+                        Names::c_EntityCommandBuffer("GBufferPass"));
                 })
             .Execute(
                 [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
                 {
-                    auto& FrameData = RgStorage.GetFrameResourceData();
+                    auto& frameData = RgStorage.GetFrameResourceData();
 
-                    auto& TransformsTable      = RgStorage.GetResourceViewHandle(Names::TransformsTable("GBufferPass"));
-                    auto& RenderInstancesTable = RgStorage.GetResourceViewHandle(Names::RenderInstancesTable("GBufferPass"));
+                    auto& transformsTable      = RgStorage.GetResourceViewHandle(Names::c_TransformsTable("GBufferPass"));
+                    auto& renderInstancesTable = RgStorage.GetResourceViewHandle(Names::c_RenderInstancesTable("GBufferPass"));
 
-                    auto& CommandsBuffer = RgStorage.GetResource(Names::EntityCommandBuffer);
-                    auto& CounterBuffer  = RgStorage.GetResource(Names::EntityCommandCounter);
+                    auto& commandsBuffer = RgStorage.GetResource(Names::c_EntityCommandBuffer);
+                    auto& counterBuffer  = RgStorage.GetResource(Names::c_EntityCommandCounter);
 
                     //
 
-                    nri::Descriptor* FrameDescriptors[]{
+                    nri::Descriptor* frameDescriptors[]{
                         RgStorage.GetFrameResourceHandle().Unwrap()
                     };
 
-                    nri::Descriptor* EntityDescriptors[]{
-                        TransformsTable.Unwrap(),
-                        RenderInstancesTable.Unwrap()
+                    nri::Descriptor* entityDescriptors[]{
+                        transformsTable.Unwrap(),
+                        renderInstancesTable.Unwrap()
                     };
 
                     //
 
-                    Shading::MaterialShaderLink GBufferShaders;
+                    Shading::MaterialShaderLink gBufferShaders;
 
-                    GBufferShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS).get().Borrow());
-                    GBufferShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
+                    gBufferShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS).get().Borrow());
+                    gBufferShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
 
                     Shading::MaterialRenderState RenderState{
-                        RenderTargetFormats,
-                        DepthTargetFormat,
-                        std::move(GBufferShaders)
+                        c_RenderTargetFormats,
+                        c_DepthTargetFormat,
+                        std::move(gBufferShaders)
                     };
 
-                    auto EntStore = RgStorage.GetEntityStore();
+                    auto entityStore = RgStorage.GetEntityStore();
 
-                    Rhi::DescriptorSet FrameDataSet;
-                    Rhi::DescriptorSet EntityDataSet;
+                    Rhi::DescriptorSet frameDataSet;
+                    Rhi::DescriptorSet entityDataSet;
 
-                    Rhi::Viewport Viewports[3]{
-                        { .width         = FrameData.Viewport.x,
-                          .height        = FrameData.Viewport.y,
+                    Rhi::Viewport viewports[3]{
+                        { .width         = frameData.Viewport.x,
+                          .height        = frameData.Viewport.y,
                           .depthRangeMax = 1.f }
                     };
-                    Rhi::ScissorRect Scissors[3]{
-                        { .width  = static_cast<Rhi::Dim_t>(FrameData.Viewport.x),
-                          .height = static_cast<Rhi::Dim_t>(FrameData.Viewport.y) }
+                    Rhi::ScissorRect scissors[3]{
+                        { .width  = static_cast<Rhi::Dim_t>(frameData.Viewport.x),
+                          .height = static_cast<Rhi::Dim_t>(frameData.Viewport.y) }
                     };
 
-                    for (uint32_t i = 1; i < std::size(Viewports); i++)
+                    for (uint32_t i = 1; i < std::size(viewports); i++)
                     {
-                        Viewports[i] = Viewports[0];
-                        Scissors[i]  = Scissors[0];
+                        viewports[i] = viewports[0];
+                        scissors[i]  = scissors[0];
                     }
 
-                    CommandList->SetViewports(Viewports);
-                    CommandList->SetScissorRects(Scissors);
+                    CommandList->SetViewports(viewports);
+                    CommandList->SetScissorRects(scissors);
 
-                    for (auto& Row : EntStore.GetCountedRows())
+                    for (auto& row : entityStore.GetCountedRows())
                     {
-                        m_MaterialCache.get().Bind(*CommandList, *Row->Material);
+                        m_MaterialCache.get().Bind(*CommandList, *row->Material);
 
-                        if (!FrameDataSet)
+                        if (!frameDataSet)
                         {
-                            FrameDataSet  = CommandList->AllocateSet(CD::FrameData_SetIndex);
-                            EntityDataSet = CommandList->AllocateSet(CD::EntityData_SetIndex);
+                            frameDataSet  = CommandList->AllocateSet(CD::c_FrameData_SetIndex);
+                            entityDataSet = CommandList->AllocateSet(CD::c_EntityData_SetIndex);
 
-                            FrameDataSet.SetRange(0, { FrameDescriptors, Rhi::Count32(FrameDescriptors) });
-                            EntityDataSet.SetRange(0, { EntityDescriptors, Rhi::Count32(EntityDescriptors) });
+                            frameDataSet.SetRange(0, { frameDescriptors, Rhi::Count32(frameDescriptors) });
+                            entityDataSet.SetRange(0, { entityDescriptors, Rhi::Count32(entityDescriptors) });
 
-                            CommandList->SetDescriptorSet(CD::FrameData_SetIndex, FrameDataSet);
-                            CommandList->SetDescriptorSet(CD::EntityData_SetIndex, EntityDataSet);
+                            CommandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
+                            CommandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
                         }
 
-                        auto PipelineState = Row->Material->GetPipelineState(RenderState).get();
-                        CommandList->SetPipelineState(PipelineState);
+                        auto pipelineState = row->Material->GetPipelineState(RenderState).get();
+                        CommandList->SetPipelineState(pipelineState);
 
-                        CommandList->SetVertexBuffer({ .Buffer = Row->VtxBuffer });
-                        CommandList->SetIndexBuffer({ .Buffer = Row->IdxBuffer, .Type = Row->IndexType });
+                        CommandList->SetVertexBuffer({ .Buffer = row->VtxBuffer });
+                        CommandList->SetIndexBuffer({ .Buffer = row->IdxBuffer, .Type = row->IndexType });
 
                         CommandList->DrawIndirectIndexed(
-                            { .DrawBuffer    = CommandsBuffer.AsBuffer()->Unwrap(),
-                              .DrawOffset    = Row.DrawOffset,
-                              .MaxDrawCount  = Row->Count,
-                              .CounterBuffer = CounterBuffer.AsBuffer()->Unwrap(),
-                              .CounterOffset = Row.CounterOffset });
+                            { .DrawBuffer    = commandsBuffer.AsBuffer()->Unwrap(),
+                              .DrawOffset    = row.DrawOffset,
+                              .MaxDrawCount  = row->Count,
+                              .CounterBuffer = counterBuffer.AsBuffer()->Unwrap(),
+                              .CounterOffset = row.CounterOffset });
                     }
                 });
     }

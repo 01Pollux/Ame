@@ -11,23 +11,23 @@
 namespace Ame::Gfx::Shading
 {
     void Material::MakeLocal(
-        const String& PropertyName,
-        bool          Local)
+        const String& propertyName,
+        bool          local)
     {
         // using empty string for user data properties
-        bool IsUserData = PropertyName.contains('.');
+        bool isUserData = propertyName.contains('.');
 
-        m_PropertyLocalMap[IsUserData ? UserDataPropertyTag : PropertyName] = Local;
+        m_PropertyLocalMap[isUserData ? UserDataPropertyTag : propertyName] = local;
     }
 
     bool Material::IsLocal(
-        const String& PropertyName) const
+        const String& propertyName) const
     {
         // using empty string for user data properties
-        bool IsUserData = PropertyName.contains('.');
+        bool isUserData = propertyName.contains('.');
 
-        auto Iter = m_PropertyLocalMap.find(IsUserData ? UserDataPropertyTag : PropertyName);
-        return Iter != m_PropertyLocalMap.end() ? Iter->second : false;
+        auto iter = m_PropertyLocalMap.find(isUserData ? UserDataPropertyTag : propertyName);
+        return iter != m_PropertyLocalMap.end() ? iter->second : false;
     }
 
     //
@@ -44,10 +44,10 @@ namespace Ame::Gfx::Shading
 
     auto Material::GetResources() const -> Co::generator<ResourceIterator>
     {
-        auto LocalResources  = m_LocalData.Properties.GetResources();
-        auto SharedResources = m_SharedData->Properties.GetResources();
+        auto localResources  = m_LocalData.Properties.GetResources();
+        auto sharedResources = m_SharedData->Properties.GetResources();
 
-        for (auto [Local, Shared] : std::views::zip(LocalResources, SharedResources))
+        for (auto [Local, Shared] : std::views::zip(localResources, sharedResources))
         {
             co_yield (IsLocal(Shared->first) ? Local : Shared);
         }
@@ -56,162 +56,160 @@ namespace Ame::Gfx::Shading
     //
 
     void Material::Set(
-        const String&            Property,
-        const Ptr<Rhi::Texture>& Texture,
-        Rhi::TextureViewDesc     ViewDesc)
+        const String&            propertyName,
+        const Ptr<Rhi::Texture>& texture,
+        Rhi::TextureViewDesc     viewDesc)
     {
 #ifdef AME_DEBUG
         Log::Gfx().Assert(
-            ViewDesc.Type == Rhi::TextureViewType::AnyShaderResource ||
-                ViewDesc.Type == Rhi::TextureViewType::AnyUnorderedAccess,
+            viewDesc.Type == Rhi::TextureViewType::AnyShaderResource ||
+                viewDesc.Type == Rhi::TextureViewType::AnyUnorderedAccess,
             "Texture view type is not shader resource nor unordered access");
 #endif
 
-        TextureResource Resource{
-            .Texture  = Texture,
-            .ViewDesc = std::move(ViewDesc),
-            .View     = std::make_shared<Rhi::ResourceView>(Texture->CreateView(Resource.ViewDesc))
+        TextureResource textureResource{
+            .Texture  = texture,
+            .ViewDesc = std::move(viewDesc),
+            .View     = std::make_shared<Rhi::ResourceView>(texture->CreateView(viewDesc))
         };
-        Set(Property, std::move(Resource));
+        Set(propertyName, std::move(textureResource));
     }
 
     void Material::Set(
-        const String&   Property,
-        TextureResource Texture)
+        const String&   propertyName,
+        TextureResource textureResource)
     {
-        InvalidateHash();
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.WriteTexture(Property, std::move(Texture));
+        InvalidatePropertyHash();
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        properties.WriteTexture(propertyName, std::move(textureResource));
     }
 
     void Material::Set(
-        const String&           Property,
-        const Ptr<Rhi::Buffer>& Buffer,
-        Rhi::BufferViewDesc     ViewDesc)
+        const String&           propertyName,
+        const Ptr<Rhi::Buffer>& buffer,
+        Rhi::BufferViewDesc     viewDesc)
     {
-        BufferResource Resource{
-            .Buffer   = Buffer,
-            .ViewDesc = std::move(ViewDesc),
-            .View     = std::make_shared<Rhi::ResourceView>(Buffer->CreateView(Resource.ViewDesc))
+        BufferResource bufferResource{
+            .Buffer   = buffer,
+            .ViewDesc = std::move(viewDesc),
+            .View     = std::make_shared<Rhi::ResourceView>(buffer->CreateView(viewDesc))
         };
-        Set(Property, std::move(Resource));
+        Set(propertyName, std::move(bufferResource));
     }
 
     void Material::Set(
-        const String&  Property,
-        BufferResource Buffer)
+        const String&  propertyName,
+        BufferResource bufferResource)
     {
-        InvalidateHash();
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.WriteBuffer(Property, std::move(Buffer));
+        InvalidatePropertyHash();
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        properties.WriteBuffer(propertyName, std::move(bufferResource));
     }
 
     void Material::Set(
-        const String&    Property,
-        Rhi::SamplerDesc SamplerDesc)
+        const String&    propertyName,
+        Rhi::SamplerDesc samplerDesc)
     {
-        SamplerResource Resource{
-            .ViewDesc = std::move(SamplerDesc),
-            .View     = std::make_shared<Rhi::SamplerResourceView>(m_SharedData->CommonState.GetDevice(), SamplerDesc)
+        SamplerResource samplerResource{
+            .ViewDesc = std::move(samplerDesc),
+            .View     = std::make_shared<Rhi::SamplerResourceView>(m_SharedData->CommonState.GetDevice(), samplerDesc)
         };
-        Set(Property, std::move(Resource));
+        Set(propertyName, std::move(samplerResource));
     }
 
     void Material::Set(
-        const String&   Property,
-        SamplerResource Sampler)
+        const String&   propertyName,
+        SamplerResource samplerResource)
     {
-        InvalidateHash();
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.WriteSampler(Property, std::move(Sampler));
+        InvalidatePropertyHash();
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        properties.WriteSampler(propertyName, std::move(samplerResource));
     }
 
     //
 
     const TextureResource& Material::GetTexture(
-        const String& Property) const
+        const String& propertyName) const
     {
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        return Properties.ReadTexture(Property);
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        return properties.ReadTexture(propertyName);
     }
 
     const BufferResource& Material::GetBuffer(
-        const String& Property) const
+        const String& propertyName) const
     {
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        return Properties.ReadBuffer(Property);
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        return properties.ReadBuffer(propertyName);
     }
 
     const SamplerResource& Material::GetSampler(
-        const String& Property) const
+        const String& propertyName) const
     {
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        return Properties.ReadSampler(Property);
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        return properties.ReadSampler(propertyName);
     }
 
     //
 
     void Material::SetScalar(
-        const String& Property,
-        const void*   Value,
-        size_t        Size)
+        const String& propertyName,
+        const void*   data,
+        size_t        size)
     {
-        InvalidateHash();
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.WriteUserData(Property, Value, Size);
+        InvalidatePropertyHash();
+        auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
+        properties.WriteUserData(propertyName, data, size);
     }
 
     //
 
     void Material::GetScalar(
         const String& Property,
-        void*         Value,
-        size_t        Size) const
+        void*         data,
+        size_t        size) const
     {
-        auto& Properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
-        Properties.ReadUserData(Property, Value, Size);
+        auto& properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
+        properties.ReadUserData(Property, data, size);
     }
 
     //
 
-    void Material::InvalidateHash()
+    void Material::InvalidatePropertyHash()
     {
         m_PropertiesHash.reset();
     }
 
-    void Material::UpdateHash() const
+    void Material::UpdatePropertyHash() const
     {
-        auto UserData     = IsLocal(UserDataPropertyTag) ? m_LocalData.Properties.GetUserData() : m_SharedData->Properties.GetUserData();
-        auto UserDataSize = m_SharedData->Properties.GetSizeOfUserData();
+        auto userData     = IsLocal(UserDataPropertyTag) ? m_LocalData.Properties.GetUserData() : m_SharedData->Properties.GetUserData();
+        auto userDataSize = m_SharedData->Properties.GetSizeOfUserData();
 
-        uint64_t Hash = boost::hash_range(UserData, UserData + UserDataSize);
+        uint64_t hash = boost::hash_range(userData, userData + userDataSize);
 
-        auto LocalResources  = m_LocalData.Properties.GetResources();
-        auto SharedResources = m_SharedData->Properties.GetResources();
+        auto localResources  = m_LocalData.Properties.GetResources();
+        auto sharedResources = m_SharedData->Properties.GetResources();
 
-        for (auto [Local, Shared] : std::views::zip(LocalResources, SharedResources))
+        for (auto resourceIter : GetResources())
         {
-            const RhiResourceType& Resource = IsLocal(Shared->first) ? Local->second : Shared->second;
-
             std::visit(
                 VariantVisitor{
-                    [&](const BufferResource& Buffer)
+                    [&](const BufferResource& bufferResource)
                     {
-                        boost::hash_combine(Hash, Buffer.Buffer.get());
-                        boost::hash_combine(Hash, std::hash<Rhi::BufferViewDesc>{}(Buffer.ViewDesc));
+                        boost::hash_combine(hash, bufferResource.Buffer.get());
+                        boost::hash_combine(hash, std::hash<Rhi::BufferViewDesc>{}(bufferResource.ViewDesc));
                     },
-                    [&](const TextureResource& Texture)
+                    [&](const TextureResource& textureResource)
                     {
-                        boost::hash_combine(Hash, Texture.Texture.get());
-                        boost::hash_combine(Hash, std::hash<Rhi::TextureViewDesc>{}(Texture.ViewDesc));
+                        boost::hash_combine(hash, textureResource.Texture.get());
+                        boost::hash_combine(hash, std::hash<Rhi::TextureViewDesc>{}(textureResource.ViewDesc));
                     },
-                    [&](const SamplerResource& Sampler)
+                    [&](const SamplerResource& samplerResource)
                     {
-                        boost::hash_combine(Hash, std::hash<Rhi::SamplerDesc>{}(Sampler.ViewDesc));
+                        boost::hash_combine(hash, std::hash<Rhi::SamplerDesc>{}(samplerResource.ViewDesc));
                     } },
-                Resource);
+                resourceIter->second);
         }
 
-        m_PropertiesHash = Hash;
+        m_PropertiesHash = hash;
     }
 } // namespace Ame::Gfx::Shading

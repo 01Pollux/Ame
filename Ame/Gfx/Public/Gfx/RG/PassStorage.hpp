@@ -12,10 +12,10 @@ namespace Ame::Gfx::RG
 
         struct BuilderInfo
         {
-            Resolver RgResolver;
+            Resolver GraphResolver;
             BuilderInfo(
-                ResourceStorage& RgStorage) :
-                RgResolver(RgStorage)
+                ResourceStorage& storage) :
+                GraphResolver(storage)
             {
             }
         };
@@ -30,7 +30,7 @@ namespace Ame::Gfx::RG
         /// Add a render pass to the graph
         /// </summary>
         Pass* AddPass(
-            UPtr<Pass> Pass);
+            UPtr<Pass> pass);
 
         /// <summary>
         /// Add a render pass to the graph
@@ -38,12 +38,12 @@ namespace Ame::Gfx::RG
         template<typename Ty, typename... ArgsTy>
             requires std::derived_from<Ty, Pass>
         Ty& NewPass(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
-            auto  PassPtr = std::make_unique<Ty>(std::forward<ArgsTy>(Args)...);
-            auto& PassRef = *PassPtr;
-            AddPass(std::move(PassPtr));
-            return PassRef;
+            auto  pass    = std::make_unique<Ty>(std::forward<ArgsTy>(args)...);
+            auto& passRef = *pass;
+            AddPass(std::move(pass));
+            return passRef;
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Ame::Gfx::RG
         /// Remove a render pass from the graph
         /// </summary>
         UPtr<Pass> RemovePass(
-            const Pass* RgPass);
+            const Pass* pass);
 
         /// <summary>
         /// Clear all render passes from the graph
@@ -70,14 +70,14 @@ namespace Ame::Gfx::RG
         /// Check if the graph contains a render pass with the given name
         /// </summary>
         [[nodiscard]] bool ContainsPass(
-            const Pass* RgPass);
+            const Pass* pass);
 
     private:
         /// <summary>
         /// Build render graph from graph builder
         /// </summary>
         void Build(
-            Context& RgContext);
+            Context& context);
 
         /// <summary>
         /// Remove one shot passes from the graph
@@ -89,38 +89,38 @@ namespace Ame::Gfx::RG
         /// Build passes from builders
         /// </summary>
         [[nodiscard]] DepepndencyLevelListType BuildPasses(
-            Context&          RgContext,
-            BuildersListType& Builders);
+            Context&          context,
+            BuildersListType& builders);
 
         /// <summary>
         /// Build adjacency lists for passes dependencies
         /// </summary>
         AdjacencyListType BuildAdjacencyLists(
-            const BuildersListType& Builders);
+            const BuildersListType& builders);
 
         /// <summary>
         /// Topological sort of the graph
         /// </summary>
         TopologicalSortListType TopologicalSort(
-            const AdjacencyListType& AdjacencyList);
+            const AdjacencyListType& adjacencyList);
 
         /// <summary>
         /// Depth first search for topological sort
         /// </summary>
         void DepthFirstSearch(
-            const AdjacencyListType& AdjacencyList,
-            size_t                   Index,
-            std::vector<bool>&       Visited,
-            std::stack<size_t>&      Stack);
+            const AdjacencyListType& adjacencyList,
+            size_t                   index,
+            std::vector<bool>&       visitedList,
+            std::stack<size_t>&      dfsStack);
 
         /// <summary>
         /// Build dependency levels
         /// </summary>
         [[nodiscard]] DepepndencyLevelListType BuildDependencyLevels(
-            Context&                       RgContext,
-            const TopologicalSortListType& TopologicalSort,
-            const AdjacencyListType&       AdjacencyList,
-            BuildersListType&              Builders);
+            Context&                       context,
+            const TopologicalSortListType& topologicallySortedList,
+            const AdjacencyListType&       adjacencyList,
+            BuildersListType&              builders);
 
     private:
         std::vector<UPtr<Pass>> m_Passes;

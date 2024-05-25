@@ -5,45 +5,50 @@
 namespace Ame::Gfx::RG
 {
     std::partial_ordering CameraCullResult::StagedEntity::operator<=>(
-        const StagedEntity& Other) const noexcept
+        const StagedEntity& other) const noexcept
     {
-        auto MatA = Renderable.get().Material.get();
-        auto MatB = Other.Renderable.get().Material.get();
+        auto materialA = Renderable.get().Material.get();
+        auto materialB = other.Renderable.get().Material.get();
 
-        auto VtxA = Renderable.get().Vertex.NriBuffer;
-        auto VtxB = Other.Renderable.get().Vertex.NriBuffer;
+        auto vertexA = Renderable.get().Vertex.NriBuffer;
+        auto vertexB = other.Renderable.get().Vertex.NriBuffer;
 
-        auto IdxA = Renderable.get().Index.NriBuffer;
-        auto IdxB = Other.Renderable.get().Index.NriBuffer;
+        auto indexA = Renderable.get().Index.NriBuffer;
+        auto indexB = other.Renderable.get().Index.NriBuffer;
 
-        return std::tie(MatA, VtxA, IdxA, Distance) <=> std::tie(MatB, VtxB, IdxB, Other.Distance);
+        return std::tie(materialA, vertexA, indexA, Distance) <=>
+               std::tie(materialB, vertexB, indexB, other.Distance);
     }
 
     //
 
     CameraCullResult::StagedGroup::StagedGroup(
-        EntityList   Group,
-        nri::Buffer* VtxBuffer,
-        nri::Buffer* IdxBuffer) :
-        VtxBuffer(VtxBuffer),
-        IdxBuffer(IdxBuffer),
-        Entities(std::move(Group))
+        EntityList   entityList,
+        nri::Buffer* vertexBuffer,
+        nri::Buffer* indexBuffer) :
+        VtxBuffer(vertexBuffer),
+        IdxBuffer(indexBuffer),
+        Entities(std::move(entityList))
     {
-        for (auto& Entity : Entities)
+        for (auto& entity : Entities)
         {
-            RMSDistance += Entity.Distance * Entity.Distance;
+            RMSDistance += entity.Distance * entity.Distance;
         }
         RMSDistance /= Entities.size();
     }
 
     Rhi::IndexType CameraCullResult::StagedGroup::GetIndexType() const
     {
-        return Entities.front().Renderable.get().Index.Stride == sizeof(uint16_t) ? Rhi::IndexType::UINT16 : Rhi::IndexType::UINT32;
+        auto& firstRenderable = Entities.front().Renderable.get();
+        return firstRenderable.Index.Stride == sizeof(uint16_t)
+                   ? Rhi::IndexType::UINT16
+                   : Rhi::IndexType::UINT32;
     }
 
     Ptr<Shading::Material> CameraCullResult::StagedGroup::GetMaterial() const
     {
-        return Entities.front().Renderable.get().Material;
+        auto& firstRenderable = Entities.front().Renderable.get();
+        return firstRenderable.Material;
     }
 
     std::partial_ordering CameraCullResult::StagedGroup::operator<=>(

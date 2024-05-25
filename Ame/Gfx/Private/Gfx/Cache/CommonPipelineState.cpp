@@ -6,45 +6,45 @@
 namespace Ame::Gfx::Cache
 {
     Co::result<Ptr<Rhi::PipelineState>> CommonPipelineState::Load(
-        Type PipelineType)
+        Type type)
     {
-        auto Index = std::to_underlying(PipelineType);
-        if (!m_Caches[Index])
+        auto index = std::to_underlying(type);
+        if (!m_Caches[index])
         {
-            auto ShaderTasks = PrepareShaders(PipelineType);
-            auto LayoutTask  = PrepareLayout(PipelineType);
+            auto shaderTasks = PrepareShaders(type);
+            auto layoutTask  = PrepareLayout(type);
 
-            auto                  Executor = m_Runtime.get().background_executor();
-            Co::scoped_async_lock Lock     = co_await m_Mutex.lock(Executor);
-            if (!m_Caches[Index])
+            auto                  executor  = m_Runtime.get().background_executor();
+            Co::scoped_async_lock cacheLock = co_await m_Mutex.lock(executor);
+            if (!m_Caches[index])
             {
-                auto Layout     = co_await LayoutTask;
-                auto Shaders    = co_await ShaderTable::Create(co_await ShaderTasks);
-                m_Caches[Index] = co_await Create(m_Device, *Executor, Layout, Shaders.ShaderDescs, PipelineType);
+                auto Layout     = co_await layoutTask;
+                auto Shaders    = co_await ShaderTable::Create(co_await shaderTasks);
+                m_Caches[index] = co_await Create(m_Device, *executor, Layout, Shaders.ShaderDescs, type);
             }
         }
-        co_return m_Caches[Index];
+        co_return m_Caches[index];
     }
 
     //
 
     Co::result<Ptr<Rhi::PipelineState>> CommonPipelineState::Create(
-        Rhi::Device&                    Device,
-        Co::executor&                   Executor,
-        const Ptr<Rhi::PipelineLayout>& Layout,
-        const ShaderDescStorage&        ShaderDescs,
-        Type                            PipelineType)
+        Rhi::Device&                    rhiDevice,
+        Co::executor&                   executor,
+        const Ptr<Rhi::PipelineLayout>& layout,
+        const ShaderDescStorage&        shaderDescs,
+        Type                            type)
     {
-        switch (PipelineType)
+        switch (type)
         {
         case Type::EntityCollectPass:
         {
-            return Device.CreatePipelineState(
+            return rhiDevice.CreatePipelineState(
                 {},
-                Executor,
+                executor,
                 Rhi::ComputePipelineDesc{
-                    .Layout = Layout,
-                    .Shader = ShaderDescs[0] });
+                    .Layout = layout,
+                    .Shader = shaderDescs[0] });
             break;
         }
 

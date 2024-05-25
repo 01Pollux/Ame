@@ -26,8 +26,8 @@ namespace Ame::Gfx::RG
 
     public:
         EcsSystemHooks(
-            Ecs::Universe& Universe,
-            CoreResources& Resources);
+            Ecs::Universe& universe,
+            CoreResources& coreResources);
 
     public:
         [[nodiscard]] CameraRenderRule& GetCameraRule() noexcept

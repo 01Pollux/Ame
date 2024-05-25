@@ -4,22 +4,22 @@
 namespace Ame::Gfx::RG
 {
     GraphicsSetup::GraphicsSetup(
-        Rhi::CommandList&               CommandList,
-        const ResourceStorage&          RgStorage,
-        bool                            Enable,
-        std::span<const ResourceViewId> RenderTargets,
-        const ResourceViewId&           DepthStencil)
+        Rhi::CommandList&               commandList,
+        const ResourceStorage&          resourceStorage,
+        bool                            enable,
+        std::span<const ResourceViewId> renderTargets,
+        const ResourceViewId&           depthStencil)
     {
-        if (!Enable)
+        if (!enable)
         {
             return;
         }
 
-        m_CommandList = &CommandList;
-        std::vector<Rhi::ClearDesc> ClearDescs(RenderTargets.size() + (DepthStencil ? 1 : 0));
+        m_CommandList = &commandList;
+        std::vector<Rhi::ClearDesc> ClearDescs(renderTargets.size() + (depthStencil ? 1 : 0));
 
-        auto Rtvs = SetupRenderTargets(RgStorage, ClearDescs, RenderTargets);
-        auto Dsv  = SetupDepthStencil(RgStorage, ClearDescs, DepthStencil);
+        auto Rtvs = SetupRenderTargets(resourceStorage, ClearDescs, renderTargets);
+        auto Dsv  = SetupDepthStencil(resourceStorage, ClearDescs, depthStencil);
 
         m_CommandList->BeginRendering(Rtvs, Dsv);
         if (!ClearDescs.empty())
@@ -39,82 +39,83 @@ namespace Ame::Gfx::RG
     //
 
     std::vector<const Rhi::ResourceView*> GraphicsSetup::SetupRenderTargets(
-        const ResourceStorage&          RgStorage,
-        std::span<Rhi::ClearDesc>       ClearDescs,
-        std::span<const ResourceViewId> RenderTargets) const
+        const ResourceStorage&          resourceStorage,
+        std::span<Rhi::ClearDesc>       clearDescs,
+        std::span<const ResourceViewId> renderTargets) const
     {
-        std::vector<const Rhi::ResourceView*> Rtvs;
-        Rtvs.reserve(RenderTargets.size());
+        std::vector<const Rhi::ResourceView*> rtvs;
+        rtvs.reserve(renderTargets.size());
 
-        for (uint32_t i = 0; i < static_cast<uint32_t>(RenderTargets.size()); i++)
+        for (uint32_t i = 0; i < static_cast<uint32_t>(renderTargets.size()); i++)
         {
-            auto& RtvViewId = RenderTargets[i];
-            auto& RtvDesc   = std::get<RenderTargetViewDesc>(RgStorage.GetResourceViewDesc(RtvViewId));
+            auto& rtvViewId = renderTargets[i];
+            auto& rtvDesc   = std::get<RenderTargetViewDesc>(resourceStorage.GetResourceViewDesc(rtvViewId));
 
-            Rtvs.push_back(&RgStorage.GetResourceViewHandle(RtvViewId));
-            if (RtvDesc.ClearType != ERTClearType::Ignore)
+            rtvs.push_back(&resourceStorage.GetResourceViewHandle(rtvViewId));
+            if (rtvDesc.ClearType != ERTClearType::Ignore)
             {
-                auto& Handle  = RgStorage.GetResource(RtvViewId.GetResource());
-                auto  Texture = Handle.AsTexture();
+                auto& handle  = resourceStorage.GetResource(rtvViewId.GetResource());
+                auto  texture = handle.AsTexture();
 
-                ClearDescs[i].attachmentContentType = Rhi::AttachmentContentType::COLOR;
-                ClearDescs[i].colorAttachmentIndex  = i;
-                auto& ClearColor                    = ClearDescs[i].value.color32f;
-                if (RtvDesc.ForceColor)
+                clearDescs[i].attachmentContentType = Rhi::AttachmentContentType::COLOR;
+                clearDescs[i].colorAttachmentIndex  = i;
+
+                auto& clearColor = clearDescs[i].value.color32f;
+                if (rtvDesc.ForceColor)
                 {
-                    ClearColor.x = RtvDesc.ClearColor.r;
-                    ClearColor.y = RtvDesc.ClearColor.g;
-                    ClearColor.z = RtvDesc.ClearColor.b;
-                    ClearColor.w = RtvDesc.ClearColor.a;
+                    clearColor.x = rtvDesc.ClearColor.r;
+                    clearColor.y = rtvDesc.ClearColor.g;
+                    clearColor.z = rtvDesc.ClearColor.b;
+                    clearColor.w = rtvDesc.ClearColor.a;
                 }
                 else
                 {
-                    ClearColor.x = ClearColor.y = ClearColor.z = ClearColor.w = 0.f;
+                    clearColor.x = clearColor.y = clearColor.z = clearColor.w = 0.f;
                 }
             }
         }
 
-        return Rtvs;
+        return rtvs;
     }
 
     const Rhi::ResourceView* GraphicsSetup::SetupDepthStencil(
-        const ResourceStorage&    RgStorage,
-        std::span<Rhi::ClearDesc> ClearDescs,
-        const ResourceViewId&     DepthStencil) const
+        const ResourceStorage&    resourceStorage,
+        std::span<Rhi::ClearDesc> clearDescs,
+        const ResourceViewId&     depthStencil) const
     {
-        if (!DepthStencil)
+        if (!depthStencil)
         {
             return nullptr;
         }
 
-        auto& DsvDesc = std::get<DepthStencilViewDesc>(RgStorage.GetResourceViewDesc(DepthStencil));
-        auto  Dsv     = &RgStorage.GetResourceViewHandle(DepthStencil);
-        if (DsvDesc.ClearType != EDSClearType::Ignore)
+        auto& dsvDesc = std::get<DepthStencilViewDesc>(resourceStorage.GetResourceViewDesc(depthStencil));
+        auto  dsv     = &resourceStorage.GetResourceViewHandle(depthStencil);
+        if (dsvDesc.ClearType != EDSClearType::Ignore)
         {
 
-            auto& Handle    = RgStorage.GetResource(DepthStencil.GetResource());
-            auto& ClearDesc = ClearDescs[ClearDescs.size() - 1];
-            switch (DsvDesc.ClearType)
+            auto& handle    = resourceStorage.GetResource(depthStencil.GetResource());
+            auto& clearDesc = clearDescs[clearDescs.size() - 1];
+            switch (dsvDesc.ClearType)
             {
             case EDSClearType::Depth:
             {
-                ClearDesc.value.depthStencil.depth = DsvDesc.Depth;
-                ClearDesc.attachmentContentType    = Rhi::AttachmentContentType::DEPTH;
+                clearDesc.value.depthStencil.depth = dsvDesc.Depth;
+                clearDesc.attachmentContentType    = Rhi::AttachmentContentType::DEPTH;
 
                 break;
             }
             case EDSClearType::Stencil:
             {
-                ClearDesc.value.depthStencil.stencil = DsvDesc.Stencil;
-                ClearDesc.attachmentContentType      = Rhi::AttachmentContentType::STENCIL;
+                clearDesc.value.depthStencil.stencil = dsvDesc.Stencil;
+                clearDesc.attachmentContentType      = Rhi::AttachmentContentType::STENCIL;
 
                 break;
             }
             case EDSClearType::DepthStencil:
             {
-                ClearDesc.value.depthStencil.depth   = DsvDesc.Depth;
-                ClearDesc.value.depthStencil.stencil = DsvDesc.Stencil;
-                ClearDesc.attachmentContentType      = Rhi::AttachmentContentType::DEPTH_STENCIL;
+                clearDesc.value.depthStencil.depth   = dsvDesc.Depth;
+                clearDesc.value.depthStencil.stencil = dsvDesc.Stencil;
+                clearDesc.attachmentContentType      = Rhi::AttachmentContentType::DEPTH_STENCIL;
 
                 break;
             }
@@ -124,6 +125,6 @@ namespace Ame::Gfx::RG
             }
         }
 
-        return Dsv;
+        return dsv;
     }
 } // namespace Ame::Gfx::RG

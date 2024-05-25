@@ -12,118 +12,118 @@ namespace Ame::Gfx::RG::Std
     //
 
     EntityCollectPass::EntityCollectPass(
-        Ecs::Universe&              Universe,
-        Cache::CommonPipelineState& CommonPipelines) :
-        m_Universe(Universe),
-        m_CommonPipelines(CommonPipelines),
-        m_MaxEntitiesCount(MinEntities)
+        Ecs::Universe&              universe,
+        Cache::CommonPipelineState& commonPipelines) :
+        m_Universe(universe),
+        m_CommonPipelines(commonPipelines),
+        m_MaxEntitiesCount(c_MinEntities)
     {
         m_CommonPipelines.get().Load(Cache::CommonPipelineState::Type::EntityCollectPass);
 
         Name("EntityCollectPass")
             .SetFlags(PassFlags::Compute)
             .Build(
-                [this](Resolver& RgResolver)
+                [this](Resolver& resolver)
                 {
-                    auto& World = *m_Universe.get().GetActiveWorld();
+                    auto& world = *m_Universe.get().GetActiveWorld();
 
-                    auto CurEntityCount =
-                        static_cast<uint32_t>(World.CreateFilter<
+                    auto curEntityCount =
+                        static_cast<uint32_t>(world.CreateFilter<
                                                        const Ecs::Component::BaseRenderable>()
                                                   .build()
                                                   .count());
-                    m_MaxEntitiesCount = Math::AlignUp(std::max(CurEntityCount, m_MaxEntitiesCount), MinEntities);
+                    m_MaxEntitiesCount = Math::AlignUp(std::max(curEntityCount, m_MaxEntitiesCount), c_MinEntities);
 
-                    RgResolver.CreateBuffer(
-                        Names::EntityCommandBuffer,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(DispatchDesc) * m_MaxEntitiesCount, BufferAlignment) });
-                    RgResolver.CreateBuffer(
-                        Names::EntityCommandCounter,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * m_MaxEntitiesCount, BufferAlignment) });
+                    resolver.CreateBuffer(
+                        Names::c_EntityCommandBuffer,
+                        Rhi::BufferDesc{ Math::AlignUp(sizeof(DispatchDesc) * m_MaxEntitiesCount, c_BufferAlignment) });
+                    resolver.CreateBuffer(
+                        Names::c_EntityCommandCounter,
+                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * m_MaxEntitiesCount, c_BufferAlignment) });
 
                     //
 
-                    RgResolver.ReadBuffer(
-                        Names::TransformsTable("CollectPass"),
+                    resolver.ReadBuffer(
+                        Names::c_TransformsTable("CollectPass"),
                         Rhi::ShaderType::COMPUTE_SHADER);
-                    RgResolver.ReadBuffer(
-                        Names::RenderInstancesTable("CollectPass"),
+                    resolver.ReadBuffer(
+                        Names::c_RenderInstancesTable("CollectPass"),
                         Rhi::ShaderType::COMPUTE_SHADER);
 
-                    RgResolver.WriteBuffer(
-                        Names::EntityCommandCounter("CollectPass"),
+                    resolver.WriteBuffer(
+                        Names::c_EntityCommandCounter("CollectPass"),
                         Rhi::ShaderType::COMPUTE_SHADER,
                         Rhi::ResourceFormat::R32_UINT);
-                    RgResolver.WriteBuffer(
-                        Names::EntityCommandBuffer("CollectPass"),
+                    resolver.WriteBuffer(
+                        Names::c_EntityCommandBuffer("CollectPass"),
                         Rhi::ShaderType::COMPUTE_SHADER,
                         Rhi::ResourceFormat::R32_UINT);
                 })
             .Execute(
-                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
+                [this](const ResourceStorage& storage, Rhi::CommandList* commandList)
                 {
-                    auto& TransformsTable      = RgStorage.GetResourceViewHandle(Names::TransformsTable("CollectPass"));
-                    auto& RenderInstancesTable = RgStorage.GetResourceViewHandle(Names::RenderInstancesTable("CollectPass"));
-                    auto& CommandsView         = RgStorage.GetResourceViewHandle(Names::EntityCommandBuffer("CollectPass"));
-                    auto& CounterView          = RgStorage.GetResourceViewHandle(Names::EntityCommandCounter("CollectPass"));
+                    auto& transformsTable      = storage.GetResourceViewHandle(Names::c_TransformsTable("CollectPass"));
+                    auto& renderInstancesTable = storage.GetResourceViewHandle(Names::c_RenderInstancesTable("CollectPass"));
+                    auto& commandsView         = storage.GetResourceViewHandle(Names::c_EntityCommandBuffer("CollectPass"));
+                    auto& counterView          = storage.GetResourceViewHandle(Names::c_EntityCommandCounter("CollectPass"));
 
-                    auto PipelineState = m_CommonPipelines.get()
+                    auto pipelineState = m_CommonPipelines.get()
                                              .Load(Cache::CommonPipelineState::Type::EntityCollectPass)
                                              .get();
 
-                    CommandList->SetPipelineLayout(PipelineState->GetLayout());
+                    commandList->SetPipelineLayout(pipelineState->GetLayout());
 
                     //
 
-                    auto FrameDataSet   = CommandList->AllocateSet(CD::FrameData_SetIndex);
-                    auto EntityDataSet  = CommandList->AllocateSet(CD::EntityData_SetIndex);
-                    auto CommandInfoSet = CommandList->AllocateSet(CommandInfo_SetIndex);
+                    auto frameDataSet   = commandList->AllocateSet(CD::c_FrameData_SetIndex);
+                    auto entityDataSet  = commandList->AllocateSet(CD::c_EntityData_SetIndex);
+                    auto commandInfoSet = commandList->AllocateSet(c_CommandInfo_SetIndex);
 
-                    nri::Descriptor* FrameDescriptors[]{
-                        RgStorage.GetFrameResourceHandle().Unwrap()
+                    nri::Descriptor* frameDescriptors[]{
+                        storage.GetFrameResourceHandle().Unwrap()
                     };
 
-                    nri::Descriptor* EntityDescriptors[]{
-                        TransformsTable.Unwrap(),
-                        RenderInstancesTable.Unwrap()
+                    nri::Descriptor* entityDescriptors[]{
+                        transformsTable.Unwrap(),
+                        renderInstancesTable.Unwrap()
                     };
 
-                    nri::Descriptor* CommandInfoDescriptors[]{
-                        CommandsView.Unwrap(),
-                        CounterView.Unwrap()
+                    nri::Descriptor* commandInfoDescriptors[]{
+                        commandsView.Unwrap(),
+                        counterView.Unwrap()
                     };
 
-                    FrameDataSet.SetRange(0, { FrameDescriptors, Rhi::Count32(FrameDescriptors) });
-                    EntityDataSet.SetRange(0, { EntityDescriptors, Rhi::Count32(EntityDescriptors) });
-                    CommandInfoSet.SetRange(0, { CommandInfoDescriptors, Rhi::Count32(CommandInfoDescriptors) });
+                    frameDataSet.SetRange(0, { frameDescriptors, Rhi::Count32(frameDescriptors) });
+                    entityDataSet.SetRange(0, { entityDescriptors, Rhi::Count32(entityDescriptors) });
+                    commandInfoSet.SetRange(0, { commandInfoDescriptors, Rhi::Count32(commandInfoDescriptors) });
 
                     //
 
-                    CommandList->SetDescriptorSet(CD::FrameData_SetIndex, FrameDataSet);
-                    CommandList->SetDescriptorSet(CD::EntityData_SetIndex, EntityDataSet);
-                    CommandList->SetDescriptorSet(CommandInfo_SetIndex, CommandInfoSet);
+                    commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
+                    commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
+                    commandList->SetDescriptorSet(c_CommandInfo_SetIndex, commandInfoSet);
 
                     //
 
-                    CommandList->SetPipelineState(PipelineState);
+                    commandList->SetPipelineState(pipelineState);
 
-                    auto EntStore = RgStorage.GetEntityStore();
-                    for (auto& Row : EntStore.GetCountedRows())
+                    auto entityStore = storage.GetEntityStore();
+                    for (auto& row : entityStore.GetCountedRows())
                     {
                         DispatchDesc DispatchConstants{
-                            .DrawOffset    = Row.DrawOffset,
-                            .DrawCount     = Row->Count,
-                            .CounterOffset = Row.CounterOffset
+                            .DrawOffset    = row.DrawOffset,
+                            .DrawCount     = row->Count,
+                            .CounterOffset = row.CounterOffset
                         };
-                        CommandList->SetConstants(0, DispatchConstants);
+                        commandList->SetConstants(0, DispatchConstants);
 
-                        CommandList->ClearBuffer(
-                            { .storageBuffer            = CounterView.Unwrap(),
+                        commandList->ClearBuffer(
+                            { .storageBuffer            = counterView.Unwrap(),
                               .setIndexInPipelineLayout = 2,
                               .rangeIndex               = 1,
-                              .offsetInRange            = Row.CounterOffset });
+                              .offsetInRange            = row.CounterOffset });
 
-                        CommandList->Dispatch(1);
+                        commandList->Dispatch(1);
                     }
                 });
     }

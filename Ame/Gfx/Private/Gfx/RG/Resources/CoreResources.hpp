@@ -12,8 +12,8 @@ namespace Ame::Gfx::RG
     {
     public:
         CoreResources(
-            Rhi::Device&   Device,
-            Ecs::Universe& Universe);
+            Rhi::Device&   rhiDevice,
+            Ecs::Universe& universe);
 
     public:
         [[nodiscard]] const Rhi::Buffer&      GetFrameResource() const;
@@ -39,13 +39,13 @@ namespace Ame::Gfx::RG
         /// Update frame resource for the current frame
         /// </summary>
         void UpdateFrameResource(
-            float                        EngineTime,
-            float                        GameTime,
-            float                        DeltaTime,
-            const Ecs::Entity&           CameraEntity,
-            const Math::TransformMatrix& Transform,
-            const Math::Matrix4x4&       Projection,
-            const Math::Vector2&         Viewport);
+            float                        engineTime,
+            float                        gameTime,
+            float                        deltaTime,
+            const Ecs::Entity&           cameraEntity,
+            const Math::TransformMatrix& transform,
+            const Math::Matrix4x4&       projection,
+            const Math::Vector2&         viewport);
 
     public:
         /// <summary>
@@ -63,14 +63,14 @@ namespace Ame::Gfx::RG
         /// Collect entities for rendering
         /// </summary>
         void CollectEntities(
-            const CameraRenderRule& RenderRule);
+            const CameraRenderRule& renderRule);
 
     private:
         /// <summary>
         /// Allocate the frame resource
         /// </summary>
         [[nodiscard]] static Rhi::Buffer AllocateFrameResource(
-            Rhi::Device& Device);
+            Rhi::Device& rhiDevice);
 
     private:
         Ref<Rhi::Device>   m_Device;

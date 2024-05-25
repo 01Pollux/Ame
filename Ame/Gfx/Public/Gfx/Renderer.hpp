@@ -27,14 +27,16 @@ namespace Ame::Gfx
 {
     class Renderer
     {
-        using CameraRenderQuery = Ecs::UniqueQuery<const Ecs::Component::Transform, const Ecs::Component::Camera>;
+        using CameraRenderQuery = Ecs::UniqueQuery<
+            const Ecs::Component::Transform,
+            const Ecs::Component::Camera>;
 
     public:
         Renderer(
-            EngineFrame&   Frame,
-            FrameTimer&    Timer,
-            Rhi::Device&   Device,
-            Ecs::Universe& Universe);
+            EngineFrame&   engineFrame,
+            FrameTimer&    frameTimer,
+            Rhi::Device&   rhiDevice,
+            Ecs::Universe& universe);
 
     public:
         /// <summary>

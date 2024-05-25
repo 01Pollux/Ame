@@ -14,32 +14,32 @@ namespace Ame::Gfx::Shading
 
     public:
         PropertyMap(
-            const PropertyDescriptor& Descriptor);
+            const PropertyDescriptor& descriptor);
 
         PropertyMap(
-            const PropertyMap* Other);
+            const PropertyMap* other);
 
     public:
         void WriteTexture(
-            const String&   Property,
-            TextureResource Texture);
+            const String&   propertyName,
+            TextureResource textureResource);
 
         void WriteBuffer(
-            const String&  Property,
-            BufferResource Buffer);
+            const String&  propertyName,
+            BufferResource bufferResource);
 
         void WriteSampler(
-            const String&   Property,
-            SamplerResource Sampler);
+            const String&   propertyName,
+            SamplerResource samplerResource);
 
         [[nodiscard]] const TextureResource& ReadTexture(
-            const String& Property) const;
+            const String& propertyName) const;
 
         [[nodiscard]] const BufferResource& ReadBuffer(
-            const String& Property) const;
+            const String& propertyName) const;
 
         [[nodiscard]] const SamplerResource& ReadSampler(
-            const String& Property) const;
+            const String& propertyName) const;
 
         /// <summary>
         /// Get the resources of this material
@@ -51,17 +51,17 @@ namespace Ame::Gfx::Shading
         /// Write a scalar value to the property map
         /// </summary>
         void WriteUserData(
-            const String& Name,
-            const void*   Data,
-            size_t        Size);
+            const String& propertyName,
+            const void*   data,
+            size_t        size);
 
         /// <summary>
         /// Read a scalar value from the property map
         /// </summary>
         void ReadUserData(
-            const String& Name,
-            void*         Data,
-            size_t        Size) const;
+            const String& propertyName,
+            void*         data,
+            size_t        size) const;
 
         /// <summary>
         /// Get the user data of this material

@@ -48,7 +48,7 @@ namespace Ame::Gfx::RG
             Ref<RenderInstance>                       Instance;
             float                                     Distance;
 
-            std::partial_ordering operator<=>(const StagedEntity& Other) const noexcept;
+            std::partial_ordering operator<=>(const StagedEntity& other) const noexcept;
         };
 
         struct StagedGroup
@@ -61,14 +61,14 @@ namespace Ame::Gfx::RG
             double       RMSDistance = 0.;
 
             StagedGroup(
-                std::span<const StagedEntity> Group,
-                nri::Buffer*                  VtxBuffer,
-                nri::Buffer*                  IdxBuffer);
+                std::span<const StagedEntity> entityList,
+                nri::Buffer*                  vertexBuffer,
+                nri::Buffer*                  indexBuffer);
 
             [[nodiscard]] Rhi::IndexType         GetIndexType() const;
             [[nodiscard]] Ptr<Shading::Material> GetMaterial() const;
 
-            std::partial_ordering operator<=>(const StagedGroup& Other) const noexcept;
+            std::partial_ordering operator<=>(const StagedGroup& other) const noexcept;
         };
 
         struct CameraStorage
@@ -78,10 +78,10 @@ namespace Ame::Gfx::RG
             InstanceBuffer AllInstances;
 
             CameraStorage(
-                Rhi::Device&                           RhiDevice,
-                const Rhi::Util::BlockBasedBufferDesc& VertexDesc,
-                const Rhi::Util::BlockBasedBufferDesc& IndexDesc,
-                const Rhi::Util::SlotBasedBufferDesc&  InstanceDesc);
+                Rhi::Device&                           rhiDevice,
+                const Rhi::Util::BlockBasedBufferDesc& vertexDesc,
+                const Rhi::Util::BlockBasedBufferDesc& indexDesc,
+                const Rhi::Util::SlotBasedBufferDesc&  instanceDesc);
 
             void Reset();
             void Flush();
@@ -89,8 +89,8 @@ namespace Ame::Gfx::RG
 
     public:
         CameraCullResult(
-            Rhi::Device&          RhiDevice,
-            const CameraCullDesc& Desc = {});
+            Rhi::Device&          rhiDevice,
+            const CameraCullDesc& desc = {});
 
     public:
         [[nodiscard]] uint32_t                  GetEntitiesCount() const;
@@ -109,9 +109,9 @@ namespace Ame::Gfx::RG
         /// Add an entity to the cull result.
         /// </summary>
         void AddEntity(
-            float                                 Distance,
-            const Ecs::Component::BaseRenderable& Renderable,
-            RenderInstance&                       Instance);
+            float                                 distance,
+            const Ecs::Component::BaseRenderable& renderable,
+            RenderInstance&                       instance);
 
         /// <summary>
         /// Sort the cull result.

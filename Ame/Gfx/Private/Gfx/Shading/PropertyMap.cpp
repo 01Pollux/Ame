@@ -5,23 +5,23 @@
 namespace Ame::Gfx::Shading
 {
     PropertyMap::PropertyMap(
-        const PropertyDescriptor& Descriptor) :
-        m_UserData(Descriptor)
+        const PropertyDescriptor& descriptor) :
+        m_UserData(descriptor)
     {
         if (m_UserData.GetStructSize() > 0)
         {
             m_UserDataBuffer = std::make_unique<uint8_t[]>(m_UserData.GetStructSize());
         }
 
-        for (auto& Resource : Descriptor.GetResources())
+        for (auto& resource : descriptor.GetResources())
         {
-            switch (Resource.get().Type)
+            switch (resource.get().Type)
             {
             case ResourceType::Buffer:
             case ResourceType::RWBuffer:
             case ResourceType::StructuredBuffer:
             case ResourceType::RWStructuredBuffer:
-                m_Resources[Resource.get().PropName] = BufferResource();
+                m_Resources[resource.get().PropName] = BufferResource();
                 break;
 
             case ResourceType::Texture1D:
@@ -38,11 +38,11 @@ namespace Ame::Gfx::Shading
             case ResourceType::RWTexture2D:
             case ResourceType::RWTexture2DArray:
             case ResourceType::RWTexture3D:
-                m_Resources[Resource.get().PropName] = TextureResource();
+                m_Resources[resource.get().PropName] = TextureResource();
                 break;
 
             case ResourceType::Sampler:
-                m_Resources[Resource.get().PropName] = SamplerResource();
+                m_Resources[resource.get().PropName] = SamplerResource();
                 break;
 
             default:
@@ -52,138 +52,138 @@ namespace Ame::Gfx::Shading
     }
 
     PropertyMap::PropertyMap(
-        const PropertyMap* Other) :
-        m_UserData(Other->m_UserData),
-        m_Resources(Other->m_Resources)
+        const PropertyMap* other) :
+        m_UserData(other->m_UserData),
+        m_Resources(other->m_Resources)
     {
         if (m_UserData.GetStructSize() > 0)
         {
             m_UserDataBuffer = std::make_unique<uint8_t[]>(m_UserData.GetStructSize());
-            std::copy(Other->GetUserData(), Other->GetUserData() + m_UserData.GetStructSize(), m_UserDataBuffer.get());
+            std::copy(other->GetUserData(), other->GetUserData() + m_UserData.GetStructSize(), m_UserDataBuffer.get());
         }
     }
 
     //
 
     void PropertyMap::WriteTexture(
-        const String&   Property,
-        TextureResource Texture)
+        const String&   propertyName,
+        TextureResource textureResource)
     {
-        auto Iter = m_Resources.find(Property);
+        auto iter = m_Resources.find(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Gfx().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
+        Log::Gfx().Assert(iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<TextureResource>(iter->second), "Property is not a texture resource");
 #endif
 
-        Iter->second = std::move(Texture);
+        iter->second = std::move(textureResource);
     }
 
     void PropertyMap::WriteBuffer(
-        const String&  Property,
-        BufferResource Buffer)
+        const String&  propertyName,
+        BufferResource bufferResource)
     {
-        auto Iter = m_Resources.find(Property);
+        auto iter = m_Resources.find(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Gfx().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
+        Log::Gfx().Assert(iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<BufferResource>(iter->second), "Property is not a buffer resource");
 #endif
 
-        Iter->second = std::move(Buffer);
+        iter->second = std::move(bufferResource);
     }
 
     void PropertyMap::WriteSampler(
-        const String&   Property,
-        SamplerResource Sampler)
+        const String&   propertyName,
+        SamplerResource samplerResource)
     {
-        auto Iter = m_Resources.find(Property);
+        auto iter = m_Resources.find(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Gfx().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
+        Log::Gfx().Assert(iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<SamplerResource>(iter->second), "Property is not a sampler resource");
 #endif
 
-        Iter->second = std::move(Sampler);
+        iter->second = std::move(samplerResource);
     }
 
     //
 
     const TextureResource& PropertyMap::ReadTexture(
-        const String& Property) const
+        const String& propertyName) const
     {
-        auto Iter = m_Resources.find(Property);
+        auto iter = m_Resources.find(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Gfx().Assert(std::holds_alternative<TextureResource>(Iter->second), "Property is not a texture resource");
+        Log::Gfx().Assert(iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<TextureResource>(iter->second), "Property is not a texture resource");
 #endif
 
-        return std::get<TextureResource>(Iter->second);
+        return std::get<TextureResource>(iter->second);
     }
 
     const BufferResource& PropertyMap::ReadBuffer(
-        const String& Property) const
+        const String& propertyName) const
     {
-        auto Iter = m_Resources.find(Property);
+        auto iter = m_Resources.find(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Gfx().Assert(std::holds_alternative<BufferResource>(Iter->second), "Property is not a buffer resource");
+        Log::Gfx().Assert(iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<BufferResource>(iter->second), "Property is not a buffer resource");
 #endif
 
-        return std::get<BufferResource>(Iter->second);
+        return std::get<BufferResource>(iter->second);
     }
 
     const SamplerResource& PropertyMap::ReadSampler(
-        const String& Property) const
+        const String& propertyName) const
     {
-        auto Iter = m_Resources.find(Property);
+        auto iter = m_Resources.find(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Iter != m_Resources.end(), "Property not found in property map");
-        Log::Gfx().Assert(std::holds_alternative<SamplerResource>(Iter->second), "Property is not a sampler resource");
+        Log::Gfx().Assert(iter != m_Resources.end(), "Property not found in property map");
+        Log::Gfx().Assert(std::holds_alternative<SamplerResource>(iter->second), "Property is not a sampler resource");
 #endif
 
-        return std::get<SamplerResource>(Iter->second);
+        return std::get<SamplerResource>(iter->second);
     }
 
     auto PropertyMap::GetResources() const -> Co::generator<ResourceMap::const_iterator>
     {
-        for (auto Iter = m_Resources.begin(); Iter != m_Resources.end(); Iter++)
+        for (auto iter = m_Resources.begin(); iter != m_Resources.end(); iter++)
         {
-            co_yield Iter;
+            co_yield iter;
         }
     }
 
     //
 
     void PropertyMap::WriteUserData(
-        const String& Name,
-        const void*   Data,
-        size_t        Size)
+        const String& propertyName,
+        const void*   data,
+        size_t        size)
     {
-        uint32_t Offset = m_UserData.GetOffset(Name);
+        uint32_t offset = m_UserData.GetOffset(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Offset + Size <= GetSizeOfUserData(), "User data buffer overflow");
+        Log::Gfx().Assert(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
 #endif
 
-        std::memcpy(m_UserDataBuffer.get() + Offset, Data, Size);
+        std::memcpy(m_UserDataBuffer.get() + offset, data, size);
     }
 
     void PropertyMap::ReadUserData(
-        const String& Name,
-        void*         Data,
-        size_t        Size) const
+        const String& propertyName,
+        void*         data,
+        size_t        size) const
     {
-        uint32_t Offset = m_UserData.GetOffset(Name);
+        uint32_t offset = m_UserData.GetOffset(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Gfx().Assert(Offset + Size <= m_UserData.GetStructSize(), "User data buffer overflow");
+        Log::Gfx().Assert(offset + size <= m_UserData.GetStructSize(), "User data buffer overflow");
 #endif
 
-        std::memcpy(Data, m_UserDataBuffer.get() + Offset, Size);
+        std::memcpy(data, m_UserDataBuffer.get() + offset, size);
     }
 
     const uint8_t* PropertyMap::GetUserData() const

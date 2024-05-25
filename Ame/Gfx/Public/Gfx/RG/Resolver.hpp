@@ -10,7 +10,7 @@ namespace Ame::Gfx::RG
 
     public:
         Resolver(
-            ResourceStorage& RgStorage);
+            ResourceStorage& resourceStorage);
 
     public:
         /// <summary>
@@ -33,145 +33,145 @@ namespace Ame::Gfx::RG
         /// Create buffer
         /// </summary>
         void CreateBuffer(
-            const ResourceId&      Id,
-            const Rhi::BufferDesc& Desc);
+            const ResourceId&      id,
+            const Rhi::BufferDesc& desc);
 
         /// <summary>
         /// Create texture
         /// </summary>
         void CreateTexture(
-            const ResourceId&       Id,
-            const Rhi::TextureDesc& Desc);
+            const ResourceId&       id,
+            const Rhi::TextureDesc& desc);
 
     public:
         /// <summary>
         /// import buffer to be used later when dispatching passes
         /// </summary>
         void ImportBuffer(
-            const ResourceId&  Id,
-            const Rhi::Buffer& Buffer);
+            const ResourceId& id,
+            Rhi::Buffer       buffer);
 
         /// <summary>
         /// import texture to be used later when dispatching passes
         /// </summary>
         void ImportTexture(
-            const ResourceId&   Id,
-            const Rhi::Texture& Texture);
+            const ResourceId& id,
+            Rhi::Texture      texture);
 
     public:
         /// <summary>
         /// Write resource view to add dependency without actually writing anything
         /// </summary>
         void WriteResourceEmpty(
-            ResourceId Id);
+            const ResourceId& Id);
 
     public:
         /// <summary>
         /// Write to buffer resource
         /// </summary>
         void WriteBuffer(
-            const ResourceViewId&   ViewId,
-            Rhi::StageBits          Shaders,
-            Rhi::ResourceFormat     Format = Rhi::ResourceFormat::UNKNOWN,
-            const Rhi::BufferRange& Range  = Rhi::EntireBuffer);
+            const ResourceViewId&   viewId,
+            Rhi::StageBits          stages,
+            Rhi::ResourceFormat     format = Rhi::ResourceFormat::UNKNOWN,
+            const Rhi::BufferRange& range  = Rhi::EntireBuffer);
 
     private:
         /// <summary>
         /// Write to resource
         /// </summary>
         void WriteTexture(
-            const ResourceViewId&   ViewId,
-            const ResourceViewDesc& ViewDesc,
-            const Rhi::AccessStage& AccessStage,
-            Rhi::TextureUsageBits   UsageBits);
+            const ResourceViewId&   viewId,
+            const ResourceViewDesc& viewDesc,
+            const Rhi::AccessStage& accessStage,
+            Rhi::TextureUsageBits   usageBits);
 
     public:
         /// <summary>
         /// Write to texture resource
         /// </summary>
         void WriteTexture(
-            const ResourceViewId&       ViewId,
-            const Rhi::TextureViewDesc& ViewDesc,
-            Rhi::StageBits              Shaders);
+            const ResourceViewId&       viewId,
+            const Rhi::TextureViewDesc& viewDesc,
+            Rhi::StageBits              stages);
 
         /// <summary>
         /// Write to texture resource as copy destination
         /// </summary>
         void WriteCopyDstResource(
-            const ResourceViewId& ViewId);
+            const ResourceViewId& viewId);
 
         /// <summary>
         /// Write resource as renter target with clear operations
         /// </summary>
         void WriteRenderTarget(
-            const ResourceViewId&          ViewId,
-            Rhi::StageBits                 Shaders,
-            const RtvCustomDesc&           RtvDesc,
-            Rhi::ResourceFormat            Format,
-            const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
+            const ResourceViewId&          viewId,
+            Rhi::StageBits                 stages,
+            const RtvCustomDesc&           rtvDesc,
+            Rhi::ResourceFormat            format,
+            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
 
         /// <summary>
         /// Write resource as renter target with no clear operations
         /// </summary>
         void WriteRenderTarget(
-            const ResourceViewId&          ViewId,
-            Rhi::StageBits                 Shaders,
-            Rhi::ResourceFormat            Format,
-            const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
+            const ResourceViewId&          viewId,
+            Rhi::StageBits                 stages,
+            Rhi::ResourceFormat            format,
+            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
 
         /// <summary>
         /// Write resource as depth stencil
         /// </summary>
         void WriteDepthStencil(
-            const ResourceViewId&          ViewId,
-            Rhi::StageBits                 Shaders,
-            const DsvCustomDesc&           DsvDesc,
-            Rhi::ResourceFormat            Format,
-            const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
+            const ResourceViewId&          viewId,
+            Rhi::StageBits                 stages,
+            const DsvCustomDesc&           dsvDesc,
+            Rhi::ResourceFormat            format,
+            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
 
         /// <summary>
         /// Write resource as depth stencil
         /// </summary>
         void WriteDepthStencil(
-            const ResourceViewId&          ViewId,
-            Rhi::StageBits                 Shaders,
-            Rhi::ResourceFormat            Format,
-            const Rhi::TextureSubresource& Subresource = Rhi::AllSubresources);
+            const ResourceViewId&          viewId,
+            Rhi::StageBits                 stages,
+            Rhi::ResourceFormat            format,
+            const Rhi::TextureSubresource& subresource = Rhi::AllSubresources);
 
     public:
         /// <summary>
         /// Read dummy resource
         /// </summary>
         void ReadResourceEmpty(
-            const ResourceId& Id);
+            const ResourceId& id);
 
     private:
         /// <summary>
         /// Read from buffer resource
         /// </summary>
         void ReadBuffer(
-            const ResourceViewId&      ViewId,
-            const Rhi::BufferViewDesc& ViewDesc,
-            const Rhi::AccessStage&    Stage,
-            Rhi::BufferUsageBits       Usage);
+            const ResourceViewId&      viewId,
+            const Rhi::BufferViewDesc& viewDesc,
+            const Rhi::AccessStage&    accessStage,
+            Rhi::BufferUsageBits       usageBits);
 
     public:
         /// <summary>
         /// Read from buffer resource
         /// </summary>
         void ReadBuffer(
-            const ResourceViewId&   ViewId,
-            Rhi::StageBits          Shaders,
-            Rhi::ResourceFormat     Format = Rhi::ResourceFormat::UNKNOWN,
-            const Rhi::BufferRange& Range  = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            Rhi::StageBits          stages,
+            Rhi::ResourceFormat     format = Rhi::ResourceFormat::UNKNOWN,
+            const Rhi::BufferRange& range  = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
-                    .Format = Format,
+                    .Range  = range,
+                    .Format = format,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { Rhi::AccessBits::SHADER_RESOURCE, Shaders },
+                { Rhi::AccessBits::SHADER_RESOURCE, stages },
                 Rhi::BufferUsageBits::SHADER_RESOURCE);
         }
 
@@ -179,13 +179,13 @@ namespace Ame::Gfx::RG
         /// Read from vertex buffer resource
         /// </summary>
         void ReadVertexBuffer(
-            const ResourceViewId&   ViewId,
-            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            const Rhi::BufferRange& range = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
+                    .Range  = range,
                     .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
                 { Rhi::AccessBits::VERTEX_BUFFER, Rhi::StageBits::VERTEX_SHADER },
@@ -196,13 +196,13 @@ namespace Ame::Gfx::RG
         /// Read from vertex buffer resource
         /// </summary>
         void ReadIndexBuffer(
-            const ResourceViewId&   ViewId,
-            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            const Rhi::BufferRange& range = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
+                    .Range  = range,
                     .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
                 { Rhi::AccessBits::INDEX_BUFFER, Rhi::StageBits::INDEX_INPUT },
@@ -213,17 +213,17 @@ namespace Ame::Gfx::RG
         /// Read from constant buffer resource
         /// </summary>
         void ReadConstantBuffer(
-            const ResourceViewId&   ViewId,
-            Rhi::StageBits          Shaders,
-            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            Rhi::StageBits          stages,
+            const Rhi::BufferRange& range = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
+                    .Range  = range,
                     .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ConstantBuffer },
-                { Rhi::AccessBits::CONSTANT_BUFFER, Shaders },
+                { Rhi::AccessBits::CONSTANT_BUFFER, stages },
                 Rhi::BufferUsageBits::CONSTANT_BUFFER);
         }
 
@@ -231,17 +231,17 @@ namespace Ame::Gfx::RG
         /// Read from structured buffer resource
         /// </summary>
         void ReadStructuredBuffer(
-            const ResourceViewId&   ViewId,
-            Rhi::StageBits          Shaders,
-            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            Rhi::StageBits          stages,
+            const Rhi::BufferRange& range = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
+                    .Range  = range,
                     .Format = Rhi::ResourceFormat::UNKNOWN,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { Rhi::AccessBits::SHADER_RESOURCE, Shaders },
+                { Rhi::AccessBits::SHADER_RESOURCE, stages },
                 Rhi::BufferUsageBits::SHADER_RESOURCE);
         }
 
@@ -249,18 +249,18 @@ namespace Ame::Gfx::RG
         /// Read from structured buffer resource
         /// </summary>
         void ReadTypedBuffer(
-            const ResourceViewId&   ViewId,
-            Rhi::StageBits          Shaders,
-            Rhi::ResourceFormat     Format,
-            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            Rhi::StageBits          stages,
+            Rhi::ResourceFormat     format,
+            const Rhi::BufferRange& range = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
-                    .Format = Format,
+                    .Range  = range,
+                    .Format = format,
                     .Type   = Rhi::BufferViewType::ShaderResource },
-                { Rhi::AccessBits::SHADER_RESOURCE, Shaders },
+                { Rhi::AccessBits::SHADER_RESOURCE, stages },
                 Rhi::BufferUsageBits::SHADER_RESOURCE);
         }
 
@@ -268,13 +268,13 @@ namespace Ame::Gfx::RG
         /// Read from vertex buffer resource
         /// </summary>
         void ReadIndirectBuffer(
-            const ResourceViewId&   ViewId,
-            const Rhi::BufferRange& Range = Rhi::EntireBuffer)
+            const ResourceViewId&   viewId,
+            const Rhi::BufferRange& range = Rhi::EntireBuffer)
         {
             ReadBuffer(
-                ViewId,
+                viewId,
                 Rhi::BufferViewDesc{
-                    .Range  = Range,
+                    .Range  = range,
                     .Format = Rhi::ResourceFormat::R32_UINT,
                     .Type   = Rhi::BufferViewType::ShaderResource },
                 { Rhi::AccessBits::ARGUMENT_BUFFER, Rhi::StageBits::INDIRECT },
@@ -286,38 +286,38 @@ namespace Ame::Gfx::RG
         /// Read from texture resource
         /// </summary>
         void ReadTexture(
-            const ResourceViewId&       ViewId,
-            const Rhi::TextureViewDesc& ViewDesc,
-            Rhi::StageBits              Shaders);
+            const ResourceViewId&       viewId,
+            const Rhi::TextureViewDesc& viewDesc,
+            Rhi::StageBits              stages);
 
         /// <summary>
         /// Read from texture resource as copy destination
         /// </summary>
         void ReadCopyDstResource(
-            const ResourceViewId& ViewId);
+            const ResourceViewId& viewId);
 
         /// <summary>
         /// Read from texture as depth stencil
         /// </summary>
         void ReadDepthStencil(
-            const ResourceViewId&       ViewId,
-            const Rhi::TextureViewDesc& ViewDesc,
-            Rhi::StageBits              Shaders);
+            const ResourceViewId&       viewId,
+            const Rhi::TextureViewDesc& viewDesc,
+            Rhi::StageBits              stages);
 
     private:
         /// <summary>
         /// Append resource state
         /// </summary>
         void AppendResourceState(
-            const ResourceViewId&   ViewId,
-            const Rhi::AccessStage& Stage);
+            const ResourceViewId&   viewId,
+            const Rhi::AccessStage& accessStage);
 
         /// <summary>
         /// Initialize texture layout
         /// </summary>
         void SetTextureLayout(
-            const ResourceId& ViewId,
-            Rhi::LayoutType   Layout);
+            const ResourceId& viewId,
+            Rhi::LayoutType   layout);
 
     private:
         ResourceStorage& m_Storage;

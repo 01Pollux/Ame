@@ -6,15 +6,15 @@
 namespace Ame::Gfx::Cache
 {
     Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineState::PrepareLayout(
-        Type PipelineType)
+        Type type)
     {
-        return m_CommonLayouts.get().Load(GetLayoutType(PipelineType));
+        return m_CommonLayouts.get().Load(GetLayoutType(type));
     }
 
     CommonPipelineLayout::Type CommonPipelineState::GetLayoutType(
-        Type PipelineType)
+        Type type)
     {
-        switch (PipelineType)
+        switch (type)
         {
         case Type::EntityCollectPass:
             return CommonPipelineLayout::Type::EntityCollectPass;

@@ -3,12 +3,12 @@
 namespace Ame::Gfx::RG
 {
     Graph::Graph(
-        FrameTimer&    Timer,
-        Rhi::Device&   Device,
-        Ecs::Universe& Universe) :
-        m_Timer(Timer),
-        m_Device(Device),
-        m_Context(Device, Universe)
+        FrameTimer&    frameTimer,
+        Rhi::Device&   rhiDevice,
+        Ecs::Universe& universe) :
+        m_Timer(frameTimer),
+        m_Device(rhiDevice),
+        m_Context(rhiDevice, universe)
     {
     }
 
@@ -20,19 +20,19 @@ namespace Ame::Gfx::RG
     }
 
     void Graph::UpdateFrameStorage(
-        const Ecs::Entity&           CameraEntity,
-        const Math::TransformMatrix& Transform,
-        const Math::Matrix4x4&       Projection,
-        const Math::Vector2&         Viewport)
+        const Ecs::Entity&           cameraEntity,
+        const Math::TransformMatrix& transform,
+        const Math::Matrix4x4&       projection,
+        const Math::Vector2&         viewport)
     {
         m_Context.UpdateFrameStorage(
             static_cast<float>(m_Timer.get().GetEngineTime()),
             static_cast<float>(m_Timer.get().GetDeltaTime()),
             static_cast<float>(m_Timer.get().GetDeltaTime()),
-            CameraEntity,
-            Transform,
-            Projection,
-            Viewport);
+            cameraEntity,
+            transform,
+            projection,
+            viewport);
     }
 
     void Graph::Execute()

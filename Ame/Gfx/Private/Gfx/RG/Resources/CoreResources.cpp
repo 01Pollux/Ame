@@ -7,15 +7,15 @@
 namespace Ame::Gfx::RG
 {
     CoreResources::CoreResources(
-        Rhi::Device&   Device,
-        Ecs::Universe& Universe) :
-        m_Device(Device),
-        m_Universe(Universe),
-        m_FrameResourceBuffer(AllocateFrameResource(Device)),
-        m_AABBBuffer(Device),
-        m_TransformBuffer(Device),
-        m_EcsSystemHooks(Universe, *this),
-        m_CameraCullResult(Device)
+        Rhi::Device&   rhiDevice,
+        Ecs::Universe& universe) :
+        m_Device(rhiDevice),
+        m_Universe(universe),
+        m_FrameResourceBuffer(AllocateFrameResource(rhiDevice)),
+        m_AABBBuffer(rhiDevice),
+        m_TransformBuffer(rhiDevice),
+        m_EcsSystemHooks(universe, *this),
+        m_CameraCullResult(rhiDevice)
     {
     }
 

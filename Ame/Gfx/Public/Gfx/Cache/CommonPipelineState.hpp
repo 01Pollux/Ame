@@ -28,7 +28,7 @@ namespace Ame::Gfx::Cache
             ShaderDescStorage ShaderDescs;
 
             static Co::result<ShaderTable> Create(
-                ShaderTaskStorage Tasks);
+                ShaderTaskStorage tasks);
         };
 
     public:
@@ -44,14 +44,14 @@ namespace Ame::Gfx::Cache
 
     public:
         CommonPipelineState(
-            Rhi::Device&          Device,
-            Co::runtime&          Runtime,
-            CommonPipelineLayout& CommonLayouts,
-            CommonShader&         CommonShaders) :
-            m_Device(Device),
-            m_Runtime(Runtime),
-            m_CommonLayouts(CommonLayouts),
-            m_CommonShaders(CommonShaders)
+            Rhi::Device&          rhiDevice,
+            Co::runtime&          coroutine,
+            CommonPipelineLayout& commonLayouts,
+            CommonShader&         commonShaders) :
+            m_Device(rhiDevice),
+            m_Runtime(coroutine),
+            m_CommonLayouts(commonLayouts),
+            m_CommonShaders(commonShaders)
         {
         }
 
@@ -60,37 +60,37 @@ namespace Ame::Gfx::Cache
         /// Load or get a pipeline layout from cache.
         /// </summary>
         Co::result<Ptr<Rhi::PipelineState>> Load(
-            Type PipelineType);
+            Type type);
 
     private:
         /// <summary>
         /// Preload the pipeline layout.
         /// </summary>
         [[nodiscard]] Co::result<Ptr<Rhi::PipelineLayout>> PrepareLayout(
-            Type PipelineType);
+            Type type);
 
         /// <summary>
         /// Preload the shaders.
         /// </summary>
         [[nodiscard]] Co::result<ShaderTaskStorage> PrepareShaders(
-            Type PipelineType);
+            Type type);
 
     private:
         /// <summary>
         /// Load or get a pipeline layout from cache.
         /// </summary>
         [[nodiscard]] static CommonPipelineLayout::Type GetLayoutType(
-            Type PipelineType);
+            Type type);
 
         /// <summary>
         /// Get the pipeline layout desc.
         /// </summary>
         [[nodiscard]] static Co::result<Ptr<Rhi::PipelineState>> Create(
-            Rhi::Device&                    Device,
-            Co::executor&                   Executor,
-            const Ptr<Rhi::PipelineLayout>& Layout,
-            const ShaderDescStorage&        ShaderDescs,
-            Type                            PipelineType);
+            Rhi::Device&                    rhiDevice,
+            Co::executor&                   executor,
+            const Ptr<Rhi::PipelineLayout>& layout,
+            const ShaderDescStorage&        shaderDescs,
+            Type                            type);
 
     private:
         Ref<Rhi::Device> m_Device;

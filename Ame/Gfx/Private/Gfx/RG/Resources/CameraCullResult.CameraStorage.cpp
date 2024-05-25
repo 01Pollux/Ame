@@ -5,13 +5,13 @@
 namespace Ame::Gfx::RG
 {
     CameraCullResult::CameraStorage::CameraStorage(
-        Rhi::Device&                           RhiDevice,
-        const Rhi::Util::BlockBasedBufferDesc& VertexDesc,
-        const Rhi::Util::BlockBasedBufferDesc& IndexDesc,
-        const Rhi::Util::SlotBasedBufferDesc&  InstanceDesc) :
-        DynamicVertices(RhiDevice, VertexDesc),
-        DynamicIndices(RhiDevice, IndexDesc),
-        AllInstances(RhiDevice, InstanceDesc)
+        Rhi::Device&                           rhiDevice,
+        const Rhi::Util::BlockBasedBufferDesc& vertexDesc,
+        const Rhi::Util::BlockBasedBufferDesc& indexDesc,
+        const Rhi::Util::SlotBasedBufferDesc&  instanceDesc) :
+        DynamicVertices(rhiDevice, vertexDesc),
+        DynamicIndices(rhiDevice, indexDesc),
+        AllInstances(rhiDevice, instanceDesc)
     {
     }
 

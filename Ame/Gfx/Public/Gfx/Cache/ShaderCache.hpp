@@ -15,14 +15,14 @@ namespace Ame::Gfx::Cache
 {
     class ShaderCache
     {
-        static constexpr const uint8_t ShaderSourceHash[]{ 0x41, 0x53, 0x53 };  // AME SHADER SOURCE
-        static constexpr const uint8_t LibraryShaderHash[]{ 0x41, 0x4C, 0x53 }; // AME LIBRARY SHADER
+        static constexpr const uint8_t c_ShaderSourceHash[]{ 0x41, 0x53, 0x53 };  // AME SHADER SOURCE
+        static constexpr const uint8_t c_LibraryShaderHash[]{ 0x41, 0x4C, 0x53 }; // AME LIBRARY SHADER
 
-        static constexpr uint32_t PermutationCacheSize  = 10 * 1024; // 10KB
-        static constexpr uint32_t PermutationGrowFactor = 10;
-        static constexpr uint32_t PermutationGrowSize   = PermutationCacheSize * PermutationGrowFactor;
-        static constexpr size_t   InitialCacheSize      = PermutationCacheSize * 50; // 500kb
-        static constexpr uint32_t GrowAttempts          = 25;
+        static constexpr uint32_t c_PermutationCacheSize  = 10 * 1024; // 10KB
+        static constexpr uint32_t c_PermutationGrowFactor = 10;
+        static constexpr uint32_t c_PermutationGrowSize   = c_PermutationCacheSize * c_PermutationGrowFactor;
+        static constexpr size_t   c_InitialCacheSize      = c_PermutationCacheSize * 50; // 500kb
+        static constexpr uint32_t c_GrowAttempts          = 25;
 
         using MappedFile = boost::interprocess::managed_mapped_file;
         struct MappedFileInfo
@@ -32,10 +32,10 @@ namespace Ame::Gfx::Cache
             String         FileName;
 
             MappedFileInfo(
-                String FileName);
+                String fileName);
 
             void Grow(
-                size_t Size);
+                size_t size);
 
             template<typename Ty>
             [[nodiscard]] Ty* GetCache()
@@ -50,12 +50,12 @@ namespace Ame::Gfx::Cache
 
     public:
         ShaderCache(
-            Rhi::Device&    Device,
-            Co::runtime&    Runtime,
-            Asset::Storage& Storage) :
-            m_Device(Device),
-            m_Runtime(Runtime),
-            m_AssetStorage(Storage)
+            Rhi::Device&    rhiDevice,
+            Co::runtime&    coroutine,
+            Asset::Storage& assetStorage) :
+            m_Device(rhiDevice),
+            m_Runtime(coroutine),
+            m_AssetStorage(assetStorage)
         {
         }
 
@@ -64,15 +64,15 @@ namespace Ame::Gfx::Cache
         /// Load or get a pipeline layout from cache.
         /// </summary>
         Co::result<Rhi::ShaderBytecode> Load(
-            StringView             SourceCode,
-            Rhi::ShaderCompileDesc Desc);
+            StringView             sourceCode,
+            Rhi::ShaderCompileDesc desc);
 
         /// <summary>
         /// Load or get a pipeline layout from cache.
         /// </summary>
         Co::result<Rhi::ShaderBytecode> Link(
-            Rhi::ShaderCompileDesc           Desc,
-            std::vector<Rhi::ShaderBytecode> Shaders);
+            Rhi::ShaderCompileDesc           sesc,
+            std::vector<Rhi::ShaderBytecode> shaders);
 
     private:
         /// <summary>
@@ -80,24 +80,24 @@ namespace Ame::Gfx::Cache
         /// </summary>
         [[nodiscard]] Co::result<MappedFileInfo*> CreateOrOpenFile(
             Co::executor_tag,
-            const Ptr<Co::executor>& Executor,
-            StringView               SourceCode);
+            const Ptr<Co::executor>& executor,
+            StringView               sourceCode);
 
         /// <summary>
         /// Create or open a cache file.
         /// </summary>
         [[nodiscard]] Co::result<MappedFileInfo*> CreateOrOpenFile(
             Co::executor_tag,
-            const Ptr<Co::executor>&             Executor,
-            std::span<const Rhi::ShaderBytecode> Shaders);
+            const Ptr<Co::executor>&             executor,
+            std::span<const Rhi::ShaderBytecode> shaders);
 
         /// <summary>
         /// Create or open a cache file.
         /// </summary>
         [[nodiscard]] Co::result<MappedFileInfo*> CreateOrOpenFile(
             Co::executor_tag,
-            const Ptr<Co::executor>& Executor,
-            const String&            FileKey);
+            const Ptr<Co::executor>& executor,
+            const String&            fileKey);
 
     private:
         /// <summary>
@@ -105,10 +105,10 @@ namespace Ame::Gfx::Cache
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> LoadFromCache(
             Co::executor_tag,
-            const Ptr<Co::executor>&      Executor,
-            MappedFileInfo&               FileInfo,
-            const PermutationKey&         Key,
-            const Rhi::ShaderCompileDesc& Desc);
+            const Ptr<Co::executor>&      executor,
+            MappedFileInfo&               fileInfo,
+            const PermutationKey&         permutationKey,
+            const Rhi::ShaderCompileDesc& desc);
 
     private:
         /// <summary>
@@ -116,47 +116,47 @@ namespace Ame::Gfx::Cache
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> CompileAndInsertToCache(
             Co::executor_tag,
-            const Ptr<Co::executor>&      Executor,
-            MappedFileInfo&               FileInfo,
-            StringView                    SourceCode,
-            const PermutationKey&         Key,
-            const Rhi::ShaderCompileDesc& Desc);
+            const Ptr<Co::executor>&      executor,
+            MappedFileInfo&               fileInfo,
+            StringView                    sourceCode,
+            const PermutationKey&         permutationKey,
+            const Rhi::ShaderCompileDesc& desc);
 
         /// <summary>
         /// Load a shader from cache by key.
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> LinkAndInsertToCache(
             Co::executor_tag,
-            const Ptr<Co::executor>&             Executor,
-            MappedFileInfo&                      FileInfo,
-            std::span<const Rhi::ShaderBytecode> Shaders,
-            const PermutationKey&                Key,
-            const Rhi::ShaderCompileDesc&        Desc);
+            const Ptr<Co::executor>&             executor,
+            MappedFileInfo&                      fileInfo,
+            std::span<const Rhi::ShaderBytecode> shaders,
+            const PermutationKey&                permutationKey,
+            const Rhi::ShaderCompileDesc&        desc);
 
         /// <summary>
         /// Load a shader from cache by key.
         /// </summary>
         [[nodiscard]] Co::result<Rhi::ShaderBytecode> InsertToCache(
             Co::executor_tag,
-            const Ptr<Co::executor>&        Executor,
-            MappedFileInfo&                 FileInfo,
-            Co::result<Rhi::ShaderBytecode> FinalShader,
-            const PermutationKey&           Key,
-            const Rhi::ShaderCompileDesc&   Desc);
+            const Ptr<Co::executor>&        executor,
+            MappedFileInfo&                 fileInfo,
+            Co::result<Rhi::ShaderBytecode> finalShader,
+            const PermutationKey&           permutationKey,
+            const Rhi::ShaderCompileDesc&   desc);
 
     private:
         /// <summary>
         /// Generate permutation key from shader compile desc.
         /// </summary>
         [[nodiscard]] static PermutationKey GeneratePermutationKey(
-            const Rhi::ShaderCompileDesc& Desc);
+            const Rhi::ShaderCompileDesc& desc);
 
         /// <summary>
         /// Generate file cache name
         /// </summary>
         [[nodiscard]] static String GenerateCacheFileName(
-            Rhi::Device&  Device,
-            const String& Hash);
+            Rhi::Device&  rhiDevice,
+            const String& shaderHash);
 
     private:
         Ref<Rhi::Device>    m_Device;

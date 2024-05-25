@@ -12,9 +12,9 @@ namespace Ame::Gfx::RG
     {
     public:
         Graph(
-            FrameTimer&    Timer,
-            Rhi::Device&   Device,
-            Ecs::Universe& Universe);
+            FrameTimer&    frameTimer,
+            Rhi::Device&   rhiDevice,
+            Ecs::Universe& universe);
 
     public:
         /// <summary>
@@ -26,10 +26,10 @@ namespace Ame::Gfx::RG
         /// Update the frame storage
         /// </summary>
         void UpdateFrameStorage(
-            const Ecs::Entity&           CameraEntity,
-            const Math::TransformMatrix& Transform,
-            const Math::Matrix4x4&       Projection,
-            const Math::Vector2&         Viewport);
+            const Ecs::Entity&           cameraEntity,
+            const Math::TransformMatrix& transform,
+            const Math::Matrix4x4&       projection,
+            const Math::Vector2&         viewport);
 
         /// <summary>
         /// Build and execute the render graph

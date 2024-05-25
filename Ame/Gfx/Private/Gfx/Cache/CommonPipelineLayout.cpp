@@ -10,16 +10,16 @@ namespace Ame::Gfx::Cache
     //
 
     Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineLayout::Load(
-        Type LayoutType)
+        Type type)
     {
-        auto Index = std::to_underlying(LayoutType);
+        auto Index = std::to_underlying(type);
         if (!m_Caches[Index])
         {
-            auto                  Executor = m_Runtime.get().background_executor();
-            Co::scoped_async_lock Lock     = co_await m_Mutex.lock(Executor);
+            auto                  executor  = m_Runtime.get().background_executor();
+            Co::scoped_async_lock cacheLock = co_await m_Mutex.lock(executor);
             if (!m_Caches[Index])
             {
-                m_Caches[Index] = co_await Create(m_Device, *Executor, LayoutType);
+                m_Caches[Index] = co_await Create(m_Device, *executor, type);
             }
         }
         co_return m_Caches[Index];
@@ -29,14 +29,14 @@ namespace Ame::Gfx::Cache
 
     Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineLayout::Create(
         Rhi::Device&  Device,
-        Co::executor& Executor,
-        Type          LayoutType)
+        Co::executor& executor,
+        Type          type)
     {
-        switch (LayoutType)
+        switch (type)
         {
         case Type::EntityCollectPass:
         {
-            Rhi::DescriptorRangeDesc CommandInfo[]{
+            Rhi::DescriptorRangeDesc commandInfo[]{
                 { .descriptorNum  = 2,
                   .descriptorType = Rhi::DescriptorType::STORAGE_BUFFER,
                   .shaderStages   = Rhi::ShaderType::COMPUTE_SHADER }
@@ -44,27 +44,27 @@ namespace Ame::Gfx::Cache
 
             //
 
-            Rhi::DescriptorSetDesc Sets[]{
-                CD::FrameSetDesc<Rhi::ShaderType::COMPUTE_SHADER>,
-                CD::EntitySetDesc<Rhi::ShaderType::COMPUTE_SHADER>,
-                { .registerSpace = 3, .ranges = CommandInfo, .rangeNum = Rhi::Count32(CommandInfo) },
+            Rhi::DescriptorSetDesc setDescs[]{
+                CD::c_FrameSetDesc<Rhi::ShaderType::COMPUTE_SHADER>,
+                CD::c_EntitySetDesc<Rhi::ShaderType::COMPUTE_SHADER>,
+                { .registerSpace = 3, .ranges = commandInfo, .rangeNum = Rhi::Count32(commandInfo) },
             };
 
-            Rhi::PushConstantDesc PushConstants[]{
+            Rhi::PushConstantDesc pushConstants[]{
                 { .size         = Rhi::Size32<uint32_t>() * 3, // contains DrawOffset, DrawCount, CounterOffset
                   .shaderStages = Rhi::ShaderType::COMPUTE_SHADER }
             };
 
-            Rhi::PipelineLayoutDesc Desc{
-                .descriptorSets                     = Sets,
-                .pushConstants                      = PushConstants,
-                .descriptorSetNum                   = Rhi::Count32(Sets),
-                .pushConstantNum                    = Rhi::Count32(PushConstants),
+            Rhi::PipelineLayoutDesc layoutDesc{
+                .descriptorSets                     = setDescs,
+                .pushConstants                      = pushConstants,
+                .descriptorSetNum                   = Rhi::Count32(setDescs),
+                .pushConstantNum                    = Rhi::Count32(pushConstants),
                 .shaderStages                       = Rhi::ShaderType::COMPUTE_SHADER,
                 .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation
             };
 
-            co_return co_await Device.CreatePipelineLayout({}, Executor, Desc);
+            co_return co_await Device.CreatePipelineLayout({}, executor, layoutDesc);
         }
         default:
         {

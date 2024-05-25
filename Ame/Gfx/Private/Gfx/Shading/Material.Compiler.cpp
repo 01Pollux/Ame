@@ -18,12 +18,12 @@ namespace Ame::Gfx::Shading
     public:
         explicit MaterialLayoutDesc(
             const PropertyDescriptor& Descriptor) :
-            m_FrameData(CD::FrameRangeDesc<>),
-            m_EntityData(CD::EntityRangeDesc<>),
+            m_FrameData(CD::c_FrameRangeDesc<>),
+            m_EntityData(CD::c_EntityRangeDesc<>),
             m_Sets{
-                { .registerSpace = CD::FrameData_RegisterSpace, .ranges = &m_FrameData, .rangeNum = 1 },
-                { .registerSpace = CD::EntityData_RegisterSpace, .ranges = &m_EntityData, .rangeNum = 1 },
-                { .registerSpace = CD::MaterialData_RegisterSpace }
+                { .registerSpace = CD::c_FrameData_RegisterSpace, .ranges = &m_FrameData, .rangeNum = 1 },
+                { .registerSpace = CD::c_EntityData_RegisterSpace, .ranges = &m_EntityData, .rangeNum = 1 },
+                { .registerSpace = CD::c_MaterialData_RegisterSpace }
             },
             m_SetCount(InitialSetCount)
         {

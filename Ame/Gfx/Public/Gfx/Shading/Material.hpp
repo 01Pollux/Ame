@@ -10,19 +10,20 @@ namespace Ame::Gfx::Shading
         static constexpr const char* UserDataPropertyTag = "";
 
     public:
-        using PropertyHash     = uint64_t;
-        using ResourceIterator = PropertyMap::ResourceMap::const_iterator;
+        using PropertyHash      = uint64_t;
+        using PipelineStateHash = MaterialCommonState::PipelineStateHash;
+        using ResourceIterator  = PropertyMap::ResourceMap::const_iterator;
 
     public:
         Material(
-            Rhi::Device&              RhiDevice,
-            Gfx::Cache::ShaderCache&  ShaderCache,
-            Ptr<Rhi::PipelineLayout>  PipelineLayout,
-            MaterialPipelineState     PipelineState,
-            const PropertyDescriptor& Descriptor);
+            Rhi::Device&              rhiDevice,
+            Gfx::Cache::ShaderCache&  shaderCache,
+            Ptr<Rhi::PipelineLayout>  pipelineLayout,
+            MaterialPipelineState     pipelineState,
+            const PropertyDescriptor& descriptor);
 
         Material(
-            const Material* Mat);
+            const Material* material);
 
     public:
         /// <summary>
@@ -37,71 +38,71 @@ namespace Ame::Gfx::Shading
         /// If the property is nested inside a struct, the struct will be made local
         /// </summary>
         void MakeLocal(
-            const String& Property,
-            bool          Local = true);
+            const String& propertyName,
+            bool          local = true);
 
     private:
         /// <summary>
         /// Check if the property is local to this material
         /// </summary>
         [[nodiscard]] bool IsLocal(
-            const String& Property) const;
+            const String& propertyName) const;
 
     public:
         template<typename Ty>
             requires Concepts::Gfx::Shading::ResourceMappable<Ty>
         void Set(
-            const String& Property,
-            const Ty&     Value)
+            const String& propertyName,
+            const Ty&     value)
         {
-            SetScalar(Property, std::addressof(Value), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
+            SetScalar(propertyName, std::addressof(value), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
         }
 
         void Set(
-            const String&            Property,
-            const Ptr<Rhi::Texture>& Texture,
-            Rhi::TextureViewDesc     ViewDesc);
+            const String&            propertyName,
+            const Ptr<Rhi::Texture>& texture,
+            Rhi::TextureViewDesc     desc);
 
         void Set(
-            const String&   Property,
-            TextureResource Texture);
+            const String&   propertyName,
+            TextureResource textureResource);
 
         void Set(
-            const String&           Property,
-            const Ptr<Rhi::Buffer>& Buffer,
-            Rhi::BufferViewDesc     ViewDesc);
+            const String&           propertyName,
+            const Ptr<Rhi::Buffer>& buffer,
+            Rhi::BufferViewDesc     desc);
 
         void Set(
-            const String&  Property,
-            BufferResource Buffer);
+            const String&  propertyName,
+            BufferResource bufferResource);
 
         void Set(
-            const String&    Property,
-            Rhi::SamplerDesc SamplerDesc);
+            const String&    propertyName,
+            Rhi::SamplerDesc desc);
 
         void Set(
-            const String&   Property,
-            SamplerResource Sampler);
+            const String&   propertyName,
+            SamplerResource samplerResource);
 
     public:
         template<typename Ty>
             requires Concepts::Gfx::Shading::ResourceMappable<Ty>
         [[nodiscard]] Ty Get(
-            const String& Property) const
+            const String& propertyName) const
         {
-            Ty Value{};
-            GetScalar(Property, std::addressof(Value), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
-            return Value;
+            Ty value{};
+            GetScalar(propertyName, std::addressof(value), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
+            return value;
         }
 
         [[nodiscard]] const TextureResource& GetTexture(
-            const String& Property) const;
+            const String& propertyName) const;
 
         [[nodiscard]] const BufferResource& GetBuffer(
-            const String& Property) const;
+            const String& propertyName) const;
 
         [[nodiscard]] const SamplerResource& GetSampler(
-            const String& Property) const;
+            const String& propertyName) const;
 
     public:
         /// <summary>
@@ -113,13 +114,18 @@ namespace Ame::Gfx::Shading
         /// Set the pipeline state of this material
         /// </summary>
         [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> GetPipelineState(
-            const MaterialRenderState& RenderState) const;
+            const MaterialRenderState& renderState) const;
 
     public:
         /// <summary>
         /// Get the hash of the properties of this material
         /// </summary>
-        [[nodiscard]] PropertyHash GetHash() const;
+        [[nodiscard]] PropertyHash GetPropertyHash() const;
+
+        /// <summary>
+        /// Get the hash of the pipelinestate of this material
+        /// </summary>
+        [[nodiscard]] const PipelineStateHash& GetPipelineHash() const;
 
     public:
         /// <summary>
@@ -139,18 +145,18 @@ namespace Ame::Gfx::Shading
 
     private:
         void SetScalar(
-            const String& Property,
-            const void*   Value,
-            size_t        Size);
+            const String& property,
+            const void*   data,
+            size_t        size);
 
         void GetScalar(
-            const String& Property,
-            void*         Value,
-            size_t        Size) const;
+            const String& property,
+            void*         data,
+            size_t        size) const;
 
     private:
-        void InvalidateHash();
-        void UpdateHash() const;
+        void InvalidatePropertyHash();
+        void UpdatePropertyHash() const;
 
     private:
         using PropertyLocalMap = boost::container::flat_map<String, bool>;
@@ -160,9 +166,9 @@ namespace Ame::Gfx::Shading
             PropertyMap Properties;
 
             LocalData(
-                const PropertyDescriptor& Descriptor);
+                const PropertyDescriptor& descriptor);
             LocalData(
-                const PropertyMap& Properties);
+                const PropertyMap& properties);
         };
 
         struct SharedData : LocalData
@@ -170,11 +176,11 @@ namespace Ame::Gfx::Shading
             MaterialCommonState CommonState;
 
             SharedData(
-                Rhi::Device&              RhiDevice,
-                Gfx::Cache::ShaderCache&  ShaderCache,
-                Ptr<Rhi::PipelineLayout>  PipelineLayout,
-                MaterialPipelineState     PipelineState,
-                const PropertyDescriptor& Descriptor);
+                Rhi::Device&              rhiDevice,
+                Gfx::Cache::ShaderCache&  shaderCache,
+                Ptr<Rhi::PipelineLayout>  pipelineLayout,
+                MaterialPipelineState     pipelineState,
+                const PropertyDescriptor& descriptor);
         };
 
         Ptr<SharedData>  m_SharedData;

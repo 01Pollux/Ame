@@ -12,7 +12,7 @@ namespace Ame::Gfx::RG
 
         struct RenderPassInfo
         {
-            Pass*                       RgPass;
+            Pass*                       NodePass;
             std::vector<ResourceViewId> RenderTargets;
             ResourceViewId              DepthStencil;
         };
@@ -26,46 +26,46 @@ namespace Ame::Gfx::RG
         /// Append render pass
         /// </summary>
         void AddPass(
-            Context&                                          RgContext,
-            Pass*                                             RgPass,
-            std::vector<ResourceViewId>                       RenderTargets,
-            ResourceViewId                                    DepthStencil,
-            std::set<ResourceId>                              ResourceToCreate,
-            const std::map<ResourceViewId, Rhi::AccessStage>& ResourceStates,
-            const std::map<ResourceId, Rhi::LayoutType>&      TextureLayouts);
+            Context&                                          context,
+            Pass*                                             pass,
+            std::vector<ResourceViewId>                       renderTargets,
+            ResourceViewId                                    depthStencil,
+            std::set<ResourceId>                              resourceToCreate,
+            const std::map<ResourceViewId, Rhi::AccessStage>& resourceStates,
+            const std::map<ResourceId, Rhi::LayoutType>&      textureLayouts);
 
         /// <summary>
         /// Execute render passes
         /// </summary>
         void Execute(
-            Context&          RgContext,
-            Rhi::CommandList& CommandList) const;
+            Context&          context,
+            Rhi::CommandList& commandList) const;
 
     private:
         /// <summary>
         /// Create resources that are needed for this level
         /// </summary>
         void LockStorage(
-            Context& RgContext) const;
+            Context& context) const;
 
         /// <summary>
         /// Execute pending resource barriers before render passes
         /// </summary>
         void ExecuteBarriers(
-            Context&          RgContext,
-            Rhi::CommandList& CommandList) const;
+            Context&          context,
+            Rhi::CommandList& commandList) const;
 
         /// <summary>
         /// Execute render passes
         /// </summary>
         void ExecutePasses(
-            Context&          RgContext,
-            Rhi::CommandList& CommandList) const;
+            Context&          context,
+            Rhi::CommandList& commandList) const;
 
         /// <summary>
         /// </summary>
         void UnlockStorage(
-            Context& RgContext) const;
+            Context& context) const;
 
     private:
         std::vector<RenderPassInfo> m_Passes;

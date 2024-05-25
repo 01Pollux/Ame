@@ -58,6 +58,11 @@ namespace Ame::Rhi
     {
         StageBits Flags = StageBits::NONE;
 
+        void Reset()
+        {
+            Flags = StageBits::NONE;
+        }
+
         void Set(
             ShaderFlags other,
             bool        value = true)
@@ -67,7 +72,7 @@ namespace Ame::Rhi
 
         void Set(
             StageBits flags,
-            bool       value = true)
+            bool      value = true)
         {
             if (value)
             {

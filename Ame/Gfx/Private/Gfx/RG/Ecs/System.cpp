@@ -4,17 +4,17 @@
 namespace Ame::Gfx::RG
 {
     EcsSystemHooks::EcsSystemHooks(
-        Ecs::Universe& Universe,
-        CoreResources& Resources) :
-        m_Universe(Universe),
-        m_CoreResources(Resources)
+        Ecs::Universe& universe,
+        CoreResources& coreResources) :
+        m_Universe(universe),
+        m_CoreResources(coreResources)
     {
         m_OnWorldChange = {
             m_Universe.get().OnWorldChange().ObjectSignal(),
-            [this](auto& Universe, auto& ChangeData)
+            [this](auto& universe, auto& changeData)
             {
                 m_WorldData = {};
-                if (ChangeData.NewWorld)
+                if (changeData.NewWorld)
                 {
                     CreateTransformObserver();
                     CreateCameraRule();

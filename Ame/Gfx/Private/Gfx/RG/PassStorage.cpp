@@ -5,27 +5,27 @@
 namespace Ame::Gfx::RG
 {
     Pass* PassStorage::AddPass(
-        UPtr<Pass> RgPass)
+        UPtr<Pass> pass)
     {
-        return m_Passes.emplace_back(std::move(RgPass)).get();
+        return m_Passes.emplace_back(std::move(pass)).get();
     }
 
     UPtr<Pass> PassStorage::RemovePass(
-        const Pass* RgPass)
+        const Pass* pass)
     {
-        UPtr<Pass> RemovedPass;
+        UPtr<Pass> removedPass;
         std::erase_if(
             m_Passes,
-            [&](auto& CurPass)
+            [&](auto& curPass)
             {
-                if (CurPass.get() == RgPass)
+                if (curPass.get() == pass)
                 {
-                    RemovedPass = std::move(CurPass);
+                    removedPass = std::move(curPass);
                     return true;
                 }
                 return false;
             });
-        return RemovedPass;
+        return removedPass;
     }
 
     void PassStorage::Clear()
@@ -34,165 +34,168 @@ namespace Ame::Gfx::RG
     }
 
     bool PassStorage::ContainsPass(
-        const Pass* RgPass)
+        const Pass* pass)
     {
-        return std::ranges::contains(m_Passes, RgPass, [](auto& CurPass)
-                                     { return CurPass.get(); });
+        return std::ranges::contains(m_Passes, pass, [](auto& curPass)
+                                     { return curPass.get(); });
     }
 
     //
 
     void PassStorage::Build(
-        Context& RgContext)
+        Context& context)
     {
         if (m_Passes.empty()) [[unlikely]]
         {
-            RgContext.Build({});
+            context.Build({});
             return;
         }
 
-        BuildersListType Builders;
-
-        Builders.reserve(m_Passes.size());
+        BuildersListType builders;
+        builders.reserve(m_Passes.size());
         for (size_t i = 0; i < m_Passes.size(); i++)
         {
-            auto& PassStorage = Builders.emplace_back(RgContext.GetStorage());
-            m_Passes[i]->DoBuild(PassStorage.RgResolver);
+            auto& PassStorage = builders.emplace_back(context.GetStorage());
+            m_Passes[i]->DoBuild(PassStorage.GraphResolver);
         }
-        RgContext.Build(BuildPasses(RgContext, Builders));
+        auto passes = BuildPasses(context, builders);
+
+        context.Build(std::move(passes));
     }
 
     void PassStorage::RemoveOneShotPasses()
     {
         using namespace EnumBitOperators;
 
-        std::erase_if(m_Passes, [](const UPtr<Pass>& RgPass)
-                      { return (RgPass->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; });
+        std::erase_if(m_Passes, [](const UPtr<Pass>& pass)
+                      { return (pass->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; });
     }
 
     //
 
     auto PassStorage::BuildPasses(
-        Context&          RgContext,
-        BuildersListType& Builders) -> DepepndencyLevelListType
+        Context&          context,
+        BuildersListType& builders) -> DepepndencyLevelListType
     {
-        auto AdjacencyList         = BuildAdjacencyLists(Builders);
-        auto TopologicalSortedList = TopologicalSort(AdjacencyList);
-        return BuildDependencyLevels(RgContext, TopologicalSortedList, AdjacencyList, Builders);
+        auto adjacencyList         = BuildAdjacencyLists(builders);
+        auto topologicalSortedList = TopologicalSort(adjacencyList);
+        return BuildDependencyLevels(context, topologicalSortedList, adjacencyList, builders);
     }
 
     //
 
     auto PassStorage::BuildAdjacencyLists(
-        const BuildersListType& Builders) -> AdjacencyListType
+        const BuildersListType& builders) -> AdjacencyListType
     {
-        AdjacencyListType AdjacencyList(m_Passes.size());
+        AdjacencyListType adjacencyList(m_Passes.size());
 
-        for (size_t i = 0; i < m_Passes.size(); i++)
+        for (size_t i = 0; i < m_Passes.size() - 1; i++)
         {
-            auto& Adjacencies = AdjacencyList[i];
-            auto& CurResolver = Builders[i].RgResolver;
+            auto& adjacencies = adjacencyList[i];
+            auto& resolver    = builders[i].GraphResolver;
 
             for (size_t j = i + 1; j < m_Passes.size(); j++)
             {
-                auto& OtherResolver = Builders[j].RgResolver;
-                for (auto& OtherPassRead : OtherResolver.m_ResourcesRead)
+                auto& otherResolver = builders[j].GraphResolver;
+                for (auto& otherPassRead : otherResolver.m_ResourcesRead)
                 {
-                    if (CurResolver.m_ResourcesWritten.contains(OtherPassRead))
+                    if (resolver.m_ResourcesWritten.contains(otherPassRead))
                     {
-                        Adjacencies.push_back(j);
+                        adjacencies.push_back(j);
                         break;
                     }
                 }
             }
         }
 
-        return AdjacencyList;
+        return adjacencyList;
     }
 
     //
 
     auto PassStorage::TopologicalSort(
-        const AdjacencyListType& AdjacencyList) -> TopologicalSortListType
+        const AdjacencyListType& adjacencyList) -> TopologicalSortListType
     {
-        std::stack<size_t> Stack{};
-        std::vector<bool>  Visited(m_Passes.size(), false);
+        std::stack<size_t> dfsStack{};
+        std::vector<bool>  visitedList(m_Passes.size(), false);
+
         for (size_t i = 0; i < m_Passes.size(); i++)
         {
-            if (!Visited[i])
+            if (!visitedList[i])
             {
-                DepthFirstSearch(AdjacencyList, i, Visited, Stack);
+                DepthFirstSearch(adjacencyList, i, visitedList, dfsStack);
             }
         }
 
-        TopologicalSortListType TopologicallySortedList;
-        TopologicallySortedList.reserve(Stack.size());
-        while (!Stack.empty())
+        TopologicalSortListType topologicallySortedList;
+        topologicallySortedList.reserve(dfsStack.size());
+
+        while (!dfsStack.empty())
         {
-            TopologicallySortedList.push_back(Stack.top());
-            Stack.pop();
+            topologicallySortedList.push_back(dfsStack.top());
+            dfsStack.pop();
         }
 
-        return TopologicallySortedList;
+        return topologicallySortedList;
     }
 
     //
 
     void PassStorage::DepthFirstSearch(
-        const AdjacencyListType& AdjacencyList,
-        size_t                   Index,
-        std::vector<bool>&       Visited,
-        std::stack<size_t>&      Stack)
+        const AdjacencyListType& adjacencyList,
+        size_t                   index,
+        std::vector<bool>&       visitedList,
+        std::stack<size_t>&      dfsStack)
     {
-        Visited[Index] = true;
-        for (size_t AdjIndex : AdjacencyList[Index])
+        visitedList[index] = true;
+        for (size_t adjIndex : adjacencyList[index])
         {
-            if (!Visited[AdjIndex])
+            if (!visitedList[adjIndex])
             {
-                DepthFirstSearch(AdjacencyList, AdjIndex, Visited, Stack);
+                DepthFirstSearch(adjacencyList, adjIndex, visitedList, dfsStack);
             }
         }
-        Stack.push(Index);
+        dfsStack.push(index);
     }
 
     //
 
     auto PassStorage::BuildDependencyLevels(
-        Context&                       RgContext,
-        const TopologicalSortListType& TopologicalSort,
-        const AdjacencyListType&       AdjacencyList,
-        BuildersListType&              Builders) -> DepepndencyLevelListType
+        Context&                       context,
+        const TopologicalSortListType& topologicallySortedList,
+        const AdjacencyListType&       adjacencyList,
+        BuildersListType&              builders) -> DepepndencyLevelListType
     {
-        std::vector<size_t> Distances(TopologicalSort.size());
-        for (size_t d = 0; d < Distances.size(); d++)
+        std::vector<size_t> distances(topologicallySortedList.size());
+        for (size_t d = 0; d < distances.size(); d++)
         {
-            size_t i = TopologicalSort[d];
-            for (size_t AdjIndex : AdjacencyList[i])
+            size_t index = topologicallySortedList[d];
+            for (size_t adjIndex : adjacencyList[index])
             {
-                if (Distances[AdjIndex] < (Distances[i] + 1))
+                if (distances[adjIndex] < (distances[index] + 1))
                 {
-                    Distances[AdjIndex] = Distances[i] + 1;
+                    distances[adjIndex] = distances[index] + 1;
                 }
             }
         }
 
-        size_t Size = std::ranges::max(Distances) + 1;
+        size_t size = std::ranges::max(distances) + 1;
 
-        DepepndencyLevelListType Dependencies(Size);
+        DepepndencyLevelListType Dependencies(size);
         for (size_t i = 0; i < m_Passes.size(); ++i)
         {
-            size_t Level       = Distances[i];
-            auto&  CurBuilder  = Builders[i];
-            auto&  CurResolver = Builders[i].RgResolver;
+            size_t level    = distances[i];
+            auto&  builder  = builders[i];
+            auto&  resolver = builders[i].GraphResolver;
 
-            Dependencies[Level].AddPass(
-                RgContext,
+            Dependencies[level].AddPass(
+                context,
                 m_Passes[i].get(),
-                std::move(CurResolver.m_RenderTargets),
-                std::move(CurResolver.m_DepthStencil),
-                std::move(CurResolver.m_ResourcesCreated),
-                CurResolver.m_ResourceStates,
-                CurResolver.m_TextureLayouts);
+                std::move(resolver.m_RenderTargets),
+                std::move(resolver.m_DepthStencil),
+                std::move(resolver.m_ResourcesCreated),
+                resolver.m_ResourceStates,
+                resolver.m_TextureLayouts);
         }
 
         return Dependencies;

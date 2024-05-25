@@ -43,13 +43,13 @@ namespace Ame::Gfx::RG
         /// Update the frame storage
         /// </summary>
         void UpdateFrameStorage(
-            float                        EngineTime,
-            float                        GameTime,
-            float                        DeltaTime,
-            const Ecs::Entity&           CameraEntity,
-            const Math::TransformMatrix& Transform,
-            const Math::Matrix4x4&       Projection,
-            const Math::Vector2&         Viewport);
+            float                        engineTime,
+            float                        gameTime,
+            float                        deltaTime,
+            const Ecs::Entity&           cameraEntity,
+            const Math::TransformMatrix& transform,
+            const Math::Matrix4x4&       projection,
+            const Math::Vector2&         viewport);
 
         /// <summary>
         /// Execute the render graph
@@ -60,7 +60,7 @@ namespace Ame::Gfx::RG
         /// Build the render graph
         /// </summary>
         void Build(
-            DependencyLevelListType&& Levels);
+            DependencyLevelListType&& levels);
 
     private:
         Ref<Rhi::Device>             m_Device;

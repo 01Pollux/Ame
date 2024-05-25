@@ -8,8 +8,8 @@
 namespace Ame::Gfx::RG
 {
     Resolver::Resolver(
-        ResourceStorage& RgStorage) :
-        m_Storage(RgStorage)
+        ResourceStorage& resourceStorage) :
+        m_Storage(resourceStorage)
     {
     }
 
@@ -33,330 +33,319 @@ namespace Ame::Gfx::RG
     //
 
     void Resolver::CreateBuffer(
-        const ResourceId&      Id,
-        const Rhi::BufferDesc& Desc)
+        const ResourceId&      id,
+        const Rhi::BufferDesc& desc)
     {
-        m_Storage.DeclareBuffer(Id, Desc);
-        m_ResourcesCreated.emplace(Id);
+        m_Storage.DeclareBuffer(id, desc);
+        m_ResourcesCreated.emplace(id);
     }
 
     void Resolver::CreateTexture(
-        const ResourceId&       Id,
-        const Rhi::TextureDesc& Desc)
+        const ResourceId&       id,
+        const Rhi::TextureDesc& desc)
     {
-        m_Storage.DeclareTexture(Id, Desc);
-        m_ResourcesCreated.emplace(Id);
+        m_Storage.DeclareTexture(id, desc);
+        m_ResourcesCreated.emplace(id);
     }
 
     //
 
     void Resolver::ImportBuffer(
-        const ResourceId&  Id,
-        const Rhi::Buffer& Buffer)
+        const ResourceId& id,
+        Rhi::Buffer       buffer)
     {
-        m_ResourcesCreated.emplace(Id);
-        m_Storage.ImportBuffer(Id, Buffer);
+        m_ResourcesCreated.emplace(id);
+        m_Storage.ImportBuffer(id, std::move(buffer));
     }
 
     void Resolver::ImportTexture(
-        const ResourceId&   Id,
-        const Rhi::Texture& Texture)
+        const ResourceId& id,
+        Rhi::Texture      texture)
     {
-        m_ResourcesCreated.emplace(Id);
-        m_Storage.ImportTexture(Id, Texture);
+        m_ResourcesCreated.emplace(id);
+        m_Storage.ImportTexture(id, std::move(texture));
     }
 
     //
 
     void Resolver::WriteResourceEmpty(
-        ResourceId Id)
+        const ResourceId& id)
     {
-        AME_LOG_ASSERT(Log::Gfx(), m_Storage.ContainsResource(Id), "Resource '{}' doesn't exists", Id.GetName());
-        m_ResourcesWritten.emplace(Id);
+        AME_LOG_ASSERT(Log::Gfx(), m_Storage.ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
+        m_ResourcesWritten.emplace(id);
     }
 
     //
 
     void Resolver::WriteBuffer(
-        const ResourceViewId&   ViewId,
-        Rhi::StageBits          Shaders,
-        Rhi::ResourceFormat     Format,
-        const Rhi::BufferRange& Range)
+        const ResourceViewId&   viewId,
+        Rhi::StageBits          stages,
+        Rhi::ResourceFormat     format,
+        const Rhi::BufferRange& range)
     {
-        WriteResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::SHADER_RESOURCE_STORAGE, Shaders });
+        WriteResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::SHADER_RESOURCE_STORAGE, stages });
 
-        auto& Desc = m_Storage.DeclareBufferView(
-            ViewId,
+        auto& desc = m_Storage.DeclareBufferView(
+            viewId,
             Rhi::BufferViewDesc{
-                .Range  = Range,
-                .Format = Format,
+                .Range  = range,
+                .Format = format,
                 .Type   = Rhi::BufferViewType::UnorderedAccess });
 
-        Desc.usageMask |= Rhi::BufferUsageBits::SHADER_RESOURCE_STORAGE;
+        desc.usageMask |= Rhi::BufferUsageBits::SHADER_RESOURCE_STORAGE;
     }
 
     //
 
     void Resolver::WriteTexture(
-        const ResourceViewId&   ViewId,
-        const ResourceViewDesc& ViewDesc,
-        const Rhi::AccessStage& Stage,
-        Rhi::TextureUsageBits   UsageBits)
+        const ResourceViewId&   viewId,
+        const ResourceViewDesc& desc,
+        const Rhi::AccessStage& accessStage,
+        Rhi::TextureUsageBits   usageBits)
     {
-        WriteResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, Stage);
+        WriteResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, accessStage);
 
-        auto& Desc = m_Storage.DeclareTextureView(ViewId, ViewDesc);
-        Desc.usageMask |= UsageBits;
+        auto& viewDesc = m_Storage.DeclareTextureView(viewId, desc);
+        viewDesc.usageMask |= usageBits;
     }
 
     //
 
     void Resolver::WriteTexture(
-        const ResourceViewId&       ViewId,
-        const Rhi::TextureViewDesc& ViewDesc,
-        Rhi::StageBits              Shaders)
+        const ResourceViewId&       viewId,
+        const Rhi::TextureViewDesc& desc,
+        Rhi::StageBits              stages)
     {
-        WriteTexture(ViewId, ViewDesc, { Rhi::AccessBits::SHADER_RESOURCE_STORAGE, Shaders }, Rhi::TextureUsageBits::SHADER_RESOURCE_STORAGE);
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE_STORAGE);
+        WriteTexture(viewId, desc, { Rhi::AccessBits::SHADER_RESOURCE_STORAGE, stages }, Rhi::TextureUsageBits::SHADER_RESOURCE_STORAGE);
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE_STORAGE);
     }
 
     void Resolver::WriteCopyDstResource(
-        const ResourceViewId& ViewId)
+        const ResourceViewId& viewId)
     {
-        WriteResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::COPY_SOURCE, Rhi::StageBits::NONE });
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::COPY_SOURCE);
+        WriteResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::COPY_SOURCE, Rhi::StageBits::NONE });
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COPY_SOURCE);
     }
 
     //
 
     void Resolver::WriteRenderTarget(
-        const ResourceViewId&          ViewId,
-        Rhi::StageBits                 Shaders,
+        const ResourceViewId&          viewId,
+        Rhi::StageBits                 stages,
         const RtvCustomDesc&           RtvDesc,
-        Rhi::ResourceFormat            Format,
+        Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& Desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(ViewId.GetResource()).GetDesc());
+        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
 
-        RenderTargetViewDesc ViewDesc{
+        RenderTargetViewDesc viewDesc{
             { .Subresource = Subresource,
-              .Format      = Format },
+              .Format      = format },
             { .ClearColor = RtvDesc.ClearColor,
               .ClearType  = RtvDesc.ClearType,
               .ForceColor = RtvDesc.ForceColor }
         };
 
-        switch (Desc.type)
+        switch (desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
-            ViewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
+            viewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
             break;
         case Rhi::TextureType::TEXTURE_2D:
-            ViewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
+            viewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
             break;
         case Rhi::TextureType::TEXTURE_3D:
-            ViewDesc.Type = Rhi::TextureViewType::RenderTarget3D;
+            viewDesc.Type = Rhi::TextureViewType::RenderTarget3D;
             break;
         }
 
-        WriteTexture(ViewId, ViewDesc, { Rhi::AccessBits::COLOR_ATTACHMENT, Shaders }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::COLOR_ATTACHMENT);
-        m_RenderTargets.emplace_back(ViewId);
+        WriteTexture(viewId, viewDesc, { Rhi::AccessBits::COLOR_ATTACHMENT, stages }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COLOR_ATTACHMENT);
+        m_RenderTargets.emplace_back(viewId);
     }
 
     void Resolver::WriteRenderTarget(
-        const ResourceViewId&          ViewId,
-        Rhi::StageBits                 Shaders,
-        Rhi::ResourceFormat            Format,
+        const ResourceViewId&          viewId,
+        Rhi::StageBits                 stages,
+        Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& Desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(ViewId.GetResource()).GetDesc());
+        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
 
-        RenderTargetViewDesc ViewDesc{
+        RenderTargetViewDesc viewDesc{
             { .Subresource = Subresource,
-              .Format      = Format }
+              .Format      = format }
         };
 
-        switch (Desc.type)
+        switch (desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
-            ViewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
+            viewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
             break;
         case Rhi::TextureType::TEXTURE_2D:
-            ViewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
+            viewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
             break;
         case Rhi::TextureType::TEXTURE_3D:
-            ViewDesc.Type = Rhi::TextureViewType::RenderTarget3D;
+            viewDesc.Type = Rhi::TextureViewType::RenderTarget3D;
             break;
         }
 
-        WriteTexture(ViewId, ViewDesc, { Rhi::AccessBits::COLOR_ATTACHMENT, Shaders }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::COLOR_ATTACHMENT);
-        m_RenderTargets.emplace_back(ViewId);
+        WriteTexture(viewId, viewDesc, { Rhi::AccessBits::COLOR_ATTACHMENT, stages }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COLOR_ATTACHMENT);
+        m_RenderTargets.emplace_back(viewId);
     }
 
     //
 
     void Resolver::WriteDepthStencil(
-        const ResourceViewId&          ViewId,
-        Rhi::StageBits                 Shaders,
+        const ResourceViewId&          viewId,
+        Rhi::StageBits                 stages,
         const DsvCustomDesc&           DsvDesc,
-        Rhi::ResourceFormat            Format,
+        Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& Desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(ViewId.GetResource()).GetDesc());
+        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
 
-        DepthStencilViewDesc ViewDesc{
+        DepthStencilViewDesc viewDesc{
             { .Subresource = Subresource,
-              .Format      = Format },
+              .Format      = format },
             { .Depth     = DsvDesc.Depth,
               .Stencil   = DsvDesc.Stencil,
               .ClearType = DsvDesc.ClearType }
         };
 
-        switch (Desc.type)
+        switch (desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
-            ViewDesc.Type = Rhi::TextureViewType::DepthStencil1D;
+            viewDesc.Type = Rhi::TextureViewType::DepthStencil1D;
             break;
         case Rhi::TextureType::TEXTURE_2D:
-            ViewDesc.Type = Rhi::TextureViewType::DepthStencil2D;
+            viewDesc.Type = Rhi::TextureViewType::DepthStencil2D;
             break;
         case Rhi::TextureType::TEXTURE_3D:
             Log::Gfx().Warning("DepthStencilViewDesc doesn't support 3D textures");
             return;
         }
 
-        WriteTexture(ViewId, ViewDesc, { Rhi::AccessBits::DEPTH_STENCIL_WRITE, Shaders }, Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT);
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL);
-        m_DepthStencil = ViewId;
+        WriteTexture(viewId, viewDesc, { Rhi::AccessBits::DEPTH_STENCIL_WRITE, stages }, Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT);
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL);
+        m_DepthStencil = viewId;
     }
 
     void Resolver::WriteDepthStencil(
-        const ResourceViewId&          ViewId,
-        Rhi::StageBits                 Shaders,
-        Rhi::ResourceFormat            Format,
+        const ResourceViewId&          viewId,
+        Rhi::StageBits                 stages,
+        Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& Desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(ViewId.GetResource()).GetDesc());
+        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
 
-        DepthStencilViewDesc ViewDesc{
+        DepthStencilViewDesc viewDesc{
             { .Subresource = Subresource,
-              .Format      = Format }
+              .Format      = format }
         };
 
-        switch (Desc.type)
+        switch (desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
-            ViewDesc.Type = Rhi::TextureViewType::DepthStencil1D;
+            viewDesc.Type = Rhi::TextureViewType::DepthStencil1D;
             break;
         case Rhi::TextureType::TEXTURE_2D:
-            ViewDesc.Type = Rhi::TextureViewType::DepthStencil2D;
+            viewDesc.Type = Rhi::TextureViewType::DepthStencil2D;
             break;
         case Rhi::TextureType::TEXTURE_3D:
             Log::Gfx().Warning("DepthStencilViewDesc doesn't support 3D textures");
             return;
         }
 
-        WriteTexture(ViewId, ViewDesc, { Rhi::AccessBits::DEPTH_STENCIL_WRITE, Shaders }, Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT);
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL);
-        m_DepthStencil = ViewId;
+        WriteTexture(viewId, viewDesc, { Rhi::AccessBits::DEPTH_STENCIL_WRITE, stages }, Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT);
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL);
+        m_DepthStencil = viewId;
     }
 
     //
 
     void Resolver::ReadResourceEmpty(
-        const ResourceId& Id)
+        const ResourceId& id)
     {
-        AME_LOG_ASSERT(Log::Gfx(), m_Storage.ContainsResource(Id), "Resource '{}' doesn't exists", Id.GetName());
-        m_ResourcesRead.emplace(Id);
+        AME_LOG_ASSERT(Log::Gfx(), m_Storage.ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
+        m_ResourcesRead.emplace(id);
     }
 
     //
 
     void Resolver::ReadBuffer(
-        const ResourceViewId&      ViewId,
+        const ResourceViewId&      viewId,
         const Rhi::BufferViewDesc& ViewDesc,
         const Rhi::AccessStage&    State,
         Rhi::BufferUsageBits       Usage)
     {
-        ReadResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, State);
+        ReadResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, State);
 
-        auto& View = m_Storage.DeclareBufferView(ViewId, ViewDesc);
-        View.usageMask |= Usage;
+        auto& desc = m_Storage.DeclareBufferView(viewId, ViewDesc);
+        desc.usageMask |= Usage;
     }
 
     //
 
     void Resolver::ReadTexture(
-        const ResourceViewId&       ViewId,
+        const ResourceViewId&       viewId,
         const Rhi::TextureViewDesc& ViewDesc,
-        Rhi::StageBits              Shaders)
+        Rhi::StageBits              stages)
     {
-        ReadResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::SHADER_RESOURCE, Shaders });
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE);
+        ReadResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::SHADER_RESOURCE, stages });
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE);
 
-        auto& Desc = m_Storage.DeclareTextureView(ViewId, ViewDesc);
-        Desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE;
+        auto& desc = m_Storage.DeclareTextureView(viewId, ViewDesc);
+        desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE;
     }
 
     void Resolver::ReadCopyDstResource(
-        const ResourceViewId& ViewId)
+        const ResourceViewId& viewId)
     {
-        ReadResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::COPY_DESTINATION, Rhi::StageBits::NONE });
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::COPY_DESTINATION);
+        ReadResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::COPY_DESTINATION, Rhi::StageBits::NONE });
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COPY_DESTINATION);
     }
 
     void Resolver::ReadDepthStencil(
-        const ResourceViewId&       ViewId,
-        const Rhi::TextureViewDesc& ViewDesc,
-        Rhi::StageBits              Shaders)
+        const ResourceViewId&       viewId,
+        const Rhi::TextureViewDesc& viewDesc,
+        Rhi::StageBits              stages)
     {
-        ReadResourceEmpty(ViewId.GetResource());
-        AppendResourceState(ViewId, { Rhi::AccessBits::DEPTH_STENCIL_READ, Shaders });
-        SetTextureLayout(ViewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL_READONLY);
+        ReadResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::DEPTH_STENCIL_READ, stages });
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL_READONLY);
 
-        auto& Desc = m_Storage.DeclareTextureView(ViewId, ViewDesc);
-        Desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE | Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT;
+        auto& desc = m_Storage.DeclareTextureView(viewId, viewDesc);
+        desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE | Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT;
     }
 
     //
 
     void Resolver::AppendResourceState(
-        const ResourceViewId&   ViewId,
-        const Rhi::AccessStage& State)
+        const ResourceViewId&   viewId,
+        const Rhi::AccessStage& state)
     {
-        auto  Iter   = m_ResourceStates.emplace(ViewId, Rhi::AccessStage{});
-        auto& States = Iter.first->second;
-        if (Iter.second)
-        {
-            States.stages = Rhi::StageBits::NONE;
-        }
+        auto  iter   = m_ResourceStates.emplace(viewId, Rhi::AccessStage{});
+        auto& states = iter.first->second;
 
-        States.access |= State.access;
-        if (State.stages != Rhi::StageBits::NONE)
-        {
-            if (States.stages == Rhi::StageBits::NONE)
-            {
-                States.stages = State.stages;
-            }
-            else
-            {
-                States.stages |= State.stages;
-            }
-        }
+        Rhi::ShaderFlags flags(states.stages);
+        flags.Set(state.stages);
+
+        states.access |= state.access;
+        states.stages = flags.Flags;
     }
 
     void Resolver::SetTextureLayout(
-        const ResourceId& ViewId,
-        Rhi::LayoutType   Layout)
+        const ResourceId& viewId,
+        Rhi::LayoutType   layout)
     {
-        m_TextureLayouts[ViewId] = Layout;
+        m_TextureLayouts[viewId] = layout;
     }
 } // namespace Ame::Gfx::RG

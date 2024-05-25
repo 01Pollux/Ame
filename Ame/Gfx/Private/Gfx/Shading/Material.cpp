@@ -71,12 +71,17 @@ namespace Ame::Gfx::Shading
 
     //
 
-    auto Material::GetHash() const -> PropertyHash
+    auto Material::GetPropertyHash() const -> PropertyHash
     {
         if (!m_PropertiesHash)
         {
-            UpdateHash();
+            UpdatePropertyHash();
         }
         return *m_PropertiesHash;
+    }
+
+    auto Material::GetPipelineHash() const -> const PipelineStateHash&
+    {
+        return m_SharedData->CommonState.GetPipelineHash();
     }
 } // namespace Ame::Gfx::Shading

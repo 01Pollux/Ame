@@ -15,12 +15,13 @@ namespace Ame::Gfx::RG
     public:
         struct Row
         {
+            Ptr<Shading::Material> Material;
+
             nri::Buffer* VtxBuffer;
             nri::Buffer* IdxBuffer;
 
-            Ptr<Shading::Material> Material;
-            uint32_t               Count = 1;
-            Rhi::IndexType         IndexType;
+            uint32_t       Count = 1;
+            Rhi::IndexType IndexType;
 
             Row(
                 nri::Buffer*           vertexBuffer,
@@ -54,10 +55,10 @@ namespace Ame::Gfx::RG
 
     public:
         EntityStore(
-            RowGenerator Rows,
-            uint32_t     EntityCount) :
-            m_Rows(std::move(Rows)),
-            m_EntityCount(EntityCount)
+            RowGenerator rows,
+            uint32_t     entityCount) :
+            m_Rows(std::move(rows)),
+            m_EntityCount(entityCount)
         {
         }
 

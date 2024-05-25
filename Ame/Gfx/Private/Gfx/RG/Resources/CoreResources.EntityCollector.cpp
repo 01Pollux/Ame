@@ -17,42 +17,42 @@ namespace Ame::Gfx::RG
     }
 
     void CoreResources::CollectEntities(
-        const CameraRenderRule& RenderRule)
+        const CameraRenderRule& renderRule)
     {
-        auto World = m_Universe.get().GetActiveWorld();
+        auto world = m_Universe.get().GetActiveWorld();
 
-        auto&               CameraData = m_FrameResource.CurrentCamera.GetComponent<Ecs::Component::Camera>();
-        const Math::Vector3 CameraPosition{
+        auto&               cameraData = m_FrameResource.CurrentCamera.GetComponent<Ecs::Component::Camera>();
+        const Math::Vector3 cameraPosition{
             m_FrameResource.World[0][3],
             m_FrameResource.World[1][3],
             m_FrameResource.World[2][3]
         };
 
         auto FilterEntities =
-            [this, &CameraData, &CameraPosition](
-                Ecs::Iterator&                        Iter,
-                RenderInstance*                       Instances,
-                const Ecs::Component::Transform*      Transforms,
-                const Ecs::Component::BaseRenderable* Renderables)
+            [this, &cameraData, &cameraPosition](
+                Ecs::Iterator&                        iter,
+                RenderInstance*                       instances,
+                const Ecs::Component::Transform*      transforms,
+                const Ecs::Component::BaseRenderable* renderables)
         {
-            for (auto i : Iter)
+            for (auto i : iter)
             {
-                auto  ent        = Iter.entity(i).name();
-                auto& Instance   = Instances[i];
-                auto& Transform  = Transforms[i];
-                auto& Renderable = Renderables[i];
+                auto  ent        = iter.entity(i).name();
+                auto& Instance   = instances[i];
+                auto& Transform  = transforms[i];
+                auto& Renderable = renderables[i];
 
-                if ((Renderable.CameraMask & CameraData.CullMask) != CameraData.CullMask)
+                if ((Renderable.CameraMask & cameraData.CullMask) != cameraData.CullMask)
                 {
                     continue;
                 }
 
-                float Distance = glm::distance2(Transform.GetPosition(), CameraPosition);
+                float Distance = glm::distance2(Transform.GetPosition(), cameraPosition);
                 m_CameraCullResult.AddEntity(Distance, Renderable, Instance);
             }
         };
 
-        RenderRule->iter(FilterEntities);
+        renderRule->iter(FilterEntities);
         m_CameraCullResult.Upload();
     }
 } // namespace Ame::Gfx::RG

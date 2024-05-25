@@ -24,7 +24,7 @@ namespace Ame::Ecs::Component
 
             const void* CpuView_Or_Offset = nullptr;
 
-            uint32_t Num    = 0;
+            uint32_t Count  = 0;
             uint32_t Stride = 0;
 
             static BufferView Local(

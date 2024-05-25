@@ -3,10 +3,10 @@
 namespace Ame::Gfx::RG
 {
     Context::Context(
-        Rhi::Device&   Device,
-        Ecs::Universe& Universe) :
-        m_Device(Device),
-        m_Resources(Device, Universe)
+        Rhi::Device&   rhiDevice,
+        Ecs::Universe& universe) :
+        m_Device(rhiDevice),
+        m_Resources(rhiDevice, universe)
     {
     }
 
@@ -26,43 +26,50 @@ namespace Ame::Gfx::RG
 
     void Context::Reset()
     {
-        auto& RgStorage = GetStorage();
-        RgStorage.ResetCameraStorage();
+        auto& resourceStorage = GetStorage();
+        resourceStorage.ResetCameraStorage();
     }
 
     void Context::Update()
     {
-        auto& RgStorage = GetStorage();
-        RgStorage.UpdateCoreResources();
+        auto& resourceStorage = GetStorage();
+        resourceStorage.UpdateCoreResources();
     }
 
     void Context::UpdateFrameStorage(
-        float                        EngineTime,
-        float                        GameTime,
-        float                        DeltaTime,
-        const Ecs::Entity&           CameraEntity,
-        const Math::TransformMatrix& Transform,
-        const Math::Matrix4x4&       Projection,
-        const Math::Vector2&         Viewport)
+        float                        engineTime,
+        float                        gameTime,
+        float                        deltaTime,
+        const Ecs::Entity&           cameraEntity,
+        const Math::TransformMatrix& transform,
+        const Math::Matrix4x4&       projection,
+        const Math::Vector2&         viewport)
     {
-        auto& RgStorage = GetStorage();
-        RgStorage.UpdateFrameResource(EngineTime, GameTime, DeltaTime, CameraEntity, Transform, Projection, Viewport);
+        auto& resourceStorage = GetStorage();
+        resourceStorage.UpdateFrameResource(
+            engineTime,
+            gameTime,
+            deltaTime,
+            cameraEntity,
+            transform,
+            projection,
+            viewport);
     }
 
     void Context::Execute()
     {
         GetStorage().UpdateResources();
 
-        Rhi::CommandList CommandList(m_Device.get());
-        for (auto& Level : m_Levels)
+        Rhi::CommandList commandList(m_Device.get());
+        for (auto& level : m_Levels)
         {
-            Level.Execute(*this, CommandList);
+            level.Execute(*this, commandList);
         }
     }
 
     void Context::Build(
-        DependencyLevelListType&& Levels)
+        DependencyLevelListType&& levels)
     {
-        m_Levels = std::move(Levels);
+        m_Levels = std::move(levels);
     }
 } // namespace Ame::Gfx::RG

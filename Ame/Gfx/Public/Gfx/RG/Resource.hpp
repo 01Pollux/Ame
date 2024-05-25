@@ -76,17 +76,17 @@ namespace Ame::Gfx::RG
         ResourceViewId() = default;
 
         explicit ResourceViewId(
-            StringView Name,
-            StringView ViewName) :
-            ResourceViewId(ResourceId(Name), ViewName)
+            StringView name,
+            StringView viewName) :
+            ResourceViewId(ResourceId(name), viewName)
         {
         }
 
         explicit ResourceViewId(
-            ResourceId ResId,
-            StringView ViewName) :
-            m_Resource(ResId),
-            m_ViewId(ViewName)
+            ResourceId id,
+            StringView viewName) :
+            m_Resource(id),
+            m_ViewId(viewName)
         {
         }
 
@@ -112,14 +112,9 @@ namespace Ame::Gfx::RG
         }
 
         auto operator<=>(
-            const ResourceViewId& Other) const noexcept
+            const ResourceViewId& other) const noexcept
         {
-            auto Cmp = m_Resource <=> Other.m_Resource;
-            if (Cmp == std::strong_ordering::equal)
-            {
-                Cmp = m_ViewId <=> Other.m_ViewId;
-            }
-            return Cmp;
+            return std::tie(m_Resource, m_ViewId) <=> std::tie(other.m_Resource, other.m_ViewId);
         }
 
     private:
@@ -130,9 +125,9 @@ namespace Ame::Gfx::RG
     //
 
     inline ResourceViewId ResourceId::operator()(
-        StringView ViewName) const
+        StringView viewName) const
     {
-        return ResourceViewId(*this, ViewName);
+        return ResourceViewId(*this, viewName);
     }
 
     //
@@ -178,20 +173,20 @@ namespace Ame::Gfx::RG
         /// Import resource
         /// </summary>
         void Import(
-            Rhi::Texture Texture);
+            Rhi::Texture texture);
 
         /// <summary>
         /// Import resource
         /// </summary>
         void Import(
-            Rhi::Buffer Buffer);
+            Rhi::Buffer buffer);
 
         /// <summary>
         /// Set resource desc and change resource to be dynamic (not imported)
         /// </summary>
         void SetDynamic(
-            const ResourceId&   Id,
-            const ResourceDesc& Desc);
+            const ResourceId&   id,
+            const ResourceDesc& desc);
 
     public:
         /// <summary>
@@ -209,41 +204,41 @@ namespace Ame::Gfx::RG
         /// Create a resource view with name
         /// </summary>
         Rhi::BufferDesc& CreateBufferView(
-            const ResourceViewId& ViewId,
-            ResourceViewDesc&&    ViewDesc);
+            const ResourceViewId& viewId,
+            ResourceViewDesc&&    desc);
 
         /// <summary>
         /// Create a resource view with name
         /// </summary>
         Rhi::TextureDesc& CreateTextureView(
-            const ResourceViewId& ViewId,
-            ResourceViewDesc&&    ViewDesc);
+            const ResourceViewId& viewId,
+            ResourceViewDesc&&    desc);
 
     public:
         /// <summary>
         /// Get resource view desc
         /// </summary>
         [[nodiscard]] ResourceViewDesc& GetViewDescMut(
-            const ResourceViewId& ViewId);
+            const ResourceViewId& viewId);
 
         /// <summary>
         /// Get resource view desc
         /// </summary>
         [[nodiscard]] const ResourceViewDesc& GetViewDesc(
-            const ResourceViewId& ViewId) const;
+            const ResourceViewId& viewId) const;
 
         /// <summary>
         /// Get resource view descriptor handle
         /// </summary>
         [[nodiscard]] const Rhi::ResourceView& GetViewHandle(
-            const ResourceViewId& ViewId) const;
+            const ResourceViewId& viewId) const;
 
     public:
         /// <summary>
         /// Check if resource has a view
         /// </summary>
         [[nodiscard]] bool ContainsView(
-            const ResourceViewId& ViewId) const;
+            const ResourceViewId& viewId) const;
 
         /// <summary>
         /// check if resource is imported
@@ -252,10 +247,10 @@ namespace Ame::Gfx::RG
 
     private:
         /// <summary>
-        /// Reallocate resource
+        /// Reallocate resource if the desc has changed and recreate views
         /// </summary>
         void Reallocate(
-            Rhi::Device& RhiDevice);
+            Rhi::Device& rhiDevice);
 
         /// <summary>
         /// Recreate resource views
@@ -269,16 +264,15 @@ namespace Ame::Gfx::RG
         void Release();
 
     private:
+        ResourceType m_Resource;
+
+        ResourceDesc        m_Desc;
+        ResourceViewMapType m_Views;
+        size_t              m_DescHash = 0;
+
 #ifndef AME_DIST
         String m_Name;
 #endif
-
-        ResourceType m_Resource;
-
-        ResourceDesc m_Desc;
-        size_t       m_DescHash = 0;
-
-        ResourceViewMapType m_Views;
 
         bool m_ImportViewsChanged : 1 = false;
         bool m_IsImported         : 1 = false;

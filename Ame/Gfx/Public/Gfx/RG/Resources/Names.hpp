@@ -4,15 +4,15 @@
 
 namespace Ame::Gfx::RG::Names
 {
-    static inline const ResourceId OutputImage("_OutputImage");
-    static inline const ResourceId FrameResource("_FrameResource");
-    static inline const ResourceId TransformsTable("_TransformsTable");
-    static inline const ResourceId RenderInstancesTable("_RenderInstancesTable");
+    static inline const ResourceId c_OutputImage("_OutputImage");
+    static inline const ResourceId c_FrameResource("_FrameResource");
+    static inline const ResourceId c_TransformsTable("_TransformsTable");
+    static inline const ResourceId c_RenderInstancesTable("_RenderInstancesTable");
 
-    static inline const ResourceId EntityCommandCounter("_EntityCommandCounter");
-    static inline const ResourceId EntityCommandBuffer("_EntityCommandBuffer");
+    static inline const ResourceId c_EntityCommandCounter("_EntityCommandCounter");
+    static inline const ResourceId c_EntityCommandBuffer("_EntityCommandBuffer");
 
     //
 
-    static inline const ResourceViewId FrameResourceMainView = FrameResource("Main");
+    static inline const ResourceViewId c_FrameResourceMainView = c_FrameResource("Main");
 } // namespace Ame::Gfx::RG::Names

@@ -5,13 +5,13 @@
 namespace Ame::Gfx::Shading
 {
     const Rhi::ShaderBytecode& MaterialPipelineState::FindShader(
-        Rhi::ShaderType Type) const
+        Rhi::ShaderType type) const
     {
-        for (const auto& Shader : Shaders)
+        for (const auto& shader : Shaders)
         {
-            if (Shader.GetStage() == Type)
+            if (shader.GetStage() == type)
             {
-                return Shader;
+                return shader;
             }
         }
 

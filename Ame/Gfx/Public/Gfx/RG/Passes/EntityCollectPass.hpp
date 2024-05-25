@@ -13,10 +13,10 @@ namespace Ame::Gfx::RG::Std
     class EntityCollectPass : public Pass
     {
     public:
-        static constexpr int32_t  MinEntities     = 1'024;
-        static constexpr uint32_t BufferAlignment = 0xFFFF;
+        static constexpr int32_t  c_MinEntities     = 1'024;
+        static constexpr uint32_t c_BufferAlignment = 0xFFFF;
 
-        static constexpr uint32_t CommandInfo_SetIndex = 2;
+        static constexpr uint32_t c_CommandInfo_SetIndex = 2;
 
         struct DispatchDesc
         {
@@ -26,8 +26,8 @@ namespace Ame::Gfx::RG::Std
         };
 
         EntityCollectPass(
-            Ecs::Universe&              Universe,
-            Cache::CommonPipelineState& CommonPipelines);
+            Ecs::Universe&              universe,
+            Cache::CommonPipelineState& commonPipelines);
 
     private:
         Ref<Ecs::Universe>              m_Universe;

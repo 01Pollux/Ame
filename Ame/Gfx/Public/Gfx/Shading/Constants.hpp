@@ -11,7 +11,8 @@ namespace Ame::Gfx::Shading
 
     struct MaterialVertexDesc : Rhi::VertexInputDesc
     {
-        static constexpr uint32_t MaxVertexAttributes = 4;
+        static constexpr uint32_t c_MaxVertexAttributes = 4;
+        static constexpr uint32_t c_MaxVertexStreams    = 1;
 
         MaterialVertexDesc()
         {
@@ -22,19 +23,19 @@ namespace Ame::Gfx::Shading
         void Fill()
         {
             this->attributes   = m_Attributes;
-            this->attributeNum = MaxVertexAttributes;
+            this->attributeNum = c_MaxVertexAttributes;
             this->streams      = m_Streams;
-            this->streamNum    = 1;
+            this->streamNum    = c_MaxVertexStreams;
         }
 
-        nri::VertexAttributeDesc m_Attributes[MaxVertexAttributes]{
+        nri::VertexAttributeDesc m_Attributes[c_MaxVertexAttributes]{
             { .d3d{ "POSITION" }, .vk{ 0 }, .offset = offsetof(MaterialVertex, Position), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
             { .d3d{ "NORMAL" }, .vk{ 1 }, .offset = offsetof(MaterialVertex, Normal), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
             { .d3d{ "TANGENT" }, .vk{ 2 }, .offset = offsetof(MaterialVertex, Tangent), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
             { .d3d{ "TEXCOORD" }, .vk{ 3 }, .offset = offsetof(MaterialVertex, TexCoord), .format = Rhi::ResourceFormat::RG32_SFLOAT }
         };
 
-        nri::VertexStreamDesc m_Streams[1]{
+        nri::VertexStreamDesc m_Streams[c_MaxVertexStreams]{
             { .stride = sizeof(MaterialVertex) }
         };
     };

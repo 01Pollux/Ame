@@ -9,6 +9,8 @@
 #include <cryptopp/sha.h>
 #include <Rhi/Hash/Shader.Crypto.hpp>
 
+#include <Log/Wrapper.hpp>
+
 namespace bip = boost::interprocess;
 
 namespace Ame::Gfx::Cache
@@ -31,58 +33,58 @@ namespace Ame::Gfx::Cache
     struct ShaderDataHelper
     {
         [[nodiscard]] static size_t CalculateBlobSize(
-            const Rhi::ShaderBytecode& ByteCode)
+            const Rhi::ShaderBytecode& byteCode)
         {
-            return ByteCode ? sizeof(ShaderData) + ByteCode.GetSize() - 1 : 0;
+            return byteCode ? sizeof(ShaderData) + byteCode.GetSize() - 1 : 0;
         }
 
         [[nodiscard]] static Rhi::ShaderBytecode ToByteCode(
-            const bip::managed_mapped_file& File,
-            const ShaderData&               Blob,
-            Rhi::ShaderType                 Stage)
+            const bip::managed_mapped_file& mappedFile,
+            const ShaderData&               shaderData,
+            Rhi::ShaderType                 type)
         {
-            if (Blob.Header.Magic != ShaderHeader::DEFAULT_MAGIC)
+            if (shaderData.Header.Magic != ShaderHeader::DEFAULT_MAGIC)
             {
                 return {};
             }
 
-            auto ByteCode(std::make_unique<uint8_t[]>(Blob.Header.DataSize));
-            std::copy(Blob.Data, Blob.Data + Blob.Header.DataSize, ByteCode.get());
+            auto byteCode(std::make_unique<uint8_t[]>(shaderData.Header.DataSize));
+            std::copy(shaderData.Data, shaderData.Data + shaderData.Header.DataSize, byteCode.get());
 
-            return Rhi::ShaderBytecode(ByteCode.release(), Blob.Header.DataSize, Stage);
+            return Rhi::ShaderBytecode(byteCode.release(), shaderData.Header.DataSize, type);
         }
 
         static void FromBytecode(
-            const bip::managed_mapped_file& File,
-            ShaderData&                     Blob,
-            const Rhi::ShaderBytecode&      ByteCode)
+            const bip::managed_mapped_file& mappedFile,
+            ShaderData&                     shaderData,
+            const Rhi::ShaderBytecode&      byteCode)
         {
-            Blob.Header.Magic    = ShaderHeader::DEFAULT_MAGIC;
-            Blob.Header.DataSize = static_cast<uint32_t>(ByteCode.GetSize());
-            std::copy(ByteCode.GetBytecode(), ByteCode.GetBytecode() + ByteCode.GetSize(), Blob.Data);
+            shaderData.Header.Magic    = ShaderHeader::DEFAULT_MAGIC;
+            shaderData.Header.DataSize = static_cast<uint32_t>(byteCode.GetSize());
+            std::copy(byteCode.GetBytecode(), byteCode.GetBytecode() + byteCode.GetSize(), shaderData.Data);
         }
 
         static ShaderData* ToBlob(
-            const bip::managed_mapped_file&    File,
-            bip::managed_mapped_file::handle_t Handle)
+            const bip::managed_mapped_file&    mappedFile,
+            bip::managed_mapped_file::handle_t handle)
         {
-            return std::bit_cast<ShaderData*>(File.get_address_from_handle(Handle));
+            return std::bit_cast<ShaderData*>(mappedFile.get_address_from_handle(handle));
         }
 
         static ShaderData* AllocateBlob(
-            bip::managed_mapped_file& File,
-            size_t                    Size)
+            bip::managed_mapped_file& mappedFile,
+            size_t                    size)
         {
-            auto Blob        = std::bit_cast<ShaderData*>(File.allocate(Size));
-            Blob->DataHandle = File.get_handle_from_address(Blob);
-            return Blob;
+            auto shaderData        = std::bit_cast<ShaderData*>(mappedFile.allocate(size));
+            shaderData->DataHandle = mappedFile.get_handle_from_address(shaderData);
+            return shaderData;
         }
 
         static bip::managed_mapped_file::handle_t FromBlob(
-            const bip::managed_mapped_file& File,
-            ShaderData*                     Blob)
+            const bip::managed_mapped_file& mappedFile,
+            ShaderData*                     shaderData)
         {
-            return File.get_handle_from_address(Blob);
+            return mappedFile.get_handle_from_address(shaderData);
         }
     };
 
@@ -92,226 +94,246 @@ namespace Ame::Gfx::Cache
     //
 
     ShaderCache::MappedFileInfo::MappedFileInfo(
-        String FileName) :
-        File(bip::open_or_create, FileName.c_str(), InitialCacheSize),
-        FileName(std::move(FileName))
+        String fileName) :
+        File(bip::open_or_create, fileName.c_str(), c_InitialCacheSize),
+        FileName(std::move(fileName))
     {
     }
 
     void ShaderCache::MappedFileInfo::Grow(
-        size_t Size)
+        size_t size)
     {
         File.flush();
         File = {};
-        MappedFile::grow(this->FileName.c_str(), Size);
+        MappedFile::grow(this->FileName.c_str(), size);
         File = bip::managed_mapped_file(bip::open_only, this->FileName.c_str());
     }
 
     //
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::Load(
-        StringView             SourceCode,
-        Rhi::ShaderCompileDesc Desc)
+        StringView             sourceCode,
+        Rhi::ShaderCompileDesc desc)
     {
-        auto Executor = m_Runtime.get().background_executor();
+        auto executor = m_Runtime.get().background_executor();
 
-        auto FileTask = CreateOrOpenFile({}, Executor, SourceCode);
-        auto Key      = GeneratePermutationKey(Desc);
+        auto fileTask       = CreateOrOpenFile({}, executor, sourceCode);
+        auto permutationKey = GeneratePermutationKey(desc);
 
-        auto File   = co_await FileTask;
-        auto Result = co_await LoadFromCache({}, Executor, *File, Key, Desc);
-
-        if (!Result)
+        Rhi::ShaderBytecode result;
+        try
         {
-            Result = co_await CompileAndInsertToCache({}, Executor, *File, SourceCode, Key, Desc);
+            auto mappedFile = co_await fileTask;
+            result          = co_await LoadFromCache({}, executor, *mappedFile, permutationKey, desc);
+
+            if (!result)
+            {
+                result = co_await CompileAndInsertToCache({}, executor, *mappedFile, sourceCode, permutationKey, desc);
+            }
         }
-        co_return Result;
+        catch (const std::exception& ex)
+        {
+            Log::Gfx().Error("Failed to load file from cache: {}", ex.what());
+            result = Rhi::ShaderCompiler::Compile(m_Device, sourceCode, desc, &m_AssetStorage.get());
+        }
+
+        co_return result;
     }
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::Link(
-        Rhi::ShaderCompileDesc           Desc,
-        std::vector<Rhi::ShaderBytecode> Shaders)
+        Rhi::ShaderCompileDesc           desc,
+        std::vector<Rhi::ShaderBytecode> shaders)
     {
-        auto Executor = m_Runtime.get().background_executor();
+        auto executor = m_Runtime.get().background_executor();
 
-        auto FileTask = CreateOrOpenFile({}, Executor, Shaders);
-        auto Key      = GeneratePermutationKey(Desc);
+        auto fileTask       = CreateOrOpenFile({}, executor, shaders);
+        auto permutationKey = GeneratePermutationKey(desc);
 
-        auto File   = co_await FileTask;
-        auto Result = co_await LoadFromCache({}, Executor, *File, Key, Desc);
-
-        if (!Result)
+        Rhi::ShaderBytecode result;
+        try
         {
-            Result = co_await LinkAndInsertToCache({}, Executor, *File, Shaders, Key, Desc);
+            auto mappedFile = co_await fileTask;
+            result          = co_await LoadFromCache({}, executor, *mappedFile, permutationKey, desc);
+
+            if (!result)
+            {
+                result = co_await LinkAndInsertToCache({}, executor, *mappedFile, shaders, permutationKey, desc);
+            }
         }
-        co_return Result;
+        catch (const std::exception& ex)
+        {
+            Log::Gfx().Error("Failed to link shaders: {}", ex.what());
+            result = Rhi::ShaderCompiler::Link(m_Device, desc, shaders, &m_AssetStorage.get());
+        }
+
+        co_return result;
     }
 
     //
 
     auto ShaderCache::CreateOrOpenFile(
         Co::executor_tag,
-        const Ptr<Co::executor>& Executor,
-        StringView               SourceCode) -> Co::result<MappedFileInfo*>
+        const Ptr<Co::executor>& executor,
+        StringView               sourceCode) -> Co::result<MappedFileInfo*>
     {
-        CryptoPP::SHA256 Hasher;
-        Hasher.Update(ShaderSourceHash, std::size(ShaderSourceHash));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(SourceCode.data()), SourceCode.size());
-        auto Hash = Util::FinalizeDigestToString(Hasher);
-        co_return co_await CreateOrOpenFile({}, Executor, Hash);
+        CryptoPP::SHA256 hasher;
+        hasher.Update(c_ShaderSourceHash, std::size(c_ShaderSourceHash));
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(sourceCode.data()), sourceCode.size());
+        auto Hash = Util::FinalizeDigestToString(hasher);
+        co_return co_await CreateOrOpenFile({}, executor, Hash);
     }
 
     auto ShaderCache::CreateOrOpenFile(
         Co::executor_tag,
-        const Ptr<Co::executor>&             Executor,
-        std::span<const Rhi::ShaderBytecode> Shaders) -> Co::result<MappedFileInfo*>
+        const Ptr<Co::executor>&             executor,
+        std::span<const Rhi::ShaderBytecode> shaders) -> Co::result<MappedFileInfo*>
     {
-        CryptoPP::SHA256 Hasher;
-        Hasher.Update(LibraryShaderHash, std::size(LibraryShaderHash));
-        for (auto& Shader : Shaders)
+        CryptoPP::SHA256 hasher;
+        hasher.Update(c_LibraryShaderHash, std::size(c_LibraryShaderHash));
+        for (auto& Shader : shaders)
         {
-            Hasher.Update(Shader.GetBytecode(), Shader.GetSize());
+            hasher.Update(Shader.GetBytecode(), Shader.GetSize());
         }
-        auto Hash = Util::FinalizeDigestToString(Hasher);
-        co_return co_await CreateOrOpenFile({}, Executor, Hash);
+        auto hash = Util::FinalizeDigestToString(hasher);
+        co_return co_await CreateOrOpenFile({}, executor, hash);
     }
 
     auto ShaderCache::CreateOrOpenFile(
         Co::executor_tag,
-        const Ptr<Co::executor>& Executor,
-        const String&            FileKey) -> Co::result<MappedFileInfo*>
+        const Ptr<Co::executor>& executor,
+        const String&            fileKey) -> Co::result<MappedFileInfo*>
     {
-        auto Iter = m_Cache.find(FileKey);
-        if (Iter == m_Cache.end())
+        auto iter = m_Cache.find(fileKey);
+        if (iter == m_Cache.end())
         {
-            Co::scoped_async_lock Lock = co_await m_Mutex.lock(Executor);
+            Co::scoped_async_lock cacheLock = co_await m_Mutex.lock(executor);
 
-            Iter = m_Cache.find(FileKey);
-            if (Iter == m_Cache.end())
+            iter = m_Cache.find(fileKey);
+            if (iter == m_Cache.end())
             {
-                auto FileName = GenerateCacheFileName(m_Device, FileKey);
-                Iter          = m_Cache.emplace(FileName, std::move(FileName)).first;
+                auto fileName = GenerateCacheFileName(m_Device, fileKey);
+                iter          = m_Cache.emplace(fileName, std::move(fileName)).first;
             }
         }
-        co_return &Iter->second;
+        co_return &iter->second;
     }
 
     //
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::LoadFromCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&      Executor,
-        MappedFileInfo&               FileInfo,
-        const PermutationKey&         Key,
-        const Rhi::ShaderCompileDesc& Desc)
+        const Ptr<Co::executor>&      executor,
+        MappedFileInfo&               fileInfo,
+        const PermutationKey&         permutationKey,
+        const Rhi::ShaderCompileDesc& desc)
     {
-        Co::scoped_async_lock Lock  = co_await FileInfo.Mutex.lock(Executor);
-        CacheMap*             Cache = FileInfo.GetCache<CacheMap>();
+        Co::scoped_async_lock cacheLock = co_await fileInfo.Mutex.lock(executor);
+        CacheMap*             cache     = fileInfo.GetCache<CacheMap>();
 
-        auto Iter = Cache->find(Key);
+        auto iter = cache->find(permutationKey);
 
-        Rhi::ShaderBytecode Result;
-        if (Iter != Cache->end())
+        Rhi::ShaderBytecode result;
+        if (iter != cache->end())
         {
-            auto Blob     = ShaderDataHelper::ToBlob(FileInfo.File, Iter->second);
-            auto ByteCode = ShaderDataHelper::ToByteCode(FileInfo.File, *Blob, Desc.GetStage());
-            if (ByteCode)
+            auto shaderData = ShaderDataHelper::ToBlob(fileInfo.File, iter->second);
+            auto byteCode   = ShaderDataHelper::ToByteCode(fileInfo.File, *shaderData, desc.GetStage());
+            if (shaderData)
             {
-                Result = std::move(ByteCode);
+                result = std::move(byteCode);
             }
         }
-        co_return Result;
+        co_return result;
     }
 
     //
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::CompileAndInsertToCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&      Executor,
-        MappedFileInfo&               FileInfo,
-        StringView                    SourceCode,
-        const PermutationKey&         Key,
-        const Rhi::ShaderCompileDesc& Desc)
+        const Ptr<Co::executor>&      executor,
+        MappedFileInfo&               fileInfo,
+        StringView                    sourceCode,
+        const PermutationKey&         permutationKey,
+        const Rhi::ShaderCompileDesc& desc)
     {
-        auto CompileTask = Rhi::ShaderCompiler::CompileAsync({}, *Executor, m_Device, SourceCode, Desc, &m_AssetStorage.get());
-        co_return co_await InsertToCache({}, Executor, FileInfo, std::move(CompileTask), Key, Desc);
+        auto compileTask = Rhi::ShaderCompiler::CompileAsync({}, *executor, m_Device, sourceCode, desc, &m_AssetStorage.get());
+        co_return co_await InsertToCache({}, executor, fileInfo, std::move(compileTask), permutationKey, desc);
     }
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::LinkAndInsertToCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&             Executor,
-        MappedFileInfo&                      FileInfo,
-        std::span<const Rhi::ShaderBytecode> Shaders,
-        const PermutationKey&                Key,
-        const Rhi::ShaderCompileDesc&        Desc)
+        const Ptr<Co::executor>&             executor,
+        MappedFileInfo&                      fileInfo,
+        std::span<const Rhi::ShaderBytecode> shaders,
+        const PermutationKey&                permutationKey,
+        const Rhi::ShaderCompileDesc&        desc)
     {
-        auto CompileTask = Rhi::ShaderCompiler::LinkAsync({}, *Executor, m_Device, Desc, Shaders, &m_AssetStorage.get());
-        co_return co_await InsertToCache({}, Executor, FileInfo, std::move(CompileTask), Key, Desc);
+        auto compileTask = Rhi::ShaderCompiler::LinkAsync({}, *executor, m_Device, desc, shaders, &m_AssetStorage.get());
+        co_return co_await InsertToCache({}, executor, fileInfo, std::move(compileTask), permutationKey, desc);
     }
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::InsertToCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&        Executor,
-        MappedFileInfo&                 FileInfo,
-        Co::result<Rhi::ShaderBytecode> FinalShader,
-        const PermutationKey&           Key,
-        const Rhi::ShaderCompileDesc&   Desc)
+        const Ptr<Co::executor>&        executor,
+        MappedFileInfo&                 fileInfo,
+        Co::result<Rhi::ShaderBytecode> finalShader,
+        const PermutationKey&           permutationKey,
+        const Rhi::ShaderCompileDesc&   desc)
     {
-        Co::scoped_async_lock Lock  = co_await FileInfo.Mutex.lock(Executor);
-        CacheMap*             Cache = FileInfo.GetCache<CacheMap>();
+        Co::scoped_async_lock cacheLock = co_await fileInfo.Mutex.lock(executor);
+        CacheMap*             cache     = fileInfo.GetCache<CacheMap>();
 
-        ShaderData* Blob = nullptr;
+        ShaderData* shaderData = nullptr;
 
-        auto Iter = Cache->find(Key);
-        if (Iter != Cache->end())
+        auto iter = cache->find(permutationKey);
+        if (iter != cache->end())
         {
-            Blob = ShaderDataHelper::ToBlob(FileInfo.File, Iter->second);
-            FileInfo.File.deallocate(Blob);
-            Blob = nullptr;
-            Cache->erase(Iter);
+            shaderData = ShaderDataHelper::ToBlob(fileInfo.File, iter->second);
+            fileInfo.File.deallocate(shaderData);
+            shaderData = nullptr;
+            cache->erase(iter);
         }
 
-        auto   CompiledShader = co_await FinalShader;
-        size_t BlobSize       = ShaderDataHelper::CalculateBlobSize(CompiledShader);
-        if (BlobSize)
+        auto   compiledShader = co_await finalShader;
+        size_t blobSize       = ShaderDataHelper::CalculateBlobSize(compiledShader);
+        if (blobSize)
         {
-            for (uint32_t i = 1; i <= GrowAttempts; i++)
+            for (uint32_t i = 1; i <= c_GrowAttempts; i++)
             {
                 try
                 {
-                    if (!Blob)
+                    if (!shaderData)
                     {
-                        Blob = ShaderDataHelper::AllocateBlob(FileInfo.File, BlobSize);
-                        ShaderDataHelper::FromBytecode(FileInfo.File, *Blob, CompiledShader);
+                        shaderData = ShaderDataHelper::AllocateBlob(fileInfo.File, blobSize);
+                        ShaderDataHelper::FromBytecode(fileInfo.File, *shaderData, compiledShader);
                     }
-                    Cache->emplace(Key, Blob->DataHandle);
+                    cache->emplace(permutationKey, shaderData->DataHandle);
                     break;
                 }
                 catch (const bip::bad_alloc&)
                 {
-                    auto GrowSize = Cache->size() * PermutationCacheSize + i * PermutationGrowSize;
-                    FileInfo.Grow(GrowSize);
-                    Cache = FileInfo.GetCache<CacheMap>();
+                    auto GrowSize = cache->size() * c_PermutationCacheSize + i * c_PermutationGrowSize;
+                    fileInfo.Grow(GrowSize);
+                    cache = fileInfo.GetCache<CacheMap>();
                 }
             }
         }
-        co_return CompiledShader;
+        co_return compiledShader;
     }
 
     //
 
     auto ShaderCache::GeneratePermutationKey(
-        const Rhi::ShaderCompileDesc& Desc) -> PermutationKey
+        const Rhi::ShaderCompileDesc& desc) -> PermutationKey
     {
-        CryptoPP::SHA256 Hasher;
-        Util::UpdateCrypto(Hasher, Desc);
-        return Util::FinalizeDigest(Hasher);
+        CryptoPP::SHA256 hasher;
+        Util::UpdateCrypto(hasher, desc);
+        return Util::FinalizeDigest(hasher);
     }
 
     String ShaderCache::GenerateCacheFileName(
-        Rhi::Device&  Device,
-        const String& Hash)
+        Rhi::Device&  rhiDevice,
+        const String& hash)
     {
-        return std::format("{}_{}{}.acs", std::filesystem::temp_directory_path().string(), Hash, Device.GetGraphicsAPIName());
+        return std::format("{}_{}{}.acs", std::filesystem::temp_directory_path().string(), hash, rhiDevice.GetGraphicsAPIName());
     }
 } // namespace Ame::Gfx::Cache

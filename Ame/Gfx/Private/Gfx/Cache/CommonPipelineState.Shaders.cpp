@@ -6,34 +6,34 @@
 namespace Ame::Gfx::Cache
 {
     auto CommonPipelineState::ShaderTable::Create(
-        ShaderTaskStorage Tasks) -> Co::result<ShaderTable>
+        ShaderTaskStorage tasks) -> Co::result<ShaderTable>
     {
-        ShaderTable Table;
+        ShaderTable table;
 
-        Table.Shaders.reserve(Tasks.size());
-        Table.ShaderDescs.reserve(Tasks.size());
+        table.Shaders.reserve(tasks.size());
+        table.ShaderDescs.reserve(tasks.size());
 
-        for (auto& Shader : Tasks)
+        for (auto& shader : tasks)
         {
-            Table.Shaders.emplace_back(co_await Shader);
-            Table.ShaderDescs.emplace_back(Table.Shaders.back().GetDesc());
+            table.Shaders.emplace_back(co_await shader);
+            table.ShaderDescs.emplace_back(table.Shaders.back().GetDesc());
         }
 
-        co_return Table;
+        co_return table;
     }
 
     //
 
     auto CommonPipelineState::PrepareShaders(
-        Type PipelineType) -> Co::result<ShaderTaskStorage>
+        Type type) -> Co::result<ShaderTaskStorage>
     {
-        ShaderTaskStorage ShaderTasks;
+        ShaderTaskStorage tasks;
 
-        switch (PipelineType)
+        switch (type)
         {
         case Type::EntityCollectPass:
         {
-            ShaderTasks.emplace_back(m_CommonShaders.get().Load(CommonShader::Type::EntityCollectPass_CS));
+            tasks.emplace_back(m_CommonShaders.get().Load(CommonShader::Type::EntityCollectPass_CS));
             break;
         }
 
@@ -41,6 +41,6 @@ namespace Ame::Gfx::Cache
             std::unreachable();
         }
 
-        co_return ShaderTasks;
+        co_return tasks;
     }
 } // namespace Ame::Gfx::Cache

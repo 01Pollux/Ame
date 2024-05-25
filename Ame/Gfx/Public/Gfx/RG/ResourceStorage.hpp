@@ -22,8 +22,8 @@ namespace Ame::Gfx::RG
 
     public:
         ResourceStorage(
-            Rhi::Device&   Device,
-            Ecs::Universe& Universe);
+            Rhi::Device&   rhiDevice,
+            Ecs::Universe& universe);
 
         ResourceStorage(const ResourceStorage&)     = delete;
         ResourceStorage(ResourceStorage&&) noexcept = default;
@@ -44,13 +44,13 @@ namespace Ame::Gfx::RG
         /// Check to see if resource of id exists
         /// </summary>
         [[nodiscard]] bool ContainsResource(
-            const ResourceId& Id) const;
+            const ResourceId& id) const;
 
         /// <summary>
         /// Check to see if resource of id exists
         /// </summary>
         [[nodiscard]] bool ContainsResourceView(
-            const ResourceViewId& ViewId);
+            const ResourceViewId& viewId);
 
     public:
         [[nodiscard]] EntityStore GetEntityStore() const;
@@ -76,61 +76,61 @@ namespace Ame::Gfx::RG
         /// Get resource from id
         /// </summary>
         [[nodiscard]] const ResourceHandle& GetResource(
-            const ResourceId& Id) const;
+            const ResourceId& id) const;
 
         /// <summary>
         /// Get resource from id
         /// </summary>
         [[nodiscard]] ResourceHandle& GetResourceMut(
-            const ResourceId& Id);
+            const ResourceId& id);
 
         /// <summary>
         /// Get resource from id
         /// </summary>
         [[nodiscard]] ResourceViewDesc& GetResourceViewDescMut(
-            const ResourceViewId& ViewId);
+            const ResourceViewId& viewId);
 
         /// <summary>
         /// Get resource from id
         /// </summary>
         [[nodiscard]] const ResourceViewDesc& GetResourceViewDesc(
-            const ResourceViewId& ViewId) const;
+            const ResourceViewId& viewId) const;
 
         /// <summary>
         /// Get resource view descriptor from id
         /// </summary>
         [[nodiscard]] const Rhi::ResourceView& GetResourceViewHandle(
-            const ResourceViewId& ViewId) const;
+            const ResourceViewId& viewId) const;
 
     private:
         /// <summary>
         /// Declare buffer to be created later when dispatching passes
         /// </summary>
         void DeclareBuffer(
-            const ResourceId&      Id,
-            const Rhi::BufferDesc& Desc);
+            const ResourceId&      id,
+            const Rhi::BufferDesc& desc);
 
         /// <summary>
         /// Declare texture to be created later when dispatching passes
         /// </summary>
         void DeclareTexture(
-            const ResourceId&       Id,
-            const Rhi::TextureDesc& Desc);
+            const ResourceId&       id,
+            const Rhi::TextureDesc& desc);
 
     public:
         /// <summary>
         /// import buffer to be used later when dispatching passes
         /// </summary>
         void ImportBuffer(
-            const ResourceId&  Id,
-            const Rhi::Buffer& Buffer);
+            const ResourceId& id,
+            Rhi::Buffer       buffer);
 
         /// <summary>
         /// import texture to be used later when dispatching passes
         /// </summary>
         void ImportTexture(
-            const ResourceId&   Id,
-            const Rhi::Texture& Texture);
+            const ResourceId& id,
+            Rhi::Texture      texture);
 
     private:
         /// <summary>
@@ -142,15 +142,15 @@ namespace Ame::Gfx::RG
         /// Declare resource view to be bound later when dispatching passes
         /// </summary>
         Rhi::BufferDesc& DeclareBufferView(
-            const ResourceViewId& ViewId,
-            ResourceViewDesc      ViewDesc);
+            const ResourceViewId& viewId,
+            ResourceViewDesc      desc);
 
         /// <summary>
         /// Declare resource view to be bound later when dispatching passes
         /// </summary>
         Rhi::TextureDesc& DeclareTextureView(
-            const ResourceViewId& ViewId,
-            ResourceViewDesc      ViewDesc);
+            const ResourceViewId& viewId,
+            ResourceViewDesc      desc);
 
     private:
         /// <summary>
@@ -168,13 +168,13 @@ namespace Ame::Gfx::RG
         /// Update frame resource for the current frame
         /// </summary>
         void UpdateFrameResource(
-            float                        EngineTime,
-            float                        GameTime,
-            float                        DeltaTime,
-            const Ecs::Entity&           CameraEntity,
-            const Math::TransformMatrix& Transform,
-            const Math::Matrix4x4&       Projection,
-            const Math::Vector2&         Viewport);
+            float                        engineTime,
+            float                        gameTime,
+            float                        deltaTime,
+            const Ecs::Entity&           cameraEntity,
+            const Math::TransformMatrix& transform,
+            const Math::Matrix4x4&       projection,
+            const Math::Vector2&         viewport);
 
     private:
         /// <summary>
@@ -191,9 +191,10 @@ namespace Ame::Gfx::RG
 
         /// <summary>
         /// Check if storage is locked or not
+        /// DEBUG ONLY
         /// </summary>
         void CheckLockState(
-            bool Locked) const;
+            bool locked) const;
 
     private:
         Ref<Rhi::Device> m_Device;
