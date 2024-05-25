@@ -12,23 +12,23 @@ namespace Ame::Rhi::Streaming
         using char_type      = BufferDevice::char_type;
 
         BufferSink(
-            BufferView View) :
-            m_Device(View)
+            BufferView view) :
+            m_Device(view)
         {
         }
 
         streamsize_t write(
-            const char_type* Data,
-            streamsize_t     Size)
+            const char_type* data,
+            streamsize_t     size)
         {
-            return m_Device.write(Data, Size);
+            return m_Device.write(data, size);
         }
 
         streamoffset_t seek(
-            streamoffset_t         Offset,
-            std::ios_base::seekdir Direction)
+            streamoffset_t         offset,
+            std::ios_base::seekdir direction)
         {
-            return m_Device.seek(Offset, Direction, std::ios::out);
+            return m_Device.seek(offset, direction, std::ios::out);
         }
 
     public:

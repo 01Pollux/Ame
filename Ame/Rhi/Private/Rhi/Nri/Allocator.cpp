@@ -4,25 +4,25 @@ namespace Ame::Rhi
 {
     void* NriAllocatorCallbackInterface::Allocate(
         void*,
-        size_t Size,
-        size_t Alignment)
+        size_t size,
+        size_t alignment)
     {
-        return mi_aligned_alloc(Alignment, Size);
+        return mi_aligned_alloc(alignment, size);
     }
 
     void* NriAllocatorCallbackInterface::Reallocate(
         void*,
-        void*  Memory,
-        size_t Size,
-        size_t Alignment)
+        void*  memory,
+        size_t size,
+        size_t alignment)
     {
-        return mi_realloc_aligned(Memory, Size, Alignment);
+        return mi_realloc_aligned(memory, size, alignment);
     }
 
     void NriAllocatorCallbackInterface::Free(
         void*,
-        void* Memory)
+        void* memory)
     {
-        mi_free(Memory);
+        mi_free(memory);
     }
 } // namespace Ame::Rhi

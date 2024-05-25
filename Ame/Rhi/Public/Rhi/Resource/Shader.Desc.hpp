@@ -117,7 +117,7 @@ namespace Ame::Rhi
         /// Set shader type
         /// </summary>
         void SetStage(
-            ShaderType Type);
+            ShaderType type);
 
     private:
         ShaderType Stage = ShaderType::NONE;

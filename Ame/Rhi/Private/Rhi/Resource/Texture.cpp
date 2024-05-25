@@ -7,60 +7,60 @@ namespace Ame::Rhi
 {
     Texture::Texture(
         Extern,
-        DeviceImpl&   RhiDevice,
-        nri::Texture* RhiTexture) :
-        m_Device(&RhiDevice),
-        m_Texture(RhiTexture),
+        DeviceImpl&   rhiDeviceImpl,
+        nri::Texture* nriTexture) :
+        m_Device(&rhiDeviceImpl),
+        m_Texture(nriTexture),
         m_Owning(false)
     {
     }
 
     Texture::Texture(
         Extern,
-        Device&       RhiDevice,
-        nri::Texture* RhiTexture) :
-        m_Device(&RhiDevice.GetImpl()),
-        m_Texture(RhiTexture),
+        Device&       rhiDevice,
+        nri::Texture* nriTexture) :
+        m_Device(&rhiDevice.GetImpl()),
+        m_Texture(nriTexture),
         m_Owning(false)
     {
     }
 
     Texture::Texture(
-        Device&            RhiDevice,
-        MemoryLocation     Location,
-        const TextureDesc& Desc) :
-        m_Device(&RhiDevice.GetImpl()),
-        m_Texture(RhiDevice.Create(Location, Desc))
+        Device&            rhiDevice,
+        MemoryLocation     location,
+        const TextureDesc& desc) :
+        m_Device(&rhiDevice.GetImpl()),
+        m_Texture(rhiDevice.Create(location, desc))
     {
     }
 
     //
 
     Texture::Texture(
-        const Texture& Other) :
-        m_Device(Other.m_Device),
-        m_Texture(Other.m_Texture),
+        const Texture& other) :
+        m_Device(other.m_Device),
+        m_Texture(other.m_Texture),
         m_Owning(false)
     {
     }
 
     Texture::Texture(
-        Texture&& Other) noexcept :
-        m_Device(std::exchange(Other.m_Device, nullptr)),
-        m_Texture(std::exchange(Other.m_Texture, nullptr)),
-        m_Owning(std::exchange(Other.m_Owning, false))
+        Texture&& other) noexcept :
+        m_Device(std::exchange(other.m_Device, nullptr)),
+        m_Texture(std::exchange(other.m_Texture, nullptr)),
+        m_Owning(std::exchange(other.m_Owning, false))
     {
     }
 
     Texture& Texture::operator=(
-        const Texture& Other)
+        const Texture& other)
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            m_Device  = Other.m_Device;
-            m_Texture = Other.m_Texture;
+            m_Device  = other.m_Device;
+            m_Texture = other.m_Texture;
             m_Owning  = false;
         }
 
@@ -68,15 +68,15 @@ namespace Ame::Rhi
     }
 
     Texture& Texture::operator=(
-        Texture&& Other) noexcept
+        Texture&& other) noexcept
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            m_Device  = std::exchange(Other.m_Device, nullptr);
-            m_Texture = std::exchange(Other.m_Texture, nullptr);
-            m_Owning  = std::exchange(Other.m_Owning, false);
+            m_Device  = std::exchange(other.m_Device, nullptr);
+            m_Texture = std::exchange(other.m_Texture, nullptr);
+            m_Owning  = std::exchange(other.m_Owning, false);
         }
 
         return *this;
@@ -92,18 +92,18 @@ namespace Ame::Rhi
     void Texture::SetName(
         const char* Name) const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.SetTextureDebugName(*m_Texture, Name);
+        nriCore.SetTextureDebugName(*m_Texture, Name);
     }
 
     const TextureDesc& Texture::GetDesc() const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        return NriCore.GetTextureDesc(*m_Texture);
+        return nriCore.GetTextureDesc(*m_Texture);
     }
 
     nri::Texture* Texture::Unwrap() const
@@ -113,10 +113,10 @@ namespace Ame::Rhi
 
     void* Texture::GetNative() const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        return std::bit_cast<void*>(NriCore.GetTextureNativeObject(*m_Texture));
+        return std::bit_cast<void*>(nriCore.GetTextureNativeObject(*m_Texture));
     }
 
     bool Texture::IsOwning() const
@@ -168,31 +168,31 @@ namespace Ame::Rhi
     //
 
     nri::Texture* Device::Create(
-        MemoryLocation     Location,
-        const TextureDesc& Desc)
+        MemoryLocation     location,
+        const TextureDesc& desc)
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Impl->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        auto NriTexture = m_Impl->m_MemoryAllocator.CreateTexture(Location, Desc);
-        m_Impl->BeginTracking(NriTexture, { nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL });
+        auto nriTexture = m_Impl->m_MemoryAllocator.CreateTexture(location, desc);
+        m_Impl->BeginTracking(nriTexture, { nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL });
 
-        return NriTexture;
+        return nriTexture;
     }
 
     //
 
     void DeviceImpl::BeginTracking(
-        nri::Texture*          Texture,
-        nri::AccessLayoutStage InitialState)
+        nri::Texture*          nriTexture,
+        nri::AccessLayoutStage initialState)
     {
-        m_ResourceStateTracker.BeginTracking(*m_NRI.GetCoreInterface(), Texture, InitialState);
+        m_ResourceStateTracker.BeginTracking(*m_NRI.GetCoreInterface(), nriTexture, initialState);
     }
 
     void DeviceImpl::EndTracking(
-        nri::Texture* Texture)
+        nri::Texture* nriTexture)
     {
-        m_ResourceStateTracker.EndTracking(Texture);
+        m_ResourceStateTracker.EndTracking(nriTexture);
     }
 
     //
@@ -210,15 +210,15 @@ namespace Ame::Rhi
     }
 
     void Device::Release(
-        nri::Texture& NriTexture)
+        nri::Texture& nriTexture)
     {
-        m_Impl->EndTracking(&NriTexture);
-        m_Impl->Release(NriTexture);
+        m_Impl->EndTracking(&nriTexture);
+        m_Impl->Release(nriTexture);
     }
 
     void DeviceImpl::Release(
-        nri::Texture& NriTexture)
+        nri::Texture& nriTexture)
     {
-        m_FrameManager.DeferRelease(NriTexture);
+        m_FrameManager.DeferRelease(nriTexture);
     }
 } // namespace Ame::Rhi

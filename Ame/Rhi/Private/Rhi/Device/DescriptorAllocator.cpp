@@ -6,39 +6,39 @@
 namespace Ame::Rhi
 {
     void DescriptorAllocator::Initialize(
-        DeviceImpl&                     RhiDevice,
-        const DescriptorAllocationDesc& Desc)
+        DeviceImpl&                     rhiDevice,
+        const DescriptorAllocationDesc& desc)
     {
-        m_RhiDevice = &RhiDevice;
+        m_RhiDevice = &rhiDevice;
 
-        auto& Nri        = m_RhiDevice->GetNRI();
-        auto& NriCore    = *Nri.GetCoreInterface();
-        auto& DeviceDesc = NriCore.GetDeviceDesc(m_RhiDevice->GetDevice());
+        auto& nriUtils   = m_RhiDevice->GetNRI();
+        auto& nriCore    = *nriUtils.GetCoreInterface();
+        auto& deviceDesc = nriCore.GetDeviceDesc(m_RhiDevice->GetDevice());
 
-        nri::DescriptorPoolDesc NriDesc{
-            .descriptorSetMaxNum           = Desc.DescriptorSetMaxCount,
-            .samplerMaxNum                 = Desc.SamplerMaxCount,
-            .constantBufferMaxNum          = Desc.ConstantBufferMaxCount,
-            .dynamicConstantBufferMaxNum   = Desc.DynamicConstantBufferMaxCount,
-            .textureMaxNum                 = Desc.TextureMaxCount,
-            .storageTextureMaxNum          = Desc.StorageTextureMaxCount,
-            .bufferMaxNum                  = Desc.BufferMaxCount,
-            .storageBufferMaxNum           = Desc.StorageBufferMaxCount,
-            .structuredBufferMaxNum        = Desc.StructuredBufferMaxCount,
-            .storageStructuredBufferMaxNum = Desc.StorageStructuredBufferMaxCount,
-            .accelerationStructureMaxNum   = DeviceDesc.isRayTracingSupported ? Desc.AccelerationStructureMaxCount : 0
+        nri::DescriptorPoolDesc descriptorPoolDesc{
+            .descriptorSetMaxNum           = desc.DescriptorSetMaxCount,
+            .samplerMaxNum                 = desc.SamplerMaxCount,
+            .constantBufferMaxNum          = desc.ConstantBufferMaxCount,
+            .dynamicConstantBufferMaxNum   = desc.DynamicConstantBufferMaxCount,
+            .textureMaxNum                 = desc.TextureMaxCount,
+            .storageTextureMaxNum          = desc.StorageTextureMaxCount,
+            .bufferMaxNum                  = desc.BufferMaxCount,
+            .storageBufferMaxNum           = desc.StorageBufferMaxCount,
+            .structuredBufferMaxNum        = desc.StructuredBufferMaxCount,
+            .storageStructuredBufferMaxNum = desc.StorageStructuredBufferMaxCount,
+            .accelerationStructureMaxNum   = deviceDesc.isRayTracingSupported ? desc.AccelerationStructureMaxCount : 0
         };
-        ThrowIfFailed(NriCore.CreateDescriptorPool(m_RhiDevice->GetDevice(), NriDesc, m_Pool), "Failed to create descriptor pool");
+        ThrowIfFailed(nriCore.CreateDescriptorPool(m_RhiDevice->GetDevice(), descriptorPoolDesc, m_Pool), "Failed to create descriptor pool");
     }
 
     void DescriptorAllocator::Shutdown()
     {
         Log::Rhi().Assert(m_Pool != nullptr, "Tried to shutdown descriptor allocator which was not initialized.");
 
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.DestroyDescriptorPool(*m_Pool);
+        nriCore.DestroyDescriptorPool(*m_Pool);
         m_Pool = nullptr;
     }
 
@@ -46,10 +46,10 @@ namespace Ame::Rhi
 
     void DescriptorAllocator::ResetPool()
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.ResetDescriptorPool(*m_Pool);
+        nriCore.ResetDescriptorPool(*m_Pool);
     }
 
     nri::DescriptorPool* DescriptorAllocator::GetPool() noexcept
@@ -58,33 +58,33 @@ namespace Ame::Rhi
     }
 
     DescriptorSet DescriptorAllocator::Allocate(
-        const nri::PipelineLayout& Layout,
-        uint32_t                   LayoutSlot,
-        uint32_t                   VariableCount)
+        const nri::PipelineLayout& layout,
+        uint32_t                   layoutSlot,
+        uint32_t                   variableCount)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        nri::DescriptorSet* Set = nullptr;
-        NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, &Set, 1, VariableCount);
-        return { DescriptorSet{ m_RhiDevice, Set } };
+        nri::DescriptorSet* nriSet = nullptr;
+        nriCore.AllocateDescriptorSets(*m_Pool, layout, layoutSlot, &nriSet, 1, variableCount);
+        return { DescriptorSet{ m_RhiDevice, nriSet } };
     }
 
     std::vector<DescriptorSet> DescriptorAllocator::Allocate(
-        const nri::PipelineLayout& Layout,
-        uint32_t                   LayoutSlot,
-        uint32_t                   InstanceCount,
-        uint32_t                   VariableCount)
+        const nri::PipelineLayout& layout,
+        uint32_t                   layoutSlot,
+        uint32_t                   instanceCount,
+        uint32_t                   variableCount)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        std::vector<nri::DescriptorSet*> NriDescriptorSets(InstanceCount);
-        NriCore.AllocateDescriptorSets(*m_Pool, Layout, LayoutSlot, NriDescriptorSets.data(), InstanceCount, VariableCount);
+        std::vector<nri::DescriptorSet*> nriSets(instanceCount);
+        nriCore.AllocateDescriptorSets(*m_Pool, layout, layoutSlot, nriSets.data(), instanceCount, variableCount);
 
-        return NriDescriptorSets |
-               std::views::transform([this](nri::DescriptorSet* Set)
-                                     { return DescriptorSet{ m_RhiDevice, Set }; }) |
+        return nriSets |
+               std::views::transform([this](nri::DescriptorSet* nriSet)
+                                     { return DescriptorSet{ m_RhiDevice, nriSet }; }) |
                std::ranges::to<std::vector>();
     }
 } // namespace Ame::Rhi

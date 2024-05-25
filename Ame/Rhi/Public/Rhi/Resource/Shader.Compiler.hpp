@@ -14,31 +14,31 @@ namespace Ame::Rhi
     public:
         [[nodiscard]] static Co::result<ShaderBytecode> CompileAsync(
             Co::executor_tag,
-            Co::executor&            Executor,
-            Device&                  RhiDevice,
-            StringView               ShaderSource,
-            const ShaderCompileDesc& Desc,
-            Asset::Storage*          AssetStorage = nullptr);
+            Co::executor&            executor,
+            Device&                  rhiDevice,
+            StringView               shaderSource,
+            const ShaderCompileDesc& desc,
+            Asset::Storage*          assetStorage = nullptr);
 
         [[nodiscard]] static Co::result<ShaderBytecode> LinkAsync(
             Co::executor_tag,
-            Co::executor&                   Executor,
-            Device&                         RhiDevice,
-            const ShaderCompileDesc&        LinkDesc,
-            std::span<const ShaderBytecode> Shaders,
-            Asset::Storage*                 AssetStorage = nullptr);
+            Co::executor&                   executor,
+            Device&                         rhiDevice,
+            const ShaderCompileDesc&        linkDesc,
+            std::span<const ShaderBytecode> shaders,
+            Asset::Storage*                 assetStorage = nullptr);
 
     public:
         [[nodiscard]] static ShaderBytecode Compile(
-            Device&                  RhiDevice,
-            StringView               ShaderSource,
-            const ShaderCompileDesc& Desc,
-            Asset::Storage*          AssetStorage = nullptr);
+            Device&                  rhiDevice,
+            StringView               shaderSource,
+            const ShaderCompileDesc& desc,
+            Asset::Storage*          assetStorage = nullptr);
 
         [[nodiscard]] static ShaderBytecode Link(
-            Device&                         RhiDevice,
-            const ShaderCompileDesc&        LinkDesc,
-            std::span<const ShaderBytecode> Shaders,
-            Asset::Storage*                 AssetStorage = nullptr);
+            Device&                         rhiDevice,
+            const ShaderCompileDesc&        linkDesc,
+            std::span<const ShaderBytecode> shaders,
+            Asset::Storage*                 assetStorage = nullptr);
     };
 } // namespace Ame::Rhi

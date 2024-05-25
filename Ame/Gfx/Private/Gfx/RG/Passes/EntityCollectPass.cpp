@@ -125,10 +125,6 @@ namespace Ame::Gfx::RG::Std
 
                         CommandList->Dispatch(1);
                     }
-
-                    CommandList->UnsetDescriptorSet(CD::FrameData_SetIndex);
-                    CommandList->UnsetDescriptorSet(CD::EntityData_SetIndex);
-                    CommandList->UnsetDescriptorSet(CommandInfo_SetIndex);
                 });
     }
 } // namespace Ame::Gfx::RG::Std

@@ -11,59 +11,59 @@ namespace Ame::Rhi
     /// Get the shader entry point name
     /// </summary>
     [[nodiscard]] const char* GetShaderEntryPoint(
-        ShaderType Stage);
+        ShaderType stage);
 
     /// <summary>
     /// Get the shader entry point name
     /// </summary>
     [[nodiscard]] const wchar_t* GetShaderEntryPointWide(
-        ShaderType Stage);
+        ShaderType stage);
 
     class ShaderBytecode
     {
     public:
         ShaderBytecode() = default;
         ShaderBytecode(
-            uint8_t*   Bytecode,
-            size_t     Size,
-            ShaderType Stage,
-            bool       Owning = true) :
-            m_Bytecode(Bytecode),
-            m_Size(Size),
-            m_Stage(Stage),
-            m_Owning(Owning)
+            uint8_t*   bytecode,
+            size_t     size,
+            ShaderType stage,
+            bool       owning = true) :
+            m_Bytecode(bytecode),
+            m_Size(size),
+            m_Stage(stage),
+            m_Owning(owning)
         {
         }
 
         ShaderBytecode(const ShaderBytecode&) = delete;
         ShaderBytecode(
-            ShaderBytecode&& Other) noexcept :
-            m_Bytecode(Other.m_Bytecode),
-            m_Size(Other.m_Size),
-            m_Stage(Other.m_Stage),
-            m_Owning(Other.m_Owning)
+            ShaderBytecode&& other) noexcept :
+            m_Bytecode(other.m_Bytecode),
+            m_Size(other.m_Size),
+            m_Stage(other.m_Stage),
+            m_Owning(other.m_Owning)
         {
-            Other.m_Bytecode = nullptr;
-            Other.m_Size     = 0;
-            Other.m_Stage    = ShaderType::VERTEX_SHADER;
-            Other.m_Owning   = false;
+            other.m_Bytecode = nullptr;
+            other.m_Size     = 0;
+            other.m_Stage    = ShaderType::VERTEX_SHADER;
+            other.m_Owning   = false;
         }
 
         ShaderBytecode& operator=(const ShaderBytecode&) = delete;
         ShaderBytecode& operator=(
-            ShaderBytecode&& Other) noexcept
+            ShaderBytecode&& other) noexcept
         {
-            if (this != &Other)
+            if (this != &other)
             {
-                m_Bytecode = Other.m_Bytecode;
-                m_Size     = Other.m_Size;
-                m_Stage    = Other.m_Stage;
-                m_Owning   = Other.m_Owning;
+                m_Bytecode = other.m_Bytecode;
+                m_Size     = other.m_Size;
+                m_Stage    = other.m_Stage;
+                m_Owning   = other.m_Owning;
 
-                Other.m_Bytecode = nullptr;
-                Other.m_Size     = 0;
-                Other.m_Stage    = ShaderType::VERTEX_SHADER;
-                Other.m_Owning   = false;
+                other.m_Bytecode = nullptr;
+                other.m_Size     = 0;
+                other.m_Stage    = ShaderType::VERTEX_SHADER;
+                other.m_Owning   = false;
             }
 
             return *this;

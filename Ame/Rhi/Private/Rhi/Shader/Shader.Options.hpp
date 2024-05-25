@@ -16,13 +16,13 @@ namespace Ame::Rhi
         GraphicsAPI                  Api;
 
         CompileShaderOption(
-            Device&                  RhiDevice,
-            const ShaderCompileDesc& Desc);
+            Device&                  rhiDevice,
+            const ShaderCompileDesc& desc);
 
     private:
-        WideString DefineMacro;
+        WideString m_DefineMacro;
 
-        std::vector<WideString> RegisterShift;
-        std::vector<WideString> MacrosCombined;
+        std::vector<WideString> m_RegisterShift;
+        std::vector<WideString> m_MacrosCombined;
     };
 } // namespace Ame::Rhi

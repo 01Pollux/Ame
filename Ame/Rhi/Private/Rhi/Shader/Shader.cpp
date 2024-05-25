@@ -6,9 +6,9 @@ namespace Ame::Rhi
     /// Get the shader entry point.
     /// </summary>
     [[nodiscard]] const char* GetShaderEntryPoint(
-        ShaderType Stage)
+        ShaderType type)
     {
-        switch (Stage)
+        switch (type)
         {
         case ShaderType::COMPUTE_SHADER:
             return "CS_Main";
@@ -35,9 +35,9 @@ namespace Ame::Rhi
     /// Get the shader entry point.
     /// </summary>
     [[nodiscard]] const wchar_t* GetShaderEntryPointWide(
-        ShaderType Stage)
+        ShaderType type)
     {
-        switch (Stage)
+        switch (type)
         {
         case ShaderType::COMPUTE_SHADER:
             return L"CS_Main";

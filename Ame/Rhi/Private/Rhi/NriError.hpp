@@ -7,16 +7,16 @@ namespace Ame::Rhi
 {
     template<typename... ArgsTy>
     void ThrowIfFailed(
-        nri::Result                         Result,
-        const std::format_string<ArgsTy...> Message,
-        ArgsTy&&... Args)
+        nri::Result                         result,
+        const std::format_string<ArgsTy...> message,
+        ArgsTy&&... args)
     {
 #ifndef AME_DIST
-        Log::Rhi().Assert(Result == nri::Result::SUCCESS, std::move(Message), std::forward<ArgsTy>(Args)...);
+        Log::Rhi().Assert(result == nri::Result::SUCCESS, std::move(message), std::forward<ArgsTy>(args)...);
 #else
-        if (Result != nri::Result::SUCCESS)
+        if (result != nri::Result::SUCCESS)
         {
-            Log::Rhi().Error(std::move(Message), std::forward<ArgsTy>(Args)...);
+            Log::Rhi().Error(std::move(message), std::forward<ArgsTy>(args)...);
         }
 #endif
     }

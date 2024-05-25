@@ -8,9 +8,9 @@ namespace Ame::Rhi
     {
     public:
         PipelineState(
-            Device&             RhiDevice,
-            Ptr<PipelineLayout> Layout,
-            nri::Pipeline&      Pipeline);
+            Device&             rhiDevice,
+            Ptr<PipelineLayout> layout,
+            nri::Pipeline&      nriPipeline);
 
         PipelineState(const PipelineState&) = delete;
         PipelineState(PipelineState&&)      = delete;
@@ -25,7 +25,7 @@ namespace Ame::Rhi
         /// Set the pipeline state name.
         /// </summary>
         void SetName(
-            const char* Name) const;
+            const char* name) const;
 
         /// <summary>
         /// Get the nri pipeline state.

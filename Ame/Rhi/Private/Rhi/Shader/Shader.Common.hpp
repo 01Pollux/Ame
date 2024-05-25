@@ -12,13 +12,13 @@ namespace Ame::Rhi::ShaderUtil
 
     template<typename Ty>
     [[nodiscard]] static inline Ty* GetComPtr(
-        CComPtr<Ty>& Object)
+        CComPtr<Ty>& object)
     {
-        return Object.Get();
+        return object.Get();
     }
 
     void ThrowShaderException(
-        HRESULT Result);
+        HRESULT hr);
 } // namespace Ame::Rhi::ShaderUtil
 
 #else
@@ -28,13 +28,13 @@ namespace Ame::Rhi::ShaderUtil
 {
     template<typename Ty>
     [[nodiscard]] static inline Ty* GetComPtr(
-        CComPtr<Ty>& Object)
+        CComPtr<Ty>& object)
     {
-        return Object;
+        return object;
     }
 
     void ThrowShaderException(
-        HRESULT Result);
+        HRESULT hr);
 } // namespace Ame::Rhi::ShaderUtil
 
 #endif

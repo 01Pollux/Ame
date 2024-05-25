@@ -13,10 +13,10 @@ namespace Ame::Rhi
         /// Fails if the swap chain, mesh shader, or ray tracing extensions are not supported.
         /// </summary>
         bool Initialize(
-            nri::Device&      RhiDevice,
-            DeviceFeatureType SwapchainFeatures,
-            DeviceFeatureType MeshShaderFeatures,
-            DeviceFeatureType RayTracingFeatures);
+            nri::Device&      rhiDevice,
+            DeviceFeatureType swapchainFeatures,
+            DeviceFeatureType meshShaderFeatures,
+            DeviceFeatureType rayTracingFeatures);
 
         /// <summary>
         /// Releases all resources used by the bridge.
@@ -28,7 +28,7 @@ namespace Ame::Rhi
         /// Helper function to wait for the GPU to idle.
         /// </summary>
         void WaitIdle(
-            nri::CommandQueue& CommandQueue);
+            nri::CommandQueue& commandQueue);
 
     public:
         [[nodiscard]] nri::CoreInterface* GetCoreInterface() const
@@ -55,6 +55,6 @@ namespace Ame::Rhi
         UPtr<nri::RayTracingInterface> m_RayTracingInterface;
 
         nri::Fence* m_IdleFence  = nullptr;
-        uint64_t m_FenceValue = 0;
+        uint64_t    m_FenceValue = 0;
     };
 } // namespace Ame::Rhi

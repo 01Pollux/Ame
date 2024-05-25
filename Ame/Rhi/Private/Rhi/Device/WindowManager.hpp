@@ -13,8 +13,8 @@ namespace Ame::Rhi
     {
     public:
         WindowManager(
-            DeviceImpl&             RhiDevice,
-            const DeviceCreateDesc& Desc);
+            DeviceImpl&             rhiDevice,
+            const DeviceCreateDesc& deviceCreateDesc);
 
         WindowManager(const WindowManager&) = delete;
         WindowManager(WindowManager&&)      = delete;
@@ -63,7 +63,7 @@ namespace Ame::Rhi
         /// Get the backbuffer at the specified index.
         /// </summary>
         [[nodiscard]] const Backbuffer& GetBackbuffer(
-            uint8_t Index) const;
+            uint8_t index) const;
 
     public:
         /// <summary>
@@ -75,7 +75,7 @@ namespace Ame::Rhi
         /// Return vsync state for our swapchain
         /// </summary>
         void SetVSyncEnabled(
-            bool State = true);
+            bool state = true);
 
     public:
         /// <summary>

@@ -6,18 +6,18 @@
 namespace Ame::Rhi
 {
     ShaderLinkerLibrary::ShaderLinkerLibrary(
-        Device&                         RhiDevice,
-        Rhi::GraphicsAPI                Api,
-        const ShaderCompileDesc&        Desc,
-        std::span<const ShaderBytecode> Shaders) :
-        m_CompileOptions(RhiDevice, Desc),
-        m_ShaderStage(Desc.GetStage())
+        Device&                         rhiDevice,
+        Rhi::GraphicsAPI                api,
+        const ShaderCompileDesc&        desc,
+        std::span<const ShaderBytecode> shaders) :
+        m_CompileOptions(rhiDevice, desc),
+        m_ShaderStage(desc.GetStage())
     {
         LoadDxc();
-        LoadBlobs(Shaders);
+        LoadBlobs(shaders);
         RegisterLibraries();
         Link();
-        Validate(Api, Desc);
+        Validate(api, desc);
     }
 
     ShaderBytecode ShaderLinkerLibrary::GetBytecode() const
@@ -27,13 +27,13 @@ namespace Ame::Rhi
             return {};
         }
 
-        uint8_t* CompiledShaderCode = static_cast<uint8_t*>(m_CompiledBlob->GetBufferPointer());
+        uint8_t* shaderCode = static_cast<uint8_t*>(m_CompiledBlob->GetBufferPointer());
 
-        size_t CodeSize = m_CompiledBlob->GetBufferSize();
-        auto   CodePtr  = std::make_unique<uint8_t[]>(CodeSize);
+        size_t codeSize   = m_CompiledBlob->GetBufferSize();
+        auto   outCodePtr = std::make_unique<uint8_t[]>(codeSize);
 
-        std::copy(CompiledShaderCode, CompiledShaderCode + CodeSize, CodePtr.get());
-        return ShaderBytecode(CodePtr.release(), CodeSize, m_ShaderStage);
+        std::copy(shaderCode, shaderCode + codeSize, outCodePtr.get());
+        return ShaderBytecode(outCodePtr.release(), codeSize, m_ShaderStage);
     }
 
     //
@@ -48,20 +48,20 @@ namespace Ame::Rhi
     //
 
     void ShaderLinkerLibrary::LoadBlobs(
-        std::span<const ShaderBytecode> Shaders)
+        std::span<const ShaderBytecode> shaders)
     {
         m_Blobs =
-            Shaders |
+            shaders |
             std::views::transform(
-                [this](const ShaderBytecode& Shader)
+                [this](const ShaderBytecode& shader)
                 {
-                    CComPtr<IDxcBlobEncoding> Blob;
+                    CComPtr<IDxcBlobEncoding> blob;
                     ShaderUtil::ThrowShaderException(m_Utils->CreateBlobFromPinned(
-                        Shader.GetBytecode(),
-                        static_cast<uint32_t>(Shader.GetSize()),
+                        shader.GetBytecode(),
+                        static_cast<uint32_t>(shader.GetSize()),
                         DXC_CP_ACP,
-                        &Blob));
-                    return Blob;
+                        &blob));
+                    return blob;
                 }) |
             std::ranges::to<std::vector>();
     }
@@ -92,7 +92,7 @@ namespace Ame::Rhi
 
     void ShaderLinkerLibrary::Link()
     {
-        CComPtr<IDxcOperationResult> Result;
+        CComPtr<IDxcOperationResult> result;
 
         ShaderUtil::ThrowShaderException(
             m_Linker->Link(
@@ -102,43 +102,43 @@ namespace Ame::Rhi
                 static_cast<uint32_t>(m_LibrariesStr.size()),
                 m_CompileOptions.FinalOptions.data(),
                 static_cast<uint32_t>(m_CompileOptions.FinalOptions.size()),
-                &Result));
+                &result));
 
-        HRESULT Status;
-        if (FAILED(Result->GetStatus(&Status)))
+        HRESULT status;
+        if (FAILED(result->GetStatus(&status)))
         {
             Log::Rhi().Error("Failed to get the status of the compilation.");
             return;
         }
 
-        if (FAILED(Status))
+        if (FAILED(status))
         {
-            CComPtr<IDxcBlobEncoding> ErrorBlob;
-            if (FAILED(Result->GetErrorBuffer(&ErrorBlob)))
+            CComPtr<IDxcBlobEncoding> error;
+            if (FAILED(result->GetErrorBuffer(&error)))
             {
                 Log::Rhi().Error("Failed to get the error buffer of the compilation.");
                 return;
             }
 
-            if (ErrorBlob)
+            if (error)
             {
-                Log::Rhi().Error(StringView(static_cast<const char*>(ErrorBlob->GetBufferPointer()), ErrorBlob->GetBufferSize()));
+                Log::Rhi().Error(StringView(static_cast<const char*>(error->GetBufferPointer()), error->GetBufferSize()));
             }
             return;
         }
 
-        ShaderUtil::ThrowShaderException(Result->GetResult(&m_CompiledBlob));
+        ShaderUtil::ThrowShaderException(result->GetResult(&m_CompiledBlob));
     }
 
     //
 
     void ShaderLinkerLibrary::Validate(
-        GraphicsAPI              Api,
-        const ShaderCompileDesc& Desc)
+        GraphicsAPI              api,
+        const ShaderCompileDesc& desc)
     {
         using namespace EnumBitOperators;
 
-        if (Api != GraphicsAPI::DirectX12)
+        if (api != GraphicsAPI::DirectX12)
         {
             return;
         }
@@ -148,38 +148,38 @@ namespace Ame::Rhi
             return;
         }
 
-        if (!Desc.ShouldValidate())
+        if (!desc.ShouldValidate())
         {
             return;
         }
 
-        CComPtr<IDxcOperationResult> OperationResult;
+        CComPtr<IDxcOperationResult> result;
         ShaderUtil::ThrowShaderException(m_Validator->Validate(
             ShaderUtil::GetComPtr(m_CompiledBlob),
             DxcValidatorFlags_InPlaceEdit,
-            &OperationResult));
+            &result));
 
-        HRESULT Status;
-        ShaderUtil::ThrowShaderException(OperationResult->GetStatus(&Status));
+        HRESULT status;
+        ShaderUtil::ThrowShaderException(result->GetStatus(&status));
 
-        if (FAILED(Status))
+        if (FAILED(status))
         {
-            CComPtr<IDxcBlobEncoding> Error;
-            CComPtr<IDxcBlobUtf8>     ErrorUtf8;
+            CComPtr<IDxcBlobEncoding> error;
+            CComPtr<IDxcBlobUtf8>     errorUtf8;
 
-            OperationResult->GetErrorBuffer(&Error);
-            if (Error)
+            result->GetErrorBuffer(&error);
+            if (error)
             {
-                m_Utils->GetBlobAsUtf8(ShaderUtil::GetComPtr(Error), &ErrorUtf8);
+                m_Utils->GetBlobAsUtf8(ShaderUtil::GetComPtr(error), &errorUtf8);
             }
             else
             {
                 Log::Rhi().Error("Failed to get the error buffer.");
             }
 
-            if (ErrorUtf8)
+            if (errorUtf8)
             {
-                Log::Rhi().Error(StringView(ErrorUtf8->GetStringPointer(), ErrorUtf8->GetBufferSize()));
+                Log::Rhi().Error(StringView(errorUtf8->GetStringPointer(), errorUtf8->GetBufferSize()));
             }
             else
             {
@@ -190,7 +190,7 @@ namespace Ame::Rhi
         else
         {
             m_CompiledBlob = nullptr;
-            ShaderUtil::ThrowShaderException(OperationResult->GetResult(&m_CompiledBlob));
+            ShaderUtil::ThrowShaderException(result->GetResult(&m_CompiledBlob));
         }
     }
 
@@ -198,32 +198,32 @@ namespace Ame::Rhi
 
     Co::result<ShaderBytecode> ShaderCompiler::LinkAsync(
         Co::executor_tag,
-        Co::executor&                   Executor,
-        Device&                         RhiDevice,
-        const ShaderCompileDesc&        Desc,
-        std::span<const ShaderBytecode> Shaders,
-        Asset::Storage*                 AssetStorage)
+        Co::executor&                   executor,
+        Device&                         rhiDevice,
+        const ShaderCompileDesc&        desc,
+        std::span<const ShaderBytecode> shaders,
+        Asset::Storage*                 assetStorage)
     {
-        co_return Link(RhiDevice, Desc, Shaders, AssetStorage);
+        co_return Link(rhiDevice, desc, shaders, assetStorage);
     }
 
     ShaderBytecode ShaderCompiler::Link(
-        Device&                         RhiDevice,
-        const ShaderCompileDesc&        Desc,
-        std::span<const ShaderBytecode> Shaders,
-        Asset::Storage*                 AssetStorage)
+        Device&                         rhiDevice,
+        const ShaderCompileDesc&        desc,
+        std::span<const ShaderBytecode> shaders,
+        Asset::Storage*                 assetStorage)
     {
-        auto Api = RhiDevice.GetGraphicsAPI();
+        auto api = rhiDevice.GetGraphicsAPI();
 
-        if (Api == Rhi::GraphicsAPI::Vulkan)
+        if (api == Rhi::GraphicsAPI::Vulkan)
         {
-            auto Library = ShaderCompilerLibrary::SpirvWorkaround(RhiDevice, Shaders, Desc, AssetStorage);
-            return Library.GetBytecode();
+            auto library = ShaderCompilerLibrary::SpirvWorkaround(rhiDevice, shaders, desc, assetStorage);
+            return library.GetBytecode();
         }
         else
         {
-            ShaderLinkerLibrary Library(RhiDevice, Api, Desc, Shaders);
-            return Library.GetBytecode();
+            ShaderLinkerLibrary library(rhiDevice, api, desc, shaders);
+            return library.GetBytecode();
         }
     }
 } // namespace Ame::Rhi

@@ -12,11 +12,15 @@ namespace Ame::Rhi
     public:
         CommandListImpl() = default;
 
-        CommandListImpl(const CommandListImpl&)            = delete;
-        CommandListImpl& operator=(const CommandListImpl&) = delete;
+        CommandListImpl(
+            const CommandListImpl&) = delete;
+        CommandListImpl& operator=(
+            const CommandListImpl&) = delete;
 
-        CommandListImpl(CommandListImpl&&)            = delete;
-        CommandListImpl& operator=(CommandListImpl&&) = delete;
+        CommandListImpl(
+            CommandListImpl&&) = delete;
+        CommandListImpl& operator=(
+            CommandListImpl&&) = delete;
 
         ~CommandListImpl() = default;
 
@@ -25,10 +29,10 @@ namespace Ame::Rhi
         /// Initialize command list.
         /// </summary>
         void Initialize(
-            DeviceImpl&                     RhiDevice,
-            const DescriptorAllocationDesc& DescriptorPoolDesc,
-            const char*                     AllocatorName,
-            const char*                     ListName);
+            DeviceImpl&                     rhiDevice,
+            const DescriptorAllocationDesc& allocationDesc,
+            const char*                     allocatorName,
+            const char*                     listName);
 
         /// <summary>
         /// Shutdown command list.
@@ -61,7 +65,7 @@ namespace Ame::Rhi
         /// Begin tag marker.
         /// </summary>
         void BeginMarker(
-            const char* Name);
+            const char* name);
 
         /// <summary>
         /// End last tag marker.
@@ -73,149 +77,143 @@ namespace Ame::Rhi
         /// Set pipeline layout.
         /// </summary>
         void SetPipelineLayout(
-            const Ptr<PipelineLayout>& Layout);
+            const Ptr<PipelineLayout>& layout);
 
         /// <summary>
         /// Set pipeline state.
         /// </summary>
         void SetPipelineState(
-            const Ptr<PipelineState>& Pipeline);
+            const Ptr<PipelineState>& pipeline);
 
     public:
         /// <summary>
         /// Set constants.
         /// </summary>
         void SetConstants(
-            uint32_t    ConstantIndex,
-            const void* Data,
-            size_t      Size);
+            uint32_t    constantIndex,
+            const void* data,
+            size_t      size);
 
         /// <summary>
         /// Set descriptor sets with dynamic offsets (optional).
         /// </summary>
         void SetDescriptorSet(
-            uint32_t             LayoutSlot,
-            const DescriptorSet& DescriptorSets,
-            const uint32_t*      DynamicBufferOffset);
-
-        /// <summary>
-        /// Set descriptor sets with dynamic offsets if not null.
-        /// </summary>
-        void UnsetDescriptorSet(
-            uint32_t LayoutSlot);
+            uint32_t             layoutSlot,
+            const DescriptorSet& descriptorSets,
+            const uint32_t*      dynamicBufferOffset);
 
         /// <summary>
         /// Mandatory state, if enabled (can be set only once)
         /// Interacts with PSL enabled pipelines. Affects any depth-stencil operations, including clear and copy
         /// </summary>
         void SetSamplePositions(
-            std::span<const SamplePosition> Positions,
-            Sample_t                        SampleCount);
+            std::span<const SamplePosition> positions,
+            Sample_t                        sampleCount);
 
     public:
         /// <summary>
         /// Allocate descriptor sets for the pipeline layout.
         /// </summary>
         [[nodiscard]] DescriptorSet AllocateSet(
-            uint32_t LayoutSlot,
-            uint32_t VariableCount);
+            uint32_t layoutSlot,
+            uint32_t variableCount);
 
         /// <summary>
         /// Allocate descriptor sets for the pipeline layout.
         /// </summary>
         [[nodiscard]] std::vector<DescriptorSet> AllocateSets(
-            uint32_t LayoutSlot,
-            uint32_t InstanceCount,
-            uint32_t VariableCount);
+            uint32_t layoutSlot,
+            uint32_t instanceCount,
+            uint32_t variableCount);
 
     public:
         /// <summary>
         /// Set render targets and depth-stencil buffer.
         /// </summary>
         void BeginRendering(
-            std::span<const Rhi::ResourceView*> RenderTargets,
-            const Rhi::ResourceView*            DepthStencil);
+            std::span<const Rhi::ResourceView*> renderTargets,
+            const Rhi::ResourceView*            depthStencil);
 
         /// <summary>
         /// Clear render targets and depth-stencil buffer.
         /// </summary>
         void ClearAttachments(
-            std::span<const ClearDesc>   Clears,
-            std::span<const ClearRegion> Regions);
+            std::span<const ClearDesc>   clears,
+            std::span<const ClearRegion> regions);
 
         /// <summary>
         /// Clear render targets and depth-stencil buffer.
         /// </summary>
         void ClearAttachments(
-            std::span<const ClearDesc> Clears);
+            std::span<const ClearDesc> clears);
 
         /// <summary>
         /// Set viewport of the render target.
         /// </summary>
         void SetViewports(
-            std::span<const Viewport> Viewports);
+            std::span<const Viewport> viewports);
 
         /// <summary>
         /// Set scissor rects of the render target.
         /// </summary>
         void SetScissorRects(
-            std::span<const ScissorRect> ScissorRects);
+            std::span<const ScissorRect> scissorRects);
 
         /// <summary>
         /// Set stencil reference value.
         /// </summary>
         void SetStencilReference(
-            uint8_t StencilReference);
+            uint8_t stencilReference);
 
         /// <summary>
         /// Set depth bounds.
         /// </summary>
         void SetDepthBounds(
-            float MinDepthBounds,
-            float MaxDepthBounds);
+            float minDepthBounds,
+            float maxDepthBounds);
 
         /// <summary>
         /// Set blend constants.
         /// </summary>
         void SetBlendConstants(
-            const Math::Color4& BlendConstants);
+            const Math::Color4& blendConstants);
 
         /// <summary>
         /// Set vertex buffer.
         /// </summary>
         void SetVertexBuffers(
-            std::span<const VertexBufferView> VertexBuffers,
-            uint32_t                          BaseSlot);
+            std::span<const VertexBufferView> vertexBuffers,
+            uint32_t                          baseSlot);
 
         /// <summary>
         /// Set index buffer.
         /// </summary>
         void SetIndexBuffer(
-            const IndexBufferView& IndexBuffer);
+            const IndexBufferView& indexBuffer);
 
         /// <summary>
         /// Perform draw call.
         /// </summary>
         void Draw(
-            const DrawDesc& Desc);
+            const DrawDesc& drawDesc);
 
         /// <summary>
         /// Perform draw indexed call.
         /// </summary>
         void Draw(
-            const DrawIndexedDesc& Desc);
+            const DrawIndexedDesc& drawDesc);
 
         /// <summary>
         /// Perform an indirect draw call.
         /// </summary>
         void DrawIndirect(
-            const DrawIndirectDesc& Desc);
+            const DrawIndirectDesc& drawDesc);
 
         /// <summary>
         /// Perform an indirect indexed draw call.
         /// </summary>
         void DrawIndirectIndexed(
-            const DrawIndirectDesc& Desc);
+            const DrawIndirectDesc& drawDesc);
 
         /// <summary>
         /// End rendering.
@@ -227,9 +225,9 @@ namespace Ame::Rhi
         /// Dispatch compute operation
         /// </summary>
         void Dispatch(
-            uint32_t X,
-            uint32_t Y = 1,
-            uint32_t Z = 1);
+            uint32_t x,
+            uint32_t y = 1,
+            uint32_t z = 1);
 
     public:
         /// <summary>
@@ -237,28 +235,28 @@ namespace Ame::Rhi
         /// Copy the rest of buffer if size is 0
         /// </summary>
         void CopyBuffer(
-            const BufferCopyDesc& Src,
-            const BufferCopyDesc& Dst,
-            size_t                Size = 0);
+            const BufferCopyDesc& src,
+            const BufferCopyDesc& dst,
+            size_t                size = 0);
 
         /// <summary>
         /// Perform a copy from texture to texture
         /// </summary>
         void CopyTexture(
-            const TextureCopyDesc& Src,
-            const TextureCopyDesc& Dst);
+            const TextureCopyDesc& src,
+            const TextureCopyDesc& dst);
 
         /// <summary>
         /// Perform a copy from buffer to texture
         /// </summary>
         void UploadTexture(
-            const TransferCopyDesc& Desc);
+            const TransferCopyDesc& copyDesc);
 
         /// <summary>
         /// Perform a copy from texture to buffer
         /// </summary>
         void ReadbackTexture(
-            const TransferCopyDesc& Desc);
+            const TransferCopyDesc& copyDesc);
 
     public:
         /// <summary>
@@ -266,25 +264,25 @@ namespace Ame::Rhi
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
-            const Buffer&      RhiBuffer,
-            const AccessStage& State,
-            bool               Append = false);
+            const Buffer&      buffer,
+            const AccessStage& state,
+            bool               append = false);
 
         /// <summary>
         /// Require a texture to be in a certain state
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
-            const Texture&            RhiTexture,
-            const AccessLayoutStage&  State,
-            const TextureSubresource& Subresource = AllSubresources,
-            bool                      Append      = false);
+            const Texture&            texture,
+            const AccessLayoutStage&  state,
+            const TextureSubresource& subresource = AllSubresources,
+            bool                      append      = false);
 
         /// <summary>
         /// Place a global barrier
         /// </summary>
         void PlaceBarrier(
-            const GlobalBarrierDesc& BarrierDesc);
+            const GlobalBarrierDesc& barrierDesc);
 
         /// <summary>
         /// Commit all the pending barriers
@@ -296,13 +294,13 @@ namespace Ame::Rhi
         /// Clear storage buffer
         /// </summary>
         void ClearBuffer(
-            const ClearBufferDesc& Desc);
+            const ClearBufferDesc& clearDesc);
 
         /// <summary>
         /// Clear storage texture
         /// </summary>
         void ClearTexture(
-            const ClearTextureDesc& Desc);
+            const ClearTextureDesc& clearDesc);
 
     private:
         nri::CommandAllocator* m_CommandAllocator = nullptr;

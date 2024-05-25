@@ -19,10 +19,10 @@ namespace Ame::Rhi
 
     public:
         ShaderLinkerLibrary(
-            Device&                         RhiDevice,
-            Rhi::GraphicsAPI                Api,
-            const ShaderCompileDesc&        Desc,
-            std::span<const ShaderBytecode> Shaders);
+            Device&                         rhiDevice,
+            Rhi::GraphicsAPI                api,
+            const ShaderCompileDesc&        desc,
+            std::span<const ShaderBytecode> shaders);
 
         [[nodiscard]] ShaderBytecode GetBytecode() const;
 
@@ -30,15 +30,15 @@ namespace Ame::Rhi
         void LoadDxc();
 
         void LoadBlobs(
-            std::span<const ShaderBytecode> Shaders);
+            std::span<const ShaderBytecode> shaders);
 
         void RegisterLibraries();
 
         void Link();
 
         void Validate(
-            GraphicsAPI              Api,
-            const ShaderCompileDesc& Desc);
+            GraphicsAPI              api,
+            const ShaderCompileDesc& desc);
 
     private:
         CComPtr<IDxcValidator> m_Validator;

@@ -5,42 +5,42 @@
 namespace Ame::Rhi
 {
     size_t GetUploadBufferTextureRowSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount) noexcept
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount) noexcept
     {
-        return InstanceCount * Math::AlignUp(StructSize, Desc.uploadBufferTextureRowAlignment);
+        return instanceCount * Math::AlignUp(structSize, desc.uploadBufferTextureRowAlignment);
     }
 
     size_t GetUploadBufferTextureSliceSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount) noexcept
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount) noexcept
     {
-        return InstanceCount * Math::AlignUp(StructSize, Desc.uploadBufferTextureSliceAlignment);
+        return instanceCount * Math::AlignUp(structSize, desc.uploadBufferTextureSliceAlignment);
     }
 
-    size_t GetTypedufferSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount) noexcept
+    size_t GetTypedBufferSize(
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount) noexcept
     {
-        return InstanceCount * Math::AlignUp(StructSize, Desc.typedBufferOffsetAlignment);
+        return instanceCount * Math::AlignUp(structSize, desc.typedBufferOffsetAlignment);
     }
 
     size_t GetConstantBufferSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount) noexcept
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount) noexcept
     {
-        return InstanceCount * Math::AlignUp(StructSize, Desc.constantBufferOffsetAlignment);
+        return instanceCount * Math::AlignUp(structSize, desc.constantBufferOffsetAlignment);
     }
 
     size_t GetUnorderedAccessBufferSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount) noexcept
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount) noexcept
     {
-        return InstanceCount * Math::AlignUp(StructSize, Desc.storageBufferOffsetAlignment);
+        return instanceCount * Math::AlignUp(structSize, desc.storageBufferOffsetAlignment);
     }
 } // namespace Ame::Rhi

@@ -5,15 +5,15 @@
 namespace Ame::Rhi
 {
     CommandList::CommandList(
-        Device& RhiDevice) :
-        m_Impl(RhiDevice.GetImpl().GetCurrentCommandList())
+        Device& rhiDevice) :
+        m_Impl(rhiDevice.GetImpl().GetCurrentCommandList())
     {
     }
 
     void CommandList::BeginMarker(
-        const char* Name)
+        const char* name)
     {
-        m_Impl.get().BeginMarker(Name);
+        m_Impl.get().BeginMarker(name);
     }
 
     void CommandList::EndMarker()
@@ -24,172 +24,166 @@ namespace Ame::Rhi
     //
 
     void CommandList::SetPipelineLayout(
-        const Ptr<PipelineLayout>& Layout)
+        const Ptr<PipelineLayout>& layout)
     {
-        m_Impl.get().SetPipelineLayout(Layout);
+        m_Impl.get().SetPipelineLayout(layout);
     }
 
     void CommandList::SetPipelineState(
-        const Ptr<PipelineState>& Pipeline)
+        const Ptr<PipelineState>& pipeline)
     {
-        m_Impl.get().SetPipelineState(Pipeline);
+        m_Impl.get().SetPipelineState(pipeline);
     }
 
     //
 
     void CommandList::SetConstants(
-        uint32_t    ConstantIndex,
-        const void* Data,
-        size_t      Size)
+        uint32_t    constantIndex,
+        const void* data,
+        size_t      size)
     {
-        m_Impl.get().SetConstants(ConstantIndex, Data, Size);
+        m_Impl.get().SetConstants(constantIndex, data, size);
     }
 
     void CommandList::SetDescriptorSet(
-        uint32_t             LayoutSlot,
-        const DescriptorSet& DescriptorSets,
-        const uint32_t*      DynamicBufferOffset)
+        uint32_t             layoutSlot,
+        const DescriptorSet& descriptorSets,
+        const uint32_t*      dynamicBufferOffset)
     {
-        m_Impl.get().SetDescriptorSet(LayoutSlot, DescriptorSets, DynamicBufferOffset);
-    }
-
-    void CommandList::UnsetDescriptorSet(
-        uint32_t LayoutSlot)
-    {
-        m_Impl.get().UnsetDescriptorSet(LayoutSlot);
+        m_Impl.get().SetDescriptorSet(layoutSlot, descriptorSets, dynamicBufferOffset);
     }
 
     void CommandList::SetSamplePositions(
-        std::span<const SamplePosition> Positions,
-        Sample_t                        SampleCount)
+        std::span<const SamplePosition> positions,
+        Sample_t                        sampleCount)
     {
-        m_Impl.get().SetSamplePositions(Positions, SampleCount);
+        m_Impl.get().SetSamplePositions(positions, sampleCount);
     }
 
     //
 
     DescriptorSet CommandList::AllocateSet(
-        uint32_t LayoutSlot,
-        uint32_t VariableCount)
+        uint32_t layoutSlot,
+        uint32_t variableCount)
     {
-        return m_Impl.get().AllocateSet(LayoutSlot, VariableCount);
+        return m_Impl.get().AllocateSet(layoutSlot, variableCount);
     }
 
     std::vector<DescriptorSet> CommandList::AllocateSets(
-        uint32_t LayoutSlot,
-        uint32_t InstanceCount,
-        uint32_t VariableCount)
+        uint32_t layoutSlot,
+        uint32_t instanceCount,
+        uint32_t variableCount)
     {
-        return m_Impl.get().AllocateSets(LayoutSlot, InstanceCount, VariableCount);
+        return m_Impl.get().AllocateSets(layoutSlot, instanceCount, variableCount);
     }
 
     //
 
     void CommandList::BeginRendering(
-        std::span<const Rhi::ResourceView*> RenderTargets,
-        const Rhi::ResourceView*            DepthStencil)
+        std::span<const Rhi::ResourceView*> renderTargets,
+        const Rhi::ResourceView*            depthStencil)
     {
-        m_Impl.get().BeginRendering(RenderTargets, DepthStencil);
+        m_Impl.get().BeginRendering(renderTargets, depthStencil);
     }
 
     void CommandList::ClearAttachments(
-        std::span<const ClearDesc>   Clears,
-        std::span<const ClearRegion> Regions)
+        std::span<const ClearDesc>   clears,
+        std::span<const ClearRegion> regions)
     {
-        m_Impl.get().ClearAttachments(Clears, Regions);
+        m_Impl.get().ClearAttachments(clears, regions);
     }
 
     void CommandList::ClearAttachments(
-        std::span<const ClearDesc> Clears)
+        std::span<const ClearDesc> clears)
     {
-        m_Impl.get().ClearAttachments(Clears);
+        m_Impl.get().ClearAttachments(clears);
     }
 
     void CommandList::SetViewports(
-        std::span<const Viewport> Viewports)
+        std::span<const Viewport> viewports)
     {
-        m_Impl.get().SetViewports(Viewports);
+        m_Impl.get().SetViewports(viewports);
     }
 
     void CommandList::SetViewport(
-        const Viewport& Viewport)
+        const Viewport& viewport)
     {
-        SetViewports({ &Viewport, 1 });
+        SetViewports({ &viewport, 1 });
     }
 
     void CommandList::SetScissorRects(
-        std::span<const ScissorRect> ScissorRects)
+        std::span<const ScissorRect> scissorRects)
     {
-        m_Impl.get().SetScissorRects(ScissorRects);
+        m_Impl.get().SetScissorRects(scissorRects);
     }
 
     void CommandList::SetScissorRect(
-        const ScissorRect& ScissorRects)
+        const ScissorRect& scissorRects)
     {
-        SetScissorRects({ &ScissorRects, 1 });
+        SetScissorRects({ &scissorRects, 1 });
     }
 
     void CommandList::SetStencilReference(
-        uint8_t StencilReference)
+        uint8_t stencilReference)
     {
-        m_Impl.get().SetStencilReference(StencilReference);
+        m_Impl.get().SetStencilReference(stencilReference);
     }
 
     void CommandList::SetDepthBounds(
-        float MinDepthBounds,
-        float MaxDepthBounds)
+        float minDepthBounds,
+        float maxDepthBounds)
     {
-        m_Impl.get().SetDepthBounds(MinDepthBounds, MaxDepthBounds);
+        m_Impl.get().SetDepthBounds(minDepthBounds, maxDepthBounds);
     }
 
     void CommandList::SetBlendConstants(
-        const Math::Color4& BlendConstants)
+        const Math::Color4& blendConstants)
     {
-        m_Impl.get().SetBlendConstants(BlendConstants);
+        m_Impl.get().SetBlendConstants(blendConstants);
     }
 
     void CommandList::SetVertexBuffers(
-        std::span<const VertexBufferView> VertexBuffers,
-        uint32_t                          BaseSlot)
+        std::span<const VertexBufferView> vertexBuffers,
+        uint32_t                          baseSlot)
     {
-        m_Impl.get().SetVertexBuffers(VertexBuffers, BaseSlot);
+        m_Impl.get().SetVertexBuffers(vertexBuffers, baseSlot);
     }
 
     void CommandList::SetVertexBuffer(
-        const VertexBufferView& VertexBuffer,
-        uint32_t                BaseSlot)
+        const VertexBufferView& vertexBuffer,
+        uint32_t                baseSlot)
     {
-        SetVertexBuffers({ &VertexBuffer, 1 }, BaseSlot);
+        SetVertexBuffers({ &vertexBuffer, 1 }, baseSlot);
     }
 
     void CommandList::SetIndexBuffer(
-        const IndexBufferView& IndexBuffer)
+        const IndexBufferView& indexBuffer)
     {
-        m_Impl.get().SetIndexBuffer(IndexBuffer);
+        m_Impl.get().SetIndexBuffer(indexBuffer);
     }
 
     void CommandList::Draw(
-        const DrawDesc& Desc)
+        const DrawDesc& drawDesc)
     {
-        m_Impl.get().Draw(Desc);
+        m_Impl.get().Draw(drawDesc);
     }
 
     void CommandList::Draw(
-        const DrawIndexedDesc& Desc)
+        const DrawIndexedDesc& drawDesc)
     {
-        m_Impl.get().Draw(Desc);
+        m_Impl.get().Draw(drawDesc);
     }
 
     void CommandList::DrawIndirect(
-        const DrawIndirectDesc& Desc)
+        const DrawIndirectDesc& drawDesc)
     {
-        m_Impl.get().DrawIndirect(Desc);
+        m_Impl.get().DrawIndirect(drawDesc);
     }
 
     void CommandList::DrawIndirectIndexed(
-        const DrawIndirectDesc& Desc)
+        const DrawIndirectDesc& drawDesc)
     {
-        m_Impl.get().DrawIndirectIndexed(Desc);
+        m_Impl.get().DrawIndirectIndexed(drawDesc);
     }
 
     void CommandList::EndRendering()
@@ -200,65 +194,65 @@ namespace Ame::Rhi
     //
 
     void CommandList::Dispatch(
-        uint32_t X,
-        uint32_t Y,
-        uint32_t Z)
+        uint32_t x,
+        uint32_t y,
+        uint32_t z)
     {
-        m_Impl.get().Dispatch(X, Y, Z);
+        m_Impl.get().Dispatch(x, y, z);
     }
 
     //
 
     void CommandList::CopyBuffer(
-        const BufferCopyDesc& Src,
-        const BufferCopyDesc& Dst,
-        size_t                Size)
+        const BufferCopyDesc& src,
+        const BufferCopyDesc& dst,
+        size_t                size)
     {
-        m_Impl.get().CopyBuffer(Src, Dst, Size);
+        m_Impl.get().CopyBuffer(src, dst, size);
     }
 
     void CommandList::CopyTexture(
-        const TextureCopyDesc& Src,
-        const TextureCopyDesc& Dst)
+        const TextureCopyDesc& src,
+        const TextureCopyDesc& dst)
     {
-        m_Impl.get().CopyTexture(Src, Dst);
+        m_Impl.get().CopyTexture(src, dst);
     }
 
     void CommandList::UploadTexture(
-        const TransferCopyDesc& Desc)
+        const TransferCopyDesc& copyDesc)
     {
-        m_Impl.get().UploadTexture(Desc);
+        m_Impl.get().UploadTexture(copyDesc);
     }
 
     void CommandList::ReadbackTexture(
-        const TransferCopyDesc& Desc)
+        const TransferCopyDesc& copyDesc)
     {
-        m_Impl.get().ReadbackTexture(Desc);
+        m_Impl.get().ReadbackTexture(copyDesc);
     }
 
     //
 
     void CommandList::RequireState(
-        const Buffer&      RhiBuffer,
-        const AccessStage& State,
-        bool               Append)
+        const Buffer&      buffer,
+        const AccessStage& state,
+        bool               append)
     {
-        m_Impl.get().RequireState(RhiBuffer, State, Append);
+        m_Impl.get().RequireState(buffer, state, append);
     }
 
     void CommandList::RequireState(
-        const Texture&            RhiTexture,
-        const AccessLayoutStage&  State,
-        const TextureSubresource& Subresource,
-        bool                      Append)
+        const Texture&            texture,
+        const AccessLayoutStage&  state,
+        const TextureSubresource& subresource,
+        bool                      append)
     {
-        m_Impl.get().RequireState(RhiTexture, State, Subresource, Append);
+        m_Impl.get().RequireState(texture, state, subresource, append);
     }
 
     void CommandList::PlaceBarrier(
-        const GlobalBarrierDesc& BarrierDesc)
+        const GlobalBarrierDesc& barrierDesc)
     {
-        m_Impl.get().PlaceBarrier(BarrierDesc);
+        m_Impl.get().PlaceBarrier(barrierDesc);
     }
 
     void CommandList::CommitBarriers()
@@ -269,13 +263,14 @@ namespace Ame::Rhi
     //
 
     void CommandList::ClearBuffer(
-        const ClearBufferDesc& Desc)
+        const ClearBufferDesc& clearDesc)
     {
-        m_Impl.get().ClearBuffer(Desc);
+        m_Impl.get().ClearBuffer(clearDesc);
     }
 
-    void CommandList::ClearTexture(const ClearTextureDesc& Desc)
+    void CommandList::ClearTexture(
+        const ClearTextureDesc& clearDesc)
     {
-        m_Impl.get().ClearTexture(Desc);
+        m_Impl.get().ClearTexture(clearDesc);
     }
 } // namespace Ame::Rhi

@@ -56,39 +56,39 @@ namespace Ame::Rhi
 
     struct ShaderFlags
     {
-        ShaderType Flags = ShaderType::NONE;
+        StageBits Flags = StageBits::NONE;
 
         void Set(
-            ShaderFlags ToSet,
-            bool        Value = true)
+            ShaderFlags other,
+            bool        value = true)
         {
-            Set(ToSet.Flags, Value);
+            Set(other.Flags, value);
         }
 
         void Set(
-            ShaderType ToSet,
-            bool       Value = true)
+            StageBits flags,
+            bool       value = true)
         {
-            if (Value)
+            if (value)
             {
-                if (ToSet == Rhi::ShaderType::ALL || Flags == Rhi::ShaderType::NONE)
+                if (flags == Rhi::ShaderType::ALL || Flags == Rhi::ShaderType::NONE)
                 {
-                    Flags = ToSet;
+                    Flags = flags;
                 }
                 else if (Flags != Rhi::ShaderType::ALL)
                 {
-                    Flags |= ToSet;
+                    Flags |= flags;
                 }
             }
             else
             {
-                if (ToSet == Rhi::ShaderType::ALL)
+                if (flags == Rhi::ShaderType::ALL)
                 {
                     Flags = Rhi::ShaderType::NONE;
                 }
                 else if (Flags != Rhi::ShaderType::NONE)
                 {
-                    Flags = static_cast<Rhi::ShaderType>(static_cast<uint32_t>(Flags) & ~static_cast<uint32_t>(ToSet));
+                    Flags = static_cast<Rhi::ShaderType>(static_cast<uint32_t>(Flags) & ~static_cast<uint32_t>(flags));
                 }
             }
         }

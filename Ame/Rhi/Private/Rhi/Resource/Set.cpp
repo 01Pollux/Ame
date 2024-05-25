@@ -4,52 +4,52 @@
 namespace Ame::Rhi
 {
     void DescriptorSet::SetRanges(
-        uint32_t                                   BaseRange,
-        std::span<const DescriptorRangeUpdateDesc> RangeUpdateDescs)
+        uint32_t                                   baseRange,
+        std::span<const DescriptorRangeUpdateDesc> rangeUpdateDescs)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.UpdateDescriptorRanges(*Unwrap(), BaseRange, Count32(RangeUpdateDescs), RangeUpdateDescs.data());
+        nriCore.UpdateDescriptorRanges(*Unwrap(), baseRange, Count32(rangeUpdateDescs), rangeUpdateDescs.data());
     }
 
     void DescriptorSet::SetRange(
-        uint32_t                         BaseRange,
-        const DescriptorRangeUpdateDesc& RangeUpdateDesc)
+        uint32_t                         baseRange,
+        const DescriptorRangeUpdateDesc& rangeUpdateDescs)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.UpdateDescriptorRanges(*Unwrap(), BaseRange, 1, &RangeUpdateDesc);
+        nriCore.UpdateDescriptorRanges(*Unwrap(), baseRange, 1, &rangeUpdateDescs);
     }
 
     void DescriptorSet::SetDynamicBuffers(
-        uint32_t                          BaseBufferInSet,
-        std::span<const nri::Descriptor*> Buffers)
+        uint32_t                          baseBufferInSet,
+        std::span<const nri::Descriptor*> buffers)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.UpdateDynamicConstantBuffers(*Unwrap(), BaseBufferInSet, Count32(Buffers), Buffers.data());
+        nriCore.UpdateDynamicConstantBuffers(*Unwrap(), baseBufferInSet, Count32(buffers), buffers.data());
     }
 
     void DescriptorSet::SetDynamicBuffer(
-        uint32_t               BaseBufferInSet,
-        const nri::Descriptor* Buffer)
+        uint32_t               baseBufferInSet,
+        const nri::Descriptor* buffer)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.UpdateDynamicConstantBuffers(*Unwrap(), BaseBufferInSet, 1, &Buffer);
+        nriCore.UpdateDynamicConstantBuffers(*Unwrap(), baseBufferInSet, 1, &buffer);
     }
 
     void DescriptorSet::CopyTo(
-        const DescriptorSetCopyDesc& CopyDesc)
+        const DescriptorSetCopyDesc& copyDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CopyDescriptorSet(*Unwrap(), CopyDesc);
+        nriCore.CopyDescriptorSet(*Unwrap(), copyDesc);
     }
 
     //

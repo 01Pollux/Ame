@@ -13,9 +13,9 @@ namespace Ame::Rhi
 
     protected:
         Buffer(
-            Device&        RhiDevice,
-            MemoryLocation Location,
-            nri::Buffer*   NriBuffer);
+            Device&        rhiDevice,
+            MemoryLocation location,
+            nri::Buffer*   nriBuffer);
 
     public:
         struct Extern
@@ -30,24 +30,24 @@ namespace Ame::Rhi
 
         Buffer(
             Extern,
-            DeviceImpl&  RhiDevice,
-            nri::Buffer* NriBuffer);
+            DeviceImpl&  rhiDeviceImpl,
+            nri::Buffer* nriBuffer);
         Buffer(
             Extern,
-            Device&      RhiDevice,
-            nri::Buffer* NriBuffer);
+            Device&      rhiDevice,
+            nri::Buffer* nriBuffer);
 
         Buffer(
-            Device&           RhiDevice,
-            MemoryLocation    Location,
-            const BufferDesc& Desc);
+            Device&           rhiDevice,
+            MemoryLocation    location,
+            const BufferDesc& desc);
 
     public:
         Buffer(const Buffer&);
-        Buffer(Buffer&& Other) noexcept;
+        Buffer(Buffer&& other) noexcept;
 
         Buffer& operator=(const Buffer&);
-        Buffer& operator=(Buffer&& Other) noexcept;
+        Buffer& operator=(Buffer&& other) noexcept;
 
         ~Buffer();
 
@@ -61,7 +61,7 @@ namespace Ame::Rhi
         /// Set the buffer name.
         /// </summary>
         void SetName(
-            const char* Name);
+            const char* name);
 
         /// <summary>
         /// Get the buffer description.
@@ -88,20 +88,20 @@ namespace Ame::Rhi
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
         void* GetPtr(
-            size_t Offset = 0);
+            size_t offset = 0);
 
         /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
         const void* GetPtr(
-            size_t Offset = 0) const;
+            size_t offset = 0) const;
 
     public:
         /// <summary>
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] BufferResourceView CreateView(
-            const BufferViewDesc& Desc) const;
+            const BufferViewDesc& desc) const;
 
     private:
         /// <summary>

@@ -10,12 +10,12 @@ namespace Ame::Rhi
     {
     public:
         CommandListMarker(
-            CommandList& RhiCommandList,
-            const char*  Tag) :
-            m_CommandList(RhiCommandList)
+            CommandList& commandList,
+            const char*  tag) :
+            m_CommandList(commandList)
         {
 #ifndef AME_DIST
-            m_CommandList.get().BeginMarker(Tag);
+            m_CommandList.get().BeginMarker(tag);
 #endif
         }
 

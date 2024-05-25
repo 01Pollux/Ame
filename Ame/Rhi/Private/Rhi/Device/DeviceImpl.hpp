@@ -28,7 +28,7 @@ namespace Ame::Rhi
 
     public:
         explicit DeviceImpl(
-            const DeviceCreateDesc& Desc);
+            const DeviceCreateDesc& desc);
 
         ~DeviceImpl();
 
@@ -87,7 +87,7 @@ namespace Ame::Rhi
         /// Set the clear color.
         /// </summary>
         void SetClearColor(
-            const Math::Color4& Color);
+            const Math::Color4& color);
 
         /// <summary>
         /// Get the clear type for the backbuffer.
@@ -98,7 +98,7 @@ namespace Ame::Rhi
         /// Set the clear type for the backbuffer.
         /// </summary>
         void SetBackbufferClearType(
-            BackbufferClearType Type);
+            BackbufferClearType type);
 
     public:
         /// <summary>
@@ -122,7 +122,7 @@ namespace Ame::Rhi
         /// Get the backbuffer at the specified index.
         /// </summary>
         [[nodiscard]] const Backbuffer& GetBackbuffer(
-            uint8_t Index) const;
+            uint8_t index) const;
 
         /// <summary>
         /// Get the current backbuffer.
@@ -152,7 +152,7 @@ namespace Ame::Rhi
         /// This should be called once per frame.
         /// Returns false if the window is closed.
         /// </summary>
-        [[nodiscard]] bool ProcessEvents();
+        [[nodiscard]] bool ProcessEvents() const;
 
         /// <summary>
         /// Begin a new frame.
@@ -205,67 +205,67 @@ namespace Ame::Rhi
         /// Begin tracking a buffer
         /// </summary>
         void BeginTracking(
-            nri::Buffer*     Buffer,
-            nri::AccessStage InitialState);
+            nri::Buffer*     nriBuffer,
+            nri::AccessStage initialState);
 
         /// <summary>
         /// Begin tracking a texture
         /// </summary>
         void BeginTracking(
-            nri::Texture*          Texture,
-            nri::AccessLayoutStage InitialState);
+            nri::Texture*          nriTexture,
+            nri::AccessLayoutStage initialState);
 
         /// <summary>
         /// End tracking a buffer
         /// </summary>
         void EndTracking(
-            nri::Buffer* Buffer);
+            nri::Buffer* nriBuffer);
 
         /// <summary>
         /// End tracking a texture
         /// </summary>
         void EndTracking(
-            nri::Texture* Texture);
+            nri::Texture* nriTexture);
 
     public:
         /// <summary>
         /// Create resource view for a texture.
         /// </summary>
         [[nodiscard]] nri::Descriptor* CreateView(
-            nri::Texture&          Tex,
-            const TextureViewDesc& Desc) const;
+            nri::Texture&          nriTexture,
+            const TextureViewDesc& desc) const;
 
         /// <summary>
         /// Create resource view for a buffer.
         /// </summary>
         [[nodiscard]] nri::Descriptor* CreateView(
-            nri::Buffer&          Buf,
-            const BufferViewDesc& Desc) const;
+            nri::Buffer&          nriBuffer,
+            const BufferViewDesc& desc) const;
 
     public:
         /// <summary>
         /// Release of buffer.
         /// </summary>
         void Release(
-            nri::Buffer& NriBuffer);
+            nri::Buffer& nriBuffer);
 
         /// <summary>
         /// Defer the release of a texture.
         /// </summary>
         void Release(
-            nri::Texture& NriTexture);
+            nri::Texture& nriTexture);
 
         /// <summary>
         /// Defer the release of a descriptor.
         /// </summary>
         void Release(
-            nri::Descriptor& NriDescriptor);
+            nri::Descriptor& nriDescriptor);
 
         /// <summary>
         /// Defer the release of a pipeline state.
         /// </summary>
         void DeferRelease(
-            nri::Pipeline& Pipeline);
+            nri::Pipeline& nriPipeline);
 
     private:
         /// <summary>
@@ -282,20 +282,20 @@ namespace Ame::Rhi
         /// Transition the backbuffer to the specified state (either presenting or rendering)
         /// </summary>
         void TransitionBackbuffer(
-            bool Presenting);
+            bool presenting);
 
         /// <summary>
         /// Clear the backbuffer with the specified color
         /// </summary>
         void ClearBackbuffer(
-            const Math::Color4& Color);
+            const Math::Color4& color);
 
     private:
         /// <summary>
         /// Attempts to create the device.
         /// </summary>
         [[nodiscard]] bool CreateDevice(
-            const DeviceCreateDesc& Desc);
+            const DeviceCreateDesc& desc);
 
         /// <summary>
         /// Clears all resources used by the device.
@@ -307,13 +307,13 @@ namespace Ame::Rhi
         /// This is used for debugging purposes.
         /// </summary>
         void SuppressWarningsIfNeeded(
-            const DeviceCreateDesc& Desc);
-        
+            const DeviceCreateDesc& desc);
+
         /// <summary>
         /// Enables validation if needed.
         /// </summary>
         void EnableValidationIfNeeded(
-            const DeviceCreateDesc& Desc);
+            const DeviceCreateDesc& desc);
 
     private:
         NRIBridge            m_NRI;

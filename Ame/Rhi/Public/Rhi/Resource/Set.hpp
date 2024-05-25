@@ -10,10 +10,10 @@ namespace Ame::Rhi
         DescriptorSet() = default;
 
         DescriptorSet(
-            Rhi::DeviceImpl*    RhiDevice,
-            nri::DescriptorSet* Set) :
-            m_RhiDevice(RhiDevice),
-            m_Set(Set)
+            DeviceImpl*         rhiDeviceImpl,
+            nri::DescriptorSet* nriSet) :
+            m_RhiDevice(rhiDeviceImpl),
+            m_Set(nriSet)
         {
         }
 
@@ -27,35 +27,35 @@ namespace Ame::Rhi
         /// Set the descriptor ranges.
         /// </summary>
         void SetRanges(
-            uint32_t                                   BaseRange,
-            std::span<const DescriptorRangeUpdateDesc> RangeUpdateDescs);
+            uint32_t                                   baseRange,
+            std::span<const DescriptorRangeUpdateDesc> rangeUpdateDescs);
 
         /// <summary>
         /// Set the descriptor ranges.
         /// </summary>
         void SetRange(
-            uint32_t                         BaseRange,
-            const DescriptorRangeUpdateDesc& RangeUpdateDesc);
+            uint32_t                         baseRange,
+            const DescriptorRangeUpdateDesc& rangeUpdateDesc);
 
         /// <summary>
         /// Set the dynamic buffers.
         /// </summary>
         void SetDynamicBuffers(
-            uint32_t                          BaseBufferInSet,
-            std::span<const nri::Descriptor*> Buffers);
+            uint32_t                          baseBufferInSet,
+            std::span<const nri::Descriptor*> buffers);
 
         /// <summary>
         /// Set the dynamic buffers.
         /// </summary>
         void SetDynamicBuffer(
-            uint32_t               BaseBufferInSet,
-            const nri::Descriptor* Buffer);
+            uint32_t               baseBufferInSet,
+            const nri::Descriptor* buffer);
 
         /// <summary>
         /// Copy the descriptor set.
         /// </summary>
         void CopyTo(
-            const DescriptorSetCopyDesc& CopyDesc);
+            const DescriptorSetCopyDesc& copyDesc);
 
     public:
         /// <summary>

@@ -7,20 +7,20 @@ namespace Ame::Rhi
 {
     void DeviceCreateDesc::SetFirstAdapter()
     {
-        uint32_t AdapterCount = 1;
-        ThrowIfFailed(nri::nriEnumerateAdapters(&Adapter, AdapterCount), "Failed to enumerate adapters");
+        uint32_t adapterCount = 1;
+        ThrowIfFailed(nri::nriEnumerateAdapters(&Adapter, adapterCount), "Failed to enumerate adapters");
     }
 
     Co::generator<AdapterDesc> DeviceCreateDesc::EnumerateAdapters()
     {
-        uint32_t AdapterCount = 0;
-        ThrowIfFailed(nri::nriEnumerateAdapters(nullptr, AdapterCount), "Failed to enumerate adapters");
-        std::vector<AdapterDesc> Adapters(AdapterCount);
-        ThrowIfFailed(nri::nriEnumerateAdapters(Adapters.data(), AdapterCount), "Failed to enumerate adapters");
+        uint32_t adapterCount = 0;
+        ThrowIfFailed(nri::nriEnumerateAdapters(nullptr, adapterCount), "Failed to enumerate adapters");
+        std::vector<AdapterDesc> adapters(adapterCount);
+        ThrowIfFailed(nri::nriEnumerateAdapters(adapters.data(), adapterCount), "Failed to enumerate adapters");
 
-        for (auto& CurAdapter : Adapters)
+        for (auto& adapter : adapters)
         {
-            co_yield CurAdapter;
+            co_yield adapter;
         }
     }
 } // namespace Ame::Rhi

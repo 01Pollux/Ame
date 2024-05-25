@@ -108,10 +108,10 @@ namespace Ame::Rhi
         }
 
         auto operator<=>(
-            const BufferRange& Other) const noexcept = default;
+            const BufferRange&) const noexcept = default;
 
         [[nodiscard]] BufferRange Transform(
-            const Buffer& RhiBuffer) const noexcept;
+            const Buffer& buffer) const noexcept;
     };
 
     static constexpr BufferRange EntireBuffer = BufferRange(0, RemainingSize<size_t>);
@@ -132,10 +132,10 @@ namespace Ame::Rhi
         }
 
         auto operator<=>(
-            const MipLevel& Other) const noexcept = default;
+            const MipLevel&) const noexcept = default;
 
         [[nodiscard]] MipLevel Transform(
-            const Texture& RhiTexture) const noexcept;
+            const Texture& texture) const noexcept;
     };
 
     static constexpr MipLevel EntireMipChain = MipLevel(0, RemainingSize<Mip_t>);
@@ -156,10 +156,10 @@ namespace Ame::Rhi
         }
 
         auto operator<=>(
-            const ArraySlice& Other) const noexcept = default;
+            const ArraySlice&) const noexcept = default;
 
         [[nodiscard]] ArraySlice Transform(
-            const Texture& RhiTexture) const noexcept;
+            const Texture& texture) const noexcept;
     };
 
     static constexpr ArraySlice EntireArray = ArraySlice(0, RemainingSize<Dim_t>);
@@ -172,18 +172,18 @@ namespace Ame::Rhi
         ArraySlice Array;
 
         constexpr TextureSubresource(
-            MipLevel   Mips  = EntireMipChain,
-            ArraySlice Array = EntireArray) :
-            Mips(Mips),
-            Array(Array)
+            MipLevel   mips  = EntireMipChain,
+            ArraySlice array = EntireArray) :
+            Mips(mips),
+            Array(array)
         {
         }
 
         auto operator<=>(
-            const TextureSubresource& Other) const noexcept = default;
+            const TextureSubresource&) const noexcept = default;
 
         [[nodiscard]] TextureSubresource Transform(
-            const Texture& RhiTexture) const noexcept;
+            const Texture& texture) const noexcept;
     };
 
     static constexpr TextureSubresource AllSubresources = TextureSubresource(EntireMipChain, EntireArray);
@@ -197,7 +197,7 @@ namespace Ame::Rhi
         BufferViewType Type   = BufferViewType::ConstantBuffer;
 
         [[nodiscard]] BufferViewDesc Transform(
-            const Buffer& RhiBuffer) const noexcept;
+            const Buffer& buffer) const noexcept;
     };
 
     struct TextureViewDesc
@@ -208,6 +208,6 @@ namespace Ame::Rhi
         TextureViewFlags   Flags       = TextureViewFlags::None;
 
         [[nodiscard]] TextureViewDesc Transform(
-            const Texture& RhiTexure) const noexcept;
+            const Texture& texture) const noexcept;
     };
 } // namespace Ame::Rhi

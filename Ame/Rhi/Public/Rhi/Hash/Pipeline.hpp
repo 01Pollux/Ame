@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Hash.hpp>
+#include <Core/hash.hpp>
 
 #include <Rhi/Descs/Pipeline.hpp>
 #include <Rhi/Resource/PipelineLayout.hpp>
@@ -11,14 +11,14 @@ namespace std
     struct hash<Ame::Rhi::ShaderDesc>
     {
         size_t operator()(
-            const Ame::Rhi::ShaderDesc& Desc) const noexcept
+            const Ame::Rhi::ShaderDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.stage));
-            Ame::HashCombine(Hash, std::string_view{ static_cast<const char*>(Desc.bytecode), Desc.size });
+            Ame::HashCombine(hash, std::to_underlying(desc.stage));
+            Ame::HashCombine(hash, std::string_view{ static_cast<const char*>(desc.bytecode), desc.size });
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -26,15 +26,15 @@ namespace std
     struct hash<Ame::Rhi::InputAssemblyDesc>
     {
         size_t operator()(
-            const Ame::Rhi::InputAssemblyDesc& Desc) const noexcept
+            const Ame::Rhi::InputAssemblyDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Topology));
-            Ame::HashCombine(Hash, Desc.TessControlPointNum);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.PrimitiveRestart));
+            Ame::HashCombine(hash, std::to_underlying(desc.Topology));
+            Ame::HashCombine(hash, desc.TessControlPointNum);
+            Ame::HashCombine(hash, std::to_underlying(desc.PrimitiveRestart));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -42,22 +42,22 @@ namespace std
     struct hash<Ame::Rhi::RasterizationDesc>
     {
         size_t operator()(
-            const Ame::Rhi::RasterizationDesc& Desc) const noexcept
+            const Ame::Rhi::RasterizationDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.DepthBias);
-            Ame::HashCombine(Hash, Desc.DepthBiasClamp);
-            Ame::HashCombine(Hash, Desc.DepthBiasSlopeFactor);
-            Ame::HashCombine(Hash, Desc.ViewportNum);
-            Ame::HashCombine(Hash, Desc.DepthClamp);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Fill));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Cull));
-            Ame::HashCombine(Hash, Desc.FrontCounterClockwise);
-            Ame::HashCombine(Hash, Desc.AntialiasedLines);
-            Ame::HashCombine(Hash, Desc.ConservativeRasterization);
+            Ame::HashCombine(hash, desc.DepthBias);
+            Ame::HashCombine(hash, desc.DepthBiasClamp);
+            Ame::HashCombine(hash, desc.DepthBiasSlopeFactor);
+            Ame::HashCombine(hash, desc.ViewportNum);
+            Ame::HashCombine(hash, desc.DepthClamp);
+            Ame::HashCombine(hash, std::to_underlying(desc.Fill));
+            Ame::HashCombine(hash, std::to_underlying(desc.Cull));
+            Ame::HashCombine(hash, desc.FrontCounterClockwise);
+            Ame::HashCombine(hash, desc.AntialiasedLines);
+            Ame::HashCombine(hash, desc.ConservativeRasterization);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -65,15 +65,15 @@ namespace std
     struct hash<Ame::Rhi::BlendingDesc>
     {
         size_t operator()(
-            const Ame::Rhi::BlendingDesc& Desc) const noexcept
+            const Ame::Rhi::BlendingDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Src));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Dst));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Func));
+            Ame::HashCombine(hash, std::to_underlying(desc.Src));
+            Ame::HashCombine(hash, std::to_underlying(desc.Dst));
+            Ame::HashCombine(hash, std::to_underlying(desc.Func));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -81,17 +81,17 @@ namespace std
     struct hash<Ame::Rhi::RenderTargetDesc>
     {
         size_t operator()(
-            const Ame::Rhi::RenderTargetDesc& Desc) const noexcept
+            const Ame::Rhi::RenderTargetDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Format));
-            Ame::HashCombine(Hash, Desc.Color);
-            Ame::HashCombine(Hash, Desc.Alpha);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.WriteMask));
-            Ame::HashCombine(Hash, Desc.BlendEnable);
+            Ame::HashCombine(hash, std::to_underlying(desc.Format));
+            Ame::HashCombine(hash, desc.Color);
+            Ame::HashCombine(hash, desc.Alpha);
+            Ame::HashCombine(hash, std::to_underlying(desc.WriteMask));
+            Ame::HashCombine(hash, desc.BlendEnable);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -99,15 +99,15 @@ namespace std
     struct hash<Ame::Rhi::DepthTargetDesc>
     {
         size_t operator()(
-            const Ame::Rhi::DepthTargetDesc& Desc) const noexcept
+            const Ame::Rhi::DepthTargetDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Func));
-            Ame::HashCombine(Hash, Desc.WriteEnable);
-            Ame::HashCombine(Hash, Desc.BoundsTestEnable);
+            Ame::HashCombine(hash, std::to_underlying(desc.Func));
+            Ame::HashCombine(hash, desc.WriteEnable);
+            Ame::HashCombine(hash, desc.BoundsTestEnable);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -115,18 +115,18 @@ namespace std
     struct hash<Ame::Rhi::StencilDesc>
     {
         size_t operator()(
-            const Ame::Rhi::StencilDesc& Desc) const noexcept
+            const Ame::Rhi::StencilDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.WriteMask);
-            Ame::HashCombine(Hash, Desc.CompareMask);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Func));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.OnFail));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.OnDepthFail));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.OnPass));
+            Ame::HashCombine(hash, desc.WriteMask);
+            Ame::HashCombine(hash, desc.CompareMask);
+            Ame::HashCombine(hash, std::to_underlying(desc.Func));
+            Ame::HashCombine(hash, std::to_underlying(desc.OnFail));
+            Ame::HashCombine(hash, std::to_underlying(desc.OnDepthFail));
+            Ame::HashCombine(hash, std::to_underlying(desc.OnPass));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -134,14 +134,14 @@ namespace std
     struct hash<Ame::Rhi::StencilTargetDesc>
     {
         size_t operator()(
-            const Ame::Rhi::StencilTargetDesc& Desc) const noexcept
+            const Ame::Rhi::StencilTargetDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.Front);
-            Ame::HashCombine(Hash, Desc.Back);
+            Ame::HashCombine(hash, desc.Front);
+            Ame::HashCombine(hash, desc.Back);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -149,20 +149,20 @@ namespace std
     struct hash<Ame::Rhi::OutputMergerDesc>
     {
         size_t operator()(
-            const Ame::Rhi::OutputMergerDesc& Desc) const noexcept
+            const Ame::Rhi::OutputMergerDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            for (auto& RT : Desc.RenderTargets)
+            for (auto& rt : desc.RenderTargets)
             {
-                Ame::HashCombine(Hash, RT);
+                Ame::HashCombine(hash, rt);
             }
-            Ame::HashCombine(Hash, std::to_underlying(Desc.DepthStencilFormat));
-            Ame::HashCombine(Hash, Desc.DepthTarget);
-            Ame::HashCombine(Hash, Desc.StencilTarget);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.ColorLogicFunc));
+            Ame::HashCombine(hash, std::to_underlying(desc.DepthStencilFormat));
+            Ame::HashCombine(hash, desc.DepthTarget);
+            Ame::HashCombine(hash, desc.StencilTarget);
+            Ame::HashCombine(hash, std::to_underlying(desc.ColorLogicFunc));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -170,18 +170,18 @@ namespace std
     struct hash<Ame::Rhi::VertexAttributeDesc>
     {
         size_t operator()(
-            const Ame::Rhi::VertexAttributeDesc& Desc) const noexcept
+            const Ame::Rhi::VertexAttributeDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.d3d.semanticIndex);
-            Ame::HashCombine(Hash, Desc.d3d.semanticName);
-            Ame::HashCombine(Hash, Desc.vk.location);
-            Ame::HashCombine(Hash, Desc.offset);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.format));
-            Ame::HashCombine(Hash, Desc.streamIndex);
+            Ame::HashCombine(hash, desc.d3d.semanticIndex);
+            Ame::HashCombine(hash, desc.d3d.semanticName);
+            Ame::HashCombine(hash, desc.vk.location);
+            Ame::HashCombine(hash, desc.offset);
+            Ame::HashCombine(hash, std::to_underlying(desc.format));
+            Ame::HashCombine(hash, desc.streamIndex);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -189,15 +189,15 @@ namespace std
     struct hash<Ame::Rhi::VertexStreamDesc>
     {
         size_t operator()(
-            const Ame::Rhi::VertexStreamDesc& Desc) const noexcept
+            const Ame::Rhi::VertexStreamDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.stride);
-            Ame::HashCombine(Hash, Desc.bindingSlot);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.stepRate));
+            Ame::HashCombine(hash, desc.stride);
+            Ame::HashCombine(hash, desc.bindingSlot);
+            Ame::HashCombine(hash, std::to_underlying(desc.stepRate));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -205,20 +205,20 @@ namespace std
     struct hash<Ame::Rhi::VertexInputDesc>
     {
         size_t operator()(
-            const Ame::Rhi::VertexInputDesc& Desc) const noexcept
+            const Ame::Rhi::VertexInputDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            for (uint8_t i = 0; i < Desc.attributeNum; i++)
+            for (uint8_t i = 0; i < desc.attributeNum; i++)
             {
-                Ame::HashCombine(Hash, Desc.attributes[i]);
+                Ame::HashCombine(hash, desc.attributes[i]);
             }
-            for (uint8_t i = 0; i < Desc.streamNum; i++)
+            for (uint8_t i = 0; i < desc.streamNum; i++)
             {
-                Ame::HashCombine(Hash, Desc.streams[i]);
+                Ame::HashCombine(hash, desc.streams[i]);
             }
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -226,16 +226,16 @@ namespace std
     struct hash<Ame::Rhi::MultisampleDesc>
     {
         size_t operator()(
-            const Ame::Rhi::MultisampleDesc& Desc) const noexcept
+            const Ame::Rhi::MultisampleDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.SampleMask);
-            Ame::HashCombine(Hash, Desc.SampleCount);
-            Ame::HashCombine(Hash, Desc.AlphaToCoverageEnable);
-            Ame::HashCombine(Hash, Desc.ProgrammableSampleLocations);
+            Ame::HashCombine(hash, desc.SampleMask);
+            Ame::HashCombine(hash, desc.SampleCount);
+            Ame::HashCombine(hash, desc.AlphaToCoverageEnable);
+            Ame::HashCombine(hash, desc.ProgrammableSampleLocations);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -245,27 +245,27 @@ namespace std
     struct hash<Ame::Rhi::GraphicsPipelineDesc>
     {
         size_t operator()(
-            const Ame::Rhi::GraphicsPipelineDesc& Desc) const noexcept
+            const Ame::Rhi::GraphicsPipelineDesc& desc) const noexcept
         {
-            size_t Hash = Desc.Layout->GetHash();
+            size_t hash = desc.Layout->GetHash();
 
-            Ame::HashCombine(Hash, Desc.InputAssembly);
-            Ame::HashCombine(Hash, Desc.Rasterizer);
-            Ame::HashCombine(Hash, Desc.OutputMerger);
-            for (auto& Shader : Desc.Shaders)
+            Ame::HashCombine(hash, desc.InputAssembly);
+            Ame::HashCombine(hash, desc.Rasterizer);
+            Ame::HashCombine(hash, desc.OutputMerger);
+            for (auto& Shader : desc.Shaders)
             {
-                Ame::HashCombine(Hash, Shader);
+                Ame::HashCombine(hash, Shader);
             }
-            if (Desc.VertexInput)
+            if (desc.VertexInput)
             {
-                Ame::HashCombine(Hash, *Desc.VertexInput);
+                Ame::HashCombine(hash, *desc.VertexInput);
             }
-            if (Desc.Multisample)
+            if (desc.Multisample)
             {
-                Ame::HashCombine(Hash, *Desc.Multisample);
+                Ame::HashCombine(hash, *desc.Multisample);
             }
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -273,13 +273,13 @@ namespace std
     struct hash<Ame::Rhi::ComputePipelineDesc>
     {
         size_t operator()(
-            const Ame::Rhi::ComputePipelineDesc& Desc) const noexcept
+            const Ame::Rhi::ComputePipelineDesc& desc) const noexcept
         {
-            size_t Hash = Desc.Layout->GetHash();
+            size_t hash = desc.Layout->GetHash();
 
-            Ame::HashCombine(Hash, Desc.Shader);
+            Ame::HashCombine(hash, desc.Shader);
 
-            return Hash;
+            return hash;
         }
     };
 } // namespace std

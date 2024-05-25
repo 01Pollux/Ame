@@ -6,81 +6,80 @@
 namespace Ame::Rhi
 {
     Buffer::Buffer(
-        Device&        RhiDevice,
-        MemoryLocation Location,
-        nri::Buffer*   NriBuffer) :
-        m_Device(&RhiDevice.GetImpl()),
-        m_Buffer(NriBuffer)
+        Device&        rhiDevice,
+        MemoryLocation location,
+        nri::Buffer*   nriBuffer) :
+        m_Device(&rhiDevice.GetImpl()),
+        m_Buffer(nriBuffer)
     {
-        if (Location == MemoryLocation::HOST_UPLOAD ||
-            Location == MemoryLocation::HOST_READBACK)
+        if (location == MemoryLocation::HOST_UPLOAD ||
+            location == MemoryLocation::HOST_READBACK)
         {
-            auto& Impl    = RhiDevice.GetImpl();
-            auto& Nri     = Impl.GetNRI();
-            auto& NriCore = *Nri.GetCoreInterface();
+            auto& nriUtils = m_Device->GetNRI();
+            auto& nriCore  = *nriUtils.GetCoreInterface();
 
-            m_Mapped = NriCore.MapBuffer(*m_Buffer, 0, nri::WHOLE_SIZE);
+            m_Mapped = nriCore.MapBuffer(*m_Buffer, 0, nri::WHOLE_SIZE);
         }
     }
 
     Buffer::Buffer(
         Extern,
-        DeviceImpl&  RhiDevice,
-        nri::Buffer* NriBuffer) :
-        m_Device(&RhiDevice),
-        m_Buffer(NriBuffer),
+        DeviceImpl&  rhiDeviceImpl,
+        nri::Buffer* nriBuffer) :
+        m_Device(&rhiDeviceImpl),
+        m_Buffer(nriBuffer),
         m_Owning(false)
     {
     }
 
     Buffer::Buffer(
         Extern,
-        Device&      RhiDevice,
-        nri::Buffer* NriBuffer) :
-        m_Device(&RhiDevice.GetImpl()),
-        m_Buffer(NriBuffer),
+        Device&      rhiDevice,
+        nri::Buffer* nriBuffer) :
+        m_Device(&rhiDevice.GetImpl()),
+        m_Buffer(nriBuffer),
         m_Owning(false)
     {
     }
 
     Buffer::Buffer(
-        Device&           RhiDevice,
-        MemoryLocation    Location,
-        const BufferDesc& Desc) :
-        Buffer(RhiDevice, Location, RhiDevice.Create(Location, Desc))
+        Device&           rhiDevice,
+        MemoryLocation    location,
+        const BufferDesc& desc) :
+        Buffer(rhiDevice, location, rhiDevice.Create(location, desc))
     {
     }
 
     //
 
     Buffer::Buffer(
-        const Buffer& Other) :
-        m_Device(Other.m_Device),
-        m_Buffer(Other.m_Buffer),
-        m_Mapped(Other.m_Mapped),
+        const Buffer& other) :
+        m_Device(other.m_Device),
+        m_Buffer(other.m_Buffer),
+        m_Mapped(other.m_Mapped),
         m_Owning(false)
     {
     }
 
     Buffer::Buffer(
-        Buffer&& Other) noexcept :
-        m_Device(std::exchange(Other.m_Device, nullptr)),
-        m_Buffer(std::exchange(Other.m_Buffer, nullptr)),
-        m_Mapped(std::exchange(Other.m_Mapped, nullptr)),
-        m_Owning(std::exchange(Other.m_Owning, false))
+        Buffer&& other) noexcept :
+        m_Device(std::exchange(other.m_Device, nullptr)),
+        m_Buffer(std::exchange(other.m_Buffer, nullptr)),
+        m_Mapped(std::exchange(other.m_Mapped, nullptr)),
+        m_Owning(std::exchange(other.m_Owning, false))
     {
     }
 
     Buffer& Buffer::operator=(
-        const Buffer& Other)
+        const Buffer& other)
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            m_Device = Other.m_Device;
-            m_Buffer = Other.m_Buffer;
-            m_Mapped = Other.m_Mapped;
+            m_Device = other.m_Device;
+            m_Buffer = other.m_Buffer;
+            m_Mapped = other.m_Mapped;
             m_Owning = false;
         }
 
@@ -88,16 +87,16 @@ namespace Ame::Rhi
     }
 
     Buffer& Buffer::operator=(
-        Buffer&& Other) noexcept
+        Buffer&& other) noexcept
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            m_Device = std::exchange(Other.m_Device, nullptr);
-            m_Buffer = std::exchange(Other.m_Buffer, nullptr);
-            m_Mapped = std::exchange(Other.m_Mapped, nullptr);
-            m_Owning = std::exchange(Other.m_Owning, false);
+            m_Device = std::exchange(other.m_Device, nullptr);
+            m_Buffer = std::exchange(other.m_Buffer, nullptr);
+            m_Mapped = std::exchange(other.m_Mapped, nullptr);
+            m_Owning = std::exchange(other.m_Owning, false);
         }
 
         return *this;
@@ -117,10 +116,10 @@ namespace Ame::Rhi
 
     void* Buffer::GetNative() const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        return std::bit_cast<void*>(NriCore.GetBufferNativeObject(*m_Buffer));
+        return std::bit_cast<void*>(nriCore.GetBufferNativeObject(*m_Buffer));
     }
 
     bool Buffer::IsOwning() const
@@ -131,74 +130,74 @@ namespace Ame::Rhi
     //
 
     void Buffer::SetName(
-        const char* Name)
+        const char* name)
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.SetBufferDebugName(*m_Buffer, Name);
+        nriCore.SetBufferDebugName(*m_Buffer, name);
     }
 
     const BufferDesc& Buffer::GetDesc() const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        return NriCore.GetBufferDesc(*m_Buffer);
+        return nriCore.GetBufferDesc(*m_Buffer);
     }
 
     //
 
     void* Buffer::GetPtr(
-        size_t Offset)
+        size_t offset)
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Mapped != nullptr, "Buffer is not host visible.");
-        return static_cast<uint8_t*>(m_Mapped) + Offset;
+        return static_cast<uint8_t*>(m_Mapped) + offset;
     }
 
     const void* Buffer::GetPtr(
-        size_t Offset) const
+        size_t offset) const
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Mapped != nullptr, "Buffer is not host visible.");
-        return static_cast<const uint8_t*>(m_Mapped) + Offset;
+        return static_cast<const uint8_t*>(m_Mapped) + offset;
     }
 
     //
 
     BufferResourceView Buffer::CreateView(
-        const BufferViewDesc& Desc) const
+        const BufferViewDesc& desc) const
     {
-        return BufferResourceView(m_Device, m_Device->CreateView(*m_Buffer, Desc.Transform(*this)));
+        return BufferResourceView(m_Device, m_Device->CreateView(*m_Buffer, desc.Transform(*this)));
     }
 
     //
 
     nri::Buffer* Device::Create(
-        MemoryLocation    Location,
-        const BufferDesc& Desc)
+        MemoryLocation    location,
+        const BufferDesc& desc)
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Impl->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        auto NriBuffer = m_Impl->m_MemoryAllocator.CreateBuffer(Location, Desc);
-        m_Impl->BeginTracking(NriBuffer, { nri::AccessBits::UNKNOWN, nri::StageBits::ALL });
+        auto nriBuffer = m_Impl->m_MemoryAllocator.CreateBuffer(location, desc);
+        m_Impl->BeginTracking(nriBuffer, { nri::AccessBits::UNKNOWN, nri::StageBits::ALL });
 
-        return NriBuffer;
+        return nriBuffer;
     }
 
     //
 
     void DeviceImpl::BeginTracking(
-        nri::Buffer*     Buffer,
-        nri::AccessStage InitialState)
+        nri::Buffer*     nriBuffer,
+        nri::AccessStage initialState)
     {
-        m_ResourceStateTracker.BeginTracking(Buffer, InitialState);
+        m_ResourceStateTracker.BeginTracking(nriBuffer, initialState);
     }
 
     void DeviceImpl::EndTracking(
-        nri::Buffer* Buffer)
+        nri::Buffer* nriBuffer)
     {
-        m_ResourceStateTracker.EndTracking(Buffer);
+        m_ResourceStateTracker.EndTracking(nriBuffer);
     }
 
     //
@@ -212,10 +211,10 @@ namespace Ame::Rhi
 
         if (m_Mapped)
         {
-            auto& Nri     = m_Device->GetNRI();
-            auto& NriCore = *Nri.GetCoreInterface();
+            auto& nriUtils = m_Device->GetNRI();
+            auto& nriCore  = *nriUtils.GetCoreInterface();
 
-            NriCore.UnmapBuffer(*m_Buffer);
+            nriCore.UnmapBuffer(*m_Buffer);
             m_Mapped = nullptr;
         }
 
@@ -225,15 +224,15 @@ namespace Ame::Rhi
     }
 
     void Device::Release(
-        nri::Buffer& NriBuffer)
+        nri::Buffer& nriBuffer)
     {
-        m_Impl->EndTracking(&NriBuffer);
-        m_Impl->Release(NriBuffer);
+        m_Impl->EndTracking(&nriBuffer);
+        m_Impl->Release(nriBuffer);
     }
 
     void DeviceImpl::Release(
-        nri::Buffer& NriBuffer)
+        nri::Buffer& nriBuffer)
     {
-        m_FrameManager.DeferRelease(NriBuffer);
+        m_FrameManager.DeferRelease(nriBuffer);
     }
 } // namespace Ame::Rhi

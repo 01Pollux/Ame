@@ -36,8 +36,8 @@ namespace Ame::Rhi
     }
 
     void ShaderCompileDesc::SetStage(
-        ShaderType Type)
+        ShaderType type)
     {
-        Stage = Type;
+        Stage = type;
     }
 } // namespace Ame::Rhi

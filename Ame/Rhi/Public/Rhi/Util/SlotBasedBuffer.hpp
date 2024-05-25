@@ -33,7 +33,7 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Usage flags of the buffer
         /// </summary>
-        Rhi::BufferUsageBits UsageFlags = Rhi::BufferUsageBits::SHADER_RESOURCE;
+        BufferUsageBits UsageFlags = BufferUsageBits::SHADER_RESOURCE;
     };
 
     /// <summary>
@@ -50,10 +50,10 @@ namespace Ame::Rhi::Util
         static constexpr uint32_t InvalidIndex    = std::numeric_limits<uint32_t>::max();
 
         SlotBasedBuffer(
-            Rhi::Device&               RhiDevice,
+            Device&                    RhiDevice,
             const SlotBasedBufferDesc& Desc = {}) :
             m_Device(RhiDevice),
-            m_Stream(std::make_unique<Rhi::Streaming::BufferOStream>()),
+            m_Stream(std::make_unique<Streaming::BufferOStream>()),
             m_Desc(Desc)
         {
             uint32_t InitialCount = std::exchange(m_Desc.InstanceCount, 0);
@@ -74,23 +74,23 @@ namespace Ame::Rhi::Util
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t    Index,
-            const Type& Data)
+            uint32_t    index,
+            const Type& data)
         {
-            Write(Index, std::addressof(Data), SizePerInstance);
+            Write(index, std::addressof(data), SizePerInstance);
         }
 
         /// <summary>
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t    Index,
-            const void* Data,
-            size_t      Size)
+            uint32_t    index,
+            const void* data,
+            size_t      size)
         {
-            size_t Offset = GetOffset(Index);
-            m_Stream->seekp(Offset);
-            m_Stream->write(static_cast<const char*>(Data), Size);
+            size_t offset = GetOffset(index);
+            m_Stream->seekp(offset);
+            m_Stream->write(static_cast<const char*>(data), size);
         }
 
     public:
@@ -98,9 +98,9 @@ namespace Ame::Rhi::Util
         /// Get the offset of the slot in the buffer
         /// </summary>
         [[nodiscard]] size_t GetOffset(
-            uint32_t Index) const
+            uint32_t index) const
         {
-            return Math::AlignUp(static_cast<size_t>(Index) * SizePerInstance, m_Desc.Alignment);
+            return Math::AlignUp(static_cast<size_t>(index) * SizePerInstance, m_Desc.Alignment);
         }
 
         /// <summary>
@@ -123,7 +123,7 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Get buffer of the slot based buffer
         /// </summary>
-        [[nodiscard]] const Rhi::Buffer& GetBuffer() const
+        [[nodiscard]] const Buffer& GetBuffer() const
         {
             return m_Buffer;
         }
@@ -139,30 +139,30 @@ namespace Ame::Rhi::Util
                 GrowSlots();
             }
 
-            auto Slot = *m_EmptySlots.begin();
-            m_EmptySlots.erase(Slot);
+            auto slot = *m_EmptySlots.begin();
+            m_EmptySlots.erase(slot);
 
-            return Slot;
+            return slot;
         }
 
         /// <summary>
         /// Rent a slot in the buffer
         /// </summary>
         uint32_t Rent(
-            const Type& Data)
+            const Type& data)
         {
-            auto Slot = Rent();
-            Write(Slot, Data);
-            return Slot;
+            auto slot = Rent();
+            Write(slot, data);
+            return slot;
         }
 
         /// <summary>
         /// Return a slot in the buffer
         /// </summary>
         void Return(
-            uint32_t Slot)
+            uint32_t slot)
         {
-            m_EmptySlots.insert(Slot);
+            m_EmptySlots.insert(slot);
         }
 
     public:
@@ -190,17 +190,17 @@ namespace Ame::Rhi::Util
         /// Grow the buffer by the specified number of slots
         /// </summary>
         void GrowSlots(
-            uint32_t InstanceCount)
+            uint32_t instanceCount)
         {
             if (m_Desc.MaxInstances != 0)
             {
-                InstanceCount = std::min(InstanceCount, m_Desc.MaxInstances);
+                instanceCount = std::min(instanceCount, m_Desc.MaxInstances);
             }
 
-            uint32_t FirstEmptySlot = m_EmptySlots.empty() ? m_Desc.InstanceCount : *m_EmptySlots.begin();
-            m_Desc.InstanceCount    = InstanceCount;
+            uint32_t firstEmptySlot = m_EmptySlots.empty() ? m_Desc.InstanceCount : *m_EmptySlots.begin();
+            m_Desc.InstanceCount    = instanceCount;
 
-            for (uint32_t i = FirstEmptySlot; i < m_Desc.InstanceCount; i++)
+            for (uint32_t i = firstEmptySlot; i < m_Desc.InstanceCount; i++)
             {
                 m_EmptySlots.insert(i);
             }
@@ -220,26 +220,26 @@ namespace Ame::Rhi::Util
                 m_Stream->close();
             }
 
-            auto NewBuffer = CreateBuffer(m_Desc.InstanceCount);
-            CopyToBuffer(NewBuffer);
+            auto newBuffer = CreateBuffer(m_Desc.InstanceCount);
+            CopyToBuffer(newBuffer);
 
-            m_Buffer = std::move(NewBuffer);
-            m_Stream->open(Rhi::Streaming::BufferView(m_Buffer));
+            m_Buffer = std::move(newBuffer);
+            m_Stream->open(Streaming::BufferView(m_Buffer));
         }
 
         /// <summary>
         /// Copy the current content of the buffer to the new buffer
         /// </summary>
         void CopyToBuffer(
-            Rhi::Buffer& NewBuffer) const
+            Buffer& newBuffer) const
         {
             if (m_Buffer)
             {
-                auto Src  = m_Buffer.GetPtr();
-                auto Dst  = NewBuffer.GetPtr();
-                auto Size = m_Buffer.GetDesc().size;
+                auto src  = m_Buffer.GetPtr();
+                auto dst  = newBuffer.GetPtr();
+                auto size = m_Buffer.GetDesc().size;
 
-                std::memcpy(Dst, Src, Size);
+                std::memcpy(dst, src, size);
             }
         }
 
@@ -248,26 +248,26 @@ namespace Ame::Rhi::Util
         /// Create an empty buffer
         /// </summary>
         [[nodiscard]] auto CreateBuffer(
-            uint32_t InstanceCount)
+            uint32_t instanceCount)
         {
-            Rhi::BufferDesc Desc{
-                .size            = SizePerInstance * InstanceCount,
+            BufferDesc desc{
+                .size            = SizePerInstance * instanceCount,
                 .structureStride = SizePerInstance,
                 .usageMask       = m_Desc.UsageFlags,
             };
 
-            return Rhi::Buffer(
+            return Buffer(
                 m_Device.get(),
-                Rhi::MemoryLocation::HOST_UPLOAD,
-                Desc);
+                MemoryLocation::HOST_UPLOAD,
+                desc);
         }
 
     private:
-        Ref<Rhi::Device>    m_Device;
+        Ref<Device>         m_Device;
         SlotBasedBufferDesc m_Desc;
 
-        Rhi::Buffer                         m_Buffer;
-        UPtr<Rhi::Streaming::BufferOStream> m_Stream;
+        Buffer                         m_Buffer;
+        UPtr<Streaming::BufferOStream> m_Stream;
 
         std::set<uint32_t> m_EmptySlots;
     };

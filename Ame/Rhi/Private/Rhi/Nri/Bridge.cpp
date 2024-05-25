@@ -10,66 +10,60 @@ namespace Ame::Rhi
     /// </summary>
     template<typename Ty>
     static bool TryLoadFeature(
-        nri::Device&      RhiDevice,
-        const char*       InterfaceName,
-        size_t            InterfaceSize,
-        UPtr<Ty>&         InterfacePtr,
-        DeviceFeatureType Features,
-        bool              Supported = true)
+        nri::Device&      rhiDevice,
+        const char*       interfaceName,
+        size_t            interfaceSize,
+        UPtr<Ty>&         interfacePtr,
+        DeviceFeatureType features,
+        bool              supported = true)
     {
-        if (Supported)
+        if (supported)
         {
-            if (!InterfacePtr)
+            if (!interfacePtr)
             {
-                InterfacePtr = std::make_unique<Ty>();
+                interfacePtr = std::make_unique<Ty>();
             }
 
-            if (nri::nriGetInterface(RhiDevice, InterfaceName, InterfaceSize, InterfacePtr.get()) != nri::Result::SUCCESS &&
-                Features == DeviceFeatureType::Required) [[unlikely]]
+            if (nri::nriGetInterface(rhiDevice, interfaceName, interfaceSize, interfacePtr.get()) != nri::Result::SUCCESS &&
+                features == DeviceFeatureType::Required) [[unlikely]]
             {
-                Supported = false;
+                supported = false;
             }
         }
-        else if (Features != DeviceFeatureType::Required)
+        else if (features != DeviceFeatureType::Required)
         {
-            Supported = true;
+            supported = true;
         }
-        if (!Supported)
+        if (!supported)
         {
-            Log::Rhi().Error("Device does not support {}", InterfaceName);
+            Log::Rhi().Error("Device does not support {}", interfaceName);
         }
-        return Supported;
+        return supported;
     }
 
     //
 
     bool NRIBridge::Initialize(
-        nri::Device&      RhiDevice,
-        DeviceFeatureType SwapchainFeatures,
-        DeviceFeatureType RayTracingFeatures,
-        DeviceFeatureType MeshShaderFeatures)
+        nri::Device&      rhiDevice,
+        DeviceFeatureType swapchainFeatures,
+        DeviceFeatureType rayTracingFeatures,
+        DeviceFeatureType meshShaderFeatures)
     {
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::CoreInterface), m_CoreInterface, DeviceFeatureType::Required))
+        if (!TryLoadFeature(rhiDevice, NRI_INTERFACE(nri::CoreInterface), m_CoreInterface, DeviceFeatureType::Required))
         {
             Shutdown();
             return false;
         }
 
-        ThrowIfFailed(m_CoreInterface->CreateFence(RhiDevice, 0, m_IdleFence), "Failed to create idle fence");
+        ThrowIfFailed(m_CoreInterface->CreateFence(rhiDevice, 0, m_IdleFence), "Failed to create idle fence");
 
-        auto& DevDesc = m_CoreInterface->GetDeviceDesc(RhiDevice);
+        auto& DevDesc = m_CoreInterface->GetDeviceDesc(rhiDevice);
 
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::SwapChainInterface), m_SwapChainInterface, SwapchainFeatures))
-        {
-            Shutdown();
-            return false;
-        }
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::MeshShaderInterface), m_MeshShaderInterface, MeshShaderFeatures, DevDesc.isMeshShaderSupported))
-        {
-            Shutdown();
-            return false;
-        }
-        if (!TryLoadFeature(RhiDevice, NRI_INTERFACE(nri::RayTracingInterface), m_RayTracingInterface, RayTracingFeatures, DevDesc.isRayTracingSupported))
+        bool succeeded = TryLoadFeature(rhiDevice, NRI_INTERFACE(nri::SwapChainInterface), m_SwapChainInterface, swapchainFeatures) &&
+                         TryLoadFeature(rhiDevice, NRI_INTERFACE(nri::MeshShaderInterface), m_MeshShaderInterface, meshShaderFeatures, DevDesc.isMeshShaderSupported) &&
+                         TryLoadFeature(rhiDevice, NRI_INTERFACE(nri::RayTracingInterface), m_RayTracingInterface, rayTracingFeatures, DevDesc.isRayTracingSupported);
+
+        if (!succeeded)
         {
             Shutdown();
             return false;
@@ -95,19 +89,19 @@ namespace Ame::Rhi
     //
 
     void NRIBridge::WaitIdle(
-        nri::CommandQueue& CommandQueue)
+        nri::CommandQueue& commandQueue)
     {
-        nri::FenceSubmitDesc FenceDesc{
+        nri::FenceSubmitDesc fenceDesc{
             .fence = m_IdleFence,
             .value = ++m_FenceValue
         };
 
-        nri::QueueSubmitDesc SubmitDesc{
-            .signalFences   = &FenceDesc,
+        nri::QueueSubmitDesc submitDesc{
+            .signalFences   = &fenceDesc,
             .signalFenceNum = 1
         };
 
-        m_CoreInterface->QueueSubmit(CommandQueue, SubmitDesc);
+        m_CoreInterface->QueueSubmit(commandQueue, submitDesc);
         m_CoreInterface->Wait(*m_IdleFence, m_FenceValue);
     }
 } // namespace Ame::Rhi

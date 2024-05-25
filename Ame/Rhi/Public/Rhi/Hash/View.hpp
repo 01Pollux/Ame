@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Rhi/Descs/View.hpp>
-#include <Core/Hash.hpp>
+#include <Core/hash.hpp>
 
 namespace std
 {
@@ -9,14 +9,14 @@ namespace std
     struct hash<Ame::Rhi::BufferRange>
     {
         size_t operator()(
-            const Ame::Rhi::BufferRange& Desc) const noexcept
+            const Ame::Rhi::BufferRange& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.Offset);
-            Ame::HashCombine(Hash, Desc.Size);
+            Ame::HashCombine(hash, desc.Offset);
+            Ame::HashCombine(hash, desc.Size);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -26,14 +26,14 @@ namespace std
     struct hash<Ame::Rhi::MipLevel>
     {
         size_t operator()(
-            const Ame::Rhi::MipLevel& Desc) const noexcept
+            const Ame::Rhi::MipLevel& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.Offset);
-            Ame::HashCombine(Hash, Desc.Count);
+            Ame::HashCombine(hash, desc.Offset);
+            Ame::HashCombine(hash, desc.Count);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -41,14 +41,14 @@ namespace std
     struct hash<Ame::Rhi::ArraySlice>
     {
         size_t operator()(
-            const Ame::Rhi::ArraySlice& Desc) const noexcept
+            const Ame::Rhi::ArraySlice& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.Offset);
-            Ame::HashCombine(Hash, Desc.Count);
+            Ame::HashCombine(hash, desc.Offset);
+            Ame::HashCombine(hash, desc.Count);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -56,14 +56,14 @@ namespace std
     struct hash<Ame::Rhi::TextureSubresource>
     {
         size_t operator()(
-            const Ame::Rhi::TextureSubresource& Desc) const noexcept
+            const Ame::Rhi::TextureSubresource& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.Mips);
-            Ame::HashCombine(Hash, Desc.Array);
+            Ame::HashCombine(hash, desc.Mips);
+            Ame::HashCombine(hash, desc.Array);
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -73,15 +73,15 @@ namespace std
     struct hash<Ame::Rhi::BufferViewDesc>
     {
         size_t operator()(
-            const Ame::Rhi::BufferViewDesc& Desc) const noexcept
+            const Ame::Rhi::BufferViewDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.Range);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Format));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Type));
+            Ame::HashCombine(hash, desc.Range);
+            Ame::HashCombine(hash, std::to_underlying(desc.Format));
+            Ame::HashCombine(hash, std::to_underlying(desc.Type));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -89,16 +89,16 @@ namespace std
     struct hash<Ame::Rhi::TextureViewDesc>
     {
         size_t operator()(
-            const Ame::Rhi::TextureViewDesc& Desc) const noexcept
+            const Ame::Rhi::TextureViewDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Type));
-            Ame::HashCombine(Hash, Desc.Subresource);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Format));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.Flags));
+            Ame::HashCombine(hash, std::to_underlying(desc.Type));
+            Ame::HashCombine(hash, desc.Subresource);
+            Ame::HashCombine(hash, std::to_underlying(desc.Format));
+            Ame::HashCombine(hash, std::to_underlying(desc.Flags));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -106,25 +106,25 @@ namespace std
     struct hash<Ame::Rhi::SamplerDesc>
     {
         size_t operator()(
-            const Ame::Rhi::SamplerDesc& Desc) const noexcept
+            const Ame::Rhi::SamplerDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.min));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.mag));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.mip));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.filters.ext));
-            Ame::HashCombine(Hash, Desc.anisotropy);
-            Ame::HashCombine(Hash, Desc.mipBias);
-            Ame::HashCombine(Hash, Desc.mipMin);
-            Ame::HashCombine(Hash, Desc.mipMax);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.addressModes.u));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.addressModes.v));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.addressModes.w));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.compareFunc));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.borderColor));
+            Ame::HashCombine(hash, std::to_underlying(desc.filters.min));
+            Ame::HashCombine(hash, std::to_underlying(desc.filters.mag));
+            Ame::HashCombine(hash, std::to_underlying(desc.filters.mip));
+            Ame::HashCombine(hash, std::to_underlying(desc.filters.ext));
+            Ame::HashCombine(hash, desc.anisotropy);
+            Ame::HashCombine(hash, desc.mipBias);
+            Ame::HashCombine(hash, desc.mipMin);
+            Ame::HashCombine(hash, desc.mipMax);
+            Ame::HashCombine(hash, std::to_underlying(desc.addressModes.u));
+            Ame::HashCombine(hash, std::to_underlying(desc.addressModes.v));
+            Ame::HashCombine(hash, std::to_underlying(desc.addressModes.w));
+            Ame::HashCombine(hash, std::to_underlying(desc.compareFunc));
+            Ame::HashCombine(hash, std::to_underlying(desc.borderColor));
 
-            return Hash;
+            return hash;
         }
     };
 } // namespace std

@@ -9,52 +9,54 @@
 namespace Ame::Rhi
 {
     template<typename Ty, typename ReleaseFunc>
-    struct DeferredResource
+    class DeferredResourceList
     {
-        std::vector<Ty*> Resources;
-        std::mutex       Mutex;
-
+    public:
         void DeferRelease(
-            Ty& Resource)
+            Ty& resource)
         {
-            std::scoped_lock Guard(Mutex);
-            Resources.push_back(&Resource);
+            std::scoped_lock resourceLock(m_Mutex);
+            m_Resources.push_back(&resource);
         }
 
         template<typename... ArgsTy>
         void Release(
-            ArgsTy&&... Args)
+            ArgsTy&&... args)
         {
-            std::scoped_lock Guard(Mutex);
+            std::scoped_lock resourceLock(m_Mutex);
             std::for_each(
                 std::execution::unseq,
-                Resources.begin(),
-                Resources.end(),
+                m_Resources.begin(),
+                m_Resources.end(),
                 [&](Ty* Resource)
                 {
-                    ReleaseFunc{}(std::forward<ArgsTy>(Args)..., *Resource);
+                    ReleaseFunc{}(std::forward<ArgsTy>(args)..., *Resource);
                 });
-            Resources.clear();
+            m_Resources.clear();
         }
+
+    private:
+        std::vector<Ty*> m_Resources;
+        std::mutex       m_Mutex;
     };
 
-    using DeferredBuffer = DeferredResource<
+    using DeferredBufferList = DeferredResourceList<
         nri::Buffer,
-        decltype([](MemoryAllocator& MemAllocator, nri::Buffer& Buffer)
-                 { MemAllocator.Release(&Buffer); })>;
+        decltype([](MemoryAllocator& memoryAllocator, nri::Buffer& nriBuffer)
+                 { memoryAllocator.Release(&nriBuffer); })>;
 
-    using DeferredTexture = DeferredResource<
+    using DeferredTextureList = DeferredResourceList<
         nri::Texture,
-        decltype([](MemoryAllocator& MemAllocator, nri::Texture& Texture)
-                 { MemAllocator.Release(&Texture); })>;
+        decltype([](MemoryAllocator& memoryAllocator, nri::Texture& nriTexture)
+                 { memoryAllocator.Release(&nriTexture); })>;
 
-    using DeferredDescriptor = DeferredResource<
+    using DeferredDescriptorList = DeferredResourceList<
         nri::Descriptor,
-        decltype([](nri::CoreInterface& NriCore, nri::Descriptor& Descriptor)
-                 { NriCore.DestroyDescriptor(Descriptor); })>;
+        decltype([](nri::CoreInterface& nriCore, nri::Descriptor& nriDescriptor)
+                 { nriCore.DestroyDescriptor(nriDescriptor); })>;
 
-    using DeferredPipeline = DeferredResource<
+    using DeferredPipelineList = DeferredResourceList<
         nri::Pipeline,
-        decltype([](nri::CoreInterface& NriCore, nri::Pipeline& Pipeline)
-                 { NriCore.DestroyPipeline(Pipeline); })>;
+        decltype([](nri::CoreInterface& nriCore, nri::Pipeline& nriPipeline)
+                 { nriCore.DestroyPipeline(nriPipeline); })>;
 } // namespace Ame::Rhi

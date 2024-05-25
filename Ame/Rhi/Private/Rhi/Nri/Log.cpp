@@ -4,24 +4,24 @@
 namespace Ame::Rhi
 {
     void NriLogCallbackInterface::MessageCallback(
-        nri::Message Type,
-        const char*  File,
-        uint32_t     Line,
-        const char*  Message,
+        nri::Message type,
+        const char*  file,
+        uint32_t     line,
+        const char*  message,
         void*)
     {
-        switch (Type)
+        switch (type)
         {
         case nri::Message::TYPE_INFO:
 #ifndef AME_DIST
-            Log::Rhi().Info("{}", Message);
+            Log::Rhi().Info("{}", message);
 #endif
             break;
         case nri::Message::TYPE_WARNING:
-            Log::Rhi().Warning("{}", Message);
+            Log::Rhi().Warning("{}", message);
             break;
         case nri::Message::TYPE_ERROR:
-            Log::Rhi().Error(Message);
+            Log::Rhi().Error(message);
             break;
         }
     }

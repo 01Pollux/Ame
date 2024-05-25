@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Rhi/Descs/Resource.hpp>
-#include <Core/Hash.hpp>
+#include <Core/hash.hpp>
 
 namespace std
 {
@@ -9,15 +9,15 @@ namespace std
     struct hash<Ame::Rhi::BufferDesc>
     {
         size_t operator()(
-            const Ame::Rhi::BufferDesc& Desc) const noexcept
+            const Ame::Rhi::BufferDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, Desc.size);
-            Ame::HashCombine(Hash, Desc.structureStride);
-            Ame::HashCombine(Hash, std::to_underlying(Desc.usageMask));
+            Ame::HashCombine(hash, desc.size);
+            Ame::HashCombine(hash, desc.structureStride);
+            Ame::HashCombine(hash, std::to_underlying(desc.usageMask));
 
-            return Hash;
+            return hash;
         }
     };
 
@@ -25,21 +25,21 @@ namespace std
     struct hash<Ame::Rhi::TextureDesc>
     {
         size_t operator()(
-            const Ame::Rhi::TextureDesc& Desc) const noexcept
+            const Ame::Rhi::TextureDesc& desc) const noexcept
         {
-            size_t Hash = 0;
+            size_t hash = 0;
 
-            Ame::HashCombine(Hash, std::to_underlying(Desc.type));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.usageMask));
-            Ame::HashCombine(Hash, std::to_underlying(Desc.format));
-            Ame::HashCombine(Hash, Desc.width);
-            Ame::HashCombine(Hash, Desc.height);
-            Ame::HashCombine(Hash, Desc.depth);
-            Ame::HashCombine(Hash, Desc.mipNum);
-            Ame::HashCombine(Hash, Desc.arraySize);
-            Ame::HashCombine(Hash, Desc.sampleNum);
+            Ame::HashCombine(hash, std::to_underlying(desc.type));
+            Ame::HashCombine(hash, std::to_underlying(desc.usageMask));
+            Ame::HashCombine(hash, std::to_underlying(desc.format));
+            Ame::HashCombine(hash, desc.width);
+            Ame::HashCombine(hash, desc.height);
+            Ame::HashCombine(hash, desc.depth);
+            Ame::HashCombine(hash, desc.mipNum);
+            Ame::HashCombine(hash, desc.arraySize);
+            Ame::HashCombine(hash, desc.sampleNum);
 
-            return Hash;
+            return hash;
         }
     };
 } // namespace std

@@ -12,12 +12,12 @@ namespace Ame::Rhi
 
     protected:
         ResourceView(
-            DeviceImpl*      RhiDevice,
-            nri::Descriptor* Descriptor);
+            DeviceImpl*      rhiDevice,
+            nri::Descriptor* nriDescriptor);
 
         ResourceView(
-            Device&            RhiDevice,
-            const SamplerDesc& Desc);
+            Device&            rhiDevice,
+            const SamplerDesc& desc);
 
     public:
         struct Extern
@@ -32,19 +32,19 @@ namespace Ame::Rhi
 
         ResourceView(
             Extern,
-            DeviceImpl&      RhiDevice,
-            nri::Descriptor* Descriptor);
+            DeviceImpl&      rhiDevice,
+            nri::Descriptor* descriptor);
         ResourceView(
             Extern,
-            Device&          RhiDevice,
-            nri::Descriptor* Descriptor);
+            Device&          rhiDevice,
+            nri::Descriptor* descriptor);
 
     public:
         ResourceView(const ResourceView&);
-        ResourceView(ResourceView&& Other) noexcept;
+        ResourceView(ResourceView&& other) noexcept;
 
         ResourceView& operator=(const ResourceView&);
-        ResourceView& operator=(ResourceView&& Other) noexcept;
+        ResourceView& operator=(ResourceView&& other) noexcept;
 
         ~ResourceView();
 
@@ -58,7 +58,7 @@ namespace Ame::Rhi
         /// Set the resource view name.
         /// </summary>
         void SetName(
-            const char* Name) const;
+            const char* name) const;
 
         /// <summary>
         /// Get the nri descriptor.
@@ -125,26 +125,26 @@ namespace Ame::Rhi
         SamplerResourceView() = default;
         SamplerResourceView(
             Extern,
-            DeviceImpl&      RhiDevice,
-            nri::Descriptor* Descriptor);
+            DeviceImpl&      rhiDevice,
+            nri::Descriptor* descriptor);
         SamplerResourceView(
             Extern,
-            Device&          RhiDevice,
-            nri::Descriptor* Descriptor);
+            Device&          rhiDevice,
+            nri::Descriptor* descriptor);
         SamplerResourceView(std::nullptr_t) :
             ResourceView(nullptr)
         {
         }
 
         SamplerResourceView(
-            Device&            RhiDevice,
-            const SamplerDesc& Desc);
+            Device&            rhiDevice,
+            const SamplerDesc& desc);
 
         SamplerResourceView(const SamplerResourceView&)           = delete;
-        SamplerResourceView(SamplerResourceView&& Other) noexcept = default;
+        SamplerResourceView(SamplerResourceView&& other) noexcept = default;
 
         SamplerResourceView& operator=(const SamplerResourceView&)           = delete;
-        SamplerResourceView& operator=(SamplerResourceView&& Other) noexcept = default;
+        SamplerResourceView& operator=(SamplerResourceView&& other) noexcept = default;
 
         ~SamplerResourceView() = default;
     };

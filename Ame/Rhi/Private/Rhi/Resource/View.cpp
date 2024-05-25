@@ -9,21 +9,21 @@
 namespace Ame::Rhi
 {
     static nri::ResourceViewBits ConvertViewBits(
-        TextureViewFlags Flags)
+        TextureViewFlags flags)
     {
         using namespace EnumBitOperators;
 
-        nri::ResourceViewBits Bits = {};
-        if ((Flags & TextureViewFlags::ReadOnlyDepth) != TextureViewFlags::None)
+        nri::ResourceViewBits bits = {};
+        if ((flags & TextureViewFlags::ReadOnlyDepth) != TextureViewFlags::None)
         {
-            Bits |= nri::ResourceViewBits::READONLY_DEPTH;
+            bits |= nri::ResourceViewBits::READONLY_DEPTH;
         }
-        if ((Flags & TextureViewFlags::ReadOnlyDepth) != TextureViewFlags::None)
+        if ((flags & TextureViewFlags::ReadOnlyDepth) != TextureViewFlags::None)
         {
-            Bits |= nri::ResourceViewBits::READONLY_DEPTH;
+            bits |= nri::ResourceViewBits::READONLY_DEPTH;
         }
 
-        return Bits;
+        return bits;
     }
 
     struct TexView1D
@@ -32,9 +32,9 @@ namespace Ame::Rhi
         using DescType = nri::Texture1DViewDesc;
 
         static constexpr ViewType Convert(
-            TextureViewType Type)
+            TextureViewType type)
         {
-            switch (Type)
+            switch (type)
             {
             case TextureViewType::ShaderResource1D:
                 return ViewType::SHADER_RESOURCE_1D;
@@ -54,18 +54,18 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::Texture&          Texture,
-            const TextureViewDesc& Desc)
+            nri::Texture&          nriTexture,
+            const TextureViewDesc& desc)
         {
             return {
-                .texture     = &Texture,
-                .viewType    = Convert(Desc.Type),
-                .format      = Desc.Format,
-                .mipOffset   = Desc.Subresource.Mips.Offset,
-                .mipNum      = Desc.Subresource.Mips.Count,
-                .arrayOffset = Desc.Subresource.Array.Offset,
-                .arraySize   = Desc.Subresource.Array.Count,
-                .flags       = ConvertViewBits(Desc.Flags)
+                .texture     = &nriTexture,
+                .viewType    = Convert(desc.Type),
+                .format      = desc.Format,
+                .mipOffset   = desc.Subresource.Mips.Offset,
+                .mipNum      = desc.Subresource.Mips.Count,
+                .arrayOffset = desc.Subresource.Array.Offset,
+                .arraySize   = desc.Subresource.Array.Count,
+                .flags       = ConvertViewBits(desc.Flags)
             };
         }
     };
@@ -76,9 +76,9 @@ namespace Ame::Rhi
         using DescType = nri::Texture2DViewDesc;
 
         static constexpr ViewType Convert(
-            TextureViewType Type)
+            TextureViewType type)
         {
-            switch (Type)
+            switch (type)
             {
             case TextureViewType::ShaderResource2D:
                 return ViewType::SHADER_RESOURCE_2D;
@@ -102,18 +102,18 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::Texture&          Texture,
-            const TextureViewDesc& Desc)
+            nri::Texture&          nriTexture,
+            const TextureViewDesc& desc)
         {
             return {
-                .texture     = &Texture,
-                .viewType    = Convert(Desc.Type),
-                .format      = Desc.Format,
-                .mipOffset   = Desc.Subresource.Mips.Offset,
-                .mipNum      = Desc.Subresource.Mips.Count,
-                .arrayOffset = Desc.Subresource.Array.Offset,
-                .arraySize   = Desc.Subresource.Array.Count,
-                .flags       = ConvertViewBits(Desc.Flags)
+                .texture     = &nriTexture,
+                .viewType    = Convert(desc.Type),
+                .format      = desc.Format,
+                .mipOffset   = desc.Subresource.Mips.Offset,
+                .mipNum      = desc.Subresource.Mips.Count,
+                .arrayOffset = desc.Subresource.Array.Offset,
+                .arraySize   = desc.Subresource.Array.Count,
+                .flags       = ConvertViewBits(desc.Flags)
             };
         }
     };
@@ -124,9 +124,9 @@ namespace Ame::Rhi
         using DescType = nri::Texture3DViewDesc;
 
         static constexpr ViewType Convert(
-            TextureViewType Type)
+            TextureViewType type)
         {
-            switch (Type)
+            switch (type)
             {
             case TextureViewType::ShaderResource3D:
                 return ViewType::SHADER_RESOURCE_3D;
@@ -140,18 +140,18 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::Texture&          Texture,
-            const TextureViewDesc& Desc)
+            nri::Texture&          nriTexture,
+            const TextureViewDesc& desc)
         {
             return {
-                .texture     = &Texture,
-                .viewType    = Convert(Desc.Type),
-                .format      = Desc.Format,
-                .mipOffset   = Desc.Subresource.Mips.Offset,
-                .mipNum      = Desc.Subresource.Mips.Count,
-                .sliceOffset = Desc.Subresource.Array.Offset,
-                .sliceNum    = Desc.Subresource.Array.Count,
-                .flags       = ConvertViewBits(Desc.Flags)
+                .texture     = &nriTexture,
+                .viewType    = Convert(desc.Type),
+                .format      = desc.Format,
+                .mipOffset   = desc.Subresource.Mips.Offset,
+                .mipNum      = desc.Subresource.Mips.Count,
+                .sliceOffset = desc.Subresource.Array.Offset,
+                .sliceNum    = desc.Subresource.Array.Count,
+                .flags       = ConvertViewBits(desc.Flags)
             };
         }
     };
@@ -162,9 +162,9 @@ namespace Ame::Rhi
         using ViewType = nri::BufferViewType;
 
         static constexpr ViewType Convert(
-            BufferViewType Type)
+            BufferViewType type)
         {
-            switch (Type)
+            switch (type)
             {
             case BufferViewType::ConstantBuffer:
                 return ViewType::CONSTANT;
@@ -177,88 +177,86 @@ namespace Ame::Rhi
             }
         }
         [[nodiscard]] static nri::BufferViewDesc Convert(
-            nri::Buffer&          Buffer,
-            const BufferViewDesc& Desc)
+            nri::Buffer&          nriBuffer,
+            const BufferViewDesc& desc)
         {
-            nri::BufferViewDesc NriDesc{
-                .buffer   = &Buffer,
-                .viewType = Convert(Desc.Type),
-                .format   = Desc.Format,
-                .offset   = Desc.Range.Offset,
-                .size     = Desc.Range.Size,
+            return {
+                .buffer   = &nriBuffer,
+                .viewType = Convert(desc.Type),
+                .format   = desc.Format,
+                .offset   = desc.Range.Offset,
+                .size     = desc.Range.Size,
             };
-
-            return NriDesc;
         }
     };
 
     //
 
     ResourceView::ResourceView(
-        DeviceImpl*      RhiDevice,
-        nri::Descriptor* Descriptor) :
-        m_Device(RhiDevice),
-        m_Descriptor(Descriptor)
+        DeviceImpl*      rhiDevice,
+        nri::Descriptor* nriDescriptor) :
+        m_Device(rhiDevice),
+        m_Descriptor(nriDescriptor)
     {
     }
 
     ResourceView::ResourceView(
-        Device&            RhiDevice,
-        const SamplerDesc& Desc) :
-        m_Device(&RhiDevice.GetImpl())
+        Device&            rhiDevice,
+        const SamplerDesc& desc) :
+        m_Device(&rhiDevice.GetImpl())
     {
-        auto& Impl    = RhiDevice.GetImpl();
-        auto& Nri     = Impl.GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& rhiDeviceImpl = rhiDevice.GetImpl();
+        auto& nriUtils      = rhiDeviceImpl.GetNRI();
+        auto& nriCore       = *nriUtils.GetCoreInterface();
 
-        ThrowIfFailed(NriCore.CreateSampler(m_Device->GetDevice(), Desc, m_Descriptor), "Failed to create sampler");
-    }
-
-    ResourceView::ResourceView(
-        Extern,
-        DeviceImpl&      RhiDevice,
-        nri::Descriptor* Descriptor) :
-        m_Device(&RhiDevice),
-        m_Descriptor(Descriptor),
-        m_Owning(false)
-    {
+        ThrowIfFailed(nriCore.CreateSampler(m_Device->GetDevice(), desc, m_Descriptor), "Failed to create sampler");
     }
 
     ResourceView::ResourceView(
         Extern,
-        Device&          RhiDevice,
-        nri::Descriptor* Descriptor) :
-        m_Device(&RhiDevice.GetImpl()),
-        m_Descriptor(Descriptor),
+        DeviceImpl&      rhiDeviceImpl,
+        nri::Descriptor* nriDescriptor) :
+        m_Device(&rhiDeviceImpl),
+        m_Descriptor(nriDescriptor),
         m_Owning(false)
     {
     }
 
     ResourceView::ResourceView(
-        const ResourceView& Other) :
-        m_Device(Other.m_Device),
-        m_Descriptor(Other.m_Descriptor),
+        Extern,
+        Device&          rhiDevice,
+        nri::Descriptor* nriDescriptor) :
+        m_Device(&rhiDevice.GetImpl()),
+        m_Descriptor(nriDescriptor),
         m_Owning(false)
     {
     }
 
     ResourceView::ResourceView(
-        ResourceView&& Other) noexcept :
-        m_Device(std::exchange(Other.m_Device, nullptr)),
-        m_Descriptor(std::exchange(Other.m_Descriptor, nullptr)),
-        m_Owning(std::exchange(Other.m_Owning, false))
+        const ResourceView& other) :
+        m_Device(other.m_Device),
+        m_Descriptor(other.m_Descriptor),
+        m_Owning(false)
+    {
+    }
+
+    ResourceView::ResourceView(
+        ResourceView&& other) noexcept :
+        m_Device(std::exchange(other.m_Device, nullptr)),
+        m_Descriptor(std::exchange(other.m_Descriptor, nullptr)),
+        m_Owning(std::exchange(other.m_Owning, false))
     {
     }
 
     ResourceView& ResourceView::operator=(
-        const ResourceView& Other)
+        const ResourceView& other)
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            m_Device     = Other.m_Device;
-            m_Descriptor = Other.m_Descriptor;
+            m_Device     = other.m_Device;
+            m_Descriptor = other.m_Descriptor;
             m_Owning     = false;
         }
 
@@ -266,15 +264,15 @@ namespace Ame::Rhi
     }
 
     ResourceView& ResourceView::operator=(
-        ResourceView&& Other) noexcept
+        ResourceView&& other) noexcept
     {
-        if (this != &Other)
+        if (this != &other)
         {
             Release();
 
-            m_Device     = std::exchange(Other.m_Device, nullptr);
-            m_Descriptor = std::exchange(Other.m_Descriptor, nullptr);
-            m_Owning     = std::exchange(Other.m_Owning, false);
+            m_Device     = std::exchange(other.m_Device, nullptr);
+            m_Descriptor = std::exchange(other.m_Descriptor, nullptr);
+            m_Owning     = std::exchange(other.m_Owning, false);
         }
 
         return *this;
@@ -286,12 +284,12 @@ namespace Ame::Rhi
     }
 
     void ResourceView::SetName(
-        const char* Name) const
+        const char* name) const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.SetDescriptorDebugName(*m_Descriptor, Name);
+        nriCore.SetDescriptorDebugName(*m_Descriptor, name);
     }
 
     nri::Descriptor* ResourceView::Unwrap() const
@@ -301,10 +299,10 @@ namespace Ame::Rhi
 
     void* ResourceView::GetNative() const
     {
-        auto& Nri     = m_Device->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Device->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        return std::bit_cast<void*>(NriCore.GetDescriptorNativeObject(*m_Descriptor));
+        return std::bit_cast<void*>(nriCore.GetDescriptorNativeObject(*m_Descriptor));
     }
 
     bool ResourceView::IsOwning() const
@@ -315,122 +313,124 @@ namespace Ame::Rhi
     //
 
     nri::Descriptor* DeviceImpl::CreateView(
-        nri::Texture&          NriTexture,
-        const TextureViewDesc& Desc) const
+        nri::Texture&          nriTexture,
+        const TextureViewDesc& desc) const
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
-
         using namespace EnumBitOperators;
-        nri::Descriptor* View = nullptr;
-        if ((Desc.Type & TextureViewType::AnyOneDimensional) != TextureViewType::None)
+
+        auto& nriCore = *m_NRI.GetCoreInterface();
+
+        nri::Descriptor* nriDescriptor = nullptr;
+        if ((desc.Type & TextureViewType::AnyOneDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView1D::Convert(NriTexture, Desc);
-            ThrowIfFailed(NriCore.CreateTexture1DView(NriDesc, View), "Failed to create texture view");
+            auto nriDesc = TexView1D::Convert(nriTexture, desc);
+            ThrowIfFailed(nriCore.CreateTexture1DView(nriDesc, nriDescriptor), "Failed to create texture view");
         }
-        else if ((Desc.Type & TextureViewType::AnyTwoDimensional) != TextureViewType::None)
+        else if ((desc.Type & TextureViewType::AnyTwoDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView2D::Convert(NriTexture, Desc);
-            ThrowIfFailed(NriCore.CreateTexture2DView(NriDesc, View), "Failed to create texture view");
+            auto nriDesc = TexView2D::Convert(nriTexture, desc);
+            ThrowIfFailed(nriCore.CreateTexture2DView(nriDesc, nriDescriptor), "Failed to create texture view");
         }
-        else if ((Desc.Type & TextureViewType::AnyThreeDimensional) != TextureViewType::None)
+        else if ((desc.Type & TextureViewType::AnyThreeDimensional) != TextureViewType::None)
         {
-            auto NriDesc = TexView3D::Convert(NriTexture, Desc);
-            ThrowIfFailed(NriCore.CreateTexture3DView(NriDesc, View), "Failed to create texture view");
+            auto nriDesc = TexView3D::Convert(nriTexture, desc);
+            ThrowIfFailed(nriCore.CreateTexture3DView(nriDesc, nriDescriptor), "Failed to create texture view");
         }
-        return View;
+
+        return nriDescriptor;
     }
 
     nri::Descriptor* DeviceImpl::CreateView(
         nri::Buffer&          NriBuffer,
         const BufferViewDesc& Desc) const
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
-        auto  NriDesc = BufferView::Convert(NriBuffer, Desc);
+        auto& nriCore = *m_NRI.GetCoreInterface();
 
-        nri::Descriptor* View = nullptr;
-        ThrowIfFailed(NriCore.CreateBufferView(NriDesc, View), "Failed to create buffer view");
+        nri::Descriptor* nriDescriptor = nullptr;
+        auto             nriDesc       = BufferView::Convert(NriBuffer, Desc);
+        ThrowIfFailed(nriCore.CreateBufferView(nriDesc, nriDescriptor), "Failed to create buffer view");
 
-        return View;
+        return nriDescriptor;
     }
 
     //
 
     BufferRange BufferRange::Transform(
-        const Buffer& RhiBuffer) const noexcept
+        const Buffer& buffer) const noexcept
     {
-        auto Copy = *this;
-        if (Copy.Size == RemainingSize<size_t>)
+        auto range = *this;
+        if (range.Size == RemainingSize<size_t>)
         {
-            Copy.Size = RhiBuffer.GetDesc().size - Copy.Offset;
+            range.Size = buffer.GetDesc().size - range.Offset;
         }
-        return Copy;
+        return range;
     }
 
     MipLevel MipLevel::Transform(
-        const Texture& RhiTexture) const noexcept
+        const Texture& texture) const noexcept
     {
-        auto Copy = *this;
-        if (Copy.Count == RemainingSize<Mip_t>)
+        auto mipLevel = *this;
+        if (mipLevel.Count == RemainingSize<Mip_t>)
         {
-            Copy.Count = RhiTexture.GetDesc().mipNum - Copy.Offset;
+            mipLevel.Count = texture.GetDesc().mipNum - mipLevel.Offset;
         }
-        return Copy;
+        return mipLevel;
     }
 
     ArraySlice ArraySlice::Transform(
-        const Texture& RhiTexture) const noexcept
+        const Texture& texture) const noexcept
     {
-        auto Copy = *this;
-        if (Copy.Count == RemainingSize<Dim_t>)
+        auto arraySlice = *this;
+        if (arraySlice.Count == RemainingSize<Dim_t>)
         {
-            Copy.Count = RhiTexture.GetDesc().arraySize - Copy.Offset;
+            arraySlice.Count = texture.GetDesc().arraySize - arraySlice.Offset;
         }
-        return Copy;
+        return arraySlice;
     }
 
     TextureSubresource TextureSubresource::Transform(
-        const Texture& RhiTexture) const noexcept
+        const Texture& texture) const noexcept
     {
         return {
-            Mips.Transform(RhiTexture),
-            Array.Transform(RhiTexture)
+            Mips.Transform(texture),
+            Array.Transform(texture)
         };
     }
 
     //
 
     BufferViewDesc BufferViewDesc::Transform(
-        const Buffer& RhiBuffer) const noexcept
+        const Buffer& buffer) const noexcept
     {
-        auto Copy  = *this;
-        Copy.Range = Range.Transform(RhiBuffer);
-        return Copy;
+        auto viewDesc  = *this;
+        viewDesc.Range = Range.Transform(buffer);
+        return viewDesc;
     }
 
     TextureViewDesc TextureViewDesc::Transform(
-        const Texture& RhiTexure) const noexcept
+        const Texture& texture) const noexcept
     {
-        auto Copy        = *this;
-        Copy.Subresource = Subresource.Transform(RhiTexure);
+        auto viewDesc        = *this;
+        viewDesc.Subresource = Subresource.Transform(texture);
         if (Format == Rhi::ResourceFormat::UNKNOWN)
         {
-            Copy.Format = RhiTexure.GetDesc().format;
+            viewDesc.Format = texture.GetDesc().format;
         }
-        return Copy;
+        return viewDesc;
     }
 
     //
 
     void DeviceImpl::Release(
-        nri::Descriptor& NriDescriptor)
+        nri::Descriptor& nriDescriptor)
     {
-        m_FrameManager.DeferRelease(NriDescriptor);
+        m_FrameManager.DeferRelease(nriDescriptor);
     }
 
     void Device::Release(
-        nri::Descriptor& View)
+        nri::Descriptor& nriDescriptor)
     {
-        m_Impl->Release(View);
+        m_Impl->Release(nriDescriptor);
     }
 
     void ResourceView::Release()
@@ -449,24 +449,24 @@ namespace Ame::Rhi
 
     SamplerResourceView::SamplerResourceView(
         Extern,
-        DeviceImpl&      RhiDevice,
-        nri::Descriptor* Descriptor) :
-        ResourceView({}, RhiDevice, Descriptor)
+        DeviceImpl&      rhiDeviceImpl,
+        nri::Descriptor* nriDescriptor) :
+        ResourceView({}, rhiDeviceImpl, nriDescriptor)
     {
     }
 
     SamplerResourceView::SamplerResourceView(
         Extern,
-        Device&          RhiDevice,
-        nri::Descriptor* Descriptor) :
-        ResourceView({}, RhiDevice, Descriptor)
+        Device&          rhiDevice,
+        nri::Descriptor* nriDescriptor) :
+        ResourceView({}, rhiDevice, nriDescriptor)
     {
     }
 
     SamplerResourceView::SamplerResourceView(
-        Device&            RhiDevice,
-        const SamplerDesc& Desc) :
-        ResourceView(RhiDevice, Desc)
+        Device&            rhiDevice,
+        const SamplerDesc& desc) :
+        ResourceView(rhiDevice, desc)
     {
     }
 } // namespace Ame::Rhi

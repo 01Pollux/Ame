@@ -8,39 +8,39 @@ namespace Ame::Rhi
     /// Get the size of a constant buffer
     /// </summary>
     [[nodiscard]] size_t GetUploadBufferTextureRowSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount = 1) noexcept;
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount = 1) noexcept;
 
     /// <summary>
     /// Get the size of a constant buffer
     /// </summary>
     [[nodiscard]] size_t GetUploadBufferTextureSliceSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount = 1) noexcept;
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            snstanceCount = 1) noexcept;
 
     /// <summary>
     /// Get the size of a constant buffer
     /// </summary>
-    [[nodiscard]] size_t GetTypedufferSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount = 1) noexcept;
+    [[nodiscard]] size_t GetTypedBufferSize(
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount = 1) noexcept;
 
     /// <summary>
     /// Get the size of a constant buffer
     /// </summary>
     [[nodiscard]] size_t GetConstantBufferSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount = 1) noexcept;
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount = 1) noexcept;
 
     /// <summary>
     /// Get the size of a constant buffer
     /// </summary>
     [[nodiscard]] size_t GetUnorderedAccessBufferSize(
-        const DeviceDesc& Desc,
-        size_t            StructSize,
-        size_t            InstanceCount = 1) noexcept;
+        const DeviceDesc& desc,
+        size_t            structSize,
+        size_t            instanceCount = 1) noexcept;
 } // namespace Ame::Rhi

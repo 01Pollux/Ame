@@ -29,7 +29,7 @@ namespace Ame::Rhi
 
         Device();
         explicit Device(
-            const DeviceCreateDesc& Desc);
+            const DeviceCreateDesc& desc);
 
         Device(const Device&)            = delete;
         Device& operator=(const Device&) = delete;
@@ -99,7 +99,7 @@ namespace Ame::Rhi
         /// Set the clear color.
         /// </summary>
         void SetClearColor(
-            const Math::Color4& Color);
+            const Math::Color4& color);
 
         /// <summary>
         /// Get the clear type for the backbuffer.
@@ -110,7 +110,7 @@ namespace Ame::Rhi
         /// Set the clear type for the backbuffer.
         /// </summary>
         void SetBackbufferClearType(
-            BackbufferClearType Type);
+            BackbufferClearType type);
 
     public:
         /// <summary>
@@ -134,7 +134,7 @@ namespace Ame::Rhi
         /// Get the backbuffer at the specified index.
         /// </summary>
         [[nodiscard]] const Backbuffer& GetBackbuffer(
-            uint8_t Index) const;
+            uint8_t index) const;
 
         /// <summary>
         /// Get the current backbuffer.
@@ -156,7 +156,7 @@ namespace Ame::Rhi
         /// Return vsync state for our swapchain
         /// </summary>
         void SetVSyncEnabled(
-            bool State = true);
+            bool state = true);
 
     public:
         /// <summary>
@@ -197,28 +197,28 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] Co::result<Ptr<PipelineLayout>> CreatePipelineLayout(
             Co::executor_tag,
-            Co::executor&             Executor,
-            const PipelineLayoutDesc& Desc);
+            Co::executor&             executor,
+            const PipelineLayoutDesc& desc);
 
         /// <summary>
         /// Create pipeline layout.
         /// </summary>
         [[nodiscard]] Ptr<PipelineLayout> CreatePipelineLayout(
-            const PipelineLayoutDesc& Desc);
+            const PipelineLayoutDesc& desc);
 
     private:
         /// <summary>
         /// Set the pipeline layout name.
         /// </summary>
         void SetName(
-            nri::PipelineLayout& Layout,
-            const char*          Name) const;
+            nri::PipelineLayout& layout,
+            const char*          name) const;
 
         /// <summary>
         /// Get the nri pipeline layout.
         /// </summary>
         void Release(
-            nri::PipelineLayout& Layout);
+            nri::PipelineLayout& layout);
 
     public:
         /// <summary>
@@ -227,7 +227,7 @@ namespace Ame::Rhi
         [[nodiscard]] Co::result<Ptr<PipelineState>> CreatePipelineState(
             Co::executor_tag,
             Co::executor&,
-            const GraphicsPipelineDesc& Desc);
+            const GraphicsPipelineDesc& desc);
 
         /// <summary>
         /// Create compute pipeline state.
@@ -235,33 +235,33 @@ namespace Ame::Rhi
         [[nodiscard]] Co::result<Ptr<PipelineState>> CreatePipelineState(
             Co::executor_tag,
             Co::executor&,
-            const ComputePipelineDesc& Desc);
+            const ComputePipelineDesc& desc);
 
         /// <summary>
         /// Create graphics pipeline state.
         /// </summary>
         [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
-            const GraphicsPipelineDesc& Desc);
+            const GraphicsPipelineDesc& desc);
 
         /// <summary>
         /// Create compute pipeline state.
         /// </summary>
         [[nodiscard]] Ptr<PipelineState> CreatePipelineState(
-            const ComputePipelineDesc& Desc);
+            const ComputePipelineDesc& desc);
 
     private:
         /// <summary>
         /// Set the pipeline state name.
         /// </summary>
         void SetName(
-            nri::Pipeline& Pipeline,
-            const char*    Name) const;
+            nri::Pipeline& nriPipeline,
+            const char*    name) const;
 
         /// <summary>
         /// Get the nri pipeline state.
         /// </summary>
         void Release(
-            nri::Pipeline& Pipeline);
+            nri::Pipeline& nriPipeline);
 
         // Below are the functions that are only accessible by the Texture
     private:
@@ -269,14 +269,14 @@ namespace Ame::Rhi
         /// Create a texture.
         /// </summary>
         nri::Texture* Create(
-            MemoryLocation     Location,
-            const TextureDesc& Desc);
+            MemoryLocation     location,
+            const TextureDesc& desc);
 
         /// <summary>
         /// Releases the texture.
         /// </summary>
         void Release(
-            nri::Texture& Tex);
+            nri::Texture& nriTexture);
 
         // Below are the functions that are only accessible by the Buffer
     private:
@@ -284,14 +284,14 @@ namespace Ame::Rhi
         /// Create a buffer.
         /// </summary>
         nri::Buffer* Create(
-            MemoryLocation    Location,
-            const BufferDesc& Desc);
+            MemoryLocation    location,
+            const BufferDesc& desc);
 
         /// <summary>
         /// Releases the buffer.
         /// </summary>
         void Release(
-            nri::Buffer& Buf);
+            nri::Buffer& nriBuffer);
 
         // Below are the functions that are only accessible by the ResourceView
     private:
@@ -299,7 +299,7 @@ namespace Ame::Rhi
         /// Releases the resource view.
         /// </summary>
         void Release(
-            nri::Descriptor& View);
+            nri::Descriptor& nriDescriptor);
 
     private:
         /// <summary>

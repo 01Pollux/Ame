@@ -8,12 +8,12 @@
 namespace Ame::Rhi
 {
     PipelineState::PipelineState(
-        Device&             RhiDevice,
-        Ptr<PipelineLayout> Layout,
-        nri::Pipeline&      Pipeline) :
-        m_RhiDevice(RhiDevice),
-        m_Layout(std::move(Layout)),
-        m_Pipeline(Pipeline)
+        Device&             rhiDevice,
+        Ptr<PipelineLayout> layout,
+        nri::Pipeline&      nriPipeline) :
+        m_RhiDevice(rhiDevice),
+        m_Layout(std::move(layout)),
+        m_Pipeline(nriPipeline)
     {
     }
 
@@ -23,9 +23,9 @@ namespace Ame::Rhi
     }
 
     void PipelineState::SetName(
-        const char* Name) const
+        const char* name) const
     {
-        m_RhiDevice.SetName(Unwrap(), Name);
+        m_RhiDevice.SetName(Unwrap(), name);
     }
 
     nri::Pipeline& PipelineState::Unwrap() const
@@ -41,98 +41,98 @@ namespace Ame::Rhi
     //
 
     [[nodiscard]] static nri::InputAssemblyDesc Convert(
-        const InputAssemblyDesc& Desc)
+        const InputAssemblyDesc& desc)
     {
         return {
-            .topology            = Desc.Topology,
-            .tessControlPointNum = Desc.TessControlPointNum,
-            .primitiveRestart    = Desc.PrimitiveRestart
+            .topology            = desc.Topology,
+            .tessControlPointNum = desc.TessControlPointNum,
+            .primitiveRestart    = desc.PrimitiveRestart
         };
     }
 
     [[nodiscard]] static nri::RasterizationDesc Convert(
-        const RasterizationDesc& Desc)
+        const RasterizationDesc& desc)
     {
         return {
-            .viewportNum               = Desc.ViewportNum,
-            .depthBias                 = Desc.DepthBias,
-            .depthBiasClamp            = Desc.DepthBiasClamp,
-            .depthBiasSlopeFactor      = Desc.DepthBiasSlopeFactor,
-            .fillMode                  = Desc.Fill,
-            .cullMode                  = Desc.Cull,
-            .frontCounterClockwise     = Desc.FrontCounterClockwise,
-            .depthClamp                = Desc.DepthClamp,
-            .antialiasedLines          = Desc.AntialiasedLines,
-            .conservativeRasterization = Desc.ConservativeRasterization
+            .viewportNum               = desc.ViewportNum,
+            .depthBias                 = desc.DepthBias,
+            .depthBiasClamp            = desc.DepthBiasClamp,
+            .depthBiasSlopeFactor      = desc.DepthBiasSlopeFactor,
+            .fillMode                  = desc.Fill,
+            .cullMode                  = desc.Cull,
+            .frontCounterClockwise     = desc.FrontCounterClockwise,
+            .depthClamp                = desc.DepthClamp,
+            .antialiasedLines          = desc.AntialiasedLines,
+            .conservativeRasterization = desc.ConservativeRasterization
         };
     }
 
     [[nodiscard]] static nri::MultisampleDesc Convert(
-        const MultisampleDesc& Desc)
+        const MultisampleDesc& desc)
     {
         return {
-            .sampleMask                  = Desc.SampleMask,
-            .sampleNum                   = Desc.SampleCount,
-            .alphaToCoverage             = Desc.AlphaToCoverageEnable,
-            .programmableSampleLocations = Desc.ProgrammableSampleLocations
+            .sampleMask                  = desc.SampleMask,
+            .sampleNum                   = desc.SampleCount,
+            .alphaToCoverage             = desc.AlphaToCoverageEnable,
+            .programmableSampleLocations = desc.ProgrammableSampleLocations
         };
     }
 
     [[nodiscard]] static nri::ColorAttachmentDesc Convert(
-        const RenderTargetDesc& Desc)
+        const RenderTargetDesc& desc)
     {
         return {
-            .format     = Desc.Format,
+            .format     = desc.Format,
             .colorBlend = {
-                .srcFactor = Desc.Color.Src,
-                .dstFactor = Desc.Color.Dst,
-                .func      = Desc.Color.Func },
-            .alphaBlend     = { .srcFactor = Desc.Alpha.Src, .dstFactor = Desc.Alpha.Dst, .func = Desc.Alpha.Func },
-            .colorWriteMask = Desc.WriteMask,
-            .blendEnabled   = Desc.BlendEnable
+                .srcFactor = desc.Color.Src,
+                .dstFactor = desc.Color.Dst,
+                .func      = desc.Color.Func },
+            .alphaBlend     = { .srcFactor = desc.Alpha.Src, .dstFactor = desc.Alpha.Dst, .func = desc.Alpha.Func },
+            .colorWriteMask = desc.WriteMask,
+            .blendEnabled   = desc.BlendEnable
         };
     }
 
     [[nodiscard]] static nri::DepthAttachmentDesc Convert(
-        const DepthTargetDesc& Desc)
+        const DepthTargetDesc& desc)
     {
         return {
-            .compareFunc = Desc.Func,
-            .write       = Desc.WriteEnable,
-            .boundsTest  = Desc.BoundsTestEnable
+            .compareFunc = desc.Func,
+            .write       = desc.WriteEnable,
+            .boundsTest  = desc.BoundsTestEnable
         };
     }
 
     [[nodiscard]] static nri::StencilDesc Convert(
-        const StencilDesc& Desc)
+        const StencilDesc& desc)
     {
         return {
-            .compareFunc = Desc.Func,
-            .fail        = Desc.OnFail,
-            .pass        = Desc.OnPass,
-            .depthFail   = Desc.OnDepthFail,
-            .writeMask   = Desc.WriteMask,
-            .compareMask = Desc.CompareMask
+            .compareFunc = desc.Func,
+            .fail        = desc.OnFail,
+            .pass        = desc.OnPass,
+            .depthFail   = desc.OnDepthFail,
+            .writeMask   = desc.WriteMask,
+            .compareMask = desc.CompareMask
         };
     }
 
     [[nodiscard]] static nri::StencilAttachmentDesc Convert(
-        const StencilTargetDesc& Desc)
+        const StencilTargetDesc& desc)
     {
         return {
-            .front = Convert(Desc.Front),
-            .back  = Convert(Desc.Back)
+            .front = Convert(desc.Front),
+            .back  = Convert(desc.Back)
         };
     }
 
     struct NriOutputMergerDesc
     {
         explicit NriOutputMergerDesc(
-            const OutputMergerDesc& Desc) :
-            m_Desc(Desc)
+            const OutputMergerDesc& desc) :
+            m_Desc(desc)
         {
-            m_BlendDescs.reserve(Desc.RenderTargets.size());
-            for (const auto& RenderTarget : Desc.RenderTargets)
+            m_BlendDescs.reserve(desc.RenderTargets.size());
+            for (const auto& RenderTarget : desc.RenderTargets)
             {
                 m_BlendDescs.emplace_back(Convert(RenderTarget));
             }
@@ -160,17 +160,17 @@ namespace Ame::Rhi
     Co::result<Ptr<PipelineState>> Device::CreatePipelineState(
         Co::executor_tag,
         Co::executor&,
-        const GraphicsPipelineDesc& Desc)
+        const GraphicsPipelineDesc& desc)
     {
-        co_return CreatePipelineState(Desc);
+        co_return CreatePipelineState(desc);
     }
 
     Co::result<Ptr<PipelineState>> Device::CreatePipelineState(
         Co::executor_tag,
         Co::executor&,
-        const ComputePipelineDesc& Desc)
+        const ComputePipelineDesc& desc)
     {
-        co_return CreatePipelineState(Desc);
+        co_return CreatePipelineState(desc);
     }
 
     Ptr<PipelineState> Device::CreatePipelineState(
@@ -180,83 +180,81 @@ namespace Ame::Rhi
             Desc,
             [this](size_t, const GraphicsPipelineDesc& Desc)
             {
-                auto MultiSample = Desc.Multisample ? Convert(*Desc.Multisample) : nri::MultisampleDesc{};
+                auto multiSample = Desc.Multisample ? Convert(*Desc.Multisample) : nri::MultisampleDesc{};
 
                 NriOutputMergerDesc OutputMergerDesc(Desc.OutputMerger);
 
-                nri::GraphicsPipelineDesc NriDesc{
+                nri::GraphicsPipelineDesc pipelineDesc{
                     .pipelineLayout = &Desc.Layout->Unwrap(),
                     .vertexInput    = Desc.VertexInput,
                     .inputAssembly  = Convert(Desc.InputAssembly),
                     .rasterization  = Convert(Desc.Rasterizer),
-                    .multisample    = Desc.Multisample ? &MultiSample : nullptr,
+                    .multisample    = Desc.Multisample ? &multiSample : nullptr,
                     .outputMerger   = OutputMergerDesc.Get(),
                     .shaders        = Desc.Shaders.data(),
                     .shaderNum      = Count32(Desc.Shaders)
                 };
 
-                nri::Pipeline* Pipeline = nullptr;
+                auto& nriUtils = m_Impl->GetNRI();
+                auto& nriCore  = *nriUtils.GetCoreInterface();
 
-                auto& Nri     = m_Impl->GetNRI();
-                auto& NriCore = *Nri.GetCoreInterface();
-
-                ThrowIfFailed(NriCore.CreateGraphicsPipeline(
-                                  m_Impl->GetDevice(), NriDesc, Pipeline),
+                nri::Pipeline* nriPipeline = nullptr;
+                ThrowIfFailed(nriCore.CreateGraphicsPipeline(
+                                  m_Impl->GetDevice(), pipelineDesc, nriPipeline),
                               "Failed to create graphics pipeline");
 
-                return std::make_shared<PipelineState>(*this, Desc.Layout, *Pipeline);
+                return std::make_shared<PipelineState>(*this, Desc.Layout, *nriPipeline);
             });
     }
 
     Ptr<PipelineState> Device::CreatePipelineState(
-        const ComputePipelineDesc& Desc)
+        const ComputePipelineDesc& desc)
     {
         return GetImpl().m_ComputePipelineCache.Load(
-            Desc,
-            [this](size_t, const ComputePipelineDesc& Desc)
+            desc,
+            [this](size_t, const ComputePipelineDesc& desc)
             {
-                nri::ComputePipelineDesc NriDesc{
-                    .pipelineLayout = &Desc.Layout->Unwrap(),
-                    .shader         = Desc.Shader
+                nri::ComputePipelineDesc computeDesc{
+                    .pipelineLayout = &desc.Layout->Unwrap(),
+                    .shader         = desc.Shader
                 };
 
-                nri::Pipeline* Pipeline = nullptr;
+                auto& nriUtils = m_Impl->GetNRI();
+                auto& nriCore  = *nriUtils.GetCoreInterface();
 
-                auto& Nri     = m_Impl->GetNRI();
-                auto& NriCore = *Nri.GetCoreInterface();
-
-                ThrowIfFailed(NriCore.CreateComputePipeline(
-                                  m_Impl->GetDevice(), NriDesc, Pipeline),
+                nri::Pipeline* nriPipeline = nullptr;
+                ThrowIfFailed(nriCore.CreateComputePipeline(
+                                  m_Impl->GetDevice(), computeDesc, nriPipeline),
                               "Failed to create compute pipeline");
 
-                return std::make_shared<PipelineState>(*this, Desc.Layout, *Pipeline);
+                return std::make_shared<PipelineState>(*this, desc.Layout, *nriPipeline);
             });
     }
 
     //
 
     void Device::SetName(
-        nri::Pipeline& Pipeline,
-        const char*    Name) const
+        nri::Pipeline& nriPipeline,
+        const char*    name) const
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Impl->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.SetPipelineDebugName(Pipeline, Name);
+        nriCore.SetPipelineDebugName(nriPipeline, name);
     }
 
     void Device::Release(
-        nri::Pipeline& Pipeline)
+        nri::Pipeline& nriPipeline)
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Impl->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        m_Impl->DeferRelease(Pipeline);
+        m_Impl->DeferRelease(nriPipeline);
     }
 
     void DeviceImpl::DeferRelease(
-        nri::Pipeline& Pipeline)
+        nri::Pipeline& nriPipeline)
     {
-        m_FrameManager.DeferRelease(Pipeline);
+        m_FrameManager.DeferRelease(nriPipeline);
     }
 } // namespace Ame::Rhi

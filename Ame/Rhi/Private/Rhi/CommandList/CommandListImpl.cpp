@@ -12,62 +12,62 @@
 namespace Ame::Rhi
 {
     void CommandListImpl::Initialize(
-        DeviceImpl&                     RhiDevice,
-        const DescriptorAllocationDesc& DescriptorPoolDesc,
-        const char*                     AllocatorName,
-        const char*                     ListName)
+        DeviceImpl&                     rhiDevice,
+        const DescriptorAllocationDesc& allocationDesc,
+        const char*                     allocatorName,
+        const char*                     listName)
     {
-        m_RhiDevice = &RhiDevice;
+        m_RhiDevice = &rhiDevice;
 
-        auto& GraphicsQueue = m_RhiDevice->GetQueue();
-        auto& Nri           = m_RhiDevice->GetNRI();
-        auto& NriCore       = *Nri.GetCoreInterface();
+        auto& graphicsQueue = m_RhiDevice->GetQueue();
+        auto& nriUtils      = m_RhiDevice->GetNRI();
+        auto& nriCore       = *nriUtils.GetCoreInterface();
 
-        ThrowIfFailed(NriCore.CreateCommandAllocator(GraphicsQueue, m_CommandAllocator), "Failed to create command allocator");
-        ThrowIfFailed(NriCore.CreateCommandBuffer(*m_CommandAllocator, m_CommandBuffer), "Failed to create command buffer");
+        ThrowIfFailed(nriCore.CreateCommandAllocator(graphicsQueue, m_CommandAllocator), "Failed to create command allocator");
+        ThrowIfFailed(nriCore.CreateCommandBuffer(*m_CommandAllocator, m_CommandBuffer), "Failed to create command buffer");
 
 #ifndef AME_DIST
-        if (AllocatorName)
+        if (allocatorName)
         {
-            NriCore.SetCommandAllocatorDebugName(*m_CommandAllocator, AllocatorName);
+            nriCore.SetCommandAllocatorDebugName(*m_CommandAllocator, allocatorName);
         }
-        if (ListName)
+        if (listName)
         {
-            NriCore.SetCommandBufferDebugName(*m_CommandBuffer, ListName);
+            nriCore.SetCommandBufferDebugName(*m_CommandBuffer, listName);
         }
 #endif
 
-        m_DescriptorAllocator.Initialize(*m_RhiDevice, DescriptorPoolDesc);
+        m_DescriptorAllocator.Initialize(*m_RhiDevice, allocationDesc);
     }
 
     void CommandListImpl::Shutdown()
     {
         m_DescriptorAllocator.Shutdown();
 
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.DestroyCommandBuffer(*m_CommandBuffer);
-        NriCore.DestroyCommandAllocator(*m_CommandAllocator);
+        nriCore.DestroyCommandBuffer(*m_CommandBuffer);
+        nriCore.DestroyCommandAllocator(*m_CommandAllocator);
     }
 
     void CommandListImpl::Reset()
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.ResetCommandAllocator(*m_CommandAllocator);
-        NriCore.BeginCommandBuffer(*m_CommandBuffer, m_DescriptorAllocator.GetPool());
+        nriCore.ResetCommandAllocator(*m_CommandAllocator);
+        nriCore.BeginCommandBuffer(*m_CommandBuffer, m_DescriptorAllocator.GetPool());
 
         m_DescriptorAllocator.ResetPool();
     }
 
     void CommandListImpl::End()
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.EndCommandBuffer(*m_CommandBuffer);
+        nriCore.EndCommandBuffer(*m_CommandBuffer);
         m_PipelineLayout = nullptr;
     }
 
@@ -80,423 +80,430 @@ namespace Ame::Rhi
 
     void CommandListImpl::Submit()
     {
-        auto& GraphicsQueue = m_RhiDevice->GetQueue();
-        auto& Nri           = m_RhiDevice->GetNRI();
-        auto& NriCore       = *Nri.GetCoreInterface();
+        auto& graphicsQueue = m_RhiDevice->GetQueue();
+        auto& nriUtils      = m_RhiDevice->GetNRI();
+        auto& nriCore       = *nriUtils.GetCoreInterface();
 
-        nri::QueueSubmitDesc SubmitDesc{
+        nri::QueueSubmitDesc submitDesc{
             .commandBuffers   = &m_CommandBuffer,
             .commandBufferNum = 1
         };
-        NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
+        nriCore.QueueSubmit(graphicsQueue, submitDesc);
     }
 
     //
 
     void CommandListImpl::BeginMarker(
-        const char* Name)
+        const char* name)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdBeginAnnotation(*m_CommandBuffer, Name);
+        nriCore.CmdBeginAnnotation(*m_CommandBuffer, name);
     }
 
     void CommandListImpl::EndMarker()
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdEndAnnotation(*m_CommandBuffer);
+        nriCore.CmdEndAnnotation(*m_CommandBuffer);
     }
 
     //
 
     void CommandListImpl::SetPipelineLayout(
-        const Ptr<PipelineLayout>& Layout)
+        const Ptr<PipelineLayout>& layout)
     {
-        if (!m_PipelineLayout || m_PipelineLayout->GetHash() != Layout->GetHash())
+        if (!m_PipelineLayout || m_PipelineLayout->GetHash() != layout->GetHash())
         {
-            auto& Nri     = m_RhiDevice->GetNRI();
-            auto& NriCore = *Nri.GetCoreInterface();
+            auto& nriUtils = m_RhiDevice->GetNRI();
+            auto& nriCore  = *nriUtils.GetCoreInterface();
 
-            NriCore.CmdSetPipelineLayout(*m_CommandBuffer, Layout->Unwrap());
-            m_PipelineLayout = Layout;
+            nriCore.CmdSetPipelineLayout(*m_CommandBuffer, layout->Unwrap());
+            m_PipelineLayout = layout;
         }
     }
 
     void CommandListImpl::SetPipelineState(
-        const Ptr<PipelineState>& Pipeline)
+        const Ptr<PipelineState>& pipeline)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetPipeline(*m_CommandBuffer, Pipeline->Unwrap());
+        nriCore.CmdSetPipeline(*m_CommandBuffer, pipeline->Unwrap());
     }
 
     //
 
     void CommandListImpl::SetConstants(
-        uint32_t    ConstantIndex,
-        const void* Data,
-        size_t      Size)
+        uint32_t    constantIndex,
+        const void* data,
+        size_t      size)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetConstants(*m_CommandBuffer, ConstantIndex, Data, Size);
+        nriCore.CmdSetConstants(*m_CommandBuffer, constantIndex, data, size);
     }
 
     void CommandListImpl::SetDescriptorSet(
-        uint32_t             LayoutSlot,
-        const DescriptorSet& DescriptorSets,
-        const uint32_t*      DynamicBufferOffset)
+        uint32_t             layoutSlot,
+        const DescriptorSet& descriptorSets,
+        const uint32_t*      dynamicBufferOffset)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetDescriptorSet(*m_CommandBuffer, LayoutSlot, *DescriptorSets.Unwrap(), DynamicBufferOffset);
-    }
-
-    void CommandListImpl::UnsetDescriptorSet(
-        uint32_t LayoutSlot)
-    {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        nriCore.CmdSetDescriptorSet(*m_CommandBuffer, layoutSlot, *descriptorSets.Unwrap(), dynamicBufferOffset);
     }
 
     void CommandListImpl::SetSamplePositions(
-        std::span<const SamplePosition> Positions,
-        Sample_t                        SampleCount)
+        std::span<const SamplePosition> positions,
+        Sample_t                        sampleCount)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetSamplePositions(*m_CommandBuffer, Positions.data(), static_cast<Sample_t>(Positions.size()), SampleCount);
+        nriCore.CmdSetSamplePositions(*m_CommandBuffer, positions.data(), static_cast<Sample_t>(positions.size()), sampleCount);
     }
 
     //
 
     DescriptorSet CommandListImpl::AllocateSet(
-        uint32_t LayoutSlot,
-        uint32_t VariableCount)
+        uint32_t layoutSlot,
+        uint32_t variableCount)
     {
-        return m_DescriptorAllocator.Allocate(m_PipelineLayout->Unwrap(), LayoutSlot, VariableCount);
+        return m_DescriptorAllocator.Allocate(m_PipelineLayout->Unwrap(), layoutSlot, variableCount);
     }
 
     std::vector<DescriptorSet> CommandListImpl::AllocateSets(
-        uint32_t LayoutSlot,
-        uint32_t InstanceCount,
-        uint32_t VariableCount)
+        uint32_t layoutSlot,
+        uint32_t instanceCount,
+        uint32_t variableCount)
     {
-        return m_DescriptorAllocator.Allocate(m_PipelineLayout->Unwrap(), LayoutSlot, InstanceCount, VariableCount);
+        return m_DescriptorAllocator.Allocate(m_PipelineLayout->Unwrap(), layoutSlot, instanceCount, variableCount);
     }
 
     //
 
     void CommandListImpl::BeginRendering(
-        std::span<const Rhi::ResourceView*> RenderTargets,
-        const Rhi::ResourceView*            DepthStencil)
+        std::span<const Rhi::ResourceView*> renderTargets,
+        const Rhi::ResourceView*            depthStencil)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        auto NriRenderTargets = RenderTargets |
+        auto nriRenderTargets = renderTargets |
                                 std::views::transform([](const Rhi::ResourceView* View)
                                                       { return View->Unwrap(); }) |
                                 std::ranges::to<std::vector>();
 
-        nri::AttachmentsDesc Attachements{
-            .depthStencil = DepthStencil ? DepthStencil->Unwrap() : nullptr,
-            .colors       = NriRenderTargets.data(),
-            .colorNum     = Count32(NriRenderTargets)
+        nri::AttachmentsDesc attachements{
+            .depthStencil = depthStencil ? depthStencil->Unwrap() : nullptr,
+            .colors       = nriRenderTargets.data(),
+            .colorNum     = Count32(nriRenderTargets)
         };
-        NriCore.CmdBeginRendering(*m_CommandBuffer, Attachements);
+        nriCore.CmdBeginRendering(*m_CommandBuffer, attachements);
     }
 
     void CommandListImpl::ClearAttachments(
-        std::span<const ClearDesc>   Clears,
-        std::span<const ClearRegion> Regions)
+        std::span<const ClearDesc>   clears,
+        std::span<const ClearRegion> regions)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdClearAttachments(*m_CommandBuffer, Clears.data(), Count32(Clears), Regions.data(), Count32(Regions));
+        nriCore.CmdClearAttachments(*m_CommandBuffer, clears.data(), Count32(clears), regions.data(), Count32(regions));
     }
 
     void CommandListImpl::ClearAttachments(
-        std::span<const ClearDesc> Clears)
+        std::span<const ClearDesc> clears)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdClearAttachments(*m_CommandBuffer, Clears.data(), Count32(Clears), nullptr, 0);
+        nriCore.CmdClearAttachments(*m_CommandBuffer, clears.data(), Count32(clears), nullptr, 0);
     }
 
     void CommandListImpl::SetViewports(
-        std::span<const Viewport> Viewports)
+        std::span<const Viewport> viewports)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetViewports(*m_CommandBuffer, Viewports.data(), Count32(Viewports));
+        nriCore.CmdSetViewports(*m_CommandBuffer, viewports.data(), Count32(viewports));
     }
 
     void CommandListImpl::SetScissorRects(
-        std::span<const ScissorRect> ScissorRects)
+        std::span<const ScissorRect> scissorRects)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetScissors(*m_CommandBuffer, ScissorRects.data(), Count32(ScissorRects));
+        nriCore.CmdSetScissors(*m_CommandBuffer, scissorRects.data(), Count32(scissorRects));
     }
 
     void CommandListImpl::SetStencilReference(
-        uint8_t StencilReference)
+        uint8_t stencilReference)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetStencilReference(*m_CommandBuffer, StencilReference, StencilReference);
+        nriCore.CmdSetStencilReference(*m_CommandBuffer, stencilReference, stencilReference);
     }
 
     void CommandListImpl::SetDepthBounds(
-        float MinDepthBounds,
-        float MaxDepthBounds)
+        float minDepthBounds,
+        float maxDepthBounds)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetDepthBounds(*m_CommandBuffer, MinDepthBounds, MaxDepthBounds);
+        nriCore.CmdSetDepthBounds(*m_CommandBuffer, minDepthBounds, maxDepthBounds);
     }
 
     void CommandListImpl::SetBlendConstants(
-        const Math::Color4& BlendConstants)
+        const Math::Color4& blendConstants)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
         nri::Color32f NriColor{
-            BlendConstants.r,
-            BlendConstants.g,
-            BlendConstants.b,
-            BlendConstants.a
+            blendConstants.r,
+            blendConstants.g,
+            blendConstants.b,
+            blendConstants.a
         };
-        NriCore.CmdSetBlendConstants(*m_CommandBuffer, NriColor);
+        nriCore.CmdSetBlendConstants(*m_CommandBuffer, NriColor);
     }
 
     void CommandListImpl::SetVertexBuffers(
-        std::span<const VertexBufferView> VertexBuffers,
-        uint32_t                          BaseSlot)
+        std::span<const VertexBufferView> vertexBuffers,
+        uint32_t                          baseSlot)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        std::vector<nri::Buffer*> NriBuffers;
-        std::vector<uint64_t>     Offsets;
+        std::vector<nri::Buffer*> nriBuffers;
+        std::vector<uint64_t>     offsets;
 
-        NriBuffers.reserve(VertexBuffers.size());
-        Offsets.reserve(VertexBuffers.size());
+        nriBuffers.reserve(vertexBuffers.size());
+        offsets.reserve(vertexBuffers.size());
 
-        for (const auto& VertexBuffer : VertexBuffers)
+        for (const auto& vertexBuffer : vertexBuffers)
         {
-            NriBuffers.push_back(VertexBuffer.Buffer);
-            Offsets.push_back(VertexBuffer.Offset);
+            nriBuffers.push_back(vertexBuffer.Buffer);
+            offsets.push_back(vertexBuffer.Offset);
         }
 
-        NriCore.CmdSetVertexBuffers(*m_CommandBuffer, BaseSlot, Count32(NriBuffers), NriBuffers.data(), Offsets.data());
+        nriCore.CmdSetVertexBuffers(*m_CommandBuffer, baseSlot, Count32(nriBuffers), nriBuffers.data(), offsets.data());
     }
 
     void CommandListImpl::SetIndexBuffer(
-        const IndexBufferView& IndexBuffer)
+        const IndexBufferView& indexBuffer)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdSetIndexBuffer(*m_CommandBuffer, *IndexBuffer.Buffer, IndexBuffer.Offset, IndexBuffer.Type);
+        nriCore.CmdSetIndexBuffer(*m_CommandBuffer, *indexBuffer.Buffer, indexBuffer.Offset, indexBuffer.Type);
     }
 
     void CommandListImpl::Draw(
-        const DrawDesc& Desc)
+        const DrawDesc& drawDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdDraw(*m_CommandBuffer, Desc);
+        nriCore.CmdDraw(*m_CommandBuffer, drawDesc);
     }
 
     void CommandListImpl::Draw(
-        const DrawIndexedDesc& Desc)
+        const DrawIndexedDesc& drawDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdDrawIndexed(*m_CommandBuffer, Desc);
+        nriCore.CmdDrawIndexed(*m_CommandBuffer, drawDesc);
     }
 
     void CommandListImpl::DrawIndirect(
-        const DrawIndirectDesc& Desc)
+        const DrawIndirectDesc& drawDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdDrawIndirect(*m_CommandBuffer, *Desc.DrawBuffer, Desc.DrawOffset, Desc.MaxDrawCount, m_RhiDevice->GetDrawIndexedCommandSize(), Desc.CounterBuffer, Desc.CounterOffset);
+        nriCore.CmdDrawIndirect(
+            *m_CommandBuffer,
+            *drawDesc.DrawBuffer,
+            drawDesc.DrawOffset,
+            drawDesc.MaxDrawCount,
+            m_RhiDevice->GetDrawIndexedCommandSize(),
+            drawDesc.CounterBuffer,
+            drawDesc.CounterOffset);
     }
 
     void CommandListImpl::DrawIndirectIndexed(
-        const DrawIndirectDesc& Desc)
+        const DrawIndirectDesc& drawDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdDrawIndexedIndirect(*m_CommandBuffer, *Desc.DrawBuffer, Desc.DrawOffset, Desc.MaxDrawCount, m_RhiDevice->GetDrawIndexedCommandSize(), Desc.CounterBuffer, Desc.CounterOffset);
+        nriCore.CmdDrawIndexedIndirect(
+            *m_CommandBuffer,
+            *drawDesc.DrawBuffer,
+            drawDesc.DrawOffset,
+            drawDesc.MaxDrawCount,
+            m_RhiDevice->GetDrawIndexedCommandSize(),
+            drawDesc.CounterBuffer,
+            drawDesc.CounterOffset);
     }
 
     void CommandListImpl::EndRendering()
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdEndRendering(*m_CommandBuffer);
+        nriCore.CmdEndRendering(*m_CommandBuffer);
     }
 
     //
 
     void CommandListImpl::Dispatch(
-        uint32_t X,
-        uint32_t Y,
-        uint32_t Z)
+        uint32_t x,
+        uint32_t y,
+        uint32_t z)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdDispatch(*m_CommandBuffer, { .x = X, .y = Y, .z = Z });
+        nriCore.CmdDispatch(*m_CommandBuffer, { x, y, z });
     }
 
     //
 
     void CommandListImpl::CopyBuffer(
-        const BufferCopyDesc& Src,
-        const BufferCopyDesc& Dst,
-        size_t                Size)
+        const BufferCopyDesc& src,
+        const BufferCopyDesc& dst,
+        size_t                size)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        if (!Size)
+        if (!size)
         {
-            auto& SrcDesc = NriCore.GetBufferDesc(*Src.RhiBuffer.Unwrap());
-            auto& DstDesc = NriCore.GetBufferDesc(*Dst.RhiBuffer.Unwrap());
+            auto& srcDesc = nriCore.GetBufferDesc(*src.RhiBuffer.Unwrap());
+            auto& dstDesc = nriCore.GetBufferDesc(*dst.RhiBuffer.Unwrap());
 
-            Size = std::min(SrcDesc.size - Src.Offset, DstDesc.size - Dst.Offset);
+            size = std::min(srcDesc.size - src.Offset, dstDesc.size - dst.Offset);
         }
 
-        NriCore.CmdCopyBuffer(*m_CommandBuffer, *Dst.RhiBuffer.Unwrap(), Dst.Offset, *Src.RhiBuffer.Unwrap(), Src.Offset, Size);
+        nriCore.CmdCopyBuffer(*m_CommandBuffer, *dst.RhiBuffer.Unwrap(), dst.Offset, *src.RhiBuffer.Unwrap(), src.Offset, size);
     }
 
     void CommandListImpl::CopyTexture(
-        const TextureCopyDesc& Src,
-        const TextureCopyDesc& Dst)
+        const TextureCopyDesc& src,
+        const TextureCopyDesc& dst)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdCopyTexture(*m_CommandBuffer, *Dst.RhiTexture.Unwrap(), Dst.Region, *Src.RhiTexture.Unwrap(), Src.Region);
+        nriCore.CmdCopyTexture(*m_CommandBuffer, *dst.RhiTexture.Unwrap(), dst.Region, *src.RhiTexture.Unwrap(), src.Region);
     }
 
     void CommandListImpl::UploadTexture(
-        const TransferCopyDesc& Desc)
+        const TransferCopyDesc& copyDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *Desc.RhiTexture.Unwrap(), Desc.Region, *Desc.RhiBuffer.Unwrap(), Desc.Layout);
+        nriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.RhiTexture.Unwrap(), copyDesc.Region, *copyDesc.RhiBuffer.Unwrap(), copyDesc.Layout);
     }
 
     void CommandListImpl::ReadbackTexture(
-        const TransferCopyDesc& Desc)
+        const TransferCopyDesc& copyDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        auto CopyLayout = Desc.Layout;
-        NriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *Desc.RhiBuffer.Unwrap(), CopyLayout, *Desc.RhiTexture.Unwrap(), Desc.Region);
+        auto copyLayout = copyDesc.Layout;
+        nriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.RhiBuffer.Unwrap(), copyLayout, *copyDesc.RhiTexture.Unwrap(), copyDesc.Region);
     }
 
     //
 
     void CommandListImpl::RequireState(
-        const Buffer&      RhiBuffer,
-        const AccessStage& State,
-        bool               Append)
+        const Buffer&      buffer,
+        const AccessStage& state,
+        bool               append)
     {
-        auto& Nri          = m_RhiDevice->GetNRI();
-        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& StateTracker = m_RhiDevice->GetStateTracker();
 
         StateTracker.RequireState(
-            RhiBuffer.Unwrap(),
-            State,
-            Append);
+            buffer.Unwrap(),
+            state,
+            append);
     }
 
     void CommandListImpl::RequireState(
-        const Texture&            RhiTexture,
-        const AccessLayoutStage&  State,
-        const TextureSubresource& Subresource,
-        bool                      Append)
+        const Texture&            texture,
+        const AccessLayoutStage&  state,
+        const TextureSubresource& subresource,
+        bool                      append)
     {
-        auto& Nri          = m_RhiDevice->GetNRI();
-        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& StateTracker = m_RhiDevice->GetStateTracker();
 
-        auto CopySubresource = Subresource.Transform(RhiTexture);
+        auto copySubresource = subresource.Transform(texture);
 
         StateTracker.RequireState(
-            NriCore,
-            RhiTexture.Unwrap(),
-            State,
-            CopySubresource.Mips.Offset,
-            CopySubresource.Mips.Count,
-            CopySubresource.Array.Offset,
-            CopySubresource.Array.Count,
-            Append);
+            nriCore,
+            texture.Unwrap(),
+            state,
+            copySubresource.Mips.Offset,
+            copySubresource.Mips.Count,
+            copySubresource.Array.Offset,
+            copySubresource.Array.Count,
+            append);
     }
 
     void CommandListImpl::PlaceBarrier(
         const GlobalBarrierDesc& BarrierDesc)
     {
-        auto& Nri          = m_RhiDevice->GetNRI();
-        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& StateTracker = m_RhiDevice->GetStateTracker();
     }
 
     void CommandListImpl::CommitBarriers()
     {
-        auto& Nri          = m_RhiDevice->GetNRI();
-        auto& NriCore      = *Nri.GetCoreInterface();
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& StateTracker = m_RhiDevice->GetStateTracker();
 
-        StateTracker.CommitBarriers(NriCore, *m_CommandBuffer);
+        StateTracker.CommitBarriers(nriCore, *m_CommandBuffer);
     }
 
     //
 
     void CommandListImpl::ClearBuffer(
-        const ClearBufferDesc& Desc)
+        const ClearBufferDesc& clearDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdClearStorageBuffer(*m_CommandBuffer, Desc);
+        nriCore.CmdClearStorageBuffer(*m_CommandBuffer, clearDesc);
     }
 
     void CommandListImpl::ClearTexture(
-        const ClearTextureDesc& Desc)
+        const ClearTextureDesc& clearDesc)
     {
-        auto& Nri     = m_RhiDevice->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_RhiDevice->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.CmdClearStorageTexture(*m_CommandBuffer, Desc);
+        nriCore.CmdClearStorageTexture(*m_CommandBuffer, clearDesc);
     }
 } // namespace Ame::Rhi

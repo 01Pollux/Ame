@@ -66,9 +66,9 @@ namespace Ame::Rhi
 
     template<typename Ty>
     [[nodiscard]] constexpr size_t Count64(
-        const Ty& Value)
+        const Ty& value)
     {
-        return std::size(Value);
+        return std::size(value);
     }
 
     template<typename Ty>
@@ -90,9 +90,9 @@ namespace Ame::Rhi
 
     template<typename Ty>
     [[nodiscard]] constexpr uint32_t Count32(
-        const Ty& Value)
+        const Ty& value)
     {
-        return static_cast<uint32_t>(std::size(Value));
+        return static_cast<uint32_t>(std::size(value));
     }
 
     template<typename Ty>
@@ -114,9 +114,9 @@ namespace Ame::Rhi
 
     template<typename Ty>
     [[nodiscard]] constexpr uint16_t Count16(
-        const Ty& Value)
+        const Ty& value)
     {
-        return static_cast<uint16_t>(std::size(Value));
+        return static_cast<uint16_t>(std::size(value));
     }
 
     template<typename Ty>
@@ -138,9 +138,9 @@ namespace Ame::Rhi
 
     template<typename Ty>
     [[nodiscard]] constexpr uint8_t Count8(
-        const Ty& Value)
+        const Ty& value)
     {
-        return static_cast<uint8_t>(std::size(Value));
+        return static_cast<uint8_t>(std::size(value));
     }
 
     template<typename Ty>

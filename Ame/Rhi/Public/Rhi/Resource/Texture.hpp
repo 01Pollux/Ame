@@ -22,24 +22,24 @@ namespace Ame::Rhi
 
         Texture(
             Extern,
-            DeviceImpl&   RhiDevice,
-            nri::Texture* RhiTexture);
+            DeviceImpl&   rhiDeviceImpl,
+            nri::Texture* nriTexture);
         Texture(
             Extern,
-            Device&       RhiDevice,
-            nri::Texture* RhiTexture);
+            Device&       rhiDevice,
+            nri::Texture* nriTexture);
 
         Texture(
-            Device&            RhiDevice,
-            MemoryLocation     Location,
-            const TextureDesc& Desc);
+            Device&            rhiDevice,
+            MemoryLocation     location,
+            const TextureDesc& desc);
 
     public:
-        Texture(const Texture& Other);
+        Texture(const Texture& other);
         Texture(Texture&& Other) noexcept;
 
-        Texture& operator=(const Texture& Other);
-        Texture& operator=(Texture&& Other) noexcept;
+        Texture& operator=(const Texture& other);
+        Texture& operator=(Texture&& other) noexcept;
 
         ~Texture();
 
@@ -53,7 +53,7 @@ namespace Ame::Rhi
         /// Set the texture name.
         /// </summary>
         void SetName(
-            const char* Name) const;
+            const char* name) const;
 
         /// <summary>
         /// Get the texture description.
@@ -80,25 +80,25 @@ namespace Ame::Rhi
         /// Create a texture view.
         /// </summary>
         [[nodiscard]] ResourceView CreateView(
-            const TextureViewDesc& Desc) const;
+            const TextureViewDesc& desc) const;
 
         /// <summary>
         /// Create a shader resource view.
         /// </summary>
         [[nodiscard]] ShaderResourceView CreateShaderView(
-            const TextureViewDesc& Desc) const;
+            const TextureViewDesc& desc) const;
 
         /// <summary>
         /// Create a render target view.
         /// </summary>
         [[nodiscard]] RenderTargetResourceView CreateRenderTargetView(
-            const TextureViewDesc& Desc) const;
+            const TextureViewDesc& desc) const;
 
         /// <summary>
         /// Create a depth stencil view.
         /// </summary>
         [[nodiscard]] DepthStencilResourceView CreateDepthStencilView(
-            const TextureViewDesc& Desc) const;
+            const TextureViewDesc& desc) const;
 
     private:
         /// <summary>

@@ -15,20 +15,20 @@ namespace Ame::Rhi::Streaming
         using char_type      = char;
 
         BufferDevice(
-            BufferView View);
+            BufferView view);
 
         streamsize_t read(
-            char_type*   Data,
-            streamsize_t Size);
+            char_type*   data,
+            streamsize_t size);
 
         streamsize_t write(
-            const char_type* Data,
-            streamsize_t     Size);
+            const char_type* data,
+            streamsize_t     size);
 
         streamoffset_t seek(
-            streamoffset_t          Offset,
-            std::ios_base::seekdir  Direction,
-            std::ios_base::openmode Mode);
+            streamoffset_t          offset,
+            std::ios_base::seekdir  direction,
+            std::ios_base::openmode mode);
 
     public:
         /// <summary>
@@ -36,7 +36,7 @@ namespace Ame::Rhi::Streaming
         /// </summary>
         const Buffer& GetBuffer() const
         {
-            return m_View.RhiBuffer;
+            return m_View.BufferRef;
         }
 
         /// <summary>

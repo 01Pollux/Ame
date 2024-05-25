@@ -9,8 +9,8 @@ namespace Ame::Rhi
     {
         static void* Allocate(
             void*,
-            size_t Size,
-            size_t Alignment);
+            size_t size,
+            size_t alignment);
 
         static void* Reallocate(
             void*,

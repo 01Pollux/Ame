@@ -16,9 +16,9 @@
 namespace Ame::Rhi
 {
     DeviceImpl::DeviceImpl(
-        const DeviceCreateDesc& Desc)
+        const DeviceCreateDesc& desc)
     {
-        if (!CreateDevice(Desc))
+        if (!CreateDevice(desc))
         {
             Log::Rhi().Fatal("Unsupported GPU device");
             return;
@@ -27,16 +27,16 @@ namespace Ame::Rhi
         Log::Rhi().Assert(m_Device != nullptr, "Failed to create device");
         Log::Rhi().Assert(m_CommandQueue != nullptr, "Failed to create command queue");
 
-        m_MemoryAllocator.Initialize(*this, Desc.MemoryAllocator);
-        m_FrameManager.Initialize(*this, Desc.DescriptorPoolDesc, Desc.FramesInFlight);
-        if (Desc.Window)
+        m_MemoryAllocator.Initialize(*this, desc.MemoryAllocator);
+        m_FrameManager.Initialize(*this, desc.DescriptorPoolDesc, desc.FramesInFlight);
+        if (desc.Window)
         {
-            m_WindowManager = std::make_unique<WindowManager>(*this, Desc);
+            m_WindowManager = std::make_unique<WindowManager>(*this, desc);
             RegisterBackbufferState();
         }
 
-        SuppressWarningsIfNeeded(Desc);
-        EnableValidationIfNeeded(Desc);
+        SuppressWarningsIfNeeded(desc);
+        EnableValidationIfNeeded(desc);
 
         m_DrawIndexedCommandSize = GetDesc().isDrawParametersEmulationEnabled ? sizeof(Rhi::DrawIndexedBaseDesc) : sizeof(Rhi::DrawIndexedDesc);
 
@@ -59,9 +59,9 @@ namespace Ame::Rhi
 
     GraphicsAPI DeviceImpl::GetGraphicsAPI() const
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
-        auto& Desc    = NriCore.GetDeviceDesc(*m_Device);
-        switch (Desc.graphicsAPI)
+        auto& nriCore = *m_NRI.GetCoreInterface();
+        auto& desc    = nriCore.GetDeviceDesc(*m_Device);
+        switch (desc.graphicsAPI)
         {
         case nri::GraphicsAPI::D3D12:
             return GraphicsAPI::DirectX12;
@@ -75,8 +75,8 @@ namespace Ame::Rhi
 
     const DeviceDesc& DeviceImpl::GetDesc() const
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
-        return NriCore.GetDeviceDesc(*m_Device);
+        auto& nriCore = *m_NRI.GetCoreInterface();
+        return nriCore.GetDeviceDesc(*m_Device);
     }
 
     uint64_t DeviceImpl::GetFrameCount() const
@@ -107,9 +107,9 @@ namespace Ame::Rhi
     }
 
     void DeviceImpl::SetClearColor(
-        const Math::Color4& Color)
+        const Math::Color4& color)
     {
-        m_ClearColor = Color;
+        m_ClearColor = color;
     }
 
     BackbufferClearType DeviceImpl::GetBackbufferClearType() const noexcept
@@ -118,9 +118,9 @@ namespace Ame::Rhi
     }
 
     void DeviceImpl::SetBackbufferClearType(
-        BackbufferClearType Type)
+        BackbufferClearType type)
     {
-        m_ClearType = Type;
+        m_ClearType = type;
     }
 
     //
@@ -146,9 +146,9 @@ namespace Ame::Rhi
     }
 
     const Backbuffer& DeviceImpl::GetBackbuffer(
-        uint8_t Index) const
+        uint8_t index) const
     {
-        return m_WindowManager->GetBackbuffer(Index);
+        return m_WindowManager->GetBackbuffer(index);
     }
 
     const Backbuffer& DeviceImpl::GetBackbuffer() const
@@ -164,11 +164,11 @@ namespace Ame::Rhi
     }
 
     void DeviceImpl::SetVSyncEnabled(
-        bool State)
+        bool state)
     {
         if (!IsHeadless())
         {
-            m_WindowManager->SetVSyncEnabled(State);
+            m_WindowManager->SetVSyncEnabled(state);
         }
     }
 
@@ -181,7 +181,7 @@ namespace Ame::Rhi
 
     //
 
-    bool DeviceImpl::ProcessEvents()
+    bool DeviceImpl::ProcessEvents() const
     {
         if (!IsHeadless()) [[likely]]
         {
@@ -209,8 +209,8 @@ namespace Ame::Rhi
             }
         }
 
-        auto& NriCore = *m_NRI.GetCoreInterface();
-        m_FrameManager.NewFrame(NriCore, m_MemoryAllocator);
+        auto& nriCore = *m_NRI.GetCoreInterface();
+        m_FrameManager.NewFrame(nriCore, m_MemoryAllocator);
 
         if (!IsHeadless()) [[likely]]
         {
@@ -225,7 +225,7 @@ namespace Ame::Rhi
 
     void DeviceImpl::EndFrame()
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
+        auto& nriCore = *m_NRI.GetCoreInterface();
 
         if (!IsHeadless()) [[likely]]
         {
@@ -239,17 +239,17 @@ namespace Ame::Rhi
             m_WindowManager->Present();
         }
 
-        m_FrameManager.AdvanceFrame(NriCore, *m_CommandQueue);
+        m_FrameManager.AdvanceFrame(nriCore, *m_CommandQueue);
     }
 
     //
 
     void DeviceImpl::WaitIdle()
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
+        auto& nriCore = *m_NRI.GetCoreInterface();
 
         m_NRI.WaitIdle(*m_CommandQueue);
-        m_FrameManager.FlushIdle(NriCore, m_MemoryAllocator);
+        m_FrameManager.FlushIdle(nriCore, m_MemoryAllocator);
     }
 
     //
@@ -283,12 +283,12 @@ namespace Ame::Rhi
 
     void DeviceImpl::RegisterBackbufferState()
     {
-        auto& NriCore = *m_NRI.GetCoreInterface();
+        auto& nriCore = *m_NRI.GetCoreInterface();
 
-        nri::AccessLayoutStage State{ nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL };
+        nri::AccessLayoutStage state{ nri::AccessBits::UNKNOWN, nri::Layout::UNKNOWN, nri::StageBits::ALL };
         for (uint32_t i = 0; i < GetBackbufferCount(); i++)
         {
-            m_ResourceStateTracker.BeginTracking(NriCore, GetBackbuffer(i).Resource.Unwrap(), State);
+            m_ResourceStateTracker.BeginTracking(nriCore, GetBackbuffer(i).Resource.Unwrap(), state);
         }
     }
 
@@ -303,59 +303,59 @@ namespace Ame::Rhi
     void DeviceImpl::TransitionBackbuffer(
         bool Present)
     {
-        auto& NriCore       = *m_NRI.GetCoreInterface();
-        auto& CmdList       = GetCurrentCommandList();
-        auto& CurBackbuffer = GetBackbuffer();
+        auto& nriCore     = *m_NRI.GetCoreInterface();
+        auto& commandList = GetCurrentCommandList();
+        auto& backBuffer  = GetBackbuffer();
 
-        Rhi::AccessLayoutStage State{
+        Rhi::AccessLayoutStage state{
             .stages = Rhi::ShaderType::ALL
         };
         if (Present)
         {
-            State.access = Rhi::AccessBits::UNKNOWN;
-            State.layout = Rhi::LayoutType::PRESENT;
+            state.access = Rhi::AccessBits::UNKNOWN;
+            state.layout = Rhi::LayoutType::PRESENT;
         }
         else
         {
-            State.access = Rhi::AccessBits::COLOR_ATTACHMENT;
-            State.layout = Rhi::LayoutType::COLOR_ATTACHMENT;
+            state.access = Rhi::AccessBits::COLOR_ATTACHMENT;
+            state.layout = Rhi::LayoutType::COLOR_ATTACHMENT;
         }
 
-        CmdList.RequireState(CurBackbuffer.Resource, State);
-        CmdList.CommitBarriers();
+        commandList.RequireState(backBuffer.Resource, state);
+        commandList.CommitBarriers();
     }
 
     void DeviceImpl::ClearBackbuffer(
-        const Math::Color4& Color)
+        const Math::Color4& color)
     {
-        auto& NriCore           = *m_NRI.GetCoreInterface();
-        auto& CommandBuffer     = GetCurrentCommandList().GetCommandBuffer();
-        auto& CurBackbuffer     = GetBackbuffer();
-        auto  CurBackbufferView = CurBackbuffer.View.Unwrap();
+        auto& nriCore           = *m_NRI.GetCoreInterface();
+        auto& commandBuffer     = GetCurrentCommandList().GetCommandBuffer();
+        auto& backBuffer        = GetBackbuffer();
+        auto  nriBackBufferView = backBuffer.View.Unwrap();
 
-        nri::ClearDesc Clears{
-            .value{ .color32f{ m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a } },
-            .attachmentContentType = nri::AttachmentContentType::COLOR
+        nri::ClearDesc clears[]{
+            { .value{ .color32f{ m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a } },
+              .attachmentContentType = nri::AttachmentContentType::COLOR }
         };
 
         nri::AttachmentsDesc Attachments{
-            .colors   = &CurBackbufferView,
+            .colors   = &nriBackBufferView,
             .colorNum = 1
         };
 
         // TODO: CommandList aware of last rendering pass
-        NriCore.CmdBeginRendering(CommandBuffer, Attachments);
-        NriCore.CmdClearAttachments(CommandBuffer, &Clears, 1, nullptr, 0);
-        NriCore.CmdEndRendering(CommandBuffer);
+        nriCore.CmdBeginRendering(commandBuffer, Attachments);
+        nriCore.CmdClearAttachments(commandBuffer, clears, 1, nullptr, 0);
+        nriCore.CmdEndRendering(commandBuffer);
     }
 
     //
 
     bool DeviceImpl::CreateDevice(
-        const DeviceCreateDesc& Desc)
+        const DeviceCreateDesc& desc)
     {
-        nri::DeviceCreationDesc NriDeviceDesc{
-            .adapterDesc = &Desc.Adapter,
+        nri::DeviceCreationDesc nriCreateDesc{
+            .adapterDesc = &desc.Adapter,
             .callbackInterface{
                 .MessageCallback = NriLogCallbackInterface::MessageCallback,
                 .AbortExecution  = NriLogCallbackInterface::AbortExecution },
@@ -363,42 +363,42 @@ namespace Ame::Rhi
                 .Allocate   = NriAllocatorCallbackInterface::Allocate,
                 .Reallocate = NriAllocatorCallbackInterface::Reallocate,
                 .Free       = NriAllocatorCallbackInterface::Free },
-            .spirvBindingOffsets = DefaultSpirvBindingOffset,
+            .spirvBindingOffsets = c_DefaultSpirvBindingOffset,
             .vulkanExtensions{
-                .instanceExtensions   = Desc.RequiredInstanceExtensions.data(),
-                .instanceExtensionNum = static_cast<uint32_t>(Desc.RequiredInstanceExtensions.size()),
-                .deviceExtensions     = Desc.RequiredDeviceExtensions.data(),
-                .deviceExtensionNum   = static_cast<uint32_t>(Desc.RequiredDeviceExtensions.size()) },
-            .enableNRIValidation                = Desc.EnableApiValidationLayer,
-            .enableAPIValidation                = Desc.EnableApiValidationLayer,
+                .instanceExtensions   = desc.RequiredInstanceExtensions.data(),
+                .instanceExtensionNum = static_cast<uint32_t>(desc.RequiredInstanceExtensions.size()),
+                .deviceExtensions     = desc.RequiredDeviceExtensions.data(),
+                .deviceExtensionNum   = static_cast<uint32_t>(desc.RequiredDeviceExtensions.size()) },
+            .enableNRIValidation                = desc.EnableApiValidationLayer,
+            .enableAPIValidation                = desc.EnableApiValidationLayer,
             .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation,
-            .disableVulkanRayTracing            = Desc.RayTracingFeatures == DeviceFeatureType::Disabled
+            .disableVulkanRayTracing            = desc.RayTracingFeatures == DeviceFeatureType::Disabled
         };
 
-        auto SwapchainFeatures = Desc.Window.has_value() ? DeviceFeatureType::Required : DeviceFeatureType::Disabled;
+        auto swapchainFeatures = desc.Window.has_value() ? DeviceFeatureType::Required : DeviceFeatureType::Disabled;
 
         for (int i = static_cast<int>(DeviceType::Auto) + 1; i < static_cast<int>(DeviceType::Count); i++)
         {
-            auto Type = Desc.Type;
-            if (Type == DeviceType::Auto)
+            auto deviceType = desc.Type;
+            if (deviceType == DeviceType::Auto)
             {
-                Type = static_cast<DeviceType>(i);
+                deviceType = static_cast<DeviceType>(i);
             }
 
-            switch (Type)
+            switch (deviceType)
             {
             case DeviceType::DirectX12:
-                NriDeviceDesc.graphicsAPI = nri::GraphicsAPI::D3D12;
+                nriCreateDesc.graphicsAPI = nri::GraphicsAPI::D3D12;
                 break;
             case DeviceType::Vulkan:
-                NriDeviceDesc.graphicsAPI = nri::GraphicsAPI::VULKAN;
+                nriCreateDesc.graphicsAPI = nri::GraphicsAPI::VULKAN;
                 break;
             default:
                 continue;
             }
 
-            if (nri::nriCreateDevice(NriDeviceDesc, m_Device) == nri::Result::SUCCESS &&
-                m_NRI.Initialize(*m_Device, SwapchainFeatures, Desc.MeshShaderFeatures, Desc.RayTracingFeatures) &&
+            if (nri::nriCreateDevice(nriCreateDesc, m_Device) == nri::Result::SUCCESS &&
+                m_NRI.Initialize(*m_Device, swapchainFeatures, desc.MeshShaderFeatures, desc.RayTracingFeatures) &&
                 m_NRI.GetCoreInterface()->GetCommandQueue(*m_Device, nri::CommandQueueType::GRAPHICS, m_CommandQueue) == nri::Result::SUCCESS)
             {
                 break;
@@ -427,9 +427,9 @@ namespace Ame::Rhi
 
         m_MemoryAllocator.Shutdown();
 
-        if (auto NriCore = m_NRI.GetCoreInterface())
+        if (auto nriCore = m_NRI.GetCoreInterface())
         {
-            m_FrameManager.Shutdown(*NriCore);
+            m_FrameManager.Shutdown(*nriCore);
         }
 
         m_NRI.Shutdown();
@@ -443,35 +443,34 @@ namespace Ame::Rhi
     //
 
     void DeviceImpl::SuppressWarningsIfNeeded(
-        const DeviceCreateDesc& Desc)
+        const DeviceCreateDesc& desc)
     {
 #ifndef AME_DIST
         auto GraphicsAPI = GetGraphicsAPI();
-        if (Desc.EnableApiValidationLayer && GraphicsAPI == GraphicsAPI::DirectX12) [[likely]]
+        if (desc.EnableApiValidationLayer && GraphicsAPI == GraphicsAPI::DirectX12) [[likely]]
         {
 #ifdef AME_PLATFORM_WINDOWS
-            auto& NriCore = *m_NRI.GetCoreInterface();
-            auto  Device  = static_cast<ID3D12Device*>(NriCore.GetDeviceNativeObject(*m_Device));
+            auto& nriCore     = *m_NRI.GetCoreInterface();
+            auto  d3d12Device = static_cast<ID3D12Device*>(nriCore.GetDeviceNativeObject(*m_Device));
 
-            ID3D12InfoQueue* InfoQueue = nullptr;
-            Device->QueryInterface(&InfoQueue);
+            ID3D12InfoQueue* d3d12InfoQueue = nullptr;
+            d3d12Device->QueryInterface(&d3d12InfoQueue);
 
-            if (InfoQueue)
+            if (d3d12InfoQueue)
             {
-                D3D12_MESSAGE_ID DisableMessageIDs[] = {
-                    D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,
-                    D3D12_MESSAGE_ID_RESOURCE_BARRIER_MATCHING_STATES
+                D3D12_MESSAGE_ID disableMessageIDs[] = {
+                    D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE
                 };
 
-                D3D12_INFO_QUEUE_FILTER Filter{
+                D3D12_INFO_QUEUE_FILTER filter{
                     .DenyList{
                         .NumIDs  = 1,
-                        .pIDList = DisableMessageIDs }
+                        .pIDList = disableMessageIDs }
                 };
 
-                InfoQueue->AddStorageFilterEntries(&Filter);
-                InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-                InfoQueue->Release();
+                d3d12InfoQueue->AddStorageFilterEntries(&filter);
+                d3d12InfoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+                d3d12InfoQueue->Release();
             }
 #endif
         }
@@ -479,22 +478,21 @@ namespace Ame::Rhi
     }
 
     void DeviceImpl::EnableValidationIfNeeded(
-        const DeviceCreateDesc& Desc)
+        const DeviceCreateDesc& desc)
     {
-
 #ifndef AME_DIST
-        auto GraphicsAPI = GetGraphicsAPI();
-        if (Desc.EnableApiValidationLayer && GraphicsAPI == GraphicsAPI::DirectX12) [[likely]]
+        auto Api = GetGraphicsAPI();
+        if (desc.EnableApiValidationLayer && Api == GraphicsAPI::DirectX12) [[likely]]
         {
 #ifdef AME_PLATFORM_WINDOWS
-            auto& NriCore = *m_NRI.GetCoreInterface();
-            auto  Device  = static_cast<ID3D12Device*>(NriCore.GetDeviceNativeObject(*m_Device));
+            auto& nriCore     = *m_NRI.GetCoreInterface();
+            auto  d3d12Device = static_cast<ID3D12Device*>(nriCore.GetDeviceNativeObject(*m_Device));
 
-            ID3D12Debug* DebugController = nullptr;
-            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&DebugController))))
+            ID3D12Debug* d3d12Debug = nullptr;
+            if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&d3d12Debug))))
             {
-                DebugController->EnableDebugLayer();
-                DebugController->Release();
+                d3d12Debug->EnableDebugLayer();
+                d3d12Debug->Release();
             }
 #endif
         }

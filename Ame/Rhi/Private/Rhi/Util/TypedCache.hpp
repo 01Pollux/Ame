@@ -8,7 +8,6 @@ namespace Ame::Rhi::Util
     // TODO: remove this or move it to /Private
     template<typename DescTy, typename DataTy>
     struct TypedCache
-
     {
     public:
         TypedCache() = default;
@@ -24,24 +23,24 @@ namespace Ame::Rhi::Util
     public:
         void Clear()
         {
-            std::scoped_lock Guard(m_Mutex);
+            std::scoped_lock cacheLock(m_Mutex);
             m_Cache.clear();
         }
 
         template<typename FuncTy>
         [[nodiscard]] DataTy& Load(
-            const DescTy& Desc,
-            FuncTy        Func)
+            const DescTy& desc,
+            FuncTy        initFunc)
         {
-            auto             Hash = std::hash<DescTy>{}(Desc);
-            std::scoped_lock Guard(m_Mutex);
+            auto             hash = std::hash<DescTy>{}(desc);
+            std::scoped_lock cacheLock(m_Mutex);
 
-            auto& Data = m_Cache[Hash];
-            if (!Data)
+            auto& data = m_Cache[hash];
+            if (!data)
             {
-                Data = Func(Hash, Desc);
+                data = initFunc(hash, desc);
             }
-            return Data;
+            return data;
         }
 
     private:

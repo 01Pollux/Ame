@@ -27,9 +27,9 @@ namespace Ame::Rhi
         /// Initializes the frame resource.
         /// </summary>
         void Initialize(
-            DeviceImpl&                     RhiDevice,
-            const DescriptorAllocationDesc& DescriptorPoolDesc,
-            uint32_t                        FrameIndex);
+            DeviceImpl&                     rhiDevice,
+            const DescriptorAllocationDesc& descriptorPoolDesc,
+            uint32_t                        frameIndex);
 
         /// <summary>
         /// Cleans up the frame resource.
@@ -47,8 +47,8 @@ namespace Ame::Rhi
         /// Resets the frame resource and cleans up pending resources.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& NriCore,
-            MemoryAllocator&    MemAllocator);
+            nri::CoreInterface& nriCore,
+            MemoryAllocator&    memoryAllocator);
 
         /// <summary>
         /// Ends the frame resource and submits the command buffer.
@@ -59,40 +59,40 @@ namespace Ame::Rhi
         /// Releases the resources that are deferred for release.
         /// </summary>
         void Release(
-            nri::CoreInterface& NriCore,
-            MemoryAllocator&    MemAllocator);
+            nri::CoreInterface& nriCore,
+            MemoryAllocator&    memoryAllocator);
 
     public:
         /// <summary>
         /// Defer the release of a buffer.
         /// </summary>
         void DeferRelease(
-            nri::Buffer& NriBuffer);
+            nri::Buffer& nriBuffer);
 
         /// <summary>
         /// Defer the release of a texture.
         /// </summary>
         void DeferRelease(
-            nri::Texture& NriTexture);
+            nri::Texture& nriTexture);
 
         /// <summary>
         /// Defer the release of a descriptor.
         /// </summary>
         void DeferRelease(
-            nri::Descriptor& NriDescriptor);
+            nri::Descriptor& nriDescriptor);
 
         /// <summary>
         /// Defer the release of a pipeline state.
         /// </summary>
         void DeferRelease(
-            nri::Pipeline& Pipeline);
+            nri::Pipeline& nriPipeline);
 
     private:
         CommandListImpl m_CommandList;
 
-        DeferredBuffer     m_DeferredBuffers;
-        DeferredTexture    m_DeferredTextures;
-        DeferredDescriptor m_DeferredDescriptors;
-        DeferredPipeline   m_DeferredPipelines;
+        DeferredBufferList     m_DeferredBuffers;
+        DeferredTextureList    m_DeferredTextures;
+        DeferredDescriptorList m_DeferredDescriptors;
+        DeferredPipelineList   m_DeferredPipelines;
     };
 } // namespace Ame::Rhi

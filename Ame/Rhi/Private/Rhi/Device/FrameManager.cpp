@@ -3,27 +3,27 @@
 namespace Ame::Rhi
 {
     void FrameManager::Initialize(
-        DeviceImpl&                     RhiDevice,
-        const DescriptorAllocationDesc& DescriptorPoolDesc,
-        uint32_t                        FramesInFlightCount)
+        DeviceImpl&                     rhiDevice,
+        const DescriptorAllocationDesc& descriptorPoolDesc,
+        uint32_t                        framesInFlightCount)
     {
-        m_FrameWrapper.Initialize(RhiDevice, DescriptorPoolDesc, FramesInFlightCount);
+        m_FrameWrapper.Initialize(rhiDevice, descriptorPoolDesc, framesInFlightCount);
     }
 
     void FrameManager::Shutdown(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& nriCore)
     {
-        m_FrameWrapper.Shutdown(NriCore);
+        m_FrameWrapper.Shutdown(nriCore);
     }
 
     //
 
     void FrameManager::NewFrame(
-        nri::CoreInterface& NriCore,
-        MemoryAllocator&    MemAllocator)
+        nri::CoreInterface& nriCore,
+        MemoryAllocator&    memoryAllocator)
     {
-        m_FrameWrapper.Sync(NriCore);
-        m_FrameWrapper.NewFrame(NriCore, MemAllocator, GetFrameIndex());
+        m_FrameWrapper.Sync(nriCore);
+        m_FrameWrapper.NewFrame(nriCore, memoryAllocator, GetFrameIndex());
     }
 
     void FrameManager::EndFrame()
@@ -32,46 +32,46 @@ namespace Ame::Rhi
     }
 
     void FrameManager::AdvanceFrame(
-        nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue)
+        nri::CoreInterface& nriCore,
+        nri::CommandQueue&  graphicsQueue)
     {
-        m_FrameWrapper.AdvanceFrame(NriCore, GraphicsQueue);
+        m_FrameWrapper.AdvanceFrame(nriCore, graphicsQueue);
     }
 
     void FrameManager::FlushIdle(
-        nri::CoreInterface& NriCore,
-        MemoryAllocator&    MemAllocator)
+        nri::CoreInterface& nriCore,
+        MemoryAllocator&    memoryAllocator)
     {
         for (uint32_t i = 0; i < m_FrameWrapper.FramesInFlightCount; ++i)
         {
-            m_FrameWrapper.Release(NriCore, MemAllocator, i);
+            m_FrameWrapper.Release(nriCore, memoryAllocator, i);
         }
     }
 
     //
 
     void FrameManager::DeferRelease(
-        nri::Buffer& NriBuffer)
+        nri::Buffer& nriBuffer)
     {
-        GetCurrentFrame().DeferRelease(NriBuffer);
+        GetCurrentFrame().DeferRelease(nriBuffer);
     }
 
     void FrameManager::DeferRelease(
-        nri::Texture& NriTexture)
+        nri::Texture& nriTexture)
     {
-        GetCurrentFrame().DeferRelease(NriTexture);
+        GetCurrentFrame().DeferRelease(nriTexture);
     }
 
     void FrameManager::DeferRelease(
-        nri::Descriptor& NriDescriptor)
+        nri::Descriptor& nriDescriptor)
     {
-        GetCurrentFrame().DeferRelease(NriDescriptor);
+        GetCurrentFrame().DeferRelease(nriDescriptor);
     }
 
     void FrameManager::DeferRelease(
-        nri::Pipeline& Pipeline)
+        nri::Pipeline& nriPipeline)
     {
-        GetCurrentFrame().DeferRelease(Pipeline);
+        GetCurrentFrame().DeferRelease(nriPipeline);
     }
 
     Rhi::Frame& FrameManager::GetCurrentFrame() const noexcept

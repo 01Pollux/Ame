@@ -18,50 +18,49 @@ namespace Ame::Rhi
         /// Initialize the frame wrapper.
         /// </summary>
         void Initialize(
-            DeviceImpl&                     RhiDevice,
-            const DescriptorAllocationDesc& DescriptorPoolDesc,
-            uint32_t                        FramesInFlightCount);
+            DeviceImpl&                     rhiDevice,
+            const DescriptorAllocationDesc& descriptorPoolDesc,
+            uint32_t                        framesInFlightCount);
 
         /// <summary>
         /// Shutdown the frame wrapper.
         /// </summary>
         void Shutdown(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& nriCore);
 
         /// <summary>
         /// Sync the swapchain.
         /// </summary>
-        /// <param name="GraphicsQueue"></param>
         void Sync(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& nriCore);
 
         /// <summary>
         /// Start a new frame and cleanup pending resources.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& NriCore,
-            MemoryAllocator&    MemAllocator,
-            uint32_t            FrameIndex);
+            nri::CoreInterface& nriCore,
+            MemoryAllocator&    memAllocator,
+            uint32_t            frameIndex);
 
         /// <summary>
         /// End the frame.
         /// </summary>
         void EndFrame(
-            uint32_t FrameIndex);
+            uint32_t frameIndex);
 
         /// <summary>
         /// Advance to the next frame.
         /// </summary>
         void AdvanceFrame(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue);
+            nri::CoreInterface& nriCore,
+            nri::CommandQueue&  graphicsQueue);
 
         /// <summary>
         /// Release the frame and all deferred resources.
         /// </summary>
         void Release(
-            nri::CoreInterface& NriCore,
-            MemoryAllocator&    MemAllocator,
-            uint32_t            FrameIndex);
+            nri::CoreInterface& nriCore,
+            MemoryAllocator&    memAllocator,
+            uint32_t            frameIndex);
     };
 } // namespace Ame::Rhi

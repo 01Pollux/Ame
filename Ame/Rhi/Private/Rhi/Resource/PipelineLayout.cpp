@@ -7,12 +7,12 @@
 namespace Ame::Rhi
 {
     PipelineLayout::PipelineLayout(
-        Device&              RhiDevice,
-        nri::PipelineLayout& Layout,
-        size_t               Hash) :
-        m_RhiDevice(RhiDevice),
-        m_Layout(Layout),
-        m_Hash(Hash)
+        Device&              rhiDevice,
+        nri::PipelineLayout& nriLayout,
+        size_t               hash) :
+        m_RhiDevice(rhiDevice),
+        m_Layout(nriLayout),
+        m_Hash(hash)
     {
     }
 
@@ -22,9 +22,9 @@ namespace Ame::Rhi
     }
 
     void PipelineLayout::SetName(
-        const char* Name) const
+        const char* name) const
     {
-        m_RhiDevice.SetName(Unwrap(), Name);
+        m_RhiDevice.SetName(Unwrap(), name);
     }
 
     nri::PipelineLayout& PipelineLayout::Unwrap() const
@@ -41,50 +41,49 @@ namespace Ame::Rhi
 
     Co::result<Ptr<PipelineLayout>> Device::CreatePipelineLayout(
         Co::executor_tag,
-        Co::executor&             Executor,
-        const PipelineLayoutDesc& Desc)
+        Co::executor&             executor,
+        const PipelineLayoutDesc& desc)
     {
-        co_return CreatePipelineLayout(Desc);
+        co_return CreatePipelineLayout(desc);
     }
 
     Ptr<PipelineLayout> Device::CreatePipelineLayout(
-        const PipelineLayoutDesc& Desc)
+        const PipelineLayoutDesc& desc)
     {
         return GetImpl().m_PipelineLayoutCache.Load(
-            Desc,
-            [this](size_t Hash, const PipelineLayoutDesc& Desc)
+            desc,
+            [this](size_t hash, const PipelineLayoutDesc& desc)
             {
-                nri::PipelineLayout* NriLayout = nullptr;
+                auto& nriUtils = m_Impl->GetNRI();
+                auto& nriCore  = *nriUtils.GetCoreInterface();
 
-                auto& Nri     = m_Impl->GetNRI();
-                auto& NriCore = *Nri.GetCoreInterface();
-
-                ThrowIfFailed(NriCore.CreatePipelineLayout(
-                                  m_Impl->GetDevice(), Desc, NriLayout),
+                nri::PipelineLayout* nriLayout = nullptr;
+                ThrowIfFailed(nriCore.CreatePipelineLayout(
+                                  m_Impl->GetDevice(), desc, nriLayout),
                               "Failed to create pipeline layout");
 
-                return std::make_shared<PipelineLayout>(*this, *NriLayout, Hash);
+                return std::make_shared<PipelineLayout>(*this, *nriLayout, hash);
             });
     }
 
     //
 
     void Device::SetName(
-        nri::PipelineLayout& Layout,
-        const char*          Name) const
+        nri::PipelineLayout& nriLayout,
+        const char*          name) const
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Impl->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.SetPipelineLayoutDebugName(Layout, Name);
+        nriCore.SetPipelineLayoutDebugName(nriLayout, name);
     }
 
     void Device::Release(
-        nri::PipelineLayout& Layout)
+        nri::PipelineLayout& nriLayout)
     {
-        auto& Nri     = m_Impl->GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = m_Impl->GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        NriCore.DestroyPipelineLayout(Layout);
+        nriCore.DestroyPipelineLayout(nriLayout);
     }
 } // namespace Ame::Rhi

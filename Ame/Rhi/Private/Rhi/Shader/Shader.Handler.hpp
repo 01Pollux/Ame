@@ -22,17 +22,17 @@ namespace Ame::Rhi
 
     public:
         ShaderIncludeHandler(
-            IDxcUtils*          Utils,
-            IDxcIncludeHandler* DefaultIncludeHandler,
-            Asset::Storage*     AssetStorage);
+            IDxcUtils*          dxcUtils,
+            IDxcIncludeHandler* defaultIncludeHandler,
+            Asset::Storage*     assetStorage);
 
         HRESULT STDMETHODCALLTYPE LoadSource(
-            _In_ LPCWSTR                             FileName,
-            _COM_Outptr_result_maybenull_ IDxcBlob** IncludeSourceBlob) override;
+            _In_ LPCWSTR                             fileName,
+            _COM_Outptr_result_maybenull_ IDxcBlob** includeSourceBlob) override;
 
         HRESULT STDMETHODCALLTYPE QueryInterface(
-            REFIID Riid,
-            void** Object) override;
+            REFIID riid,
+            void** object) override;
 
         ULONG STDMETHODCALLTYPE AddRef() override;
 

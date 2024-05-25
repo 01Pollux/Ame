@@ -24,12 +24,12 @@ namespace Ame::Rhi
 
     public:
         void Initialize(
-            DeviceImpl&                     RhiDevice,
-            const DescriptorAllocationDesc& DescriptorPoolDesc,
-            uint32_t                        FramesInFlightCount);
+            DeviceImpl&                     rhiDevice,
+            const DescriptorAllocationDesc& descriptorPoolDesc,
+            uint32_t                        framesInFlightCount);
 
         void Shutdown(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& nriCore);
 
     public:
         /// <summary>
@@ -60,8 +60,8 @@ namespace Ame::Rhi
         /// Wait for previous frame to finish.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& NriCore,
-            MemoryAllocator&    MemAllocator);
+            nri::CoreInterface& nriCore,
+            MemoryAllocator&    memoryAllocator);
 
         /// <summary>
         /// End the frame.
@@ -72,40 +72,40 @@ namespace Ame::Rhi
         /// Advance to the next frame.
         /// </summary>
         void AdvanceFrame(
-            nri::CoreInterface& NriCore,
-            nri::CommandQueue&  GraphicsQueue);
+            nri::CoreInterface& nriCore,
+            nri::CommandQueue&  graphicsQueue);
 
         /// <summary>
         /// Flush all idle resources
         /// </summary>
         void FlushIdle(
-            nri::CoreInterface& NriCore,
-            MemoryAllocator&    MemAllocator);
+            nri::CoreInterface& nriCore,
+            MemoryAllocator&    memoryAllocator);
 
     public:
         /// <summary>
         /// Defer the release of a buffer.
         /// </summary>
         void DeferRelease(
-            nri::Buffer& NriBuffer);
+            nri::Buffer& nriBuffer);
 
         /// <summary>
         /// Defer the release of a texture.
         /// </summary>
         void DeferRelease(
-            nri::Texture& NriTexture);
+            nri::Texture& nriTexture);
 
         /// <summary>
         /// Defer the release of a descriptor.
         /// </summary>
         void DeferRelease(
-            nri::Descriptor& NriDescriptor);
+            nri::Descriptor& nriDescriptor);
 
         /// <summary>
         /// Defer the release of a pipeline state.
         /// </summary>
         void DeferRelease(
-            nri::Pipeline& Pipeline);
+            nri::Pipeline& nriPipeline);
 
     private:
         /// <summary>

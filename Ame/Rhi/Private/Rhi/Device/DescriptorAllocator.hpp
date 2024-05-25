@@ -17,8 +17,8 @@ namespace Ame::Rhi
         /// Initialize the descriptor allocator.
         /// </summary>
         void Initialize(
-            DeviceImpl&                     RhiDevice,
-            const DescriptorAllocationDesc& Desc);
+            DeviceImpl&                     rhiDevice,
+            const DescriptorAllocationDesc& desc);
 
         /// <summary>
         /// Release all memory associated with the allocator.
@@ -40,18 +40,18 @@ namespace Ame::Rhi
         /// Allocate descriptor set.
         /// </summary>
         [[nodiscard]] DescriptorSet Allocate(
-            const nri::PipelineLayout& Layout,
-            uint32_t                   LayoutSlot,
-            uint32_t                   VariableCount);
+            const nri::PipelineLayout& layout,
+            uint32_t                   layoutSlot,
+            uint32_t                   variableCount);
 
         /// <summary>
         /// Allocate descriptor sets.
         /// </summary>
         [[nodiscard]] std::vector<DescriptorSet> Allocate(
-            const nri::PipelineLayout& Layout,
-            uint32_t                   LayoutSlot,
-            uint32_t                   InstanceCount,
-            uint32_t                   VariableCount);
+            const nri::PipelineLayout& layout,
+            uint32_t                   layoutSlot,
+            uint32_t                   instanceCount,
+            uint32_t                   variableCount);
 
     private:
         DeviceImpl*          m_RhiDevice = nullptr;

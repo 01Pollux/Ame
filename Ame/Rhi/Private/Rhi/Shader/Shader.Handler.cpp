@@ -8,90 +8,89 @@
 namespace Ame::Rhi
 {
     ShaderIncludeHandler::ShaderIncludeHandler(
-        IDxcUtils*          Utils,
-        IDxcIncludeHandler* DefaultIncludeHandler,
-        Asset::Storage*     AssetStorage) :
-        m_Utils(Utils),
-        m_DefaultIncludeHandler(DefaultIncludeHandler),
-        m_AssetStorage(AssetStorage)
+        IDxcUtils*          dxcUtils,
+        IDxcIncludeHandler* defaultIncludeHandler,
+        Asset::Storage*     assetStorage) :
+        m_Utils(dxcUtils),
+        m_DefaultIncludeHandler(defaultIncludeHandler),
+        m_AssetStorage(assetStorage)
     {
     }
 
     HRESULT STDMETHODCALLTYPE ShaderIncludeHandler::LoadSource(
-        _In_ LPCWSTR                             FileName,
-        _COM_Outptr_result_maybenull_ IDxcBlob** IncludeSourceBlob)
+        _In_ LPCWSTR                             fileName,
+        _COM_Outptr_result_maybenull_ IDxcBlob** includeSourceBlob)
     {
-        *IncludeSourceBlob = nullptr;
+        *includeSourceBlob = nullptr;
 
-        auto Iter = m_LoadedFiles.find(FileName);
-        if (Iter != m_LoadedFiles.end())
+        auto foundFile = m_LoadedFiles.find(fileName);
+        if (foundFile != m_LoadedFiles.end())
         {
-            *IncludeSourceBlob = Iter->second.Detach();
+            *includeSourceBlob = foundFile->second.Detach();
             return S_OK;
         }
 
-        if (FileName[0] == '.' && FileName[1] == '/')
+        if (fileName[0] == '.' && fileName[1] == '/')
         {
-            FileName += 2;
+            fileName += 2;
         }
 
         // Skip all "../" in the path just to reach the root of the shader directory.
-        while (FileName && FileName[0] == '.' && FileName[1] == '.' && FileName[2] == '/')
+        while (fileName && fileName[0] == '.' && fileName[1] == '.' && fileName[2] == '/')
         {
-            FileName += 3;
+            fileName += 3;
         }
 
-        if (!FileName || !FileName[0]) [[unlikely]]
+        if (!fileName || !fileName[0]) [[unlikely]]
         {
             return E_FAIL;
         }
 
-        auto       FileNameStr = Strings::To<String>(FileName);
-        std::regex PathToAsset(std::format(".*{}", FileNameStr));
+        auto       fileNameStr = Strings::To<String>(fileName);
+        std::regex pathToAsset(std::format(".*{}", fileNameStr));
 
         using namespace EnumBitOperators;
 
-        auto AssetIter   = m_AssetStorage->FindAssets(PathToAsset);
-        auto FirstHandle = AssetIter.begin();
+        auto assetIter   = m_AssetStorage->FindAssets(pathToAsset);
+        auto firstHandle = assetIter.begin();
 
-        if (FirstHandle == AssetIter.end()) [[unlikely]]
+        if (firstHandle == assetIter.end()) [[unlikely]]
         {
             return E_FAIL;
         }
 
-        if (AssetIter.begin() != AssetIter.end()) [[unlikely]]
+        if (assetIter.begin() != assetIter.end()) [[unlikely]]
         {
-            Log::Rhi().Warning("Multiple assets found for path: {}, taking the first one {}", FileNameStr, FirstHandle->Guid.ToString());
+            Log::Rhi().Warning("Multiple assets found for path: {}, taking the first one {}", fileNameStr, firstHandle->Guid.ToString());
         }
 
-        auto Handle = FirstHandle->Guid;
-        if (Handle.is_nil()) [[unlikely]]
+        auto handle = firstHandle->Guid;
+        if (handle.is_nil()) [[unlikely]]
         {
             return E_FAIL;
         }
 
-        auto& Manager  = m_AssetStorage->GetManager();
-        auto  TextFile = m_TextFiles.emplace_back(std::dynamic_pointer_cast<FileAssetType>(Manager.Load(Handle, true)));
-        if (!TextFile) [[unlikely]]
+        auto& assetManager = m_AssetStorage->GetManager();
+        auto  textFile     = m_TextFiles.emplace_back(std::dynamic_pointer_cast<FileAssetType>(assetManager.Load(handle, true)));
+        if (!textFile) [[unlikely]]
         {
             m_TextFiles.pop_back();
             return E_FAIL;
         }
 
-        auto& SourceCode = TextFile->Get();
+        ShaderUtil::CComPtr<IDxcBlobEncoding> shaderCodeBlob;
 
-        ShaderUtil::CComPtr<IDxcBlobEncoding> ShaderCodeBlob;
-
-        HRESULT Res = m_Utils->CreateBlobFromPinned(
-            SourceCode.data(),
-            static_cast<uint32_t>(SourceCode.size()),
+        auto& sourceCode = textFile->Get();
+        auto  res        = m_Utils->CreateBlobFromPinned(
+            sourceCode.data(),
+            static_cast<uint32_t>(sourceCode.size()),
             DXC_CP_UTF8,
-            &ShaderCodeBlob);
+            &shaderCodeBlob);
 
-        if (SUCCEEDED(Res))
+        if (SUCCEEDED(res))
         {
-            *IncludeSourceBlob = ShaderCodeBlob.Detach();
-            m_LoadedFiles.emplace(FileName, std::move(ShaderCodeBlob));
+            *includeSourceBlob = shaderCodeBlob.Detach();
+            m_LoadedFiles.emplace(fileName, std::move(shaderCodeBlob));
             return S_OK;
         }
         else
@@ -102,10 +101,10 @@ namespace Ame::Rhi
     }
 
     HRESULT __stdcall ShaderIncludeHandler::QueryInterface(
-        REFIID Riid,
-        void** Object)
+        REFIID riid,
+        void** object)
     {
-        return m_DefaultIncludeHandler->QueryInterface(Riid, Object);
+        return m_DefaultIncludeHandler->QueryInterface(riid, object);
     }
 
     ULONG __stdcall ShaderIncludeHandler::AddRef()

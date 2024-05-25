@@ -1,5 +1,7 @@
-#include "StateTracker.hpp"
+#include <ranges>
+
 #include <concurrencpp/concurrencpp.h>
+#include <Rhi/Device/StateTracker.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -11,16 +13,16 @@ namespace Ame::Rhi
     /// Helper function to iterate over all subresources in a texture.
     /// </summary>
     [[nodiscard]] static MipArrayLevelGenerator ForEachSubresource(
-        nri::Mip_t MipLevel,
-        nri::Mip_t MipCount,
-        nri::Dim_t ArraySlice,
-        nri::Dim_t ArrayCount)
+        nri::Mip_t mipLevel,
+        nri::Mip_t mipCount,
+        nri::Dim_t arraySlice,
+        nri::Dim_t arrayCount)
     {
-        for (nri::Mip_t i = MipLevel; i < MipLevel + MipCount; i++)
+        for (uint32_t mip = mipLevel; mip < mipLevel + mipCount; mip++)
         {
-            for (nri::Dim_t j = ArraySlice; j < ArraySlice + ArrayCount; j++)
+            for (nri::Dim_t dim = arraySlice; dim < arraySlice + arrayCount; dim++)
             {
-                co_yield std::pair(i, j);
+                co_yield std::pair(mip, dim);
             }
         }
     }
@@ -28,196 +30,196 @@ namespace Ame::Rhi
     //
 
     void ResourceStateTracker::Initialize(
-        const nri::DeviceDesc* DeviceDesc)
+        const nri::DeviceDesc* deviceDesc)
     {
-        m_DeviceDesc = DeviceDesc;
+        m_DeviceDesc = deviceDesc;
     }
 
     //
 
     void ResourceStateTracker::RequireState(
-        nri::Buffer*     Buffer,
-        nri::AccessStage State,
-        bool             Append)
+        nri::Buffer*     buffer,
+        nri::AccessStage state,
+        bool             append)
     {
-        Log::Rhi().Assert(m_CurrentStates.Buffers.contains(Buffer), "Buffer is not being tracked");
+        Log::Rhi().Assert(m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
 
-        if (Append)
+        if (append)
         {
-            auto& CurrentState = m_CurrentStates.Buffers[Buffer];
-            State.access |= CurrentState.access;
-            State.stages |= CurrentState.stages;
+            auto& currentState = m_CurrentStates.Buffers[buffer];
+            state.access |= currentState.access;
+            state.stages |= currentState.stages;
         }
 
-        auto& PendingStates = m_PendingStates.Buffers[Buffer];
-        StripUnsupportedStages(State.stages);
-        PendingStates.push_back(State);
+        auto& pendingStates = m_PendingStates.Buffers[buffer];
+        StripUnsupportedStages(state.stages);
+        pendingStates.push_back(state);
     }
 
     void ResourceStateTracker::RequireState(
-        nri::CoreInterface&    NriCore,
-        nri::Texture*          Texture,
-        nri::AccessLayoutStage State,
-        nri::Mip_t             MipLevel,
-        nri::Mip_t             MipCount,
-        nri::Dim_t             ArraySlice,
-        nri::Dim_t             ArrayCount,
-        bool                   Append)
+        nri::CoreInterface&    nriCore,
+        nri::Texture*          texture,
+        nri::AccessLayoutStage state,
+        nri::Mip_t             mipLevel,
+        nri::Mip_t             mipCount,
+        nri::Dim_t             arraySlice,
+        nri::Dim_t             arrayCount,
+        bool                   append)
     {
-        Log::Rhi().Assert(m_CurrentStates.Textures.contains(Texture), "Texture is not being tracked");
+        Log::Rhi().Assert(m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
 
-        if (Append)
+        if (append)
         {
-            auto& CurrentStates = m_CurrentStates.Textures[Texture];
+            auto& currentStates = m_CurrentStates.Textures[texture];
 
-            for (auto [Mip, Array] : ForEachSubresource(MipLevel, MipCount, ArraySlice, ArrayCount))
+            for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
             {
-                SubresourceIndex Index(Mip, Array);
+                SubresourceIndex subresource(Mip, Array);
 
-                auto& SubresourceStates = CurrentStates[Index];
-                State.access |= SubresourceStates.access;
-                State.stages |= SubresourceStates.stages;
+                auto& subresourceStates = currentStates[subresource];
+                state.access |= subresourceStates.access;
+                state.stages |= subresourceStates.stages;
             }
         }
 
-        auto& Desc = NriCore.GetTextureDesc(*Texture);
+        auto& textureDesc = nriCore.GetTextureDesc(*texture);
 
-        if (MipCount == nri::REMAINING_MIP_LEVELS)
+        if (mipCount == nri::REMAINING_MIP_LEVELS)
         {
-            MipCount = Desc.mipNum - MipLevel;
+            mipCount = textureDesc.mipNum - mipLevel;
         }
-        if (ArrayCount == nri::REMAINING_ARRAY_LAYERS)
+        if (arrayCount == nri::REMAINING_ARRAY_LAYERS)
         {
-            ArrayCount = Desc.arraySize - ArraySlice;
+            arrayCount = textureDesc.arraySize - arraySlice;
         }
 
-        StripUnsupportedStages(State.stages);
+        StripUnsupportedStages(state.stages);
 
-        auto& PendingStates = m_PendingStates.Textures[Texture];
-        for (auto [Mip, Array] : ForEachSubresource(MipLevel, MipCount, ArraySlice, ArrayCount))
+        auto& pendingStates = m_PendingStates.Textures[texture];
+        for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
-            SubresourceIndex Index(Mip, Array);
+            SubresourceIndex subresource(Mip, Array);
 
-            auto& SubresourceStates = PendingStates[Index];
-            SubresourceStates.push_back(State);
+            auto& subresourceStates = pendingStates[subresource];
+            subresourceStates.push_back(state);
         }
     }
 
     void ResourceStateTracker::PlaceBarrier(
-        const nri::GlobalBarrierDesc& BarrierDesc)
+        const nri::GlobalBarrierDesc& barrierDesc)
     {
-        m_GlobalBarriersCache.emplace_back(BarrierDesc);
+        m_GlobalBarriersCache.emplace_back(barrierDesc);
     }
 
     //
 
     void ResourceStateTracker::BeginTracking(
-        nri::Buffer*               Buffer,
-        AtomBufferSubresourceState InitialState)
+        nri::Buffer*                 buffer,
+        AtomicBufferSubresourceState initialState)
     {
-        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Buffers.contains(Buffer), "Buffer already being tracked");
-        m_CurrentStates.Buffers[Buffer] = InitialState;
+        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Buffers.contains(buffer), "Buffer already being tracked");
+        m_CurrentStates.Buffers[buffer] = initialState;
     }
 
     void ResourceStateTracker::BeginTracking(
-        nri::CoreInterface&         NriCore,
-        nri::Texture*               Texture,
-        AtomTextureSubresourceState InitialState)
+        nri::CoreInterface&           nriCore,
+        nri::Texture*                 texture,
+        AtomicTextureSubresourceState initialState)
     {
-        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Textures.contains(Texture), "Texture already being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Textures.contains(texture), "Texture already being tracked");
 
-        auto& Desc = NriCore.GetTextureDesc(*Texture);
+        auto& textureDesc = nriCore.GetTextureDesc(*texture);
 
-        for (auto [Mip, Array] : ForEachSubresource(0, Desc.mipNum, 0, Desc.arraySize))
+        for (auto [Mip, Array] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
         {
-            SubresourceIndex Index(Mip, Array);
-            m_CurrentStates.Textures[Texture][Index] = InitialState;
+            SubresourceIndex subresource(Mip, Array);
+            m_CurrentStates.Textures[texture][subresource] = initialState;
         }
     }
 
     void ResourceStateTracker::EndTracking(
-        nri::Buffer* Buffer)
+        nri::Buffer* buffer)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(Buffer), "Buffer is not being tracked");
-        m_CurrentStates.Buffers.erase(Buffer);
-        m_PendingStates.Buffers.erase(Buffer);
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
+        m_CurrentStates.Buffers.erase(buffer);
+        m_PendingStates.Buffers.erase(buffer);
     }
 
     void ResourceStateTracker::EndTracking(
-        nri::Texture* Texture)
+        nri::Texture* texture)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(Texture), "Texture is not being tracked");
-        m_CurrentStates.Textures.erase(Texture);
-        m_PendingStates.Textures.erase(Texture);
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+        m_CurrentStates.Textures.erase(texture);
+        m_PendingStates.Textures.erase(texture);
     }
 
     //
 
     void ResourceStateTracker::MutateState(
-        nri::Buffer*               Buffer,
-        AtomBufferSubresourceState State)
+        nri::Buffer*                 buffer,
+        AtomicBufferSubresourceState state)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(Buffer), "Buffer is not being tracked");
-        m_CurrentStates.Buffers[Buffer] = State;
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
+        m_CurrentStates.Buffers[buffer] = state;
     }
 
     void ResourceStateTracker::MutateState(
-        nri::CoreInterface&         NriCore,
-        nri::Texture*               Texture,
-        AtomTextureSubresourceState State,
-        nri::Mip_t                  MipLevel,
-        nri::Mip_t                  MipCount,
-        nri::Dim_t                  ArraySlice,
-        nri::Dim_t                  ArrayCount)
+        nri::CoreInterface&           nriCore,
+        nri::Texture*                 texture,
+        AtomicTextureSubresourceState state,
+        nri::Mip_t                    mipLevel,
+        nri::Mip_t                    mipCount,
+        nri::Dim_t                    arraySlice,
+        nri::Dim_t                    arrayCount)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(Texture), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
 
-        auto& Desc          = NriCore.GetTextureDesc(*Texture);
-        auto& CurrentStates = m_CurrentStates.Textures[Texture];
+        auto& textureDesc   = nriCore.GetTextureDesc(*texture);
+        auto& currentStates = m_CurrentStates.Textures[texture];
 
-        if (MipCount == nri::REMAINING_MIP_LEVELS)
+        if (mipCount == nri::REMAINING_MIP_LEVELS)
         {
-            MipCount = Desc.mipNum - MipLevel;
+            mipCount = textureDesc.mipNum - mipLevel;
         }
-        if (ArrayCount == nri::REMAINING_ARRAY_LAYERS)
+        if (arrayCount == nri::REMAINING_ARRAY_LAYERS)
         {
-            ArrayCount = Desc.arraySize - ArraySlice;
+            arrayCount = textureDesc.arraySize - arraySlice;
         }
 
-        for (auto [Mip, Array] : ForEachSubresource(MipLevel, MipCount, ArraySlice, ArrayCount))
+        for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
-            SubresourceIndex Index(Mip, Array);
-            CurrentStates[Index] = State;
+            SubresourceIndex subresource(Mip, Array);
+            currentStates[subresource] = state;
         }
     }
 
     //
 
     void ResourceStateTracker::CommitBarriers(
-        nri::CoreInterface& NriCore,
-        nri::CommandBuffer& CommandBuffer)
+        nri::CoreInterface& nriCore,
+        nri::CommandBuffer& commandBuffer)
     {
         if (m_PendingStates.Buffers.empty() && m_PendingStates.Textures.empty())
         {
             return;
         }
 
-        auto Buffers  = FlushBuffers();
-        auto Textures = FlushTextures(NriCore);
+        auto buffers  = FlushBuffers();
+        auto textures = FlushTextures(nriCore);
 
         // dont perfom call if there is no state to transition to
-        if (!Buffers.empty() || !Textures.empty() || !m_GlobalBarriersCache.empty())
+        if (!buffers.empty() || !textures.empty() || !m_GlobalBarriersCache.empty())
         {
-            nri::BarrierGroupDesc Barriers{
+            nri::BarrierGroupDesc barriers{
                 .globals    = m_GlobalBarriersCache.data(),
-                .buffers    = Buffers.data(),
-                .textures   = Textures.data(),
+                .buffers    = buffers.data(),
+                .textures   = textures.data(),
                 .globalNum  = static_cast<uint16_t>(m_GlobalBarriersCache.size()),
-                .bufferNum  = static_cast<uint16_t>(Buffers.size()),
-                .textureNum = static_cast<uint16_t>(Textures.size())
+                .bufferNum  = static_cast<uint16_t>(buffers.size()),
+                .textureNum = static_cast<uint16_t>(textures.size())
             };
 
-            NriCore.CmdBarrier(CommandBuffer, Barriers);
+            nriCore.CmdBarrier(commandBuffer, barriers);
         }
 
         m_PendingStates.Buffers.clear();
@@ -229,154 +231,154 @@ namespace Ame::Rhi
 
     std::vector<nri::BufferBarrierDesc> ResourceStateTracker::FlushBuffers()
     {
-        std::vector<nri::BufferBarrierDesc> Barriers;
-        for (auto& [Buffer, States] : m_PendingStates.Buffers)
+        std::vector<nri::BufferBarrierDesc> bufferBarriers;
+        for (auto& [buffer, states] : m_PendingStates.Buffers)
         {
-            auto& CurrentState = m_CurrentStates.Buffers[Buffer];
+            auto& currentState = m_CurrentStates.Buffers[buffer];
 
-            nri::BufferBarrierDesc ResourceBarrier{
-                .buffer = Buffer,
-                .before = CurrentState,
-                .after  = CollapseStates(States)
+            nri::BufferBarrierDesc bufferBarrier{
+                .buffer = buffer,
+                .before = currentState,
+                .after  = CollapseStates(states)
             };
 
-            if (AreStateEqual(ResourceBarrier.before, ResourceBarrier.after))
+            if (AreStateEqual(bufferBarrier.before, bufferBarrier.after))
             {
                 continue;
             }
 
-            CurrentState = ResourceBarrier.after;
-            Barriers.push_back(std::move(ResourceBarrier));
+            currentState = bufferBarrier.after;
+            bufferBarriers.push_back(std::move(bufferBarrier));
         }
-        return Barriers;
+        return bufferBarriers;
     }
 
     //
 
     std::vector<nri::TextureBarrierDesc> ResourceStateTracker::FlushTextures(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& nriCore)
     {
-        std::vector<nri::TextureBarrierDesc> Barriers;
-        for (auto& [Texture, SubresourceStates] : m_PendingStates.Textures)
+        std::vector<nri::TextureBarrierDesc> textureBarriers;
+        for (auto& [texture, subresourceStates] : m_PendingStates.Textures)
         {
-            auto TempBarriers = TransitionTexture(NriCore, Texture, SubresourceStates);
-            Barriers.insert(Barriers.end(), std::make_move_iterator(TempBarriers.begin()), std::make_move_iterator(TempBarriers.end()));
+            auto TempBarriers = TransitionTexture(nriCore, texture, subresourceStates);
+            textureBarriers.insert(textureBarriers.end(), std::make_move_iterator(TempBarriers.begin()), std::make_move_iterator(TempBarriers.end()));
         }
-        return Barriers;
+        return textureBarriers;
     }
 
     std::vector<nri::TextureBarrierDesc> ResourceStateTracker::TransitionTexture(
-        nri::CoreInterface&                   NriCore,
-        nri::Texture*                         Texture,
-        const TextureSubresourceStates<true>& NewStates)
+        nri::CoreInterface&                   nriCore,
+        nri::Texture*                         texture,
+        const TextureSubresourceStates<true>& newStates)
     {
-        auto& CurrentSubresources = m_CurrentStates.Textures[Texture];
+        auto& currentSubresources = m_CurrentStates.Textures[texture];
 
-        bool StatesMatch = true;
+        bool statesMatch = true;
 
-        auto& FirstOldState = CurrentSubresources.begin()->second;
-        auto  FirstNewState = CollapseStates(NewStates.begin()->second);
+        auto& firstOldState = currentSubresources.begin()->second;
+        auto  firstNewState = CollapseStates(newStates.begin()->second);
 
-        std::vector<nri::TextureBarrierDesc> Barriers;
+        std::vector<nri::TextureBarrierDesc> textureBarriers;
 
-        for (auto& [Index, NewSubresources] : NewStates)
+        for (auto& [subresourceKey, newSubresourceStates] : newStates)
         {
-            auto& CurrentState  = CurrentSubresources[Index];
-            auto  FinalNewState = CollapseStates(NewSubresources);
+            auto& currentState  = currentSubresources[subresourceKey];
+            auto  finalNewState = CollapseStates(newSubresourceStates);
 
-            if (IsNewStateRedundant(CurrentState.access, FinalNewState.access))
+            if (IsNewStateRedundant(currentState.access, finalNewState.access))
             {
                 continue;
             }
 
-            auto OldState = std::exchange(CurrentState, FinalNewState);
+            auto oldState = std::exchange(currentState, finalNewState);
 
-            SubresourceIndex Subresource(Index);
-            Barriers.emplace_back(nri::TextureBarrierDesc{
-                .texture     = Texture,
-                .before      = OldState,
-                .after       = FinalNewState,
-                .mipOffset   = Subresource.MipLevel,
+            SubresourceIndex subresource(subresourceKey);
+            textureBarriers.emplace_back(nri::TextureBarrierDesc{
+                .texture     = texture,
+                .before      = oldState,
+                .after       = finalNewState,
+                .mipOffset   = subresource.MipLevel,
                 .mipNum      = 1,
-                .arrayOffset = Subresource.ArraySlice,
+                .arrayOffset = subresource.ArraySlice,
                 .arraySize   = 1 });
 
             // If any old subresource states do not match or any of the new states do not match
             // then performing single transition barrier for all subresources is not possible
-            if (AreStateEqual(OldState, FirstOldState) ||
-                !AreStateEqual(FinalNewState, FirstNewState))
+            if (AreStateEqual(oldState, firstOldState) ||
+                !AreStateEqual(finalNewState, firstNewState))
             {
-                StatesMatch = false;
+                statesMatch = false;
             }
         }
 
         // If multiple transitions were requested, but it's possible to make just one - do it
-        if (StatesMatch && Barriers.size() > 1)
+        if (statesMatch && textureBarriers.size() > 1)
         {
-            Barriers.resize(1);
+            textureBarriers.resize(1);
 
-            auto& Desc            = NriCore.GetTextureDesc(*Texture);
-            Barriers[0].mipNum    = Desc.mipNum;
-            Barriers[0].arraySize = Desc.arraySize;
+            auto& textureDesc            = nriCore.GetTextureDesc(*texture);
+            textureBarriers[0].mipNum    = textureDesc.mipNum;
+            textureBarriers[0].arraySize = textureDesc.arraySize;
         }
 
-        return Barriers;
+        return textureBarriers;
     }
 
     //
 
     auto ResourceStateTracker::CollapseStates(
-        const AtomTextureSubresourceStateList<true>& States) -> AtomTextureSubresourceStateList<false>
+        const AtomTextureSubresourceStateList<true>& states) -> AtomTextureSubresourceStateList<false>
     {
-        AtomTextureSubresourceStateList<false> Combined{};
-        if (!States.empty())
+        AtomTextureSubresourceStateList<false> combined{};
+        if (!states.empty())
         {
-            Combined.layout = States[0].layout;
+            combined.layout = states[0].layout;
 
-            bool HasAllState = false;
-            for (auto& State : States)
+            bool hasAllStates = false;
+            for (auto& state : states)
             {
-                HasAllState |= State.stages == nri::StageBits::ALL;
+                hasAllStates |= state.stages == nri::StageBits::ALL;
 
-                Combined.access |= State.access;
-                Combined.stages |= State.stages;
+                combined.access |= state.access;
+                combined.stages |= state.stages;
 
-                AME_LOG_ASSERT(Log::Rhi(), Combined.layout == State.layout, "Inconsistent layout");
+                AME_LOG_ASSERT(Log::Rhi(), combined.layout == state.layout, "Inconsistent layout across subresources");
             }
 
-            if (HasAllState)
+            if (hasAllStates)
             {
-                Combined.stages = nri::StageBits::ALL;
+                combined.stages = nri::StageBits::ALL;
             }
         }
-        return Combined;
+        return combined;
     }
 
     auto ResourceStateTracker::CollapseStates(
-        const AtomBufferSubresourceStateList<true>& States) -> AtomBufferSubresourceStateList<false>
+        const AtomBufferSubresourceStateList<true>& states) -> AtomBufferSubresourceStateList<false>
     {
-        AtomBufferSubresourceStateList<false> Combined{};
+        AtomBufferSubresourceStateList<false> combined{};
 
         bool HasAllState = false;
-        for (auto& State : States)
+        for (auto& state : states)
         {
-            HasAllState |= State.stages == nri::StageBits::ALL;
-            Combined.access |= State.access;
-            Combined.stages |= State.stages;
+            HasAllState |= state.stages == nri::StageBits::ALL;
+            combined.access |= state.access;
+            combined.stages |= state.stages;
         }
 
         if (HasAllState)
         {
-            Combined.stages = nri::StageBits::ALL;
+            combined.stages = nri::StageBits::ALL;
         }
-        return Combined;
+        return combined;
     }
 
     bool ResourceStateTracker::IsNewStateRedundant(
-        nri::AccessBits Current,
-        nri::AccessBits Next)
+        nri::AccessBits current,
+        nri::AccessBits next)
     {
-        constexpr nri::AccessBits ReadOnlyStates =
+        constexpr nri::AccessBits c_ReadOnlyStates =
             nri::AccessBits::VERTEX_BUFFER |
             nri::AccessBits::CONSTANT_BUFFER |
             nri::AccessBits::INDEX_BUFFER |
@@ -386,15 +388,15 @@ namespace Ame::Rhi
             nri::AccessBits::ARGUMENT_BUFFER |
             nri::AccessBits::COPY_SOURCE;
 
-        return (Current == Next) ||
-               ((Current & ReadOnlyStates) && (static_cast<uint32_t>(Current & Next) == static_cast<uint32_t>(Next)));
+        return (current == next) ||
+               ((current & c_ReadOnlyStates) && (static_cast<uint32_t>(current & next) == static_cast<uint32_t>(next)));
     }
 
     //
 
     bool ResourceStateTracker::AreStateEqual(
-        nri::AccessStage A,
-        nri::AccessStage B) const
+        nri::AccessStage a,
+        nri::AccessStage b) const
     {
         switch (m_DeviceDesc->graphicsAPI)
         {
@@ -403,22 +405,22 @@ namespace Ame::Rhi
             // if (!m_DeviceDesc->areEnhancedBarriersSupported)
             {
                 // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
-                return A.access == B.access;
+                return a.access == b.access;
             }
         }
             [[fallthrough]];
         case nri::GraphicsAPI::VULKAN:
         {
-            return A.access == B.access &&
-                   A.stages == B.stages;
+            return a.access == b.access &&
+                   a.stages == b.stages;
         }
         }
         return false;
     }
 
     bool ResourceStateTracker::AreStateEqual(
-        const nri::AccessLayoutStage& A,
-        const nri::AccessLayoutStage& B) const
+        const nri::AccessLayoutStage& a,
+        const nri::AccessLayoutStage& b) const
     {
         switch (m_DeviceDesc->graphicsAPI)
         {
@@ -427,15 +429,15 @@ namespace Ame::Rhi
             // if (!m_DeviceDesc->areEnhancedBarriersSupported)
             {
                 // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
-                return A.access == B.access;
+                return a.access == b.access;
             }
         }
             [[fallthrough]];
         case nri::GraphicsAPI::VULKAN:
         {
-            return A.access == B.access &&
-                   A.stages == B.stages &&
-                   A.layout == B.layout;
+            return a.access == b.access &&
+                   a.stages == b.stages &&
+                   a.layout == b.layout;
         }
         }
         return false;
@@ -444,16 +446,16 @@ namespace Ame::Rhi
     //
 
     void ResourceStateTracker::StripUnsupportedStages(
-        nri::StageBits& Stages)
+        nri::StageBits& stages)
     {
         if (!m_DeviceDesc->isMeshShaderSupported)
         {
-            Stages = static_cast<nri::StageBits>(static_cast<uint32_t>(Stages) & ~static_cast<uint32_t>(nri::StageBits::MESH_SHADERS));
+            stages = static_cast<nri::StageBits>(static_cast<uint32_t>(stages) & ~static_cast<uint32_t>(nri::StageBits::MESH_SHADERS));
         }
 
         if (!m_DeviceDesc->isRayTracingSupported)
         {
-            Stages = static_cast<nri::StageBits>(static_cast<uint32_t>(Stages) & ~static_cast<uint32_t>(nri::StageBits::RAY_TRACING_SHADERS));
+            stages = static_cast<nri::StageBits>(static_cast<uint32_t>(stages) & ~static_cast<uint32_t>(nri::StageBits::RAY_TRACING_SHADERS));
         }
     }
 } // namespace Ame::Rhi

@@ -6,11 +6,11 @@
 namespace Ame::Rhi::ShaderUtil
 {
     void ThrowShaderException(
-        HRESULT Result)
+        HRESULT hr)
     {
-        if (FAILED(Result))
+        if (FAILED(hr))
         {
-            Log::Rhi().Fatal("Failed to compile shader: {:X}", Result);
+            Log::Rhi().Fatal("Failed to compile shader: {:X}", hr);
         }
     }
 } // namespace Ame::Rhi::ShaderUtil

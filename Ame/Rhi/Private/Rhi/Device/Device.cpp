@@ -7,8 +7,8 @@ namespace Ame::Rhi
 {
     Device::Device() = default;
     Device::Device(
-        const DeviceCreateDesc& Desc) :
-        m_Impl(std::make_unique<DeviceImpl>(Desc))
+        const DeviceCreateDesc& desc) :
+        m_Impl(std::make_unique<DeviceImpl>(desc))
     {
     }
 
@@ -88,9 +88,9 @@ namespace Ame::Rhi
     }
 
     void Device::SetClearColor(
-        const Math::Color4& Color)
+        const Math::Color4& color)
     {
-        m_Impl->SetClearColor(Color);
+        m_Impl->SetClearColor(color);
     }
 
     BackbufferClearType Device::GetBackbufferClearType() const noexcept
@@ -99,9 +99,9 @@ namespace Ame::Rhi
     }
 
     void Device::SetBackbufferClearType(
-        BackbufferClearType Type)
+        BackbufferClearType type)
     {
-        m_Impl->SetBackbufferClearType(Type);
+        m_Impl->SetBackbufferClearType(type);
     }
 
     //
@@ -127,9 +127,9 @@ namespace Ame::Rhi
     }
 
     const Backbuffer& Device::GetBackbuffer(
-        uint8_t Index) const
+        uint8_t index) const
     {
-        return m_Impl->GetBackbuffer(Index);
+        return m_Impl->GetBackbuffer(index);
     }
 
     const Backbuffer& Device::GetBackbuffer() const
@@ -150,9 +150,9 @@ namespace Ame::Rhi
     }
 
     void Device::SetVSyncEnabled(
-        bool State)
+        bool state)
     {
-        m_Impl->SetVSyncEnabled(State);
+        m_Impl->SetVSyncEnabled(state);
     }
 
     //

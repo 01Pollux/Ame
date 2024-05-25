@@ -6,22 +6,22 @@
 namespace Ame::Rhi
 {
     void Frame::Initialize(
-        DeviceImpl&                     RhiDevice,
-        const DescriptorAllocationDesc& DescriptorPoolDesc,
-        uint32_t                        FrameIndex)
+        DeviceImpl&                     rhiDevice,
+        const DescriptorAllocationDesc& descriptorPoolDesc,
+        uint32_t                        frameIndex)
     {
 #ifndef AME_DIST
-        auto AllocatorName = std::format("FrameCommandAllocator_{}", FrameIndex);
-        auto ListName      = std::format("FrameCommandList_{}", FrameIndex);
+        auto commandAllocatorName = std::format("FrameCommandAllocator_{}", frameIndex);
+        auto commandListName      = std::format("FrameCommandList_{}", frameIndex);
 
-        auto AllocatorNamePtr = AllocatorName.c_str();
-        auto ListNamePtr      = ListName.c_str();
+        auto commandAllocatorNamePtr = commandAllocatorName.c_str();
+        auto commandListNamePtr      = commandListName.c_str();
 #else
-        auto AllocatorNamePtr = nullptr;
-        auto ListNamePtr      = nullptr;
+        auto commandAllocatorNamePtr = nullptr;
+        auto commandListNamePtr      = nullptr;
 #endif
 
-        m_CommandList.Initialize(RhiDevice, DescriptorPoolDesc, AllocatorNamePtr, ListNamePtr);
+        m_CommandList.Initialize(rhiDevice, descriptorPoolDesc, commandAllocatorNamePtr, commandListNamePtr);
     }
 
     void Frame::Shutdown()
@@ -39,11 +39,11 @@ namespace Ame::Rhi
     //
 
     void Frame::NewFrame(
-        nri::CoreInterface& NriCore,
-        MemoryAllocator&    MemAllocator)
+        nri::CoreInterface& nriCore,
+        MemoryAllocator&    memoryAllocator)
     {
         m_CommandList.Reset();
-        Release(NriCore, MemAllocator);
+        Release(nriCore, memoryAllocator);
     }
 
     void Frame::EndFrame()
@@ -52,38 +52,38 @@ namespace Ame::Rhi
     }
 
     void Frame::Release(
-        nri::CoreInterface& NriCore,
-        MemoryAllocator&    MemAllocator)
+        nri::CoreInterface& nriCore,
+        MemoryAllocator&    memoryAllocator)
     {
-        m_DeferredBuffers.Release(MemAllocator);
-        m_DeferredTextures.Release(MemAllocator);
-        m_DeferredDescriptors.Release(NriCore);
-        m_DeferredPipelines.Release(NriCore);
+        m_DeferredBuffers.Release(memoryAllocator);
+        m_DeferredTextures.Release(memoryAllocator);
+        m_DeferredDescriptors.Release(nriCore);
+        m_DeferredPipelines.Release(nriCore);
     }
 
     //
 
     void Frame::DeferRelease(
-        nri::Buffer& NriBuffer)
+        nri::Buffer& nriBuffer)
     {
-        m_DeferredBuffers.DeferRelease(NriBuffer);
+        m_DeferredBuffers.DeferRelease(nriBuffer);
     }
 
     void Frame::DeferRelease(
-        nri::Texture& NriTexture)
+        nri::Texture& nriTexture)
     {
-        m_DeferredTextures.DeferRelease(NriTexture);
+        m_DeferredTextures.DeferRelease(nriTexture);
     }
 
     void Frame::DeferRelease(
-        nri::Descriptor& NriDescriptor)
+        nri::Descriptor& nriDescriptor)
     {
-        m_DeferredDescriptors.DeferRelease(NriDescriptor);
+        m_DeferredDescriptors.DeferRelease(nriDescriptor);
     }
 
     void Frame::DeferRelease(
-        nri::Pipeline& Pipeline)
+        nri::Pipeline& nriPipeline)
     {
-        m_DeferredPipelines.DeferRelease(Pipeline);
+        m_DeferredPipelines.DeferRelease(nriPipeline);
     }
 } // namespace Ame::Rhi

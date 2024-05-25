@@ -5,86 +5,86 @@
 namespace Ame::Rhi
 {
     void FrameWrapper::Initialize(
-        DeviceImpl&                     RhiDevice,
-        const DescriptorAllocationDesc& DescriptorPoolDesc,
-        uint32_t                        FramesInFlightCount)
+        DeviceImpl&                     rhiDevice,
+        const DescriptorAllocationDesc& descriptorPoolDesc,
+        uint32_t                        framesInFlightCount)
     {
-        auto& Nri     = RhiDevice.GetNRI();
-        auto& NriCore = *Nri.GetCoreInterface();
+        auto& nriUtils = rhiDevice.GetNRI();
+        auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        Frames = std::make_unique<Frame[]>(FramesInFlightCount);
-        for (uint32_t i = 0; i < FramesInFlightCount; i++)
+        Frames = std::make_unique<Frame[]>(framesInFlightCount);
+        for (uint32_t i = 0; i < framesInFlightCount; i++)
         {
-            Frames[i].Initialize(RhiDevice, DescriptorPoolDesc, i);
+            Frames[i].Initialize(rhiDevice, descriptorPoolDesc, i);
         }
 
-        this->FramesInFlightCount = FramesInFlightCount;
-        ThrowIfFailed(NriCore.CreateFence(RhiDevice.GetDevice(), FenceValue, Fence), "Failed to create a frame fence");
+        this->FramesInFlightCount = framesInFlightCount;
+        ThrowIfFailed(nriCore.CreateFence(rhiDevice.GetDevice(), FenceValue, Fence), "Failed to create a frame fence");
     }
 
     void FrameWrapper::Shutdown(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& nriCore)
     {
         for (uint32_t i = 0; i < FramesInFlightCount; i++)
         {
             Frames[i].Shutdown();
         }
-        NriCore.DestroyFence(*Fence);
+        nriCore.DestroyFence(*Fence);
         Fence = nullptr;
     }
 
     void FrameWrapper::Sync(
-        nri::CoreInterface& NriCore)
+        nri::CoreInterface& nriCore)
     {
         if (FenceValue >= FramesInFlightCount) [[likely]]
         {
-            NriCore.Wait(*Fence, 1 + FenceValue - FramesInFlightCount);
+            nriCore.Wait(*Fence, 1 + FenceValue - FramesInFlightCount);
         }
     }
 
     //
 
     void FrameWrapper::NewFrame(
-        nri::CoreInterface& NriCore,
-        MemoryAllocator&    MemAllocator,
-        uint32_t            FrameIndex)
+        nri::CoreInterface& nriCore,
+        MemoryAllocator&    memoryAllocator,
+        uint32_t            frameIndex)
     {
-        auto& CurFrame = Frames[FrameIndex];
-        CurFrame.NewFrame(NriCore, MemAllocator);
+        auto& frame = Frames[frameIndex];
+        frame.NewFrame(nriCore, memoryAllocator);
     }
 
     void FrameWrapper::EndFrame(
-        uint32_t FrameIndex)
+        uint32_t frameIndex)
     {
-        auto& CurFrame = Frames[FrameIndex];
-        auto& CmdList  = CurFrame.GetCommandList();
+        auto& frame       = Frames[frameIndex];
+        auto& commandList = frame.GetCommandList();
 
-        CurFrame.EndFrame();
-        CmdList.Submit();
+        frame.EndFrame();
+        commandList.Submit();
     }
 
     void FrameWrapper::AdvanceFrame(
-        nri::CoreInterface& NriCore,
-        nri::CommandQueue&  GraphicsQueue)
+        nri::CoreInterface& nriCore,
+        nri::CommandQueue&  graphicsQueue)
     {
-        nri::FenceSubmitDesc FenceDesc{
+        nri::FenceSubmitDesc fenceDesc{
             .fence = Fence,
             .value = ++FenceValue
         };
 
-        nri::QueueSubmitDesc SubmitDesc{
-            .signalFences   = &FenceDesc,
+        nri::QueueSubmitDesc submitDesc{
+            .signalFences   = &fenceDesc,
             .signalFenceNum = 1,
         };
-        NriCore.QueueSubmit(GraphicsQueue, SubmitDesc);
+        nriCore.QueueSubmit(graphicsQueue, submitDesc);
     }
 
     void FrameWrapper::Release(
-        nri::CoreInterface& NriCore,
-        MemoryAllocator&    MemAllocator,
-        uint32_t            FrameIndex)
+        nri::CoreInterface& nriCore,
+        MemoryAllocator&    memoryAllocator,
+        uint32_t            frameIndex)
     {
-        auto& CurFrame = Frames[FrameIndex];
-        CurFrame.Release(NriCore, MemAllocator);
+        auto& frame = Frames[frameIndex];
+        frame.Release(nriCore, memoryAllocator);
     }
 } // namespace Ame::Rhi

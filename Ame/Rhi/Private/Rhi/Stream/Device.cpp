@@ -3,24 +3,24 @@
 namespace Ame::Rhi::Streaming
 {
     BufferDevice::BufferDevice(
-        BufferView View) :
-        m_View(std::move(View)),
+        BufferView view) :
+        m_View(std::move(view)),
         m_GetPosition(m_View.Range.Offset),
         m_PutPosition(m_View.Range.Offset)
     {
     }
 
     auto BufferDevice::read(
-        char_type*   Data,
-        streamsize_t Size) -> streamsize_t
+        char_type*   data,
+        streamsize_t size) -> streamsize_t
     {
-        streamsize_t Read = std::min(Size, static_cast<streamsize_t>(m_View.Range.Size - m_GetPosition));
-        if (Read)
+        streamsize_t read = std::min(size, static_cast<streamsize_t>(m_View.Range.Size - m_GetPosition));
+        if (read)
         {
-            auto Mapped = m_View.RhiBuffer.GetPtr(m_GetPosition);
-            std::memcpy(Data, Mapped, Read);
-            m_GetPosition += Read;
-            return Read;
+            auto mapped = m_View.BufferRef.GetPtr(m_GetPosition);
+            std::memcpy(data, mapped, read);
+            m_GetPosition += read;
+            return read;
         }
         else
         {
@@ -29,69 +29,69 @@ namespace Ame::Rhi::Streaming
     }
 
     auto BufferDevice::write(
-        const char_type* Data,
-        streamsize_t     Size) -> streamsize_t
+        const char_type* data,
+        streamsize_t     size) -> streamsize_t
     {
-        if (m_PutPosition + Size > m_View.Range.Offset + m_View.Range.Size)
+        if (m_PutPosition + size > m_View.Range.Offset + m_View.Range.Size)
         {
             return -1;
         }
 
-        auto Mapped = m_View.RhiBuffer.GetPtr(m_PutPosition);
-        std::memcpy(Mapped, Data, Size);
+        auto mapped = m_View.BufferRef.GetPtr(m_PutPosition);
+        std::memcpy(mapped, data, size);
 
-        m_PutPosition += Size;
-        return Size;
+        m_PutPosition += size;
+        return size;
     }
 
     auto BufferDevice::seek(
-        streamoffset_t          Offset,
-        std::ios_base::seekdir  Direction,
-        std::ios_base::openmode Mode) -> streamoffset_t
+        streamoffset_t          offset,
+        std::ios_base::seekdir  direction,
+        std::ios_base::openmode mode) -> streamoffset_t
     {
-        if (Mode & std::ios_base::in)
+        if (mode & std::ios_base::in)
         {
-            streamoffset_t Next;
-            switch (Direction)
+            streamoffset_t next;
+            switch (direction)
             {
             case std::ios_base::beg:
-                Next = m_View.Range.Offset + Offset;
+                next = m_View.Range.Offset + offset;
                 break;
             case std::ios_base::cur:
-                Next = m_GetPosition + Offset;
+                next = m_GetPosition + offset;
                 break;
             case std::ios_base::end:
-                Next = m_View.Range.Offset + m_View.Range.Size + Offset - 1;
+                next = m_View.Range.Offset + m_View.Range.Size + offset - 1;
                 break;
             default:
                 std::unreachable();
             }
 
-            if (Next < m_View.Range.Offset || Next >= m_View.Range.Offset + m_View.Range.Size)
+            if (next < m_View.Range.Offset || next >= m_View.Range.Offset + m_View.Range.Size)
             {
                 throw std::ios_base::failure("Seek out of range.");
             }
             return m_GetPosition;
         }
-        else if (Mode & std::ios_base::out)
+        else if (mode & std::ios_base::out)
         {
-            streamoffset_t Next;
-            switch (Direction)
+            streamoffset_t next;
+            switch (direction)
             {
             case std::ios_base::beg:
-                Next = m_View.Range.Offset + Offset;
+                next = m_View.Range.Offset + offset;
                 break;
             case std::ios_base::cur:
-                Next = m_PutPosition + Offset;
+                next = m_PutPosition + offset;
                 break;
             case std::ios_base::end:
-                Next = m_View.Range.Offset + m_View.Range.Size + Offset - 1;
+                next = m_View.Range.Offset + m_View.Range.Size + offset - 1;
                 break;
             default:
                 std::unreachable();
             }
 
-            if (Next < m_View.Range.Offset || Next >= m_View.Range.Offset + m_View.Range.Size)
+            if (next < m_View.Range.Offset || next >= m_View.Range.Offset + m_View.Range.Size)
             {
                 throw std::ios_base::failure("Seek out of range.");
             }

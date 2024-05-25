@@ -17,16 +17,16 @@ namespace Ame::Rhi
 
     public:
         ShaderCompilerLibrary(
-            Device&                  RhiDevice,
-            StringView               ShaderSource,
-            const ShaderCompileDesc& Desc,
-            Asset::Storage*          AssetStorage);
+            Device&                  rhiDevice,
+            StringView               shaderSource,
+            const ShaderCompileDesc& desc,
+            Asset::Storage*          assetStorage);
 
         [[nodiscard]] static ShaderCompilerLibrary SpirvWorkaround(
-            Device&                         RhiDevice,
-            std::span<const ShaderBytecode> ShaderCodes,
-            const ShaderCompileDesc&        Desc,
-            Asset::Storage*                 AssetStorage);
+            Device&                         rhiDevice,
+            std::span<const ShaderBytecode> shaderCodes,
+            const ShaderCompileDesc&        desc,
+            Asset::Storage*                 assetStorage);
 
         [[nodiscard]] ShaderBytecode GetBytecode() const;
 
@@ -34,14 +34,14 @@ namespace Ame::Rhi
         void LoadDxc();
 
         void LoadSourceCode(
-            StringView ShaderSource);
+            StringView dhaderSource);
 
         void Compile(
-            Asset::Storage* AssetStorage);
+            Asset::Storage* assetStorage);
 
         void Validate(
-            GraphicsAPI              Api,
-            const ShaderCompileDesc& Desc);
+            GraphicsAPI              api,
+            const ShaderCompileDesc& desc);
 
     private:
         CComPtr<IDxcValidator>      m_Validator;

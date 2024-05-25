@@ -8,31 +8,31 @@ namespace Ame::Util
 {
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     static void UpdateCrypto(
-        CryptoAlgoTy&                 Hasher,
-        const Rhi::ShaderCompileDesc& Desc)
+        CryptoAlgoTy&                 hasher,
+        const Rhi::ShaderCompileDesc& desc)
     {
-        for (auto& [Key, Value] : Desc.Defines)
+        for (auto& [key, value] : desc.Defines)
         {
-            Hasher.Update(std::bit_cast<const CryptoPP::byte*>(Key.c_str()), sizeof(Key[0]) * Key.size());
-            Hasher.Update(std::bit_cast<const CryptoPP::byte*>(Value.c_str()), sizeof(Value[0]) * Value.size());
+            hasher.Update(std::bit_cast<const CryptoPP::byte*>(key.c_str()), sizeof(key[0]) * key.size());
+            hasher.Update(std::bit_cast<const CryptoPP::byte*>(value.c_str()), sizeof(value[0]) * value.size());
         }
-        for (auto Extension : Desc.SpirvExtensions)
+        for (auto extension : desc.SpirvExtensions)
         {
-            Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Extension), sizeof(Extension));
+            hasher.Update(std::bit_cast<const CryptoPP::byte*>(&extension), sizeof(extension));
         }
 
-        auto Stage = Desc.GetStage();
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Stage), sizeof(Stage));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Profile), sizeof(Desc.Profile));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.VulkanMemoryLayout), sizeof(Desc.VulkanMemoryLayout));
-        Hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Desc.Flags), sizeof(Desc.Flags));
+        auto Stage = desc.GetStage();
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Stage), sizeof(Stage));
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.Profile), sizeof(desc.Profile));
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.VulkanMemoryLayout), sizeof(desc.VulkanMemoryLayout));
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.Flags), sizeof(desc.Flags));
     }
 
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
     static void UpdateCrypto(
-        CryptoAlgoTy&              Hasher,
-        const Rhi::ShaderBytecode& Bytecode)
+        CryptoAlgoTy&              hasher,
+        const Rhi::ShaderBytecode& shader)
     {
-        Hasher.Update(Bytecode.GetBytecode(), Bytecode.GetSize());
+        hasher.Update(shader.GetBytecode(), shader.GetSize());
     }
 } // namespace Ame::Util

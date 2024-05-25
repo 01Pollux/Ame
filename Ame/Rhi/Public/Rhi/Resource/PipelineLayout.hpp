@@ -8,9 +8,9 @@ namespace Ame::Rhi
     {
     public:
         PipelineLayout(
-            Device&              RhiDevice,
-            nri::PipelineLayout& Layout,
-            size_t               Hash);
+            Device&              rhiDevice,
+            nri::PipelineLayout& nriLayout,
+            size_t               hash);
 
         PipelineLayout(const PipelineLayout&) = delete;
         PipelineLayout(PipelineLayout&&)      = delete;
@@ -25,7 +25,7 @@ namespace Ame::Rhi
         /// Set the pipeline layout name.
         /// </summary>
         void SetName(
-            const char* Name) const;
+            const char* name) const;
 
         /// <summary>
         /// Get the nri pipeline layout.

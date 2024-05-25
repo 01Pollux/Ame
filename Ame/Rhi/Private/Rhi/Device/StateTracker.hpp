@@ -24,30 +24,30 @@ namespace Ame::Rhi
             }
 
             constexpr explicit SubresourceIndex(
-                uint32_t Index) :
-                MipLevel(Index >> 16),
-                ArraySlice(Index & 0xFFFF)
+                uint32_t index) :
+                MipLevel(index >> 16),
+                ArraySlice(index & 0xFFFF)
             {
             }
 
             constexpr SubresourceIndex(
-                nri::Mip_t MipLevel,
-                nri::Dim_t ArraySlice) :
-                MipLevel(MipLevel),
-                ArraySlice(ArraySlice)
+                nri::Mip_t mipLevel,
+                nri::Dim_t arraySlice) :
+                MipLevel(mipLevel),
+                ArraySlice(arraySlice)
             {
             }
         };
 
-        using AtomResourceState = nri::AccessStage;
+        using AtomicResourceState = nri::AccessStage;
 
-        using AtomTextureSubresourceState = nri::AccessLayoutStage;
-        using AtomBufferSubresourceState  = nri::AccessStage;
+        using AtomicTextureSubresourceState = nri::AccessLayoutStage;
+        using AtomicBufferSubresourceState  = nri::AccessStage;
 
         template<bool Many>
-        using AtomTextureSubresourceStateList = std::conditional_t<Many, std::vector<AtomTextureSubresourceState>, AtomTextureSubresourceState>;
+        using AtomTextureSubresourceStateList = std::conditional_t<Many, std::vector<AtomicTextureSubresourceState>, AtomicTextureSubresourceState>;
         template<bool Many>
-        using AtomBufferSubresourceStateList = std::conditional_t<Many, std::vector<AtomBufferSubresourceState>, AtomBufferSubresourceState>;
+        using AtomBufferSubresourceStateList = std::conditional_t<Many, std::vector<AtomicBufferSubresourceState>, AtomicBufferSubresourceState>;
 
         template<bool Many>
         using TextureSubresourceStates = std::unordered_map<SubresourceIndexType, AtomTextureSubresourceStateList<Many>>;
@@ -75,7 +75,7 @@ namespace Ame::Rhi
         /// Initialize the state tracker
         /// </summary>
         void Initialize(
-            const nri::DeviceDesc* DeviceDesc);
+            const nri::DeviceDesc* deviceDesc);
 
     public:
         /// <summary>
@@ -83,85 +83,85 @@ namespace Ame::Rhi
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
-            nri::Buffer*               Buffer,
-            AtomBufferSubresourceState State,
-            bool                       Append = false);
+            nri::Buffer*                 buffer,
+            AtomicBufferSubresourceState state,
+            bool                         append = false);
 
         /// <summary>
         /// Require a texture to be in a certain state
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
-            nri::CoreInterface&         NriCore,
-            nri::Texture*               Texture,
-            AtomTextureSubresourceState State,
-            nri::Mip_t                  MipLevel   = 0,
-            nri::Mip_t                  MipCount   = nri::REMAINING_MIP_LEVELS,
-            nri::Dim_t                  ArraySlice = 0,
-            nri::Dim_t                  ArrayCount = nri::REMAINING_ARRAY_LAYERS,
-            bool                        Append     = false);
+            nri::CoreInterface&           nriCore,
+            nri::Texture*                 texture,
+            AtomicTextureSubresourceState state,
+            nri::Mip_t                    mipLevel   = 0,
+            nri::Mip_t                    mipCount   = nri::REMAINING_MIP_LEVELS,
+            nri::Dim_t                    arraySlice = 0,
+            nri::Dim_t                    arrayCount = nri::REMAINING_ARRAY_LAYERS,
+            bool                          append     = false);
 
         /// <summary>
         /// Place a global barrier
         /// </summary>
         void PlaceBarrier(
-            const nri::GlobalBarrierDesc& BarrierDesc);
+            const nri::GlobalBarrierDesc& barrierDesc);
 
     public:
         /// <summary>
         /// Begin tracking a buffer
         /// </summary>
         void BeginTracking(
-            nri::Buffer*               Buffer,
-            AtomBufferSubresourceState InitialState);
+            nri::Buffer*                 buffer,
+            AtomicBufferSubresourceState initialState);
 
         /// <summary>
         /// Begin tracking a texture
         /// </summary>
         void BeginTracking(
-            nri::CoreInterface&         NriCore,
-            nri::Texture*               Texture,
-            AtomTextureSubresourceState InitialState);
+            nri::CoreInterface&           nriCore,
+            nri::Texture*                 texture,
+            AtomicTextureSubresourceState initialState);
 
         /// <summary>
         /// End tracking a buffer
         /// </summary>
         void EndTracking(
-            nri::Buffer* Buffer);
+            nri::Buffer* buffer);
 
         /// <summary>
         /// End tracking a texture
         /// </summary>
         void EndTracking(
-            nri::Texture* Texture);
+            nri::Texture* texture);
 
     public:
         /// <summary>
         /// Mutate the state of a buffer
         /// </summary>
         void MutateState(
-            nri::Buffer*               Buffer,
-            AtomBufferSubresourceState State);
+            nri::Buffer*                 buffer,
+            AtomicBufferSubresourceState state);
 
         /// <summary>
         /// Mutate the state of a texture
         /// </summary>
         void MutateState(
-            nri::CoreInterface&         NriCore,
-            nri::Texture*               Texture,
-            AtomTextureSubresourceState State,
-            nri::Mip_t                  MipLevel   = 0,
-            nri::Mip_t                  MipCount   = nri::REMAINING_MIP_LEVELS,
-            nri::Dim_t                  ArraySlice = 0,
-            nri::Dim_t                  ArrayCount = nri::REMAINING_ARRAY_LAYERS);
+            nri::CoreInterface&           nriCore,
+            nri::Texture*                 texture,
+            AtomicTextureSubresourceState state,
+            nri::Mip_t                    mipLevel   = 0,
+            nri::Mip_t                    mipCount   = nri::REMAINING_MIP_LEVELS,
+            nri::Dim_t                    arraySlice = 0,
+            nri::Dim_t                    arrayCount = nri::REMAINING_ARRAY_LAYERS);
 
     public:
         /// <summary>
         /// Commit all the pending barriers
         /// </summary>
         void CommitBarriers(
-            nri::CoreInterface& NriCore,
-            nri::CommandBuffer& CommandBuffer);
+            nri::CoreInterface& nriCore,
+            nri::CommandBuffer& commandBuffer);
 
     private:
         /// <summary>
@@ -173,28 +173,28 @@ namespace Ame::Rhi
         /// Flush all the texture to the current state
         /// </summary>
         [[nodiscard]] std::vector<nri::TextureBarrierDesc> FlushTextures(
-            nri::CoreInterface& NriCore);
+            nri::CoreInterface& nriCore);
 
         /// <summary>
         /// Flush all texture to the current state
         /// </summary>
         [[nodiscard]] std::vector<nri::TextureBarrierDesc> TransitionTexture(
-            nri::CoreInterface&                   NriCore,
-            nri::Texture*                         Texture,
-            const TextureSubresourceStates<true>& NewStates);
+            nri::CoreInterface&                   nriCore,
+            nri::Texture*                         texture,
+            const TextureSubresourceStates<true>& newStates);
 
     private:
         /// <summary>
         /// Combine states into one
         /// </summary>
         [[nodiscard]] static AtomTextureSubresourceStateList<false> CollapseStates(
-            const AtomTextureSubresourceStateList<true>& States);
+            const AtomTextureSubresourceStateList<true>& states);
 
         /// <summary>
         /// Combine states into one
         /// </summary>
         [[nodiscard]] static AtomBufferSubresourceStateList<false> CollapseStates(
-            const AtomBufferSubresourceStateList<true>& States);
+            const AtomBufferSubresourceStateList<true>& states);
 
         /// <summary>
         /// Transition is redundant if either states completely match
@@ -202,29 +202,29 @@ namespace Ame::Rhi
         /// (which implies that it is also a read state)
         /// </summary>
         [[nodiscard]] static bool IsNewStateRedundant(
-            nri::AccessBits Current,
-            nri::AccessBits Next);
+            nri::AccessBits current,
+            nri::AccessBits next);
 
     private:
         /// <summary>
         /// Compare two access stages
         /// </summary>
         [[nodiscard]] bool AreStateEqual(
-            nri::AccessStage A,
-            nri::AccessStage B) const;
+            nri::AccessStage a,
+            nri::AccessStage b) const;
 
         /// <summary>
         /// Compare two states
         /// </summary>
         [[nodiscard]] bool AreStateEqual(
-            const nri::AccessLayoutStage& A,
-            const nri::AccessLayoutStage& B) const;
+            const nri::AccessLayoutStage& a,
+            const nri::AccessLayoutStage& b) const;
 
         /// <summary>
         /// Strip unsupported stages
         /// </summary>
         void StripUnsupportedStages(
-            nri::StageBits& Stages);
+            nri::StageBits& stages);
 
     private:
         const nri::DeviceDesc*   m_DeviceDesc = nullptr;

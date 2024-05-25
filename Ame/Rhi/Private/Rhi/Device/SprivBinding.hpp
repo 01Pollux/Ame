@@ -4,5 +4,10 @@
 
 namespace Ame::Rhi
 {
-    static constexpr nri::SPIRVBindingOffsets DefaultSpirvBindingOffset{ 1000, 2000, 3000, 4000 };
+    static constexpr nri::SPIRVBindingOffsets c_DefaultSpirvBindingOffset{
+        .samplerOffset                 = 1000,
+        .textureOffset                 = 2000,
+        .constantBufferOffset          = 3000,
+        .storageTextureAndBufferOffset = 4000
+    };
 } // namespace Ame::Rhi
