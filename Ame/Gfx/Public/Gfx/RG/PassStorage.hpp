@@ -30,7 +30,8 @@ namespace Ame::Gfx::RG
         /// Add a render pass to the graph
         /// </summary>
         Pass* AddPass(
-            UPtr<Pass> pass);
+            const String& name,
+            UPtr<Pass>    pass);
 
         /// <summary>
         /// Add a render pass to the graph
@@ -38,11 +39,12 @@ namespace Ame::Gfx::RG
         template<typename Ty, typename... ArgsTy>
             requires std::derived_from<Ty, Pass>
         Ty& NewPass(
+            const String& name,
             ArgsTy&&... args)
         {
             auto  pass    = std::make_unique<Ty>(std::forward<ArgsTy>(args)...);
             auto& passRef = *pass;
-            AddPass(std::move(pass));
+            AddPass(name, std::move(pass));
             return passRef;
         }
 
@@ -50,27 +52,28 @@ namespace Ame::Gfx::RG
         /// Add a render pass to the graph
         /// </summary>
         template<typename Ty = void>
-        [[nodiscard]] TypedPass<Ty>& NewTypedPass()
+        [[nodiscard]] TypedPass<Ty>& NewTypedPass(
+            const String& name)
         {
-            return NewPass<TypedPass<Ty>>();
+            return NewPass<TypedPass<Ty>>(name);
         }
 
         /// <summary>
         /// Remove a render pass from the graph
         /// </summary>
-        UPtr<Pass> RemovePass(
-            const Pass* pass);
+        void RemovePass(
+            const String& name);
+
+        /// <summary>
+        /// Get a render pass from the graph or nullptr if not found
+        /// </summary>
+        [[nodiscard]] Pass* GetPass(
+            const String& name) const;
 
         /// <summary>
         /// Clear all render passes from the graph
         /// </summary>
         void Clear();
-
-        /// <summary>
-        /// Check if the graph contains a render pass with the given name
-        /// </summary>
-        [[nodiscard]] bool ContainsPass(
-            const Pass* pass);
 
     private:
         /// <summary>
@@ -123,6 +126,11 @@ namespace Ame::Gfx::RG
             BuildersListType&              builders);
 
     private:
-        std::vector<UPtr<Pass>> m_Passes;
+        using PassMap      = std::map<String, UPtr<Pass>>;
+        using PassIterator = PassMap::const_iterator;
+        using PassList     = std::vector<PassIterator>;
+
+        PassMap  m_NamedPasses;
+        PassList m_Passes;
     };
 } // namespace Ame::Gfx::RG

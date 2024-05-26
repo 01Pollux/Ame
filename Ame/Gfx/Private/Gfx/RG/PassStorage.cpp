@@ -2,42 +2,39 @@
 #include <Gfx/RG/Context.hpp>
 #include <Gfx/RG/DependencyLevel.hpp>
 
+#include <Log/Wrapper.hpp>
+
 namespace Ame::Gfx::RG
 {
     Pass* PassStorage::AddPass(
-        UPtr<Pass> pass)
+        const String& name,
+        UPtr<Pass>    pass)
     {
-        return m_Passes.emplace_back(std::move(pass)).get();
+        AME_LOG_ASSERT(Log::Gfx(), !m_NamedPasses.contains(name), "Pass with name '{}' already exists", name);
+        return m_NamedPasses.emplace(name, std::move(pass)).first->second.get();
     }
 
-    UPtr<Pass> PassStorage::RemovePass(
-        const Pass* pass)
+    void PassStorage::RemovePass(
+        const String& name)
     {
-        UPtr<Pass> removedPass;
-        std::erase_if(
-            m_Passes,
-            [&](auto& curPass)
-            {
-                if (curPass.get() == pass)
-                {
-                    removedPass = std::move(curPass);
-                    return true;
-                }
-                return false;
-            });
-        return removedPass;
+        auto iter = m_NamedPasses.find(name);
+        if (iter != m_NamedPasses.end())
+        {
+            std::erase(m_Passes, iter);
+            m_NamedPasses.erase(iter);
+        }
+    }
+
+    Pass* PassStorage::GetPass(
+        const String& name) const
+    {
+        auto it = m_NamedPasses.find(name);
+        return it != m_NamedPasses.end() ? it->second.get() : nullptr;
     }
 
     void PassStorage::Clear()
     {
-        m_Passes.clear();
-    }
-
-    bool PassStorage::ContainsPass(
-        const Pass* pass)
-    {
-        return std::ranges::contains(m_Passes, pass, [](auto& curPass)
-                                     { return curPass.get(); });
+        m_NamedPasses.clear();
     }
 
     //
@@ -53,13 +50,14 @@ namespace Ame::Gfx::RG
 
         BuildersListType builders;
         builders.reserve(m_Passes.size());
-        for (size_t i = 0; i < m_Passes.size(); i++)
-        {
-            auto& PassStorage = builders.emplace_back(context.GetStorage());
-            m_Passes[i]->DoBuild(PassStorage.GraphResolver);
-        }
-        auto passes = BuildPasses(context, builders);
 
+        for (auto& pass : m_Passes)
+        {
+            auto& passStorage = builders.emplace_back(context.GetStorage());
+            pass->second->DoBuild(passStorage.GraphResolver);
+        }
+
+        auto passes = BuildPasses(context, builders);
         context.Build(std::move(passes));
     }
 
@@ -67,8 +65,8 @@ namespace Ame::Gfx::RG
     {
         using namespace EnumBitOperators;
 
-        std::erase_if(m_Passes, [](const UPtr<Pass>& pass)
-                      { return (pass->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; });
+        std::erase_if(m_Passes, [](const PassIterator& pass)
+                      { return (pass->second->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; });
     }
 
     //
@@ -190,7 +188,7 @@ namespace Ame::Gfx::RG
 
             Dependencies[level].AddPass(
                 context,
-                m_Passes[i].get(),
+                m_Passes[i]->second.get(),
                 std::move(resolver.m_RenderTargets),
                 std::move(resolver.m_DepthStencil),
                 std::move(resolver.m_ResourcesCreated),

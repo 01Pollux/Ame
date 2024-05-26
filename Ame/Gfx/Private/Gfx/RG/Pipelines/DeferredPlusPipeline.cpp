@@ -17,9 +17,11 @@ namespace Ame::Gfx::RG
 
         passStorage.Clear();
         passStorage.NewPass<Std::EntityCollectPass>(
+            "EntityCollectPass",
             universe,
             commonPipelines);
         passStorage.NewPass<Std::GBufferPass>(
+            "GBufferPass",
             commonShaders,
             materialCache);
     }
