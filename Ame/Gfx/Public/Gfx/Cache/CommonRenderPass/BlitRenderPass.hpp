@@ -17,21 +17,12 @@ namespace Ame::Gfx::Cache
 
         bool EnableAlpha    : 1 = false;
         bool SwapRBChannels : 1 = false;
-    };
 
-    struct SingleBlitParameters
-    {
-        Ref<const Rhi::Texture> SrcTexture;
-        Ref<const Rhi::Texture> DstTexture;
+        bool PlacePreBarrier  : 1 = true;
+        bool PlacePostBarrier : 1 = false;
+        bool FlushPostBarrier : 1 = false;
 
-        Rhi::TextureRect SrcRect = Rhi::c_EntireTexture;
-        Rhi::TextureRect DstRect = Rhi::c_EntireTexture;
-
-        Rhi::TextureSubresource SrcSubresources = Rhi::c_AllSubresources;
-        Rhi::TextureSubresource DstSubresources = Rhi::c_AllSubresources;
-
-        bool EnableAlpha    : 1 = false;
-        bool SwapRBChannels : 1 = false;
+        Rhi::AccessLayoutStage NewState;
     };
 
     class BlitRenderPass
@@ -40,6 +31,24 @@ namespace Ame::Gfx::Cache
         {
             Copy,
             Render
+        };
+
+        struct BlitOperation
+        {
+            Rhi::CommandList      CommandList;
+            const BlitParameters& Parameters;
+
+            Rhi::TextureRect SrcRect;
+            Rhi::TextureRect DstRect;
+
+            std::vector<Rhi::TextureSubresource> SrcSubresources;
+            std::vector<Rhi::TextureSubresource> DstSubresources;
+
+            OptimalBlitOperation OptimalType;
+
+            BlitOperation(
+                Rhi::Device&          rhiDevice,
+                const BlitParameters& parameters);
         };
 
     public:
@@ -53,29 +62,49 @@ namespace Ame::Gfx::Cache
         void Blit(
             const BlitParameters& parameters);
 
+    private:
+        [[nodiscard]] static OptimalBlitOperation QueryOptimalOperation(
+            const BlitParameters& parameters);
+
         /// <summary>
-        /// Blit a texture to another texture.
+        /// Resolve the subresources to be used in the blit operation.
         /// </summary>
-        void Blit(
-            const SingleBlitParameters& parameters);
+        [[nodiscard]] static std::vector<Rhi::TextureSubresource> ResolveSubresources(
+            const BlitParameters&                    parameters,
+            std::span<const Rhi::TextureSubresource> subresources);
 
     private:
-        [[nodiscard]] OptimalBlitOperation QueryOptimalOperation(
-            const BlitParameters& parameters);
+        /// <summary>
+        /// Transition the textures to the correct state for a copy operation.
+        /// </summary>
+        void BlitCopyBarrier(
+            BlitOperation& operation);
 
         /// <summary>
         /// Blit a texture to another texture using a copy operation.
         /// </summary>
         void BlitCopy(
-            Rhi::CommandList&     commandList,
-            const BlitParameters& parameters);
+            BlitOperation& operation);
+
+    private:
+        /// <summary>
+        /// Transition the textures to the correct state for a render operation.
+        /// </summary>
+        void BlitRenderBarrier(
+            BlitOperation& operation);
 
         /// <summary>
         /// Blit a texture to another texture using a render operation.
         /// </summary>
         void BlitRender(
-            Rhi::CommandList&     commandList,
-            const BlitParameters& parameters);
+            BlitOperation& operation);
+
+    private:
+        /// <summary>
+        /// Transition the textures to the old state after a blit operation.
+        /// </summary>
+        void BlitRestoreState(
+            BlitOperation& operation);
 
     private:
         Ref<Rhi::Device> m_Device;

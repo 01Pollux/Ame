@@ -141,9 +141,10 @@ namespace Ame::Gfx
             }
 
             m_CommonRenderPass.get().Blit(
-                Cache::SingleBlitParameters{
-                    .SrcTexture = *sourceTexture,
-                    .DstTexture = *outputTexture });
+                { .SrcTexture      = *sourceTexture,
+                  .DstTexture      = *outputTexture,
+                  .SrcSubresources = { &Rhi::c_AllSubresources, 1 },
+                  .DstSubresources = { &Rhi::c_AllSubresources, 1 } });
         };
 
         auto tryOutputToBackbuffer =
@@ -171,9 +172,10 @@ namespace Ame::Gfx
             }
 
             m_CommonRenderPass.get().Blit(
-                Cache::SingleBlitParameters{
-                    .SrcTexture = *sourceTexture,
-                    .DstTexture = outputTexture });
+                { .SrcTexture      = *sourceTexture,
+                  .DstTexture      = outputTexture,
+                  .SrcSubresources = { &Rhi::c_AllSubresources, 1 },
+                  .DstSubresources = { &Rhi::c_AllSubresources, 1 } });
         };
 
         //
