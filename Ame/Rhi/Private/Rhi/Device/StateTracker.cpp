@@ -398,49 +398,33 @@ namespace Ame::Rhi
         nri::AccessStage a,
         nri::AccessStage b) const
     {
-        switch (m_DeviceDesc->graphicsAPI)
-        {
-        case nri::GraphicsAPI::D3D12:
-        {
-            // if (!m_DeviceDesc->areEnhancedBarriersSupported)
-            {
-                // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
-                return a.access == b.access;
-            }
-        }
-            [[fallthrough]];
-        case nri::GraphicsAPI::VULKAN:
+        if (m_DeviceDesc->isEnchancedBarrierSupported)
         {
             return a.access == b.access &&
                    a.stages == b.stages;
         }
+        else
+        {
+            // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
+            return a.access == b.access;
         }
-        return false;
     }
 
     bool ResourceStateTracker::AreStateEqual(
         const nri::AccessLayoutStage& a,
         const nri::AccessLayoutStage& b) const
     {
-        switch (m_DeviceDesc->graphicsAPI)
-        {
-        case nri::GraphicsAPI::D3D12:
-        {
-            // if (!m_DeviceDesc->areEnhancedBarriersSupported)
-            {
-                // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
-                return a.access == b.access;
-            }
-        }
-            [[fallthrough]];
-        case nri::GraphicsAPI::VULKAN:
+        if (m_DeviceDesc->isEnchancedBarrierSupported)
         {
             return a.access == b.access &&
                    a.stages == b.stages &&
                    a.layout == b.layout;
         }
+        else
+        {
+            // Using legacy barriers, ID3D12GraphicsCommandList::ResourceBarrier does not support layout transitions
+            return a.access == b.access;
         }
-        return false;
     }
 
     //
