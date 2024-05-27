@@ -93,7 +93,7 @@ namespace Ame::Rhi
     //
 
     template<typename Ty>
-    static constexpr Ty c_RemainingSize = static_cast<Ty>(0);
+    static constexpr Ty c_RemainingSize = Ty{};
 
     struct BufferRange
     {
@@ -102,7 +102,7 @@ namespace Ame::Rhi
 
         constexpr BufferRange(
             size_t Offset = 0,
-            size_t Size   = 0) :
+            size_t Size   = c_RemainingSize<size_t>) :
             Offset(Offset),
             Size(Size)
         {
@@ -115,7 +115,7 @@ namespace Ame::Rhi
             const Buffer& buffer) const noexcept;
     };
 
-    static constexpr BufferRange c_EntireBuffer = BufferRange(0, c_RemainingSize<size_t>);
+    static constexpr BufferRange c_EntireBuffer;
 
     //
 
@@ -126,7 +126,7 @@ namespace Ame::Rhi
 
         constexpr MipLevel(
             Mip_t offset = 0,
-            Mip_t count  = 0) :
+            Mip_t count  = c_RemainingSize<Mip_t>) :
             Offset(offset),
             Count(count)
         {
@@ -139,7 +139,7 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr MipLevel c_EntireMipChain = MipLevel(0, c_RemainingSize<Mip_t>);
+    static constexpr MipLevel c_EntireMipChain;
 
     //
 
@@ -150,7 +150,7 @@ namespace Ame::Rhi
 
         constexpr ArraySlice(
             Dim_t Offset = 0,
-            Dim_t Count  = 0) :
+            Dim_t Count  = c_RemainingSize<Dim_t>) :
             Offset(Offset),
             Count(Count)
         {
@@ -163,7 +163,7 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr ArraySlice c_EntireArray = ArraySlice(0, c_RemainingSize<Dim_t>);
+    static constexpr ArraySlice c_EntireArray;
 
     //
 
@@ -187,17 +187,22 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr TextureSubresource c_AllSubresources = TextureSubresource(c_EntireMipChain, c_EntireArray);
+    static constexpr TextureSubresource c_AllSubresources;
 
     //
 
     struct TextureRect
     {
-        Math::RectF Rect;
+        using Coordinate = std::array<Dim_t, 3>;
+
+        Coordinate Position;
+        Coordinate Size;
 
         constexpr TextureRect(
-            Math::RectF rect = Math::RectF()) :
-            Rect(rect)
+            Coordinate position = c_RemainingSize<Coordinate>,
+            Coordinate size     = c_RemainingSize<Coordinate>) :
+            Position(position),
+            Size(size)
         {
         }
 
@@ -208,7 +213,7 @@ namespace Ame::Rhi
             const Texture& texture) const noexcept;
     };
 
-    static constexpr TextureRect c_EntireTexture = TextureRect(Math::RectF(Math::Vec::c_Zero<Math::Vector2>, c_RemainingSize<Math::Vector2>));
+    static constexpr TextureRect c_EntireTexture;
 
     //
 

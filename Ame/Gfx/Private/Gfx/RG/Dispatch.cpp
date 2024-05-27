@@ -54,7 +54,7 @@ namespace Ame::Gfx::RG
             rtvs.push_back(&resourceStorage.GetResourceViewHandle(rtvViewId));
             if (rtvDesc.ClearType != ERTClearType::Ignore)
             {
-                auto& handle  = resourceStorage.GetResource(rtvViewId.GetResource());
+                auto& handle  = *resourceStorage.GetResource(rtvViewId.GetResource());
                 auto  texture = handle.AsTexture();
 
                 clearDescs[i].attachmentContentType = Rhi::AttachmentContentType::COLOR;
@@ -93,7 +93,7 @@ namespace Ame::Gfx::RG
         if (dsvDesc.ClearType != EDSClearType::Ignore)
         {
 
-            auto& handle    = resourceStorage.GetResource(depthStencil.GetResource());
+            auto& handle    = *resourceStorage.GetResource(depthStencil.GetResource());
             auto& clearDesc = clearDescs[clearDescs.size() - 1];
             switch (dsvDesc.ClearType)
             {

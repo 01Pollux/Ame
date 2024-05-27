@@ -6,14 +6,14 @@ namespace Ame::Gfx::Cache
 {
     struct BlitParameters
     {
-        Ref<Rhi::Texture> SrcTexture;
-        Ref<Rhi::Texture> DstTexture;
+        Ref<const Rhi::Texture> SrcTexture;
+        Ref<const Rhi::Texture> DstTexture;
 
         Rhi::TextureRect SrcRect = Rhi::c_EntireTexture;
         Rhi::TextureRect DstRect = Rhi::c_EntireTexture;
 
-        std::span<Rhi::TextureSubresource> SrcSubresources;
-        std::span<Rhi::TextureSubresource> DstSubresources;
+        std::span<const Rhi::TextureSubresource> SrcSubresources;
+        std::span<const Rhi::TextureSubresource> DstSubresources;
 
         bool EnableAlpha    : 1 = false;
         bool SwapRBChannels : 1 = false;
@@ -21,8 +21,8 @@ namespace Ame::Gfx::Cache
 
     struct SingleBlitParameters
     {
-        Ref<Rhi::Texture> SrcTexture;
-        Ref<Rhi::Texture> DstTexture;
+        Ref<const Rhi::Texture> SrcTexture;
+        Ref<const Rhi::Texture> DstTexture;
 
         Rhi::TextureRect SrcRect = Rhi::c_EntireTexture;
         Rhi::TextureRect DstRect = Rhi::c_EntireTexture;
@@ -36,6 +36,16 @@ namespace Ame::Gfx::Cache
 
     class BlitRenderPass
     {
+        enum class OptimalBlitOperation : uint8_t
+        {
+            Copy,
+            Render
+        };
+
+    public:
+        BlitRenderPass(
+            Rhi::Device& rhiDevice);
+
     public:
         /// <summary>
         /// Blit a texture to another texture.
@@ -50,5 +60,24 @@ namespace Ame::Gfx::Cache
             const SingleBlitParameters& parameters);
 
     private:
+        [[nodiscard]] OptimalBlitOperation QueryOptimalOperation(
+            const BlitParameters& parameters);
+
+        /// <summary>
+        /// Blit a texture to another texture using a copy operation.
+        /// </summary>
+        void BlitCopy(
+            Rhi::CommandList&     commandList,
+            const BlitParameters& parameters);
+
+        /// <summary>
+        /// Blit a texture to another texture using a render operation.
+        /// </summary>
+        void BlitRender(
+            Rhi::CommandList&     commandList,
+            const BlitParameters& parameters);
+
+    private:
+        Ref<Rhi::Device> m_Device;
     };
 } // namespace Ame::Gfx::Cache

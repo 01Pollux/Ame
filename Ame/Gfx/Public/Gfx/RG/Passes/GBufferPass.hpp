@@ -16,6 +16,11 @@ namespace Ame::Gfx::RG::Std
     class GBufferPass : public Pass
     {
     public:
+        static constexpr const char* c_Normal_Metallic           = "GBuffer_Normal_Metallic";
+        static constexpr const char* c_BaseColor_Roughness       = "GBuffer_BaseColor_Roughness";
+        static constexpr const char* c_Emissive_AmbientOcclusion = "GBuffer_Emissive_AmbientOcclusion";
+        static constexpr const char* c_Depth                     = "GBuffer_Depth";
+
         static constexpr std::array c_RenderTargetFormats{
             Rhi::ResourceFormat::RGBA8_UNORM, // GBuffer_Normal_Metallic
             Rhi::ResourceFormat::RGBA8_UNORM, // GBuffer_BaseColor_Roughness
@@ -23,9 +28,9 @@ namespace Ame::Gfx::RG::Std
         };
 
         static inline const std::array c_RenderTargetIds{
-            ResourceId("GBuffer_Normal_Metallic"),          // RGBA8_UNORM
-            ResourceId("GBuffer_BaseColor_Roughness"),      // RGBA8_UNORM
-            ResourceId("GBuffer_Emissive_AmbientOcclusion") // RGBA8_UNORM
+            ResourceId(c_Normal_Metallic),          // RGBA8_UNORM
+            ResourceId(c_BaseColor_Roughness),      // RGBA8_UNORM
+            ResourceId(c_Emissive_AmbientOcclusion) // RGBA8_UNORM
         };
 
         static constexpr Rhi::ResourceFormat c_DepthTargetFormat{
@@ -33,7 +38,7 @@ namespace Ame::Gfx::RG::Std
         };
 
         static inline const ResourceId c_DepthTargetId{
-            "GBuffer_Depth" // D32_SFLOAT
+            c_Depth // D32_SFLOAT
         };
 
     public:

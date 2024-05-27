@@ -75,7 +75,7 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get resource from id
         /// </summary>
-        [[nodiscard]] const ResourceHandle& GetResource(
+        [[nodiscard]] const ResourceHandle* GetResource(
             const ResourceId& id) const;
 
         /// <summary>

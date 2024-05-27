@@ -192,12 +192,12 @@ namespace Ame::Gfx::RG
         /// <summary>
         /// Get the underlying resource as a texture
         /// </summary>
-        [[nodiscard]] Opt<Rhi::Texture> AsTexture() const;
+        [[nodiscard]] const Rhi::Texture* AsTexture() const;
 
         /// <summary>
         /// Get the underlying resource as a buffer
         /// </summary>
-        [[nodiscard]] Opt<Rhi::Buffer> AsBuffer() const;
+        [[nodiscard]] const Rhi::Buffer* AsBuffer() const;
 
     public:
         /// <summary>

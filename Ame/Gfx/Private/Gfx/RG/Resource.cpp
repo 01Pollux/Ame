@@ -118,16 +118,14 @@ namespace Ame::Gfx::RG
 
     //
 
-    Opt<Rhi::Texture> ResourceHandle::AsTexture() const
+    const Rhi::Texture* ResourceHandle::AsTexture() const
     {
-        auto texture = std::get_if<Rhi::Texture>(&m_Resource);
-        return texture ? Opt{ *texture } : std::nullopt;
+        return std::get_if<Rhi::Texture>(&m_Resource);
     }
 
-    Opt<Rhi::Buffer> ResourceHandle::AsBuffer() const
+    const Rhi::Buffer* ResourceHandle::AsBuffer() const
     {
-        auto buffer = std::get_if<Rhi::Buffer>(&m_Resource);
-        return buffer ? Opt{ *buffer } : std::nullopt;
+        return std::get_if<Rhi::Buffer>(&m_Resource);
     }
 
     //
@@ -219,6 +217,7 @@ namespace Ame::Gfx::RG
                         m_DescHash      = hash;
                         changedResource = true;
 
+                        m_Resource = std::monostate{};
                         Rhi::Texture texture(rhiDevice, Rhi::MemoryLocation::DEVICE, desc);
 #ifndef AME_DIST
                         texture.SetName(m_Name.c_str());
@@ -235,6 +234,7 @@ namespace Ame::Gfx::RG
                         m_DescHash      = hash;
                         changedResource = true;
 
+                        m_Resource = std::monostate{};
                         Rhi::Buffer buffer(rhiDevice, Rhi::MemoryLocation::DEVICE, desc);
 #ifndef AME_DIST
                         buffer.SetName(m_Name.c_str());

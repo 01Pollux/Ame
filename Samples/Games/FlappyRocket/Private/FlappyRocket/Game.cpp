@@ -4,10 +4,12 @@
 #include <Gfx/Shading/Material.Compiler.hpp>
 #include <Gfx/Cache/ShaderCache.hpp>
 
+#include <Ecs/Component/Renderable/2D/Sprite.hpp>
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
-#include <Ecs/Component/Renderable/2D/Sprite.hpp>
+#include <Ecs/Component/Viewport/CameraOutput.hpp>
 
+#include <Gfx/RG/Passes/GBufferPass.hpp>
 #include <FlappyRocket/Game.Shader.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -79,5 +81,7 @@ namespace Ame::FlappyRocket
         auto camera = world.CreateEntity(c_CameraName);
         camera.AddComponent<Ecs::Component::Camera>();
         camera.AddComponent<Ecs::Component::Transform>(Math::Mat::c_Identity<Math::Matrix3x3>, Math::Vec::c_Backward<Math::Vector3> * 10.f);
+
+        camera.AddComponent<Ecs::Component::CameraOutput>(Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);
     }
 } // namespace Ame::FlappyRocket

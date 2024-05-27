@@ -233,6 +233,7 @@ namespace Ame::Rhi
     void DeviceImpl::Release(
         nri::Buffer& nriBuffer)
     {
+        EndTracking(&nriBuffer);
         m_FrameManager.DeferRelease(nriBuffer);
     }
 } // namespace Ame::Rhi

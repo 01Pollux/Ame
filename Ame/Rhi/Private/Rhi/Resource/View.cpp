@@ -408,17 +408,22 @@ namespace Ame::Rhi
         const Texture& texture) const noexcept
     {
         auto rect = *this;
-        if (rect.Rect.Size.x == c_RemainingSize<float> ||
-            rect.Rect.Size.x == c_RemainingSize<float>)
+        if (rect.Size[0] == c_RemainingSize<Dim_t> ||
+            rect.Size[1] == c_RemainingSize<Dim_t> ||
+            rect.Size[2] == c_RemainingSize<Dim_t>)
         {
             auto& desc = texture.GetDesc();
-            if (rect.Rect.Size.x == c_RemainingSize<float>)
+            if (rect.Size[0] == c_RemainingSize<Dim_t>)
             {
-                rect.Rect.Size.x = desc.width - rect.Rect.Position.x;
+                rect.Size[0] = desc.width - rect.Position[0];
             }
-            if (rect.Rect.Size.y == c_RemainingSize<float>)
+            if (rect.Size[1] == c_RemainingSize<Dim_t>)
             {
-                rect.Rect.Size.y = desc.height - rect.Rect.Position.y;
+                rect.Size[1] = desc.height - rect.Position[1];
+            }
+            if (rect.Size[2] == c_RemainingSize<Dim_t>)
+            {
+                rect.Size[2] = desc.depth - rect.Position[2];
             }
         }
         return rect;

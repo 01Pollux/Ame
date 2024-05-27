@@ -2,13 +2,16 @@
 
 #include <Core/Subsystem.hpp>
 
+#include <Rhi/Subsystem/Device.hpp>
+
 #include <Gfx/Cache/CommonRenderPass.hpp>
 
 namespace Ame::Gfx::Cache
 {
     struct CommonRenderPassSubsystem : SingleSubsystem<
                                            CommonRenderPass,
-                                           Dependency<>>,
+                                           Dependency<
+                                               Rhi::DeviceSubsystem>>,
                                        kgr::final
     {
     };

@@ -7,20 +7,20 @@ namespace Ame::Rhi
 {
     struct BufferCopyDesc
     {
-        const Buffer& RhiBuffer;
-        size_t        Offset = 0;
+        Ref<const Buffer> RhiBuffer;
+        size_t            Offset = 0;
     };
 
     struct TextureCopyDesc
     {
-        const Texture&           RhiTexture;
+        Ref<const Texture>       RhiTexture;
         const TextureRegionDesc* Region = nullptr;
     };
 
     struct TransferCopyDesc
     {
-        const Texture& RhiTexture;
-        const Buffer&  RhiBuffer;
+        Ref<const Texture> RhiTexture;
+        Ref<const Buffer>  RhiBuffer;
 
         TextureRegionDesc     Region;
         TextureDataLayoutDesc Layout;

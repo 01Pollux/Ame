@@ -63,8 +63,8 @@ namespace Ame::Gfx::RG::Std
                     auto& transformsTable      = RgStorage.GetResourceViewHandle(Names::c_TransformsTable("GBufferPass"));
                     auto& renderInstancesTable = RgStorage.GetResourceViewHandle(Names::c_RenderInstancesTable("GBufferPass"));
 
-                    auto& commandsBuffer = RgStorage.GetResource(Names::c_EntityCommandBuffer);
-                    auto& counterBuffer  = RgStorage.GetResource(Names::c_EntityCommandCounter);
+                    auto& commandsBuffer = *RgStorage.GetResource(Names::c_EntityCommandBuffer);
+                    auto& counterBuffer  = *RgStorage.GetResource(Names::c_EntityCommandCounter);
 
                     //
 

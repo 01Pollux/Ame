@@ -219,6 +219,7 @@ namespace Ame::Rhi
     void DeviceImpl::Release(
         nri::Texture& nriTexture)
     {
+        EndTracking(&nriTexture);
         m_FrameManager.DeferRelease(nriTexture);
     }
 } // namespace Ame::Rhi

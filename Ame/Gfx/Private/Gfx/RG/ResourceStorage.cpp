@@ -48,10 +48,11 @@ namespace Ame::Gfx::RG
 
     //
 
-    const ResourceHandle& ResourceStorage::GetResource(
+    const ResourceHandle* ResourceStorage::GetResource(
         const ResourceId& id) const
     {
-        return m_Resources.at(id);
+        auto iter = m_Resources.find(id);
+        return iter != m_Resources.end() ? &iter->second : nullptr;
     }
 
     ResourceHandle& ResourceStorage::GetResourceMut(

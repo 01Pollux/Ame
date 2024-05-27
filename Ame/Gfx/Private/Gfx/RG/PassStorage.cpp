@@ -11,7 +11,9 @@ namespace Ame::Gfx::RG
         UPtr<Pass>    pass)
     {
         AME_LOG_ASSERT(Log::Gfx(), !m_NamedPasses.contains(name), "Pass with name '{}' already exists", name);
-        return m_NamedPasses.emplace(name, std::move(pass)).first->second.get();
+        auto iter = m_NamedPasses.emplace(name, std::move(pass)).first;
+        m_Passes.emplace_back(iter);
+        return iter->second.get();
     }
 
     void PassStorage::RemovePass(

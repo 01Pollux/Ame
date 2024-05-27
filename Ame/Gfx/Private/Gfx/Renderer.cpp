@@ -112,17 +112,30 @@ namespace Ame::Gfx
 
     void Renderer::RunRenderGraph()
     {
-        const Ecs::Component::Camera* lastCamera = nullptr;
+        Ecs::Entity lastCamera;
 
-        auto outputToTexture =
-            [&](const Ecs::Component::CameraOutput& cameraOutput)
+        //
+
+        auto tryOutputToTexture =
+            [&](const Ecs::Entity& entity)
         {
+            auto cameraOutput = entity.TryGetComponent<Ecs::Component::CameraOutput>();
+            if (!cameraOutput)
+            {
+                return;
+            }
+
             auto& resourceStorage = m_Graph.get().GetResourceStorage();
 
-            auto& outputTexture = cameraOutput.OutputTexture;
-            auto  sourceTexture = resourceStorage.GetResource(RG::ResourceId(cameraOutput.SourceView)).AsTexture();
+            auto  sourceResource = resourceStorage.GetResource(RG::ResourceId(cameraOutput->SourceView));
+            auto& outputTexture  = cameraOutput->OutputTexture;
+            if (!sourceResource || !outputTexture)
+            {
+                return;
+            }
 
-            if (!outputTexture || sourceTexture)
+            auto sourceTexture = sourceResource->AsTexture();
+            if (!sourceTexture)
             {
                 return;
             }
@@ -133,6 +146,38 @@ namespace Ame::Gfx
                     .DstTexture = *outputTexture });
         };
 
+        auto tryOutputToBackbuffer =
+            [&](const Ecs::Entity& entity)
+        {
+            auto cameraOutput = entity.TryGetComponent<Ecs::Component::CameraOutput>();
+            if (!cameraOutput)
+            {
+                return;
+            }
+
+            auto& resourceStorage = m_Graph.get().GetResourceStorage();
+
+            auto  sourceResource = resourceStorage.GetResource(RG::ResourceId(cameraOutput->SourceView));
+            auto& outputTexture  = m_Device.get().GetBackbuffer().Resource;
+            if (!sourceResource || !outputTexture)
+            {
+                return;
+            }
+
+            auto sourceTexture = sourceResource->AsTexture();
+            if (!sourceTexture)
+            {
+                return;
+            }
+
+            m_CommonRenderPass.get().Blit(
+                Cache::SingleBlitParameters{
+                    .SrcTexture = *sourceTexture,
+                    .DstTexture = outputTexture });
+        };
+
+        //
+
         auto renderIter =
             [&](Ecs::Iterator                    iter,
                 const Ecs::Component::Transform* transforms,
@@ -141,11 +186,10 @@ namespace Ame::Gfx
             for (auto i : iter)
             {
                 Ecs::Entity entity(iter.entity(i));
+                lastCamera = entity;
 
                 auto& curTransform = transforms[i];
                 auto& curCamera    = cameras[i];
-                auto  cameraOutput = entity.TryGetComponent<Ecs::Component::CameraOutput>();
-                lastCamera         = &curCamera;
 
                 m_Graph.get().UpdateFrameStorage(
                     entity,
@@ -154,10 +198,7 @@ namespace Ame::Gfx
                     curCamera.GetViewporSize());
                 m_Graph.get().Execute();
 
-                if (cameraOutput)
-                {
-                    outputToTexture(*cameraOutput);
-                }
+                tryOutputToTexture(entity);
             }
         };
 
@@ -165,6 +206,7 @@ namespace Ame::Gfx
 
         if (lastCamera)
         {
+            tryOutputToBackbuffer(lastCamera);
         }
     }
 } // namespace Ame::Gfx

@@ -392,13 +392,13 @@ namespace Ame::Rhi
 
         if (!size)
         {
-            auto& srcDesc = nriCore.GetBufferDesc(*src.RhiBuffer.Unwrap());
-            auto& dstDesc = nriCore.GetBufferDesc(*dst.RhiBuffer.Unwrap());
+            auto& srcDesc = nriCore.GetBufferDesc(*src.RhiBuffer.get().Unwrap());
+            auto& dstDesc = nriCore.GetBufferDesc(*dst.RhiBuffer.get().Unwrap());
 
             size = std::min(srcDesc.size - src.Offset, dstDesc.size - dst.Offset);
         }
 
-        nriCore.CmdCopyBuffer(*m_CommandBuffer, *dst.RhiBuffer.Unwrap(), dst.Offset, *src.RhiBuffer.Unwrap(), src.Offset, size);
+        nriCore.CmdCopyBuffer(*m_CommandBuffer, *dst.RhiBuffer.get().Unwrap(), dst.Offset, *src.RhiBuffer.get().Unwrap(), src.Offset, size);
     }
 
     void CommandListImpl::CopyTexture(
@@ -408,7 +408,7 @@ namespace Ame::Rhi
         auto& nriUtils = m_RhiDevice->GetNRI();
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        nriCore.CmdCopyTexture(*m_CommandBuffer, *dst.RhiTexture.Unwrap(), dst.Region, *src.RhiTexture.Unwrap(), src.Region);
+        nriCore.CmdCopyTexture(*m_CommandBuffer, *dst.RhiTexture.get().Unwrap(), dst.Region, *src.RhiTexture.get().Unwrap(), src.Region);
     }
 
     void CommandListImpl::UploadTexture(
@@ -417,7 +417,7 @@ namespace Ame::Rhi
         auto& nriUtils = m_RhiDevice->GetNRI();
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        nriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.RhiTexture.Unwrap(), copyDesc.Region, *copyDesc.RhiBuffer.Unwrap(), copyDesc.Layout);
+        nriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.RhiTexture.get().Unwrap(), copyDesc.Region, *copyDesc.RhiBuffer.get().Unwrap(), copyDesc.Layout);
     }
 
     void CommandListImpl::ReadbackTexture(
@@ -427,7 +427,7 @@ namespace Ame::Rhi
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
         auto copyLayout = copyDesc.Layout;
-        nriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.RhiBuffer.Unwrap(), copyLayout, *copyDesc.RhiTexture.Unwrap(), copyDesc.Region);
+        nriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.RhiBuffer.get().Unwrap(), copyLayout, *copyDesc.RhiTexture.get().Unwrap(), copyDesc.Region);
     }
 
     //

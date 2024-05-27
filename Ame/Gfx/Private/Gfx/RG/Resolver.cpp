@@ -139,7 +139,8 @@ namespace Ame::Gfx::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
+        auto  resource = m_Storage.GetResource(viewId.GetResource());
+        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
 
         RenderTargetViewDesc viewDesc{
             { .Subresource = Subresource,
@@ -173,7 +174,8 @@ namespace Ame::Gfx::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
+        auto  resource = m_Storage.GetResource(viewId.GetResource());
+        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
 
         RenderTargetViewDesc viewDesc{
             { .Subresource = Subresource,
@@ -207,7 +209,8 @@ namespace Ame::Gfx::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
+        auto  resource = m_Storage.GetResource(viewId.GetResource());
+        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
 
         DepthStencilViewDesc viewDesc{
             { .Subresource = Subresource,
@@ -241,7 +244,8 @@ namespace Ame::Gfx::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto& desc = std::get<Rhi::TextureDesc>(m_Storage.GetResource(viewId.GetResource()).GetDesc());
+        auto  resource = m_Storage.GetResource(viewId.GetResource());
+        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
 
         DepthStencilViewDesc viewDesc{
             { .Subresource = Subresource,
