@@ -21,10 +21,17 @@ namespace Ame
         struct Camera;
     } // namespace Ecs::Component
 
-    namespace Gfx::RG
+    namespace Gfx
     {
-        class Graph;
-    } // namespace Gfx::RG
+        namespace Cache
+        {
+            class CommonRenderPass;
+        } // namespace Cache
+        namespace RG
+        {
+            class Graph;
+        } // namespace RG
+    }     // namespace Gfx
 } // namespace Ame
 
 namespace Ame::Gfx
@@ -37,11 +44,12 @@ namespace Ame::Gfx
 
     public:
         Renderer(
-            EngineFrame&   engineFrame,
-            FrameTimer&    frameTimer,
-            Rhi::Device&   rhiDevice,
-            Ecs::Universe& universe,
-            RG::Graph&     renderGraph);
+            EngineFrame&             engineFrame,
+            FrameTimer&              frameTimer,
+            Rhi::Device&             rhiDevice,
+            Ecs::Universe&           universe,
+            RG::Graph&               renderGraph,
+            Cache::CommonRenderPass& commonRenderPass);
 
     private:
         /// <summary>
@@ -65,11 +73,18 @@ namespace Ame::Gfx
         void OnEndFrame();
 
     private:
-        Ref<EngineFrame>   m_Frame;
-        Ref<FrameTimer>    m_Timer;
-        Ref<Rhi::Device>   m_Device;
-        Ref<Ecs::Universe> m_Universe;
-        Ref<RG::Graph>     m_Graph;
+        /// <summary>
+        /// Run the render graph to render the frame
+        /// </summary>
+        void RunRenderGraph();
+
+    private:
+        Ref<EngineFrame>             m_Frame;
+        Ref<FrameTimer>              m_Timer;
+        Ref<Rhi::Device>             m_Device;
+        Ref<Ecs::Universe>           m_Universe;
+        Ref<RG::Graph>               m_Graph;
+        Ref<Cache::CommonRenderPass> m_CommonRenderPass;
 
         Signals::OnWorldChange::Handle m_OnWorldChange;
 

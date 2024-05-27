@@ -361,10 +361,13 @@ namespace Ame::Rhi
         auto range = *this;
         if (range.Size == c_RemainingSize<size_t>)
         {
-            range.Size = buffer.GetDesc().size - range.Offset;
+            auto& desc = buffer.GetDesc();
+            range.Size = desc.size - range.Offset;
         }
         return range;
     }
+
+    //
 
     MipLevel MipLevel::Transform(
         const Texture& texture) const noexcept
@@ -372,7 +375,8 @@ namespace Ame::Rhi
         auto mipLevel = *this;
         if (mipLevel.Count == c_RemainingSize<Mip_t>)
         {
-            mipLevel.Count = texture.GetDesc().mipNum - mipLevel.Offset;
+            auto& desc     = texture.GetDesc();
+            mipLevel.Count = desc.mipNum - mipLevel.Offset;
         }
         return mipLevel;
     }
@@ -383,7 +387,8 @@ namespace Ame::Rhi
         auto arraySlice = *this;
         if (arraySlice.Count == c_RemainingSize<Dim_t>)
         {
-            arraySlice.Count = texture.GetDesc().arraySize - arraySlice.Offset;
+            auto& desc       = texture.GetDesc();
+            arraySlice.Count = desc.arraySize - arraySlice.Offset;
         }
         return arraySlice;
     }
@@ -395,6 +400,28 @@ namespace Ame::Rhi
             Mips.Transform(texture),
             Array.Transform(texture)
         };
+    }
+
+    //
+
+    TextureRect TextureRect::Transform(
+        const Texture& texture) const noexcept
+    {
+        auto rect = *this;
+        if (rect.Rect.Size.x == c_RemainingSize<float> ||
+            rect.Rect.Size.x == c_RemainingSize<float>)
+        {
+            auto& desc = texture.GetDesc();
+            if (rect.Rect.Size.x == c_RemainingSize<float>)
+            {
+                rect.Rect.Size.x = desc.width - rect.Rect.Position.x;
+            }
+            if (rect.Rect.Size.y == c_RemainingSize<float>)
+            {
+                rect.Rect.Size.y = desc.height - rect.Rect.Position.y;
+            }
+        }
+        return rect;
     }
 
     //

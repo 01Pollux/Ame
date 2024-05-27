@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Rhi/Descs/Core.hpp>
+#include <Math/Rect.hpp>
 
 namespace Ame::Rhi
 {
@@ -187,6 +188,27 @@ namespace Ame::Rhi
     };
 
     static constexpr TextureSubresource c_AllSubresources = TextureSubresource(c_EntireMipChain, c_EntireArray);
+
+    //
+
+    struct TextureRect
+    {
+        Math::RectF Rect;
+
+        constexpr TextureRect(
+            Math::RectF rect = Math::RectF()) :
+            Rect(rect)
+        {
+        }
+
+        auto operator<=>(
+            const TextureRect&) const noexcept = default;
+
+        [[nodiscard]] TextureRect Transform(
+            const Texture& texture) const noexcept;
+    };
+
+    static constexpr TextureRect c_EntireTexture = TextureRect(Math::RectF(Math::Vec::c_Zero<Math::Vector2>, c_RemainingSize<Math::Vector2>));
 
     //
 

@@ -89,7 +89,7 @@ namespace Ame::Ecs
         }
 
         template<typename Ty>
-        [[nodiscard]] std::optional<const Ty*> TryGetComponent() const
+        [[nodiscard]] const Ty* TryGetComponent() const
         {
             return m_Entity.get<Ty>();
         }

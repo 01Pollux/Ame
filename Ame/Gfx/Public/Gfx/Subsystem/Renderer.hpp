@@ -7,6 +7,7 @@
 #include <Rhi/Subsystem/Device.hpp>
 #include <Ecs/Subsystem/Universe.hpp>
 #include <Gfx/Subsystem/Graph.hpp>
+#include <Gfx/Subsystem/CommonRenderPass.hpp>
 
 #include <Gfx/Renderer.hpp>
 
@@ -18,7 +19,8 @@ namespace Ame::Gfx
                                               FrameTimerSubsystem,
                                               Rhi::DeviceSubsystem,
                                               Ecs::UniverseSubsystem,
-                                              RG::GraphSubsystem>>,
+                                              RG::GraphSubsystem,
+                                              Cache::CommonRenderPassSubsystem>>,
                                kgr::final
     {
     };

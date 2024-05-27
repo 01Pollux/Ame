@@ -3,23 +3,27 @@
 #include <Frame/EngineFrame.hpp>
 #include <Rhi/Device/Device.hpp>
 #include <Gfx/RG/Graph.hpp>
+#include <Gfx/Cache/CommonRenderPass.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
+#include <Ecs/Component/Viewport/CameraOutput.hpp>
 
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        EngineFrame&   engineFrame,
-        FrameTimer&    frameTimer,
-        Rhi::Device&   rhiDevice,
-        Ecs::Universe& universe,
-        RG::Graph&     renderGraph) :
+        EngineFrame&             engineFrame,
+        FrameTimer&              frameTimer,
+        Rhi::Device&             rhiDevice,
+        Ecs::Universe&           universe,
+        RG::Graph&               renderGraph,
+        Cache::CommonRenderPass& commonRenderPass) :
         m_Frame(engineFrame),
         m_Timer(frameTimer),
         m_Device(rhiDevice),
         m_Universe(universe),
-        m_Graph(renderGraph)
+        m_Graph(renderGraph),
+        m_CommonRenderPass(commonRenderPass)
     {
         if (!rhiDevice.IsHeadless())
         {
@@ -96,26 +100,71 @@ namespace Ame::Gfx
 
     void Renderer::OnRender()
     {
-        auto renderIter =
-            [this](Ecs::Iterator                    iter,
-                   const Ecs::Component::Transform* transforms,
-                   const Ecs::Component::Camera*    cameras)
-        {
-            for (auto i : iter)
-            {
-                m_Graph.get().UpdateFrameStorage(
-                    iter.entity(i),
-                    transforms[i],
-                    cameras[i].GetProjectionMatrix(),
-                    cameras[i].GetViewporSize());
-                m_Graph.get().Execute();
-            }
-        };
-        m_CameraQuery->iter(std::move(renderIter));
+        RunRenderGraph();
     }
 
     void Renderer::OnEndFrame()
     {
         m_Device.get().EndFrame();
+    }
+
+    //
+
+    void Renderer::RunRenderGraph()
+    {
+        const Ecs::Component::Camera* lastCamera = nullptr;
+
+        auto outputToTexture =
+            [&](const Ecs::Component::CameraOutput& cameraOutput)
+        {
+            auto& resourceStorage = m_Graph.get().GetResourceStorage();
+
+            auto& outputTexture = cameraOutput.OutputTexture;
+            auto  sourceTexture = resourceStorage.GetResource(RG::ResourceId(cameraOutput.SourceView)).AsTexture();
+
+            if (!outputTexture || sourceTexture)
+            {
+                return;
+            }
+
+            m_CommonRenderPass.get().Blit(
+                Cache::SingleBlitParameters{
+                    .SrcTexture = *sourceTexture,
+                    .DstTexture = *outputTexture });
+        };
+
+        auto renderIter =
+            [&](Ecs::Iterator                    iter,
+                const Ecs::Component::Transform* transforms,
+                const Ecs::Component::Camera*    cameras)
+        {
+            for (auto i : iter)
+            {
+                Ecs::Entity entity(iter.entity(i));
+
+                auto& curTransform = transforms[i];
+                auto& curCamera    = cameras[i];
+                auto  cameraOutput = entity.TryGetComponent<Ecs::Component::CameraOutput>();
+                lastCamera         = &curCamera;
+
+                m_Graph.get().UpdateFrameStorage(
+                    entity,
+                    curTransform,
+                    curCamera.GetProjectionMatrix(),
+                    curCamera.GetViewporSize());
+                m_Graph.get().Execute();
+
+                if (cameraOutput)
+                {
+                    outputToTexture(*cameraOutput);
+                }
+            }
+        };
+
+        m_CameraQuery->iter(std::move(renderIter));
+
+        if (lastCamera)
+        {
+        }
     }
 } // namespace Ame::Gfx

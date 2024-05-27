@@ -110,11 +110,11 @@ namespace Ame::Ecs::Component
         /// </summary>
         Viewport m_Viewport;
 
+        mutable Opt<Math::Matrix4x4> m_ProjectionMatrixCache;
+
         /// <summary>
         /// The type of the camera.
         /// </summary>
         CameraType m_Type = CameraType::Perspective;
-
-        mutable Opt<Math::Matrix4x4> m_ProjectionMatrixCache;
     };
 } // namespace Ame::Ecs::Component

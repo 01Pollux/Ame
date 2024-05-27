@@ -22,7 +22,7 @@ namespace Ame::Gfx::RG
     {
     public:
         DeferredPlusPipeline(
-            Gfx::RG::Graph&              renderGraph,
+            Graph&                       renderGraph,
             Ecs::Universe&               universe,
             Cache::CommonPipelineState&  commonPipelines,
             Cache::CommonShader&         commonShaders,
