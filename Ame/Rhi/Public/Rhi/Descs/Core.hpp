@@ -107,5 +107,20 @@ namespace Ame::Rhi
         {
             return { ShaderType::NONE };
         }
+
+        [[nodiscard]] static ShaderFlags Graphics()
+        {
+            return { ShaderType::GRAPHICS_SHADERS };
+        }
+
+        [[nodiscard]] static ShaderFlags Compute()
+        {
+            return { ShaderType::COMPUTE_SHADER };
+        }
+
+        [[nodiscard]] static ShaderFlags RayTracing()
+        {
+            return { ShaderType::COMPUTE_SHADER };
+        }
     };
 } // namespace Ame::Rhi

@@ -87,6 +87,13 @@ namespace Ame::Gfx::Shading
         return *this;
     }
 
+    PropertyDescriptor& PropertyDescriptor::Sampler(
+        const String& propertyName, 
+        Rhi::ShaderFlags flags)
+    {
+        return Resource(propertyName, ResourceType::Sampler, ResourceDataType::None, flags);
+    }
+
     //
 
     uint32_t PropertyDescriptor::GetStructSize() const

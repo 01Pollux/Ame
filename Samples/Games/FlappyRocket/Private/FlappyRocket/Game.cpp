@@ -48,6 +48,10 @@ namespace Ame::FlappyRocket
         pipelineState.Rasterizer.Cull = Rhi::CullMode::NONE;
 
         GS::PropertyDescriptor descriptor;
+        descriptor
+            .Float4("_Color")
+            .Resource("_Texture", Gfx::Shading::ResourceType::Texture2D, Gfx::Shading::ResourceDataType::Float4)
+            .Sampler("_Sampler");
 
         Rhi::ShaderCompileDesc compileDesc;
 
@@ -80,8 +84,11 @@ namespace Ame::FlappyRocket
 
         auto camera = world.CreateEntity(c_CameraName);
         camera.AddComponent<Ecs::Component::Camera>();
-        camera.AddComponent<Ecs::Component::Transform>(Math::Mat::c_Identity<Math::Matrix3x3>, Math::Vec::c_Backward<Math::Vector3> * 10.f);
+        camera.AddComponent<Ecs::Component::Transform>(
+            Math::Mat::c_Identity<Math::Matrix3x3>,
+            Math::Vec::c_Backward<Math::Vector3> * 10.f);
 
-        camera.AddComponent<Ecs::Component::CameraOutput>(Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);
+        camera.AddComponent<Ecs::Component::CameraOutput>(
+            Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);
     }
 } // namespace Ame::FlappyRocket

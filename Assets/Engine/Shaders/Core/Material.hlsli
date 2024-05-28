@@ -9,8 +9,11 @@
 MaterialFragment PSM_Main(Ecs_PSInput input);
 
 #define MATERIALDATA_REGISTERSPACE 20
+AME_ENABLE_DRAW_PARAMETERS;
 
 #define AME_MATERIAL_RESOURCE(type, name, regType, bindingIndex) AME_RESOURCE(type, name, regType, bindingIndex, 20)
+
+//
 
 AME_RESOURCE(ConstantBuffer<FrameDesc>, g_FrameInfo, b, 0, 1);
 

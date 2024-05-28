@@ -57,15 +57,15 @@ namespace Ame::Gfx::Cache
         uint32_t bufferSize = material.GetSizeOfUserData();
 
         std::vector<const nri::Descriptor*> descriptors;
-        for (auto resource : material.GetResources())
+        for (auto iter : material.GetResources())
         {
             std::visit(
                 VariantVisitor{
-                    [&descriptors](const auto& buffer)
+                    [&descriptors](const auto& resource)
                     {
-                        descriptors.emplace_back(buffer.View->Unwrap());
+                        descriptors.emplace_back(resource.View->Unwrap());
                     } },
-                resource->second);
+                iter->second);
         }
 
         bool hasMaterialData = bufferSize || !descriptors.empty();

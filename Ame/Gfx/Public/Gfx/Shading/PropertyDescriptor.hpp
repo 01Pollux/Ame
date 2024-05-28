@@ -32,7 +32,7 @@ namespace Ame::Gfx::Shading
 #define AME_DECLARE_MEMBER_SCALAR(FuncName, ImplName, Dims)                            \
     PropertyDescriptor& FuncName(                                                      \
         const String&    propertyName,                                                 \
-        Rhi::ShaderFlags flags     = Rhi::ShaderFlags::All(),                          \
+        Rhi::ShaderFlags flags     = Rhi::ShaderFlags::Graphics(),                     \
         uint8_t          arraySize = 1)                                                \
     {                                                                                  \
         if (arraySize > 1)                                                             \
@@ -74,7 +74,7 @@ namespace Ame::Gfx::Shading
         PropertyDescriptor& Struct(
             const String&             propertyName,
             const PropertyDescriptor& descriptor,
-            Rhi::ShaderFlags          flags     = Rhi::ShaderFlags::All(),
+            Rhi::ShaderFlags          flags     = Rhi::ShaderFlags::Graphics(),
             uint8_t                   arraySize = 1)
         {
             if (arraySize > 1)
@@ -95,7 +95,11 @@ namespace Ame::Gfx::Shading
             const String&    propertyName,
             ResourceType     type,
             ResourceDataType dataType,
-            Rhi::ShaderFlags flags = Rhi::ShaderFlags::All());
+            Rhi::ShaderFlags flags = Rhi::ShaderFlags::Graphics());
+
+        PropertyDescriptor& Sampler(
+            const String&    propertyName,
+            Rhi::ShaderFlags flags = Rhi::ShaderFlags::Graphics());
 
 #undef AME_DECLARE_MEMBER_SCALAR
 

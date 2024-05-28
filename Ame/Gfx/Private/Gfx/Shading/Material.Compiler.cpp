@@ -125,7 +125,7 @@ namespace Ame::Gfx::Shading
             }
             else
             {
-                m_ShaderBits.Set(Rhi::ShaderType::GRAPHICS_SHADERS);
+                m_ShaderBits = Rhi::ShaderFlags::Graphics();
             }
 
             m_FrameData.shaderStages  = m_ShaderBits.Flags;
