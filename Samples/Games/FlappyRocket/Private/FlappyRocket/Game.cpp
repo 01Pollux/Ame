@@ -2,6 +2,7 @@
 
 #include <Gfx/Renderer.hpp>
 #include <Gfx/Shading/Material.Compiler.hpp>
+#include <Gfx/Shading/Material.hpp>
 #include <Gfx/Cache/ShaderCache.hpp>
 
 #include <Ecs/Component/Renderable/2D/Sprite.hpp>
@@ -49,9 +50,9 @@ namespace Ame::FlappyRocket
 
         GS::PropertyDescriptor descriptor;
         descriptor
-            .Float4("_Color")
+            .Float4("_Color")/*
             .Resource("_Texture", Gfx::Shading::ResourceType::Texture2D, Gfx::Shading::ResourceDataType::Float4)
-            .Sampler("_Sampler");
+            .Sampler("_Sampler")*/;
 
         Rhi::ShaderCompileDesc compileDesc;
 
@@ -70,6 +71,12 @@ namespace Ame::FlappyRocket
             .get();
     }
 
+    static void SetMaterialProperties(
+        Ptr<Gfx::Shading::Material> material)
+    {
+        material->Set("_Color", Colors::c_Red);
+    }
+
     void FlappyRocketGame::AddAllEntities()
     {
         auto& world = *m_EcsUniverse->GetActiveWorld();
@@ -78,6 +85,7 @@ namespace Ame::FlappyRocket
         auto playerSprite = Ecs::Component::Sprite::Quad();
 
         playerSprite.Material = CreateMaterial(*m_Device, *m_ShaderCache);
+        SetMaterialProperties(playerSprite.Material);
 
         player.AddComponent(std::move(playerSprite));
         player.AddComponent<Ecs::Component::Transform>();

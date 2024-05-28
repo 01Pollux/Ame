@@ -2,7 +2,7 @@
 
 #include <Rhi/Core.hpp>
 
-namespace Ame::Rhi
+namespace Ame::Rhi::Util
 {
     /// <summary>
     /// Get the size of a constant buffer

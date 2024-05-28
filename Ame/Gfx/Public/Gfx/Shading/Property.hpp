@@ -105,12 +105,12 @@ namespace Ame::Gfx::Shading
     template<typename Ty>
     struct ResourceMap;
 
-#define AME_GFX_SHADING_RESOURCE_MAP(Ty, DataType, Type)                         \
-    template<>                                                                   \
-    struct ResourceMap<Ty>                                                       \
-    {                                                                            \
-        static constexpr ResourceDataType DataType = ResourceDataType::DataType; \
-        static constexpr ResourceType     Type     = ResourceType::Type;         \
+#define AME_GFX_SHADING_RESOURCE_MAP(Ty, DT, T)                            \
+    template<>                                                             \
+    struct ResourceMap<Ty>                                                 \
+    {                                                                      \
+        static constexpr ResourceDataType DataType = ResourceDataType::DT; \
+        static constexpr ResourceType     Type     = ResourceType::T;      \
     }
 
     AME_GFX_SHADING_RESOURCE_MAP(uint32_t, UInt, Scalar);

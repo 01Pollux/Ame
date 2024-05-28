@@ -59,9 +59,11 @@ namespace Ame::Gfx::Cache
         /// Get or create a descriptor set for the buffer
         /// </summary>
         [[nodiscard]] const nri::Descriptor* GetOrCreateConstantBufferDescriptor(
-            uint32_t blockSlot);
+            const BlockBuffer::Handle& handle);
 
     private:
+        Ref<Rhi::Device> m_Device;
+
         Signals::OnEndFrame::Handle m_EndFrameHandle;
 
         SetCacheMap              m_SetCaches;

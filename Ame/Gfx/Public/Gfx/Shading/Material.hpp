@@ -55,7 +55,7 @@ namespace Ame::Gfx::Shading
             const String& propertyName,
             const Ty&     value)
         {
-            SetScalar(propertyName, std::addressof(value), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
+            SetScalar(propertyName, std::addressof(value), sizeof(value));
         }
 
         void Set(

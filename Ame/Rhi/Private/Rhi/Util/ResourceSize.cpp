@@ -2,7 +2,7 @@
 #include <Rhi/Device/Device.hpp>
 #include <Math/Common.hpp>
 
-namespace Ame::Rhi
+namespace Ame::Rhi::Util
 {
     size_t GetUploadBufferTextureRowSize(
         const DeviceDesc& desc,
@@ -43,4 +43,4 @@ namespace Ame::Rhi
     {
         return instanceCount * Math::AlignUp(structSize, desc.storageBufferOffsetAlignment);
     }
-} // namespace Ame::Rhi
+} // namespace Ame::Rhi::Util

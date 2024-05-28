@@ -42,7 +42,7 @@ namespace Ame::Gfx::RG
 
         auto&   deviceDesc = m_Device.get().GetDesc();
         uint8_t frameIndex = m_Device.get().GetFrameIndex();
-        size_t  offset     = Rhi::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), frameIndex);
+        size_t  offset     = Rhi::Util::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), frameIndex);
         std::memcpy(m_FrameResourceBuffer.GetPtr(offset), &m_FrameResource, sizeof(FrameResourceGPU));
     }
 
@@ -52,7 +52,7 @@ namespace Ame::Gfx::RG
     {
         auto&   deviceDesc = m_Device.get().GetDesc();
         uint8_t frameIndex = m_Device.get().GetFrameIndex();
-        size_t  size       = Rhi::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), 0);
+        size_t  size       = Rhi::Util::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), 0);
         size_t  offset     = size * frameIndex;
 
         return Rhi::BufferViewDesc{ .Range{ offset, size }, .Type = Rhi::BufferViewType::ConstantBuffer };
@@ -65,7 +65,7 @@ namespace Ame::Gfx::RG
     {
         auto&   deviceDesc = rhiDevice.GetDesc();
         uint8_t frameCount = rhiDevice.GetFrameCountInFlight();
-        size_t  bufferSize = Rhi::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), frameCount);
+        size_t  bufferSize = Rhi::Util::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), frameCount);
 
         return Rhi::Buffer(rhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, { .size = bufferSize, .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER });
     }

@@ -105,6 +105,15 @@ namespace Ame::Rhi::Util
             return m_Blocks[slot].BufferRef;
         }
 
+        /// <summary>
+        /// Get buffer of the slot based buffer
+        /// </summary>
+        [[nodiscard]] const Buffer& GetBuffer(
+            const Handle& handle) const
+        {
+            return GetBuffer(handle.BlockSlot);
+        }
+
     public:
         /// <summary>
         /// Write data to the buffer

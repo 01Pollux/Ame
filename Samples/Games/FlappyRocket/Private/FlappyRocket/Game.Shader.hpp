@@ -5,8 +5,15 @@ namespace Ame::FlappyRocket
     static constexpr const char* c_ShaderSource = R"(
 #include "../Core/Material.hlsli"
 
-AME_MATERIAL_RESOURCE(Texture2D<float4>, _Texture, t, 0);
-AME_MATERIAL_RESOURCE(SamplerState, _Sampler, s, 1);
+struct UserData
+{
+	float4 _Color;
+};
+AME_MATERIAL_USERDATA(UserData);
+
+//
+//AME_MATERIAL_RESOURCE(Texture2D<float4>, _Texture, t, 0);
+//AME_MATERIAL_RESOURCE(SamplerState, _Sampler, s, 1);
 
 //
 
@@ -39,7 +46,8 @@ AME_EXPORT MaterialFragment PSM_Main(
 {
 	MaterialFragment fragment = (MaterialFragment) 0;
 	
-	fragment.BaseColor = _Texture.Sample(_Sampler, input.TexCoord).xyz;
+	//fragment.BaseColor = _Texture.Sample(_Sampler, input.TexCoord).xyz;
+	fragment.BaseColor = _UserData._Color.xyz;
 	
 	return fragment;
 }
