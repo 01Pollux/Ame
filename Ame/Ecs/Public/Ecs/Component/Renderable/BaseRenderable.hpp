@@ -22,15 +22,18 @@ namespace Ame::Ecs::Component
         {
             nri::Buffer* NriBuffer = nullptr;
 
-            const void* CpuViewOrOffset = nullptr;
+            union {
+                size_t           Offset;
+                const std::byte* CpuData;
+            } OffsetOrCpuData;
 
             uint32_t Count  = 0;
             uint32_t Stride = 0;
 
             static BufferView Local(
-                void*  data,
-                size_t count,
-                size_t stride);
+                const std::byte* data,
+                size_t           count,
+                size_t           stride);
 
             static BufferView Shared(
                 nri::Buffer* buffer,
@@ -48,7 +51,7 @@ namespace Ame::Ecs::Component
             /// Get the cpu data of the buffer.
             /// The buffer MUST be local to access the cpu data.
             /// </summary>
-            [[nodiscard]] const void* CpuData() const;
+            [[nodiscard]] const std::byte* CpuData() const;
 
             /// <summary>
             /// Check to see if the buffer is unique.

@@ -18,8 +18,15 @@ namespace Ame::Ecs::Module
                 {
                     auto& renderable = entity.GetComponentMut<Component::BaseRenderable>();
 
-                    renderable.Vertex = Component::BaseRenderable::BufferView::Local(sprite.Vertices.data(), sprite.Vertices.size(), sizeof(sprite.Vertices[0]));
-                    renderable.Index  = Component::BaseRenderable::BufferView::Local(sprite.Indices.data(), sprite.Indices.size(), sizeof(sprite.Indices[0]));
+                    renderable.Vertex = Component::BaseRenderable::BufferView::Local(
+                        std::bit_cast<const std::byte*>(sprite.Vertices.data()),
+                        sprite.Vertices.size(),
+                        sizeof(sprite.Vertices[0]));
+
+                    renderable.Index = Component::BaseRenderable::BufferView::Local(
+                        std::bit_cast<const std::byte*>(sprite.Indices.data()),
+                        sprite.Indices.size(),
+                        sizeof(sprite.Indices[0]));
 
                     renderable.Material   = sprite.Material;
                     renderable.CameraMask = sprite.CameraMask;

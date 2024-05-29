@@ -6,14 +6,14 @@
 namespace Ame::Ecs::Component
 {
     auto BaseRenderable::BufferView::Local(
-        void*  data,
-        size_t count,
-        size_t stride) -> BufferView
+        const std::byte* data,
+        size_t           count,
+        size_t           stride) -> BufferView
     {
         return BufferView{
-            .CpuViewOrOffset = std::bit_cast<const void*>(data),
-            .Count             = static_cast<uint32_t>(count),
-            .Stride            = static_cast<uint32_t>(stride)
+            .OffsetOrCpuData{ .CpuData = data },
+            .Count  = static_cast<uint32_t>(count),
+            .Stride = static_cast<uint32_t>(stride)
         };
     }
 
@@ -24,10 +24,10 @@ namespace Ame::Ecs::Component
         size_t       stride) -> BufferView
     {
         return BufferView{
-            .NriBuffer         = buffer,
-            .CpuViewOrOffset = std::bit_cast<const void*>(offset),
-            .Count             = static_cast<uint32_t>(count),
-            .Stride            = static_cast<uint32_t>(stride)
+            .NriBuffer = buffer,
+            .OffsetOrCpuData{ .Offset = offset },
+            .Count  = static_cast<uint32_t>(count),
+            .Stride = static_cast<uint32_t>(stride)
         };
     }
 
@@ -42,10 +42,10 @@ namespace Ame::Ecs::Component
             Log::Ecs().Fatal("Trying to get offset from a local buffer");
         }
 #endif
-        return std::bit_cast<uint64_t>(CpuViewOrOffset);
+        return OffsetOrCpuData.Offset;
     }
 
-    const void* BaseRenderable::BufferView::CpuData() const
+    const std::byte* BaseRenderable::BufferView::CpuData() const
     {
 // Reading from offset MUST means that we have a unique buffer
 #ifdef AME_DEBUG
@@ -54,7 +54,7 @@ namespace Ame::Ecs::Component
             Log::Ecs().Fatal("Trying to get offset from a shared buffer");
         }
 #endif
-        return CpuViewOrOffset;
+        return OffsetOrCpuData.CpuData;
     }
 
     bool BaseRenderable::BufferView::HasUniqueBuffer() const
