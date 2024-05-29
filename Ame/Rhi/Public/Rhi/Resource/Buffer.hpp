@@ -87,13 +87,13 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        void* GetPtr(
+        std::byte* GetPtr(
             size_t offset = 0);
 
         /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        const void* GetPtr(
+        const std::byte* GetPtr(
             size_t offset = 0) const;
 
     public:

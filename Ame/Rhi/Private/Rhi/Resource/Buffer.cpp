@@ -148,18 +148,18 @@ namespace Ame::Rhi
 
     //
 
-    void* Buffer::GetPtr(
+    std::byte* Buffer::GetPtr(
         size_t offset)
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Mapped != nullptr, "Buffer is not host visible.");
-        return static_cast<uint8_t*>(m_Mapped) + offset;
+        return static_cast<std::byte*>(m_Mapped) + offset;
     }
 
-    const void* Buffer::GetPtr(
+    const std::byte* Buffer::GetPtr(
         size_t offset) const
     {
         AME_LOG_ASSERT(Log::Rhi(), m_Mapped != nullptr, "Buffer is not host visible.");
-        return static_cast<const uint8_t*>(m_Mapped) + offset;
+        return static_cast<const std::byte*>(m_Mapped) + offset;
     }
 
     //

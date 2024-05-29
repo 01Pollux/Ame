@@ -89,7 +89,7 @@ namespace Ame::Gfx::Cache
 
             setCache.DynamicBufferOffset = handle.Offset;
 
-            auto bufferPtr = std::bit_cast<std::byte*>(m_DynamicBuffer.GetBuffer(handle).GetPtr());
+            auto bufferPtr = std::bit_cast<std::byte*>(m_DynamicBuffer.GetBuffer(handle).GetPtr(handle.Offset));
             auto userData  = std::bit_cast<const std::byte*>(material.GetUserData());
 
             std::copy(userData, userData + bufferSize, bufferPtr);

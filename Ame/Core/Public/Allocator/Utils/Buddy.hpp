@@ -17,6 +17,9 @@ namespace Ame::Allocator
             {
                 return Size != 0;
             }
+
+            [[nodiscard]] auto operator<=>(
+				const Handle& other) const noexcept = default;
         };
 
         explicit Buddy(
