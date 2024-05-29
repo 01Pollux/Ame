@@ -51,22 +51,22 @@ namespace Ame::Gfx::Shading
         /// Write a scalar value to the property map
         /// </summary>
         void WriteUserData(
-            const String& propertyName,
-            const void*   data,
-            size_t        size);
+            const String&    propertyName,
+            const std::byte* data,
+            size_t           size);
 
         /// <summary>
         /// Read a scalar value from the property map
         /// </summary>
         void ReadUserData(
             const String& propertyName,
-            void*         data,
+            std::byte*    data,
             size_t        size) const;
 
         /// <summary>
         /// Get the user data of this material
         /// </summary>
-        [[nodiscard]] const uint8_t* GetUserData() const;
+        [[nodiscard]] const std::byte* GetUserData() const;
 
         /// <summary>
         /// Get the size of the user data of this material
@@ -74,7 +74,7 @@ namespace Ame::Gfx::Shading
         [[nodiscard]] uint32_t GetSizeOfUserData() const;
 
     private:
-        UPtr<uint8_t[]>    m_UserDataBuffer;
+        UPtr<std::byte[]>  m_UserDataBuffer;
         PropertyDescriptor m_UserData;
         ResourceMap        m_Resources;
     };

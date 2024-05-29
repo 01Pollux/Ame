@@ -27,10 +27,10 @@ namespace Ame::Rhi
             return {};
         }
 
-        uint8_t* shaderCode = static_cast<uint8_t*>(m_CompiledBlob->GetBufferPointer());
+        std::byte* shaderCode = static_cast<std::byte*>(m_CompiledBlob->GetBufferPointer());
 
         size_t codeSize   = m_CompiledBlob->GetBufferSize();
-        auto   outCodePtr = std::make_unique<uint8_t[]>(codeSize);
+        auto   outCodePtr = std::make_unique<std::byte[]>(codeSize);
 
         std::copy(shaderCode, shaderCode + codeSize, outCodePtr.get());
         return ShaderBytecode(outCodePtr.release(), codeSize, m_ShaderStage);

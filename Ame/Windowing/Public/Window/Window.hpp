@@ -134,7 +134,7 @@ namespace Ame::Windowing
         /// The size of the image
         /// </param>
         void SetIcon(
-            void*                 iconData,
+            const std::byte*      iconData,
             const Math::Vector2I& size);
 
         /// <summary>

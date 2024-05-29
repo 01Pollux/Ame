@@ -10,7 +10,7 @@ namespace Ame::Gfx::Shading
     {
         if (m_UserData.GetStructSize() > 0)
         {
-            m_UserDataBuffer = std::make_unique<uint8_t[]>(m_UserData.GetStructSize());
+            m_UserDataBuffer = std::make_unique<std::byte[]>(m_UserData.GetStructSize());
         }
 
         for (auto& resource : descriptor.GetResources())
@@ -58,7 +58,7 @@ namespace Ame::Gfx::Shading
     {
         if (m_UserData.GetStructSize() > 0)
         {
-            m_UserDataBuffer = std::make_unique<uint8_t[]>(m_UserData.GetStructSize());
+            m_UserDataBuffer = std::make_unique<std::byte[]>(m_UserData.GetStructSize());
             std::copy(other->GetUserData(), other->GetUserData() + m_UserData.GetStructSize(), m_UserDataBuffer.get());
         }
     }
@@ -159,9 +159,9 @@ namespace Ame::Gfx::Shading
     //
 
     void PropertyMap::WriteUserData(
-        const String& propertyName,
-        const void*   data,
-        size_t        size)
+        const String&    propertyName,
+        const std::byte* data,
+        size_t           size)
     {
         uint32_t offset = m_UserData.GetOffset(propertyName);
 
@@ -174,7 +174,7 @@ namespace Ame::Gfx::Shading
 
     void PropertyMap::ReadUserData(
         const String& propertyName,
-        void*         data,
+        std::byte*    data,
         size_t        size) const
     {
         uint32_t offset = m_UserData.GetOffset(propertyName);
@@ -186,7 +186,7 @@ namespace Ame::Gfx::Shading
         std::memcpy(data, m_UserDataBuffer.get() + offset, size);
     }
 
-    const uint8_t* PropertyMap::GetUserData() const
+    const std::byte* PropertyMap::GetUserData() const
     {
         return m_UserDataBuffer.get();
     }

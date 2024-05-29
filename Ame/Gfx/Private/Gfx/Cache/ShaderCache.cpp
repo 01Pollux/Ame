@@ -27,7 +27,7 @@ namespace Ame::Gfx::Cache
     {
         ShaderHeader                       Header;
         bip::managed_mapped_file::handle_t DataHandle;
-        uint8_t                            Data[1];
+        std::byte                          Data[1];
     };
 
     struct ShaderDataHelper
@@ -48,7 +48,7 @@ namespace Ame::Gfx::Cache
                 return {};
             }
 
-            auto byteCode(std::make_unique<uint8_t[]>(shaderData.Header.DataSize));
+            auto byteCode(std::make_unique<std::byte[]>(shaderData.Header.DataSize));
             std::copy(shaderData.Data, shaderData.Data + shaderData.Header.DataSize, byteCode.get());
 
             return Rhi::ShaderBytecode(byteCode.release(), shaderData.Header.DataSize, type);
@@ -192,7 +192,7 @@ namespace Ame::Gfx::Cache
         hasher.Update(c_LibraryShaderHash, std::size(c_LibraryShaderHash));
         for (auto& Shader : shaders)
         {
-            hasher.Update(Shader.GetBytecode(), Shader.GetSize());
+            hasher.Update(std::bit_cast<const CryptoPP::byte*>(Shader.GetBytecode()), Shader.GetSize());
         }
         auto hash = Util::FinalizeDigestToString(hasher);
         co_return co_await CreateOrOpenFile({}, executor, hash);

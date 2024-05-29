@@ -255,14 +255,14 @@ namespace Ame::Windowing
     }
 
     void Window::SetIcon(
-        void*                 iconData,
+        const std::byte*      iconData,
         const Math::Vector2I& size)
     {
         // Set icon for window
         GLFWimage glfwImage{
             .width  = size.x,
             .height = size.y,
-            .pixels = const_cast<uint8_t*>(static_cast<const uint8_t*>(iconData))
+            .pixels = const_cast<uint8_t*>(std::bit_cast<const uint8_t*>(iconData))
         };
         glfwSetWindowIcon(m_Handle, 1, &glfwImage);
     }

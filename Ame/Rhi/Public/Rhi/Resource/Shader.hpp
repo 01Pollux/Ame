@@ -24,7 +24,7 @@ namespace Ame::Rhi
     public:
         ShaderBytecode() = default;
         ShaderBytecode(
-            uint8_t*   bytecode,
+            std::byte* bytecode,
             size_t     size,
             ShaderType stage,
             bool       owning = true) :
@@ -106,7 +106,7 @@ namespace Ame::Rhi
             };
         }
 
-        [[nodiscard]] const uint8_t* GetBytecode() const
+        [[nodiscard]] const std::byte* GetBytecode() const
         {
             return m_Bytecode;
         }
@@ -122,7 +122,7 @@ namespace Ame::Rhi
         }
 
     private:
-        uint8_t*   m_Bytecode = nullptr;
+        std::byte* m_Bytecode = nullptr;
         size_t     m_Size     = 0;
         ShaderType m_Stage    = ShaderType::NONE;
         bool       m_Owning   = false;

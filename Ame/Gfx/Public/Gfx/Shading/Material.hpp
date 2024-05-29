@@ -55,7 +55,7 @@ namespace Ame::Gfx::Shading
             const String& propertyName,
             const Ty&     value)
         {
-            SetScalar(propertyName, std::addressof(value), sizeof(value));
+            SetScalar(propertyName, std::bit_cast<const std::byte*>(std::addressof(value)), sizeof(value));
         }
 
         void Set(
@@ -91,7 +91,7 @@ namespace Ame::Gfx::Shading
             const String& propertyName) const
         {
             Ty value{};
-            GetScalar(propertyName, std::addressof(value), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
+            GetScalar(propertyName, std::bit_cast<std::byte*>(std::addressof(value)), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
             return value;
         }
 
@@ -145,13 +145,13 @@ namespace Ame::Gfx::Shading
 
     private:
         void SetScalar(
-            const String& property,
-            const void*   data,
-            size_t        size);
+            const String&    property,
+            const std::byte* data,
+            size_t           size);
 
         void GetScalar(
             const String& property,
-            void*         data,
+            std::byte*    data,
             size_t        size) const;
 
     private:

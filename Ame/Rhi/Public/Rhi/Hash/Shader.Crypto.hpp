@@ -33,6 +33,6 @@ namespace Ame::Util
         CryptoAlgoTy&              hasher,
         const Rhi::ShaderBytecode& shader)
     {
-        hasher.Update(shader.GetBytecode(), shader.GetSize());
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(shader.GetBytecode()), shader.GetSize());
     }
 } // namespace Ame::Util

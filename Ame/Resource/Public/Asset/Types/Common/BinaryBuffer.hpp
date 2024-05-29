@@ -19,9 +19,9 @@ namespace Ame::Asset::Common
         }
 
         BinaryBufferAsset(
-            std::vector<uint8_t> buffer,
-            const Guid&          guid,
-            String               path) :
+            std::vector<std::byte> buffer,
+            const Guid&            guid,
+            String                 path) :
             IAsset(guid, std::move(path)),
             m_Buffer(std::move(buffer))
         {
@@ -31,7 +31,7 @@ namespace Ame::Asset::Common
         /// <summary>
         /// Get data of the buffer
         /// </summary>
-        [[nodiscard]] const uint8_t* GetData() const noexcept
+        [[nodiscard]] const std::byte* GetData() const noexcept
         {
             return m_Buffer.data();
         }
@@ -39,7 +39,7 @@ namespace Ame::Asset::Common
         /// <summary>
         /// Get data of the buffer
         /// </summary>
-        [[nodiscard]] uint8_t* GetData() noexcept
+        [[nodiscard]] std::byte* GetData() noexcept
         {
             return m_Buffer.data();
         }
@@ -48,7 +48,7 @@ namespace Ame::Asset::Common
         /// Set data of the buffer
         /// </summary>
         void SetData(
-            std::vector<uint8_t> buffer)
+            std::vector<std::byte> buffer)
         {
             m_Buffer = std::move(buffer);
         }
@@ -62,6 +62,6 @@ namespace Ame::Asset::Common
         }
 
     private:
-        std::vector<uint8_t> m_Buffer;
+        std::vector<std::byte> m_Buffer;
     };
 } // namespace Ame::Asset::Common

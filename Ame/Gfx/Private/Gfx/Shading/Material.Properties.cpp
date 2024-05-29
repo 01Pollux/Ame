@@ -152,9 +152,9 @@ namespace Ame::Gfx::Shading
     //
 
     void Material::SetScalar(
-        const String& propertyName,
-        const void*   data,
-        size_t        size)
+        const String&    propertyName,
+        const std::byte* data,
+        size_t           size)
     {
         InvalidatePropertyHash();
         auto& properties = IsLocal(propertyName) ? m_LocalData.Properties : m_SharedData->Properties;
@@ -165,7 +165,7 @@ namespace Ame::Gfx::Shading
 
     void Material::GetScalar(
         const String& Property,
-        void*         data,
+        std::byte*    data,
         size_t        size) const
     {
         auto& properties = IsLocal(Property) ? m_LocalData.Properties : m_SharedData->Properties;
