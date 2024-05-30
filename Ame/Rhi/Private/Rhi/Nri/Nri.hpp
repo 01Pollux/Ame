@@ -6,3 +6,4 @@
 #include <NRI/Extensions/NRISwapChain.h>
 #include <NRI/Extensions/NRIMeshShader.h>
 #include <NRI/Extensions/NRIRayTracing.h>
+#include <NRI/Extensions/NRIHelper.h>

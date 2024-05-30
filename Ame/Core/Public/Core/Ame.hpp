@@ -2,6 +2,7 @@
 
 #include <Core/Allocator.hpp>
 
+#include <cstddef>
 #include <concepts>
 #include <expected>
 #include <memory>

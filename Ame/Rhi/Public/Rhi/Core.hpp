@@ -3,7 +3,8 @@
 #include <span>
 
 #include <Core/Ame.hpp>
-#include <NRI/NRIDescs.h>
+#include <NRI/NRI.h>
+#include <NRI/Extensions/NRIHelper.h>
 
 namespace Ame::Rhi
 {
@@ -22,11 +23,10 @@ namespace Ame::Rhi
     using Dim_t    = uint16_t;
     using Sample_t = uint8_t;
 
-    using DeviceDesc = nri::DeviceDesc;
-} // namespace Ame::Rhi
+    using DeviceDesc     = nri::DeviceDesc;
+    using ResourceFormat = nri::Format;
+    using FormatProps    = nri::FormatProps;
 
-namespace Ame::Rhi
-{
     enum class GraphicsAPI : uint8_t
     {
         Null,
@@ -157,4 +157,10 @@ namespace Ame::Rhi
     {
         return static_cast<uint8_t>(sizeof(Ty));
     }
+
+    /// <summary>
+    /// Get format properties for the specified format.
+    /// </summary>
+    const FormatProps& GetFormatProps(
+        ResourceFormat format);
 } // namespace Ame::Rhi

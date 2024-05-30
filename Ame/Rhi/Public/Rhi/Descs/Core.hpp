@@ -14,7 +14,6 @@ namespace Ame::Rhi
     struct GraphicsPipelineDesc;
     struct ComputePipelineDesc;
 
-    using ResourceFormat        = nri::Format;
     using AttachmentContentType = nri::AttachmentContentType;
 
     using ShaderType = nri::StageBits;

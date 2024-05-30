@@ -113,6 +113,9 @@ namespace Ame::Rhi
 
         [[nodiscard]] BufferRange Transform(
             const Buffer& buffer) const noexcept;
+
+        [[nodiscard]] BufferRange Transform(
+            const BufferDesc& buffer) const noexcept;
     };
 
     static constexpr BufferRange c_EntireBuffer;
@@ -137,6 +140,9 @@ namespace Ame::Rhi
 
         [[nodiscard]] MipLevel Transform(
             const Texture& texture) const noexcept;
+
+        [[nodiscard]] MipLevel Transform(
+            const TextureDesc& textureDesc) const noexcept;
     };
 
     static constexpr MipLevel c_EntireMipChain;
@@ -161,6 +167,9 @@ namespace Ame::Rhi
 
         [[nodiscard]] ArraySlice Transform(
             const Texture& texture) const noexcept;
+
+        [[nodiscard]] ArraySlice Transform(
+            const TextureDesc& textureDesc) const noexcept;
     };
 
     static constexpr ArraySlice c_EntireArray;
@@ -185,6 +194,9 @@ namespace Ame::Rhi
 
         [[nodiscard]] TextureSubresource Transform(
             const Texture& texture) const noexcept;
+
+        [[nodiscard]] TextureSubresource Transform(
+            const TextureDesc& textureDesc) const noexcept;
     };
 
     static constexpr TextureSubresource c_AllSubresources;
@@ -211,6 +223,9 @@ namespace Ame::Rhi
 
         [[nodiscard]] TextureRect Transform(
             const Texture& texture) const noexcept;
+
+        [[nodiscard]] TextureRect Transform(
+            const TextureDesc& textureDesc) const noexcept;
     };
 
     static constexpr TextureRect c_EntireTexture;
@@ -225,6 +240,9 @@ namespace Ame::Rhi
 
         [[nodiscard]] BufferViewDesc Transform(
             const Buffer& buffer) const noexcept;
+
+        [[nodiscard]] BufferViewDesc Transform(
+            const BufferDesc& bufferDesc) const noexcept;
     };
 
     struct TextureViewDesc
@@ -236,5 +254,8 @@ namespace Ame::Rhi
 
         [[nodiscard]] TextureViewDesc Transform(
             const Texture& texture) const noexcept;
+
+        [[nodiscard]] TextureViewDesc Transform(
+            const TextureDesc& textureDesc) const noexcept;
     };
 } // namespace Ame::Rhi

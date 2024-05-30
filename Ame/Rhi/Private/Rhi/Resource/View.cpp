@@ -358,11 +358,16 @@ namespace Ame::Rhi
     BufferRange BufferRange::Transform(
         const Buffer& buffer) const noexcept
     {
+        return Transform(buffer.GetDesc());
+    }
+
+    BufferRange BufferRange::Transform(
+        const BufferDesc& bufferDesc) const noexcept
+    {
         auto range = *this;
         if (range.Size == c_RemainingSize<size_t>)
         {
-            auto& desc = buffer.GetDesc();
-            range.Size = desc.size - range.Offset;
+            range.Size = bufferDesc.size - range.Offset;
         }
         return range;
     }
@@ -372,11 +377,16 @@ namespace Ame::Rhi
     MipLevel MipLevel::Transform(
         const Texture& texture) const noexcept
     {
+        return Transform(texture.GetDesc());
+    }
+
+    MipLevel MipLevel::Transform(
+        const TextureDesc& textureDesc) const noexcept
+    {
         auto mipLevel = *this;
         if (mipLevel.Count == c_RemainingSize<Mip_t>)
         {
-            auto& desc     = texture.GetDesc();
-            mipLevel.Count = desc.mipNum - mipLevel.Offset;
+            mipLevel.Count = textureDesc.mipNum - mipLevel.Offset;
         }
         return mipLevel;
     }
@@ -384,11 +394,16 @@ namespace Ame::Rhi
     ArraySlice ArraySlice::Transform(
         const Texture& texture) const noexcept
     {
+        return Transform(texture.GetDesc());
+    }
+
+    ArraySlice ArraySlice::Transform(
+        const TextureDesc& textureDesc) const noexcept
+    {
         auto arraySlice = *this;
         if (arraySlice.Count == c_RemainingSize<Dim_t>)
         {
-            auto& desc       = texture.GetDesc();
-            arraySlice.Count = desc.arraySize - arraySlice.Offset;
+            arraySlice.Count = textureDesc.arraySize - arraySlice.Offset;
         }
         return arraySlice;
     }
@@ -396,9 +411,15 @@ namespace Ame::Rhi
     TextureSubresource TextureSubresource::Transform(
         const Texture& texture) const noexcept
     {
+        return Transform(texture.GetDesc());
+    }
+
+    TextureSubresource TextureSubresource::Transform(
+        const TextureDesc& textureDesc) const noexcept
+    {
         return {
-            Mips.Transform(texture),
-            Array.Transform(texture)
+            Mips.Transform(textureDesc),
+            Array.Transform(textureDesc)
         };
     }
 
@@ -407,23 +428,28 @@ namespace Ame::Rhi
     TextureRect TextureRect::Transform(
         const Texture& texture) const noexcept
     {
+        return Transform(texture.GetDesc());
+    }
+
+    TextureRect TextureRect::Transform(
+        const TextureDesc& textureDesc) const noexcept
+    {
         auto rect = *this;
         if (rect.Size[0] == c_RemainingSize<Dim_t> ||
             rect.Size[1] == c_RemainingSize<Dim_t> ||
             rect.Size[2] == c_RemainingSize<Dim_t>)
         {
-            auto& desc = texture.GetDesc();
             if (rect.Size[0] == c_RemainingSize<Dim_t>)
             {
-                rect.Size[0] = desc.width - rect.Position[0];
+                rect.Size[0] = textureDesc.width - rect.Position[0];
             }
             if (rect.Size[1] == c_RemainingSize<Dim_t>)
             {
-                rect.Size[1] = desc.height - rect.Position[1];
+                rect.Size[1] = textureDesc.height - rect.Position[1];
             }
             if (rect.Size[2] == c_RemainingSize<Dim_t>)
             {
-                rect.Size[2] = desc.depth - rect.Position[2];
+                rect.Size[2] = textureDesc.depth - rect.Position[2];
             }
         }
         return rect;
@@ -434,19 +460,33 @@ namespace Ame::Rhi
     BufferViewDesc BufferViewDesc::Transform(
         const Buffer& buffer) const noexcept
     {
+        return Transform(buffer.GetDesc());
+    }
+
+    BufferViewDesc BufferViewDesc::Transform(
+        const BufferDesc& bufferDesc) const noexcept
+    {
         auto viewDesc  = *this;
-        viewDesc.Range = Range.Transform(buffer);
+        viewDesc.Range = Range.Transform(bufferDesc);
         return viewDesc;
     }
+
+    //
 
     TextureViewDesc TextureViewDesc::Transform(
         const Texture& texture) const noexcept
     {
+        return Transform(texture.GetDesc());
+    }
+
+    TextureViewDesc TextureViewDesc::Transform(
+        const TextureDesc& textureDesc) const noexcept
+    {
         auto viewDesc        = *this;
-        viewDesc.Subresource = Subresource.Transform(texture);
+        viewDesc.Subresource = Subresource.Transform(textureDesc);
         if (Format == Rhi::ResourceFormat::UNKNOWN)
         {
-            viewDesc.Format = texture.GetDesc().format;
+            viewDesc.Format = textureDesc.format;
         }
         return viewDesc;
     }
