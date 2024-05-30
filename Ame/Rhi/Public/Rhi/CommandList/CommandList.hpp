@@ -6,6 +6,8 @@
 #include <Rhi/Resource/View.hpp>
 #include <Rhi/Resource/Set.hpp>
 
+#include <Core/Coroutine.hpp>
+
 namespace Ame::Rhi
 {
     struct VertexBufferView;
@@ -254,8 +256,23 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Query the current state of a buffer
+        /// </summary>
+        [[nodiscard]] AccessStage QueryState(
+            const Buffer& buffer);
+
+        /// <summary>
+        /// Require a texture to be in a certain state
+        /// if Append is true, the state will be appended to the next state
+        /// </summary>
+        [[nodiscard]] Co::generator<AccessLayoutStage> QueryState(
+            const Texture&            texture,
+            const TextureSubresource& subresource = c_AllSubresources);
+
+    public:
+        /// <summary>
         /// Require a buffer to be in a certain state
-        /// if Append is true, the state will be appended to the current state
+        /// if Append is true, the state will be appended to the next state
         /// </summary>
         void RequireState(
             const Buffer&      buffer,
@@ -264,7 +281,7 @@ namespace Ame::Rhi
 
         /// <summary>
         /// Require a texture to be in a certain state
-        /// if Append is true, the state will be appended to the current state
+        /// if Append is true, the state will be appended to the next state
         /// </summary>
         void RequireState(
             const Texture&            texture,

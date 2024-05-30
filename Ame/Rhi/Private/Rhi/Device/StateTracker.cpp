@@ -37,21 +37,45 @@ namespace Ame::Rhi
 
     //
 
+    auto ResourceStateTracker::QueryState(
+        nri::Buffer* buffer) const -> AtomicBufferSubresourceState
+    {
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
+        return m_CurrentStates.Buffers.at(buffer);
+    }
+
+    auto ResourceStateTracker::QueryState(
+        nri::Texture* texture,
+        nri::Mip_t    mipLevel,
+        nri::Mip_t    mipCount,
+        nri::Dim_t    arraySlice,
+        nri::Dim_t    arrayCount) const -> Co::generator<AtomicTextureSubresourceState>
+    {
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+
+        auto& currentStates = m_CurrentStates.Textures.at(texture);
+        for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
+        {
+            SubresourceIndex subresource(Mip, Array);
+            co_yield AtomicTextureSubresourceState{ currentStates.at(subresource) };
+        }
+    }
+
+    //
+
     void ResourceStateTracker::RequireState(
         nri::Buffer*     buffer,
         nri::AccessStage state,
         bool             append)
     {
-        Log::Rhi().Assert(m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
-
-        if (append)
-        {
-            auto& currentState = m_CurrentStates.Buffers[buffer];
-            state.access |= currentState.access;
-            state.stages |= currentState.stages;
-        }
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
 
         auto& pendingStates = m_PendingStates.Buffers[buffer];
+        if (!append)
+        {
+            pendingStates.clear();
+        }
+
         StripUnsupportedStages(state.stages);
         pendingStates.push_back(state);
     }
@@ -66,36 +90,16 @@ namespace Ame::Rhi
         nri::Dim_t             arrayCount,
         bool                   append)
     {
-        Log::Rhi().Assert(m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), mipCount != 0 && arrayCount != 0, "Invalid mip or array count");
 
-        if (append)
+        auto& pendingStates = m_PendingStates.Textures[texture];
+        if (!append)
         {
-            auto& currentStates = m_CurrentStates.Textures[texture];
-
-            for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
-            {
-                SubresourceIndex subresource(Mip, Array);
-
-                auto& subresourceStates = currentStates[subresource];
-                state.access |= subresourceStates.access;
-                state.stages |= subresourceStates.stages;
-            }
-        }
-
-        auto& textureDesc = nriCore.GetTextureDesc(*texture);
-
-        if (mipCount == nri::REMAINING_MIP_LEVELS)
-        {
-            mipCount = textureDesc.mipNum - mipLevel;
-        }
-        if (arrayCount == nri::REMAINING_ARRAY_LAYERS)
-        {
-            arrayCount = textureDesc.arraySize - arraySlice;
+            pendingStates.clear();
         }
 
         StripUnsupportedStages(state.stages);
-
-        auto& pendingStates = m_PendingStates.Textures[texture];
         for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
             SubresourceIndex subresource(Mip, Array);

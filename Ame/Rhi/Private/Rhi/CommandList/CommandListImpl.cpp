@@ -432,6 +432,36 @@ namespace Ame::Rhi
 
     //
 
+    AccessStage CommandListImpl::QueryState(
+        const Buffer& buffer)
+    {
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
+
+        return stateTracker.QueryState(buffer.Unwrap());
+    }
+
+    Co::generator<AccessLayoutStage> CommandListImpl::QueryState(
+        const Texture&            texture,
+        const TextureSubresource& subresource)
+    {
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
+
+        auto copySubresource = subresource.Transform(texture);
+
+        return stateTracker.QueryState(
+            texture.Unwrap(),
+            copySubresource.Mips.Offset,
+            copySubresource.Mips.Count,
+            copySubresource.Array.Offset,
+            copySubresource.Array.Count);
+    }
+
+    //
+
     void CommandListImpl::RequireState(
         const Buffer&      buffer,
         const AccessStage& state,
@@ -439,9 +469,9 @@ namespace Ame::Rhi
     {
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
-        auto& StateTracker = m_RhiDevice->GetStateTracker();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
 
-        StateTracker.RequireState(
+        stateTracker.RequireState(
             buffer.Unwrap(),
             state,
             append);
@@ -455,11 +485,11 @@ namespace Ame::Rhi
     {
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
-        auto& StateTracker = m_RhiDevice->GetStateTracker();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
 
         auto copySubresource = subresource.Transform(texture);
 
-        StateTracker.RequireState(
+        stateTracker.RequireState(
             nriCore,
             texture.Unwrap(),
             state,
@@ -475,16 +505,16 @@ namespace Ame::Rhi
     {
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
-        auto& StateTracker = m_RhiDevice->GetStateTracker();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
     }
 
     void CommandListImpl::CommitBarriers()
     {
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
-        auto& StateTracker = m_RhiDevice->GetStateTracker();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
 
-        StateTracker.CommitBarriers(nriCore, *m_CommandBuffer);
+        stateTracker.CommitBarriers(nriCore, *m_CommandBuffer);
     }
 
     //

@@ -232,6 +232,21 @@ namespace Ame::Rhi
 
     //
 
+    AccessStage CommandList::QueryState(
+        const Buffer& buffer)
+    {
+        return m_Impl.get().QueryState(buffer);
+    }
+
+    Co::generator<AccessLayoutStage> CommandList::QueryState(
+        const Texture&            texture,
+        const TextureSubresource& subresource)
+    {
+        return m_Impl.get().QueryState(texture, subresource);
+    }
+
+    //
+
     void CommandList::RequireState(
         const Buffer&      buffer,
         const AccessStage& state,

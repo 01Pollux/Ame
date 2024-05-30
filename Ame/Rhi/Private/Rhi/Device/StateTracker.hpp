@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Core/Ame.hpp>
 #include <vector>
 #include <unordered_map>
 #include <type_traits>
 
-#include "../Nri/Nri.hpp"
+#include <Core/Coroutine.hpp>
+#include <Rhi/Nri/Nri.hpp>
 
 namespace Ame::Rhi
 {
@@ -79,13 +79,31 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Query the current state of a buffer
+        /// </summary>
+        [[nodiscard]] AtomicBufferSubresourceState QueryState(
+            nri::Buffer* buffer) const;
+
+        /// <summary>
+        /// Require a texture to be in a certain state
+        /// if Append is true, the state will be appended to the next state
+        /// </summary>
+        [[nodiscard]] Co::generator<AtomicTextureSubresourceState> QueryState(
+            nri::Texture* texture,
+            nri::Mip_t    mipLevel,
+            nri::Mip_t    mipCount,
+            nri::Dim_t    arraySlice,
+            nri::Dim_t    arrayCount) const;
+
+    public:
+        /// <summary>
         /// Require a buffer to be in a certain state
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
             nri::Buffer*                 buffer,
             AtomicBufferSubresourceState state,
-            bool                         append = false);
+            bool                         append);
 
         /// <summary>
         /// Require a texture to be in a certain state
@@ -95,11 +113,11 @@ namespace Ame::Rhi
             nri::CoreInterface&           nriCore,
             nri::Texture*                 texture,
             AtomicTextureSubresourceState state,
-            nri::Mip_t                    mipLevel   = 0,
-            nri::Mip_t                    mipCount   = nri::REMAINING_MIP_LEVELS,
-            nri::Dim_t                    arraySlice = 0,
-            nri::Dim_t                    arrayCount = nri::REMAINING_ARRAY_LAYERS,
-            bool                          append     = false);
+            nri::Mip_t                    mipLevel,
+            nri::Mip_t                    mipCount,
+            nri::Dim_t                    arraySlice,
+            nri::Dim_t                    arrayCount,
+            bool                          append);
 
         /// <summary>
         /// Place a global barrier
