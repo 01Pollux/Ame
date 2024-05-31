@@ -97,7 +97,7 @@ namespace Ame::Gfx::RG
         for (auto& [resource, state] : m_BufferStatesToTransitions)
         {
             auto& buffer = *resourceStorage.GetResource(resource)->AsBuffer();
-            commandList.RequireState(buffer, state);
+            commandList.RequireState(buffer.Unwrap(), state);
         }
 
         for (auto& [resource, stateMap] : m_TextureStatesToTransitions)
@@ -105,7 +105,7 @@ namespace Ame::Gfx::RG
             auto& texture = *resourceStorage.GetResource(resource)->AsTexture();
             for (auto& [subresourceSet, state] : stateMap)
             {
-                commandList.RequireState(texture, state, subresourceSet);
+                commandList.RequireState(texture.Unwrap(), state, subresourceSet);
             }
         }
 

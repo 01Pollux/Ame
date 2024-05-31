@@ -45,7 +45,7 @@ namespace Ame::Gfx::Cache
         if (operation.Parameters.PlacePostBarrier)
         {
             operation.CommandList.RequireState(
-                operation.Parameters.DstTexture,
+                operation.Parameters.DstTexture.get().Unwrap(),
                 operation.Parameters.NewState);
 
             if (operation.Parameters.FlushPostBarrier)

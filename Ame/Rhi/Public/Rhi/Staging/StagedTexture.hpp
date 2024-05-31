@@ -14,6 +14,10 @@ namespace Ame::Rhi::Staging
             StagedAccessType   accessType);
 
     public:
+        [[nodiscard]] const Buffer& GetBuffer() const;
+
+        [[nodiscard]] size_t GetBufferSize() const;
+
         [[nodiscard]] BufferRange GetRegion(
             uint32_t                mipLevel   = 0,
             uint32_t                arrayIndex = 0,

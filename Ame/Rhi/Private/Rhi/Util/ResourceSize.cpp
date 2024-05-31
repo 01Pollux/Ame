@@ -65,20 +65,20 @@ namespace Ame::Rhi::Util
 		return GetUploadBufferTextureSizeAt(desc, width, height, depth);
     }
 
-    size_t GetUploadBufferTextureRowSize(
+    uint32_t GetUploadBufferTextureRowSize(
         const DeviceDesc& desc,
-        size_t            structSize,
+        uint32_t          size,
         size_t            instanceCount) noexcept
     {
-        return instanceCount * Math::AlignUp(structSize, desc.uploadBufferTextureRowAlignment);
+        return instanceCount * Math::AlignUp(size, desc.uploadBufferTextureRowAlignment);
     }
 
-    size_t GetUploadBufferTextureSliceSize(
+    uint32_t GetUploadBufferTextureSliceSize(
         const DeviceDesc& desc,
-        size_t            structSize,
+        uint32_t          size,
         size_t            instanceCount) noexcept
     {
-        return instanceCount * Math::AlignUp(structSize, desc.uploadBufferTextureSliceAlignment);
+        return instanceCount * Math::AlignUp(size, desc.uploadBufferTextureSliceAlignment);
     }
 
     size_t GetTypedBufferSize(

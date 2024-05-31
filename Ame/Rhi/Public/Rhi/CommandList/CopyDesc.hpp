@@ -7,22 +7,22 @@ namespace Ame::Rhi
 {
     struct BufferCopyDesc
     {
-        Ref<const Buffer> RhiBuffer;
-        size_t            Offset = 0;
+        nri::Buffer* NriBuffer;
+        size_t       Offset = 0;
     };
 
     struct TextureCopyDesc
     {
-        Ref<const Texture>       RhiTexture;
-        const TextureRegionDesc* Region = nullptr;
+        nri::Texture*                NriTexture;
+        Opt<const TextureRegionDesc> Region;
     };
 
     struct TransferCopyDesc
     {
-        Ref<const Texture> RhiTexture;
-        Ref<const Buffer>  RhiBuffer;
+        nri::Texture* NriTexture;
+        nri::Buffer*  NriBuffer;
 
-        TextureRegionDesc     Region;
-        TextureDataLayoutDesc Layout;
+        TextureRegionDesc TextureRegion{};
+        size_t            BufferOffset = 0;
     };
 } // namespace Ame::Rhi

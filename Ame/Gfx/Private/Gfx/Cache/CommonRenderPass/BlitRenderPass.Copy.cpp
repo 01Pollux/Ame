@@ -16,7 +16,7 @@ namespace Ame::Gfx::Cache
         for (auto [srcSubresource, dstSubresource] : std::views::zip(operation.SrcSubresources, operation.DstSubresources))
         {
             operation.CommandList.RequireState(
-                operation.Parameters.SrcTexture,
+                operation.Parameters.SrcTexture.get().Unwrap(),
                 Rhi::AccessLayoutStage{
                     .access = Rhi::AccessBits::COPY_SOURCE,
                     .layout = Rhi::LayoutType::COPY_SOURCE,
@@ -24,7 +24,7 @@ namespace Ame::Gfx::Cache
                 srcSubresource);
 
             operation.CommandList.RequireState(
-                operation.Parameters.DstTexture,
+                operation.Parameters.DstTexture.get().Unwrap(),
                 Rhi::AccessLayoutStage{
                     .access = Rhi::AccessBits::COPY_DESTINATION,
                     .layout = Rhi::LayoutType::COPY_DESTINATION,
@@ -68,14 +68,10 @@ namespace Ame::Gfx::Cache
                     dstRegion.arrayOffset = dstSubresource.Array.Offset + j;
 
                     operation.CommandList.CopyTexture(
-                        {
-                            .RhiTexture = operation.Parameters.SrcTexture,
-                            .Region     = &srcRegion,
-                        },
-                        {
-                            .RhiTexture = operation.Parameters.DstTexture,
-                            .Region     = &dstRegion,
-                        });
+                        { .NriTexture = operation.Parameters.SrcTexture.get().Unwrap(),
+                          .Region     = srcRegion },
+                        { .NriTexture = operation.Parameters.DstTexture.get().Unwrap(),
+                          .Region     = dstRegion });
                 }
             }
         }

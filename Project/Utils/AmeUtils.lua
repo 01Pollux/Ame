@@ -44,12 +44,12 @@ function ame_utils:add_binary(group, path)
 end
 
 function ame_utils:add_tests(group, path, target_name)
-    local test_files = os.files(file_utils:path_from_root(path .. "/Tests/**.cpp"))
+    local test_files = os.files(file_utils:path_from_root(path .. "/Tests/*/*.cpp"))
     if table.empty(test_files) ~= true then
         for _, file in ipairs(test_files) do
             local file_name = file_utils:get_file_name_without_extension(file)
             target(group .. "_" .. file_name)
-                set_group("Tests/" .. group)
+                set_group("Tests")
                 set_kind("binary")
                 add_filegroups("", {rootdir = "../" .. path .. "/Tests/"})
 

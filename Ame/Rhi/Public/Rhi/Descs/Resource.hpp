@@ -11,10 +11,21 @@ namespace Ame::Rhi
 
     //
 
-    static TextureDesc constexpr Tex1D(
+    [[nodiscard]] static constexpr uint32_t TexMipCount(
+        uint32_t width)
+    {
+        uint32_t mipCount = 0;
+        for (uint32_t i = width; i > 0; i >>= 1)
+        {
+            mipCount++;
+        }
+        return mipCount;
+    }
+
+    [[nodiscard]] static constexpr TextureDesc Tex1D(
         ResourceFormat   format,
         Dim_t            width,
-        Mip_t            mipNum      = 0,
+        Mip_t            mipCount    = 1,
         Dim_t            arraySize   = 1,
         TextureUsageBits usageMask   = TextureUsageBits::SHADER_RESOURCE,
         Sample_t         sampleCount = 1)
@@ -26,17 +37,29 @@ namespace Ame::Rhi
             .width     = width,
             .height    = 1,
             .depth     = 1,
-            .mipNum    = mipNum,
+            .mipNum    = mipCount,
             .arraySize = arraySize,
             .sampleNum = sampleCount
         };
+    }
+
+    [[nodiscard]] static constexpr uint32_t TexMipCount(
+        uint32_t width,
+        uint32_t height)
+    {
+        uint32_t mipCount = 0;
+        for (uint32_t i = std::min(width, height); i > 0; i >>= 1)
+        {
+            mipCount++;
+        }
+        return mipCount;
     }
 
     [[nodiscard]] static constexpr TextureDesc Tex2D(
         ResourceFormat   format,
         Dim_t            width,
         Dim_t            height,
-        Mip_t            mipCount    = 0,
+        Mip_t            mipCount    = 1,
         Dim_t            arraySize   = 1,
         TextureUsageBits usageMask   = TextureUsageBits::SHADER_RESOURCE,
         Sample_t         sampleCount = 1)
@@ -54,12 +77,25 @@ namespace Ame::Rhi
         };
     }
 
+    [[nodiscard]] static constexpr uint32_t TexMipCount(
+        uint32_t width,
+        uint32_t height,
+        uint32_t depth)
+    {
+        uint32_t mipCount = 0;
+        for (uint32_t i = std::min(std::min(width, height), depth); i > 0; i >>= 1)
+        {
+            mipCount++;
+        }
+        return mipCount;
+    }
+
     [[nodiscard]] static constexpr TextureDesc Tex3D(
         ResourceFormat   format,
         Dim_t            width,
         Dim_t            height,
         Dim_t            depth,
-        Mip_t            mipCount  = 0,
+        Mip_t            mipCount  = 1,
         TextureUsageBits usageMask = TextureUsageBits::SHADER_RESOURCE)
     {
         return TextureDesc{
@@ -77,7 +113,7 @@ namespace Ame::Rhi
         ResourceFormat   format,
         Dim_t            width,
         Dim_t            height,
-        Mip_t            mipCount    = 0,
+        Mip_t            mipCount    = 1,
         TextureUsageBits usageMask   = TextureUsageBits::SHADER_RESOURCE,
         Sample_t         sampleCount = 1)
     {

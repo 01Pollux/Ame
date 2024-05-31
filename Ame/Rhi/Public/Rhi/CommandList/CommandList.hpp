@@ -259,14 +259,14 @@ namespace Ame::Rhi
         /// Query the current state of a buffer
         /// </summary>
         [[nodiscard]] AccessStage QueryState(
-            const Buffer& buffer);
+            nri::Buffer* nribuffer);
 
         /// <summary>
         /// Require a texture to be in a certain state
         /// if Append is true, the state will be appended to the next state
         /// </summary>
         [[nodiscard]] Co::generator<AccessLayoutStage> QueryState(
-            const Texture&            texture,
+            nri::Texture*             nriTexture,
             const TextureSubresource& subresource = c_AllSubresources);
 
     public:
@@ -275,7 +275,7 @@ namespace Ame::Rhi
         /// if Append is true, the state will be appended to the next state
         /// </summary>
         void RequireState(
-            const Buffer&      buffer,
+            nri::Buffer*       nribuffer,
             const AccessStage& state,
             bool               append = false);
 
@@ -284,10 +284,20 @@ namespace Ame::Rhi
         /// if Append is true, the state will be appended to the next state
         /// </summary>
         void RequireState(
-            const Texture&            texture,
+            nri::Texture*             nriTexture,
             const AccessLayoutStage&  state,
             const TextureSubresource& subresource = c_AllSubresources,
             bool                      append      = false);
+
+        /// <summary>
+        /// Require a texture to be in a certain states
+        /// size of states must be same as number of subresources for texture
+        /// if Append is true, the state will be appended to the next state
+        /// </summary>
+        void RequireStates(
+            nri::Texture*                      nriTexture,
+            std::span<const AccessLayoutStage> states,
+            bool                               append = false);
 
         /// <summary>
         /// Place a global barrier

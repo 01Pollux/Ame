@@ -233,35 +233,43 @@ namespace Ame::Rhi
     //
 
     AccessStage CommandList::QueryState(
-        const Buffer& buffer)
+        nri::Buffer* nribuffer)
     {
-        return m_Impl.get().QueryState(buffer);
+        return m_Impl.get().QueryState(nribuffer);
     }
 
     Co::generator<AccessLayoutStage> CommandList::QueryState(
-        const Texture&            texture,
+        nri::Texture*             nriTexture,
         const TextureSubresource& subresource)
     {
-        return m_Impl.get().QueryState(texture, subresource);
+        return m_Impl.get().QueryState(nriTexture, subresource);
     }
 
     //
 
     void CommandList::RequireState(
-        const Buffer&      buffer,
+        nri::Buffer*       nribuffer,
         const AccessStage& state,
         bool               append)
     {
-        m_Impl.get().RequireState(buffer, state, append);
+        m_Impl.get().RequireState(nribuffer, state, append);
     }
 
     void CommandList::RequireState(
-        const Texture&            texture,
+        nri::Texture*             nriTexture,
         const AccessLayoutStage&  state,
         const TextureSubresource& subresource,
         bool                      append)
     {
-        m_Impl.get().RequireState(texture, state, subresource, append);
+        m_Impl.get().RequireState(nriTexture, state, subresource, append);
+    }
+
+    void CommandList::RequireStates(
+        nri::Texture*                      nriTexture,
+        std::span<const AccessLayoutStage> states,
+        bool                               append)
+    {
+        m_Impl.get().RequireStates(nriTexture, states, append);
     }
 
     void CommandList::PlaceBarrier(

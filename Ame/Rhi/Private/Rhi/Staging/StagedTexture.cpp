@@ -34,6 +34,16 @@ namespace Ame::Rhi::Staging
     {
     }
 
+    const Buffer& StagedTexture::GetBuffer() const
+    {
+        return m_TextureBuffer;
+    }
+
+    size_t StagedTexture::GetBufferSize() const
+    {
+        return m_TextureBuffer.GetDesc().size;
+    }
+
     BufferRange Staging::StagedTexture::GetRegion(
         uint32_t                mipLevel,
         uint32_t                arrayIndex,

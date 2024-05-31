@@ -79,17 +79,17 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Query the current state of a buffer
+        /// Query the current state of a nriBuffer
         /// </summary>
         [[nodiscard]] AtomicBufferSubresourceState QueryState(
-            nri::Buffer* buffer) const;
+            nri::Buffer* nriBuffer) const;
 
         /// <summary>
-        /// Require a texture to be in a certain state
+        /// Require a nriTexture to be in a certain state
         /// if Append is true, the state will be appended to the next state
         /// </summary>
         [[nodiscard]] Co::generator<AtomicTextureSubresourceState> QueryState(
-            nri::Texture* texture,
+            nri::Texture* nriTexture,
             nri::Mip_t    mipLevel,
             nri::Mip_t    mipCount,
             nri::Dim_t    arraySlice,
@@ -97,27 +97,38 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Require a buffer to be in a certain state
+        /// Require a nriBuffer to be in a certain state
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
-            nri::Buffer*                 buffer,
+            nri::Buffer*                 nriBuffer,
             AtomicBufferSubresourceState state,
             bool                         append);
 
         /// <summary>
-        /// Require a texture to be in a certain state
+        /// Require a nriTexture to be in a certain state
         /// if Append is true, the state will be appended to the current state
         /// </summary>
         void RequireState(
             nri::CoreInterface&           nriCore,
-            nri::Texture*                 texture,
+            nri::Texture*                 nriTexture,
             AtomicTextureSubresourceState state,
             nri::Mip_t                    mipLevel,
             nri::Mip_t                    mipCount,
             nri::Dim_t                    arraySlice,
             nri::Dim_t                    arrayCount,
             bool                          append);
+
+        /// <summary>
+        /// Require a nriTexture to be in a certain states
+        /// size of states must be same as number of subresources for nriTexture
+        /// if Append is true, the state will be appended to the next state
+        /// </summary>
+        void RequireStates(
+            nri::CoreInterface&                            nriCore,
+            nri::Texture*                                  nriTexture,
+            std::span<const AtomicTextureSubresourceState> states,
+            bool                                           append);
 
         /// <summary>
         /// Place a global barrier
@@ -127,46 +138,46 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Begin tracking a buffer
+        /// Begin tracking a nriBuffer
         /// </summary>
         void BeginTracking(
-            nri::Buffer*                 buffer,
+            nri::Buffer*                 nriBuffer,
             AtomicBufferSubresourceState initialState);
 
         /// <summary>
-        /// Begin tracking a texture
+        /// Begin tracking a nriTexture
         /// </summary>
         void BeginTracking(
             nri::CoreInterface&           nriCore,
-            nri::Texture*                 texture,
+            nri::Texture*                 nriTexture,
             AtomicTextureSubresourceState initialState);
 
         /// <summary>
-        /// End tracking a buffer
+        /// End tracking a nriBuffer
         /// </summary>
         void EndTracking(
-            nri::Buffer* buffer);
+            nri::Buffer* nriBuffer);
 
         /// <summary>
-        /// End tracking a texture
+        /// End tracking a nriTexture
         /// </summary>
         void EndTracking(
-            nri::Texture* texture);
+            nri::Texture* nriTexture);
 
     public:
         /// <summary>
-        /// Mutate the state of a buffer
+        /// Mutate the state of a nriBuffer
         /// </summary>
         void MutateState(
-            nri::Buffer*                 buffer,
+            nri::Buffer*                 nriBuffer,
             AtomicBufferSubresourceState state);
 
         /// <summary>
-        /// Mutate the state of a texture
+        /// Mutate the state of a nriTexture
         /// </summary>
         void MutateState(
             nri::CoreInterface&           nriCore,
-            nri::Texture*                 texture,
+            nri::Texture*                 nriTexture,
             AtomicTextureSubresourceState state,
             nri::Mip_t                    mipLevel   = 0,
             nri::Mip_t                    mipCount   = nri::REMAINING_MIP_LEVELS,
@@ -188,17 +199,17 @@ namespace Ame::Rhi
         [[nodiscard]] std::vector<nri::BufferBarrierDesc> FlushBuffers();
 
         /// <summary>
-        /// Flush all the texture to the current state
+        /// Flush all the nriTexture to the current state
         /// </summary>
         [[nodiscard]] std::vector<nri::TextureBarrierDesc> FlushTextures(
             nri::CoreInterface& nriCore);
 
         /// <summary>
-        /// Flush all texture to the current state
+        /// Flush all nriTexture to the current state
         /// </summary>
         [[nodiscard]] std::vector<nri::TextureBarrierDesc> TransitionTexture(
             nri::CoreInterface&                   nriCore,
-            nri::Texture*                         texture,
+            nri::Texture*                         nriTexture,
             const TextureSubresourceStates<true>& newStates);
 
     private:

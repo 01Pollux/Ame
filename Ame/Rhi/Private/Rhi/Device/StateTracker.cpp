@@ -10,7 +10,7 @@ namespace Ame::Rhi
     using MipArrayLevelGenerator = Co::generator<std::pair<nri::Mip_t, nri::Dim_t>>;
 
     /// <summary>
-    /// Helper function to iterate over all subresources in a texture.
+    /// Helper function to iterate over all subresources in a nriTexture.
     /// </summary>
     [[nodiscard]] static MipArrayLevelGenerator ForEachSubresource(
         nri::Mip_t mipLevel,
@@ -38,22 +38,22 @@ namespace Ame::Rhi
     //
 
     auto ResourceStateTracker::QueryState(
-        nri::Buffer* buffer) const -> AtomicBufferSubresourceState
+        nri::Buffer* nriBuffer) const -> AtomicBufferSubresourceState
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
-        return m_CurrentStates.Buffers.at(buffer);
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(nriBuffer), "Buffer is not being tracked");
+        return m_CurrentStates.Buffers.at(nriBuffer);
     }
 
     auto ResourceStateTracker::QueryState(
-        nri::Texture* texture,
+        nri::Texture* nriTexture,
         nri::Mip_t    mipLevel,
         nri::Mip_t    mipCount,
         nri::Dim_t    arraySlice,
         nri::Dim_t    arrayCount) const -> Co::generator<AtomicTextureSubresourceState>
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
 
-        auto& currentStates = m_CurrentStates.Textures.at(texture);
+        auto& currentStates = m_CurrentStates.Textures.at(nriTexture);
         for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
             SubresourceIndex subresource(Mip, Array);
@@ -64,13 +64,13 @@ namespace Ame::Rhi
     //
 
     void ResourceStateTracker::RequireState(
-        nri::Buffer*     buffer,
+        nri::Buffer*     nriBuffer,
         nri::AccessStage state,
         bool             append)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(nriBuffer), "Buffer is not being tracked");
 
-        auto& pendingStates = m_PendingStates.Buffers[buffer];
+        auto& pendingStates = m_PendingStates.Buffers[nriBuffer];
         if (!append)
         {
             pendingStates.clear();
@@ -82,7 +82,7 @@ namespace Ame::Rhi
 
     void ResourceStateTracker::RequireState(
         nri::CoreInterface&    nriCore,
-        nri::Texture*          texture,
+        nri::Texture*          nriTexture,
         nri::AccessLayoutStage state,
         nri::Mip_t             mipLevel,
         nri::Mip_t             mipCount,
@@ -90,10 +90,10 @@ namespace Ame::Rhi
         nri::Dim_t             arrayCount,
         bool                   append)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
         AME_LOG_ASSERT(Log::Rhi(), mipCount != 0 && arrayCount != 0, "Invalid mip or array count");
 
-        auto& pendingStates = m_PendingStates.Textures[texture];
+        auto& pendingStates = m_PendingStates.Textures[nriTexture];
         if (!append)
         {
             pendingStates.clear();
@@ -105,7 +105,37 @@ namespace Ame::Rhi
             SubresourceIndex subresource(Mip, Array);
 
             auto& subresourceStates = pendingStates[subresource];
-            subresourceStates.push_back(state);
+            subresourceStates.emplace_back(state);
+        }
+    }
+
+    void ResourceStateTracker::RequireStates(
+        nri::CoreInterface&                            nriCore,
+        nri::Texture*                                  nriTexture,
+        std::span<const AtomicTextureSubresourceState> states,
+        bool                                           append)
+    {
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
+
+        auto& pendingStates = m_PendingStates.Textures[nriTexture];
+        AME_LOG_ASSERT(Log::Rhi(), pendingStates.size() == states.size(), "Texture is not being tracked");
+
+        if (!append)
+        {
+            pendingStates.clear();
+        }
+
+        for (SubresourceIndexType i = 0; i < states.size(); i++)
+        {
+            pendingStates[i].emplace_back(states[i]);
+        }
+
+        auto& textureDesc = nriCore.GetTextureDesc(*nriTexture);
+        for (auto [Mip, Array] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
+        {
+            SubresourceIndex subresource(Mip, Array);
+            auto&            subresourceStates = pendingStates[subresource];
+            subresourceStates.emplace_back(states[Mip + Array * textureDesc.mipNum]);
         }
     }
 
@@ -118,68 +148,68 @@ namespace Ame::Rhi
     //
 
     void ResourceStateTracker::BeginTracking(
-        nri::Buffer*                 buffer,
+        nri::Buffer*                 nriBuffer,
         AtomicBufferSubresourceState initialState)
     {
-        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Buffers.contains(buffer), "Buffer already being tracked");
-        m_CurrentStates.Buffers[buffer] = initialState;
+        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Buffers.contains(nriBuffer), "Buffer already being tracked");
+        m_CurrentStates.Buffers[nriBuffer] = initialState;
     }
 
     void ResourceStateTracker::BeginTracking(
         nri::CoreInterface&           nriCore,
-        nri::Texture*                 texture,
+        nri::Texture*                 nriTexture,
         AtomicTextureSubresourceState initialState)
     {
-        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Textures.contains(texture), "Texture already being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), !m_CurrentStates.Textures.contains(nriTexture), "Texture already being tracked");
 
-        auto& textureDesc = nriCore.GetTextureDesc(*texture);
+        auto& textureDesc = nriCore.GetTextureDesc(*nriTexture);
 
         for (auto [Mip, Array] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
         {
             SubresourceIndex subresource(Mip, Array);
-            m_CurrentStates.Textures[texture][subresource] = initialState;
+            m_CurrentStates.Textures[nriTexture][subresource] = initialState;
         }
     }
 
     void ResourceStateTracker::EndTracking(
-        nri::Buffer* buffer)
+        nri::Buffer* nriBuffer)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
-        m_CurrentStates.Buffers.erase(buffer);
-        m_PendingStates.Buffers.erase(buffer);
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(nriBuffer), "Buffer is not being tracked");
+        m_CurrentStates.Buffers.erase(nriBuffer);
+        m_PendingStates.Buffers.erase(nriBuffer);
     }
 
     void ResourceStateTracker::EndTracking(
-        nri::Texture* texture)
+        nri::Texture* nriTexture)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
-        m_CurrentStates.Textures.erase(texture);
-        m_PendingStates.Textures.erase(texture);
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
+        m_CurrentStates.Textures.erase(nriTexture);
+        m_PendingStates.Textures.erase(nriTexture);
     }
 
     //
 
     void ResourceStateTracker::MutateState(
-        nri::Buffer*                 buffer,
+        nri::Buffer*                 nriBuffer,
         AtomicBufferSubresourceState state)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(buffer), "Buffer is not being tracked");
-        m_CurrentStates.Buffers[buffer] = state;
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(nriBuffer), "Buffer is not being tracked");
+        m_CurrentStates.Buffers[nriBuffer] = state;
     }
 
     void ResourceStateTracker::MutateState(
         nri::CoreInterface&           nriCore,
-        nri::Texture*                 texture,
+        nri::Texture*                 nriTexture,
         AtomicTextureSubresourceState state,
         nri::Mip_t                    mipLevel,
         nri::Mip_t                    mipCount,
         nri::Dim_t                    arraySlice,
         nri::Dim_t                    arrayCount)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(texture), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
 
-        auto& textureDesc   = nriCore.GetTextureDesc(*texture);
-        auto& currentStates = m_CurrentStates.Textures[texture];
+        auto& textureDesc   = nriCore.GetTextureDesc(*nriTexture);
+        auto& currentStates = m_CurrentStates.Textures[nriTexture];
 
         if (mipCount == nri::REMAINING_MIP_LEVELS)
         {
@@ -236,12 +266,12 @@ namespace Ame::Rhi
     std::vector<nri::BufferBarrierDesc> ResourceStateTracker::FlushBuffers()
     {
         std::vector<nri::BufferBarrierDesc> bufferBarriers;
-        for (auto& [buffer, states] : m_PendingStates.Buffers)
+        for (auto& [nriBuffer, states] : m_PendingStates.Buffers)
         {
-            auto& currentState = m_CurrentStates.Buffers[buffer];
+            auto& currentState = m_CurrentStates.Buffers[nriBuffer];
 
             nri::BufferBarrierDesc bufferBarrier{
-                .buffer = buffer,
+                .buffer = nriBuffer,
                 .before = currentState,
                 .after  = CollapseStates(states)
             };
@@ -263,9 +293,9 @@ namespace Ame::Rhi
         nri::CoreInterface& nriCore)
     {
         std::vector<nri::TextureBarrierDesc> textureBarriers;
-        for (auto& [texture, subresourceStates] : m_PendingStates.Textures)
+        for (auto& [nriTexture, subresourceStates] : m_PendingStates.Textures)
         {
-            auto TempBarriers = TransitionTexture(nriCore, texture, subresourceStates);
+            auto TempBarriers = TransitionTexture(nriCore, nriTexture, subresourceStates);
             textureBarriers.insert(textureBarriers.end(), std::make_move_iterator(TempBarriers.begin()), std::make_move_iterator(TempBarriers.end()));
         }
         return textureBarriers;
@@ -273,10 +303,10 @@ namespace Ame::Rhi
 
     std::vector<nri::TextureBarrierDesc> ResourceStateTracker::TransitionTexture(
         nri::CoreInterface&                   nriCore,
-        nri::Texture*                         texture,
+        nri::Texture*                         nriTexture,
         const TextureSubresourceStates<true>& newStates)
     {
-        auto& currentSubresources = m_CurrentStates.Textures[texture];
+        auto& currentSubresources = m_CurrentStates.Textures[nriTexture];
 
         bool statesMatch = true;
 
@@ -299,7 +329,7 @@ namespace Ame::Rhi
 
             SubresourceIndex subresource(subresourceKey);
             textureBarriers.emplace_back(nri::TextureBarrierDesc{
-                .texture     = texture,
+                .texture     = nriTexture,
                 .before      = oldState,
                 .after       = finalNewState,
                 .mipOffset   = subresource.MipLevel,
@@ -321,7 +351,7 @@ namespace Ame::Rhi
         {
             textureBarriers.resize(1);
 
-            auto& textureDesc            = nriCore.GetTextureDesc(*texture);
+            auto& textureDesc            = nriCore.GetTextureDesc(*nriTexture);
             textureBarriers[0].mipNum    = textureDesc.mipNum;
             textureBarriers[0].arraySize = textureDesc.arraySize;
         }

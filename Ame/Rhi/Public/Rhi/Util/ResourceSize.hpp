@@ -34,18 +34,18 @@ namespace Ame::Rhi::Util
     /// <summary>
     /// Get the size of a texture row (width)
     /// </summary>
-    [[nodiscard]] size_t GetUploadBufferTextureRowSize(
+    [[nodiscard]] uint32_t GetUploadBufferTextureRowSize(
         const DeviceDesc& desc,
-        size_t            structSize,
+        uint32_t          size,
         size_t            instanceCount = 1) noexcept;
 
     /// <summary>
     /// Get the size of a texture slice (row * height)
     /// </summary>
-    [[nodiscard]] size_t GetUploadBufferTextureSliceSize(
+    [[nodiscard]] uint32_t GetUploadBufferTextureSliceSize(
         const DeviceDesc& desc,
-        size_t            structSize,
-        size_t            snstanceCount = 1) noexcept;
+        uint32_t          size,
+        size_t            instanceCount = 1) noexcept;
 
     /// <summary>
     /// Get the size of a typed buffer

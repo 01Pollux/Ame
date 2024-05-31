@@ -321,7 +321,7 @@ namespace Ame::Rhi
             state.layout = Rhi::LayoutType::COLOR_ATTACHMENT;
         }
 
-        commandList.RequireState(backBuffer.Resource, state);
+        commandList.RequireState(backBuffer.Resource.Unwrap(), state);
         commandList.CommitBarriers();
     }
 

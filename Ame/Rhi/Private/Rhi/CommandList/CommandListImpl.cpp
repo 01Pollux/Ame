@@ -7,6 +7,8 @@
 #include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/VertexView.hpp>
 
+#include <Rhi/Util/ResourceSize.hpp>
+
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
@@ -392,13 +394,13 @@ namespace Ame::Rhi
 
         if (!size)
         {
-            auto& srcDesc = nriCore.GetBufferDesc(*src.RhiBuffer.get().Unwrap());
-            auto& dstDesc = nriCore.GetBufferDesc(*dst.RhiBuffer.get().Unwrap());
+            auto& srcDesc = nriCore.GetBufferDesc(*src.NriBuffer);
+            auto& dstDesc = nriCore.GetBufferDesc(*dst.NriBuffer);
 
             size = std::min(srcDesc.size - src.Offset, dstDesc.size - dst.Offset);
         }
 
-        nriCore.CmdCopyBuffer(*m_CommandBuffer, *dst.RhiBuffer.get().Unwrap(), dst.Offset, *src.RhiBuffer.get().Unwrap(), src.Offset, size);
+        nriCore.CmdCopyBuffer(*m_CommandBuffer, *dst.NriBuffer, dst.Offset, *src.NriBuffer, src.Offset, size);
     }
 
     void CommandListImpl::CopyTexture(
@@ -408,52 +410,81 @@ namespace Ame::Rhi
         auto& nriUtils = m_RhiDevice->GetNRI();
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
-        nriCore.CmdCopyTexture(*m_CommandBuffer, *dst.RhiTexture.get().Unwrap(), dst.Region, *src.RhiTexture.get().Unwrap(), src.Region);
+        const nri::TextureRegionDesc* dstRegion = nullptr;
+        const nri::TextureRegionDesc* srcRegion = nullptr;
+
+        if (dst.Region)
+        {
+            dstRegion = &dst.Region.value();
+        }
+        if (src.Region)
+        {
+            srcRegion = &src.Region.value();
+        }
+
+        nriCore.CmdCopyTexture(*m_CommandBuffer, *dst.NriTexture, dstRegion, *src.NriTexture, srcRegion);
     }
 
     void CommandListImpl::UploadTexture(
         const TransferCopyDesc& copyDesc)
     {
-        auto& nriUtils = m_RhiDevice->GetNRI();
-        auto& nriCore  = *nriUtils.GetCoreInterface();
+        auto& deviceDesc = m_RhiDevice->GetDesc();
+        auto& nriUtils   = m_RhiDevice->GetNRI();
+        auto& nriCore    = *nriUtils.GetCoreInterface();
 
-        nriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.RhiTexture.get().Unwrap(), copyDesc.Region, *copyDesc.RhiBuffer.get().Unwrap(), copyDesc.Layout);
+        auto& textureDesc = nriCore.GetTextureDesc(*copyDesc.NriTexture);
+        auto stride      = GetFormatProps(textureDesc.format).stride;
+
+        nri::TextureDataLayoutDesc layout{
+            .offset     = copyDesc.BufferOffset,
+            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, copyDesc.TextureRegion.width * stride),
+            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, layout.rowPitch * copyDesc.TextureRegion.height)
+        };
+        nriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.NriTexture, copyDesc.TextureRegion, *copyDesc.NriBuffer, layout);
     }
 
     void CommandListImpl::ReadbackTexture(
         const TransferCopyDesc& copyDesc)
     {
-        auto& nriUtils = m_RhiDevice->GetNRI();
-        auto& nriCore  = *nriUtils.GetCoreInterface();
+        auto& deviceDesc = m_RhiDevice->GetDesc();
+        auto& nriUtils   = m_RhiDevice->GetNRI();
+        auto& nriCore    = *nriUtils.GetCoreInterface();
 
-        auto copyLayout = copyDesc.Layout;
-        nriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.RhiBuffer.get().Unwrap(), copyLayout, *copyDesc.RhiTexture.get().Unwrap(), copyDesc.Region);
+        auto& textureDesc = nriCore.GetTextureDesc(*copyDesc.NriTexture);
+        auto  stride      = GetFormatProps(textureDesc.format).stride;
+
+        nri::TextureDataLayoutDesc layout{
+            .offset     = copyDesc.BufferOffset,
+            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, copyDesc.TextureRegion.width * stride),
+            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, layout.rowPitch * copyDesc.TextureRegion.height)
+        };
+        nriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.NriBuffer, layout, *copyDesc.NriTexture, copyDesc.TextureRegion);
     }
 
     //
 
     AccessStage CommandListImpl::QueryState(
-        const Buffer& buffer)
+        nri::Buffer* nribuffer)
     {
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& stateTracker = m_RhiDevice->GetStateTracker();
 
-        return stateTracker.QueryState(buffer.Unwrap());
+        return stateTracker.QueryState(nribuffer);
     }
 
     Co::generator<AccessLayoutStage> CommandListImpl::QueryState(
-        const Texture&            texture,
+        nri::Texture*             nriTexture,
         const TextureSubresource& subresource)
     {
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& stateTracker = m_RhiDevice->GetStateTracker();
 
-        auto copySubresource = subresource.Transform(texture);
+        auto copySubresource = subresource.Transform(nriCore.GetTextureDesc(*nriTexture));
 
         return stateTracker.QueryState(
-            texture.Unwrap(),
+            nriTexture,
             copySubresource.Mips.Offset,
             copySubresource.Mips.Count,
             copySubresource.Array.Offset,
@@ -463,7 +494,7 @@ namespace Ame::Rhi
     //
 
     void CommandListImpl::RequireState(
-        const Buffer&      buffer,
+        nri::Buffer*       nribuffer,
         const AccessStage& state,
         bool               append)
     {
@@ -472,13 +503,13 @@ namespace Ame::Rhi
         auto& stateTracker = m_RhiDevice->GetStateTracker();
 
         stateTracker.RequireState(
-            buffer.Unwrap(),
+            nribuffer,
             state,
             append);
     }
 
     void CommandListImpl::RequireState(
-        const Texture&            texture,
+        nri::Texture*             nriTexture,
         const AccessLayoutStage&  state,
         const TextureSubresource& subresource,
         bool                      append)
@@ -487,16 +518,32 @@ namespace Ame::Rhi
         auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& stateTracker = m_RhiDevice->GetStateTracker();
 
-        auto copySubresource = subresource.Transform(texture);
+        auto copySubresource = subresource.Transform(nriCore.GetTextureDesc(*nriTexture));
 
         stateTracker.RequireState(
             nriCore,
-            texture.Unwrap(),
+            nriTexture,
             state,
             copySubresource.Mips.Offset,
             copySubresource.Mips.Count,
             copySubresource.Array.Offset,
             copySubresource.Array.Count,
+            append);
+    }
+
+    void CommandListImpl::RequireStates(
+        nri::Texture*                      nriTexture,
+        std::span<const AccessLayoutStage> states,
+        bool                               append)
+    {
+        auto& nriUtils     = m_RhiDevice->GetNRI();
+        auto& nriCore      = *nriUtils.GetCoreInterface();
+        auto& stateTracker = m_RhiDevice->GetStateTracker();
+
+        stateTracker.RequireStates(
+            nriCore,
+            nriTexture,
+            states,
             append);
     }
 
@@ -506,6 +553,8 @@ namespace Ame::Rhi
         auto& nriUtils     = m_RhiDevice->GetNRI();
         auto& nriCore      = *nriUtils.GetCoreInterface();
         auto& stateTracker = m_RhiDevice->GetStateTracker();
+
+        stateTracker.PlaceBarrier(BarrierDesc);
     }
 
     void CommandListImpl::CommitBarriers()
