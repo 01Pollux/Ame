@@ -10,8 +10,8 @@ namespace Ame::Gfx::Cache
         const BlitParameters& parameters) :
         CommandList(rhiDevice),
         Parameters(parameters),
-        SrcRect(parameters.SrcRect.Transform(parameters.SrcTexture)),
-        DstRect(parameters.DstRect.Transform(parameters.DstTexture)),
+        SrcRect(parameters.SrcRect.Transform(parameters.SrcMipLevel, parameters.SrcTexture)),
+        DstRect(parameters.DstRect.Transform(parameters.DstMipLevel, parameters.DstTexture)),
         SrcSubresources(ResolveSubresources(parameters, parameters.SrcSubresources)),
         DstSubresources(ResolveSubresources(parameters, parameters.DstSubresources)),
         OptimalType(QueryOptimalOperation(parameters))

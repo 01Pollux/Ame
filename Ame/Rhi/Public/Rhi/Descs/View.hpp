@@ -222,9 +222,11 @@ namespace Ame::Rhi
             const TextureRect&) const noexcept = default;
 
         [[nodiscard]] TextureRect Transform(
+            uint32_t       mipIndex,
             const Texture& texture) const noexcept;
 
         [[nodiscard]] TextureRect Transform(
+            uint32_t           mipIndex,
             const TextureDesc& textureDesc) const noexcept;
     };
 

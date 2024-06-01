@@ -5,81 +5,94 @@
 namespace Ame::Rhi::Util
 {
     size_t GetUploadBufferTextureSize(
-        const DeviceDesc&  desc,
-        const TextureDesc& textureDesc,
-        size_t             instanceCount) noexcept
+        const DeviceDesc& desc,
+        ResourceFormat    format,
+        uint32_t          width,
+        uint32_t          height,
+        uint32_t          depth,
+        uint32_t          mipCount,
+        uint32_t          arraySize) noexcept
     {
-
-        uint32_t mipCount  = textureDesc.mipNum;
-        uint32_t arraySize = textureDesc.arraySize;
-
-        if (!mipCount)
-        {
-            mipCount = 1;
-        }
-        if (!arraySize)
-        {
-            arraySize = 1;
-        }
-
-        auto& formatProps = GetFormatProps(textureDesc.format);
-
-        uint32_t width  = std::max(static_cast<uint32_t>(textureDesc.width), 1u) * formatProps.stride * formatProps.blockWidth;
-        uint32_t height = std::max(static_cast<uint32_t>(textureDesc.height), 1u) * formatProps.blockHeight;
-        uint32_t depth  = std::max(static_cast<uint32_t>(textureDesc.depth), 1u);
+        auto& formatProps = GetFormatProps(format);
 
         size_t size = 0;
         for (uint32_t i = 0; i < mipCount; ++i)
         {
-            size += GetUploadBufferTextureSizeAt(desc, width, height, depth);
+            size += GetUploadBufferTextureFlatSize(desc, format, width, height, depth);
 
-            width  = std::max(width >> 1, 1u);
-            height = std::max(height >> 1, 1u);
-            depth  = std::max(depth >> 1, 1u);
+            width  = GetTextureDimension(width, 1);
+            height = GetTextureDimension(height, 1);
+            depth  = GetTextureDimension(depth, 1);
         }
-        return instanceCount * size * arraySize;
+        return size * arraySize;
     }
 
-    size_t GetUploadBufferTextureSizeAt(
+    Dim_t GetTextureDimension(
+        Dim_t dimension,
+        Mip_t mipIndex) noexcept
+    {
+        return std::max(dimension >> mipIndex, 1);
+    }
+
+    //
+
+    size_t GetUploadBufferTextureFlatSize(
         const DeviceDesc& desc,
+        ResourceFormat    format,
         uint32_t          width,
         uint32_t          height,
         uint32_t          depth) noexcept
     {
-        size_t size = Math::AlignUp(width, desc.uploadBufferTextureRowAlignment);
-        size        = Math::AlignUp(size * height, desc.uploadBufferTextureSliceAlignment);
-        size        = size * depth;
-        return size;
+        auto& formatProps = GetFormatProps(format);
+
+        width *= formatProps.stride * formatProps.blockWidth;
+        height *= formatProps.blockHeight;
+
+        size_t rowPitch   = Math::AlignUp(width, desc.uploadBufferTextureRowAlignment);
+        size_t slicePitch = Math::AlignUp(height * rowPitch, desc.uploadBufferTextureSliceAlignment);
+        return slicePitch * depth;
     }
 
     size_t GetUploadBufferTextureSizeAt(
         const DeviceDesc& desc,
-        uint32_t width, 
-        uint32_t height,
-        uint32_t depth, 
-        uint32_t mipIndex) noexcept
+        ResourceFormat    format,
+        uint32_t          width,
+        uint32_t          height,
+        uint32_t          depth,
+        uint32_t          mipIndex,
+        uint32_t          arrayIndex) noexcept
     {
-        width  = std::max(width >> mipIndex, 1u);
-		height = std::max(height >> mipIndex, 1u);
-		depth  = std::max(depth >> mipIndex, 1u);
-		return GetUploadBufferTextureSizeAt(desc, width, height, depth);
+        uint32_t w      = GetTextureDimension(width, mipIndex);
+        uint32_t h      = GetTextureDimension(height, mipIndex);
+        uint32_t d      = GetTextureDimension(depth, mipIndex);
+        size_t   offset = arrayIndex * GetUploadBufferTextureFlatSize(desc, format, width, height, depth);
+        return offset + GetUploadBufferTextureFlatSize(desc, format, w, h, d);
     }
+
+    //
 
     uint32_t GetUploadBufferTextureRowSize(
         const DeviceDesc& desc,
-        uint32_t          size,
-        size_t            instanceCount) noexcept
+        ResourceFormat    format,
+        uint32_t          width) noexcept
     {
-        return instanceCount * Math::AlignUp(size, desc.uploadBufferTextureRowAlignment);
+        auto& formatProps = GetFormatProps(format);
+        width *= formatProps.stride * formatProps.blockWidth;
+        return Math::AlignUp(width, desc.uploadBufferTextureRowAlignment);
     }
 
     uint32_t GetUploadBufferTextureSliceSize(
         const DeviceDesc& desc,
-        uint32_t          size,
-        size_t            instanceCount) noexcept
+        ResourceFormat    format,
+        uint32_t          rowSize,
+        uint32_t          heigth) noexcept
     {
-        return instanceCount * Math::AlignUp(size, desc.uploadBufferTextureSliceAlignment);
+        auto& formatProps = GetFormatProps(format);
+        heigth *= formatProps.blockHeight;
+        return Math::AlignUp(heigth * rowSize, desc.uploadBufferTextureSliceAlignment);
     }
+
+    //
 
     size_t GetTypedBufferSize(
         const DeviceDesc& desc,

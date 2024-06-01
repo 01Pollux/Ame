@@ -426,12 +426,14 @@ namespace Ame::Rhi
     //
 
     TextureRect TextureRect::Transform(
+        uint32_t       mipIndex,
         const Texture& texture) const noexcept
     {
-        return Transform(texture.GetDesc());
+        return Transform(mipIndex, texture.GetDesc());
     }
 
     TextureRect TextureRect::Transform(
+        uint32_t           mipIndex,
         const TextureDesc& textureDesc) const noexcept
     {
         auto rect = *this;
@@ -441,15 +443,15 @@ namespace Ame::Rhi
         {
             if (rect.Size[0] == c_RemainingSize<Dim_t>)
             {
-                rect.Size[0] = textureDesc.width - rect.Position[0];
+                rect.Size[0] = std::max((textureDesc.width - rect.Position[0]) >> mipIndex, 1);
             }
             if (rect.Size[1] == c_RemainingSize<Dim_t>)
             {
-                rect.Size[1] = textureDesc.height - rect.Position[1];
+                rect.Size[1] = std::max((textureDesc.height - rect.Position[1]) >> mipIndex, 1);
             }
             if (rect.Size[2] == c_RemainingSize<Dim_t>)
             {
-                rect.Size[2] = textureDesc.depth - rect.Position[2];
+                rect.Size[2] = std::max((textureDesc.depth - rect.Position[2]) >> mipIndex, 1);
             }
         }
         return rect;

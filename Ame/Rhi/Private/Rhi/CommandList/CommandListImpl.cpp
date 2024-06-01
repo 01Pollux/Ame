@@ -433,12 +433,11 @@ namespace Ame::Rhi
         auto& nriCore    = *nriUtils.GetCoreInterface();
 
         auto& textureDesc = nriCore.GetTextureDesc(*copyDesc.NriTexture);
-        auto stride      = GetFormatProps(textureDesc.format).stride;
 
         nri::TextureDataLayoutDesc layout{
             .offset     = copyDesc.BufferOffset,
-            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, copyDesc.TextureRegion.width * stride),
-            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, layout.rowPitch * copyDesc.TextureRegion.height)
+            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, textureDesc.format, copyDesc.TextureRegion.width),
+            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, textureDesc.format, layout.rowPitch, copyDesc.TextureRegion.height)
         };
         nriCore.CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.NriTexture, copyDesc.TextureRegion, *copyDesc.NriBuffer, layout);
     }
@@ -451,12 +450,11 @@ namespace Ame::Rhi
         auto& nriCore    = *nriUtils.GetCoreInterface();
 
         auto& textureDesc = nriCore.GetTextureDesc(*copyDesc.NriTexture);
-        auto  stride      = GetFormatProps(textureDesc.format).stride;
 
         nri::TextureDataLayoutDesc layout{
             .offset     = copyDesc.BufferOffset,
-            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, copyDesc.TextureRegion.width * stride),
-            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, layout.rowPitch * copyDesc.TextureRegion.height)
+            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, textureDesc.format, copyDesc.TextureRegion.width),
+            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, textureDesc.format, layout.rowPitch, copyDesc.TextureRegion.height)
         };
         nriCore.CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.NriBuffer, layout, *copyDesc.NriTexture, copyDesc.TextureRegion);
     }

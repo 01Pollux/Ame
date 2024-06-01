@@ -10,6 +10,7 @@
 
 #include <Rhi/Staging/StagedBuffer.hpp>
 #include <Rhi/Staging/StagedTexture.hpp>
+#include <Rhi/Util/ResourceSize.hpp>
 
 BOOST_AUTO_TEST_SUITE(Staging)
 
@@ -77,8 +78,6 @@ BOOST_AUTO_TEST_CASE(ManualCopyBuffer)
 {
     auto device = GetDevice();
 
-    Rhi::CommandList commandList(device);
-
     static constexpr size_t c_BufferSize = 1024;
 
     Staging::StagedBuffer stagedBuffer(device, Staging::StagedAccessType::Write, { .size = c_BufferSize });
@@ -104,6 +103,8 @@ BOOST_AUTO_TEST_CASE(ManualCopyBuffer)
 
     device.BeginFrame();
     {
+        Rhi::CommandList commandList(device);
+
         commandList.RequireState(stagedBuffer.GetBuffer().Unwrap(), { Rhi::AccessBits::COPY_SOURCE, Rhi::StageBits::COPY });
         commandList.RequireState(buffer.Unwrap(), { Rhi::AccessBits::COPY_DESTINATION, Rhi::StageBits::COPY });
         commandList.CommitBarriers();

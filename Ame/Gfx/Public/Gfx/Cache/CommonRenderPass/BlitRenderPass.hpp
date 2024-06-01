@@ -15,6 +15,9 @@ namespace Ame::Gfx::Cache
         std::span<const Rhi::TextureSubresource> SrcSubresources;
         std::span<const Rhi::TextureSubresource> DstSubresources;
 
+        uint32_t SrcMipLevel = 0;
+        uint32_t DstMipLevel = 0;
+
         bool EnableAlpha    : 1 = false;
         bool SwapRBChannels : 1 = false;
 

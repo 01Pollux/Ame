@@ -25,13 +25,27 @@ namespace Ame::Rhi::Staging
         StagedAccessType   accessType) :
         m_DeviceDesc(rhiDevice.GetDesc()),
         m_Desc(desc),
+        m_TextureSize(
+            Util::GetUploadBufferTextureSize(
+                m_DeviceDesc,
+                desc.format,
+                desc.width,
+                desc.height,
+                desc.depth,
+                desc.mipNum,
+                1)),
         m_TextureBuffer(
             rhiDevice,
             StagedAccessToMemoryLocation(accessType),
             BufferDesc{
-                .size      = Util::GetUploadBufferTextureSize(m_DeviceDesc, desc),
+                .size      = m_TextureSize * desc.arraySize,
                 .usageMask = TextureUsageToBufferUsage(desc.usageMask) })
     {
+    }
+
+    const TextureDesc& StagedTexture::GetTextureDesc() const
+    {
+        return m_Desc;
     }
 
     const Buffer& StagedTexture::GetBuffer() const
@@ -44,25 +58,32 @@ namespace Ame::Rhi::Staging
         return m_TextureBuffer.GetDesc().size;
     }
 
-    BufferRange Staging::StagedTexture::GetRegion(
-        uint32_t                mipLevel,
-        uint32_t                arrayIndex,
-        TextureRect::Coordinate position) const
+    BufferRange StagedTexture::GetRegion(
+        uint32_t    mipLevel,
+        uint32_t    arrayIndex,
+        TextureRect rect) const
     {
         auto& formatProps = GetFormatProps(m_Desc.format);
+        auto  actualRect  = rect.Transform(mipLevel, m_Desc);
 
-        uint32_t width  = std::max(static_cast<uint32_t>(m_Desc.width), 1u) * formatProps.stride * formatProps.blockWidth;
-        uint32_t height = std::max(static_cast<uint32_t>(m_Desc.height), 1u) * formatProps.blockHeight;
-        uint32_t depth  = std::max(static_cast<uint32_t>(m_Desc.depth), 1u);
+        size_t offset = m_TextureSize * arrayIndex +
+                        Util::GetUploadBufferTextureFlatSize(m_DeviceDesc, m_Desc.format, actualRect.Position[0], actualRect.Position[1], actualRect.Position[2]);
 
-        size_t offset = Util::GetUploadBufferTextureSizeAt(
-            m_DeviceDesc,
-            width,
-            height,
-            depth,
-            mipLevel);
-        size_t sizeLeft = m_TextureBuffer.GetDesc().size - offset;
+        uint32_t width  = m_Desc.width;
+        uint32_t height = m_Desc.height;
+        uint32_t depth  = m_Desc.depth;
 
-        return BufferRange(offset, sizeLeft);
+        for (uint32_t i = 0; i < mipLevel; i++)
+        {
+            offset += Util::GetUploadBufferTextureFlatSize(m_DeviceDesc, m_Desc.format, width, height, depth);
+
+            width  = Util::GetTextureDimension(width, 1);
+            height = Util::GetTextureDimension(height, 1);
+            depth  = Util::GetTextureDimension(depth, 1);
+        }
+
+        size_t size = Util::GetUploadBufferTextureFlatSize(m_DeviceDesc, m_Desc.format, actualRect.Size[0], actualRect.Size[1], actualRect.Size[2]);
+
+        return BufferRange(offset, size);
     }
 } // namespace Ame::Rhi::Staging
