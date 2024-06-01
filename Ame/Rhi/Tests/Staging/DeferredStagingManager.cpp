@@ -22,7 +22,7 @@ namespace Staging = Ame::Rhi::Staging;
     desc.Type = Rhi::DeviceType::DirectX12;
     co_yield Rhi::Device(desc);
 
-    // desc.Type = Rhi::DeviceType::Vulkan;
+    desc.Type = Rhi::DeviceType::Vulkan;
     // co_yield Rhi::Device(desc);
 }
 
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(AutoUploadReadbackManyMips)
     BOOST_TEST(sizeof(leftSideColor) == sizeof(rightSideColor));
     BOOST_TEST(sizeof(leftSideColor) == sizeof(float[4]));
 
-    for (auto&& device : GetDevices())
+    for (auto& device : GetDevices())
     {
         for (uint32_t arrayCount = 1; arrayCount <= c_MaxArrayCount; arrayCount++)
         {
