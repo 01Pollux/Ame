@@ -50,11 +50,13 @@ namespace Ame::Rhi
             DedicatedAllocation handle({ AllocateDedicatedMemory(buffer, memoryDesc) }, AllocationType::Buffer);
             BindBufferToMemory(*m_RhiDevice, handle.Memory, *buffer, 0);
 
+            std::scoped_lock allocationLock(m_AllocationMutex);
             m_DedicatedSegments.emplace(buffer, std::move(handle));
         }
         else
         {
-            BlockAllocation handle({ m_Node.Bind(this, *buffer, memoryDesc) }, AllocationType::Buffer);
+            std::scoped_lock allocationLock(m_AllocationMutex);
+            BlockAllocation  handle({ m_Node.Bind(this, *buffer, memoryDesc) }, AllocationType::Buffer);
             if (!handle)
             {
                 Log::Rhi().Fatal("failed to create and bind buffer memory");
@@ -83,11 +85,13 @@ namespace Ame::Rhi
             DedicatedAllocation handle({ AllocateDedicatedMemory(texture, memoryDesc) }, AllocationType::Texture);
             BindTextureToMemory(*m_RhiDevice, handle.Memory, *texture, 0);
 
+            std::scoped_lock allocationLock(m_AllocationMutex);
             m_DedicatedSegments.emplace(texture, std::move(handle));
         }
         else
         {
-            BlockAllocation handle({ m_Node.Bind(this, *texture, memoryDesc) }, AllocationType::Texture);
+            std::scoped_lock allocationLock(m_AllocationMutex);
+            BlockAllocation  handle({ m_Node.Bind(this, *texture, memoryDesc) }, AllocationType::Texture);
             if (!handle)
             {
                 Log::Rhi().Fatal("failed to create and bind texture memory");
@@ -103,6 +107,7 @@ namespace Ame::Rhi
     void MemoryAllocator::Release(
         void* resource)
     {
+        std::scoped_lock allocationLock(m_AllocationMutex);
         if (auto iter = m_BlockHandles.find(resource); iter != m_BlockHandles.end())
         {
             auto& allocation = iter->second;

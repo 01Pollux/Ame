@@ -240,5 +240,7 @@ namespace Ame::Rhi
         SegmentNode       m_Node;
         DedicatedSegments m_DedicatedSegments;
         BlockHandleMap    m_BlockHandles;
+
+        std::mutex m_AllocationMutex;
     };
 } // namespace Ame::Rhi
