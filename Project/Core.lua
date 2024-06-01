@@ -6,6 +6,7 @@ target("Core")
         "ame.kangaru",
         "spdlog",
         "fmt",
+        "freeimage",
         "flecs",
         "cryptopp",
         "magic_enum",
