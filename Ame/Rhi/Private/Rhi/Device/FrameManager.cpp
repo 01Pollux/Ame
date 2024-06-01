@@ -46,8 +46,6 @@ namespace Ame::Rhi
         {
             m_FrameWrapper.Release(nriCore, memoryAllocator, i);
         }
-
-        m_FrameWrapper.FenceValue += m_FrameWrapper.FramesInFlightCount;
     }
 
     //
