@@ -71,12 +71,13 @@ namespace Ame::Rhi
         AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(nriBuffer), "Buffer is not being tracked");
 
         auto& pendingStates = m_PendingStates.Buffers[nriBuffer];
+
+        StripUnsupportedStages(state.stages);
+
         if (!append)
         {
             pendingStates.clear();
         }
-
-        StripUnsupportedStages(state.stages);
         pendingStates.push_back(state);
     }
 
@@ -94,17 +95,17 @@ namespace Ame::Rhi
         AME_LOG_ASSERT(Log::Rhi(), mipCount != 0 && arrayCount != 0, "Invalid mip or array count");
 
         auto& pendingStates = m_PendingStates.Textures[nriTexture];
-        if (!append)
-        {
-            pendingStates.clear();
-        }
 
         StripUnsupportedStages(state.stages);
         for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
             SubresourceIndex subresource(Mip, Array);
+            auto&            subresourceStates = pendingStates[subresource];
 
-            auto& subresourceStates = pendingStates[subresource];
+            if (!append)
+            {
+                subresourceStates.clear();
+            }
             subresourceStates.emplace_back(state);
         }
     }
@@ -120,11 +121,6 @@ namespace Ame::Rhi
         auto& pendingStates = m_PendingStates.Textures[nriTexture];
         AME_LOG_ASSERT(Log::Rhi(), pendingStates.size() == states.size(), "Texture is not being tracked");
 
-        if (!append)
-        {
-            pendingStates.clear();
-        }
-
         for (SubresourceIndexType i = 0; i < states.size(); i++)
         {
             pendingStates[i].emplace_back(states[i]);
@@ -135,6 +131,11 @@ namespace Ame::Rhi
         {
             SubresourceIndex subresource(Mip, Array);
             auto&            subresourceStates = pendingStates[subresource];
+
+            if (!append)
+            {
+                subresourceStates.clear();
+            }
             subresourceStates.emplace_back(states[Mip + Array * textureDesc.mipNum]);
         }
     }
@@ -233,7 +234,9 @@ namespace Ame::Rhi
         nri::CoreInterface& nriCore,
         nri::CommandBuffer& commandBuffer)
     {
-        if (m_PendingStates.Buffers.empty() && m_PendingStates.Textures.empty())
+        if (m_PendingStates.Buffers.empty() &&
+            m_PendingStates.Textures.empty() &&
+            m_GlobalBarriersCache.empty())
         {
             return;
         }
@@ -242,7 +245,9 @@ namespace Ame::Rhi
         auto textures = FlushTextures(nriCore);
 
         // dont perfom call if there is no state to transition to
-        if (!buffers.empty() || !textures.empty() || !m_GlobalBarriersCache.empty())
+        if (!buffers.empty() ||
+            !textures.empty() ||
+            !m_GlobalBarriersCache.empty())
         {
             nri::BarrierGroupDesc barriers{
                 .globals    = m_GlobalBarriersCache.data(),
@@ -308,52 +313,106 @@ namespace Ame::Rhi
     {
         auto& currentSubresources = m_CurrentStates.Textures[nriTexture];
 
-        bool statesMatch = true;
-
-        auto& firstOldState = currentSubresources.begin()->second;
-        auto  firstNewState = CollapseStates(newStates.begin()->second);
-
         std::vector<nri::TextureBarrierDesc> textureBarriers;
 
-        for (auto& [subresourceKey, newSubresourceStates] : newStates)
+        for (auto newStatesIter = newStates.begin(); newStatesIter != newStates.end();)
         {
-            auto& currentState  = currentSubresources[subresourceKey];
-            auto  finalNewState = CollapseStates(newSubresourceStates);
+            auto& [firstSubresourceKey, firstSubresourceStates] = *newStatesIter;
+            auto& firstCurrentState                             = currentSubresources[firstSubresourceKey];
 
-            if (IsNewStateRedundant(currentState.access, finalNewState.access))
+            auto firstNewState = CollapseStates(firstSubresourceStates);
+
+            // skip this state, since its redudant
+            if (IsNewStateRedundant(firstCurrentState.access, firstNewState.access))
             {
+                newStatesIter++;
                 continue;
             }
 
-            auto oldState = std::exchange(currentState, finalNewState);
+            auto oldState = std::exchange(firstCurrentState, firstNewState);
 
-            SubresourceIndex subresource(subresourceKey);
-            textureBarriers.emplace_back(nri::TextureBarrierDesc{
+            SubresourceIndex firstSubresource(firstSubresourceKey);
+
+            auto& batchBarrier = textureBarriers.emplace_back(nri::TextureBarrierDesc{
                 .texture     = nriTexture,
                 .before      = oldState,
-                .after       = finalNewState,
-                .mipOffset   = subresource.MipLevel,
+                .after       = firstNewState,
+                .mipOffset   = firstSubresource.MipLevel,
                 .mipNum      = 1,
-                .arrayOffset = subresource.ArraySlice,
+                .arrayOffset = firstSubresource.ArrayIndex,
                 .arraySize   = 1 });
 
-            // If any old subresource states do not match or any of the new states do not match
-            // then performing single transition barrier for all subresources is not possible
-            if (AreStateEqual(oldState, firstOldState) ||
-                !AreStateEqual(finalNewState, firstNewState))
+            newStatesIter++;
+            while (newStatesIter != newStates.end())
             {
-                statesMatch = false;
+                auto& [nextSubresourceKey, nextSubresourceStates] = *newStatesIter;
+                auto& nextCurrentState                            = currentSubresources[nextSubresourceKey];
+
+                auto nextNewState = CollapseStates(nextSubresourceStates);
+
+                SubresourceIndex nextSubresource(nextSubresourceKey);
+
+                // Check if the barrier can't be batched (mips aren't contiguous)
+                if ((batchBarrier.arrayOffset != nextSubresource.ArrayIndex) ||
+                    (batchBarrier.mipNum != nextSubresource.MipLevel))
+                {
+                    break;
+                }
+
+                // Don't bother batching, since both states must be equal to do so
+                if (!AreStateEqual(firstNewState, nextNewState))
+                {
+                    break;
+                }
+
+                // stop this loop, since the next state is not redudant, and we will restart the batching on the next loop
+                if (IsNewStateRedundant(nextCurrentState.access, nextNewState.access))
+                {
+                    break;
+                }
+
+                batchBarrier.mipNum++;
+                newStatesIter++;
             }
         }
 
-        // If multiple transitions were requested, but it's possible to make just one - do it
-        if (statesMatch && textureBarriers.size() > 1)
+        // Cull and collapse identical transition with same mips into sized array
+        auto firstBarrier = textureBarriers.begin();
+        while (firstBarrier != textureBarriers.end())
         {
-            textureBarriers.resize(1);
+            auto nextBarrier = firstBarrier + 1;
+            if (nextBarrier == textureBarriers.end())
+            {
+                break;
+            }
 
-            auto& textureDesc            = nriCore.GetTextureDesc(*nriTexture);
-            textureBarriers[0].mipNum    = textureDesc.mipNum;
-            textureBarriers[0].arraySize = textureDesc.arraySize;
+            auto previousBarrier = firstBarrier;
+            while (nextBarrier != textureBarriers.end())
+            {
+                if ((nextBarrier->arrayOffset == (previousBarrier->arrayOffset + 1)) &&
+                    (nextBarrier->mipOffset == firstBarrier->mipOffset) &&
+                    (nextBarrier->mipNum == firstBarrier->mipNum) &&
+                    AreStateEqual(firstBarrier->before, nextBarrier->before) &&
+                    AreStateEqual(firstBarrier->after, nextBarrier->after))
+                {
+                    previousBarrier = nextBarrier++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (nextBarrier != firstBarrier)
+            {
+                auto dist               = std::distance(firstBarrier, nextBarrier);
+                firstBarrier->arraySize = dist;
+                firstBarrier            = textureBarriers.erase(firstBarrier + 1, nextBarrier);
+            }
+            else
+            {
+                firstBarrier++;
+            }
         }
 
         return textureBarriers;

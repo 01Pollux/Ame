@@ -68,8 +68,6 @@ BOOST_AUTO_TEST_CASE(AutoCopyBuffer)
         device.EndFrame();
         device.WaitIdle();
 
-        //
-
         for (uint32_t i = 0; i < c_BufferSize / sizeof(SomeStruct); ++i)
         {
             SomeStruct data{ i, i + 1, i + 2, i + 3 };
@@ -83,9 +81,10 @@ BOOST_AUTO_TEST_CASE(AutoCopyBuffer)
 
 BOOST_AUTO_TEST_CASE(AutoUploadReadbackManyMips)
 {
-    static constexpr Rhi::Dim_t textureWidth   = 1024;
-    static constexpr Rhi::Dim_t textureHeight  = 720;
-    static constexpr Rhi::Mip_t c_MaxMipLevels = Rhi::TexMipCount(textureWidth, textureHeight);
+    static constexpr Rhi::Dim_t c_TextureWidth  = 20;
+    static constexpr Rhi::Dim_t c_TextureHeight = 20;
+    static constexpr Rhi::Dim_t c_MaxArrayCount = 4;
+    static constexpr Rhi::Mip_t c_MaxMipLevels  = Rhi::TexMipCount(c_TextureWidth, c_TextureHeight);
 
     constexpr auto leftSideColor  = Ame::Colors::c_Red;
     constexpr auto rightSideColor = Ame::Colors::c_Blue;
@@ -96,69 +95,84 @@ BOOST_AUTO_TEST_CASE(AutoUploadReadbackManyMips)
 
     for (auto&& device : GetDevices())
     {
-        for (uint32_t mipCount = 1; mipCount <= c_MaxMipLevels; mipCount++)
+        for (uint32_t arrayCount = 1; arrayCount <= c_MaxArrayCount; arrayCount++)
         {
-            const auto textureDesc = Rhi::Tex2D(Rhi::ResourceFormat::RGBA32_SFLOAT, textureWidth, textureHeight, mipCount);
-
-            Staging::StagedTexture stagedTexture(device, textureDesc, Staging::StagedAccessType::Write);
-            Rhi::Texture           texture(device, Rhi::MemoryLocation::DEVICE, textureDesc);
-            Staging::StagedTexture readbackTexture(device, textureDesc, Staging::StagedAccessType::Read);
-
-            Staging::DeferredStagingManager manager(device);
-
-            for (Rhi::Mip_t i = 0; i < textureDesc.mipNum; i++)
+            for (uint32_t mipCount = 1; mipCount <= c_MaxMipLevels; mipCount++)
             {
-                auto& region = readbackTexture.GetRegion(i);
-                for (uint32_t y = 0; y < region.Height; y++)
+                device.WaitIdle();
+                const auto textureDesc = Rhi::Tex2D(Rhi::ResourceFormat::RGBA32_SFLOAT, c_TextureWidth, c_TextureHeight, mipCount, arrayCount, Rhi::TextureUsageBits::NONE);
+
+                Staging::StagedTexture stagedTexture(device, textureDesc, Staging::StagedAccessType::Write);
+                Rhi::Texture           texture(device, Rhi::MemoryLocation::DEVICE, textureDesc);
+                Staging::StagedTexture readbackTexture(device, textureDesc, Staging::StagedAccessType::Read);
+
+                Staging::DeferredStagingManager manager(device);
+
+                for (Rhi::Dim_t arr = 0; arr < textureDesc.arraySize; arr++)
                 {
-                    for (uint32_t x = 0; x < region.Width; x++)
+                    for (Rhi::Mip_t mip = 0; mip < textureDesc.mipNum; mip++)
                     {
-                        auto&  color  = (x < (region.Width / 2)) ? leftSideColor : rightSideColor;
-                        auto   ptr    = stagedTexture.GetBuffer().GetPtr();
-                        size_t offset = region.OffsetAt(x, y);
-                        std::memcpy(std::bit_cast<Ame::Math::Color4*>(ptr + offset), &color, sizeof(color));
+                        auto& region = readbackTexture.GetRegion(mip, arr);
+                        for (uint32_t y = 0; y < region.Height; y++)
+                        {
+                            for (uint32_t x = 0; x < region.Width; x++)
+                            {
+                                auto&  color  = (x < (region.Width / 2)) ? leftSideColor : rightSideColor;
+                                auto   ptr    = stagedTexture.GetBuffer().GetPtr();
+                                size_t offset = region.OffsetAt(x, y);
+                                std::memcpy(std::bit_cast<Ame::Math::Color4*>(ptr + offset), &color, sizeof(color));
+                            }
+                        }
                     }
                 }
-            }
 
-            device.BeginFrame();
-            {
-                for (Rhi::Mip_t i = 0; i < textureDesc.mipNum; i++)
+                device.BeginFrame();
                 {
-                    auto& region = readbackTexture.GetRegion(i);
-                    manager.QueueUpload(
-                        { { .NriTexture = texture.Unwrap(),
-                            .NriBuffer  = stagedTexture.GetBuffer().Unwrap(),
-                            .TextureRegion{
-                                .width     = region.Width,
-                                .height    = region.Height,
-                                .depth     = region.Depth,
-                                .mipOffset = i },
-                            .BufferOffset = region.Offset } });
-                }
-                manager.Flush();
+                    for (Rhi::Dim_t arr = 0; arr < textureDesc.arraySize; arr++)
+                    {
+                        for (Rhi::Mip_t mip = 0; mip < textureDesc.mipNum; mip++)
+                        {
+                            auto& region = stagedTexture.GetRegion(mip, arr);
+                            manager.QueueUpload(
+                                { { .NriTexture = texture.Unwrap(),
+                                    .NriBuffer  = stagedTexture.GetBuffer().Unwrap(),
+                                    .TextureRegion{
+                                        .width       = region.Width,
+                                        .height      = region.Height,
+                                        .depth       = region.Depth,
+                                        .mipOffset   = mip,
+                                        .arrayOffset = arr },
+                                    .BufferOffset = region.Offset } });
+                        }
+                    }
+                    manager.Flush();
 
-                for (Rhi::Mip_t i = 0; i < textureDesc.mipNum; i++)
-                {
-                    auto& region = readbackTexture.GetRegion(i);
-                    manager.QueueReadback(
-                        { { .NriTexture = texture.Unwrap(),
-                            .NriBuffer  = readbackTexture.GetBuffer().Unwrap(),
-                            .TextureRegion{
-                                .width     = region.Width,
-                                .height    = region.Height,
-                                .depth     = region.Depth,
-                                .mipOffset = i },
-                            .BufferOffset = region.Offset } });
+                    for (Rhi::Dim_t arr = 0; arr < textureDesc.arraySize; arr++)
+                    {
+                        for (Rhi::Mip_t mip = 0; mip < textureDesc.mipNum; mip++)
+                        {
+                            auto& region = readbackTexture.GetRegion(mip, arr);
+                            manager.QueueReadback(
+                                { { .NriTexture = texture.Unwrap(),
+                                    .NriBuffer  = readbackTexture.GetBuffer().Unwrap(),
+                                    .TextureRegion{
+                                        .width       = region.Width,
+                                        .height      = region.Height,
+                                        .depth       = region.Depth,
+                                        .mipOffset   = mip,
+                                        .arrayOffset = arr },
+                                    .BufferOffset = region.Offset } });
+                        }
+                    }
+                    manager.Flush();
                 }
-                manager.Flush();
+                device.EndFrame();
+                device.WaitIdle();
+
+                //
+
+                BOOST_TEST(std::memcmp(stagedTexture.GetBuffer().GetPtr(), readbackTexture.GetBuffer().GetPtr(), stagedTexture.GetBufferSize()) == 0);
             }
-            device.EndFrame();
-            device.WaitIdle();
-
-            //
-
-            BOOST_TEST(std::memcmp(stagedTexture.GetBuffer().GetPtr(), readbackTexture.GetBuffer().GetPtr(), stagedTexture.GetBufferSize()) == 0);
         }
     }
 }

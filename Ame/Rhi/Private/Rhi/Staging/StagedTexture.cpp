@@ -9,14 +9,16 @@ namespace Ame::Rhi::Staging
     [[nodiscard]] static BufferUsageBits TextureUsageToBufferUsage(
         TextureUsageBits usage)
     {
-        switch (usage)
+        BufferUsageBits bufferUsage = BufferUsageBits::NONE;
+        if ((usage & TextureUsageBits::SHADER_RESOURCE))
         {
-        case TextureUsageBits::SHADER_RESOURCE:
-            return BufferUsageBits::SHADER_RESOURCE;
-        case TextureUsageBits::SHADER_RESOURCE_STORAGE:
-            return BufferUsageBits::SHADER_RESOURCE_STORAGE;
+            bufferUsage |= BufferUsageBits::SHADER_RESOURCE;
         }
-        return BufferUsageBits::NONE;
+        if ((usage & TextureUsageBits::SHADER_RESOURCE_STORAGE))
+        {
+            bufferUsage |= BufferUsageBits::SHADER_RESOURCE_STORAGE;
+        }
+        return bufferUsage;
     }
 
     StagedTexture::StagedTexture(
@@ -33,7 +35,7 @@ namespace Ame::Rhi::Staging
                 desc.height,
                 desc.depth,
                 desc.mipNum,
-                1)),
+                desc.arraySize)),
         m_TextureBuffer(
             rhiDevice,
             StagedAccessToMemoryLocation(accessType),

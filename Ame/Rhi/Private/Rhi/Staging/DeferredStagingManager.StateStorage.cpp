@@ -23,8 +23,8 @@ namespace Ame::Rhi::Staging
     {
         for (auto& desc : descs)
         {
-            PersistTexture(commandList, desc.Src.PreserveSrcState, desc.Src.NriTexture, AccessBits::COPY_SOURCE, LayoutType::COPY_SOURCE);
-            PersistTexture(commandList, desc.Src.PreserveSrcState, desc.Dst.NriTexture, AccessBits::COPY_DESTINATION, LayoutType::COPY_DESTINATION);
+            PersistTexture(commandList, desc.Src.PreserveSrcState, desc.Src.NriTexture, desc.Src.Region ? &*desc.Src.Region : nullptr, AccessBits::COPY_SOURCE, LayoutType::COPY_SOURCE);
+            PersistTexture(commandList, desc.Dst.PreserveSrcState, desc.Dst.NriTexture, desc.Dst.Region ? &*desc.Dst.Region : nullptr, AccessBits::COPY_DESTINATION, LayoutType::COPY_DESTINATION);
         }
     }
 
@@ -35,7 +35,7 @@ namespace Ame::Rhi::Staging
         for (auto& desc : descs)
         {
             PersistBuffer(commandList, desc.PreserveSrcState, desc.NriBuffer, AccessBits::COPY_SOURCE);
-            PersistTexture(commandList, desc.PreserveDstState, desc.NriTexture, AccessBits::COPY_DESTINATION, LayoutType::COPY_DESTINATION);
+            PersistTexture(commandList, desc.PreserveDstState, desc.NriTexture, &desc.TextureRegion, AccessBits::COPY_DESTINATION, LayoutType::COPY_DESTINATION);
         }
     }
 
@@ -45,7 +45,7 @@ namespace Ame::Rhi::Staging
     {
         for (auto& desc : descs)
         {
-            PersistTexture(commandList, desc.PreserveSrcState, desc.NriTexture, AccessBits::COPY_SOURCE, LayoutType::COPY_SOURCE);
+            PersistTexture(commandList, desc.PreserveSrcState, desc.NriTexture, &desc.TextureRegion, AccessBits::COPY_SOURCE, LayoutType::COPY_SOURCE);
             PersistBuffer(commandList, desc.PreserveDstState, desc.NriBuffer, AccessBits::COPY_DESTINATION);
         }
     }
@@ -99,6 +99,7 @@ namespace Ame::Rhi::Staging
         AccessBits   accessBits)
     {
         commandList.RequireState(nriBuffer, { accessBits, Rhi::StageBits::COPY });
+
         m_NeedCommit = true;
         if (persist && !m_BuffersState.contains(nriBuffer))
         {
@@ -107,13 +108,18 @@ namespace Ame::Rhi::Staging
     }
 
     void DeferredStagingManager::StateStorage::PersistTexture(
-        CommandList&  commandList,
-        bool          persist,
-        nri::Texture* nriTexture,
-        AccessBits    accessBits,
-        LayoutType    layoutType)
+        CommandList&             commandList,
+        bool                     persist,
+        nri::Texture*            nriTexture,
+        const TextureRegionDesc* region,
+        AccessBits               accessBits,
+        LayoutType               layoutType)
     {
-        commandList.RequireState(nriTexture, { accessBits, layoutType, Rhi::StageBits::COPY });
+        TextureSubresource subresource(
+            region ? MipLevel(region->mipOffset, 1) : c_EntireMipChain,
+            region ? ArraySlice(region->arrayOffset, 1) : c_EntireArray);
+        commandList.RequireState(nriTexture, { accessBits, layoutType, Rhi::StageBits::COPY }, subresource);
+
         m_NeedCommit = true;
         if (persist && !m_TexturesState.contains(nriTexture))
         {

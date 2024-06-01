@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <unordered_map>
 #include <type_traits>
 
@@ -16,17 +17,17 @@ namespace Ame::Rhi
         struct SubresourceIndex
         {
             nri::Mip_t MipLevel;
-            nri::Dim_t ArraySlice;
+            nri::Dim_t ArrayIndex;
 
             operator SubresourceIndexType() const
             {
-                return (MipLevel << 16) | ArraySlice;
+                return (ArrayIndex << 16) | MipLevel;
             }
 
             constexpr explicit SubresourceIndex(
                 uint32_t index) :
-                MipLevel(index >> 16),
-                ArraySlice(index & 0xFFFF)
+                MipLevel(index & 0xFFFF),
+                ArrayIndex(index >> 16)
             {
             }
 
@@ -34,7 +35,7 @@ namespace Ame::Rhi
                 nri::Mip_t mipLevel,
                 nri::Dim_t arraySlice) :
                 MipLevel(mipLevel),
-                ArraySlice(arraySlice)
+                ArrayIndex(arraySlice)
             {
             }
         };
@@ -50,7 +51,7 @@ namespace Ame::Rhi
         using AtomBufferSubresourceStateList = std::conditional_t<Many, std::vector<AtomicBufferSubresourceState>, AtomicBufferSubresourceState>;
 
         template<bool Many>
-        using TextureSubresourceStates = std::unordered_map<SubresourceIndexType, AtomTextureSubresourceStateList<Many>>;
+        using TextureSubresourceStates = std::map<SubresourceIndexType, AtomTextureSubresourceStateList<Many>>;
         template<bool Many>
         using BufferSubresourceStates = AtomBufferSubresourceStateList<Many>;
 

@@ -75,11 +75,12 @@ namespace Ame::Rhi::Staging
         /// Persist texture
         /// </summary>
         void PersistTexture(
-            CommandList&  commandList,
-            bool          persist,
-            nri::Texture* nriTexture,
-            AccessBits    accessBits,
-            LayoutType    layoutType);
+            CommandList&             commandList,
+            bool                     persist,
+            nri::Texture*            nriTexture,
+            const TextureRegionDesc* region,
+            AccessBits               accessBits,
+            LayoutType               layoutType);
 
     private:
         using BufferStateMap  = boost::container::flat_map<nri::Buffer*, AccessStage>;
