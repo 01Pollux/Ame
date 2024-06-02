@@ -25,6 +25,11 @@ namespace Ame::Rhi::Util
         /// The usage flags of the buffer
         /// </summary>
         BufferUsageBits UsageFlags = BufferUsageBits::NONE;
+
+        /// <summary>
+        /// The memory location of the buffer
+        /// </summary>
+        MemoryLocation Location = MemoryLocation::HOST_UPLOAD;
     };
 
     /// <summary>
@@ -268,7 +273,7 @@ namespace Ame::Rhi::Util
                 return {};
             }
 
-            auto& block  = m_Blocks.emplace_back(m_Device.get(), m_Desc.Size, m_Desc.UsageFlags);
+            auto& block  = m_Blocks.emplace_back(m_Device.get(), m_Desc.Location, m_Desc.Size, m_Desc.UsageFlags);
             auto  handle = block.Buddy.Allocate(size);
 
             return {
@@ -368,6 +373,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         [[nodiscard]] static Buffer CreateBuffer(
             Device&         rhiDevice,
+            MemoryLocation  location,
             uint32_t        size,
             BufferUsageBits usageFlags)
         {
@@ -378,7 +384,7 @@ namespace Ame::Rhi::Util
 
             return Buffer(
                 rhiDevice,
-                MemoryLocation::HOST_UPLOAD,
+                location,
                 desc);
         }
 
@@ -420,10 +426,11 @@ namespace Ame::Rhi::Util
 
             Block(
                 Device&         rhiDevice,
+                MemoryLocation  location,
                 uint32_t        size,
                 BufferUsageBits usageFlags) :
                 Buddy(size),
-                BufferRef(CreateBuffer(rhiDevice, size, usageFlags)),
+                BufferRef(CreateBuffer(rhiDevice, location, size, usageFlags)),
                 Stream(std::make_unique<Streaming::BufferOStream>(Streaming::BufferView(BufferRef)))
             {
             }

@@ -35,6 +35,11 @@ namespace Ame::Rhi::Util
         /// Usage flags of the buffer
         /// </summary>
         BufferUsageBits UsageFlags = BufferUsageBits::SHADER_RESOURCE;
+
+        /// <summary>
+        /// Memory location of the buffer
+        /// </summary>
+        MemoryLocation Location = MemoryLocation::HOST_UPLOAD;
     };
 
     /// <summary>
@@ -46,10 +51,10 @@ namespace Ame::Rhi::Util
     class SlotBasedBuffer
     {
     public:
-        using Type                                  = Ty;
-        static constexpr uint32_t c_SizePerInstance = sizeof(Type);
-        static constexpr uint32_t c_InvalidIndex    = std::numeric_limits<uint32_t>::max();
-        static constexpr uint64_t c_InvalidValue64  = std::numeric_limits<uint64_t>::max();
+        using Type                                         = Ty;
+        static constexpr uint32_t c_AlignedSizePerInstance = Math::AlignUp(sizeof(Type), 16);
+        static constexpr uint32_t c_InvalidIndex           = std::numeric_limits<uint32_t>::max();
+        static constexpr uint64_t c_InvalidValue64         = std::numeric_limits<uint64_t>::max();
 
     private:
         struct Handle
@@ -99,7 +104,7 @@ namespace Ame::Rhi::Util
             const Type& data)
         {
             AllocationMustExists(slot);
-            Write(slot, std::addressof(data), c_SizePerInstance);
+            Write(slot, std::addressof(data), sizeof(Type));
         }
 
         /// <summary>
@@ -124,7 +129,7 @@ namespace Ame::Rhi::Util
             uint32_t slot) const
         {
             AllocationMustExists(slot);
-            return Math::AlignUp(static_cast<size_t>(slot) * c_SizePerInstance, m_Desc.Alignment);
+            return Math::AlignUp(static_cast<size_t>(slot) * c_AlignedSizePerInstance, m_Desc.Alignment);
         }
 
         /// <summary>
@@ -338,17 +343,17 @@ namespace Ame::Rhi::Util
         /// Create an empty buffer
         /// </summary>
         [[nodiscard]] auto CreateBuffer(
-            uint32_t instanceCount)
+            uint32_t instanceCount) const
         {
             BufferDesc desc{
-                .size            = c_SizePerInstance * instanceCount,
-                .structureStride = c_SizePerInstance,
+                .size            = c_AlignedSizePerInstance * instanceCount,
+                .structureStride = c_AlignedSizePerInstance,
                 .usageMask       = m_Desc.UsageFlags,
             };
 
             return Buffer(
                 m_Device.get(),
-                MemoryLocation::HOST_UPLOAD,
+                m_Desc.Location,
                 desc);
         }
 
