@@ -27,12 +27,12 @@ Ecs_PSInput VS_Main(
 	Transform transform = g_Transforms[instance.TransformIndex];
 	
 	float4 PositionWS = float4(input.Position, 1.0f);
-	PositionWS = mul(transform.World, PositionWS);
-	output.Position = mul(g_FrameInfo.ViewProjection, PositionWS);
+	PositionWS = mul(PositionWS, transform.World);
+	output.Position = mul(PositionWS, g_FrameInfo.ViewProjection);
 	output.PositionWS = PositionWS.xyz;
 	
-	output.NormalWS = mul(float4(input.Normal, 0.0f), transform.World).xyz;
-	output.TangentWS = mul(float4(input.Tangent, 0.0f), transform.World).xyz;
+	output.NormalWS = mul(transform.World, float4(input.Normal, 0.0f)).xyz;
+	output.TangentWS = mul(transform.World, float4(input.Tangent, 0.0f)).xyz;
 	output.BitangentWS = normalize(cross(output.NormalWS, output.TangentWS));
 
 	output.TexCoord = input.TexCoord;
