@@ -78,7 +78,7 @@ namespace Ame::Rhi
         }
 
     public:
-        operator bool() const
+        explicit operator bool() const noexcept
         {
             return m_Bytecode != nullptr;
         }

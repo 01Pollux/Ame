@@ -43,7 +43,13 @@ namespace Ame::Rhi
 
         ~Texture();
 
-        operator bool() const noexcept
+        auto operator==(
+            const Texture& other) const
+        {
+            return m_Texture == other.m_Texture;
+        }
+
+        explicit operator bool() const noexcept
         {
             return m_Texture != nullptr;
         }

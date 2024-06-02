@@ -13,13 +13,13 @@ namespace Ame::Allocator
             size_t Offset = std::numeric_limits<size_t>::max();
             size_t Size   = 0;
 
-            operator bool() const noexcept
+            explicit operator bool() const noexcept
             {
                 return Size != 0;
             }
 
             [[nodiscard]] auto operator<=>(
-				const Handle& other) const noexcept = default;
+                const Handle& other) const noexcept = default;
         };
 
         explicit Buddy(

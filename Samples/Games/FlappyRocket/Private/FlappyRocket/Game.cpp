@@ -105,20 +105,33 @@ namespace Ame::FlappyRocket
     {
         auto& world = *m_EcsUniverse->GetActiveWorld();
 
-        auto player       = world.CreateEntity(c_PlayerName);
-        auto playerSprite = Ecs::Component::Sprite::Quad();
+        auto material = CreateMaterial(*m_Device, *m_ShaderCache);
+        SetMaterialProperties(*m_AssetStorage, c_TextureGuid, material);
+        for (float y = -50.f; y < 100.f; y += 1.f)
+        {
+            for (float x = -50.f; x < 100.f; x += 1.f)
+            {
+                auto name = "Player" + std::to_string(static_cast<int>(x)) + "_" + std::to_string(static_cast<int>(y));
 
-        playerSprite.Material = CreateMaterial(*m_Device, *m_ShaderCache);
-        SetMaterialProperties(*m_AssetStorage, c_TextureGuid, playerSprite.Material);
+                auto player       = world.CreateEntity(name);
+                auto playerSprite = Ecs::Component::Sprite::Quad();
 
-        player.AddComponent(std::move(playerSprite));
-        player.AddComponent<Ecs::Component::Transform>();
+                playerSprite.Material = material;
+
+                player.AddComponent(std::move(playerSprite));
+
+                Ecs::Component::Transform transform;
+                transform.SetPosition({ x, y, 0.f });
+
+                player.AddComponent(std::move(transform));
+            }
+        }
 
         auto camera = world.CreateEntity(c_CameraName);
         camera.AddComponent<Ecs::Component::Camera>();
         camera.AddComponent<Ecs::Component::Transform>(
             Math::Mat::c_Identity<Math::Matrix3x3>,
-            Math::Vec::c_Backward<Math::Vector3> );
+            Math::Vec::c_Backward<Math::Vector3>);
 
         camera.AddComponent<Ecs::Component::CameraOutput>(
             Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);

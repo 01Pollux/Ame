@@ -9,12 +9,12 @@ namespace Ame::Ecs
     {
     }
 
-    //
-
-    Entity::operator bool() const
+    Entity::operator bool() const noexcept
     {
         return m_Entity.is_alive();
     }
+
+    //
 
     void Entity::Reset(
         bool withChildren)

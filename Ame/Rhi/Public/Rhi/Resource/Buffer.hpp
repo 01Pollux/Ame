@@ -51,7 +51,13 @@ namespace Ame::Rhi
 
         ~Buffer();
 
-        operator bool() const noexcept
+        [[nodiscard]] bool operator==(
+            const Buffer& other) const noexcept
+        {
+            return m_Buffer == other.m_Buffer;
+        }
+
+        explicit operator bool() const noexcept
         {
             return m_Buffer != nullptr;
         }

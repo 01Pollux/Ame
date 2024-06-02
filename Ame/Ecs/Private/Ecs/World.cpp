@@ -68,7 +68,7 @@ namespace Ame::Ecs
         auto entity = m_World->entity();
         if (parent)
         {
-            entity.child_of(parent);
+            entity.child_of(parent.GetFlecsEntity());
         }
         auto safeName = GetUniqueEntityName(name.data(), parent);
         entity.set_name(safeName.c_str());

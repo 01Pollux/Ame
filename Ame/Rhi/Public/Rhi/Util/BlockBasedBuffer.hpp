@@ -54,7 +54,7 @@ namespace Ame::Rhi::Util
             size_t   Offset    = c_InvalidValue64;
             size_t   Size      = c_InvalidValue64;
 
-            operator bool() const
+            explicit operator bool() const noexcept
             {
                 return BlockSlot != c_InvalidValue;
             }

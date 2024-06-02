@@ -13,7 +13,7 @@ namespace Ame::Rhi
 {
     struct AdapterDesc : nri::AdapterDesc
     {
-        [[nodiscard]] operator bool() const noexcept
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return vendor != nri::Vendor::UNKNOWN;
         }

@@ -95,7 +95,7 @@ namespace Ame::Rhi
             Allocator::Buddy*        Allocator = nullptr;
             Allocator::Buddy::Handle AllocHandle;
 
-            [[nodiscard]] operator bool() const
+            [[nodiscard]] explicit operator bool() const noexcept
             {
                 return Allocator != nullptr;
             }

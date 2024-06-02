@@ -48,7 +48,7 @@ namespace Ame::Gfx::RG
             return m_Id <=> other.m_Id;
         }
 
-        operator bool() const noexcept
+        explicit operator bool() const noexcept
         {
             return static_cast<size_t>(m_Id) != c_InvalidId;
         }
@@ -106,7 +106,7 @@ namespace Ame::Gfx::RG
             return m_ViewId;
         }
 
-        operator bool() const noexcept
+        explicit operator bool() const noexcept
         {
             return m_Resource && static_cast<size_t>(m_ViewId) != InvalidId;
         }
@@ -161,7 +161,7 @@ namespace Ame::Gfx::RG
 
         ~ResourceHandle();
 
-        operator bool() const noexcept;
+        explicit operator bool() const noexcept;
 
     public:
         /// <summary>

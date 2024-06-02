@@ -17,7 +17,13 @@ namespace Ame::Rhi
         {
         }
 
-        operator bool() const noexcept
+        [[nodiscard]] bool operator==(
+            const DescriptorSet& other) const noexcept
+        {
+            return m_Set == other.m_Set;
+        }
+
+        explicit operator bool() const noexcept
         {
             return m_Set != nullptr;
         }

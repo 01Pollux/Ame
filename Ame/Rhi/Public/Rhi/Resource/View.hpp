@@ -48,7 +48,13 @@ namespace Ame::Rhi
 
         ~ResourceView();
 
-        operator bool() const noexcept
+        auto operator<=>(
+            const ResourceView& other) const
+        {
+            return m_Descriptor == other.m_Descriptor;
+        }
+
+        explicit operator bool() const noexcept
         {
             return m_Descriptor != nullptr;
         }

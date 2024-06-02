@@ -107,14 +107,9 @@ namespace Ame::Asset
 
         //
 
-        [[nodiscard]] operator bool() const
+        [[nodiscard]] explicit operator bool() const noexcept
         {
             return m_Asset.index() != 0;
-        }
-
-        [[nodiscard]] bool operator!() const
-        {
-            return !operator bool();
         }
 
         [[nodiscard]] auto Get()

@@ -28,7 +28,7 @@ namespace Ame::Gfx::RG
         transformBuffer.Flush();
 
         if (!transformTable ||
-            *transformTable.AsBuffer() != transformBuffer.GetBuffer()) [[unlikely]]
+            (transformBuffer.GetBuffer() != *transformTable.AsBuffer())) [[unlikely]]
         {
             transformTable.Import(m_CoreResources->GetTransformBuffer().GetBuffer());
         }

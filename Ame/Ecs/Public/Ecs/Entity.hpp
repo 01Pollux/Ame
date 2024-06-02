@@ -15,9 +15,9 @@ namespace Ame::Ecs
         Entity(
             flecs::entity flecsEntity);
 
-    public:
-        operator bool() const;
+        explicit operator bool() const noexcept;
 
+    public:
         /// <summary>
         /// Release the entity.
         /// </summary>
