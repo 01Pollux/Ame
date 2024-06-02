@@ -39,10 +39,27 @@ namespace Ame::Rhi::Staging
     class StagedTexture
     {
     public:
+        StagedTexture() = default;
+
         StagedTexture(
             Device&            rhiDevice,
             const TextureDesc& desc,
             StagedAccessType   accessType);
+
+        StagedTexture(
+            Device&            rhiDevice,
+            const TextureDesc& desc,
+            size_t             size,
+            size_t             offset,
+            Buffer             buffer);
+
+    public:
+        /// <summary>
+        /// Get the texture size for the specified desc.
+        /// </summary>
+        static size_t GetTextureSize(
+            const DeviceDesc&  deviceDesc,
+            const TextureDesc& textureDesc);
 
     public:
         /// <summary>
@@ -54,6 +71,11 @@ namespace Ame::Rhi::Staging
         /// Get the underlying buffer.
         /// </summary>
         [[nodiscard]] const Buffer& GetBuffer() const;
+
+        /// <summary>
+        /// Get the underlying buffer.
+        /// </summary>
+        [[nodiscard]] Buffer& GetBuffer();
 
         /// <summary>
         /// Get the buffer size.
@@ -82,13 +104,16 @@ namespace Ame::Rhi::Staging
         [[nodiscard]] static StagedTextureRegionList CreateRegions(
             const DeviceDesc&  deviceDesc,
             const TextureDesc& textureDesc,
-            size_t             textureSize);
+            size_t             textureSize,
+            size_t             relativeOffset);
 
     private:
-        Ref<const DeviceDesc>   m_DeviceDesc;
-        TextureDesc             m_Desc;
-        size_t                  m_TextureSize = 0;
-        Buffer                  m_TextureBuffer;
+        const DeviceDesc* m_DeviceDesc = nullptr;
+        TextureDesc       m_Desc;
+
+        size_t m_TextureSize = 0;
+        Buffer m_TextureBuffer;
+
         StagedTextureRegionList m_Regions;
     };
 } // namespace Ame::Rhi::Staging

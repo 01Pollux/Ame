@@ -24,6 +24,10 @@ target_end()
 
 --
 
+includes("Plugins.lua")
+
+--
+
 target("Resource")
     ame_utils:add_library("Ame", "static", "Ame/Resource")
     add_deps("Core", {public = true, inherit = true})
@@ -42,7 +46,11 @@ target("Rhi")
         "ame.nri",
         "directxshadercompiler",
         {public = true, inherit = true})
-    add_deps({ "Windowing", "Resource" }, {public = true, inherit = true})
+    add_deps({
+        "Plugins.FreeImage",
+        "Windowing",
+        "Resource"
+    }, {public = true, inherit = true})
 target_end()
 
 --

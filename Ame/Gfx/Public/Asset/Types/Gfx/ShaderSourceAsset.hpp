@@ -10,8 +10,6 @@ namespace Ame::Asset::Gfx
         using ShaderCache = Ame::Gfx::Cache::ShaderCache;
 
     public:
-        static constexpr size_t UID = 19456857095889080;
-
         class Handler;
 
     public:

@@ -167,26 +167,6 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Mutate the state of a nriBuffer
-        /// </summary>
-        void MutateState(
-            nri::Buffer*                 nriBuffer,
-            AtomicBufferSubresourceState state);
-
-        /// <summary>
-        /// Mutate the state of a nriTexture
-        /// </summary>
-        void MutateState(
-            nri::CoreInterface&           nriCore,
-            nri::Texture*                 nriTexture,
-            AtomicTextureSubresourceState state,
-            nri::Mip_t                    mipLevel   = 0,
-            nri::Mip_t                    mipCount   = nri::REMAINING_MIP_LEVELS,
-            nri::Dim_t                    arraySlice = 0,
-            nri::Dim_t                    arrayCount = nri::REMAINING_ARRAY_LAYERS);
-
-    public:
-        /// <summary>
         /// Commit all the pending barriers
         /// </summary>
         void CommitBarriers(

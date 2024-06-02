@@ -93,11 +93,11 @@ namespace Ame::Asset
         /// Not thread safe.
         /// </summary>
         template<typename Ty, typename... ArgsTy>
-            requires std::derived_from<Ty, IAsset>
+            requires std::derived_from<Ty, IAssetHandler>
         void RegisterHandler(
             ArgsTy&&... args)
         {
-            RegisterHandler(Ty::UID, std::make_unique<typename Ty::Handler>(std::forward<ArgsTy>(args)...));
+            RegisterHandler(Ty::UID, std::make_unique<Ty>(std::forward<ArgsTy>(args)...));
         }
 
         /// <summary>

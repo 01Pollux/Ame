@@ -1,6 +1,7 @@
 #pragma once
 
 #include <set>
+#include <mutex>
 
 #include <Rhi/Device/MemoryDesc.hpp>
 #include <Allocator/Utils/Buddy.hpp>

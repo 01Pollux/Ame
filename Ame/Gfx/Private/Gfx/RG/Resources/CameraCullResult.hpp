@@ -25,7 +25,7 @@ namespace Ame::Gfx::RG
             .UsageFlags = Rhi::BufferUsageBits::INDEX_BUFFER
         };
         Rhi::Util::SlotBasedBufferDesc InstanceDesc{
-            .UsageFlags = Rhi::BufferUsageBits::SHADER_RESOURCE,
+            .UsageFlags = Rhi::BufferUsageBits::SHADER_RESOURCE
         };
         // Estimated number of unique objects per camera
         uint32_t EstimatedRowSize       = 1024;

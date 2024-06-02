@@ -17,7 +17,7 @@ namespace Ame::Gfx::Cache
         Rhi::Device& rhiDevice,
         EngineFrame& engineFrame) :
         m_Device(rhiDevice),
-        m_DynamicBuffer(rhiDevice)
+        m_DynamicBuffer(rhiDevice, c_DynamicBufferDesc)
     {
         m_EndFrameHandle = {
             engineFrame.OnUpdate()
@@ -97,7 +97,17 @@ namespace Ame::Gfx::Cache
 
         if (!descriptors.empty())
         {
-            setCache.DescriptorSet.SetRange(0, { descriptors.data(), Rhi::Count32(descriptors) });
+            std::vector<Rhi::DescriptorRangeUpdateDesc> rangeUpdateDescs;
+            rangeUpdateDescs.reserve(descriptors.size());
+
+            for (uint32_t i = 0; i < descriptors.size(); ++i)
+            {
+                auto& range = rangeUpdateDescs.emplace_back();
+                range.offsetInRange = 0;
+                range.descriptors    = &descriptors[i];
+                range.descriptorNum = 1;
+            }
+            setCache.DescriptorSet.SetRanges(0, rangeUpdateDescs);
         }
     }
 

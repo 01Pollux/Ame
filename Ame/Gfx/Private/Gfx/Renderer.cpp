@@ -2,6 +2,7 @@
 
 #include <Frame/EngineFrame.hpp>
 #include <Rhi/Device/Device.hpp>
+#include <Rhi/Staging/DeferredStagingManager.hpp>
 #include <Gfx/RG/Graph.hpp>
 #include <Gfx/Cache/CommonRenderPass.hpp>
 
@@ -12,16 +13,18 @@
 namespace Ame::Gfx
 {
     Renderer::Renderer(
-        EngineFrame&             engineFrame,
-        FrameTimer&              frameTimer,
-        Rhi::Device&             rhiDevice,
-        Ecs::Universe&           universe,
-        RG::Graph&               renderGraph,
-        Cache::CommonRenderPass& commonRenderPass) :
+        EngineFrame&                          engineFrame,
+        FrameTimer&                           frameTimer,
+        Rhi::Device&                          rhiDevice,
+        Rhi::Staging::DeferredStagingManager& stagingManager,
+        Ecs::Universe&                        universe,
+        RG::Graph&                            renderGraph,
+        Cache::CommonRenderPass&              commonRenderPass) :
         m_Frame(engineFrame),
         m_Timer(frameTimer),
         m_Device(rhiDevice),
         m_Universe(universe),
+        m_StagingManager(stagingManager),
         m_Graph(renderGraph),
         m_CommonRenderPass(commonRenderPass)
     {
@@ -100,6 +103,7 @@ namespace Ame::Gfx
 
     void Renderer::OnRender()
     {
+        FlushDeferredUploads();
         RunRenderGraph();
     }
 
@@ -109,6 +113,11 @@ namespace Ame::Gfx
     }
 
     //
+
+    void Renderer::FlushDeferredUploads()
+    {
+        m_StagingManager.get().Flush();
+    }
 
     void Renderer::RunRenderGraph()
     {

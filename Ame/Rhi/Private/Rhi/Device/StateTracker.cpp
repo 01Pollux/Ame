@@ -116,17 +116,13 @@ namespace Ame::Rhi
         std::span<const AtomicTextureSubresourceState> states,
         bool                                           append)
     {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
+        auto textureIter = m_CurrentStates.Textures.find(nriTexture);
+
+        AME_LOG_ASSERT(Log::Rhi(), textureIter != m_CurrentStates.Textures.end(), "Texture is not being tracked");
+        AME_LOG_ASSERT(Log::Rhi(), textureIter->second.size() == states.size(), "Invalid number of states");
 
         auto& pendingStates = m_PendingStates.Textures[nriTexture];
-        AME_LOG_ASSERT(Log::Rhi(), pendingStates.size() == states.size(), "Texture is not being tracked");
-
-        for (SubresourceIndexType i = 0; i < states.size(); i++)
-        {
-            pendingStates[i].emplace_back(states[i]);
-        }
-
-        auto& textureDesc = nriCore.GetTextureDesc(*nriTexture);
+        auto& textureDesc   = nriCore.GetTextureDesc(*nriTexture);
         for (auto [Mip, Array] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
         {
             SubresourceIndex subresource(Mip, Array);
@@ -186,46 +182,6 @@ namespace Ame::Rhi
         AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
         m_CurrentStates.Textures.erase(nriTexture);
         m_PendingStates.Textures.erase(nriTexture);
-    }
-
-    //
-
-    void ResourceStateTracker::MutateState(
-        nri::Buffer*                 nriBuffer,
-        AtomicBufferSubresourceState state)
-    {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Buffers.contains(nriBuffer), "Buffer is not being tracked");
-        m_CurrentStates.Buffers[nriBuffer] = state;
-    }
-
-    void ResourceStateTracker::MutateState(
-        nri::CoreInterface&           nriCore,
-        nri::Texture*                 nriTexture,
-        AtomicTextureSubresourceState state,
-        nri::Mip_t                    mipLevel,
-        nri::Mip_t                    mipCount,
-        nri::Dim_t                    arraySlice,
-        nri::Dim_t                    arrayCount)
-    {
-        AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
-
-        auto& textureDesc   = nriCore.GetTextureDesc(*nriTexture);
-        auto& currentStates = m_CurrentStates.Textures[nriTexture];
-
-        if (mipCount == nri::REMAINING_MIP_LEVELS)
-        {
-            mipCount = textureDesc.mipNum - mipLevel;
-        }
-        if (arrayCount == nri::REMAINING_ARRAY_LAYERS)
-        {
-            arrayCount = textureDesc.arraySize - arraySlice;
-        }
-
-        for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
-        {
-            SubresourceIndex subresource(Mip, Array);
-            currentStates[subresource] = state;
-        }
     }
 
     //

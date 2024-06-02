@@ -5,7 +5,9 @@
 namespace Ame::Rhi::Staging
 {
     DeferredStagingManager::DeferredStagingManager(
-        Device& rhiDevice) :
+        Device&                    rhiDevice,
+        const DeferredStagingAllocatorDesc& desc) :
+        DeferredStagingAllocator(rhiDevice, desc),
         m_Device(rhiDevice),
         m_StateStorage(std::make_unique<StateStorage>())
     {
@@ -67,6 +69,7 @@ namespace Ame::Rhi::Staging
     void DeferredStagingManager::PrepareForCopy(
         CommandList& commandList)
     {
+        commandList.CommitBarriers();
         m_StateStorage->PersistUpload(commandList, m_BufferCopies);
         m_StateStorage->PersistUpload(commandList, m_TextureCopies);
         m_StateStorage->PersistUpload(commandList, m_UploadCopies);

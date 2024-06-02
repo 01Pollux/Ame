@@ -33,6 +33,12 @@ namespace Ame::Gfx::Cache
         using BlockBufferDescriptorMap = std::map<uint32_t, Rhi::ResourceView>;
 
     public:
+        static constexpr Rhi::Util::BlockBasedBufferDesc c_DynamicBufferDesc = {
+            .Size       = 0xFF * 0x1000,
+            .UsageFlags = Rhi ::BufferUsageBits::CONSTANT_BUFFER
+        };
+
+    public:
         MaterialBindingCache(
             Rhi::Device& rhiDevice,
             EngineFrame& engineFrame);

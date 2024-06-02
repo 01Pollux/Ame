@@ -5,6 +5,7 @@
 #include <Rhi/Subsystem/Device.hpp>
 #include <Ecs/Subsystem/Universe.hpp>
 #include <Gfx/Subsystem/ShaderCache.hpp>
+#include <Asset/Subsystem/Storage.hpp>
 
 #include <FlappyRocket/Game.hpp>
 
@@ -15,6 +16,7 @@ namespace Ame::FlappyRocket
                                            Dependency<
                                                Rhi::DeviceSubsystem,
                                                Ecs::UniverseSubsystem,
+                                               Asset::StorageSubsystem,
                                                Gfx::Cache::ShaderCacheSubsystem>>,
                                        kgr::final
     {

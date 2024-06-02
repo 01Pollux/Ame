@@ -24,11 +24,13 @@ namespace Ame::FlappyRocket
         static inline const String c_WorldName  = "Flappy Rocket";
         static inline const String c_PlayerName = "Player";
         static inline const String c_CameraName = "Camera";
+        static inline const String c_TextureGuid  = "f3e3e3e3-3e3e-3e3e-3e3e-3e3e3e3e3e3e";
 
     public:
         FlappyRocketGame(
             Rhi::Device&             device,
             Ecs::Universe&           ecsUniverse,
+            Asset::Storage&          assetStorage,
             Gfx::Cache::ShaderCache& shaderCache);
 
     public:
@@ -43,8 +45,9 @@ namespace Ame::FlappyRocket
         void AddAllEntities();
 
     private:
-        Rhi::Device*             m_Device      = nullptr;
-        Ecs::Universe*           m_EcsUniverse = nullptr;
-        Gfx::Cache::ShaderCache* m_ShaderCache = nullptr;
+        Rhi::Device*             m_Device       = nullptr;
+        Ecs::Universe*           m_EcsUniverse  = nullptr;
+        Asset::Storage*          m_AssetStorage = nullptr;
+        Gfx::Cache::ShaderCache* m_ShaderCache  = nullptr;
     };
 } // namespace Ame::FlappyRocket

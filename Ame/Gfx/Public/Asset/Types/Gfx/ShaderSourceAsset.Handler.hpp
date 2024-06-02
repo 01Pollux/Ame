@@ -8,6 +8,9 @@ namespace Ame::Asset::Gfx
     class ShaderSourceAsset::Handler : public IAssetHandler
     {
     public:
+        static constexpr size_t UID = 19456857095889080;
+
+    public:
         Handler(
             ShaderCache& shaderCache);
 

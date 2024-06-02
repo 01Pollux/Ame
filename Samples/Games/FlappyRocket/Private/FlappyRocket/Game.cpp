@@ -10,6 +10,9 @@
 #include <Ecs/Component/Viewport/Camera.hpp>
 #include <Ecs/Component/Viewport/CameraOutput.hpp>
 
+#include <Asset/Types/Gfx/TextureAsset.hpp>
+#include <Asset/Storage.hpp>
+
 #include <Gfx/RG/Passes/GBufferPass.hpp>
 #include <FlappyRocket/Game.Shader.hpp>
 
@@ -20,9 +23,11 @@ namespace Ame::FlappyRocket
     FlappyRocketGame::FlappyRocketGame(
         Rhi::Device&             device,
         Ecs::Universe&           ecsUniverse,
+        Asset::Storage&          assetStorage,
         Gfx::Cache::ShaderCache& shaderCache) :
         m_Device(&device),
         m_EcsUniverse(&ecsUniverse),
+        m_AssetStorage(&assetStorage),
         m_ShaderCache(&shaderCache)
     {
     }
@@ -50,9 +55,9 @@ namespace Ame::FlappyRocket
 
         GS::PropertyDescriptor descriptor;
         descriptor
-            .Float4("_Color")/*
-            .Resource("_Texture", Gfx::Shading::ResourceType::Texture2D, Gfx::Shading::ResourceDataType::Float4)
-            .Sampler("_Sampler")*/;
+            .Float4("_Color")
+            .Sampler("_Sampler")
+            .Resource("_Texture", Gfx::Shading::ResourceType::Texture2D, Gfx::Shading::ResourceDataType::Float4);
 
         Rhi::ShaderCompileDesc compileDesc;
 
@@ -72,9 +77,28 @@ namespace Ame::FlappyRocket
     }
 
     static void SetMaterialProperties(
+        Asset::Storage&             assetStorage,
+        const String&               textureGuid,
         Ptr<Gfx::Shading::Material> material)
     {
+        auto& assetManager = assetStorage.GetManager();
+        auto  asset        = assetManager.Load(Guid::FromString(textureGuid));
+        auto  textureAsset = std::dynamic_pointer_cast<Asset::Gfx::TextureAsset>(asset);
+
+        if (!textureAsset)
+        {
+            throw std::runtime_error("Texture asset not found");
+            return;
+        }
+
         material->Set("_Color", Colors::c_Red);
+        material->Set("_Texture", textureAsset->GetTexture(), { Rhi::TextureViewType::ShaderResource2D });
+        material->Set("_Sampler",
+                      Rhi::SamplerDesc{
+                          .filters{ nri::Filter::LINEAR, nri::Filter::LINEAR, nri::Filter::LINEAR },
+                          .anisotropy = 8,
+                          .mipMax     = 16.0f,
+                          .addressModes{ nri::AddressMode::REPEAT, nri::AddressMode::REPEAT } });
     }
 
     void FlappyRocketGame::AddAllEntities()
@@ -85,7 +109,7 @@ namespace Ame::FlappyRocket
         auto playerSprite = Ecs::Component::Sprite::Quad();
 
         playerSprite.Material = CreateMaterial(*m_Device, *m_ShaderCache);
-        SetMaterialProperties(playerSprite.Material);
+        SetMaterialProperties(*m_AssetStorage, c_TextureGuid, playerSprite.Material);
 
         player.AddComponent(std::move(playerSprite));
         player.AddComponent<Ecs::Component::Transform>();

@@ -196,10 +196,13 @@ namespace Ame::Asset
         const Ptr<IAsset>& asset,                  \
         AssetMetaData&     loaderData) override
 
-#define AME_STANDARD_ASSET_HANDLER(Name) \
-    class Name : public IAssetHandler    \
-    {                                    \
-    public:                              \
-        AME_STANDARD_ASSET_HANDLER_BODY; \
+#define AME_STANDARD_ASSET_HANDLER(Name, ID) \
+    class Name : public IAssetHandler        \
+    {                                        \
+    public:                                  \
+        static constexpr size_t UID = ID;    \
+                                             \
+    public:                                  \
+        AME_STANDARD_ASSET_HANDLER_BODY;     \
     };
 } // namespace Ame::Asset

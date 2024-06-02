@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/Ame.hpp>
 #include <Rhi/Descs/Core.hpp>
 #include <Rhi/CommandList/CopyDesc.hpp>
 
@@ -9,7 +8,8 @@ namespace Ame::Rhi::Staging
     enum class StagedAccessType : uint8_t
     {
         Read,
-        Write
+        Write,
+        Count
     };
 
     static constexpr MemoryLocation StagedAccessToMemoryLocation(
@@ -41,19 +41,8 @@ namespace Ame::Rhi::Staging
     struct DeferredTextureCopyDesc : TextureCopyDesc, DeferredCopyDesc
     {
     };
-    
+
     struct DeferredTransferCopyDesc : TransferCopyDesc, DeferredCopyDesc
     {
     };
-
-    //
-
-    template<typename PtrTy>
-    struct StagedRange
-    {
-        PtrTy* Ptr = nullptr;
-    };
-
-    using StagedReadRange  = StagedRange<const std::byte>;
-    using StagedWriteRange = StagedRange<std::byte>;
 } // namespace Ame::Rhi::Staging

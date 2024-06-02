@@ -1,15 +1,20 @@
 #pragma once
 
-#include <Rhi/Staging/StagedTexture.hpp>
-#include <Rhi/Staging/StagedBuffer.hpp>
+#include <Rhi/Staging/DeferredStagingManager/DeferredStagingAllocator.hpp>
 
 namespace Ame::Rhi::Staging
 {
-    class DeferredStagingManager
+    class DeferredStagingManager : public DeferredStagingAllocator
     {
     public:
+        static constexpr Util::BlockBasedBufferDesc c_DefaultUploadBufferDesc{
+            .Size = 2560 * 1440 * sizeof(float[4])
+        };
+
+    public:
         DeferredStagingManager(
-            Device& rhiDevice);
+            Device&                    rhiDevice,
+            const DeferredStagingAllocatorDesc& desc = {});
 
         DeferredStagingManager(const DeferredStagingManager&) = delete;
         DeferredStagingManager(DeferredStagingManager&&)      = delete;

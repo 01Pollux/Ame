@@ -21,33 +21,52 @@ namespace Ame::Rhi::Staging
         return bufferUsage;
     }
 
+    //
+
     StagedTexture::StagedTexture(
         Device&            rhiDevice,
         const TextureDesc& desc,
         StagedAccessType   accessType) :
-        m_DeviceDesc(rhiDevice.GetDesc()),
-        m_Desc(desc),
-        m_TextureSize(
-            Util::GetUploadBufferTextureSize(
-                m_DeviceDesc,
-                desc.format,
-                desc.width,
-                desc.height,
-                desc.depth,
-                desc.mipNum,
-                desc.arraySize)),
-        m_TextureBuffer(
+        StagedTexture(
             rhiDevice,
-            StagedAccessToMemoryLocation(accessType),
-            BufferDesc{
-                .size      = m_TextureSize * desc.arraySize,
-                .usageMask = TextureUsageToBufferUsage(desc.usageMask) }),
-        m_Regions(CreateRegions(
-            m_DeviceDesc,
-            m_Desc,
-            m_TextureSize))
+            desc,
+            GetTextureSize(rhiDevice.GetDesc(), desc),
+            0,
+            Buffer(rhiDevice, StagedAccessToMemoryLocation(accessType), BufferDesc{ .size = GetTextureSize(rhiDevice.GetDesc(), desc), .usageMask = TextureUsageToBufferUsage(desc.usageMask) }))
     {
     }
+
+    StagedTexture::StagedTexture(
+        Device&            rhiDevice,
+        const TextureDesc& desc,
+        size_t             size,
+        size_t             offset,
+        Buffer             buffer) :
+        m_DeviceDesc(&rhiDevice.GetDesc()),
+        m_Desc(desc),
+        m_TextureSize(size),
+        m_TextureBuffer(buffer),
+        m_Regions(CreateRegions(*m_DeviceDesc, m_Desc, m_TextureSize, offset))
+    {
+    }
+
+    //
+
+    size_t StagedTexture::GetTextureSize(
+        const DeviceDesc&  deviceDesc,
+        const TextureDesc& textureDesc)
+    {
+        return Util::GetUploadBufferTextureSize(
+            deviceDesc,
+            textureDesc.format,
+            textureDesc.width,
+            textureDesc.height,
+            textureDesc.depth,
+            textureDesc.mipNum,
+            textureDesc.arraySize);
+    }
+
+    //
 
     const TextureDesc& StagedTexture::GetTextureDesc() const
     {
@@ -55,6 +74,11 @@ namespace Ame::Rhi::Staging
     }
 
     const Buffer& StagedTexture::GetBuffer() const
+    {
+        return m_TextureBuffer;
+    }
+
+    Buffer& StagedTexture::GetBuffer()
     {
         return m_TextureBuffer;
     }
@@ -85,7 +109,7 @@ namespace Ame::Rhi::Staging
         AME_LOG_ASSERT(Log::Rhi(), actualRect.Size[1] <= region.Height, "Rect height out of range");
         AME_LOG_ASSERT(Log::Rhi(), actualRect.Size[2] <= region.Depth, "Rect depth out of range");
 
-        region.Offset += Util::GetUploadBufferTextureFlatSize(m_DeviceDesc, m_Desc.format, actualRect.Position[0], actualRect.Position[1], actualRect.Position[2]);
+        region.Offset += Util::GetUploadBufferTextureFlatSize(*m_DeviceDesc, m_Desc.format, actualRect.Position[0], actualRect.Position[1], actualRect.Position[2]);
         region.Width  = actualRect.Size[0];
         region.Height = actualRect.Size[1];
         region.Depth  = actualRect.Size[2];
@@ -98,14 +122,15 @@ namespace Ame::Rhi::Staging
     auto StagedTexture::CreateRegions(
         const DeviceDesc&  deviceDesc,
         const TextureDesc& textureDesc,
-        size_t             textureSize) -> StagedTextureRegionList
+        size_t             textureSize,
+        size_t             relativeOffset) -> StagedTextureRegionList
     {
         StagedTextureRegionList regions;
         regions.reserve(static_cast<size_t>(textureDesc.arraySize) * textureDesc.mipNum);
 
         auto& formatProps = GetFormatProps(textureDesc.format);
 
-        size_t offset = 0;
+        size_t offset = relativeOffset;
         for (uint32_t i = 0; i < textureDesc.mipNum; i++)
         {
             Dim_t    width    = Util::GetTextureDimension(textureDesc.width, i);

@@ -5,6 +5,7 @@
 #include <Frame/Subsystem/Frame.hpp>
 #include <Frame/Subsystem/Timer.hpp>
 #include <Rhi/Subsystem/Device.hpp>
+#include <Rhi/Subsystem/DeferredStagingStorage.hpp>
 #include <Ecs/Subsystem/Universe.hpp>
 #include <Gfx/Subsystem/Graph.hpp>
 #include <Gfx/Subsystem/CommonRenderPass.hpp>
@@ -18,6 +19,7 @@ namespace Ame::Gfx
                                    Dependency<EngineFrameSubsystem,
                                               FrameTimerSubsystem,
                                               Rhi::DeviceSubsystem,
+                                              Rhi::Staging::DeferredStagingManagerSubsystem,
                                               Ecs::UniverseSubsystem,
                                               RG::GraphSubsystem,
                                               Cache::CommonRenderPassSubsystem>>,

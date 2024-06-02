@@ -13,7 +13,11 @@ namespace Ame
     namespace Rhi
     {
         class Device;
-    } // namespace Rhi
+        namespace Staging
+        {
+            class DeferredStagingManager;
+        } // namespace Staging
+    }     // namespace Rhi
 
     namespace Ecs::Component
     {
@@ -44,12 +48,13 @@ namespace Ame::Gfx
 
     public:
         Renderer(
-            EngineFrame&             engineFrame,
-            FrameTimer&              frameTimer,
-            Rhi::Device&             rhiDevice,
-            Ecs::Universe&           universe,
-            RG::Graph&               renderGraph,
-            Cache::CommonRenderPass& commonRenderPass);
+            EngineFrame&                          engineFrame,
+            FrameTimer&                           frameTimer,
+            Rhi::Device&                          rhiDevice,
+            Rhi::Staging::DeferredStagingManager& stagingManager,
+            Ecs::Universe&                        universe,
+            RG::Graph&                            renderGraph,
+            Cache::CommonRenderPass&              commonRenderPass);
 
     private:
         /// <summary>
@@ -74,17 +79,23 @@ namespace Ame::Gfx
 
     private:
         /// <summary>
+        /// Flush all deferred uploads
+        /// </summary>
+        void FlushDeferredUploads();
+
+        /// <summary>
         /// Run the render graph to render the frame
         /// </summary>
         void RunRenderGraph();
 
     private:
-        Ref<EngineFrame>             m_Frame;
-        Ref<FrameTimer>              m_Timer;
-        Ref<Rhi::Device>             m_Device;
-        Ref<Ecs::Universe>           m_Universe;
-        Ref<RG::Graph>               m_Graph;
-        Ref<Cache::CommonRenderPass> m_CommonRenderPass;
+        Ref<EngineFrame>                          m_Frame;
+        Ref<FrameTimer>                           m_Timer;
+        Ref<Rhi::Device>                          m_Device;
+        Ref<Ecs::Universe>                        m_Universe;
+        Ref<Rhi::Staging::DeferredStagingManager> m_StagingManager;
+        Ref<RG::Graph>                            m_Graph;
+        Ref<Cache::CommonRenderPass>              m_CommonRenderPass;
 
         Signals::OnWorldChange::Handle m_OnWorldChange;
 

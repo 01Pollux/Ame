@@ -14,12 +14,17 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Initial size of the buffer
         /// </summary>
-        uint32_t Size = 0xFFFFFF;
+        size_t Size = 0x7FF'FFE;
 
         /// <summary>
         /// Maximum number of blocks in the buffer
         /// </summary>
         uint32_t MaxBlockCount = 0;
+
+        /// <summary>
+        /// Grow factor of the buffer
+        /// </summary>
+        float GrowFactor = 2.0f;
 
         /// <summary>
         /// The usage flags of the buffer
@@ -46,8 +51,8 @@ namespace Ame::Rhi::Util
         struct Handle
         {
             uint32_t BlockSlot = c_InvalidValue;
-            uint32_t Offset    = c_InvalidValue;
-            uint32_t Size      = c_InvalidValue;
+            size_t   Offset    = c_InvalidValue64;
+            size_t   Size      = c_InvalidValue64;
 
             operator bool() const
             {
@@ -161,8 +166,8 @@ namespace Ame::Rhi::Util
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t         slot,
-            uint32_t         offset,
+            size_t           slot,
+            size_t           offset,
             const std::byte* data,
             size_t           size)
         {
@@ -222,14 +227,8 @@ namespace Ame::Rhi::Util
         /// Find a slot in the buffer with the given size, if not found, create a new block
         /// </summary>
         [[nodiscard]] Handle FindSlot(
-            uint32_t size)
+            size_t size)
         {
-            // If the size is larger than the buffer, return an invalid handle
-            if (size > c_InvalidValue) [[unlikely]]
-            {
-                std::unreachable();
-            }
-
             uint64_t currentFrameIndex = m_Device.get().GetFrameCount();
             Handle   handle;
 
@@ -244,8 +243,8 @@ namespace Ame::Rhi::Util
                 {
                     handle = {
                         .BlockSlot = i,
-                        .Offset    = static_cast<uint32_t>(foundHandle.Offset),
-                        .Size      = static_cast<uint32_t>(foundHandle.Size)
+                        .Offset    = foundHandle.Offset,
+                        .Size      = foundHandle.Size
                     };
                     break;
                 }
@@ -265,22 +264,38 @@ namespace Ame::Rhi::Util
         /// If the size is larger than the buffer, return an invalid handle
         /// </summary>
         [[nodiscard]] Handle CreateBlock(
-            uint32_t size)
+            size_t size)
         {
-            if (m_Desc.Size < size ||
-                (m_Desc.MaxBlockCount && m_Desc.MaxBlockCount <= m_Blocks.size())) [[unlikely]]
+            if (m_Desc.MaxBlockCount && m_Desc.MaxBlockCount <= m_Blocks.size()) [[unlikely]]
             {
                 return {};
             }
+
+            m_Desc.Size = GetSuitableBlockSize(size);
 
             auto& block  = m_Blocks.emplace_back(m_Device.get(), m_Desc.Location, m_Desc.Size, m_Desc.UsageFlags);
             auto  handle = block.Buddy.Allocate(size);
 
             return {
                 .BlockSlot = static_cast<uint32_t>(m_Blocks.size() - 1),
-                .Offset    = static_cast<uint32_t>(handle.Offset),
-                .Size      = static_cast<uint32_t>(handle.Size)
+                .Offset    = handle.Offset,
+                .Size      = handle.Size
             };
+        }
+
+        /// <summary>
+        /// Get the suitable block size for the buffer
+        /// </summary>
+        [[nodiscard]] uint32_t GetSuitableBlockSize(
+            size_t size)
+        {
+            size_t blockSize = m_Desc.Size;
+            if (blockSize < size)
+            {
+                size_t factor = static_cast<size_t>(std::ceil(static_cast<double>(size) / blockSize));
+                blockSize *= factor;
+            }
+            return blockSize;
         }
 
     private:
@@ -307,8 +322,8 @@ namespace Ame::Rhi::Util
                 {
                     m_RetiredHandles.insert(RetiredHandle{
                         { .BlockSlot = i,
-                          .Offset    = static_cast<uint32_t>(handle.Offset),
-                          .Size      = static_cast<uint32_t>(handle.Size) },
+                          .Offset    = handle.Offset,
+                          .Size      = handle.Size },
                         {
                             frameIndex,
                         } });
@@ -329,8 +344,8 @@ namespace Ame::Rhi::Util
             block.BusyHandles.erase({ handle.Offset, handle.Size });
             m_RetiredHandles.insert(RetiredHandle{
                 { .BlockSlot = blockSlot,
-                  .Offset    = static_cast<uint32_t>(handle.Offset),
-                  .Size      = static_cast<uint32_t>(handle.Size) },
+                  .Offset    = handle.Offset,
+                  .Size      = handle.Size },
                 { frameIndex } });
         }
 
@@ -374,7 +389,7 @@ namespace Ame::Rhi::Util
         [[nodiscard]] static Buffer CreateBuffer(
             Device&         rhiDevice,
             MemoryLocation  location,
-            uint32_t        size,
+            size_t          size,
             BufferUsageBits usageFlags)
         {
             BufferDesc desc{
@@ -427,7 +442,7 @@ namespace Ame::Rhi::Util
             Block(
                 Device&         rhiDevice,
                 MemoryLocation  location,
-                uint32_t        size,
+                size_t          size,
                 BufferUsageBits usageFlags) :
                 Buddy(size),
                 BufferRef(CreateBuffer(rhiDevice, location, size, usageFlags)),

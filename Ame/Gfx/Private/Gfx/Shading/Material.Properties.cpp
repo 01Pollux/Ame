@@ -60,10 +60,11 @@ namespace Ame::Gfx::Shading
         const Ptr<Rhi::Texture>& texture,
         Rhi::TextureViewDesc     viewDesc)
     {
+        using namespace EnumBitOperators;
+
 #ifdef AME_DEBUG
         Log::Gfx().Assert(
-            viewDesc.Type == Rhi::TextureViewType::AnyShaderResource ||
-                viewDesc.Type == Rhi::TextureViewType::AnyUnorderedAccess,
+            (viewDesc.Type & (Rhi::TextureViewType::AnyShaderResource | Rhi::TextureViewType::AnyUnorderedAccess)) != Rhi::TextureViewType::None,
             "Texture view type is not shader resource nor unordered access");
 #endif
 

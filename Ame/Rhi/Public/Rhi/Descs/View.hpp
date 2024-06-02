@@ -100,7 +100,7 @@ namespace Ame::Rhi
         size_t Offset = 0;
         size_t Size   = 0;
 
-        constexpr BufferRange(
+        constexpr explicit BufferRange(
             size_t Offset = 0,
             size_t Size   = c_RemainingSize<size_t>) :
             Offset(Offset),
@@ -127,7 +127,7 @@ namespace Ame::Rhi
         Mip_t Offset = 0;
         Mip_t Count  = 0;
 
-        constexpr MipLevel(
+        constexpr explicit MipLevel(
             Mip_t offset = 0,
             Mip_t count  = c_RemainingSize<Mip_t>) :
             Offset(offset),
@@ -154,7 +154,7 @@ namespace Ame::Rhi
         Dim_t Offset;
         Dim_t Count;
 
-        constexpr ArraySlice(
+        constexpr explicit ArraySlice(
             Dim_t Offset = 0,
             Dim_t Count  = c_RemainingSize<Dim_t>) :
             Offset(Offset),
@@ -181,7 +181,7 @@ namespace Ame::Rhi
         MipLevel   Mips;
         ArraySlice Array;
 
-        constexpr TextureSubresource(
+        constexpr explicit TextureSubresource(
             MipLevel   mips  = c_EntireMipChain,
             ArraySlice array = c_EntireArray) :
             Mips(mips),
@@ -210,7 +210,7 @@ namespace Ame::Rhi
         Coordinate Position;
         Coordinate Size;
 
-        constexpr TextureRect(
+        constexpr explicit TextureRect(
             Coordinate position = c_RemainingSize<Coordinate>,
             Coordinate size     = c_RemainingSize<Coordinate>) :
             Position(position),

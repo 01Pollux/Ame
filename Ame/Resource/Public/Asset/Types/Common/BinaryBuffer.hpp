@@ -7,8 +7,6 @@ namespace Ame::Asset::Common
     class BinaryBufferAsset : public IAsset
     {
     public:
-        static constexpr size_t UID = 1184421948659510;
-
         class Handler;
 
         BinaryBufferAsset(

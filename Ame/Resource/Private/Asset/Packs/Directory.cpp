@@ -373,7 +373,7 @@ namespace Ame::Asset
             if (!loadTemp) [[likely]]
             {
                 RWLock readWriteLock(m_CacheMutex);
-                m_Cache.emplace(currentGuid, std::move(asset));
+                m_Cache.emplace(currentGuid, asset);
             }
 
             tempAssets.emplace_back(std::move(asset));

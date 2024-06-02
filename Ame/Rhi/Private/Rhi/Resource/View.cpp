@@ -417,10 +417,7 @@ namespace Ame::Rhi
     TextureSubresource TextureSubresource::Transform(
         const TextureDesc& textureDesc) const noexcept
     {
-        return {
-            Mips.Transform(textureDesc),
-            Array.Transform(textureDesc)
-        };
+        return TextureSubresource(Mips.Transform(textureDesc), Array.Transform(textureDesc));
     }
 
     //

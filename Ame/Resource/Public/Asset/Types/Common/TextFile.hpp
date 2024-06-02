@@ -8,8 +8,6 @@ namespace Ame::Asset::Common
     class TextFileAsset : public IAsset
     {
     public:
-        static constexpr size_t UID = 131732813173286877;
-
         class Handler;
 
         using IAsset::IAsset;
