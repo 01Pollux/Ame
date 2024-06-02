@@ -91,7 +91,7 @@ namespace Ame::FlappyRocket
             return;
         }
 
-        material->Set("_Color", Colors::c_Red);
+        material->Set("_Color", Colors::c_White);
         material->Set("_Texture", textureAsset->GetTexture(), { Rhi::TextureViewType::ShaderResource2D });
         material->Set("_Sampler",
                       Rhi::SamplerDesc{
@@ -118,7 +118,7 @@ namespace Ame::FlappyRocket
         camera.AddComponent<Ecs::Component::Camera>();
         camera.AddComponent<Ecs::Component::Transform>(
             Math::Mat::c_Identity<Math::Matrix3x3>,
-            Math::Vec::c_Backward<Math::Vector3> * 10.f);
+            Math::Vec::c_Backward<Math::Vector3> );
 
         camera.AddComponent<Ecs::Component::CameraOutput>(
             Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);

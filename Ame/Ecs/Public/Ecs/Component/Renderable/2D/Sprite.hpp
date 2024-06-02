@@ -31,25 +31,25 @@ namespace Ame::Ecs::Component
                         .Position = Math::Vector3(-0.5f, -0.5f, 0.0f),
                         .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
                         .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
-                        .TexCoord = Math::Vector2(0.0f, 0.0f),
+                        .TexCoord = Math::Vector2(0.f, 1.f),
                     },
                     {
                         .Position = Math::Vector3(-0.5f, 0.5f, 0.0f),
                         .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
                         .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
-                        .TexCoord = Math::Vector2(0.0f, 1.0f),
+                        .TexCoord = Math::Vector2(0.f, 0.f),
                     },
                     {
                         .Position = Math::Vector3(0.5f, 0.5f, 0.0f),
                         .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
                         .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
-                        .TexCoord = Math::Vector2(1.0f, 1.0f),
+                        .TexCoord = Math::Vector2(1.0f, 0.f),
                     },
                     {
                         .Position = Math::Vector3(0.5f, -0.5f, 0.0f),
                         .Normal   = Math::Vector3(0.0f, 0.0f, 1.0f),
                         .Tangent  = Math::Vector3(1.0f, 0.0f, 0.0f),
-                        .TexCoord = Math::Vector2(1.0f, 0.0f),
+                        .TexCoord = Math::Vector2(1.0f, 1.f),
                     } },
                 .Indices{ 0, 1, 2, 2, 3, 0 }
             };

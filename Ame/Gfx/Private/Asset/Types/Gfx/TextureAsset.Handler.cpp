@@ -71,6 +71,7 @@ namespace Ame::Asset::Gfx
 
         const std::byte* data = std::bit_cast<const std::byte*>(FreeImage_GetBits(image32.get()));
 
+        // TODO: customize texture desc
         auto textureDesc = Rhi::Tex2D(Rhi::ResourceFormat::RGBA32_SFLOAT, static_cast<Rhi::Dim_t>(width), static_cast<Rhi::Dim_t>(height));
         auto texture     = std::make_shared<Rhi::Texture>(m_Device, Rhi::MemoryLocation::DEVICE, textureDesc);
 
@@ -100,7 +101,7 @@ namespace Ame::Asset::Gfx
                 .PreserveDstState = true } });
 
         Rhi::CommandList commandList(m_Device);
-        commandList.RequireState(texture->Unwrap(), { Rhi::AccessBits::SHADER_RESOURCE, Rhi::LayoutType::SHADER_RESOURCE, Rhi::StageBits::GRAPHICS_SHADERS });
+        commandList.RequireState(texture->Unwrap(), { Rhi::AccessBits::SHADER_RESOURCE, Rhi::LayoutType::SHADER_RESOURCE, Rhi::StageBits::GRAPHICS_SHADERS | Rhi::StageBits::COMPUTE_SHADER });
 
         return std::make_shared<TextureAsset>(std::move(texture), format, guid, path);
     }
@@ -113,67 +114,7 @@ namespace Ame::Asset::Gfx
         const Ptr<IAsset>& asset,
         AssetMetaData&     loaderData)
     {
-        /*  auto TexAsset = dynamic_cast<TextureAsset*>(Asset.get());
-
-          auto  RhiDevice   = CoreEngine::Get()->GetRhiDevice();
-          auto& Nri         = RhiDevice->GetNri();
-          auto& GpuStreamer = Nri.GetStreamer();
-
-          auto& Texture = TexAsset->GetTexture();
-          if (!Texture)
-          {
-              return;
-          }
-
-          auto& TextureDesc   = Nri.GetTextureDesc(**Texture);
-          auto  FormatInfo    = RhiUtil::GetFormatInfo(TextureDesc.format);
-          auto  BytesPerPixel = RhiUtil::GetBitsPerPixel(TextureDesc.format) / FormatInfo.BytesPerBlock;
-
-          auto& DeviceDesc = RhiDevice->GetDeviceDesc();
-
-          nri::BufferDesc BufferDesc{
-              .size = Math::AlignUp(size_t(TextureDesc.width * TextureDesc.height * FormatInfo.BytesPerBlock), size_t(DeviceDesc.uploadBufferTextureRowAlignment))
-          };
-
-          auto StagingBuffer = Nri.CreateManagedBuffer(nri::MemoryLocation::HOST_UPLOAD, BufferDesc);
-
-          nri::TextureDataLayoutDesc DstDataLayoutDesc{
-              .rowPitch   = static_cast<uint32_t>(TextureDesc.width * 4),
-              .slicePitch = static_cast<uint32_t>(BufferDesc.size)
-          };
-
-          RhiStm::Operation TextureUpload{
-              RhiStm::ReadBackOp{
-                  .SrcTexture = *Texture,
-                  .SrcRegion{
-                      .width  = TextureDesc.width,
-                      .height = TextureDesc.height,
-                      .depth  = TextureDesc.depth },
-                  .DstBuffer = StagingBuffer,
-                  .DstLayout = &DstDataLayoutDesc }
-          };
-
-          auto ResourceBarrier = GpuStreamer.Submit(&TextureUpload, 1);
-          ResourceBarrier.WaitOnAllQueues();
-          ResourceBarrier.Wait();
-
-          auto StagingData = Nri.MapBuffer(*StagingBuffer, 0, nri::WHOLE_SIZE);
-
-          UFIBITMAP Image{ FreeImage_AllocateExT(
-              FIT_BITMAP,
-              TextureDesc.width,
-              TextureDesc.height,
-              BytesPerPixel,
-              StagingData) };
-
-          auto IO = GetFreeImageIO();
-          FreeImage_SaveToHandle(
-              TexAsset->GetFormat(),
-              Image.get(),
-              &IO,
-              &Stream);
-
-          Nri.UnmapBuffer(*StagingBuffer);*/
+        throw std::runtime_error("Not implemented");
     }
 
     //
