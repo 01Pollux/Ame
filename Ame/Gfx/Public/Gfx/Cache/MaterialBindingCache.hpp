@@ -29,7 +29,7 @@ namespace Ame::Gfx::Cache
         };
 
         using SetCacheMap              = std::map<uint64_t, SetCache>;
-        using BlockBuffer              = Rhi::Util::BlockBasedBuffer;
+        using BlockBuffer              = Rhi::Util::BlockBasedBuffer<>;
         using BlockBufferDescriptorMap = std::map<uint32_t, Rhi::ResourceView>;
 
     public:

@@ -43,40 +43,41 @@ namespace Ame::Gfx::Shading
 
     private:
         void FillDescriptorSet(
-            const PropertyDescriptor& Descriptor)
+            const PropertyDescriptor& descriptor)
         {
-            if (!Descriptor.IsEmpty())
+            if (!descriptor.IsEmpty())
             {
                 m_Sets[m_SetCount].dynamicConstantBuffers;
-                if (Descriptor.GetStructSize() > 0)
+                uint32_t bindingIndex = 0;
+                if (descriptor.GetStructSize() > 0)
                 {
-                    m_UserData.shaderStages = Descriptor.GetStructAccessFlags().Flags;
+                    m_UserData.registerIndex = bindingIndex++;
+                    m_UserData.shaderStages  = descriptor.GetStructAccessFlags().Flags;
                     m_ShaderBits.Set(m_UserData.shaderStages);
 
                     m_Sets[m_SetCount].dynamicConstantBuffers   = &m_UserData;
                     m_Sets[m_SetCount].dynamicConstantBufferNum = 1;
                 }
 
-                if (Descriptor.GetResourceCount() > 0)
+                if (descriptor.GetResourceCount() > 0)
                 {
-                    uint32_t Index = 0;
-                    for (auto& Resource : Descriptor.GetResources())
+                    for (auto& resource : descriptor.GetResources())
                     {
-                        Rhi::DescriptorType Type = Rhi::DescriptorType::MAX_NUM;
-                        switch (Resource.get().Type)
+                        Rhi::DescriptorType type = Rhi::DescriptorType::MAX_NUM;
+                        switch (resource.get().Type)
                         {
                         case ResourceType::Buffer:
-                            Type = Rhi::DescriptorType::BUFFER;
+                            type = Rhi::DescriptorType::BUFFER;
                             break;
                         case ResourceType::RWBuffer:
-                            Type = Rhi::DescriptorType::STORAGE_BUFFER;
+                            type = Rhi::DescriptorType::STORAGE_BUFFER;
                             break;
 
                         case ResourceType::StructuredBuffer:
-                            Type = Rhi::DescriptorType::STRUCTURED_BUFFER;
+                            type = Rhi::DescriptorType::STRUCTURED_BUFFER;
                             break;
                         case ResourceType::RWStructuredBuffer:
-                            Type = Rhi::DescriptorType::STORAGE_STRUCTURED_BUFFER;
+                            type = Rhi::DescriptorType::STORAGE_STRUCTURED_BUFFER;
                             break;
 
                         case ResourceType::Texture1D:
@@ -88,7 +89,7 @@ namespace Ame::Gfx::Shading
                         case ResourceType::Texture3D:
                         case ResourceType::TextureCube:
                         case ResourceType::TextureCubeArray:
-                            Type = Rhi::DescriptorType::TEXTURE;
+                            type = Rhi::DescriptorType::TEXTURE;
                             break;
 
                         case ResourceType::RWTexture1D:
@@ -96,25 +97,25 @@ namespace Ame::Gfx::Shading
                         case ResourceType::RWTexture2D:
                         case ResourceType::RWTexture2DArray:
                         case ResourceType::RWTexture3D:
-                            Type = Rhi::DescriptorType::STORAGE_TEXTURE;
+                            type = Rhi::DescriptorType::STORAGE_TEXTURE;
                             break;
 
                         case ResourceType::Sampler:
-                            Type = Rhi::DescriptorType::SAMPLER;
+                            type = Rhi::DescriptorType::SAMPLER;
                             break;
 
                         default:
                             std::unreachable();
                         }
 
-                        auto ShaderFlags = Resource.get().ShaderFlags.Flags;
-                        m_ShaderBits.Set(ShaderFlags);
+                        auto shaderFlags = resource.get().ShaderFlags.Flags;
+                        m_ShaderBits.Set(shaderFlags);
 
                         m_ResourceDatas.emplace_back(Rhi::DescriptorRangeDesc{
-                            .baseRegisterIndex = Index++,
+                            .baseRegisterIndex = bindingIndex++,
                             .descriptorNum     = 1,
-                            .descriptorType    = Type,
-                            .shaderStages      = ShaderFlags });
+                            .descriptorType    = type,
+                            .shaderStages      = shaderFlags });
                     }
 
                     m_Sets[m_SetCount].ranges   = m_ResourceDatas.data();
