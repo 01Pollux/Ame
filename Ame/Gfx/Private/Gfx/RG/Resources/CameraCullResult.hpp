@@ -44,9 +44,9 @@ namespace Ame::Gfx::RG
     {
         struct StagedEntity
         {
-            Ref<const Ecs::Component::BaseRenderable> Renderable;
-            Ref<RenderInstance>                       Instance;
-            float                                     Distance;
+            CRef<Ecs::Component::BaseRenderable> Renderable;
+            Ref<RenderInstance>                  Instance;
+            float                                Distance;
 
             std::partial_ordering operator<=>(const StagedEntity& other) const noexcept;
         };
@@ -65,6 +65,7 @@ namespace Ame::Gfx::RG
                 nri::Buffer*                  vertexBuffer,
                 nri::Buffer*                  indexBuffer);
 
+            void                                 CalculateRMS();
             [[nodiscard]] Rhi::IndexType         GetIndexType() const;
             [[nodiscard]] Ptr<Shading::Material> GetMaterial() const;
 
@@ -140,7 +141,7 @@ namespace Ame::Gfx::RG
         using DataList           = std::vector<EntityStore::Row>;
         using CameraStorages     = std::vector<CameraStorage>;
         using FlatStagedEntities = boost::container::flat_multiset<StagedEntity>;
-        using FlatStagedGroups   = boost::container::flat_multiset<StagedGroup>;
+        using FlatStagedGroups   = std::vector<StagedGroup>;
 
         Ref<Rhi::Device> m_Device;
 

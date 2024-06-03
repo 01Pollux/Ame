@@ -57,6 +57,11 @@ namespace Ame::Ecs::Component
         return OffsetOrCpuData.CpuData;
     }
 
+    size_t BaseRenderable::BufferView::Size() const
+    {
+        return static_cast<size_t>(Count) * Stride;
+    }
+
     bool BaseRenderable::BufferView::HasUniqueBuffer() const
     {
         return NriBuffer != nullptr;

@@ -54,6 +54,11 @@ namespace Ame::Ecs::Component
             [[nodiscard]] const std::byte* CpuData() const;
 
             /// <summary>
+            /// Get the size of the buffer (stride * count).
+            /// </summary>
+            [[nodiscard]] size_t Size() const;
+
+            /// <summary>
             /// Check to see if the buffer is unique.
             /// </summary>
             [[nodiscard]] bool HasUniqueBuffer() const;
@@ -73,5 +78,10 @@ namespace Ame::Ecs::Component
         Ptr<Gfx::Shading::Material> Material;
 
         uint32_t CameraMask = 0xFFFF'FFFF;
+
+        [[nodiscard]] Rhi::IndexType GetIndexType() const noexcept
+        {
+            return Index.Stride == sizeof(uint16_t) ? Rhi::IndexType::UINT16 : Rhi::IndexType::UINT32;
+        }
     };
 } // namespace Ame::Ecs::Component

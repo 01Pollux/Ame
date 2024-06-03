@@ -1,14 +1,15 @@
 #include <Gfx/RG/Resources/CameraCullResult.hpp>
 
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
+#include <Gfx/Shading/Material.hpp>
 
 namespace Ame::Gfx::RG
 {
     std::partial_ordering CameraCullResult::StagedEntity::operator<=>(
         const StagedEntity& other) const noexcept
     {
-        auto materialA = Renderable.get().Material.get();
-        auto materialB = other.Renderable.get().Material.get();
+        auto materialA = Renderable.get().Material->GetPipelineHash();
+        auto materialB = other.Renderable.get().Material->GetPipelineHash();
 
         auto vertexA = Renderable.get().Vertex.NriBuffer;
         auto vertexB = other.Renderable.get().Vertex.NriBuffer;
@@ -28,7 +29,11 @@ namespace Ame::Gfx::RG
         nri::Buffer* indexBuffer) :
         VtxBuffer(vertexBuffer),
         IdxBuffer(indexBuffer),
-        Entities(std::move(entityList))
+        Entities(entityList)
+    {
+    }
+
+    void CameraCullResult::StagedGroup::CalculateRMS()
     {
         for (auto& entity : Entities)
         {
@@ -40,9 +45,7 @@ namespace Ame::Gfx::RG
     Rhi::IndexType CameraCullResult::StagedGroup::GetIndexType() const
     {
         auto& firstRenderable = Entities.front().Renderable.get();
-        return firstRenderable.Index.Stride == sizeof(uint16_t)
-                   ? Rhi::IndexType::UINT16
-                   : Rhi::IndexType::UINT32;
+        return firstRenderable.GetIndexType();
     }
 
     Ptr<Shading::Material> CameraCullResult::StagedGroup::GetMaterial() const

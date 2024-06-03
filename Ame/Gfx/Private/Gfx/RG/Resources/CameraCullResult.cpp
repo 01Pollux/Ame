@@ -1,3 +1,5 @@
+#include <execution>
+
 #include <Gfx/RG/Resources/CameraCullResult.hpp>
 #include <Gfx/Shading/Material.hpp>
 
@@ -134,15 +136,49 @@ namespace Ame::Gfx::RG
             return std::pair{ buffer, offset };
         };
 
-        auto firstIter = m_StagedEntities.begin();
-        auto lastIter  = firstIter;
-
         nri::Buffer* lastVertexBuffer = nullptr;
         nri::Buffer* lastIndexBuffer  = nullptr;
 
         Shading::Material* lastMaterial = nullptr;
 
         Rhi::IndexType lastIndexType = Rhi::IndexType::MAX_NUM;
+
+        //
+
+        auto tryBatchBuffer =
+            [](const RenderInstance&                             renderInstance,
+               const Ecs::Component::BaseRenderable::BufferView& bufferView,
+               Rhi::Util::BlockBasedBuffer&                      dynamicBuffer,
+               size_t                                            bufferOffset,
+               nri::Buffer*&                                     nriBuffer,
+               uint32_t&                                         lastBlock) -> bool
+        {
+            bool needsNewRow = false;
+            // If the vertex or index buffer is unique, create a new row
+            // (1)
+            if (bufferView.HasUniqueBuffer())
+            {
+                needsNewRow = true;
+
+                bufferOffset = bufferView.Offset();
+                nriBuffer    = bufferView.NriBuffer;
+            }
+            else
+            {
+                auto handle  = dynamicBuffer.Rent(bufferView.CpuData(), bufferView.Size());
+                bufferOffset = handle.Offset;
+                nriBuffer    = dynamicBuffer.GetBuffer(handle.BlockSlot).Unwrap();
+
+                // if the buffer is different, create a new row
+                // (2)
+                if (handle.BlockSlot != lastBlock)
+                {
+                    needsNewRow = true;
+                    lastBlock   = handle.BlockSlot;
+                }
+            }
+            return needsNewRow;
+        };
 
         //
 
@@ -153,24 +189,46 @@ namespace Ame::Gfx::RG
         //          - (2) the previous vertex/index buffer is different than the current one
         //          - (3) the previous index buffer type is different than the current one
         //          - (4) the previous material's pipeline state is different than the current one
-        for (auto& [Renderable, Instance, Distance] : m_StagedEntities)
+        for (auto stagedEntityIter = m_StagedEntities.begin(); stagedEntityIter != m_StagedEntities.end(); stagedEntityIter++)
         {
-            auto& vertex = Renderable.get().Vertex;
-            auto& index  = Renderable.get().Index;
+            auto& renderInstance = stagedEntityIter->Instance.get();
+            auto& renderable     = stagedEntityIter->Renderable.get();
+
+            auto& vertex = renderable.Vertex;
+            auto& index  = renderable.Index;
 
             bool needsNewRow = false;
 
             //
 
             // (1) + (2)
-            std::tie(lastVertexBuffer, Instance.get().VertexOffset) = fetchBuffer(cameraStorage.DynamicVertices, vertex, lastVertexBlock, needsNewRow);
-            std::tie(lastIndexBuffer, Instance.get().IndexOffset) = fetchBuffer(cameraStorage.DynamicIndices, index, lastIndexBlock, needsNewRow);
+            needsNewRow |= tryBatchBuffer(
+                renderInstance,
+                vertex,
+                cameraStorage.DynamicVertices,
+                renderInstance.VertexOffset,
+                lastVertexBuffer,
+                lastVertexBlock);
+
+            renderInstance.VertexSize = renderable.Vertex.Size();
+
+            // (1) + (2)
+            needsNewRow |= tryBatchBuffer(
+                renderInstance,
+                index,
+                cameraStorage.DynamicIndices,
+                renderInstance.IndexOffset,
+                lastIndexBuffer,
+                lastIndexBlock);
+
+            renderInstance.IndexCount = index.Count;
 
             //
 
             // (3)
-            auto indexType = index.Stride == sizeof(uint16_t) ? Rhi::IndexType::UINT16 : Rhi::IndexType::UINT32;
-            if (lastIndexType != Rhi::IndexType::MAX_NUM && indexType == lastIndexType)
+            auto indexType = renderable.GetIndexType();
+            if (lastIndexType != Rhi::IndexType::MAX_NUM && 
+                indexType != lastIndexType)
             {
                 needsNewRow = true;
             }
@@ -179,35 +237,41 @@ namespace Ame::Gfx::RG
             //
 
             // (4)
-            if (!lastMaterial ||
-                Renderable.get().Material->GetPipelineHash() != lastMaterial->GetPipelineHash())
+            if (lastMaterial && 
+                lastMaterial->GetPipelineHash() != renderable.Material->GetPipelineHash())
             {
-                needsNewRow  = true;
-                lastMaterial = Renderable.get().Material.get();
+                needsNewRow = true;
             }
+            lastMaterial = renderable.Material.get();
 
             //
 
-            Instance.get().VertexSize = vertex.Count * vertex.Stride;
-            Instance.get().IndexCount = index.Count;
+            cameraStorage.AllInstances.Rent(renderInstance);
 
-            cameraStorage.AllInstances.Rent(Instance);
+            //
 
             if (needsNewRow)
             {
-                if (firstIter != lastIter)
-                {
-                    m_StagedGroups.emplace(std::span{ firstIter, lastIter }, lastVertexBuffer, lastIndexBuffer);
-                    firstIter = lastIter;
-                }
+                m_StagedGroups.emplace_back(std::span{ stagedEntityIter, stagedEntityIter + 1 }, lastVertexBuffer, lastIndexBuffer);
             }
-            lastIter++;
+            else
+            {
+                auto& lastGroup    = m_StagedGroups.back();
+                auto  iter         = lastGroup.Entities;
+                iter               = std::span{ iter.begin(), iter.end() + 1 };
+                lastGroup.Entities = iter;
+            }
         }
 
-        if (firstIter != lastIter)
-        {
-            m_StagedGroups.emplace(std::span{ firstIter, lastIter }, lastVertexBuffer, lastIndexBuffer);
-        }
+        std::for_each(
+            std::execution::par_unseq,
+            m_StagedGroups.begin(),
+            m_StagedGroups.end(),
+            [](auto& group)
+            {
+                group.CalculateRMS();
+            });
+        std::sort(m_StagedGroups.begin(), m_StagedGroups.end());
     }
 
     void CameraCullResult::FinalizeStaging()

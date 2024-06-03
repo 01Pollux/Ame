@@ -83,20 +83,20 @@ namespace Ame::Gfx::RG
         /// </summary>
         [[nodiscard]] CountedRowGenerator GetCountedRows()
         {
-            uint32_t drawOffset    = 0;
-            uint32_t counterOffset = 0;
-            uint32_t commandOffset = 0;
+            uint32_t DrawOffset    = 0;
+            uint32_t CounterOffset = 0;
+            uint32_t CommandOffset = 0;
 
             for (auto& row : m_Rows)
             {
                 co_yield CountedRow{
                     .CurRow        = row,
-                    .DrawOffset    = drawOffset,
-                    .CounterOffset = counterOffset
+                    .DrawOffset    = DrawOffset,
+                    .CounterOffset = CounterOffset
                 };
 
-                drawOffset += row.get().Count;
-                counterOffset++;
+                DrawOffset += row.get().Count;
+                CounterOffset++;
             }
         }
 
