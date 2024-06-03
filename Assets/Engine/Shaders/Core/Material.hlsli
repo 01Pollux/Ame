@@ -8,11 +8,11 @@
 
 MaterialFragment PSM_Main(Ecs_PSInput input);
 
-#define MATERIALDATA_REGISTERSPACE 20
+#define MATERIALDATA_REGISTERSPACE 15
 AME_ENABLE_DRAW_PARAMETERS;
 
-#define AME_MATERIAL_RESOURCE(type, name, regType, bindingIndex) AME_RESOURCE(type, name, regType, bindingIndex, 20)
-#define AME_MATERIAL_USERDATA(type) AME_RESOURCE(ConstantBuffer<type>, _UserData, b, 0, 20)
+#define AME_MATERIAL_RESOURCE(type, name, regType, bindingIndex) AME_RESOURCE(type, name, regType, bindingIndex, 15)
+#define AME_MATERIAL_USERDATA(type) AME_RESOURCE(ConstantBuffer<type>, _UserData, b, 0, 15)
 
 //
 

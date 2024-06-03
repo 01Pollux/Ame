@@ -55,5 +55,5 @@ namespace Ame::Gfx::Constants::DescriptorRanges
     //
 
     static constexpr uint32_t c_MaterialData_SetIndex      = 2;
-    static constexpr uint32_t c_MaterialData_RegisterSpace = 20;
+    static constexpr uint32_t c_MaterialData_RegisterSpace = 15;
 } // namespace Ame::Gfx::Constants::DescriptorRanges

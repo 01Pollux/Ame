@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include <Rhi/Util/BlockBasedBuffer.hpp>
 
 #include <Rhi/Staging/StagedTexture.hpp>
@@ -42,8 +44,9 @@ namespace Ame::Rhi::Staging
             Count
         };
 
-        using BlockBasedTempBuffer = std::array<Util::BlockBasedBuffer, static_cast<int>(AllocationType::Count)>;
-        using TempBufferMutexes    = std::array<std::mutex, static_cast<int>(StagedAccessType::Count)>;
+        using TempBlockBuffer   = Util::BlockBasedBuffer<false>;
+        using TempBlockBuffers  = std::array<TempBlockBuffer, static_cast<int>(AllocationType::Count)>;
+        using TempBufferMutexes = std::array<std::mutex, static_cast<int>(StagedAccessType::Count)>;
 
     public:
         DeferredStagingAllocator(
@@ -92,15 +95,15 @@ namespace Ame::Rhi::Staging
         /// <summary>
         /// Get the buffer allocator for the specified location and type
         /// </summary>
-        [[nodiscard]] std::pair<Util::BlockBasedBuffer*, std::mutex*> GetBufferAllocator(
+        [[nodiscard]] std::pair<TempBlockBuffer*, std::mutex*> GetBufferAllocator(
             StagedAccessType accessType,
             AllocationType   type);
 
     private:
         Ref<Device> m_Device;
 
-        BlockBasedTempBuffer m_TempUploads;
-        BlockBasedTempBuffer m_TempReadbacks;
+        TempBlockBuffers m_TempUploads;
+        TempBlockBuffers m_TempReadbacks;
 
         TempBufferMutexes m_UploadMutexes;
         TempBufferMutexes m_ReadbackMutexes;

@@ -1,4 +1,6 @@
 #include <Rhi/Staging/DeferredStagingManager/DeferredStagingAllocator.hpp>
+
+#include <Rhi/Device/Device.hpp>
 #include <Rhi/Util/ResourceSize.hpp>
 
 namespace Ame::Rhi::Staging
@@ -15,12 +17,12 @@ namespace Ame::Rhi::Staging
         const DeferredStagingAllocatorDesc& desc) :
         m_Device(rhiDevice),
         m_TempUploads{
-            Util::BlockBasedBuffer{ rhiDevice, desc.UploadBufferDesc },
-            Util::BlockBasedBuffer{ rhiDevice, desc.UploadTextureDesc }
+            TempBlockBuffer{ rhiDevice, desc.UploadBufferDesc },
+            TempBlockBuffer{ rhiDevice, desc.UploadTextureDesc }
         },
         m_TempReadbacks{
-            Util::BlockBasedBuffer{ rhiDevice, desc.ReadbackBufferDesc },
-            Util::BlockBasedBuffer{ rhiDevice, desc.ReadbackTextureDesc }
+            TempBlockBuffer{ rhiDevice, desc.ReadbackBufferDesc },
+            TempBlockBuffer{ rhiDevice, desc.ReadbackTextureDesc }
         }
     {
     }
@@ -105,9 +107,9 @@ namespace Ame::Rhi::Staging
         return allocation;
     }
 
-    std::pair<Util::BlockBasedBuffer*, std::mutex*> DeferredStagingAllocator::GetBufferAllocator(
+    auto DeferredStagingAllocator::GetBufferAllocator(
         StagedAccessType accessType,
-        AllocationType   type)
+        AllocationType   type) -> std::pair<TempBlockBuffer*, std::mutex*>
     {
         int index = static_cast<int>(type);
         switch (accessType)
