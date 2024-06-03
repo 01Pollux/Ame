@@ -217,7 +217,7 @@ namespace Ame::Rhi
 
         if (api == Rhi::GraphicsAPI::Vulkan)
         {
-            auto library = ShaderCompilerLibrary::SpirvWorkaround(rhiDevice, shaders, desc, assetStorage);
+            auto library = ShaderCompilerLibrary::SpirvCompileLinkWorkaround(rhiDevice, shaders, desc, assetStorage);
             return library.GetBytecode();
         }
         else

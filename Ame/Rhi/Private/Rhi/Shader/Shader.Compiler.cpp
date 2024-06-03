@@ -29,7 +29,7 @@ namespace Ame::Rhi
         Validate(api, desc);
     }
 
-    ShaderCompilerLibrary ShaderCompilerLibrary::SpirvWorkaround(
+    ShaderCompilerLibrary ShaderCompilerLibrary::SpirvCompileLinkWorkaround(
         Device&                         rhiDevice,
         std::span<const ShaderBytecode> shaderCodes,
         const ShaderCompileDesc&        desc,
