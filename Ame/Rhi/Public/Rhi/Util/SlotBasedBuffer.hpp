@@ -1,10 +1,7 @@
 #pragma once
 
 #include <boost/container/flat_set.hpp>
-
-#include <Rhi/Device/Device.hpp>
-#include <Rhi/Resource/Buffer.hpp>
-#include <Rhi/Stream/Buffer.hpp>
+#include <Rhi/Util/GenericBufferStream.hpp>
 #include <Math/Common.hpp>
 
 namespace Ame::Rhi::Util
@@ -47,39 +44,24 @@ namespace Ame::Rhi::Util
     /// Each slot is a fixed size and can be rented and returned
     /// A buffer is continuously grown when all slots are rented
     /// </summary>
-    template<typename Ty>
+    template<typename Ty, bool WithStreaming = true>
     class SlotBasedBuffer
     {
     public:
         using Type                                         = Ty;
         static constexpr uint32_t c_AlignedSizePerInstance = Math::AlignUp(sizeof(Type), 16);
         static constexpr uint32_t c_InvalidIndex           = std::numeric_limits<uint32_t>::max();
-        static constexpr uint64_t c_InvalidValue64         = std::numeric_limits<uint64_t>::max();
 
     private:
-        struct Handle
-        {
-            uint64_t FrameIndex = c_InvalidValue64;
-            uint32_t Slot       = c_InvalidIndex;
-
-            [[nodiscard]] auto operator<=>(
-                const Handle& other) const
-            {
-                return FrameIndex <=> other.FrameIndex;
-            }
-        };
-
-        using EmptySlotSet     = boost::container::flat_set<uint32_t>;
-        using BusyHandleSet    = boost::container::flat_set<uint32_t>;
-        using RetiredHandleSet = boost::container::flat_multiset<Handle>;
-        using BufferStream     = UPtr<Streaming::BufferOStream>;
+        using EmptySlotSet  = boost::container::flat_set<uint32_t>;
+        using BusyHandleSet = boost::container::flat_set<uint32_t>;
+        using BufferStream  = GenericBufferStream<WithStreaming>;
 
     public:
         SlotBasedBuffer(
             Device&                    rhiDevice,
             const SlotBasedBufferDesc& desc = {}) :
             m_Device(rhiDevice),
-            m_Stream(std::make_unique<Streaming::BufferOStream>()),
             m_Desc(desc)
         {
             uint32_t InitialCount = std::exchange(m_Desc.InstanceCount, 0);
@@ -92,7 +74,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         void Flush()
         {
-            m_Stream->flush();
+            m_BufferStream.Flush();
         }
 
     public:
@@ -104,21 +86,20 @@ namespace Ame::Rhi::Util
             const Type& data)
         {
             AllocationMustExists(slot);
-            Write(slot, std::addressof(data), sizeof(Type));
+            Write(slot, std::bit_cast<const std::byte*>(std::addressof(data)), sizeof(Type));
         }
 
         /// <summary>
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t    slot,
-            const void* data,
-            size_t      size)
+            uint32_t         slot,
+            const std::byte* data,
+            size_t           size)
         {
             AllocationMustExists(slot);
             size_t offset = GetOffset(slot);
-            m_Stream->seekp(offset);
-            m_Stream->write(static_cast<const char*>(data), size);
+            m_BufferStream.Write(offset, data, size);
         }
 
     public:
@@ -154,7 +135,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         [[nodiscard]] const Buffer& GetBuffer() const
         {
-            return m_Buffer;
+            return m_BufferStream.GetBuffer();
         }
 
     public:
@@ -163,17 +144,13 @@ namespace Ame::Rhi::Util
         /// </summary>
         [[nodiscard]] uint32_t Rent()
         {
-            uint64_t currentFrameIndex = m_Device.get().GetFrameCount();
-            DiscardRetiredHandles(currentFrameIndex);
-
             if (m_EmptySlots.empty())
             {
                 GrowSlots();
             }
 
-            auto slot = *m_EmptySlots.begin();
+            uint32_t slot = *m_EmptySlots.begin();
             m_EmptySlots.erase(slot);
-            RentSlot(slot);
 
             return slot;
         }
@@ -184,7 +161,7 @@ namespace Ame::Rhi::Util
         uint32_t Rent(
             const Type& data)
         {
-            auto slot = Rent();
+            uint32_t slot = Rent();
             Write(slot, data);
             return slot;
         }
@@ -196,7 +173,7 @@ namespace Ame::Rhi::Util
             uint32_t slot)
         {
             AllocationMustExists(slot);
-            RetireHandle(slot, m_Device.get().GetFrameIndex());
+            m_EmptySlots.insert(slot);
         }
 
     public:
@@ -205,8 +182,10 @@ namespace Ame::Rhi::Util
         /// </summary>
         void Reset()
         {
-            uint64_t currentFrameIndex = m_Device.get().GetFrameCount();
-            RetireAllSlots(currentFrameIndex);
+            for (uint32_t i = 0; i < m_Desc.InstanceCount; i++)
+            {
+                m_EmptySlots.insert(i);
+            }
         }
 
     private:
@@ -246,96 +225,16 @@ namespace Ame::Rhi::Util
         /// </summary>
         void RecreateBuffer()
         {
-            if (m_Stream->is_open())
+            if (m_BufferStream.IsOpen())
             {
                 Flush();
-                m_Stream->close();
+                m_BufferStream.Close();
             }
 
             auto newBuffer = CreateBuffer(m_Desc.InstanceCount);
-            CopyToBuffer(newBuffer);
+            m_BufferStream.CopyTo(newBuffer);
 
-            m_Buffer = std::move(newBuffer);
-            m_Stream->open(Streaming::BufferView(m_Buffer));
-        }
-
-        /// <summary>
-        /// Copy the current content of the buffer to the new buffer
-        /// </summary>
-        void CopyToBuffer(
-            Buffer& newBuffer) const
-        {
-            if (m_Buffer)
-            {
-                auto src  = m_Buffer.GetPtr();
-                auto dst  = newBuffer.GetPtr();
-                auto size = m_Buffer.GetDesc().size;
-
-                std::memcpy(dst, src, size);
-            }
-        }
-
-    private:
-        /// <summary>
-        /// Rent a slot in the buffer
-        /// </summary>
-        void RentSlot(
-            uint32_t slot)
-        {
-            m_BusySlots.insert(slot);
-        }
-
-        /// <summary>
-        /// Rent all handles in the buffer
-        /// </summary>
-        void RetireAllSlots(
-            uint64_t frameIndex)
-        {
-            for (uint32_t i : m_BusySlots)
-            {
-                m_RetiredHandles.insert({ .FrameIndex = frameIndex, .Slot = i });
-            }
-            m_BusySlots.clear();
-        }
-
-        /// <summary>
-        /// Retire a handle in the buffer
-        /// </summary>
-        void RetireHandle(
-            uint32_t slot,
-            uint64_t frameIndex)
-        {
-            m_BusySlots.erase(slot);
-            m_RetiredHandles.insert({ .FrameIndex = frameIndex, .Slot = slot });
-        }
-
-        /// <summary>
-        /// Flush all frames that are older than the given frame index + frame count
-        /// </summary>
-        void DiscardRetiredHandles(
-            uint64_t currentFrameIndex)
-        {
-            uint8_t frameCount = m_Device.get().GetFrameCountInFlight();
-            if (frameCount > currentFrameIndex) [[unlikely]]
-            {
-                return;
-            }
-
-            currentFrameIndex -= frameCount;
-
-            auto it = m_RetiredHandles.begin();
-            while (it != m_RetiredHandles.end())
-            {
-                if (it->FrameIndex <= currentFrameIndex)
-                {
-                    m_EmptySlots.insert(it->Slot);
-                    it = m_RetiredHandles.erase(it);
-                }
-                else
-                {
-                    break;
-                }
-            }
+            m_BufferStream.Open(std::move(newBuffer));
         }
 
     private:
@@ -362,7 +261,8 @@ namespace Ame::Rhi::Util
             uint32_t slot) const
         {
 #ifdef AME_DEBUG
-            if (m_BusySlots.contains(slot))
+            if (slot >= m_Desc.InstanceCount ||
+                !m_EmptySlots.contains(slot))
             {
                 std::unreachable();
             }
@@ -373,11 +273,7 @@ namespace Ame::Rhi::Util
         Ref<Device>         m_Device;
         SlotBasedBufferDesc m_Desc;
 
-        Buffer       m_Buffer;
-        BufferStream m_Stream;
-
-        EmptySlotSet     m_EmptySlots;
-        BusyHandleSet    m_BusySlots;
-        RetiredHandleSet m_RetiredHandles;
+        BufferStream m_BufferStream;
+        EmptySlotSet m_EmptySlots;
     };
 } // namespace Ame::Rhi::Util

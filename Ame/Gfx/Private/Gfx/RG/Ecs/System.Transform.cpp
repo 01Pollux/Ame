@@ -25,7 +25,7 @@ namespace Ame::Gfx::RG
                         instanceInfo.TransformIndex = transformBuffer.Rent();
                     }
                     auto matrix = transforms[i].ToMat4x4Transposed();
-                    transformBuffer.Write(instanceInfo.TransformIndex, glm::value_ptr(matrix), sizeof(matrix));
+                    transformBuffer.Write(instanceInfo.TransformIndex, std::bit_cast<const std::byte*>(glm::value_ptr(matrix)), sizeof(matrix));
                 }
                 else
                 {

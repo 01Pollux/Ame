@@ -62,14 +62,14 @@ namespace Ame::Rhi
             Flags = StageBits::NONE;
         }
 
-        void Set(
+        ShaderFlags& Set(
             ShaderFlags other,
             bool        value = true)
         {
-            Set(other.Flags, value);
+            return Set(other.Flags, value);
         }
 
-        void Set(
+        ShaderFlags& Set(
             StageBits flags,
             bool      value = true)
         {
@@ -95,6 +95,7 @@ namespace Ame::Rhi
                     Flags = static_cast<Rhi::ShaderType>(static_cast<uint32_t>(Flags) & ~static_cast<uint32_t>(flags));
                 }
             }
+            return *this;
         }
 
         [[nodiscard]] static ShaderFlags All()

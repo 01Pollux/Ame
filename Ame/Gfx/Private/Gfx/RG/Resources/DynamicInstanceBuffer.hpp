@@ -5,7 +5,7 @@
 
 namespace Ame::Gfx::RG
 {
-    class InstanceBuffer : public Rhi::Util::SlotBasedBuffer<RenderInstance>
+    class DynamicInstanceBuffer : public Rhi::Util::SlotBasedBuffer<RenderInstance>
     {
     public:
         using SlotBasedBuffer::SlotBasedBuffer;

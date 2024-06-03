@@ -55,7 +55,7 @@ namespace Ame::Gfx::RG
         return m_TransformBuffer;
     }
 
-    const InstanceBuffer& CoreResources::GetInstancesTableBuffer() const
+    const DynamicInstanceBuffer& CoreResources::GetInstancesTableBuffer() const
     {
         return m_CameraCullResult.GetInstancesTableBuffer();
     }
@@ -72,7 +72,7 @@ namespace Ame::Gfx::RG
         return m_TransformBuffer;
     }
 
-    InstanceBuffer& CoreResources::GetInstancesTableBuffer()
+    DynamicInstanceBuffer& CoreResources::GetInstancesTableBuffer()
     {
         return m_CameraCullResult.GetInstancesTableBuffer();
     }

@@ -2,9 +2,9 @@
 
 #include <boost/container/flat_set.hpp>
 
-#include <Gfx/RG/Resources/VertexBuffer.hpp>
-#include <Gfx/RG/Resources/IndexBuffer.hpp>
-#include <Gfx/RG/Resources/InstanceBuffer.hpp>
+#include <Gfx/RG/Resources/DynamicVertexBuffer.hpp>
+#include <Gfx/RG/Resources/DynamicIndexBuffer.hpp>
+#include <Gfx/RG/Resources/DynamicInstanceBuffer.hpp>
 
 #include <Gfx/RG/EntityStore.hpp>
 
@@ -74,9 +74,9 @@ namespace Ame::Gfx::RG
 
         struct CameraStorage
         {
-            VertexBuffer   DynamicVertices;
-            IndexBuffer    DynamicIndices;
-            InstanceBuffer AllInstances;
+            DynamicVertexBuffer   DynamicVertices;
+            DynamicIndexBuffer    DynamicIndices;
+            DynamicInstanceBuffer AllInstances;
 
             CameraStorage(
                 Rhi::Device&                           rhiDevice,
@@ -94,10 +94,10 @@ namespace Ame::Gfx::RG
             const CameraCullDesc& desc = {});
 
     public:
-        [[nodiscard]] uint32_t                  GetEntitiesCount() const;
-        [[nodiscard]] EntityStore::RowGenerator GetEntities() const;
-        [[nodiscard]] const InstanceBuffer&     GetInstancesTableBuffer() const;
-        [[nodiscard]] InstanceBuffer&           GetInstancesTableBuffer();
+        [[nodiscard]] uint32_t                     GetEntitiesCount() const;
+        [[nodiscard]] EntityStore::RowGenerator    GetEntities() const;
+        [[nodiscard]] const DynamicInstanceBuffer& GetInstancesTableBuffer() const;
+        [[nodiscard]] DynamicInstanceBuffer&       GetInstancesTableBuffer();
 
     public:
         /// <summary>
@@ -116,7 +116,8 @@ namespace Ame::Gfx::RG
 
         /// <summary>
         /// Sort the cull result.
-        /// All entities are reduced to a single buffer and sorted by effective distance, pipelinestate, distance, vertexbuffer, indexbuffer.
+        /// All entities are reduced to a single buffer and sorted by
+        /// effective distance, pipelinestate, distance, vertexbuffer, indexbuffer.
         /// </summary>
         void Upload();
 

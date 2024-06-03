@@ -4,7 +4,7 @@
 
 namespace Ame::Gfx::RG
 {
-    class VertexBuffer : public Rhi::Util::BlockBasedBuffer
+    class DynamicVertexBuffer : public Rhi::Util::BlockBasedBuffer<>
     {
     public:
         using BlockBasedBuffer::BlockBasedBuffer;

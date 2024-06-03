@@ -1,10 +1,7 @@
 #pragma once
 
 #include <boost/container/flat_set.hpp>
-
-#include <Rhi/Device/Device.hpp>
-#include <Rhi/Resource/Buffer.hpp>
-#include <Rhi/Stream/Buffer.hpp>
+#include <Rhi/Util/GenericBufferStream.hpp>
 #include <Allocator/Utils/Buddy.hpp>
 
 namespace Ame::Rhi::Util
@@ -42,6 +39,7 @@ namespace Ame::Rhi::Util
     /// Each block is a buffer that can be written to
     /// When a block is full, a new block is created until the maximum number of blocks is reached
     /// </summary>
+    template<bool WithStreaming = true>
     class BlockBasedBuffer
     {
     public:
@@ -63,22 +61,7 @@ namespace Ame::Rhi::Util
         static constexpr Handle c_InvalidHandle = {};
 
     private:
-        using BusyHandle = Allocator::Buddy::Handle;
-
-        struct RetiredHandle : Handle
-        {
-            uint64_t FrameIndex = c_InvalidValue64;
-
-            [[nodiscard]] auto operator<=>(
-                const RetiredHandle& other) const
-            {
-                return FrameIndex <=> other.FrameIndex;
-            }
-        };
-
-        using BusyHandleSet    = boost::container::flat_set<BusyHandle>;
-        using RetiredHandleSet = boost::container::flat_multiset<RetiredHandle>;
-        using BufferStream     = UPtr<Streaming::BufferOStream>;
+        using BufferStream = GenericBufferStream<WithStreaming>;
 
     public:
         BlockBasedBuffer(
@@ -96,7 +79,7 @@ namespace Ame::Rhi::Util
         void Flush(
             const uint32_t blockSlot)
         {
-            AllocationMustExists(blockSlot);
+            BlockSlotMustExists(blockSlot);
             m_Blocks[blockSlot].Stream->flush();
         }
 
@@ -107,7 +90,7 @@ namespace Ame::Rhi::Util
         {
             for (auto& block : m_Blocks)
             {
-                block.Stream->flush();
+                block.BufferRef.Flush();
             }
         }
 
@@ -115,9 +98,11 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Get the size of the block
         /// </summary>
-        [[nodiscard]] uint32_t GetBlockSize() const
+        [[nodiscard]] size_t GetBlockSize(
+            uint32_t blockSlot) const
         {
-            return m_Desc.Size;
+            BlockSlotMustExists(blockSlot);
+            return m_Blocks[blockSlot].BufferRef.GetSize();
         }
 
         /// <summary>
@@ -135,8 +120,8 @@ namespace Ame::Rhi::Util
         [[nodiscard]] const Buffer& GetBuffer(
             uint32_t blockSlot) const
         {
-            AllocationMustExists(blockSlot);
-            return m_Blocks[blockSlot].BufferRef;
+            BlockSlotMustExists(blockSlot);
+            return m_Blocks[blockSlot].BufferRef.GetBuffer();
         }
 
         /// <summary>
@@ -145,7 +130,6 @@ namespace Ame::Rhi::Util
         [[nodiscard]] const Buffer& GetBuffer(
             const Handle& handle) const
         {
-            AllocationMustExists(handle);
             return GetBuffer(handle.BlockSlot);
         }
 
@@ -158,7 +142,6 @@ namespace Ame::Rhi::Util
             const std::byte* data,
             size_t           size)
         {
-            AllocationMustExists(handle);
             Write(handle.BlockSlot, handle.Offset, data, size);
         }
 
@@ -171,10 +154,9 @@ namespace Ame::Rhi::Util
             const std::byte* data,
             size_t           size)
         {
-            AllocationMustExists(slot);
+            BlockSlotMustExists(slot);
             auto& block = m_Blocks[slot];
-            block.Stream->seekp(offset);
-            block.Stream->write(std::bit_cast<const char*>(data), size);
+            block.BufferRef.Write(offset, data, size);
         }
 
     public:
@@ -208,18 +190,24 @@ namespace Ame::Rhi::Util
         void Return(
             const Handle& handle)
         {
-            AllocationMustExists(handle);
-            RetireHandle(
-                handle.BlockSlot,
-                { .Offset = handle.Offset, .Size = handle.Size },
-                m_Device.get().GetFrameCount());
+            BlockSlotMustExists(handle.BlockSlot);
+
+            auto& block = m_Blocks[handle.BlockSlot];
+            block.Buddy.Free(
+                { .Offset = handle.Offset,
+                  .Size   = handle.Size });
         }
 
     public:
+        /// <summary>
+        /// Reset all blocks in the buffer
+        /// </summary>
         void Reset()
         {
-            uint64_t currentFrameIndex = m_Device.get().GetFrameCount();
-            RetireAllHandles(currentFrameIndex);
+            for (auto& block : m_Blocks)
+            {
+                block.Reset();
+            }
         }
 
     private:
@@ -229,11 +217,7 @@ namespace Ame::Rhi::Util
         [[nodiscard]] Handle FindSlot(
             size_t size)
         {
-            uint64_t currentFrameIndex = m_Device.get().GetFrameCount();
-            Handle   handle;
-
-            DiscardRetiredHandles(currentFrameIndex);
-
+            Handle handle;
             for (uint32_t i = 0; i < m_Blocks.size(); i++)
             {
                 auto& block       = m_Blocks[i];
@@ -255,7 +239,6 @@ namespace Ame::Rhi::Util
                 handle = CreateBlock(size);
             }
 
-            RentHandle(handle);
             return handle;
         }
 
@@ -300,90 +283,6 @@ namespace Ame::Rhi::Util
 
     private:
         /// <summary>
-        /// Rent a handle in the buffer
-        /// </summary>
-        void RentHandle(
-            const Handle& handle)
-        {
-            auto& block = m_Blocks[handle.BlockSlot];
-            block.BusyHandles.insert({ .Offset = handle.Offset, .Size = handle.Size });
-        }
-
-        /// <summary>
-        /// Rent all handles in the buffer
-        /// </summary>
-        void RetireAllHandles(
-            uint64_t frameIndex)
-        {
-            for (uint32_t i = 0; i < m_Blocks.size(); i++)
-            {
-                auto& block = m_Blocks[i];
-                for (auto& handle : block.BusyHandles)
-                {
-                    m_RetiredHandles.insert(RetiredHandle{
-                        { .BlockSlot = i,
-                          .Offset    = handle.Offset,
-                          .Size      = handle.Size },
-                        {
-                            frameIndex,
-                        } });
-                }
-                block.BusyHandles.clear();
-            }
-        }
-
-        /// <summary>
-        /// Retire a handle in the buffer
-        /// </summary>
-        void RetireHandle(
-            uint32_t                        blockSlot,
-            const Allocator::Buddy::Handle& handle,
-            uint64_t                        frameIndex)
-        {
-            auto& block = m_Blocks[blockSlot];
-            block.BusyHandles.erase({ handle.Offset, handle.Size });
-            m_RetiredHandles.insert(RetiredHandle{
-                { .BlockSlot = blockSlot,
-                  .Offset    = handle.Offset,
-                  .Size      = handle.Size },
-                { frameIndex } });
-        }
-
-        /// <summary>
-        /// Flush all frames that are older than the given frame index + frame count
-        /// </summary>
-        void DiscardRetiredHandles(
-            uint64_t currentFrameIndex)
-        {
-            uint8_t frameCount = m_Device.get().GetFrameCountInFlight();
-            if (frameCount > currentFrameIndex) [[unlikely]]
-            {
-                return;
-            }
-
-            currentFrameIndex -= frameCount;
-
-            auto it = m_RetiredHandles.begin();
-            while (it != m_RetiredHandles.end())
-            {
-                if (it->FrameIndex <= currentFrameIndex)
-                {
-                    auto& block = m_Blocks[it->BlockSlot];
-                    block.Buddy.Free(
-                        { .Offset = it->Offset,
-                          .Size   = it->Size });
-
-                    it = m_RetiredHandles.erase(it);
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-    private:
-        /// <summary>
         /// Create an empty buffer
         /// </summary>
         [[nodiscard]] static Buffer CreateBuffer(
@@ -404,24 +303,11 @@ namespace Ame::Rhi::Util
         }
 
     private:
-        void AllocationMustExists(
+        void BlockSlotMustExists(
             uint32_t blockSlot) const
         {
 #ifdef AME_DEBUG
             if (blockSlot >= m_Blocks.size()) [[unlikely]]
-            {
-                std::unreachable();
-            }
-#endif
-        }
-
-        void AllocationMustExists(
-            const Handle& handle) const
-        {
-#ifdef AME_DEBUG
-            AllocationMustExists(handle.BlockSlot);
-            auto& block = m_Blocks[handle.BlockSlot];
-            if (!block.BusyHandles.contains({ .Offset = handle.Offset, .Size = handle.Size })) [[unlikely]]
             {
                 std::unreachable();
             }
@@ -435,9 +321,7 @@ namespace Ame::Rhi::Util
         struct Block
         {
             Allocator::Buddy Buddy;
-            BusyHandleSet    BusyHandles;
-            Buffer           BufferRef;
-            BufferStream     Stream;
+            BufferStream     BufferRef;
 
             Block(
                 Device&         rhiDevice,
@@ -445,15 +329,16 @@ namespace Ame::Rhi::Util
                 size_t          size,
                 BufferUsageBits usageFlags) :
                 Buddy(size),
-                BufferRef(CreateBuffer(rhiDevice, location, size, usageFlags)),
-                Stream(std::make_unique<Streaming::BufferOStream>(Streaming::BufferView(BufferRef)))
+                BufferRef(CreateBuffer(rhiDevice, location, size, usageFlags))
             {
+            }
+
+            void Reset()
+            {
+                Buddy = Allocator::Buddy(BufferRef.GetSize());
             }
         };
 
         std::vector<Block> m_Blocks;
-
-        // Sorted by frame index
-        RetiredHandleSet m_RetiredHandles;
     };
 } // namespace Ame::Rhi::Util

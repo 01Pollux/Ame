@@ -36,13 +36,13 @@ namespace Ame::Gfx::RG
         }
     }
 
-    const InstanceBuffer& CameraCullResult::GetInstancesTableBuffer() const
+    const DynamicInstanceBuffer& CameraCullResult::GetInstancesTableBuffer() const
     {
         Log::Gfx().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
         return m_Cameras[m_CurrentCamera].AllInstances;
     }
 
-    InstanceBuffer& CameraCullResult::GetInstancesTableBuffer()
+    DynamicInstanceBuffer& CameraCullResult::GetInstancesTableBuffer()
     {
         Log::Gfx().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
         return m_Cameras[m_CurrentCamera].AllInstances;
@@ -100,56 +100,31 @@ namespace Ame::Gfx::RG
 
     void CameraCullResult::StageUpload()
     {
-        uint32_t lastVertexBlock = std::numeric_limits<uint32_t>::max(),
-                 lastIndexBlock  = std::numeric_limits<uint32_t>::max();
-
         auto& cameraStorage = m_Cameras[m_CurrentCamera];
 
-        auto fetchBuffer = [](auto& dynamicBuffer, auto& view, uint32_t& lastBlock, bool& newRow)
-        {
-            nri::Buffer* buffer = nullptr;
-            uint32_t     offset = 0;
+        //
 
-            // If the vertex or index buffer is unique, create a new row
-            // (1)
-            if (view.HasUniqueBuffer())
-            {
-                newRow = true;
-                offset = view.Offset();
-                buffer = view.NriBuffer;
-            }
-            else
-            {
-                auto Handle = dynamicBuffer.Rent(view.CpuData(), view.Stride * view.Count);
-                offset      = Handle.Offset;
-                buffer      = dynamicBuffer.GetBuffer(Handle.BlockSlot).Unwrap();
-
-                // if the buffer is different, create a new row
-                // (2)
-                if (Handle.BlockSlot != lastBlock)
-                {
-                    newRow    = true;
-                    lastBlock = Handle.BlockSlot;
-                }
-            }
-
-            return std::pair{ buffer, offset };
-        };
+        uint32_t lastVertexBlock = std::numeric_limits<uint32_t>::max(),
+                 lastIndexBlock  = std::numeric_limits<uint32_t>::max();
 
         nri::Buffer* lastVertexBuffer = nullptr;
         nri::Buffer* lastIndexBuffer  = nullptr;
 
-        Shading::Material* lastMaterial = nullptr;
+        //
 
         Rhi::IndexType lastIndexType = Rhi::IndexType::MAX_NUM;
+
+        //
+
+        Shading::Material* lastMaterial = nullptr;
 
         //
 
         auto tryBatchBuffer =
             [](const RenderInstance&                             renderInstance,
                const Ecs::Component::BaseRenderable::BufferView& bufferView,
-               Rhi::Util::BlockBasedBuffer&                      dynamicBuffer,
-               size_t                                            bufferOffset,
+               Rhi::Util::BlockBasedBuffer<true>&                dynamicBuffer,
+               uint32_t&                                         bufferOffset,
                nri::Buffer*&                                     nriBuffer,
                uint32_t&                                         lastBlock) -> bool
         {
@@ -165,8 +140,10 @@ namespace Ame::Gfx::RG
             }
             else
             {
-                auto handle  = dynamicBuffer.Rent(bufferView.CpuData(), bufferView.Size());
-                bufferOffset = handle.Offset;
+                auto handle = dynamicBuffer.Rent(bufferView.CpuData(), bufferView.Size());
+                AME_LOG_ASSERT(Log::Gfx(), handle.Offset <= std::numeric_limits<uint32_t>::max(), "Buffer offset is too large");
+
+                bufferOffset = static_cast<uint32_t>(handle.Offset);
                 nriBuffer    = dynamicBuffer.GetBuffer(handle.BlockSlot).Unwrap();
 
                 // if the buffer is different, create a new row
@@ -227,7 +204,7 @@ namespace Ame::Gfx::RG
 
             // (3)
             auto indexType = renderable.GetIndexType();
-            if (lastIndexType != Rhi::IndexType::MAX_NUM && 
+            if (lastIndexType != Rhi::IndexType::MAX_NUM &&
                 indexType != lastIndexType)
             {
                 needsNewRow = true;
@@ -237,7 +214,7 @@ namespace Ame::Gfx::RG
             //
 
             // (4)
-            if (lastMaterial && 
+            if (lastMaterial &&
                 lastMaterial->GetPipelineHash() != renderable.Material->GetPipelineHash())
             {
                 needsNewRow = true;

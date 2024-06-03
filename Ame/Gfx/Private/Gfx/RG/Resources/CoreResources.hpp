@@ -25,14 +25,14 @@ namespace Ame::Gfx::RG
         [[nodiscard]] EntityStore::RowGenerator GetEntities() const;
 
     public:
-        [[nodiscard]] const AABBBuffer&      GetAABBBuffer() const;
-        [[nodiscard]] const TransformBuffer& GetTransformBuffer() const;
-        [[nodiscard]] const InstanceBuffer&  GetInstancesTableBuffer() const;
+        [[nodiscard]] const AABBBuffer&            GetAABBBuffer() const;
+        [[nodiscard]] const TransformBuffer&       GetTransformBuffer() const;
+        [[nodiscard]] const DynamicInstanceBuffer& GetInstancesTableBuffer() const;
 
     public:
-        [[nodiscard]] AABBBuffer&      GetAABBBuffer();
-        [[nodiscard]] TransformBuffer& GetTransformBuffer();
-        [[nodiscard]] InstanceBuffer&  GetInstancesTableBuffer();
+        [[nodiscard]] AABBBuffer&            GetAABBBuffer();
+        [[nodiscard]] TransformBuffer&       GetTransformBuffer();
+        [[nodiscard]] DynamicInstanceBuffer& GetInstancesTableBuffer();
 
     public:
         /// <summary>

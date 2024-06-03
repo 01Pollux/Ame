@@ -4,7 +4,7 @@
 
 namespace Ame::Gfx::RG
 {
-    class IndexBuffer : public Rhi::Util::BlockBasedBuffer
+    class DynamicIndexBuffer : public Rhi::Util::BlockBasedBuffer<>
     {
     public:
         using BlockBasedBuffer::BlockBasedBuffer;
