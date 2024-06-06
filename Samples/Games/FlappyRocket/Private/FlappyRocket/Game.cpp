@@ -131,7 +131,7 @@ namespace Ame::FlappyRocket
         camera.AddComponent<Ecs::Component::Camera>();
         camera.AddComponent<Ecs::Component::Transform>(
             Math::Mat::c_Identity<Math::Matrix3x3>,
-            Math::Vec::c_Backward<Math::Vector3>);
+            Math::Vec::c_Backward<Math::Vector3> * 100.f);
 
         camera.AddComponent<Ecs::Component::CameraOutput>(
             Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);

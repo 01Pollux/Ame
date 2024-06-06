@@ -11,8 +11,8 @@ struct UserData
 };
 AME_MATERIAL_USERDATA(UserData);
 
-AME_MATERIAL_RESOURCE(SamplerState, _Sampler, s, 0);
-AME_MATERIAL_RESOURCE(Texture2D<float4>, _Texture, t, 1);
+AME_MATERIAL_RESOURCE(SamplerState, _Sampler, s, 1);
+AME_MATERIAL_RESOURCE(Texture2D<float4>, _Texture, t, 2);
 
 //
 

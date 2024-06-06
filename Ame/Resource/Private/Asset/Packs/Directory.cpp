@@ -108,7 +108,7 @@ namespace Ame::Asset
                 else if (currentHash != expectedHash)
                 {
 #ifndef AME_ASSET_MGR_DISABLE_HASH_VALIDATION
-                    Logger.Error("Asset file '{}' has a different hash than the one in meta file", AssetFile.string());
+                    logger.Error("Asset file '{}' has a different hash than the one in meta file", assetPath.string());
                     continue;
 #else
                     // Try to correct the hash

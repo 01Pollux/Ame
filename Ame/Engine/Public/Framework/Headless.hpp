@@ -57,11 +57,6 @@ namespace Ame::Framework
         [[nodiscard]] HeadlessApplication Build(
             ArgsTy&&... args)
         {
-            if (!m_Runtime)
-            {
-                m_Runtime = std::make_shared<Co::runtime>();
-            }
-
             return { m_RuntimeOptions, std::forward<ArgsTy>(args)... };
         }
 

@@ -1,8 +1,7 @@
 includes("Project/Rules.lua")
 includes("Project/Utils.lua")
 
--- add_rules("mode.Debug", "mode.Release", "mode.Dist")
-add_rules("mode.Debug")
+add_rules("mode.Debug", "mode.Release", "mode.Dist")
 set_languages("c++latest")
 
 --

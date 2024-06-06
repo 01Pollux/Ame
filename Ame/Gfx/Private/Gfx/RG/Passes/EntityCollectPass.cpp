@@ -119,7 +119,7 @@ namespace Ame::Gfx::RG::Std
 
                         commandList->ClearBuffer(
                             { .storageBuffer            = counterView.Unwrap(),
-                              .setIndexInPipelineLayout = 2,
+                              .setIndexInPipelineLayout = c_CommandInfo_SetIndex,
                               .rangeIndex               = 1,
                               .offsetInRange            = row.CounterOffset });
 

@@ -28,7 +28,7 @@ namespace Ame::FileSystem
         MakeUnixPath(copy);
         return copy;
 #else
-        return Path;
+        return path;
 #endif
     }
 } // namespace Ame::FileSystem
