@@ -45,13 +45,15 @@ namespace Ame::Rhi::Util
     /// A buffer is continuously grown when all slots are rented
     /// </summary>
     template<typename Ty, bool WithStreaming = true>
+        requires(std::is_standard_layout_v<Ty> &&               // must be standard layout
+                 (sizeof(Ty) == Math::AlignUp(sizeof(Ty), 16))) // must be aligned to 16 bytes
     class SlotBasedBuffer
     {
     public:
-        using SlotType                                     = uint32_t;
-        using DataType                                     = Ty;
-        static constexpr uint32_t c_AlignedSizePerInstance = Math::AlignUp(sizeof(DataType), 16);
-        static constexpr uint32_t c_InvalidSlot            = std::numeric_limits<SlotType>::max();
+        using SlotType                              = uint32_t;
+        using DataType                              = Ty;
+        static constexpr uint32_t c_SizePerInstance = sizeof(DataType);
+        static constexpr uint32_t c_InvalidSlot     = std::numeric_limits<SlotType>::max();
 
     private:
         using EmptySlotSet = boost::container::flat_set<SlotType>;
@@ -110,7 +112,7 @@ namespace Ame::Rhi::Util
             SlotType slot) const
         {
             AllocationMustExists(slot);
-            return Math::AlignUp(static_cast<size_t>(slot) * c_AlignedSizePerInstance, m_Desc.Alignment);
+            return Math::AlignUp(static_cast<size_t>(slot) * c_SizePerInstance, m_Desc.Alignment);
         }
 
         /// <summary>
@@ -245,8 +247,8 @@ namespace Ame::Rhi::Util
             uint32_t instanceCount) const
         {
             BufferDesc desc{
-                .size            = c_AlignedSizePerInstance * instanceCount,
-                .structureStride = c_AlignedSizePerInstance,
+                .size            = c_SizePerInstance * instanceCount,
+                .structureStride = c_SizePerInstance,
                 .usageMask       = m_Desc.UsageFlags,
             };
 

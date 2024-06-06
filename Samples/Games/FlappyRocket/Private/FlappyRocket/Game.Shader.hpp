@@ -45,8 +45,8 @@ AME_EXPORT MaterialFragment PSM_Main(
 {
 	MaterialFragment fragment = (MaterialFragment) 0;
 	
-	fragment.BaseColor = _UserData._Color.xyz;
-	//fragment.BaseColor = (_Texture.Sample(_Sampler, input.TexCoord) * _UserData._Color).xyz;
+	//fragment.BaseColor = _UserData._Color.xyz;
+	fragment.BaseColor = (_Texture.Sample(_Sampler, input.TexCoord) * _UserData._Color).xyz;
 	
 	return fragment;
 }

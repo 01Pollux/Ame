@@ -18,12 +18,11 @@ namespace Ame::Gfx::RG::Std
 
         static constexpr uint32_t c_CommandInfo_SetIndex = 2;
 
-        struct DispatchDesc
+        struct DispatchConstants
         {
             uint32_t DrawOffset;
             uint32_t DrawCount;
             uint32_t CounterOffset;
-            uint32_t Pad;
         };
 
         EntityCollectPass(

@@ -10,7 +10,6 @@ struct DispatchDesc
 	uint DrawOffset;
 	uint DrawCount;
 	uint CounterOffset;
-	uint _pad;
 };
 
 //

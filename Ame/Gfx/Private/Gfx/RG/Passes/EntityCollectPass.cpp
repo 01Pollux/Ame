@@ -3,6 +3,7 @@
 #include <Gfx/Cache/CommonPipelineState.hpp>
 #include <Gfx/Constants.hpp>
 
+#include <Rhi/Device/Device.hpp>
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
 
 namespace Ame::Gfx::RG::Std
@@ -32,14 +33,16 @@ namespace Ame::Gfx::RG::Std
                                                        const Ecs::Component::BaseRenderable>()
                                                   .build()
                                                   .count());
-                    m_MaxEntitiesCount = std::min(std::max(curEntityCount, m_MaxEntitiesCount), c_MinEntities);
+
+                    auto dispatchDescSize = resolver.GetDevice().GetDrawIndexedCommandSize();
+                    m_MaxEntitiesCount    = std::max(std::max(curEntityCount, m_MaxEntitiesCount), c_MinEntities);
 
                     resolver.CreateBuffer(
                         Names::c_EntityCommandBuffer,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(DispatchDesc) * m_MaxEntitiesCount, c_BufferAlignment) });
+                        Rhi::BufferDesc{ Math::AlignUp(dispatchDescSize * m_MaxEntitiesCount, c_BufferAlignment) });
                     resolver.CreateBuffer(
                         Names::c_EntityCommandCounter,
-                        Rhi::BufferDesc{ Math::AlignUp(sizeof(int) * m_MaxEntitiesCount, c_BufferAlignment) });
+                        Rhi::BufferDesc{ Math::AlignUp(sizeof(uint32_t) * m_MaxEntitiesCount, c_BufferAlignment) });
 
                     //
 
@@ -110,7 +113,7 @@ namespace Ame::Gfx::RG::Std
                     auto entityStore = storage.GetEntityStore();
                     for (auto& row : entityStore.GetCountedRows())
                     {
-                        DispatchDesc DispatchConstants{
+                        DispatchConstants DispatchConstants{
                             .DrawOffset    = row.DrawOffset,
                             .DrawCount     = row->Count,
                             .CounterOffset = row.CounterOffset

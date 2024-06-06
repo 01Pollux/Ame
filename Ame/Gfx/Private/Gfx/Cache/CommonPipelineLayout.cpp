@@ -50,16 +50,16 @@ namespace Ame::Gfx::Cache
                 { .registerSpace = 3, .ranges = commandInfo, .rangeNum = Rhi::Count32(commandInfo) },
             };
 
-            Rhi::PushConstantDesc pushConstants[]{
-                { .size         = Rhi::Size32<uint32_t>() * 4, // contains DrawOffset, DrawCount, CounterOffset, _Pad
+            Rhi::PushConstantDesc dispatchConstants[]{
+                { .size         = Rhi::Size32<uint32_t>() * 3, // contains DrawOffset, DrawCount, CounterOffset
                   .shaderStages = Rhi::ShaderType::COMPUTE_SHADER }
             };
 
             Rhi::PipelineLayoutDesc layoutDesc{
                 .descriptorSets                     = setDescs,
-                .pushConstants                      = pushConstants,
+                .pushConstants                      = dispatchConstants,
                 .descriptorSetNum                   = Rhi::Count32(setDescs),
-                .pushConstantNum                    = Rhi::Count32(pushConstants),
+                .pushConstantNum                    = Rhi::Count32(dispatchConstants),
                 .shaderStages                       = Rhi::ShaderType::COMPUTE_SHADER,
                 .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation
             };

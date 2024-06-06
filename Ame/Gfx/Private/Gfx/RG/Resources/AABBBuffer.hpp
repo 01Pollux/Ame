@@ -5,7 +5,13 @@
 
 namespace Ame::Gfx::RG
 {
-    class AABBBuffer : public Rhi::Util::SlotBasedBuffer<Geometry::AABB>
+    struct AlignedAABB
+    {
+        Geometry::AABB Box;
+        uint32_t       Padding[2];
+    };
+
+    class AABBBuffer : public Rhi::Util::SlotBasedBuffer<AlignedAABB>
     {
     public:
         using SlotBasedBuffer::SlotBasedBuffer;

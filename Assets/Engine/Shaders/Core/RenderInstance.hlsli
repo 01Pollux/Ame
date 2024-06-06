@@ -10,8 +10,11 @@ struct RenderInstance
 	
 	uint VertexOffset;
 	uint VertexSize;
+	
 	uint IndexOffset;
 	uint IndexCount;
+	
+	uint2 _pad;
 };
 
 #endif

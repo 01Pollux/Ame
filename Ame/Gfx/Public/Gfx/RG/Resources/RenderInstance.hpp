@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Math/Vector.hpp>
+#include <limits>
 
 namespace Ame::Gfx::RG
 {
@@ -11,7 +11,10 @@ namespace Ame::Gfx::RG
 
         uint32_t VertexOffset = std::numeric_limits<uint32_t>::max();
         uint32_t VertexSize   = std::numeric_limits<uint32_t>::max();
-        uint32_t IndexOffset  = std::numeric_limits<uint32_t>::max();
-        uint32_t IndexCount   = std::numeric_limits<uint32_t>::max();
+
+        uint32_t IndexOffset = std::numeric_limits<uint32_t>::max();
+        uint32_t IndexCount  = std::numeric_limits<uint32_t>::max();
+
+        uint32_t Padding[2];
     };
 } // namespace Ame::Gfx::RG
