@@ -1,4 +1,4 @@
-includes("Deps/Externals/all.lua")
+includes("Deps/all.lua")
 
 set_languages("cxxlatest")
 

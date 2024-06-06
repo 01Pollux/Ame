@@ -23,6 +23,7 @@ package("ame.nri")
     add_configs("d3d12", {description = "Build support for D3D12", default = true, type = "boolean"})
     add_configs("agility", {description = "Path to Agility SDK", default = "", type = "string"})
     add_configs("shared", {description = "Build shared library", default = true, type = "boolean"})
+    add_configs("exceptions", {description = "Enable exceptions", default = false, type = "boolean"})
 
     on_load(function (package)
         if package:config("x11") then
@@ -34,7 +35,7 @@ package("ame.nri")
     end)
 
     on_install(function (package)
-        local text = [[
+        local footer = [[
 
 # Export NVAPI
 if (INPUT_LIB_NVAPI_FOUND)
@@ -55,8 +56,21 @@ install (DIRECTORY "Include/" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_
 install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME})
         ]]
         
-        local file = io.open("CMakeLists.txt", "a")
-        file:write(text)
+        local file = io.open("CMakeLists.txt", "r")
+        local content = file:read("*a")
+        file:close()
+
+        -- replace /WX with /WX- to avoid treating warnings as errors
+        if package:config("exceptions") then
+            content = content:gsub("/WX", "/WX-")
+        else
+            content = content:gsub("/WX", "/WX- /EHsc")
+        end
+
+        -- append footer
+        file = io.open("CMakeLists.txt", "w")
+        file:write(content)
+        file:write(footer)
         file:close()
 
         local configs = {

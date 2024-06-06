@@ -9,9 +9,9 @@ rule("mode.Debug")
             end
             target:add("defines", "AME_DEBUG")
             target:add("defines", "AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
-            target:set("policy", "build.sanitizer.address", true)
         end
     end)
+rule_end()
 
 rule("mode.Release")
     on_config(function (target)
@@ -34,6 +34,7 @@ rule("mode.Release")
             target:add("defines", "AME_RELEASE")
         end
     end)
+rule_end()
 
 rule("mode.Dist")
     on_config(function (target)
@@ -56,3 +57,4 @@ rule("mode.Dist")
             target:add("defines", "AME_DIST")
         end
     end)
+rule_end()

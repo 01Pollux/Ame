@@ -1,7 +1,9 @@
 target("Core")
     ame_utils:add_library("Ame", "static", "Ame/Core")
+
+    local shared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
     add_packages(
-        "ame.boost",
+        "boost",
         "mimalloc",
         "ame.kangaru",
         "spdlog",
@@ -13,13 +15,7 @@ target("Core")
         "glm",
         "ame.concurrencpp",
         "ame.glfw",
-        {
-            public = true,
-            inherit = true, 
-            configs = {
-                shared = false
-            }
-        })
+        shared_public_inherit)
 target_end()
 
 --
