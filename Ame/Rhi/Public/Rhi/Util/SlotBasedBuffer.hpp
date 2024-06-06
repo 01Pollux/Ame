@@ -48,14 +48,14 @@ namespace Ame::Rhi::Util
     class SlotBasedBuffer
     {
     public:
-        using Type                                         = Ty;
-        static constexpr uint32_t c_AlignedSizePerInstance = Math::AlignUp(sizeof(Type), 16);
-        static constexpr uint32_t c_InvalidIndex           = std::numeric_limits<uint32_t>::max();
+        using SlotType                                     = uint32_t;
+        using DataType                                     = Ty;
+        static constexpr uint32_t c_AlignedSizePerInstance = Math::AlignUp(sizeof(DataType), 16);
+        static constexpr uint32_t c_InvalidSlot            = std::numeric_limits<SlotType>::max();
 
     private:
-        using EmptySlotSet  = boost::container::flat_set<uint32_t>;
-        using BusyHandleSet = boost::container::flat_set<uint32_t>;
-        using BufferStream  = GenericBufferStream<WithStreaming>;
+        using EmptySlotSet = boost::container::flat_set<SlotType>;
+        using BufferStream = GenericBufferStream<WithStreaming>;
 
     public:
         SlotBasedBuffer(
@@ -64,7 +64,7 @@ namespace Ame::Rhi::Util
             m_Device(rhiDevice),
             m_Desc(desc)
         {
-            uint32_t InitialCount = std::exchange(m_Desc.InstanceCount, 0);
+            SlotType InitialCount = std::exchange(m_Desc.InstanceCount, 0);
             GrowSlots(InitialCount);
         }
 
@@ -82,18 +82,18 @@ namespace Ame::Rhi::Util
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t    slot,
-            const Type& data)
+            SlotType        slot,
+            const DataType& data)
         {
             AllocationMustExists(slot);
-            Write(slot, std::bit_cast<const std::byte*>(std::addressof(data)), sizeof(Type));
+            Write(slot, std::bit_cast<const std::byte*>(std::addressof(data)), sizeof(DataType));
         }
 
         /// <summary>
         /// Write data to the buffer
         /// </summary>
         void Write(
-            uint32_t         slot,
+            SlotType         slot,
             const std::byte* data,
             size_t           size)
         {
@@ -107,7 +107,7 @@ namespace Ame::Rhi::Util
         /// Get the offset of the slot in the buffer
         /// </summary>
         [[nodiscard]] size_t GetOffset(
-            uint32_t slot) const
+            SlotType slot) const
         {
             AllocationMustExists(slot);
             return Math::AlignUp(static_cast<size_t>(slot) * c_AlignedSizePerInstance, m_Desc.Alignment);
@@ -142,14 +142,14 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Rent a slot in the buffer
         /// </summary>
-        [[nodiscard]] uint32_t Rent()
+        [[nodiscard]] SlotType Rent()
         {
             if (m_EmptySlots.empty())
             {
                 GrowSlots();
             }
 
-            uint32_t slot = *m_EmptySlots.begin();
+            SlotType slot = *m_EmptySlots.begin();
             m_EmptySlots.erase(slot);
 
             return slot;
@@ -158,10 +158,10 @@ namespace Ame::Rhi::Util
         /// <summary>
         /// Rent a slot in the buffer
         /// </summary>
-        uint32_t Rent(
-            const Type& data)
+        SlotType Rent(
+            const DataType& data)
         {
-            uint32_t slot = Rent();
+            SlotType slot = Rent();
             Write(slot, data);
             return slot;
         }
@@ -170,7 +170,7 @@ namespace Ame::Rhi::Util
         /// Return a slot in the buffer
         /// </summary>
         void Return(
-            uint32_t slot)
+            SlotType slot)
         {
             AllocationMustExists(slot);
             m_EmptySlots.insert(slot);
@@ -182,7 +182,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         void Reset()
         {
-            for (uint32_t i = 0; i < m_Desc.InstanceCount; i++)
+            for (SlotType i = 0; i < m_Desc.InstanceCount; i++)
             {
                 m_EmptySlots.insert(i);
             }
@@ -194,7 +194,7 @@ namespace Ame::Rhi::Util
         /// </summary>
         void GrowSlots()
         {
-            GrowSlots(static_cast<uint32_t>(m_Desc.InstanceCount * m_Desc.GrowFactor));
+            GrowSlots(static_cast<SlotType>(m_Desc.InstanceCount * m_Desc.GrowFactor));
         }
 
         /// <summary>
@@ -208,10 +208,10 @@ namespace Ame::Rhi::Util
                 instanceCount = std::min(instanceCount, m_Desc.MaxInstances);
             }
 
-            uint32_t firstEmptySlot = m_EmptySlots.empty() ? m_Desc.InstanceCount : *m_EmptySlots.begin();
+            SlotType firstEmptySlot = m_EmptySlots.empty() ? m_Desc.InstanceCount : *m_EmptySlots.begin();
             m_Desc.InstanceCount    = instanceCount;
 
-            for (uint32_t i = firstEmptySlot; i < m_Desc.InstanceCount; i++)
+            for (SlotType i = firstEmptySlot; i < m_Desc.InstanceCount; i++)
             {
                 m_EmptySlots.insert(i);
             }
@@ -258,7 +258,7 @@ namespace Ame::Rhi::Util
 
     private:
         void AllocationMustExists(
-            uint32_t slot) const
+            SlotType slot) const
         {
 #ifdef AME_DEBUG
             if (slot >= m_Desc.InstanceCount ||

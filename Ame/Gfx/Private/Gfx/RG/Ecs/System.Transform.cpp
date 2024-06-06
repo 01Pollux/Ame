@@ -17,22 +17,22 @@ namespace Ame::Gfx::RG
             {
                 Ecs::Entity entity(iter.entity(i));
 
-                auto& instanceInfo = entity.GetComponentMut<RenderInstance>();
+                auto& gpuId = entity.GetComponentMut<TransformBuffer::GpuId>();
                 if (iter.event() == flecs::OnSet)
                 {
-                    if (instanceInfo.TransformIndex == transformBuffer.c_InvalidIndex)
+                    if (gpuId.Id == transformBuffer.c_InvalidSlot)
                     {
-                        instanceInfo.TransformIndex = transformBuffer.Rent();
+                        gpuId.Id = transformBuffer.Rent();
                     }
                     auto matrix = transforms[i].ToMat4x4Transposed();
-                    transformBuffer.Write(instanceInfo.TransformIndex, std::bit_cast<const std::byte*>(glm::value_ptr(matrix)), sizeof(matrix));
+                    transformBuffer.Write(gpuId.Id, std::bit_cast<const std::byte*>(glm::value_ptr(matrix)), sizeof(matrix));
                 }
                 else
                 {
-                    if (instanceInfo.TransformIndex != transformBuffer.c_InvalidIndex)
+                    if (gpuId.Id != transformBuffer.c_InvalidSlot)
                     {
-                        transformBuffer.Return(instanceInfo.TransformIndex);
-                        instanceInfo.TransformIndex = transformBuffer.c_InvalidIndex;
+                        transformBuffer.Return(gpuId.Id);
+                        gpuId.Id = transformBuffer.c_InvalidSlot;
                     }
                 }
             }

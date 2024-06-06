@@ -28,31 +28,31 @@ namespace Ame::Gfx::RG
             m_FrameResource.World[2][3]
         };
 
-        auto FilterEntities =
+        auto filterEntities =
             [this, &cameraData, &cameraPosition](
                 Ecs::Iterator&                        iter,
-                RenderInstance*                       instances,
                 const Ecs::Component::Transform*      transforms,
+                const TransformBuffer::GpuId*         transformIds,
                 const Ecs::Component::BaseRenderable* renderables)
         {
             for (auto i : iter)
             {
-                auto  ent        = iter.entity(i).name();
-                auto& Instance   = instances[i];
-                auto& Transform  = transforms[i];
-                auto& Renderable = renderables[i];
+                auto  ent         = iter.entity(i).name();
+                auto& transform   = transforms[i];
+                auto  transformId = transformIds[i];
+                auto& renderable  = renderables[i];
 
-                if ((Renderable.CameraMask & cameraData.CullMask) != cameraData.CullMask)
+                if ((renderable.CameraMask & cameraData.CullMask) != cameraData.CullMask)
                 {
                     continue;
                 }
 
-                float Distance = glm::distance2(Transform.GetPosition(), cameraPosition);
-                m_CameraCullResult.AddEntity(Distance, Renderable, Instance);
+                float Distance = glm::distance2(transform.GetPosition(), cameraPosition);
+                m_CameraCullResult.AddEntity(Distance, renderable, transformId);
             }
         };
 
-        renderRule->iter(FilterEntities);
+        renderRule->iter(filterEntities);
         m_CameraCullResult.Upload();
     }
 } // namespace Ame::Gfx::RG

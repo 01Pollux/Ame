@@ -24,7 +24,7 @@ Ecs_PSInput VS_Main(
 	Ecs_PSInput output = (Ecs_PSInput) 0;
 	
 	RenderInstance instance = g_RenderInstances[AME_INSTANCE_ID_OFFSET];
-	Transform transform = g_Transforms[instance.TransformIndex];
+	Transform transform = g_Transforms[instance.TransformId];
 	
 	float4 PositionWS = float4(input.Position, 1.0f);
 	PositionWS = mul(PositionWS, transform.World);
@@ -45,8 +45,8 @@ AME_EXPORT MaterialFragment PSM_Main(
 {
 	MaterialFragment fragment = (MaterialFragment) 0;
 	
-	//fragment.BaseColor = _UserData._Color.xyz;
-	fragment.BaseColor = (_Texture.Sample(_Sampler, input.TexCoord) * _UserData._Color).xyz;
+	fragment.BaseColor = _UserData._Color.xyz;
+	//fragment.BaseColor = (_Texture.Sample(_Sampler, input.TexCoord) * _UserData._Color).xyz;
 	
 	return fragment;
 }

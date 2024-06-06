@@ -32,7 +32,7 @@ namespace Ame::Gfx::RG::Std
                                                        const Ecs::Component::BaseRenderable>()
                                                   .build()
                                                   .count());
-                    m_MaxEntitiesCount = Math::AlignUp(std::max(curEntityCount, m_MaxEntitiesCount), c_MinEntities);
+                    m_MaxEntitiesCount = std::min(std::max(curEntityCount, m_MaxEntitiesCount), c_MinEntities);
 
                     resolver.CreateBuffer(
                         Names::c_EntityCommandBuffer,
@@ -117,11 +117,11 @@ namespace Ame::Gfx::RG::Std
                         };
                         commandList->SetConstants(0, DispatchConstants);
 
-                        commandList->ClearBuffer(
-                            { .storageBuffer            = counterView.Unwrap(),
-                              .setIndexInPipelineLayout = c_CommandInfo_SetIndex,
-                              .rangeIndex               = 1,
-                              .offsetInRange            = row.CounterOffset });
+                        // commandList->ClearBuffer(
+                        //     { .storageBuffer            = counterView.Unwrap(),
+                        //       .setIndexInPipelineLayout = c_CommandInfo_SetIndex,
+                        //       .rangeIndex               = 1,
+                        //       .offsetInRange            = row.CounterOffset });
 
                         commandList->Dispatch(1);
                     }

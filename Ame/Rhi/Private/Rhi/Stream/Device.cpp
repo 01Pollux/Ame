@@ -32,7 +32,7 @@ namespace Ame::Rhi::Streaming
         const char_type* data,
         streamsize_t     size) -> streamsize_t
     {
-        if (m_PutPosition + size > m_View.Range.Offset + m_View.Range.Size)
+        if (m_PutPosition + size > m_View.Range.Size)
         {
             return -1;
         }
@@ -71,6 +71,7 @@ namespace Ame::Rhi::Streaming
             {
                 throw std::ios_base::failure("Seek out of range.");
             }
+            m_GetPosition = next;
             return m_GetPosition;
         }
         else if (mode & std::ios_base::out)
@@ -95,6 +96,7 @@ namespace Ame::Rhi::Streaming
             {
                 throw std::ios_base::failure("Seek out of range.");
             }
+            m_PutPosition = next;
             return m_PutPosition;
         }
         else

@@ -6,14 +6,15 @@
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Renderable/BaseRenderable.hpp>
 
+#include <Gfx/RG/Resources/TransformBuffer.hpp>
+
 namespace Ame::Gfx::RG
 {
     class CoreResources;
-    struct RenderInstance;
 
     using CameraRenderRule = Ecs::UniqueRule<
-        RenderInstance,
         const Ecs::Component::Transform,
+        const TransformBuffer::GpuId,
         const Ecs::Component::BaseRenderable>;
 
     class EcsSystemHooks

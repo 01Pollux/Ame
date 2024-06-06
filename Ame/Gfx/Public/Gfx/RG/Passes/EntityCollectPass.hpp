@@ -13,7 +13,7 @@ namespace Ame::Gfx::RG::Std
     class EntityCollectPass : public Pass
     {
     public:
-        static constexpr int32_t  c_MinEntities     = 1'024;
+        static constexpr uint32_t c_MinEntities     = 1'024;
         static constexpr uint32_t c_BufferAlignment = 0xFFFF;
 
         static constexpr uint32_t c_CommandInfo_SetIndex = 2;

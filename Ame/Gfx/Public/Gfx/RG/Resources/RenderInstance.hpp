@@ -6,8 +6,8 @@ namespace Ame::Gfx::RG
 {
     struct RenderInstance
     {
-        uint32_t AABBIndex      = std::numeric_limits<uint32_t>::max();
-        uint32_t TransformIndex = std::numeric_limits<uint32_t>::max();
+        uint32_t AABBId      = std::numeric_limits<uint32_t>::max();
+        uint32_t TransformId = std::numeric_limits<uint32_t>::max();
 
         uint32_t VertexOffset = std::numeric_limits<uint32_t>::max();
         uint32_t VertexSize   = std::numeric_limits<uint32_t>::max();

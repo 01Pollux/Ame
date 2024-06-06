@@ -56,20 +56,20 @@ namespace Ame::Gfx::RG::Std
                         Names::c_EntityCommandBuffer("GBufferPass"));
                 })
             .Execute(
-                [this](const ResourceStorage& RgStorage, Rhi::CommandList* CommandList)
+                [this](const ResourceStorage& storage, Rhi::CommandList* commandList)
                 {
-                    auto& frameData = RgStorage.GetFrameResourceData();
+                    auto& frameData = storage.GetFrameResourceData();
 
-                    auto& transformsTable      = RgStorage.GetResourceViewHandle(Names::c_TransformsTable("GBufferPass"));
-                    auto& renderInstancesTable = RgStorage.GetResourceViewHandle(Names::c_RenderInstancesTable("GBufferPass"));
+                    auto& transformsTable      = storage.GetResourceViewHandle(Names::c_TransformsTable("GBufferPass"));
+                    auto& renderInstancesTable = storage.GetResourceViewHandle(Names::c_RenderInstancesTable("GBufferPass"));
 
-                    auto& commandsBuffer = *RgStorage.GetResource(Names::c_EntityCommandBuffer);
-                    auto& counterBuffer  = *RgStorage.GetResource(Names::c_EntityCommandCounter);
+                    auto& commandsBuffer = *storage.GetResource(Names::c_EntityCommandBuffer);
+                    auto& counterBuffer  = *storage.GetResource(Names::c_EntityCommandCounter);
 
                     //
 
                     nri::Descriptor* frameDescriptors[]{
-                        RgStorage.GetFrameResourceHandle().Unwrap()
+                        storage.GetFrameResourceHandle().Unwrap()
                     };
 
                     nri::Descriptor* entityDescriptors[]{
@@ -90,7 +90,7 @@ namespace Ame::Gfx::RG::Std
                         std::move(gBufferShaders)
                     };
 
-                    auto entityStore = RgStorage.GetEntityStore();
+                    auto entityStore = storage.GetEntityStore();
 
                     Rhi::DescriptorSet frameDataSet;
                     Rhi::DescriptorSet entityDataSet;
@@ -111,32 +111,32 @@ namespace Ame::Gfx::RG::Std
                         scissors[i]  = scissors[0];
                     }
 
-                    CommandList->SetViewports(viewports);
-                    CommandList->SetScissorRects(scissors);
+                    commandList->SetViewports(viewports);
+                    commandList->SetScissorRects(scissors);
 
                     for (auto& row : entityStore.GetCountedRows())
                     {
-                        m_MaterialCache.get().Bind(*CommandList, *row->Material);
+                        m_MaterialCache.get().Bind(*commandList, *row->Material);
 
                         if (!frameDataSet)
                         {
-                            frameDataSet  = CommandList->AllocateSet(CD::c_FrameData_SetIndex);
-                            entityDataSet = CommandList->AllocateSet(CD::c_EntityData_SetIndex);
+                            frameDataSet  = commandList->AllocateSet(CD::c_FrameData_SetIndex);
+                            entityDataSet = commandList->AllocateSet(CD::c_EntityData_SetIndex);
 
                             frameDataSet.SetRange(0, { frameDescriptors, Rhi::Count32(frameDescriptors) });
                             entityDataSet.SetRange(0, { entityDescriptors, Rhi::Count32(entityDescriptors) });
 
-                            CommandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
-                            CommandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
+                            commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
+                            commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
                         }
 
                         auto pipelineState = row->Material->GetPipelineState(RenderState).get();
-                        CommandList->SetPipelineState(pipelineState);
+                        commandList->SetPipelineState(pipelineState);
 
-                        CommandList->SetVertexBuffer({ .Buffer = row->VtxBuffer });
-                        CommandList->SetIndexBuffer({ .Buffer = row->IdxBuffer, .Type = row->IndexType });
+                        commandList->SetVertexBuffer({ .Buffer = row->VtxBuffer });
+                        commandList->SetIndexBuffer({ .Buffer = row->IdxBuffer, .Type = row->IndexType });
 
-                        CommandList->DrawIndirectIndexed(
+                        commandList->DrawIndirectIndexed(
                             { .DrawBuffer    = commandsBuffer.AsBuffer()->Unwrap(),
                               .DrawOffset    = row.DrawOffset,
                               .MaxDrawCount  = row->Count,

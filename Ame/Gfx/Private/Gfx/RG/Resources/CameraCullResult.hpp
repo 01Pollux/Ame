@@ -2,6 +2,7 @@
 
 #include <boost/container/flat_set.hpp>
 
+#include <Gfx/RG/Resources/TransformBuffer.hpp>
 #include <Gfx/RG/Resources/DynamicVertexBuffer.hpp>
 #include <Gfx/RG/Resources/DynamicIndexBuffer.hpp>
 #include <Gfx/RG/Resources/DynamicInstanceBuffer.hpp>
@@ -45,8 +46,8 @@ namespace Ame::Gfx::RG
         struct StagedEntity
         {
             CRef<Ecs::Component::BaseRenderable> Renderable;
-            Ref<RenderInstance>                  Instance;
             float                                Distance;
+            uint32_t                             TransformId;
 
             std::partial_ordering operator<=>(const StagedEntity& other) const noexcept;
         };
@@ -112,7 +113,7 @@ namespace Ame::Gfx::RG
         void AddEntity(
             float                                 distance,
             const Ecs::Component::BaseRenderable& renderable,
-            RenderInstance&                       instance);
+            TransformBuffer::GpuId                transformId);
 
         /// <summary>
         /// Sort the cull result.
@@ -141,7 +142,7 @@ namespace Ame::Gfx::RG
     private:
         using DataList           = std::vector<EntityStore::Row>;
         using CameraStorages     = std::vector<CameraStorage>;
-        using FlatStagedEntities = boost::container::flat_multiset<StagedEntity>;
+        using FlatStagedEntities = std::vector<StagedEntity>;
         using FlatStagedGroups   = std::vector<StagedGroup>;
 
         Ref<Rhi::Device> m_Device;

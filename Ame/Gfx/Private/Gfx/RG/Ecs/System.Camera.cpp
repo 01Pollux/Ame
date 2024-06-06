@@ -9,8 +9,8 @@ namespace Ame::Gfx::RG
 
         m_WorldData.RenderRule =
             world.CreateRule<
-                     RenderInstance,
                      const Ecs::Component::Transform,
+                     const TransformBuffer::GpuId,
                      const Ecs::Component::BaseRenderable>()
                 .build();
     }

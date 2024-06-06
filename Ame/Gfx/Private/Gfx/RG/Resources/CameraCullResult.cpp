@@ -58,14 +58,14 @@ namespace Ame::Gfx::RG
     void CameraCullResult::AddEntity(
         float                                 distance,
         const Ecs::Component::BaseRenderable& renderable,
-        RenderInstance&                       instance)
+        TransformBuffer::GpuId                transformId)
     {
         if (renderable.Vertex.Count == 0 || renderable.Index.Count == 0) [[unlikely]]
         {
             return;
         }
 
-        m_StagedEntities.emplace(renderable, instance, distance);
+        m_StagedEntities.emplace_back(renderable, distance, transformId.Id);
     }
 
     void CameraCullResult::Upload()
@@ -104,9 +104,6 @@ namespace Ame::Gfx::RG
 
         //
 
-        uint32_t lastVertexBlock = std::numeric_limits<uint32_t>::max(),
-                 lastIndexBlock  = std::numeric_limits<uint32_t>::max();
-
         nri::Buffer* lastVertexBuffer = nullptr;
         nri::Buffer* lastIndexBuffer  = nullptr;
 
@@ -121,12 +118,10 @@ namespace Ame::Gfx::RG
         //
 
         auto tryBatchBuffer =
-            [](const RenderInstance&                             renderInstance,
-               const Ecs::Component::BaseRenderable::BufferView& bufferView,
+            [](const Ecs::Component::BaseRenderable::BufferView& bufferView,
                Rhi::Util::BlockBasedBuffer<true>&                dynamicBuffer,
                uint32_t&                                         bufferOffset,
-               nri::Buffer*&                                     nriBuffer,
-               uint32_t&                                         lastBlock) -> bool
+               nri::Buffer*&                                     nriBuffer) -> bool
         {
             bool needsNewRow = false;
             // If the vertex or index buffer is unique, create a new row
@@ -144,15 +139,16 @@ namespace Ame::Gfx::RG
                 AME_LOG_ASSERT(Log::Gfx(), handle.Offset <= std::numeric_limits<uint32_t>::max(), "Buffer offset is too large");
 
                 bufferOffset = static_cast<uint32_t>(handle.Offset);
-                nriBuffer    = dynamicBuffer.GetBuffer(handle.BlockSlot).Unwrap();
+                auto buffer  = dynamicBuffer.GetBuffer(handle.BlockSlot).Unwrap();
 
                 // if the buffer is different, create a new row
                 // (2)
-                if (handle.BlockSlot != lastBlock)
+                if (nriBuffer != nullptr && nriBuffer != buffer)
                 {
                     needsNewRow = true;
-                    lastBlock   = handle.BlockSlot;
                 }
+
+                nriBuffer = buffer;
             }
             return needsNewRow;
         };
@@ -166,39 +162,42 @@ namespace Ame::Gfx::RG
         //          - (2) the previous vertex/index buffer is different than the current one
         //          - (3) the previous index buffer type is different than the current one
         //          - (4) the previous material's pipeline state is different than the current one
+        std::sort(m_StagedEntities.begin(), m_StagedEntities.end());
         for (auto stagedEntityIter = m_StagedEntities.begin(); stagedEntityIter != m_StagedEntities.end(); stagedEntityIter++)
         {
-            auto& renderInstance = stagedEntityIter->Instance.get();
-            auto& renderable     = stagedEntityIter->Renderable.get();
+            RenderInstance renderInstance{
+                .TransformId = stagedEntityIter->TransformId
+            };
+
+            auto& renderable = stagedEntityIter->Renderable.get();
 
             auto& vertex = renderable.Vertex;
             auto& index  = renderable.Index;
 
-            bool needsNewRow = false;
+            bool needsNewRow = m_StagedGroups.empty();
 
             //
+            uint32_t offset;
 
             // (1) + (2)
             needsNewRow |= tryBatchBuffer(
-                renderInstance,
                 vertex,
                 cameraStorage.DynamicVertices,
-                renderInstance.VertexOffset,
-                lastVertexBuffer,
-                lastVertexBlock);
+                offset,
+                lastVertexBuffer);
 
-            renderInstance.VertexSize = renderable.Vertex.Size();
+            renderInstance.VertexOffset = offset;
+            renderInstance.VertexSize   = renderable.Vertex.Size();
 
             // (1) + (2)
             needsNewRow |= tryBatchBuffer(
-                renderInstance,
                 index,
                 cameraStorage.DynamicIndices,
-                renderInstance.IndexOffset,
-                lastIndexBuffer,
-                lastIndexBlock);
+                offset,
+                lastIndexBuffer);
 
-            renderInstance.IndexCount = index.Count;
+            renderInstance.IndexOffset = offset;
+            renderInstance.IndexCount  = index.Count;
 
             //
 

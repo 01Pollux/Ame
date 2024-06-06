@@ -50,7 +50,8 @@ namespace Ame::Rhi::Util
             Buffer buffer)
         {
             m_Buffer = std::move(buffer);
-            m_Stream->open(Streaming::BufferView(m_Buffer));
+            Streaming::BufferView view(m_Buffer);
+            m_Stream->open(std::move(view));
         }
 
         /// <summary>
@@ -85,7 +86,7 @@ namespace Ame::Rhi::Util
             const std::byte* data,
             size_t           size)
         {
-            m_Stream->seekp(offset);
+            m_Stream->seekp(offset, std::ios::beg);
             m_Stream->write(std::bit_cast<const char*>(data), size);
         }
 
