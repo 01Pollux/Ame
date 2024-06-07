@@ -36,6 +36,8 @@ namespace Ame::Gfx::RG
         }
     }
 
+    //
+
     const DynamicInstanceBuffer& CameraCullResult::GetInstancesTableBuffer() const
     {
         Log::Gfx().Assert(!m_Cameras.empty(), "CameraCullResult::GetInstancesTableBuffer: No camera data available");
@@ -80,6 +82,7 @@ namespace Ame::Gfx::RG
 
         PrepareForUpload();
         StageUpload();
+        StageSortGroups();
         FinalizeStaging();
     }
 
@@ -238,7 +241,10 @@ namespace Ame::Gfx::RG
                 lastGroup.Entities = iter;
             }
         }
+    }
 
+    void CameraCullResult::StageSortGroups()
+    {
         std::for_each(
             std::execution::par_unseq,
             m_StagedGroups.begin(),
@@ -247,6 +253,7 @@ namespace Ame::Gfx::RG
             {
                 group.CalculateRMS();
             });
+
         std::sort(m_StagedGroups.begin(), m_StagedGroups.end());
     }
 

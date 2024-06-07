@@ -75,8 +75,21 @@ namespace Ame::Gfx::RG
 
         struct CameraStorage
         {
-            DynamicVertexBuffer   DynamicVertices;
-            DynamicIndexBuffer    DynamicIndices;
+            /// <summary>
+            /// Dynamically sized vertices
+            /// Ecs_VSInput_Vertex[]
+            /// </summary>
+            DynamicVertexBuffer DynamicVertices;
+
+            /// <summary>
+            /// Dynamically sized indices
+            /// uint32_t[] / uint16_t[]
+            /// </summary>
+            DynamicIndexBuffer DynamicIndices;
+
+            /// <summary>
+            /// RenderInstance
+            /// </summary>
             DynamicInstanceBuffer AllInstances;
 
             CameraStorage(
@@ -95,10 +108,18 @@ namespace Ame::Gfx::RG
             const CameraCullDesc& desc = {});
 
     public:
-        [[nodiscard]] uint32_t                     GetEntitiesCount() const;
-        [[nodiscard]] EntityStore::RowGenerator    GetEntities() const;
+        [[nodiscard]] uint32_t                  GetEntitiesCount() const;
+        [[nodiscard]] EntityStore::RowGenerator GetEntities() const;
+
+    public:
+        /// <summary>
+        /// RenderInstance
+        /// </summary>
         [[nodiscard]] const DynamicInstanceBuffer& GetInstancesTableBuffer() const;
-        [[nodiscard]] DynamicInstanceBuffer&       GetInstancesTableBuffer();
+        /// <summary>
+        /// RenderInstance
+        /// </summary>
+        [[nodiscard]] DynamicInstanceBuffer& GetInstancesTableBuffer();
 
     public:
         /// <summary>
@@ -135,12 +156,17 @@ namespace Ame::Gfx::RG
         void StageUpload();
 
         /// <summary>
+        /// Sort all grouped rows.
+        /// </summary>
+        void StageSortGroups();
+
+        /// <summary>
         /// Finalize the cull result into rows.
         /// </summary>
         void FinalizeStaging();
 
     private:
-        using DataList           = std::vector<EntityStore::Row>;
+        using RowDataList        = std::vector<EntityStore::Row>;
         using CameraStorages     = std::vector<CameraStorage>;
         using FlatStagedEntities = std::vector<StagedEntity>;
         using FlatStagedGroups   = std::vector<StagedGroup>;
@@ -155,7 +181,7 @@ namespace Ame::Gfx::RG
         FlatStagedGroups   m_StagedGroups;
 
         CameraStorages m_Cameras;
-        DataList       m_Rows;
+        RowDataList    m_Rows;
         int8_t         m_CurrentCamera = -1;
 
         uint32_t m_EntitiesCount = 0;

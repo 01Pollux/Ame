@@ -29,11 +29,11 @@ namespace Ame::Gfx::RG
                 Rhi::IndexType         indexType,
                 Ptr<Shading::Material> material,
                 uint32_t               count) :
+                Material(std::move(material)),
                 VtxBuffer(vertexBuffer),
                 IdxBuffer(indexBuffer),
-                IndexType(indexType),
-                Material(std::move(material)),
-                Count(count)
+                Count(count),
+                IndexType(indexType)
             {
             }
         };

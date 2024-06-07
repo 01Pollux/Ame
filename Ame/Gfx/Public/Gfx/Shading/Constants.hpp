@@ -6,8 +6,7 @@
 
 namespace Ame::Gfx::Shading
 {
-    using MaterialVertex = Ecs::Component::VertexInput;
-    using Ecs_VSInput    = MaterialVertex;
+    using Ecs_VSInput = Ecs::Component::VertexInput;
 
     struct MaterialVertexDesc : Rhi::VertexInputDesc
     {
@@ -28,15 +27,16 @@ namespace Ame::Gfx::Shading
             this->streamNum    = c_MaxVertexStreams;
         }
 
-        nri::VertexAttributeDesc m_Attributes[c_MaxVertexAttributes]{
-            { .d3d{ "POSITION" }, .vk{ 0 }, .offset = offsetof(MaterialVertex, Position), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
-            { .d3d{ "NORMAL" }, .vk{ 1 }, .offset = offsetof(MaterialVertex, Normal), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
-            { .d3d{ "TANGENT" }, .vk{ 2 }, .offset = offsetof(MaterialVertex, Tangent), .format = Rhi::ResourceFormat::RGB32_SFLOAT },
-            { .d3d{ "TEXCOORD" }, .vk{ 3 }, .offset = offsetof(MaterialVertex, TexCoord), .format = Rhi::ResourceFormat::RG32_SFLOAT }
+    private:
+        Rhi::VertexAttributeDesc m_Attributes[c_MaxVertexAttributes]{
+            { .d3d{ "POSITION" }, .vk{ 0 }, .offset = offsetof(Ecs_VSInput, Position), .format = Rhi::ResourceFormat::RGB32_SFLOAT, .streamIndex = 0 },
+            { .d3d{ "NORMAL" }, .vk{ 1 }, .offset = offsetof(Ecs_VSInput, Normal), .format = Rhi::ResourceFormat::RGB32_SFLOAT, .streamIndex = 0 },
+            { .d3d{ "TANGENT" }, .vk{ 2 }, .offset = offsetof(Ecs_VSInput, Tangent), .format = Rhi::ResourceFormat::RGB32_SFLOAT, .streamIndex = 0 },
+            { .d3d{ "TEXCOORD" }, .vk{ 3 }, .offset = offsetof(Ecs_VSInput, TexCoord), .format = Rhi::ResourceFormat::RG32_SFLOAT, .streamIndex = 0 }
         };
 
-        nri::VertexStreamDesc m_Streams[c_MaxVertexStreams]{
-            { .stride = sizeof(MaterialVertex) }
+        Rhi::VertexStreamDesc m_Streams[c_MaxVertexStreams]{
+            { .stride = sizeof(Ecs_VSInput), .bindingSlot = 0, .stepRate = Rhi::VertexStreamStepRate::PER_VERTEX }
         };
     };
 } // namespace Ame::Gfx::Shading

@@ -18,7 +18,7 @@ AME_MATERIAL_RESOURCE(Texture2D<float4>, _Texture, t, 2);
 
 [shader("vertex")]
 Ecs_PSInput VS_Main(
-	Ecs_VSInput input,
+	Ecs_VSInput vertex,
 	AME_DECLARE_DRAW_PARAMETERS)
 {
 	Ecs_PSInput output = (Ecs_PSInput) 0;
@@ -26,16 +26,16 @@ Ecs_PSInput VS_Main(
 	RenderInstance instance = g_RenderInstances[AME_INSTANCE_ID_OFFSET];
 	Transform transform = g_Transforms[instance.TransformId];
 	
-	float4 PositionWS = float4(input.Position, 1.0f);
+	float4 PositionWS = float4(vertex.Position, 1.0f);
 	PositionWS = mul(PositionWS, transform.World);
 	output.Position = mul(PositionWS, g_FrameInfo.ViewProjection);
 	output.PositionWS = PositionWS.xyz;
 	
-	output.NormalWS = mul(transform.World, float4(input.Normal, 0.0f)).xyz;
-	output.TangentWS = mul(transform.World, float4(input.Tangent, 0.0f)).xyz;
+	output.NormalWS = mul(transform.World, float4(vertex.Normal, 0.0f)).xyz;
+	output.TangentWS = mul(transform.World, float4(vertex.Tangent, 0.0f)).xyz;
 	output.BitangentWS = normalize(cross(output.NormalWS, output.TangentWS));
 
-	output.TexCoord = input.TexCoord;
+	output.TexCoord = vertex.TexCoord;
 	
 	return output;
 }

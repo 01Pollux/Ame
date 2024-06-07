@@ -45,8 +45,7 @@ namespace Ame::Rhi::Util
     /// A buffer is continuously grown when all slots are rented
     /// </summary>
     template<typename Ty, bool WithStreaming = true>
-        requires(std::is_standard_layout_v<Ty> &&               // must be standard layout
-                 (sizeof(Ty) == Math::AlignUp(sizeof(Ty), 16))) // must be aligned to 16 bytes
+        requires std::is_standard_layout_v<Ty> // must be standard layout
     class SlotBasedBuffer
     {
     public:
