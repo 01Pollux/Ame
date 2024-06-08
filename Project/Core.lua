@@ -27,18 +27,22 @@ target_end()
 
 --
 
+local _core_deps = {"Ame.Geometry"}
+
+--
+
 includes("Plugins.lua")
 
 --
 
 target("Ame.Resource")
     ame_utils:add_library("Ame", "static", "Ame/Resource")
-    add_deps("Ame.Core", {public = true, inherit = true})
+    add_deps(_core_deps, {public = true, inherit = true})
 target_end()
 
 target("Ame.Windowing")
     ame_utils:add_library("Ame", "static", "Ame/Windowing")
-    add_deps("Ame.Core", {public = true, inherit = true})
+    add_deps(_core_deps, {public = true, inherit = true})
 target_end()
 
 --

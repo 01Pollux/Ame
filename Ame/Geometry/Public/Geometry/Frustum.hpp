@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Geometry/Common.hpp>
-#include <array>
+#include <Geometry/FrustumPlanes.hpp>
 
 namespace Ame::Geometry
 {
@@ -84,7 +83,7 @@ namespace Ame::Geometry
         /// <summary>
         /// Get planes for frustum
         /// </summary>
-        [[nodiscard]] std::array<Math::Plane, 6> GetPlanes() const;
+        [[nodiscard]] FrustumPlanes GetPlanes() const;
 
     public:
         /// <summary>
@@ -103,24 +102,5 @@ namespace Ame::Geometry
             const Math::Vector3&    scale,
             const Math::Quaternion& rotation,
             const Math::Vector3&    translation);
-
-    public:
-        /// <summary>
-        /// Check collision
-        /// </summary>
-        [[nodiscard]] ContainmentType Contains(
-            const AABB& box) const;
-
-        /// <summary>
-        /// Check collision
-        /// </summary>
-        [[nodiscard]] ContainmentType Contains(
-            const Frustum& fr) const;
-
-        /// <summary>
-        /// Check collision
-        /// </summary>
-        [[nodiscard]] ContainmentType Contains(
-            std::span<const Math::Plane> planes) const;
     };
 } // namespace Ame::Geometry
