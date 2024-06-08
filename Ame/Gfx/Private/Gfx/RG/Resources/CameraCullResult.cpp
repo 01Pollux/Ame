@@ -166,7 +166,7 @@ namespace Ame::Gfx::RG
         //          - (3) the previous index buffer type is different than the current one
         //          - (4) the previous material's pipeline state is different than the current one
         std::sort(m_StagedEntities.begin(), m_StagedEntities.end());
-        for (auto stagedEntityIter = m_StagedEntities.begin(); stagedEntityIter != m_StagedEntities.end(); stagedEntityIter++)
+        for (auto stagedEntityIter = m_StagedEntities.cbegin(); stagedEntityIter != m_StagedEntities.cend(); stagedEntityIter++)
         {
             RenderInstance renderInstance{
                 .TransformId = stagedEntityIter->TransformId
@@ -237,7 +237,7 @@ namespace Ame::Gfx::RG
             {
                 auto& lastGroup    = m_StagedGroups.back();
                 auto  iter         = lastGroup.Entities;
-                iter               = std::span{ iter.begin(), iter.end() + 1 };
+                iter               = std::span{ iter.data(), iter.size() + 1 };
                 lastGroup.Entities = iter;
             }
         }

@@ -86,6 +86,9 @@ namespace Ame::Rhi
         [[nodiscard]] void* GetNative() const;
 
     public:
+        /// <summary>
+        /// Borrow the buffer. (The buffer will not be released when the buffer is destroyed)
+        /// </summary>
         [[nodiscard]] Buffer Borrow() const;
 
         /// <summary>

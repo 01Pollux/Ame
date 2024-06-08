@@ -84,8 +84,8 @@ namespace Ame::Asset::Gfx
         {
             for (Rhi::Dim_t y = 0; y < region.Height; y++)
             {
-                size_t offset = region.OffsetAt(0, y);
-                std::memcpy(tempTexture.GetBuffer().GetPtr(offset), std::bit_cast<const std::byte*>(data + y * rowPitch), region.RowPitch);
+                size_t offset = region.OffsetAt(0, y, z);
+                std::memcpy(tempTexture.GetBuffer().GetPtr(offset), std::bit_cast<const std::byte*>(data + y * rowPitch), rowPitch);
             }
         }
 

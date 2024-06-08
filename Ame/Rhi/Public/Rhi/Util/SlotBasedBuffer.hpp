@@ -263,7 +263,7 @@ namespace Ame::Rhi::Util
         {
 #ifdef AME_DEBUG
             if (slot >= m_Desc.InstanceCount ||
-                !m_EmptySlots.contains(slot))
+                m_EmptySlots.contains(slot))
             {
                 std::unreachable();
             }

@@ -56,7 +56,8 @@ namespace Ame::Rhi
         Buffer&& other) noexcept :
         m_Device(std::exchange(other.m_Device, nullptr)),
         m_Buffer(std::exchange(other.m_Buffer, nullptr)),
-        m_Mapped(std::exchange(other.m_Mapped, nullptr))
+        m_Mapped(std::exchange(other.m_Mapped, nullptr)),
+        m_Owning(std::exchange(other.m_Owning, false))
     {
     }
 
@@ -100,7 +101,9 @@ namespace Ame::Rhi
 
     Buffer Buffer::Borrow() const
     {
-        return Buffer(Extern{}, *m_Device, m_Buffer);
+        Buffer buffer(Extern{}, *m_Device, m_Buffer);
+        buffer.m_Mapped = m_Mapped;
+        return buffer;
     }
 
     bool Buffer::IsOwning() const
