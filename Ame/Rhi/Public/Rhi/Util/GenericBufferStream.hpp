@@ -20,7 +20,7 @@ namespace Ame::Rhi::Util
         GenericBufferStream(
             Buffer&& buffer) :
             m_Buffer(std::move(buffer)),
-            m_Stream(std::make_unique<Streaming::BufferOStream>(Streaming::BufferView(m_Buffer)))
+            m_Stream(std::make_unique<Streaming::BufferOStream>(Streaming::BufferView(m_Buffer.Borrow())))
         {
         }
 
@@ -50,8 +50,7 @@ namespace Ame::Rhi::Util
             Buffer buffer)
         {
             m_Buffer = std::move(buffer);
-            Streaming::BufferView view(m_Buffer);
-            m_Stream->open(std::move(view));
+            m_Stream->open(Streaming::BufferView(m_Buffer.Borrow()));
         }
 
         /// <summary>

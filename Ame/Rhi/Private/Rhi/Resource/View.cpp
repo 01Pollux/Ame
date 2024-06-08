@@ -232,13 +232,7 @@ namespace Ame::Rhi
     {
     }
 
-    ResourceView::ResourceView(
-        const ResourceView& other) :
-        m_Device(other.m_Device),
-        m_Descriptor(other.m_Descriptor),
-        m_Owning(false)
-    {
-    }
+    //
 
     ResourceView::ResourceView(
         ResourceView&& other) noexcept :
@@ -246,21 +240,6 @@ namespace Ame::Rhi
         m_Descriptor(std::exchange(other.m_Descriptor, nullptr)),
         m_Owning(std::exchange(other.m_Owning, false))
     {
-    }
-
-    ResourceView& ResourceView::operator=(
-        const ResourceView& other)
-    {
-        if (this != &other)
-        {
-            Release();
-
-            m_Device     = other.m_Device;
-            m_Descriptor = other.m_Descriptor;
-            m_Owning     = false;
-        }
-
-        return *this;
     }
 
     ResourceView& ResourceView::operator=(
@@ -283,6 +262,8 @@ namespace Ame::Rhi
         Release();
     }
 
+    //
+
     void ResourceView::SetName(
         const char* name) const
     {
@@ -303,6 +284,13 @@ namespace Ame::Rhi
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
         return std::bit_cast<void*>(nriCore.GetDescriptorNativeObject(*m_Descriptor));
+    }
+
+    //
+
+    ResourceView ResourceView::Borrow() const
+    {
+        return ResourceView(Extern{}, *m_Device, m_Descriptor);
     }
 
     bool ResourceView::IsOwning() const

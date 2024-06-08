@@ -14,7 +14,7 @@ namespace Ame::Gfx::RG
         auto& frameResource = m_Resources[Names::c_FrameResource];
         if (!frameResource) [[unlikely]]
         {
-            frameResource.Import(m_CoreResources->GetFrameResource());
+            frameResource.Import(m_CoreResources->GetFrameResource().Borrow());
         }
 
         frameResource.CreateBufferView(
@@ -30,7 +30,7 @@ namespace Ame::Gfx::RG
         if (!transformTable ||
             (transformBuffer.GetBuffer() != *transformTable.AsBuffer())) [[unlikely]]
         {
-            transformTable.Import(m_CoreResources->GetTransformBuffer().GetBuffer());
+            transformTable.Import(transformBuffer.GetBuffer().Borrow());
         }
 
         //
@@ -65,7 +65,7 @@ namespace Ame::Gfx::RG
         {
             auto& renderInstanceTable    = m_Resources[Names::c_RenderInstancesTable];
             auto& curRenderInstanceTable = m_CoreResources->GetInstancesTableBuffer();
-            renderInstanceTable.Import(curRenderInstanceTable.GetBuffer());
+            renderInstanceTable.Import(curRenderInstanceTable.GetBuffer().Borrow());
         }
     }
 } // namespace Ame::Gfx::RG

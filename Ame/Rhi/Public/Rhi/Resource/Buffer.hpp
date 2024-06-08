@@ -43,14 +43,15 @@ namespace Ame::Rhi
             const BufferDesc& desc);
 
     public:
-        Buffer(const Buffer&);
+        Buffer(const Buffer&) = delete;
         Buffer(Buffer&& other) noexcept;
 
-        Buffer& operator=(const Buffer&);
+        Buffer& operator=(const Buffer&) = delete;
         Buffer& operator=(Buffer&& other) noexcept;
 
         ~Buffer();
 
+    public:
         [[nodiscard]] bool operator==(
             const Buffer& other) const noexcept
         {
@@ -83,6 +84,9 @@ namespace Ame::Rhi
         /// Get the buffer native handle.
         /// </summary>
         [[nodiscard]] void* GetNative() const;
+
+    public:
+        [[nodiscard]] Buffer Borrow() const;
 
         /// <summary>
         /// Check if the buffer is owning. (If the buffer is owning, it will be released when the buffer is destroyed)

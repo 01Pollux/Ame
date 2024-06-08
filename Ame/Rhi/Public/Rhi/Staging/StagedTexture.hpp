@@ -49,7 +49,7 @@ namespace Ame::Rhi::Staging
         StagedTexture(
             Device&            rhiDevice,
             const TextureDesc& desc,
-            size_t             size,
+            size_t             totalSize,
             size_t             offset,
             Buffer             buffer);
 
@@ -104,7 +104,7 @@ namespace Ame::Rhi::Staging
         [[nodiscard]] static StagedTextureRegionList CreateRegions(
             const DeviceDesc&  deviceDesc,
             const TextureDesc& textureDesc,
-            size_t             textureSize,
+            size_t             totalSize,
             size_t             relativeOffset);
 
     private:

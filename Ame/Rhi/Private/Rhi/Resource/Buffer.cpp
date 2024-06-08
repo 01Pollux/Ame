@@ -53,37 +53,11 @@ namespace Ame::Rhi
     //
 
     Buffer::Buffer(
-        const Buffer& other) :
-        m_Device(other.m_Device),
-        m_Buffer(other.m_Buffer),
-        m_Mapped(other.m_Mapped),
-        m_Owning(false)
-    {
-    }
-
-    Buffer::Buffer(
         Buffer&& other) noexcept :
         m_Device(std::exchange(other.m_Device, nullptr)),
         m_Buffer(std::exchange(other.m_Buffer, nullptr)),
-        m_Mapped(std::exchange(other.m_Mapped, nullptr)),
-        m_Owning(std::exchange(other.m_Owning, false))
+        m_Mapped(std::exchange(other.m_Mapped, nullptr))
     {
-    }
-
-    Buffer& Buffer::operator=(
-        const Buffer& other)
-    {
-        if (this != &other)
-        {
-            Release();
-
-            m_Device = other.m_Device;
-            m_Buffer = other.m_Buffer;
-            m_Mapped = other.m_Mapped;
-            m_Owning = false;
-        }
-
-        return *this;
     }
 
     Buffer& Buffer::operator=(
@@ -120,6 +94,13 @@ namespace Ame::Rhi
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
         return std::bit_cast<void*>(nriCore.GetBufferNativeObject(*m_Buffer));
+    }
+
+    //
+
+    Buffer Buffer::Borrow() const
+    {
+        return Buffer(Extern{}, *m_Device, m_Buffer);
     }
 
     bool Buffer::IsOwning() const

@@ -39,14 +39,13 @@ namespace Ame::Rhi::Staging
     StagedTexture::StagedTexture(
         Device&            rhiDevice,
         const TextureDesc& desc,
-        size_t             size,
+        size_t             totalSize,
         size_t             offset,
         Buffer             buffer) :
         m_DeviceDesc(&rhiDevice.GetDesc()),
         m_Desc(desc),
-        m_TextureSize(size),
-        m_TextureBuffer(buffer),
-        m_Regions(CreateRegions(*m_DeviceDesc, m_Desc, m_TextureSize, offset))
+        m_TextureBuffer(std::move(buffer)),
+        m_Regions(CreateRegions(*m_DeviceDesc, m_Desc, totalSize, offset))
     {
     }
 
@@ -122,9 +121,11 @@ namespace Ame::Rhi::Staging
     auto StagedTexture::CreateRegions(
         const DeviceDesc&  deviceDesc,
         const TextureDesc& textureDesc,
-        size_t             textureSize,
+        size_t             totalSize,
         size_t             relativeOffset) -> StagedTextureRegionList
     {
+        totalSize /= textureDesc.arraySize;
+
         StagedTextureRegionList regions;
         regions.reserve(static_cast<size_t>(textureDesc.arraySize) * textureDesc.mipNum);
 
@@ -155,7 +156,7 @@ namespace Ame::Rhi::Staging
             for (uint32_t j = 0; j < textureDesc.mipNum; j++)
             {
                 auto& lastRegion = regions.emplace_back(regions[j]);
-                lastRegion.Offset += textureSize * i;
+                lastRegion.Offset += totalSize * i;
             }
         }
 

@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE PropertyDescriptor
+#define BOOST_TEST_MODULE DeferredStagingManager
 #include <boost/test/included/unit_test.hpp>
 
 #include <Rhi/Device/Device.hpp>

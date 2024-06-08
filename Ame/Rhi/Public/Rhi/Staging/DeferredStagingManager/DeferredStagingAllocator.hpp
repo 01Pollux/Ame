@@ -30,10 +30,11 @@ namespace Ame::Rhi::Staging
     private:
         struct TempAllocation
         {
-            Buffer RhiBuffer;
+            Buffer BufferRef;
             size_t Offset;
             size_t Size;
 
+            [[nodiscard]] Buffer     Borrow();
             [[nodiscard]] std::byte* GetPtr();
         };
 

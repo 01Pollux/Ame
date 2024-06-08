@@ -54,9 +54,9 @@ namespace Ame::Rhi
         AME_LOG_ASSERT(Log::Rhi(), m_CurrentStates.Textures.contains(nriTexture), "Texture is not being tracked");
 
         auto& currentStates = m_CurrentStates.Textures.at(nriTexture);
-        for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
+        for (auto [mip, arr] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
-            SubresourceIndex subresource(Mip, Array);
+            SubresourceIndex subresource(mip, arr);
             co_yield AtomicTextureSubresourceState{ currentStates.at(subresource) };
         }
     }
@@ -97,9 +97,9 @@ namespace Ame::Rhi
         auto& pendingStates = m_PendingStates.Textures[nriTexture];
 
         StripUnsupportedStages(state.stages);
-        for (auto [Mip, Array] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
+        for (auto [mip, arr] : ForEachSubresource(mipLevel, mipCount, arraySlice, arrayCount))
         {
-            SubresourceIndex subresource(Mip, Array);
+            SubresourceIndex subresource(mip, arr);
             auto&            subresourceStates = pendingStates[subresource];
 
             if (!append)
@@ -123,16 +123,16 @@ namespace Ame::Rhi
 
         auto& pendingStates = m_PendingStates.Textures[nriTexture];
         auto& textureDesc   = nriCore.GetTextureDesc(*nriTexture);
-        for (auto [Mip, Array] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
+        for (auto [mip, arr] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
         {
-            SubresourceIndex subresource(Mip, Array);
+            SubresourceIndex subresource(mip, arr);
             auto&            subresourceStates = pendingStates[subresource];
 
             if (!append)
             {
                 subresourceStates.clear();
             }
-            subresourceStates.emplace_back(states[Mip + Array * textureDesc.mipNum]);
+            subresourceStates.emplace_back(states[mip + arr * textureDesc.mipNum]);
         }
     }
 
@@ -161,9 +161,9 @@ namespace Ame::Rhi
 
         auto& textureDesc = nriCore.GetTextureDesc(*nriTexture);
 
-        for (auto [Mip, Array] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
+        for (auto [mip, arr] : ForEachSubresource(0, textureDesc.mipNum, 0, textureDesc.arraySize))
         {
-            SubresourceIndex subresource(Mip, Array);
+            SubresourceIndex subresource(mip, arr);
             m_CurrentStates.Textures[nriTexture][subresource] = initialState;
         }
     }

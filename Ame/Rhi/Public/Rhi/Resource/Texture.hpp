@@ -35,10 +35,10 @@ namespace Ame::Rhi
             const TextureDesc& desc);
 
     public:
-        Texture(const Texture& other);
+        Texture(const Texture& other) = delete;
         Texture(Texture&& Other) noexcept;
 
-        Texture& operator=(const Texture& other);
+        Texture& operator=(const Texture& other) = delete;
         Texture& operator=(Texture&& other) noexcept;
 
         ~Texture();
@@ -75,6 +75,12 @@ namespace Ame::Rhi
         /// Get the texture native handle.
         /// </summary>
         [[nodiscard]] void* GetNative() const;
+
+        public:
+        /// <summary>
+        /// Borrow the texture (The texture will not be released when the texture is destroyed)
+        /// </summary>
+        [[nodiscard]] Texture Borrow() const;
 
         /// <summary>
         /// Check if the texture is owning. (If the texture is owning, it will be released when the texture is destroyed)

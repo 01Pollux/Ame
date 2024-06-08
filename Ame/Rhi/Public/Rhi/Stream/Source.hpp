@@ -13,7 +13,7 @@ namespace Ame::Rhi::Streaming
 
         BufferSource(
             BufferView view) :
-            m_Device(view)
+            m_Device(std::move(view))
         {
         }
 

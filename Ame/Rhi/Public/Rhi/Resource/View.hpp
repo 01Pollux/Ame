@@ -40,10 +40,10 @@ namespace Ame::Rhi
             nri::Descriptor* descriptor);
 
     public:
-        ResourceView(const ResourceView&);
+        ResourceView(const ResourceView&) = delete;
         ResourceView(ResourceView&& other) noexcept;
 
-        ResourceView& operator=(const ResourceView&);
+        ResourceView& operator=(const ResourceView&) = delete;
         ResourceView& operator=(ResourceView&& other) noexcept;
 
         ~ResourceView();
@@ -75,6 +75,12 @@ namespace Ame::Rhi
         /// Get the descriptor native handle.
         /// </summary>
         [[nodiscard]] void* GetNative() const;
+
+    public:
+        /// <summary>
+        /// Borrow the resource view. (The resource view will not be released when the resource view is destroyed)
+        /// </summary>
+        [[nodiscard]] ResourceView Borrow() const;
 
         /// <summary>
         /// Check if the resource view is owning. (If the resource view is owning, it will be released when the resource view is destroyed)

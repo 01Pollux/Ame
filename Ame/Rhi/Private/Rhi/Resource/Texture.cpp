@@ -37,34 +37,11 @@ namespace Ame::Rhi
     //
 
     Texture::Texture(
-        const Texture& other) :
-        m_Device(other.m_Device),
-        m_Texture(other.m_Texture),
-        m_Owning(false)
-    {
-    }
-
-    Texture::Texture(
         Texture&& other) noexcept :
         m_Device(std::exchange(other.m_Device, nullptr)),
         m_Texture(std::exchange(other.m_Texture, nullptr)),
         m_Owning(std::exchange(other.m_Owning, false))
     {
-    }
-
-    Texture& Texture::operator=(
-        const Texture& other)
-    {
-        if (this != &other)
-        {
-            Release();
-
-            m_Device  = other.m_Device;
-            m_Texture = other.m_Texture;
-            m_Owning  = false;
-        }
-
-        return *this;
     }
 
     Texture& Texture::operator=(
@@ -117,6 +94,13 @@ namespace Ame::Rhi
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
         return std::bit_cast<void*>(nriCore.GetTextureNativeObject(*m_Texture));
+    }
+
+    //
+
+    Texture Texture::Borrow() const
+    {
+        return Texture(Extern{}, *m_Device, m_Texture);
     }
 
     bool Texture::IsOwning() const

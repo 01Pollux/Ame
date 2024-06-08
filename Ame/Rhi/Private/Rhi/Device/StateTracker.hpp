@@ -72,6 +72,17 @@ namespace Ame::Rhi
         using GlobalBarrierList        = std::vector<nri::GlobalBarrierDesc>;
 
     public:
+        ResourceStateTracker() = default;
+
+        ResourceStateTracker(const ResourceStateTracker&) = delete;
+        ResourceStateTracker(ResourceStateTracker&&)      = delete;
+
+        ResourceStateTracker& operator=(const ResourceStateTracker&) = delete;
+        ResourceStateTracker& operator=(ResourceStateTracker&&)      = delete;
+
+        ~ResourceStateTracker() = default;
+
+    public:
         /// <summary>
         /// Initialize the state tracker
         /// </summary>

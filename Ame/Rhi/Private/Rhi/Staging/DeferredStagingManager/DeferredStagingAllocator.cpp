@@ -5,9 +5,14 @@
 
 namespace Ame::Rhi::Staging
 {
+    Buffer DeferredStagingAllocator::TempAllocation::Borrow()
+    {
+        return BufferRef.Borrow();
+    }
+
     std::byte* DeferredStagingAllocator::TempAllocation::GetPtr()
     {
-        return RhiBuffer.GetPtr(Offset);
+        return BufferRef.GetPtr(Offset);
     }
 
     //
@@ -35,7 +40,7 @@ namespace Ame::Rhi::Staging
     {
         auto allocation = AllocateTemp(bufferSize, accessType);
         return StagedBuffer(
-            std::move(allocation.RhiBuffer),
+            allocation.Borrow(),
             allocation.Offset,
             allocation.Size);
     }
@@ -50,7 +55,7 @@ namespace Ame::Rhi::Staging
             desc,
             allocation.Size,
             allocation.Offset,
-            std::move(allocation.RhiBuffer));
+            allocation.Borrow());
     }
 
     //
@@ -98,7 +103,7 @@ namespace Ame::Rhi::Staging
         auto& buffer = allocator->GetBuffer(handle);
 
         TempAllocation allocation{
-            .RhiBuffer = buffer,
+            .BufferRef = buffer.Borrow(),
             .Offset    = handle.Offset,
             .Size      = bufferSize
         };
