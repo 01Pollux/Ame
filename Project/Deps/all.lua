@@ -2,6 +2,7 @@ includes("glfw.lua")
 includes("nri.lua")
 includes("concurrencpp.lua")
 includes("kangaru.lua")
+includes("mimalloc.lua")
 
 add_requires("boost", {system = false, debug = _debug_packages, configs = {
     vs_runtime = vs_runtime,
@@ -11,7 +12,7 @@ add_requires("boost", {system = false, debug = _debug_packages, configs = {
     serialization = true
     }})
 add_requires("boost_ut",                {system = false, debug = _debug_packages, configs = {shared = true}})
-add_requires("mimalloc",                {system = false, debug = _debug_packages})
+add_requires("ame.mimalloc",            {system = false, debug = _debug_packages})
 add_requires("ame.kangaru",             {system = false, debug = _debug_packages})
 add_requires("spdlog",                  {system = false, debug = _debug_packages})
 add_requires("fmt",                     {system = false, debug = _debug_packages})

@@ -4,7 +4,7 @@ target("Core")
     local shared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
     add_packages(
         "boost",
-        "mimalloc",
+        "ame.mimalloc",
         "ame.kangaru",
         "spdlog",
         "fmt",

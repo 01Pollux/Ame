@@ -1,4 +1,3 @@
-includes("Project/Rules.lua")
 includes("Project/Utils.lua")
 
 add_rules("mode.debug", "mode.releasedbg", "mode.release")
