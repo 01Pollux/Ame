@@ -33,9 +33,9 @@ namespace Ame::FlappyRocket
         auto& assetStorage = GetSubsystem<Asset::StorageSubsystem>();
         assetStorage.Mount<Asset::DirectoryAssetPackage>("Shared/Assets");
 
-        GetSubsystem<Gfx::RG::GraphRendererSubsystem>();
-
+        InstallSubsystem<Gfx::RG::GraphRendererSubsystem>();
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
+
         CreateWorld();
     }
 

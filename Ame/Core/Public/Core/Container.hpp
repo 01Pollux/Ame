@@ -10,13 +10,22 @@ namespace Ame
     {
     public:
         /// <summary>
-        /// Register a subsystem to the container.
+        /// Register a subsystem to the container, the subsystem must not already exist.
         /// </summary>
         template<typename Ty, typename... ArgsTy>
         bool RegisterSubsystem(
             ArgsTy&&... args)
         {
             return m_Container.emplace<Ty>(std::forward<ArgsTy>(args)...);
+        }
+
+        /// <summary>
+        /// Register a subsystem to the container if it doesn't already exist.
+        /// </summary>
+        template<typename Ty>
+        void InstallSubsystem()
+        {
+            m_Container.service<Ty>();
         }
 
         /// <summary>
@@ -33,7 +42,7 @@ namespace Ame
         /// This function will return a reference to the subsystem Ty.
         /// </summary>
         template<typename Ty>
-        kgr::service_type<Ty> GetSubsystem()
+        [[nodiscard]] kgr::service_type<Ty> GetSubsystem()
         {
             return m_Container.service<Ty>();
         }
