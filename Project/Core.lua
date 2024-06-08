@@ -1,4 +1,4 @@
-target("Core")
+target("Ame.Core")
     ame_utils:add_library("Ame", "static", "Ame/Core")
 
     local shared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
@@ -20,23 +20,30 @@ target_end()
 
 --
 
+target("Ame.Geometry")
+    ame_utils:add_library("Ame", "static", "Ame/Geometry")
+    add_deps("Ame.Core", {public = true, inherit = true})
+target_end()
+
+--
+
 includes("Plugins.lua")
 
 --
 
-target("Resource")
+target("Ame.Resource")
     ame_utils:add_library("Ame", "static", "Ame/Resource")
-    add_deps("Core", {public = true, inherit = true})
+    add_deps("Ame.Core", {public = true, inherit = true})
 target_end()
 
-target("Windowing")
+target("Ame.Windowing")
     ame_utils:add_library("Ame", "static", "Ame/Windowing")
-    add_deps("Core", {public = true, inherit = true})
+    add_deps("Ame.Core", {public = true, inherit = true})
 target_end()
 
 --
 
-target("Rhi")
+target("Ame.Rhi")
     ame_utils:add_library("Ame", "static", "Ame/Rhi")
     add_packages(
         "ame.nri",
@@ -44,33 +51,33 @@ target("Rhi")
         {public = true, inherit = true})
     add_deps({
         "Plugins.FreeImage",
-        "Windowing",
-        "Resource"
+        "Ame.Windowing",
+        "Ame.Resource"
     }, {public = true, inherit = true})
 target_end()
 
 --
 
-target("Ecs")
+target("Ame.Ecs")
     ame_utils:add_library("Ame", "static", "Ame/Ecs")
-    add_deps("Rhi", {public = true, inherit = true})
+    add_deps("Ame.Rhi", {public = true, inherit = true})
 target_end()
 
 --
 
-target("Gfx")
+target("Ame.Gfx")
     ame_utils:add_library("Ame", "static", "Ame/Gfx")
-    add_deps("Ecs", {public = true, inherit = true})
+    add_deps("Ame.Ecs", {public = true, inherit = true})
 target_end()
 
 --
 
-target("Engine")
+target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Ame/Engine")
-    add_deps({ "Gfx" }, {public = true, inherit = true})
+    add_deps({ "Ame.Gfx" }, {public = true, inherit = true})
 target_end()
 
 --
 
-ame_utils:add_tests("Rhi", "Ame/Rhi", "Rhi")
-ame_utils:add_tests("Gfx", "Ame/Gfx", "Gfx")
+ame_utils:add_tests("Rhi", "Ame/Rhi", "Ame.Rhi")
+ame_utils:add_tests("Gfx", "Ame/Gfx", "Ame.Gfx")
