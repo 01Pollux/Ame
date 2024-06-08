@@ -76,7 +76,7 @@ install (DIRECTORY "Resources/" DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJE
         local configs = {
             "-DNRI_ENABLE_D3D11_SUPPORT=OFF"
         };
-        table.insert(configs, "-DDCMAKE_CONFIGURATION_TYPES=" .. (package:debug() and "Debug" or "Release"))
+        table.insert(configs, "-DCMAKE_CONFIGURATION_TYPES=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DNRI_ENABLE_VK_SUPPORT=" .. (package:config("vk") and "ON" or "OFF"))
         table.insert(configs, "-DNRI_ENABLE_D3D12_SUPPORT=" .. (package:config("d3d12") and "ON" or "ON"))
         table.insert(configs, "-DNRI_ENABLE_AGILITY_SDK_SUPPORT=" .. (package:config("agility")))
