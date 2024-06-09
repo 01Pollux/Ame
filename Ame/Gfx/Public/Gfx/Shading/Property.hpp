@@ -36,7 +36,6 @@ namespace Ame::Gfx::Shading
         Bool3,
         Bool4,
 
-        Matrix2x2,
         Matrix3x3,
         Matrix4x4,
     };
@@ -103,64 +102,45 @@ namespace Ame::Gfx::Shading
     //
 
     template<typename Ty>
-    struct ResourceMap;
+    struct ResourceMappable
+    {
+        static constexpr bool Enabled = false;
+    };
 
-#define AME_GFX_SHADING_RESOURCE_MAP(Ty, DT, T)                            \
-    template<>                                                             \
-    struct ResourceMap<Ty>                                                 \
-    {                                                                      \
-        static constexpr ResourceDataType DataType = ResourceDataType::DT; \
-        static constexpr ResourceType     Type     = ResourceType::T;      \
+#define AME_GFX_SHADING_RESOURCE_MAP(Ty)      \
+    template<>                                \
+    struct ResourceMappable<Ty>               \
+    {                                         \
+        static constexpr bool Enabled = true; \
     }
 
-    AME_GFX_SHADING_RESOURCE_MAP(uint32_t, UInt, Scalar);
-    AME_GFX_SHADING_RESOURCE_MAP(int32_t, Int, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(uint32_t);
+    AME_GFX_SHADING_RESOURCE_MAP(int32_t);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2U, UInt2, Scalar);
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2I, Int2, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2U);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2I);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3U, UInt3, Scalar);
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3I, Int3, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3U);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3I);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4U, UInt4, Scalar);
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4I, Int4, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4U);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4I);
 
-    AME_GFX_SHADING_RESOURCE_MAP(float, Float, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(float);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2, Float2, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3, Float3, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Color3);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4, Float4, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Color4);
 
-    AME_GFX_SHADING_RESOURCE_MAP(bool, Bool, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Matrix3x3);
 
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector2B, Bool2, Scalar);
-
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector3B, Bool3, Scalar);
-
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Vector4B, Bool4, Scalar);
-
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Matrix2x2, Matrix2x2, Scalar);
-
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Matrix3x3, Matrix3x3, Scalar);
-
-    AME_GFX_SHADING_RESOURCE_MAP(Math::Matrix4x4, Matrix4x4, Scalar);
+    AME_GFX_SHADING_RESOURCE_MAP(Math::Matrix4x4);
 
     //
 
 #undef AME_GFX_SHADING_RESOURCE_MAP
 } // namespace Ame::Gfx::Shading
-
-namespace Ame::Concepts::Gfx::Shading
-{
-    template<typename Ty>
-    concept ResourceMappable = requires {
-        {
-            Ame::Gfx::Shading::ResourceMap<Ty>::DataType
-        } -> std::convertible_to<Ame::Gfx::Shading::ResourceDataType>;
-        {
-            Ame::Gfx::Shading::ResourceMap<Ty>::Type
-        } -> std::convertible_to<Ame::Gfx::Shading::ResourceType>;
-    };
-} // namespace Ame::Concepts::Gfx::Shading

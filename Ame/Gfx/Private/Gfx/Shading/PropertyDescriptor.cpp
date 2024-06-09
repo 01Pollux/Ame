@@ -41,15 +41,6 @@ namespace Ame::Gfx::Shading
         return *this;
     }
 
-    PropertyDescriptor& PropertyDescriptor::Matrix2x2Impl(
-        const String&    propertyName,
-        Rhi::ShaderFlags flags,
-        uint8_t          dims)
-    {
-        InsertProp(propertyName, { ResourceType::Scalar, ResourceDataType::Matrix2x2, dims }, flags);
-        return *this;
-    }
-
     PropertyDescriptor& PropertyDescriptor::Matrix3x3Impl(
         const String&    propertyName,
         Rhi::ShaderFlags flags,
@@ -88,7 +79,7 @@ namespace Ame::Gfx::Shading
     }
 
     PropertyDescriptor& PropertyDescriptor::Sampler(
-        const String& propertyName, 
+        const String&    propertyName,
         Rhi::ShaderFlags flags)
     {
         return Resource(propertyName, ResourceType::Sampler, ResourceDataType::None, flags);
@@ -151,18 +142,40 @@ namespace Ame::Gfx::Shading
         {
             switch (dataType)
             {
+            case ResourceDataType::Bool:
             case ResourceDataType::Int:
+            case ResourceDataType::UInt:
                 size = sizeof(int);
                 break;
+            case ResourceDataType::Bool2:
+            case ResourceDataType::Int2:
+            case ResourceDataType::UInt2:
+                size = sizeof(int[2]);
+                break;
+            case ResourceDataType::Bool3:
+            case ResourceDataType::Int3:
+            case ResourceDataType::UInt3:
+                size = sizeof(int[3]);
+                break;
+            case ResourceDataType::Bool4:
+            case ResourceDataType::Int4:
+            case ResourceDataType::UInt4:
+                size = sizeof(int[4]);
+                break;
+
             case ResourceDataType::Float:
                 size = sizeof(float);
                 break;
-            case ResourceDataType::Bool:
-                size = sizeof(int);
+            case ResourceDataType::Float2:
+                size = sizeof(float[2]);
                 break;
-            case ResourceDataType::Matrix2x2:
-                size = sizeof(float[2][2]);
+            case ResourceDataType::Float3:
+                size = sizeof(float[3]);
                 break;
+            case ResourceDataType::Float4:
+                size = sizeof(float[4]);
+                break;
+
             case ResourceDataType::Matrix3x3:
                 size = sizeof(float[3][3]);
                 break;

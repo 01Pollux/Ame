@@ -94,7 +94,7 @@ namespace Ame::Rhi
         ShaderProfile         Profile            = ShaderProfile::_6_5;
         ShaderVulkanMemLayout VulkanMemoryLayout = ShaderVulkanMemLayout::Dx;
         ShaderCompileFlags    Flags{
-#ifdef AME_DEBUG
+#ifndef AME_DIST
             ShaderCompileFlags::Debug
 #endif
         };

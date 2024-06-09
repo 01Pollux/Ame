@@ -50,7 +50,7 @@ namespace Ame::Gfx::Shading
 
     public:
         template<typename Ty>
-            requires Concepts::Gfx::Shading::ResourceMappable<Ty>
+            requires Gfx::Shading::ResourceMappable<Ty>::Enabled
         void Set(
             const String& propertyName,
             const Ty&     value)
@@ -86,12 +86,12 @@ namespace Ame::Gfx::Shading
 
     public:
         template<typename Ty>
-            requires Concepts::Gfx::Shading::ResourceMappable<Ty>
+            requires Gfx::Shading::ResourceMappable<Ty>::Enabled
         [[nodiscard]] Ty Get(
             const String& propertyName) const
         {
             Ty value{};
-            GetScalar(propertyName, std::bit_cast<std::byte*>(std::addressof(value)), ResourceMap<Ty>::Type, ResourceMap<Ty>::DataType);
+            GetScalar(propertyName, std::bit_cast<std::byte*>(std::addressof(value)), sizeof(Ty));
             return value;
         }
 

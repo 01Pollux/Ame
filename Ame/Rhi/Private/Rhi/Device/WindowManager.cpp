@@ -172,8 +172,8 @@ namespace Ame::Rhi
         nri::SwapChainDesc swapChainDesc{
             .window               = nriWindow,
             .commandQueue         = &graphicsQueue,
-            .width                = static_cast<nri::Dim_t>(windowSize.x),
-            .height               = static_cast<nri::Dim_t>(windowSize.y),
+            .width                = static_cast<nri::Dim_t>(windowSize.x()),
+            .height               = static_cast<nri::Dim_t>(windowSize.y()),
             .textureNum           = static_cast<uint8_t>(m_BackBuffers.size()),
             .format               = m_SwapChainFormat,
             .verticalSyncInterval = m_VSyncEnabled

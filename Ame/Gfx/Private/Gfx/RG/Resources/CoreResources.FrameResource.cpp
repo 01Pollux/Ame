@@ -15,20 +15,20 @@ namespace Ame::Gfx::RG
         const Math::Matrix4x4&       projection,
         const Math::Vector2&         viewport)
     {
-        auto view = glm::lookAt(
+        Math::Matrix4x4 view = Math::Util::XMMatrixLookToLH(
             transform.GetPosition(),
-            transform.GetPosition() + transform.GetLookDir(),
+            transform.GetLookDir(),
             transform.GetUpDir());
 
         m_FrameResource.World = transform.ToMat4x4Transposed();
 
-        m_FrameResource.View           = glm::transpose(view);
-        m_FrameResource.Projection     = glm::transpose(projection);
-        m_FrameResource.ViewProjection = m_FrameResource.View * m_FrameResource.Projection;
+        m_FrameResource.View           = view.GetTranspose();
+        m_FrameResource.Projection     = projection.GetTranspose();
+        m_FrameResource.ViewProjection = m_FrameResource.Projection * m_FrameResource.View;
 
-        m_FrameResource.ViewInverse           = glm::inverse(m_FrameResource.View);
-        m_FrameResource.ProjectionInverse     = glm::inverse(m_FrameResource.Projection);
-        m_FrameResource.ViewProjectionInverse = glm::inverse(m_FrameResource.ViewProjection);
+        m_FrameResource.ViewInverse           = m_FrameResource.View.GetInverse();
+        m_FrameResource.ProjectionInverse     = m_FrameResource.Projection.GetInverse();
+        m_FrameResource.ViewProjectionInverse = m_FrameResource.ViewProjection.GetInverse();
 
         m_FrameResource.Viewport = viewport;
 
@@ -55,7 +55,7 @@ namespace Ame::Gfx::RG
         size_t  size       = Rhi::Util::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), 0);
         size_t  offset     = size * frameIndex;
 
-        return Rhi::BufferViewDesc{ .Range{ offset, size }, .Type = Rhi::BufferViewType::ConstantBuffer };
+        return Rhi::BufferViewDesc{ .Range{ Rhi::BufferRange(offset, size) }, .Type = Rhi::BufferViewType::ConstantBuffer };
     }
 
     //

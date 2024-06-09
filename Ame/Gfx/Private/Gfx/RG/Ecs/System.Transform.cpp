@@ -1,8 +1,6 @@
 #include <Gfx/RG/Ecs/System.hpp>
 #include <Gfx/RG/Resources/CoreResources.hpp>
 
-#include <glm/gtc/type_ptr.hpp>
-
 namespace Ame::Gfx::RG
 {
     void EcsSystemHooks::CreateTransformObserver()
@@ -25,7 +23,7 @@ namespace Ame::Gfx::RG
                         gpuId.Id = transformBuffer.Rent();
                     }
                     auto matrix = transforms[i].ToMat4x4Transposed();
-                    transformBuffer.Write(gpuId.Id, std::bit_cast<const std::byte*>(glm::value_ptr(matrix)), sizeof(matrix));
+                    transformBuffer.Write(gpuId.Id, std::bit_cast<const std::byte*>(matrix.data()), sizeof(matrix));
                 }
                 else
                 {

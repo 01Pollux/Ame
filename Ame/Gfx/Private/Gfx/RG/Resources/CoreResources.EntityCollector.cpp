@@ -23,9 +23,9 @@ namespace Ame::Gfx::RG
 
         auto&               cameraData = m_FrameResource.CurrentCamera.GetComponent<Ecs::Component::Camera>();
         const Math::Vector3 cameraPosition{
-            m_FrameResource.World[0][3],
-            m_FrameResource.World[1][3],
-            m_FrameResource.World[2][3]
+            m_FrameResource.World(0, 3),
+            m_FrameResource.World(1, 3),
+            m_FrameResource.World(2, 3)
         };
 
         auto filterEntities =
@@ -47,8 +47,8 @@ namespace Ame::Gfx::RG
                     continue;
                 }
 
-                float Distance = glm::distance2(transform.GetPosition(), cameraPosition);
-                m_CameraCullResult.AddEntity(Distance, renderable, transformId);
+                float distSqr = transform.GetPosition().DistanceToSqr(cameraPosition);
+                m_CameraCullResult.AddEntity(distSqr, renderable, transformId);
             }
         };
 

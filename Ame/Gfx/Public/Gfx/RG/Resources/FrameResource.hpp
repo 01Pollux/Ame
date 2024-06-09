@@ -10,6 +10,7 @@
 
 namespace Ame::Gfx::RG
 {
+    // matrices are column-major
     struct FrameResourceGPU
     {
         Math::Matrix4x4 World;

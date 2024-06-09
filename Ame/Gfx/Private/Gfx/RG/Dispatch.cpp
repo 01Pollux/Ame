@@ -63,10 +63,10 @@ namespace Ame::Gfx::RG
                 auto& clearColor = clearDescs[i].value.color32f;
                 if (rtvDesc.ForceColor)
                 {
-                    clearColor.x = rtvDesc.ClearColor.r;
-                    clearColor.y = rtvDesc.ClearColor.g;
-                    clearColor.z = rtvDesc.ClearColor.b;
-                    clearColor.w = rtvDesc.ClearColor.a;
+                    clearColor.x = rtvDesc.ClearColor.r();
+                    clearColor.y = rtvDesc.ClearColor.g();
+                    clearColor.z = rtvDesc.ClearColor.b();
+                    clearColor.w = rtvDesc.ClearColor.a();
                 }
                 else
                 {

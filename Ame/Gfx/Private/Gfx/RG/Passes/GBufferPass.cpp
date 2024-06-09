@@ -96,13 +96,13 @@ namespace Ame::Gfx::RG::Std
                     Rhi::DescriptorSet entityDataSet;
 
                     Rhi::Viewport viewports[3]{
-                        { .width         = frameData.Viewport.x,
-                          .height        = frameData.Viewport.y,
+                        { .width         = frameData.Viewport.x(),
+                          .height        = frameData.Viewport.y(),
                           .depthRangeMax = 1.f }
                     };
                     Rhi::ScissorRect scissors[3]{
-                        { .width  = static_cast<Rhi::Dim_t>(frameData.Viewport.x),
-                          .height = static_cast<Rhi::Dim_t>(frameData.Viewport.y) }
+                        { .width  = static_cast<Rhi::Dim_t>(frameData.Viewport.x()),
+                          .height = static_cast<Rhi::Dim_t>(frameData.Viewport.y()) }
                     };
 
                     for (uint32_t i = 1; i < std::size(viewports); i++)

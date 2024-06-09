@@ -130,8 +130,8 @@ namespace Ame::FlappyRocket
         auto camera = world.CreateEntity(c_CameraName);
         camera.AddComponent<Ecs::Component::Camera>();
         camera.AddComponent<Ecs::Component::Transform>(
-            Math::Mat::c_Identity<Math::Matrix3x3>,
-            Math::Vec::c_Backward<Math::Vector3> * 5.f);
+            Math::Matrix3x3::Constants::Identity,
+            Math::Vector3::Constants::Backward * 5.f);
 
         camera.AddComponent<Ecs::Component::CameraOutput>(
             Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);

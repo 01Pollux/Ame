@@ -272,10 +272,10 @@ namespace Ame::Rhi
         auto& nriCore  = *nriUtils.GetCoreInterface();
 
         nri::Color32f NriColor{
-            blendConstants.r,
-            blendConstants.g,
-            blendConstants.b,
-            blendConstants.a
+            blendConstants.r(),
+            blendConstants.g(),
+            blendConstants.b(),
+            blendConstants.a()
         };
         nriCore.CmdSetBlendConstants(*m_CommandBuffer, NriColor);
     }

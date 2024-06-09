@@ -23,24 +23,24 @@ namespace Ame::Math
 
         [[nodiscard]] value_type Width() const
         {
-            return this->x;
+            return this->x();
         }
 
         void Width(
             value_type val)
         {
-            this->x = val;
+            this->x() = val;
         }
 
         [[nodiscard]] value_type Height() const
         {
-            return this->y;
+            return this->y();
         }
 
         void Height(
             value_type val)
         {
-            this->y = val;
+            this->y() = val;
         }
     };
 

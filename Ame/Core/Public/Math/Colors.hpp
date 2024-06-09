@@ -4,11 +4,28 @@
 
 namespace Ame::Math
 {
-    using Color3 = Vector3;
-    using Color4 = Vector4;
+    class Color3 : public Vector3
+    {
+    public:
+        using Vector3::Vector3;
 
-    using Color3U8 = glm::u8vec3;
-    using Color4U8 = glm::u8vec4;
+    public:
+        AME_VECTOR_IMPL_ACCESSOR(0, r);
+        AME_VECTOR_IMPL_ACCESSOR(1, g);
+        AME_VECTOR_IMPL_ACCESSOR(2, b);
+    };
+
+    class Color4 : public Vector4
+    {
+    public:
+        using Vector4::Vector4;
+
+    public:
+        AME_VECTOR_IMPL_ACCESSOR(0, r);
+        AME_VECTOR_IMPL_ACCESSOR(1, g);
+        AME_VECTOR_IMPL_ACCESSOR(2, b);
+        AME_VECTOR_IMPL_ACCESSOR(3, a);
+    };
 
     //
 
@@ -18,10 +35,10 @@ namespace Ame::Math
     [[nodiscard]] constexpr uint32_t ColorToU32(
         const Color3& color)
     {
-        return (uint32_t(color.r * 255.0f) << 24) |
-               (uint32_t(color.g * 255.0f) << 16) |
-               (uint32_t(color.b * 255.0f) << 8) |
-               (uint32_t(255));
+        return ((static_cast<uint32_t>(color.x() * 255.0f) & 0xFF) << 24) |
+               ((static_cast<uint32_t>(color.y() * 255.0f) & 0xFF) << 16) |
+               ((static_cast<uint32_t>(color.z() * 255.0f) & 0xFF) << 8) |
+               (0xFF);
     }
 
     /// <summary>
@@ -30,34 +47,10 @@ namespace Ame::Math
     [[nodiscard]] constexpr uint32_t ColorToU32(
         const Color4& color)
     {
-        return (uint32_t(color.r * 255.0f) << 24) |
-               (uint32_t(color.g * 255.0f) << 16) |
-               (uint32_t(color.b * 255.0f) << 8) |
-               (uint32_t(color.a * 255.0f));
-    }
-
-    /// <summary>
-    /// Converts a Color3 to uint32_t
-    /// </summary>
-    [[nodiscard]] constexpr uint32_t ColorToU32(
-        const Color3U8& color)
-    {
-        return (uint32_t(color.r) << 24) |
-               (uint32_t(color.g) << 16) |
-               (uint32_t(color.b) << 8) |
-               (uint32_t(255));
-    }
-
-    /// <summary>
-    /// Converts a Color4 to uint32_t
-    /// </summary>
-    [[nodiscard]] constexpr uint32_t ColorToU32(
-        const Color4U8& color)
-    {
-        return (uint32_t(color.r) << 24) |
-               (uint32_t(color.g) << 16) |
-               (uint32_t(color.b) << 8) |
-               (uint32_t(color.a));
+        return ((static_cast<uint32_t>(color.x() * 255.0f) & 0xFF) << 24) |
+               ((static_cast<uint32_t>(color.y() * 255.0f) & 0xFF) << 16) |
+               ((static_cast<uint32_t>(color.z() * 255.0f) & 0xFF) << 8) |
+               ((static_cast<uint32_t>(color.w() * 255.0f) & 0xFF));
     }
 
     //
@@ -69,9 +62,9 @@ namespace Ame::Math
         uint32_t color)
     {
         return {
-            float((color >> 24) & 0xFF) / 255.0f,
-            float((color >> 16) & 0xFF) / 255.0f,
-            float((color >> 8) & 0xFF) / 255.0f
+            static_cast<float>((color >> 24) & 0xFF) / 255.0f,
+            static_cast<float>((color >> 16) & 0xFF) / 255.0f,
+            static_cast<float>((color >> 8) & 0xFF) / 255.0f
         };
     }
 
@@ -82,42 +75,12 @@ namespace Ame::Math
         uint32_t color)
     {
         return {
-            float((color >> 24) & 0xFF) / 255.0f,
-            float((color >> 16) & 0xFF) / 255.0f,
-            float((color >> 8) & 0xFF) / 255.0f,
-            float((color >> 0) & 0xFF) / 255.0f
+            static_cast<float>((color >> 24) & 0xFF) / 255.0f,
+            static_cast<float>((color >> 16) & 0xFF) / 255.0f,
+            static_cast<float>((color >> 8) & 0xFF) / 255.0f,
+            static_cast<float>((color >> 0) & 0xFF) / 255.0f
         };
     }
-
-    /// <summary>
-    /// Converts a uint32_t to Color3
-    /// </summary>
-    [[nodiscard]] constexpr Color3U8 U32ToColor3U8(
-        uint32_t color)
-    {
-        return {
-            float((color >> 24) & 0xFF) / 255.0f,
-            float((color >> 16) & 0xFF) / 255.0f,
-            float((color >> 8) & 0xFF) / 255.0f
-        };
-    }
-
-    /// <summary>
-    /// Converts a uint32_t to Color4
-    /// </summary>
-    [[nodiscard]] constexpr Color4U8 U32ToColor4U8(
-        uint32_t color)
-    {
-        return {
-            float((color >> 24) & 0xFF) / 255.0f,
-            float((color >> 16) & 0xFF) / 255.0f,
-            float((color >> 8) & 0xFF) / 255.0f,
-            float((color >> 0) & 0xFF) / 255.0f
-        };
-    }
-
-    //
-
 } // namespace Ame::Math
 
 namespace Ame::Colors

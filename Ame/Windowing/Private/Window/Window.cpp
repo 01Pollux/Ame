@@ -88,7 +88,7 @@ namespace Ame::Windowing
         }
 
         glfwSetWindowUserPointer(m_Handle, this);
-        glfwGetWindowSize(m_Handle, &m_WindowSize.x, &m_WindowSize.y);
+        glfwGetWindowSize(m_Handle, &m_WindowSize.x(), &m_WindowSize.y());
 
         //
 
@@ -183,7 +183,7 @@ namespace Ame::Windowing
     void Window::SetPosition(
         const Math::Vector2I& position)
     {
-        glfwSetWindowPos(m_Handle, position.x, position.y);
+        glfwSetWindowPos(m_Handle, position.x(), position.y());
     }
 
     void Window::SetFullscreen(
@@ -260,8 +260,8 @@ namespace Ame::Windowing
     {
         // Set icon for window
         GLFWimage glfwImage{
-            .width  = size.x,
-            .height = size.y,
+            .width  = size.x(),
+            .height = size.y(),
             .pixels = const_cast<uint8_t*>(std::bit_cast<const uint8_t*>(iconData))
         };
         glfwSetWindowIcon(m_Handle, 1, &glfwImage);

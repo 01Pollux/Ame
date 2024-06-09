@@ -20,7 +20,7 @@ add_requires("flecs",                   {system = false, debug = _debug_packages
 add_requires("freeimage",               {system = false, debug = _debug_packages})
 add_requires("cryptopp",                {system = false, debug = _debug_packages})
 add_requires("magic_enum",              {system = false, debug = _debug_packages})
-add_requires("glm",                     {system = false, debug = _debug_packages})
+add_requires("directxmath",             {system = false, debug = _debug_packages})
 add_requires("ame.concurrencpp",        {system = false, debug = _debug_packages})
 add_requires("ame.glfw",                {system = false, debug = _debug_packages})
 add_requires("ame.nri",                 {system = false, debug = _debug_packages})

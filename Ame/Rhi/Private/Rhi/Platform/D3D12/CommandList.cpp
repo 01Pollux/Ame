@@ -8,11 +8,11 @@ namespace Ame::Rhi::D3D12
 #ifndef AME_DIST
     constexpr uint32_t               PIXEvent_MarkerMetadata = 2;
     std::pair<const void*, uint32_t> Encode_Pix3Blob(
-        const char*         label,
-        uint32_t            size,
-        const Math::Color4& color)
+        const char*  label,
+        uint32_t     size,
+        Math::Color4 color)
     {
-        Math::Color4U8 colorU8 = color * 255.0f;
+        color *= 255.0f;
 
         thread_local uint64_t blob[64];
 
@@ -21,7 +21,7 @@ namespace Ame::Rhi::D3D12
         constexpr uint64_t PIXEvent_IsANSI_Mask            = 1ull << 54;
 
         blob[0] = PIXEvent_BeginEvent_NoArgs_Mask;
-        blob[1] = (colorU8.r << 0) | (colorU8.g << 8) | (colorU8.b << 16) | (colorU8.a << 24);
+        blob[1] = ColorToU32(color);
         blob[2] = PIXEvent_CopyChunkSize_Mask | PIXEvent_IsANSI_Mask;
 
         // fill the rest with zeros

@@ -56,10 +56,9 @@ namespace Ame::Ecs::Component
         {
         case CameraType::Perspective:
         {
-            return glm::perspectiveFov(
-                FieldOfView,
-                Width,
-                Height,
+            return Math::Matrix4x4::PerspectiveFov(
+                Math::Util::DegToRad(FieldOfView),
+                AspectRatio(),
                 NearPlane,
                 FarPlane);
         }
@@ -74,16 +73,14 @@ namespace Ame::Ecs::Component
             }
 
             float halfSize = OrthographicSize / 2.f;
-            return glm::ortho(
-                -halfSize * xAxisMultiplier,
-                halfSize * xAxisMultiplier,
-                -halfSize * yAxisMultiplier,
-                halfSize * yAxisMultiplier,
+            return Math::Matrix4x4::Orthographic(
+                Width * xAxisMultiplier,
+                Height * yAxisMultiplier,
                 NearPlane,
                 FarPlane);
         }
         default:
-            return Math::Mat::c_Identity<Math::Matrix4x4>;
+            std::unreachable();
         }
     }
 

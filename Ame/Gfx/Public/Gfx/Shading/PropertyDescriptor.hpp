@@ -67,7 +67,6 @@ namespace Ame::Gfx::Shading
         AME_DECLARE_MEMBER_SCALAR(Bool3, BoolImpl, 3);
         AME_DECLARE_MEMBER_SCALAR(Bool4, BoolImpl, 4);
 
-        AME_DECLARE_MEMBER_SCALAR(Matrix2x2, Matrix2x2Impl, 1);
         AME_DECLARE_MEMBER_SCALAR(Matrix3x3, Matrix3x3Impl, 1);
         AME_DECLARE_MEMBER_SCALAR(Matrix4x4, Matrix4x4Impl, 1);
 
@@ -107,7 +106,6 @@ namespace Ame::Gfx::Shading
         PropertyDescriptor& IntImpl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
         PropertyDescriptor& FloatImpl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
         PropertyDescriptor& BoolImpl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
-        PropertyDescriptor& Matrix2x2Impl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
         PropertyDescriptor& Matrix3x3Impl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
         PropertyDescriptor& Matrix4x4Impl(const String& propertyName, Rhi::ShaderFlags flags, uint8_t dims);
         PropertyDescriptor& StructImpl(const String& propertyName, const PropertyDescriptor& descriptor, Rhi::ShaderFlags flags);

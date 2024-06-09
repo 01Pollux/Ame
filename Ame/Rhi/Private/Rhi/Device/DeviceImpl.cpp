@@ -334,7 +334,7 @@ namespace Ame::Rhi
         auto  nriBackBufferView = backBuffer.View.Unwrap();
 
         nri::ClearDesc clears[]{
-            { .value{ .color32f{ m_ClearColor.r, m_ClearColor.g, m_ClearColor.b, m_ClearColor.a } },
+            { .value{ .color32f{ m_ClearColor.r(), m_ClearColor.g(), m_ClearColor.b(), m_ClearColor.a() } },
               .attachmentContentType = nri::AttachmentContentType::COLOR }
         };
 

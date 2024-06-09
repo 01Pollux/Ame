@@ -2,6 +2,7 @@
 
 #include <Math/Plane.hpp>
 #include <Math/Transform.hpp>
+#include <DirectXCollision.h>
 
 namespace Ame::Geometry
 {
@@ -18,12 +19,7 @@ namespace Ame::Geometry
 
     //
 
-    enum class ContainmentType : uint8_t
-    {
-        Disjoint,
-        Intersects,
-        Contains
-    };
+    using ContainmentType = Math::Util::ContainmentType;
 
     enum class PlaneIntersectionType : uint8_t
     {
