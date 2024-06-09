@@ -37,8 +37,14 @@ namespace Ame::Gfx::RG
         }
 
     private:
-        void CreateTransformObserver();
-        void CreateCameraRule();
+        void RegisterModules(
+            Ecs::World& world);
+
+    private:
+        void CreateTransformObserver(
+            Ecs::World& world);
+        void CreateCameraRule(
+            Ecs::World& world);
 
     private:
         Ref<Ecs::Universe> m_Universe;

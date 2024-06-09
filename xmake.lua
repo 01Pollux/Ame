@@ -60,6 +60,7 @@ if is_plat("windows") then
 elseif is_plat("linux") then
     add_defines("AME_PLATFORM_LINUX")
 end
+add_defines("FLECS_CPP_NO_AUTO_REGISTRATION")
 
 --
 

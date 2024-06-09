@@ -16,8 +16,10 @@ namespace Ame::Gfx::RG
                 m_WorldData = {};
                 if (changeData.NewWorld)
                 {
-                    CreateTransformObserver();
-                    CreateCameraRule();
+                    auto& newWorld = *changeData.NewWorld;
+                    RegisterModules(newWorld);
+                    CreateTransformObserver(newWorld);
+                    CreateCameraRule(newWorld);
                 }
             }
         };

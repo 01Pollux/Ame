@@ -24,6 +24,8 @@ namespace Ame::Ecs
         {
             std::lock_guard initLock(g_FlecsMutex);
             m_World = std::make_unique<flecs::world>();
+
+            m_World->component<WorldName>();
             m_World->set(WorldName{ name });
         }
         RegisterModules();

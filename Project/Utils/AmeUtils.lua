@@ -15,8 +15,8 @@ function _ame_add_headers_if_not_empty(path)
 end
 
 function ame_utils:add_library(group, kind, path)
-    set_group(group)
     set_kind(kind)
+    set_group(group)
 
     _ame_add_sources_if_not_empty(path .. "/Private")
 

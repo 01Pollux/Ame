@@ -3,10 +3,9 @@
 
 namespace Ame::Gfx::RG
 {
-    void EcsSystemHooks::CreateTransformObserver()
+    void EcsSystemHooks::CreateTransformObserver(
+        Ecs::World& world)
     {
-        auto& world = *m_Universe.get().GetActiveWorld();
-
         auto transformObserverCallback =
             [this](Ecs::Iterator& iter, const Ecs::Component::Transform* transforms)
         {

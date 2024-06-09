@@ -102,6 +102,16 @@ namespace Ame::Ecs
         void Progress(
             double deltaTime);
 
+    public:
+        /// <summary>
+        /// Register a new module in the world.
+        /// </summary>
+        template<typename Ty>
+        void ImportModule()
+        {
+            m_World->import <Ty>();
+        }
+
     private:
         /// <summary>
         /// Register all components in the world.

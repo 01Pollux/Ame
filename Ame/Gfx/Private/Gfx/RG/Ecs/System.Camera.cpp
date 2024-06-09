@@ -3,10 +3,9 @@
 
 namespace Ame::Gfx::RG
 {
-    void EcsSystemHooks::CreateCameraRule()
+    void EcsSystemHooks::CreateCameraRule(
+        Ecs::World& world)
     {
-        auto& world = *m_Universe.get().GetActiveWorld();
-
         m_WorldData.RenderRule =
             world.CreateRule<
                      const Ecs::Component::Transform,
