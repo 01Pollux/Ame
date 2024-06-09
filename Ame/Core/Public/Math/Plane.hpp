@@ -29,6 +29,11 @@ namespace Ame::Math
         void Normalize();
         void NormalizeEst();
 
+        [[nodiscard]] Vector3 GetNormal() const;
+        [[nodiscard]] float   GetDistance() const;
+
+        [[nodiscard]] std::pair<Vector3, float> GetNormalDistance();
+
         /// <summary>
         /// Get the intersection point of a line and the plane
         /// </summary>

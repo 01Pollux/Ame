@@ -31,6 +31,21 @@ namespace Ame::Math
         *this = XMPlaneNormalizeEst(*this);
     }
 
+    Vector3 Plane::GetNormal() const
+    {
+        return Vector3(*this);
+    }
+
+    float Plane::GetDistance() const
+    {
+        return w();
+    }
+
+    std::pair<Vector3, float> Plane::GetNormalDistance()
+    {
+        return { Vector3(*this), w() };
+    }
+
     Opt<Vector3> Plane::IntersectLine(const Vector3& a, const Vector3& b) const
     {
         auto point = XMPlaneIntersectLine(*this, a, b);

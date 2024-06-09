@@ -44,3 +44,4 @@ package("ame.concurrencpp")
             }
         ]]}, {configs = {languages = "c++20"}}))
     end)
+package_end()

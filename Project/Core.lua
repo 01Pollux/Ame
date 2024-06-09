@@ -1,7 +1,7 @@
+local notshared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
 target("Ame.Core")
     ame_utils:add_library("Ame", "static", "Ame/Core")
 
-    local shared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
     add_packages(
         "boost",
         "ame.mimalloc",
@@ -15,7 +15,7 @@ target("Ame.Core")
         "glm",
         "ame.concurrencpp",
         "ame.glfw",
-        shared_public_inherit)
+        notshared_public_inherit)
 target_end()
 
 --
@@ -23,11 +23,10 @@ target_end()
 target("Ame.Geometry")
     ame_utils:add_library("Ame", "static", "Ame/Geometry")
     add_deps("Ame.Core", {public = true, inherit = true})
+    add_packages("ame.octree", notshared_public_inherit)
 target_end()
 
 --
-
-local _core_deps = {"Ame.Geometry"}
 
 --
 
@@ -37,12 +36,12 @@ includes("Plugins.lua")
 
 target("Ame.Resource")
     ame_utils:add_library("Ame", "static", "Ame/Resource")
-    add_deps(_core_deps, {public = true, inherit = true})
+    add_deps("Ame.Geometry", {public = true, inherit = true})
 target_end()
 
 target("Ame.Windowing")
     ame_utils:add_library("Ame", "static", "Ame/Windowing")
-    add_deps(_core_deps, {public = true, inherit = true})
+    add_deps("Ame.Geometry", {public = true, inherit = true})
 target_end()
 
 --
@@ -78,7 +77,7 @@ target_end()
 
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Ame/Engine")
-    add_deps({ "Ame.Gfx" }, {public = true, inherit = true})
+    add_deps("Ame.Gfx", {public = true, inherit = true})
 target_end()
 
 --

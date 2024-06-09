@@ -2,23 +2,11 @@
 
 #include <Math/Plane.hpp>
 #include <Math/Transform.hpp>
+#include <Math/Ray.hpp>
 #include <DirectXCollision.h>
 
 namespace Ame::Geometry
 {
-    static constexpr Math::Vector3 c_BoxOffset[8]{
-        { -1.0f, -1.0f, 1.0f },
-        { 1.0f, -1.0f, 1.0f },
-        { 1.0f, 1.0f, 1.0f },
-        { -1.0f, 1.0f, 1.0f },
-        { -1.0f, -1.0f, -1.0f },
-        { 1.0f, -1.0f, -1.0f },
-        { 1.0f, 1.0f, -1.0f },
-        { -1.0f, 1.0f, -1.0f }
-    };
-
-    //
-
     using ContainmentType = Math::Util::ContainmentType;
 
     enum class PlaneIntersectionType : uint8_t
@@ -32,4 +20,6 @@ namespace Ame::Geometry
 
     struct AABB;
     struct Frustum;
+    struct OBB;
+    struct Sphere;
 } // namespace Ame::Geometry

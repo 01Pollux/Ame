@@ -31,3 +31,4 @@ package("ame.kangaru")
             }
         ]]}, {configs = {languages = "c++11"}}))
     end)
+package_end()
