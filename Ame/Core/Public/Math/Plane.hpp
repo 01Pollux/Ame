@@ -13,6 +13,12 @@ namespace Ame::Math
         using Vector4::Vector4;
 
         Plane(
+            const Vector4& vector) :
+            Vector4(vector)
+        {
+        }
+
+        Plane(
             const Vector3& normal,
             float          distance);
 

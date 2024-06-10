@@ -77,6 +77,12 @@ namespace Ame::Ecs
         return Entity(entity);
     }
 
+    Entity World::GetEntityFromId(
+        const Entity::Id id) const
+    {
+        return Entity(m_World->entity(id));
+    }
+
     //
 
     String World::GetUniqueEntityName(

@@ -7,14 +7,8 @@
 
 namespace Ame::Geometry
 {
-    using ContainmentType = Math::Util::ContainmentType;
-
-    enum class PlaneIntersectionType : uint8_t
-    {
-        Front,
-        Intersecting,
-        Back
-    };
+    using ContainmentType       = Math::Util::ContainmentType;
+    using PlaneIntersectionType = Math::Util::PlaneIntersectionType;
 
     //
 

@@ -128,24 +128,26 @@ namespace Ame::Geometry
     //
 
     template<typename DataTy, int DimensionCount, typename Ty = float>
-    struct OrthoTreePointT : public OrthoTreePointContainer<DataTy, DimensionCount, Ty>
+    struct OrthoTreePointT
     {
         using data_type                      = DataTy;
         static constexpr int dimension_count = DimensionCount;
         using scalar_type                    = Ty;
 
-        using Point = OrthoTreePoint<DimensionCount, Ty>;
+        using Container = OrthoTreePointContainer<DataTy, DimensionCount, Ty>;
+        using Point     = OrthoTreePoint<DimensionCount, Ty>;
     };
 
     template<typename DataTy, int DimensionCount, uint32_t SplitDepthIncrement = c_DefaultSplitDepthIncrement, typename Ty = float>
-    struct OrthoTreeBoxT : public OrthoTreeBoundingBoxContainer<DataTy, DimensionCount, SplitDepthIncrement, Ty>
+    struct OrthoTreeBoxT
     {
         using data_type                                 = DataTy;
         static constexpr int      dimension_count       = DimensionCount;
         static constexpr uint32_t split_depth_increment = SplitDepthIncrement;
         using scalar_type                               = Ty;
 
-        using Point = OrthoTreeBoundingBox<DimensionCount, SplitDepthIncrement, Ty>;
+        using Container = OrthoTreeBoundingBoxContainer<DataTy, DimensionCount, SplitDepthIncrement, Ty>;
+        using Point     = OrthoTreeBoundingBox<DimensionCount, SplitDepthIncrement, Ty>;
     };
 
     //

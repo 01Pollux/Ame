@@ -37,6 +37,12 @@ namespace Ame::Ecs
             StringView    name,
             const Entity& parent = Entity::c_Null);
 
+        /// <summary>
+        /// Get entity from its id.
+        /// </summary>
+        [[nodiscard]] Entity GetEntityFromId(
+            const Entity::Id id) const;
+
     public:
         /// <summary>
         /// Get unique entity name that is not already in use.

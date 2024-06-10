@@ -2,7 +2,7 @@
 
 #include <Math/Vector.hpp>
 
-namespace Ame::Ecs::Component
+namespace Ame::Ecs
 {
     struct VertexInput
     {

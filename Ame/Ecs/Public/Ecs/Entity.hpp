@@ -9,8 +9,10 @@ namespace Ame::Ecs
         friend class World;
 
     public:
+        using Id = flecs::entity_t;
         static const Entity c_Null;
 
+    public:
         Entity() = default;
         Entity(
             flecs::entity flecsEntity);

@@ -2,11 +2,11 @@
 
 #include <cstdint>
 #include <Rhi/Descs/Pipeline.hpp>
-#include <Ecs/Component/Renderable/VertexInput.hpp>
+#include <Ecs/VertexInput.hpp>
 
 namespace Ame::Gfx::Shading
 {
-    using Ecs_VSInput = Ecs::Component::VertexInput;
+    using Ecs_VSInput = Ecs::VertexInput;
 
     struct MaterialVertexDesc : Rhi::VertexInputDesc
     {

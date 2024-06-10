@@ -9,6 +9,8 @@
 
 #include <Log/Wrapper.hpp>
 
+#include <WorldNTree/Subsystem.hpp>
+
 namespace Ame::FlappyRocket
 {
     FlappyRocketEngine::FlappyRocketEngine()
@@ -35,6 +37,11 @@ namespace Ame::FlappyRocket
 
         InstallSubsystem<Gfx::RG::GraphRendererSubsystem>();
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
+
+        InstallSubsystem<Extensions::WorldOctTreeBoxSubsystem>();
+        auto& worldTree = GetSubsystem<Extensions::WorldOctTreeBoxSubsystem>();
+
+        auto entities = worldTree.FrustumCull({});
 
         CreateWorld();
     }

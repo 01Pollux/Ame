@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Rhi/Resource/Buffer.hpp>
-#include <Ecs/Component/Renderable/VertexInput.hpp>
+#include <Ecs/VertexInput.hpp>
 
 namespace Ame::Gfx::Shading
 {
