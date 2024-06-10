@@ -2,7 +2,7 @@
 
 #include <FreeImage/Core.hpp>
 
-namespace Ame::Plugins
+namespace Ame::Extensions
 {
     class FreeImageInstance
     {
@@ -32,4 +32,4 @@ namespace Ame::Plugins
         [[nodiscard]] static FREE_IMAGE_FORMAT FormatFromExtension(
             const String& extension);
     };
-} // namespace Ame::Plugins
+} // namespace Ame::Extensions

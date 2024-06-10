@@ -10,12 +10,12 @@
 
 namespace Ame::Asset::Gfx
 {
-    using FreeImageInstance = Plugins::FreeImageInstance;
+    using FreeImageInstance = Extensions::FreeImageInstance;
 
     TextureAsset::Handler::Handler(
         Rhi::Device&                          rhiDevice,
         Rhi::Staging::DeferredStagingManager& stagingManager,
-        Plugins::FreeImageInstance&) :
+        Extensions::FreeImageInstance&) :
         m_Device(rhiDevice),
         m_StagingManager(stagingManager)
     {

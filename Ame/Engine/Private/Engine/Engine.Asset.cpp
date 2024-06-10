@@ -28,7 +28,7 @@ namespace Ame
             assetStorage.RegisterHandler<Asset::Gfx::TextureAsset::Handler>(
                 GetSubsystem<Rhi::DeviceSubsystem>(),
                 GetSubsystem<Rhi::Staging::DeferredStagingManagerSubsystem>(),
-                GetSubsystem<Plugins::FreeImageSubsystem>());
+                GetSubsystem<Extensions::FreeImageSubsystem>());
         }
     }
 } // namespace Ame

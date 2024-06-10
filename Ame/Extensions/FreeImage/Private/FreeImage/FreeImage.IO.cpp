@@ -1,7 +1,7 @@
 #include <FreeImage/FreeImage.hpp>
 #include <fstream>
 
-namespace Ame::Plugins
+namespace Ame::Extensions
 {
     static unsigned FIReadPorc(
         void*     buffer,
@@ -77,4 +77,4 @@ namespace Ame::Plugins
             .tell_proc  = FIGetProc
         };
     }
-} // namespace Ame::Plugins
+} // namespace Ame::Extensions

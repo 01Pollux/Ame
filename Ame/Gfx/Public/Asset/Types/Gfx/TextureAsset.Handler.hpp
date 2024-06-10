@@ -5,10 +5,10 @@
 
 namespace Ame
 {
-    namespace Plugins
+    namespace Extensions
     {
         class FreeImageInstance;
-    } // namespace Plugins
+    } // namespace Extensions
     namespace Rhi
     {
         class Device;
@@ -30,7 +30,7 @@ namespace Ame::Asset::Gfx
         Handler(
             Rhi::Device&                          rhiDevice,
             Rhi::Staging::DeferredStagingManager& stagingManager,
-            Plugins::FreeImageInstance&);
+            Extensions::FreeImageInstance&);
 
     public:
         AME_STANDARD_ASSET_HANDLER_BODY;

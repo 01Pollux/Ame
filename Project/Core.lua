@@ -27,10 +27,10 @@ target("Ame.Geometry")
 target_end()
 
 --
-
---
-
-includes("Plugins.lua")
+target("Extensions.FreeImage")
+    ame_utils:add_library("Extensions", "static", "Ame/Extensions/FreeImage")
+    add_deps("Ame.Core", {public = true, inherit = true})
+target_end()
 
 --
 
@@ -52,11 +52,11 @@ target("Ame.Rhi")
         "ame.nri",
         "directxshadercompiler",
         {public = true, inherit = true})
-    add_deps({
-        "Plugins.FreeImage",
+    add_deps(
+        "Extensions.FreeImage",
         "Ame.Windowing",
-        "Ame.Resource"
-    }, {public = true, inherit = true})
+        "Ame.Resource",
+        {public = true, inherit = true})
 target_end()
 
 --
@@ -68,9 +68,19 @@ target_end()
 
 --
 
+target("Extensions.WorldNTree")
+    ame_utils:add_library("Extensions", "static", "Ame/Extensions/WorldNTree")
+    add_deps("Ame.Ecs", {public = true, inherit = true})
+target_end()
+
+--
+
 target("Ame.Gfx")
     ame_utils:add_library("Ame", "static", "Ame/Gfx")
-    add_deps("Ame.Ecs", {public = true, inherit = true})
+    add_deps(
+        "Ame.Ecs",
+        "Extensions.WorldNTree",
+        {public = true, inherit = true})
 target_end()
 
 --

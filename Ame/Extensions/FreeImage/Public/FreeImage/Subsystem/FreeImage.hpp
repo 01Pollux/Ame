@@ -4,7 +4,7 @@
 
 #include <FreeImage/FreeImage.hpp>
 
-namespace Ame::Plugins
+namespace Ame::Extensions
 {
     struct FreeImageSubsystem : SingleSubsystem<
                                     FreeImageInstance>,
@@ -13,4 +13,4 @@ namespace Ame::Plugins
     };
 
     auto service_map(const FreeImageInstance&) -> FreeImageSubsystem;
-} // namespace Ame::Plugins
+} // namespace Ame::Extensions

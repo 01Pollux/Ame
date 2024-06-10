@@ -3,7 +3,7 @@
 
 #include <FreeImage/FreeImage.hpp>
 
-namespace Ame::Plugins
+namespace Ame::Extensions
 {
     static std::mutex s_FreeImageMutex;
     static int        s_FreeImageInitInstances = 0;
@@ -75,4 +75,4 @@ namespace Ame::Plugins
         auto it = c_FreeImageExtensions.find(extension);
         return it != c_FreeImageExtensions.end() ? it->second : FREE_IMAGE_FORMAT::FIF_UNKNOWN;
     }
-} // namespace Ame::Plugins
+} // namespace Ame::Extensions
