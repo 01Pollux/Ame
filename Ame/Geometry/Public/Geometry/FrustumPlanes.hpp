@@ -22,15 +22,27 @@ namespace Ame::Geometry
 
             Count
         };
-        using PlanesContainer = std::array<Math::Plane, static_cast<size_t>(Type::Count)>;
+        static constexpr uint32_t PlanesCount = static_cast<uint32_t>(Type::Count);
+        using PlanesContainer                 = std::array<Math::Plane, PlanesCount>;
 
     public:
         PlanesContainer Planes;
 
     public:
-        FrustumPlanes() = default;
+        constexpr FrustumPlanes() = default;
         FrustumPlanes(
             const Frustum& frustum);
+
+    public:
+        [[nodiscard]] std::span<Math::Plane> GetPlanes() noexcept
+        {
+            return Planes;
+        }
+
+        [[nodiscard]] std::span<const Math::Plane> GetPlanes() const noexcept
+        {
+            return Planes;
+        }
 
     public:
         operator std::span<Math::Plane>() noexcept
@@ -44,12 +56,12 @@ namespace Ame::Geometry
         }
 
     public:
-        Math::Plane& operator[](Type type) noexcept
+        [[nodiscard]] constexpr Math::Plane& operator[](Type type) noexcept
         {
             return Planes[static_cast<size_t>(type)];
         }
 
-        const Math::Plane& operator[](Type type) const noexcept
+        [[nodiscard]] constexpr const Math::Plane& operator[](Type type) const noexcept
         {
             return Planes[static_cast<size_t>(type)];
         }

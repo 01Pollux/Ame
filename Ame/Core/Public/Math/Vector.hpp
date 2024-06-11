@@ -95,7 +95,7 @@ namespace Ame::Math
         using MVector::MVector;
         using Constants = Impl::VectorConstants<Vector3>;
 
-        Vector3(float x, float y, float z) noexcept :
+        constexpr Vector3(float x, float y, float z) noexcept :
             MVector({ x, y, z })
         {
         }
@@ -129,7 +129,7 @@ namespace Ame::Math
         using MVector::MVector;
         using Constants = Impl::VectorConstants<Vector3I>;
 
-        Vector3I(int x, int y, int z) noexcept :
+        constexpr Vector3I(int x, int y, int z) noexcept :
             MVector({ x, y, z })
         {
         }
@@ -155,7 +155,7 @@ namespace Ame::Math
         using MVector::MVector;
         using Constants = Impl::VectorConstants<Vector3U>;
 
-        Vector3U(uint32_t x, uint32_t y, uint32_t z) noexcept :
+        constexpr Vector3U(uint32_t x, uint32_t y, uint32_t z) noexcept :
             MVector({ x, y, z })
         {
         }
@@ -183,7 +183,7 @@ namespace Ame::Math
         using MVector::MVector;
         using Constants = Impl::VectorConstants<Vector4>;
 
-        Vector4(float x, float y, float z, float w) noexcept :
+        constexpr Vector4(float x, float y, float z, float w) noexcept :
             MVector({ x, y, z, w })
         {
         }
@@ -213,7 +213,7 @@ namespace Ame::Math
         using MVector::MVector;
         using Constants = Impl::VectorConstants<Vector4I>;
 
-        Vector4I(int x, int y, int z, int w) noexcept :
+        constexpr Vector4I(int x, int y, int z, int w) noexcept :
             MVector({ x, y, z, w })
         {
         }
@@ -240,7 +240,7 @@ namespace Ame::Math
         using MVector::MVector;
         using Constants = Impl::VectorConstants<Vector4U>;
 
-        Vector4U(uint32_t x, uint32_t y, uint32_t z, uint32_t w) noexcept :
+        constexpr Vector4U(uint32_t x, uint32_t y, uint32_t z, uint32_t w) noexcept :
             MVector({ x, y, z, w })
         {
         }

@@ -12,7 +12,7 @@ namespace Ame::Math
     public:
         using Vector4::Vector4;
 
-        Plane(
+        constexpr Plane(
             const Vector4& vector) :
             Vector4(vector)
         {
@@ -35,10 +35,23 @@ namespace Ame::Math
         void Normalize();
         void NormalizeEst();
 
-        [[nodiscard]] Vector3 GetNormal() const;
-        [[nodiscard]] float   GetDistance() const;
+        [[nodiscard]] constexpr Vector3 GetNormal() const noexcept
+        {
+            return Vector3(*this);
+        }
 
-        [[nodiscard]] std::pair<Vector3, float> GetNormalDistance();
+        [[nodiscard]] constexpr float GetDistance() const noexcept
+        {
+            return w();
+        }
+
+        [[nodiscard]] constexpr std::pair<Vector3, float> GetNormalDistance() const noexcept
+        {
+            return {
+                GetNormal(),
+                GetDistance()
+            };
+        }
 
         /// <summary>
         /// Get the intersection point of a line and the plane

@@ -159,7 +159,7 @@ namespace Ame::Math::Impl
             return m_Data.data();
         }
 
-        [[nodiscard]] pointer data() noexcept
+        [[nodiscard]] constexpr pointer data() noexcept
         {
             return m_Data.data();
         }
@@ -169,7 +169,7 @@ namespace Ame::Math::Impl
             return m_Data;
         }
 
-        [[nodiscard]] array_type& get() noexcept
+        [[nodiscard]] constexpr array_type& get() noexcept
         {
             return m_Data;
         }
@@ -188,12 +188,12 @@ namespace Ame::Math::Impl
 
         template<typename OtherTy>
             requires(sizeof(OtherTy) == sizeof(Ty) * size())
-        [[nodiscard]] OtherTy& To() noexcept
+        [[nodiscard]] constexpr OtherTy& To() noexcept
         {
             return *std::bit_cast<OtherTy*>(data());
         }
 
-        void UnsafeCopyFrom(const_pointer pval)
+        constexpr void UnsafeCopyFrom(const_pointer pval)
         {
             for (reference v : m_Data)
             {
@@ -202,7 +202,7 @@ namespace Ame::Math::Impl
             }
         }
 
-        void UnsafeCopyTo(pointer pval) const
+        constexpr void UnsafeCopyTo(pointer pval) const
         {
             for (const_reference v : m_Data)
             {
