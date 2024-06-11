@@ -1,6 +1,7 @@
 #include <Ecs/Module/Math.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
+#include <Ecs/Component/Math/AABB.hpp>
 
 namespace Ame::Ecs::Module
 {
@@ -10,5 +11,6 @@ namespace Ame::Ecs::Module
         flecsWorld.module<MathModule>();
 
         flecsWorld.component<Component::Transform>();
+        flecsWorld.component<Component::AABB>();
     }
 } // namespace Ame::Ecs::Module

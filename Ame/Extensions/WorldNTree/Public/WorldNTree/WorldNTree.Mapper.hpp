@@ -25,4 +25,13 @@ namespace Ame::Extensions
             return transform.GetPosition();
         }
     };
+
+    template<>
+    struct WorldNTreeMapper<Ecs::Component::AABB, Geometry::AABB>
+    {
+        [[nodiscard]] static Geometry::AABB Map(const Ecs::Entity&, const Ecs::Component::AABB& box)
+        {
+            return box.ToAABB();
+        }
+    };
 } // namespace Ame::Extensions

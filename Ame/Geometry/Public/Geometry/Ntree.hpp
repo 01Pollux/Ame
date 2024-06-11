@@ -1,9 +1,10 @@
 #pragma once
 
+#include <Math/Plane.hpp>
 #include <Geometry/Common.hpp>
 #include <Geometry/AABB.hpp>
 
-#include <octree.h>
+#include <Geometry/OrthoTree/octree.hpp>
 
 namespace OrthoTree::AmeAdapter
 {
@@ -25,22 +26,22 @@ namespace OrthoTree::AmeAdapter
             point[dimensionID] = value;
         }
 
-        static constexpr value_type Gebox_typeMinC(const box_type& box, dim_t dimensionID) noexcept
+        static constexpr value_type GetBoxMinC(const box_type& box, dim_t dimensionID) noexcept
         {
             return GetPointC(box.Min(), dimensionID);
         }
-        static constexpr value_type Gebox_typeMaxC(const box_type& box, dim_t dimensionID) noexcept
+        static constexpr value_type GetBoxMaxC(const box_type& box, dim_t dimensionID) noexcept
         {
             return GetPointC(box.Max(), dimensionID);
         }
-        static constexpr void Sebox_typeMinC(box_type& box, dim_t dimensionID, value_type value) noexcept
+        static constexpr void SetBoxMinC(box_type& box, dim_t dimensionID, value_type value) noexcept
         {
             // reconstruct the box (extents, center) from min
             auto min         = box.Min();
             min[dimensionID] = static_cast<value_type>(value);
             box              = Ame::Geometry::AABB::FromMinMax(min, box.Max());
         }
-        static constexpr void Sebox_typeMaxC(box_type& box, dim_t dimensionID, value_type value) noexcept
+        static constexpr void SetBoxMaxC(box_type& box, dim_t dimensionID, value_type value) noexcept
         {
             // reconstruct the box (extents, center) from max
             auto max         = box.Max();
@@ -48,20 +49,20 @@ namespace OrthoTree::AmeAdapter
             box              = Ame::Geometry::AABB::FromMinMax(box.Min(), max);
         }
 
-        static constexpr const vector_type& Geray_typeDirection(const ray_type& ray) noexcept
+        static constexpr const vector_type& GetRayDirection(const ray_type& ray) noexcept
         {
             return ray.Direction;
         }
-        static constexpr const vector_type& Geray_typeOrigin(const ray_type& ray) noexcept
+        static constexpr const vector_type& GetRayOrigin(const ray_type& ray) noexcept
         {
             return ray.Origin;
         }
 
-        static constexpr const vector_type& Geplane_typeNormal(const plane_type& plane) noexcept
+        static constexpr vector_type GetPlaneNormal(const plane_type& plane) noexcept
         {
             return plane.GetNormal();
         }
-        static constexpr value_type Geplane_typeOrigoDistance(const plane_type& plane) noexcept
+        static constexpr value_type GetPlaneOrigoDistance(const plane_type& plane) noexcept
         {
             return static_cast<value_type>(plane.GetDistance());
         }
@@ -70,20 +71,20 @@ namespace OrthoTree::AmeAdapter
     template<dim_t DimensionCount, typename Ty = float>
     using AmeAdaptorGeneral = AdaptorGeneralBase<
         DimensionCount,
-        AdaptorGeneralBasics<DimensionCount, Ty>::vector_type,
-        AdaptorGeneralBasics<DimensionCount, Ty>::box_type,
-        AdaptorGeneralBasics<DimensionCount, Ty>::ray_type,
-        AdaptorGeneralBasics<DimensionCount, Ty>::plane_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::vector_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::box_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::ray_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::plane_type,
         Ty,
         AdaptorGeneralBasics<DimensionCount, Ty>>;
 
     template<dim_t DimensionCount, typename Ty = float>
     using AmeOrthoTreePoint = OrthoTreePoint<
         DimensionCount,
-        AdaptorGeneralBasics<DimensionCount, Ty>::vector_type,
-        AdaptorGeneralBasics<DimensionCount, Ty>::box_type,
-        AdaptorGeneralBasics<DimensionCount, Ty>::ray_type,
-        AdaptorGeneralBasics<DimensionCount, Ty>::plane_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::vector_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::box_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::ray_type,
+        typename AdaptorGeneralBasics<DimensionCount, Ty>::plane_type,
         Ty,
         AmeAdaptorGeneral<DimensionCount, Ty>>;
 
@@ -95,10 +96,10 @@ namespace OrthoTree::AmeAdapter
     template<dim_t DimensionCount, uint32_t SplitDepthIncrement, typename Ty = float>
     using AmeOrthoTreeBoundingBox = OrthoTreeBoundingBox<
         DimensionCount,
-        AdaptorGeneralBasics<3, float>::vector_type,
-        AdaptorGeneralBasics<3, float>::box_type,
-        AdaptorGeneralBasics<3, float>::ray_type,
-        AdaptorGeneralBasics<3, float>::plane_type,
+        typename AdaptorGeneralBasics<3, float>::vector_type,
+        typename AdaptorGeneralBasics<3, float>::box_type,
+        typename AdaptorGeneralBasics<3, float>::ray_type,
+        typename AdaptorGeneralBasics<3, float>::plane_type,
         float,
         SplitDepthIncrement,
         AmeAdaptorGeneral<3, float>>;
@@ -115,13 +116,26 @@ namespace Ame::Geometry
 
     //
 
+    /// <summary>
+    /// The actual storage of the tree.
+    /// </summary>
     template<int DimensionCount, typename Ty = float>
     using OrthoTreePoint = OrthoTree::AmeAdapter::AmeOrthoTreePoint<DimensionCount, Ty>;
+    /// <summary>
+    /// The actual storage of the tree.
+    /// </summary>
     template<int DimensionCount, uint32_t SplitDepthIncrement = c_DefaultSplitDepthIncrement, typename Ty = float>
     using OrthoTreeBoundingBox = OrthoTree::AmeAdapter::AmeOrthoTreeBoundingBox<DimensionCount, SplitDepthIncrement, Ty>;
 
+    /// <summary>
+    /// Wrapper around ::Tree, manages the tree by data_type.
+    /// </summary>
     template<typename DataTy, int DimensionCount, typename Ty = float>
     using OrthoTreePointContainer = OrthoTree::AmeAdapter::AmeOrthoTreePointContainer<DataTy, DimensionCount, Ty>;
+
+    /// <summary>
+    /// Wrapper around ::Tree, manages the tree by data_type.
+    /// </summary>
     template<typename DataTy, int DimensionCount, uint32_t SplitDepthIncrement = c_DefaultSplitDepthIncrement, typename Ty = float>
     using OrthoTreeBoundingBoxContainer = OrthoTree::AmeAdapter::AmeOrthoTreeBoundingBoxContainer<DataTy, DimensionCount, SplitDepthIncrement, Ty>;
 
@@ -135,7 +149,7 @@ namespace Ame::Geometry
         using scalar_type                    = Ty;
 
         using Container = OrthoTreePointContainer<DataTy, DimensionCount, Ty>;
-        using Point     = OrthoTreePoint<DimensionCount, Ty>;
+        using Tree      = OrthoTreePoint<DimensionCount, Ty>;
     };
 
     template<typename DataTy, int DimensionCount, uint32_t SplitDepthIncrement = c_DefaultSplitDepthIncrement, typename Ty = float>
@@ -147,7 +161,7 @@ namespace Ame::Geometry
         using scalar_type                               = Ty;
 
         using Container = OrthoTreeBoundingBoxContainer<DataTy, DimensionCount, SplitDepthIncrement, Ty>;
-        using Point     = OrthoTreeBoundingBox<DimensionCount, SplitDepthIncrement, Ty>;
+        using Tree      = OrthoTreeBoundingBox<DimensionCount, SplitDepthIncrement, Ty>;
     };
 
     //

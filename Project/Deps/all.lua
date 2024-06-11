@@ -3,7 +3,6 @@ includes("nri.lua")
 includes("concurrencpp.lua")
 includes("kangaru.lua")
 includes("mimalloc.lua")
-includes("octree.lua")
 
 add_requires("boost", {system = false, debug = _debug_packages, configs = {
     vs_runtime = vs_runtime,
@@ -26,4 +25,3 @@ add_requires("ame.concurrencpp",        {system = false, debug = _debug_packages
 add_requires("ame.glfw",                {system = false, debug = _debug_packages})
 add_requires("ame.nri",                 {system = false, debug = _debug_packages})
 add_requires("directxshadercompiler",   {system = false, debug = _debug_packages})
-add_requires("ame.octree",              {system = false, debug = _debug_packages})

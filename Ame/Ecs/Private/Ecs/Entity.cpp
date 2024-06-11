@@ -9,6 +9,18 @@ namespace Ame::Ecs
     {
     }
 
+    //
+
+    auto Entity::GetId() const -> Id
+    {
+        return m_Entity.id();
+    }
+
+    const flecs::entity& Entity::GetFlecsEntity() const
+    {
+        return m_Entity;
+    }
+
     Entity::operator bool() const noexcept
     {
         return m_Entity.is_alive();
@@ -87,12 +99,5 @@ namespace Ame::Ecs
         auto SafeName = EcsUtil::GetUniqueEntityName(m_Entity.world(), m_Entity.name(), parent.GetFlecsEntity());
         m_Entity.set_name(SafeName.c_str());
         m_Entity.child_of(parent.GetFlecsEntity());
-    }
-
-    //
-
-    const flecs::entity& Entity::GetFlecsEntity() const
-    {
-        return m_Entity;
     }
 } // namespace Ame::Ecs

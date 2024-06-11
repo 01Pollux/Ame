@@ -38,11 +38,6 @@ namespace Ame::FlappyRocket
         InstallSubsystem<Gfx::RG::GraphRendererSubsystem>();
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
 
-        InstallSubsystem<Extensions::WorldOctTreeBoxSubsystem>();
-        auto& worldTree = GetSubsystem<Extensions::WorldOctTreeBoxSubsystem>();
-
-        auto entities = worldTree.FrustumCull({});
-
         CreateWorld();
     }
 
@@ -56,5 +51,20 @@ namespace Ame::FlappyRocket
     {
         m_Game->ResetWorld();
         m_Game->AddAllEntities();
+
+        auto& worldTree = GetSubsystem<Extensions::WorldOctTreeBoxSubsystem>();
+
+        std::vector<Ecs::Entity> entities;
+
+        Geometry::Frustum frustum;
+        frustum.Origin      = Math::Vector3(0.0f, 0.0f, 0.0f);
+        frustum.Orientation = Math::Quaternion::Identity;
+        frustum.Near        = 0.1f;
+        frustum.Far         = 100.0f;
+        frustum.LeftSlope   = 1.0f;
+        frustum.RightSlope  = 1.0f;
+        frustum.TopSlope    = 1.0f;
+        frustum.BottomSlope = 1.0f;
+        worldTree.FrustumCull(entities, frustum);
     }
 } // namespace Ame::FlappyRocket

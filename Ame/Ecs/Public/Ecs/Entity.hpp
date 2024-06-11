@@ -17,6 +17,17 @@ namespace Ame::Ecs
         Entity(
             flecs::entity flecsEntity);
 
+    public:
+        /// <summary>
+        /// Get the underlying flecs entity id
+        /// </summary>
+        [[nodiscard]] Id GetId() const;
+
+        /// <summary>
+        /// Get the underlying flecs entity
+        /// </summary>
+        [[nodiscard]] const flecs::entity& GetFlecsEntity() const;
+
         explicit operator bool() const noexcept;
 
     public:
@@ -95,12 +106,6 @@ namespace Ame::Ecs
         {
             return m_Entity.get<Ty>();
         }
-
-    private:
-        /// <summary>
-        /// Get the flecs entity
-        /// </summary>
-        const flecs::entity& GetFlecsEntity() const;
 
     private:
         flecs::entity m_Entity;

@@ -23,7 +23,6 @@ target_end()
 target("Ame.Geometry")
     ame_utils:add_library("Ame", "static", "Ame/Geometry")
     add_deps("Ame.Core", {public = true, inherit = true})
-    add_packages("ame.octree", notshared_public_inherit)
 target_end()
 
 --
