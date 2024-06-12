@@ -10,7 +10,6 @@ namespace Ame::Gfx::RG
         Rhi::Device&   rhiDevice,
         Ecs::Universe& universe) :
         m_Device(rhiDevice),
-        m_Universe(universe),
         m_FrameResourceBuffer(AllocateFrameResource(rhiDevice)),
         m_AABBBuffer(rhiDevice),
         m_TransformBuffer(rhiDevice),

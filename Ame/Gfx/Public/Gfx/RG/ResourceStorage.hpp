@@ -12,6 +12,18 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx::RG
 {
+    struct FrameUpdateDesc
+    {
+        CRef<Math::TransformMatrix> Transform;
+        Math::Matrix4x4             Projection;
+        Math::Vector2               Viewport;
+        Ecs::Entity                 CameraEntity;
+
+        float EngineTime;
+        float GameTime;
+        float DeltaTime;
+    };
+
     class ResourceStorage
     {
         friend class Resolver;

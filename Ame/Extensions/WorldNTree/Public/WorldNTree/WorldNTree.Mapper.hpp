@@ -1,7 +1,5 @@
 #pragma once
 
-#include <ranges>
-
 #include <Core/Coroutine.hpp>
 #include <Geometry/NTree.hpp>
 #include <Geometry/FrustumPlanes.hpp>

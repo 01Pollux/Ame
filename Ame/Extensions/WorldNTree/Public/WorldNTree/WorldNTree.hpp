@@ -77,29 +77,20 @@ namespace Ame::Extensions
         /// <summary>
         /// Runs the frustum culling algorithm on the tree.
         /// </summary>
-        template<std::ranges::range ContainerTy>
-        void FrustumCull(
-            ContainerTy&                   entities,
+        [[nodiscard]] std::vector<Ecs::Entity> FrustumCull(
             const Geometry::FrustumPlanes& frustum,
             float                          tolerance = std::numeric_limits<tree_type::scalar_type>::epsilon()) const
         {
             auto activeWorld = m_Universe.get().GetActiveWorld();
-            if (activeWorld) [[likely]]
+            if (activeWorld)
             {
                 EntityDataAccessor accessor(*activeWorld);
-
-                auto view = m_Tree.FrustumCulling(frustum.GetPlanes(), tolerance, accessor) |
-                            std::views::transform([&activeWorld](Ecs::Entity::Id id)
-                                                  { return activeWorld->GetEntityFromId(id); }) |
-                            std::views::filter([](const Ecs::Entity& entity)
-                                               { return static_cast<bool>(entity); });
-
-                auto allNodes = m_Tree.GetNodes();
-
-                std::ranges::copy(
-                    std::move(view),
-                    std::inserter(entities, entities.end()));
+                return m_Tree.FrustumCulling(frustum.GetPlanes(), tolerance, accessor) |
+                       std::views::transform([activeWorld](auto entityId)
+                                             { return activeWorld->GetEntityFromId(entityId); }) |
+                       std::ranges::to<std::vector>();
             }
+            return {};
         }
 
     private:

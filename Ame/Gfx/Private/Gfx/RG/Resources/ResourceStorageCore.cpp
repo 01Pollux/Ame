@@ -57,10 +57,10 @@ namespace Ame::Gfx::RG
             transform,
             projection,
             viewport);
-        m_CoreResources->CollectEntities();
 
         //
 
+        m_CoreResources->CollectEntities();
         if (m_CoreResources->GetEntitiesCount())
         {
             auto& renderInstanceTable    = m_Resources[Names::c_RenderInstancesTable];

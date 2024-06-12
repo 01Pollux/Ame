@@ -65,6 +65,18 @@ namespace Ame::Gfx::RG
         void CollectEntities(
             const CameraRenderRule& renderRule);
 
+        /// <summary>
+        /// Collect entities for rendering using octree frustum culling
+        /// </summary>
+        bool CollectEntitiesInOctree(
+            const CameraRenderRule& renderRule);
+
+        /// <summary>
+        /// Collect entities for rendering using octree frustum culling
+        /// </summary>
+        void CollectEntitiesInFrustum(
+            const CameraRenderRule& renderRule);
+
     private:
         /// <summary>
         /// Allocate the frame resource
@@ -74,7 +86,6 @@ namespace Ame::Gfx::RG
 
     private:
         Ref<Rhi::Device>   m_Device;
-        Ref<Ecs::Universe> m_Universe;
 
         Rhi::Buffer      m_FrameResourceBuffer;
         FrameResourceCPU m_FrameResource;

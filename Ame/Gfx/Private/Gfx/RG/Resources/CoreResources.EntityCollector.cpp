@@ -19,8 +19,24 @@ namespace Ame::Gfx::RG
     void CoreResources::CollectEntities(
         const CameraRenderRule& renderRule)
     {
-        auto world = m_Universe.get().GetActiveWorld();
+        if (!CollectEntitiesInOctree(renderRule))
+        {
+            CollectEntitiesInFrustum(renderRule);
+        }
+        m_CameraCullResult.Upload();
+    }
 
+    //
+
+    bool CoreResources::CollectEntitiesInOctree(
+        const CameraRenderRule& renderRule)
+    {
+        return false;
+    }
+
+    void CoreResources::CollectEntitiesInFrustum(
+        const CameraRenderRule& renderRule)
+    {
         auto&               cameraData = m_FrameResource.CurrentCamera.GetComponent<Ecs::Component::Camera>();
         const Math::Vector3 cameraPosition{
             m_FrameResource.World(0, 3),
@@ -53,6 +69,5 @@ namespace Ame::Gfx::RG
         };
 
         renderRule->iter(filterEntities);
-        m_CameraCullResult.Upload();
     }
 } // namespace Ame::Gfx::RG
