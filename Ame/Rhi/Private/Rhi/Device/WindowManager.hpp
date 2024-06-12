@@ -107,6 +107,8 @@ namespace Ame::Rhi
         nri::SwapChainFormat m_SwapChainFormat  = nri::SwapChainFormat::MAX_NUM;
         nri::Format          m_BackBufferFormat = nri::Format::UNKNOWN;
 
+        Signals::ScopedConnection m_OnWindowSizeChanged;
+
         std::vector<Backbuffer> m_BackBuffers;
         uint32_t                m_BackBufferIndex = 0;
 

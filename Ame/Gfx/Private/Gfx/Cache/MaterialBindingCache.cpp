@@ -17,17 +17,9 @@ namespace Ame::Gfx::Cache
         Rhi::Device& rhiDevice,
         EngineFrame& engineFrame) :
         m_Device(rhiDevice),
+        m_EndFrameHandle(engineFrame.OnUpdate({ &MaterialBindingCache::ResetFrameCache, this })),
         m_DynamicBuffer(rhiDevice, c_DynamicBufferDesc)
     {
-        m_EndFrameHandle = {
-            engineFrame.OnUpdate()
-                .ObjectSignal(),
-            [this]
-            {
-                m_DynamicBuffer.Reset();
-                m_SetCaches.clear();
-            }
-        };
     }
 
     void MaterialBindingCache::Bind(
@@ -50,6 +42,14 @@ namespace Ame::Gfx::Cache
                 setCache.DescriptorSet,
                 setCache.DynamicBufferOffset == InvalidDynamicBufferOffset ? nullptr : &setCache.DynamicBufferOffset);
         }
+    }
+
+    //
+
+    void MaterialBindingCache::ResetFrameCache()
+    {
+        m_DynamicBuffer.Reset();
+        m_SetCaches.clear();
     }
 
     //
@@ -102,9 +102,9 @@ namespace Ame::Gfx::Cache
 
             for (uint32_t i = 0; i < descriptors.size(); ++i)
             {
-                auto& range = rangeUpdateDescs.emplace_back();
+                auto& range         = rangeUpdateDescs.emplace_back();
                 range.offsetInRange = 0;
-                range.descriptors    = &descriptors[i];
+                range.descriptors   = &descriptors[i];
                 range.descriptorNum = 1;
             }
             setCache.DescriptorSet.SetRanges(0, rangeUpdateDescs);

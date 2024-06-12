@@ -179,7 +179,7 @@ namespace Ame::Log
         }
         }
 
-        StaticOnLog().Broadcast(*this, { Message, Level });
+        m_OnLog({ Message, Level });
     }
 
     void Logger::SetLevel(

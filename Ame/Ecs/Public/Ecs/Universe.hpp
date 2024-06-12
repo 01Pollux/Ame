@@ -26,12 +26,12 @@ namespace Ame::Ecs
         Universe(
             const Universe&) = delete;
         Universe(
-            Universe&& other);
+            Universe&& other) noexcept;
 
         Universe& operator=(
             const Universe&) = delete;
         Universe& operator=(
-            Universe&& other);
+            Universe&& other) = delete;
 
         ~Universe();
 
@@ -86,7 +86,7 @@ namespace Ame::Ecs
         [[nodiscard]] World* GetActiveWorld();
 
     public:
-        AME_SIGNAL_DOUBLE(OnWorldChange);
+        AME_SIGNAL_INST(OnWorldChange);
 
     private:
         /// <summary>
@@ -102,7 +102,7 @@ namespace Ame::Ecs
             World* newWorld);
 
     private:
-        Signals::OnUpdate::Handle m_OnUpdate;
+        Signals::ScopedConnection m_OnUpdate;
 
         WorldMap m_Worlds;
         World*   m_ActiveWorld = nullptr;

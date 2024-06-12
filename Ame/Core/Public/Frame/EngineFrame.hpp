@@ -14,15 +14,15 @@ namespace Ame
         void Run();
 
     public:
-        AME_SIGNAL_DOUBLE(OnStartFrame);
+        AME_SIGNAL_INST(OnStartFrame);
 
-        AME_SIGNAL_DOUBLE(OnUpdate);
-        AME_SIGNAL_DOUBLE(OnPostUpdate);
+        AME_SIGNAL_INST(OnUpdate);
+        AME_SIGNAL_INST(OnPostUpdate);
 
-        AME_SIGNAL_DOUBLE(OnRender);
-        AME_SIGNAL_DOUBLE(OnPostRender);
+        AME_SIGNAL_INST(OnRender);
+        AME_SIGNAL_INST(OnPostRender);
 
-        AME_SIGNAL_DOUBLE(OnEndFrame);
+        AME_SIGNAL_INST(OnEndFrame);
 
     public:
         /// <summary>

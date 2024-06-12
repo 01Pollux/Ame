@@ -99,7 +99,7 @@ namespace Ame::Windowing
                 auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
                 if (width && height)
                 {
-                    window->OnWindowSizeChanged().Broadcast(*window, window->m_WindowSize);
+                    window->m_OnWindowSizeChanged(window->m_WindowSize);
                 }
                 window->m_WindowSize = Math::Size2I{ width, height };
             });
@@ -109,7 +109,7 @@ namespace Ame::Windowing
             [](GLFWwindow* glfwWindow)
             {
                 auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
-                window->OnWindowClosed().Broadcast(*window);
+                window->m_OnWindowClosed();
             });
 
         if (windowDesc.CustomTitleBar)
@@ -119,9 +119,7 @@ namespace Ame::Windowing
                 [](GLFWwindow* glfwWindow, int x, int y, int* hit)
                 {
                     auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
-                    bool wasHit = false;
-                    window->OnWindowTitleHitTest().Broadcast(*window, { x, y }, wasHit);
-                    *hit = wasHit;
+                    *hit        = window->m_OnWindowTitleHitTest({ x, y }).value_or(false);
                 });
         }
 
@@ -131,7 +129,7 @@ namespace Ame::Windowing
             {
                 auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfwWindow));
                 bool wasHit = false;
-                window->OnWindowMinized().Broadcast(*window, iconified);
+                window->m_OnWindowMinized(iconified);
             });
     }
 

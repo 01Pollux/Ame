@@ -52,6 +52,12 @@ namespace Ame::Gfx::Cache
             Rhi::CommandList&        commandList,
             const Shading::Material& material);
 
+        private:
+        /// <summary>
+        /// Reset buffer and set caches
+        /// </summary>
+        void ResetFrameCache();
+
     private:
         /// <summary>
         /// Create a new descriptor set for the material
@@ -70,7 +76,7 @@ namespace Ame::Gfx::Cache
     private:
         Ref<Rhi::Device> m_Device;
 
-        Signals::OnEndFrame::Handle m_EndFrameHandle;
+        Signals::ScopedConnection m_EndFrameHandle;
 
         SetCacheMap              m_SetCaches;
         BlockBuffer              m_DynamicBuffer;

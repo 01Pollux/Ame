@@ -33,19 +33,19 @@ namespace Ame
 
     void EngineFrame::DoTick()
     {
-        OnStartFrame().Broadcast();
+        m_OnStartFrame();
 
-        if (!IsRunning())
+        if (!IsRunning()) [[unlikely]]
         {
             return;
         }
 
-        OnUpdate().Broadcast();
-        OnPostUpdate().Broadcast();
+        m_OnUpdate();
+        m_OnPostUpdate();
 
-        OnRender().Broadcast();
-        OnPostRender().Broadcast();
+        m_OnRender();
+        m_OnPostRender();
 
-        OnEndFrame().Broadcast();
+        m_OnEndFrame();
     }
 } // namespace Ame

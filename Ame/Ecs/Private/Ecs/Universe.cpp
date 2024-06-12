@@ -7,35 +7,20 @@ namespace Ame::Ecs
 {
     Universe::Universe(
         EngineFrame& engineFrame,
-        FrameTimer&  frameTimer)
+        FrameTimer&  frameTimer) :
+        m_OnUpdate(
+            engineFrame.OnUpdate(
+                [this, &frameTimer]
+                { ProgressActiveWorld(frameTimer.GetDeltaTime()); }))
     {
-        m_OnUpdate = {
-            engineFrame.OnUpdate()
-                .ObjectSignal(),
-            [this, &frameTimer]
-            { ProgressActiveWorld(frameTimer.GetDeltaTime()); }
-        };
     }
 
     Universe::Universe(
-        Universe&& other) :
+        Universe&& other) noexcept :
         m_OnUpdate(std::move(other.m_OnUpdate)),
         m_Worlds(std::move(other.m_Worlds)),
         m_ActiveWorld(std::exchange(other.m_ActiveWorld, nullptr))
     {
-    }
-
-    Universe& Universe::operator=(
-        Universe&& other)
-    {
-        if (this != &other)
-        {
-            InvokeChangeWorld(nullptr);
-            m_OnUpdate    = std::move(other.m_OnUpdate);
-            m_Worlds      = std::move(other.m_Worlds);
-            m_ActiveWorld = std::exchange(other.m_ActiveWorld, nullptr);
-        }
-        return *this;
     }
 
     Universe::~Universe()
@@ -140,7 +125,7 @@ namespace Ame::Ecs
         {
             auto OldWorld = m_ActiveWorld;
             m_ActiveWorld = newWorld;
-            OnWorldChange().Broadcast(*this, { OldWorld, newWorld });
+            m_OnWorldChange({ OldWorld, newWorld });
         }
     }
 } // namespace Ame::Ecs

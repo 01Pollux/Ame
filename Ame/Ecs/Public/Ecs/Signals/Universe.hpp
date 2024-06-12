@@ -11,7 +11,7 @@ namespace Ame::Ecs
 
 namespace Ame::Signals::Data
 {
-    struct WorldChange
+    struct WorldChangeData
     {
         /// <summary>
         /// The old world, can be null.
@@ -25,4 +25,4 @@ namespace Ame::Signals::Data
     };
 } // namespace Ame::Signals::Data
 
-AME_SIGNAL_INSTANCE_DECL(Ame::Ecs::Universe, OnWorldChange, const Data::WorldChange& /*changeData*/);
+AME_SIGNAL_DECL(OnWorldChange, void(const Data::WorldChangeData& changeData));

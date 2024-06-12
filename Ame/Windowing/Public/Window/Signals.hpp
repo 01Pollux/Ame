@@ -8,10 +8,10 @@ namespace Ame::Windowing
     class Window;
 } // namespace Ame::Windowing
 
-AME_SIGNAL_INSTANCE_DECL(Ame::Windowing::Window, OnWindowSizeChanged, const Ame::Math::Size2I& /*newSize*/);
+AME_SIGNAL_DECL(OnWindowSizeChanged, void(const Ame::Math::Size2I& newSize));
 
-AME_SIGNAL_INSTANCE_DECL(Ame::Windowing::Window, OnWindowMinized, bool /*minimized*/);
+AME_SIGNAL_DECL(OnWindowMinized, void(bool minimized));
 
-AME_SIGNAL_INSTANCE_DECL(Ame::Windowing::Window, OnWindowClosed);
+AME_SIGNAL_DECL(OnWindowClosed, void());
 
-AME_SIGNAL_INSTANCE_DECL(Ame::Windowing::Window, OnWindowTitleHitTest, const Ame::Math::Vector2I& /*mousePos*/, bool& /*wasHit*/);
+AME_SIGNAL_DECL(OnWindowTitleHitTest, bool(const Ame::Math::Vector2I& mousePos));

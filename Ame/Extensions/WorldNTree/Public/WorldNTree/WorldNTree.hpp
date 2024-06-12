@@ -64,11 +64,11 @@ namespace Ame::Extensions
             m_Universe(universe),
             m_Desc(desc),
             m_OnWorldChange(
-                universe.OnWorldChange().ObjectSignal(),
-                [this](auto& universe, auto& changeData)
-                {
-                    HookToWorld(changeData.NewWorld);
-                })
+                universe.OnWorldChange(
+                    [this](auto& changeData)
+                    {
+                        HookToWorld(changeData.NewWorld);
+                    }))
         {
             HookToWorld(m_Universe.get().GetActiveWorld());
         }
@@ -246,8 +246,8 @@ namespace Ame::Extensions
         Ref<Ecs::Universe> m_Universe;
         WorldNTreeDesc     m_Desc;
 
-        Signals::OnWorldChange::Handle m_OnWorldChange;
-        Ecs::UniqueObserver            m_TransformObserver;
+        Signals::ScopedConnection m_OnWorldChange;
+        Ecs::UniqueObserver       m_TransformObserver;
 
         tree_type::Tree m_Tree;
     };

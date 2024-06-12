@@ -6,11 +6,11 @@
 
 namespace Ame::Signals::Data
 {
-    struct Log
+    struct LogData
     {
         StringView         Message;
         Ame::Log::LogLevel Level;
     };
 } // namespace Ame::Signals::Data
 
-AME_SIGNAL_INSTANCE_DECL(const Ame::Log::Logger, OnLog, const Data::Log& /*logData*/);
+AME_SIGNAL_DECL(OnLog, void(const Data::LogData& logData));

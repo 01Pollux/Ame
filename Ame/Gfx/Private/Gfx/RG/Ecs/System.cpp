@@ -7,21 +7,20 @@ namespace Ame::Gfx::RG
         Ecs::Universe& universe,
         CoreResources& coreResources) :
         m_Universe(universe),
-        m_CoreResources(coreResources)
-    {
-        m_OnWorldChange = {
-            m_Universe.get().OnWorldChange().ObjectSignal(),
-            [this](auto& universe, auto& changeData)
-            {
-                m_WorldData = {};
-                if (changeData.NewWorld)
+        m_CoreResources(coreResources),
+        m_OnWorldChange(
+            m_Universe.get().OnWorldChange(
+                [this](auto& changeData)
                 {
-                    auto& newWorld = *changeData.NewWorld;
-                    RegisterModules(newWorld);
-                    CreateTransformObserver(newWorld);
-                    CreateCameraRule(newWorld);
-                }
-            }
-        };
+                    m_WorldData = {};
+                    if (changeData.NewWorld)
+                    {
+                        auto& newWorld = *changeData.NewWorld;
+                        RegisterModules(newWorld);
+                        CreateTransformObserver(newWorld);
+                        CreateCameraRule(newWorld);
+                    }
+                }))
+    {
     }
 } // namespace Ame::Gfx::RG

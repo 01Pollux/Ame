@@ -30,10 +30,8 @@ namespace Ame::Gfx
     {
         if (!rhiDevice.IsHeadless())
         {
-            m_OnWorldChange = {
-                universe.OnWorldChange()
-                    .ObjectSignal(),
-                [this](auto& universe, auto& changeData)
+            m_OnWorldChange = universe.OnWorldChange(
+                [this](auto& changeData)
                 {
                     m_CameraQuery.Reset();
                     if (changeData.NewWorld)
@@ -49,36 +47,12 @@ namespace Ame::Gfx
                                     })
                                 .build();
                     }
-                }
-            };
+                });
 
-            m_OnUpdate = {
-                engineFrame.OnUpdate()
-                    .ObjectSignal(),
-                [this]
-                { OnUpdate(); }
-            };
-
-            m_OnStartFrame = {
-                engineFrame.OnStartFrame()
-                    .ObjectSignal(),
-                [this]
-                { OnStartFrame(); }
-            };
-
-            m_OnRender = {
-                engineFrame.OnRender()
-                    .ObjectSignal(),
-                [this]
-                { OnRender(); }
-            };
-
-            m_OnEndFrame = {
-                engineFrame.OnEndFrame()
-                    .ObjectSignal(),
-                [this]
-                { OnEndFrame(); }
-            };
+            m_OnStartFrame = engineFrame.OnStartFrame({ &Renderer::OnStartFrame, this });
+            m_OnUpdate     = engineFrame.OnUpdate({ &Renderer::OnUpdate, this });
+            m_OnRender     = engineFrame.OnRender({ &Renderer::OnRender, this });
+            m_OnEndFrame   = engineFrame.OnEndFrame({ &Renderer::OnEndFrame, this });
         }
     }
 

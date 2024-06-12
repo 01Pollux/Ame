@@ -44,15 +44,12 @@ namespace Ame::Rhi
         m_Device(rhiDevice),
         m_Window(deviceCreateDesc.Window->Window),
         m_SwapChainFormat(ToSwapchainFormat(deviceCreateDesc.Window->Format)),
+        m_OnWindowSizeChanged(m_Window.OnWindowSizeChanged([this](const auto&)
+                                                           { m_DirtySwapChain = true; })),
         m_BackBuffers(deviceCreateDesc.Window->BackbufferCount),
         m_VSyncEnabled(deviceCreateDesc.EnableVSync)
     {
         RecreateSwapchain();
-        m_Window.OnWindowSizeChanged().Listen(
-            [this](const auto&, const auto&)
-            {
-                m_DirtySwapChain = true;
-            });
     }
 
     WindowManager::~WindowManager()

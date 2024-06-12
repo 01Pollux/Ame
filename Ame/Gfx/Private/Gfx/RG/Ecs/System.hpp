@@ -50,7 +50,7 @@ namespace Ame::Gfx::RG
         Ref<Ecs::Universe> m_Universe;
         Ref<CoreResources> m_CoreResources;
 
-        Signals::OnWorldChange::Handle m_OnWorldChange;
-        EntityDesc                     m_WorldData;
+        Signals::ScopedConnection m_OnWorldChange;
+        EntityDesc                m_WorldData;
     };
 } // namespace Ame::Gfx::RG

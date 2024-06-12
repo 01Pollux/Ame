@@ -97,12 +97,12 @@ namespace Ame::Gfx
         Ref<RG::Graph>                            m_Graph;
         Ref<Cache::CommonRenderPass>              m_CommonRenderPass;
 
-        Signals::OnWorldChange::Handle m_OnWorldChange;
+        Signals::ScopedConnection m_OnWorldChange;
 
-        Signals::OnUpdate::Handle     m_OnUpdate;
-        Signals::OnStartFrame::Handle m_OnStartFrame;
-        Signals::OnRender::Handle     m_OnRender;
-        Signals::OnEndFrame::Handle   m_OnEndFrame;
+        Signals::ScopedConnection m_OnUpdate;
+        Signals::ScopedConnection m_OnStartFrame;
+        Signals::ScopedConnection m_OnRender;
+        Signals::ScopedConnection m_OnEndFrame;
 
         CameraRenderQuery m_CameraQuery;
     };
