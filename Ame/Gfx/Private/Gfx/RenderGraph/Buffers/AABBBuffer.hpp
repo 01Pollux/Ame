@@ -14,6 +14,17 @@ namespace Ame::Gfx
     class AABBBuffer : public Rhi::Util::SlotBasedBuffer<AlignedAABB>
     {
     public:
+        struct GpuId
+        {
+            SlotType Id;
+
+            explicit GpuId(SlotType id = c_InvalidSlot) noexcept :
+                Id(id)
+            {
+            }
+        };
+
+    public:
         using SlotBasedBuffer::SlotBasedBuffer;
     };
 } // namespace Ame::Gfx

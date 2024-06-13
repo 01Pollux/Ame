@@ -3,7 +3,7 @@
 #include <limits>
 #include <cstdint>
 
-namespace Ame::RG
+namespace Ame::Gfx
 {
     struct RenderInstance
     {
@@ -18,4 +18,4 @@ namespace Ame::RG
 
         uint32_t Padding[2];
     };
-} // namespace Ame::RG
+} // namespace Ame::Gfx

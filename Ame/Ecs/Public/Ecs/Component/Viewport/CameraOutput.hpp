@@ -8,5 +8,6 @@ namespace Ame::Ecs::Component
     {
         String            SourceView;
         Ptr<Rhi::Texture> OutputTexture;
+        bool              OutputToBackbuffer = true;
     };
 } // namespace Ame::Ecs::Component

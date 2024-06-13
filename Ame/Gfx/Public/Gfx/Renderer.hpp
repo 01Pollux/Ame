@@ -1,7 +1,10 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+
 #include <Ecs/Universe.hpp>
+#include <Gfx/Compositor.hpp>
+#include <Gfx/EcsSystemDesc.hpp>
 
 #include <Core/Signals/Frame.hpp>
 
@@ -55,9 +58,16 @@ namespace Ame::Gfx
             Rhi::Staging::DeferredStagingManager& stagingManager,
             Ecs::Universe&                        universe,
             RG::Graph&                            renderGraph,
-            Cache::CommonRenderPass&              commonRenderPass);
+            Cache::CommonRenderPass&              commonRenderPass,
+            const EcsSystemDesc&                  ecsDesc = {});
 
     private:
+        /// <summary>
+        /// Called when the world changes
+        /// </summary>
+        void OnWorldChange(
+            const Signals::Data::WorldChangeData& changeData);
+
         /// <summary>
         /// Update the renderer and all its components such as the camera, the scene, lights, etc.
         /// </summary>
@@ -106,5 +116,6 @@ namespace Ame::Gfx
         Signals::ScopedConnection m_OnEndFrame;
 
         CameraRenderQuery m_CameraQuery;
+        EntityCompositor  m_EntityCompositor;
     };
 } // namespace Ame::Gfx

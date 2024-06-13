@@ -1,5 +1,6 @@
 #include <Gfx/Ecs/System.hpp>
 #include <Gfx/Ecs/Modules.hpp>
+#include <Gfx/EcsSystemDesc.hpp>
 
 namespace Ame::Gfx
 {
@@ -17,8 +18,7 @@ namespace Ame::Gfx
                     {
                         auto& newWorld = *changeData.NewWorld;
                         RegisterModules(newWorld);
-                        CreateTransformObserver(newWorld);
-                        CreateCameraRule(newWorld);
+                        CreateObservers(newWorld);
                     }
                 })),
         m_TransformBuffer(rhiDevice, desc.TransformBufferDesc),

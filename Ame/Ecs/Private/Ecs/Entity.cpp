@@ -4,7 +4,7 @@
 namespace Ame::Ecs
 {
     Entity::Entity(
-        flecs::entity flecsEntity) :
+        const flecs::entity& flecsEntity) :
         m_Entity(flecsEntity)
     {
     }
@@ -63,7 +63,7 @@ namespace Ame::Ecs
         if (!allowDisabled)
         {
             m_Entity.children(
-                [&children](flecs::entity Child)
+                [&children](const flecs::entity& Child)
                 {
                     children.emplace_back(Child);
                 });

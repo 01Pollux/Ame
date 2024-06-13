@@ -3,53 +3,33 @@
 #include <Ecs/Signals/Universe.hpp>
 #include <Ecs/Universe.hpp>
 
-#include <Ecs/Component/Math/Transform.hpp>
-#include <Ecs/Component/Renderable/BaseRenderable.hpp>
-
 #include <Gfx/RenderGraph/Buffers/TransformBuffer.hpp>
 #include <Gfx/RenderGraph/Buffers/AABBBuffer.hpp>
 
 namespace Ame::Gfx
 {
-    struct EcsSystemDesc
-    {
-        TransformBuffer::DescType TransformBufferDesc;
-        AABBBuffer::DescType      AABBBufferDesc;
-    };
-
-    using CameraRenderRule = Ecs::UniqueRule<
-        const Ecs::Component::Transform,
-        const TransformBuffer::GpuId,
-        const Ecs::Component::BaseRenderable>;
+    struct EcsSystemDesc;
 
     class EcsSystemHooks
     {
         struct EntityDesc
         {
             Ecs::UniqueObserver TransformObserver;
-            CameraRenderRule    RenderRule;
+            Ecs::UniqueObserver AABBObserver;
         };
 
     public:
         EcsSystemHooks(
             Rhi::Device&         rhiDevice,
             Ecs::Universe&       universe,
-            const EcsSystemDesc& desc = {});
-
-    public:
-        [[nodiscard]] CameraRenderRule& GetCameraRule() noexcept
-        {
-            return m_WorldData.RenderRule;
-        }
+            const EcsSystemDesc& desc);
 
     private:
         void RegisterModules(
             Ecs::World& world);
 
     private:
-        void CreateTransformObserver(
-            Ecs::World& world);
-        void CreateCameraRule(
+        void CreateObservers(
             Ecs::World& world);
 
     private:

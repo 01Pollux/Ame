@@ -15,7 +15,7 @@ namespace Ame::Ecs
     public:
         Entity() = default;
         Entity(
-            flecs::entity flecsEntity);
+            const flecs::entity& flecsEntity);
 
     public:
         /// <summary>
