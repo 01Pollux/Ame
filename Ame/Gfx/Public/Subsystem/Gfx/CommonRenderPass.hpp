@@ -2,7 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Rhi/Subsystem/Device.hpp>
+#include <Subsystem/Rhi/Device.hpp>
 
 #include <Gfx/Cache/CommonRenderPass.hpp>
 

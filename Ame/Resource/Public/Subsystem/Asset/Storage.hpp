@@ -2,7 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Core/Subsystem/Coroutine.hpp>
+#include <Subsystem/Core/Coroutine.hpp>
 
 #include <Asset/Storage.hpp>
 

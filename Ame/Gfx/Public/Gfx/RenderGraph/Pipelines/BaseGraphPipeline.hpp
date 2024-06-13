@@ -3,7 +3,7 @@
 namespace Ame::RG
 {
     class Graph;
-}
+} // namespace Ame::RG
 
 namespace Ame::Gfx
 {

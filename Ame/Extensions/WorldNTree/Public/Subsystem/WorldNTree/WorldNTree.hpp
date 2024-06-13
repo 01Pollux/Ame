@@ -2,7 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Ecs/Subsystem/Universe.hpp>
+#include <Subsystem/Ecs/Universe.hpp>
 
 #include <WorldNTree/WorldNTree.hpp>
 
@@ -11,7 +11,8 @@ namespace Ame::Extensions
     template<typename TreeTy, typename ComponentTy>
     struct WorldNTreeSubsystem : SingleSubsystem<
                                      WorldNTree<TreeTy, ComponentTy>,
-                                     Dependency<Ecs::UniverseSubsystem>>,
+                                     Dependency<
+                                         Ecs::UniverseSubsystem>>,
                                  kgr::final
     {
     };

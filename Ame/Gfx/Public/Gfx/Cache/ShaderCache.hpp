@@ -50,11 +50,11 @@ namespace Ame::Gfx::Cache
 
     public:
         ShaderCache(
-            Rhi::Device&    rhiDevice,
             Co::runtime&    coroutine,
+            Rhi::Device&    rhiDevice,
             Asset::Storage& assetStorage) :
-            m_Device(rhiDevice),
             m_Runtime(coroutine),
+            m_Device(rhiDevice),
             m_AssetStorage(assetStorage)
         {
         }
@@ -159,8 +159,8 @@ namespace Ame::Gfx::Cache
             const String& shaderHash);
 
     private:
-        Ref<Rhi::Device>    m_Device;
         Ref<Co::runtime>    m_Runtime;
+        Ref<Rhi::Device>    m_Device;
         Ref<Asset::Storage> m_AssetStorage;
 
         FileCacheMap   m_Cache;

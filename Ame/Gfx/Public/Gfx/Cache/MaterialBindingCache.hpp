@@ -40,8 +40,8 @@ namespace Ame::Gfx::Cache
 
     public:
         MaterialBindingCache(
-            Rhi::Device& rhiDevice,
-            EngineFrame& engineFrame);
+            EngineFrame& engineFrame,
+            Rhi::Device& rhiDevice);
 
     public:
         /// <summary>
@@ -52,7 +52,7 @@ namespace Ame::Gfx::Cache
             Rhi::CommandList&        commandList,
             const Shading::Material& material);
 
-        private:
+    private:
         /// <summary>
         /// Reset buffer and set caches
         /// </summary>

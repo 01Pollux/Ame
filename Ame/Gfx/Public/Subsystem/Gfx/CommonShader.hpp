@@ -2,8 +2,8 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Core/Subsystem/Coroutine.hpp>
-#include <Asset/Subsystem/Storage.hpp>
+#include <Subsystem/Core/Coroutine.hpp>
+#include <Subsystem/Asset/Storage.hpp>
 
 #include <Gfx/Cache/CommonShader.hpp>
 

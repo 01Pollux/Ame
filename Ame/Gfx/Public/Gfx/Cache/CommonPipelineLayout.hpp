@@ -22,10 +22,10 @@ namespace Ame::Gfx::Cache
 
     public:
         CommonPipelineLayout(
-            Rhi::Device& rhiDevice,
-            Co::runtime& coroutine) :
-            m_Device(rhiDevice),
-            m_Runtime(coroutine)
+            Co::runtime& coroutine,
+            Rhi::Device& rhiDevice) :
+            m_Runtime(coroutine),
+            m_Device(rhiDevice)
         {
         }
 
@@ -46,8 +46,8 @@ namespace Ame::Gfx::Cache
             Type          type);
 
     private:
-        Ref<Rhi::Device> m_Device;
         Ref<Co::runtime> m_Runtime;
+        Ref<Rhi::Device> m_Device;
 
         CacheList      m_Caches;
         Co::async_lock m_Mutex;

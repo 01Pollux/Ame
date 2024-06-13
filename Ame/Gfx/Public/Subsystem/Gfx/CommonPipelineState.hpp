@@ -2,10 +2,10 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Rhi/Subsystem/Device.hpp>
-#include <Core/Subsystem/Coroutine.hpp>
-#include <Gfx/Subsystem/CommonPipelineLayout.hpp>
-#include <Gfx/Subsystem/CommonShader.hpp>
+#include <Subsystem/Rhi/Device.hpp>
+#include <Subsystem/Core/Coroutine.hpp>
+#include <Subsystem/Gfx/CommonPipelineLayout.hpp>
+#include <Subsystem/Gfx/CommonShader.hpp>
 
 #include <Gfx/Cache/CommonPipelineState.hpp>
 
@@ -14,8 +14,8 @@ namespace Ame::Gfx::Cache
     struct CommonPipelineStateSubsystem : SingleSubsystem<
                                               CommonPipelineState,
                                               Dependency<
-                                                  Rhi::DeviceSubsystem,
                                                   CoroutineSubsystem,
+                                                  Rhi::DeviceSubsystem,
                                                   CommonPipelineLayoutSubsystem,
                                                   CommonShaderSubsystem>>,
                                           kgr::final

@@ -2,7 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Frame/Subsystem/Timer.hpp>
+#include <Subsystem/Core/Timer.hpp>
 
 #include <Frame/EngineFrame.hpp>
 
@@ -10,7 +10,8 @@ namespace Ame
 {
     struct EngineFrameSubsystem : SingleSubsystem<
                                       EngineFrame,
-                                      Dependency<FrameTimerSubsystem>>,
+                                      Dependency<
+                                          FrameTimerSubsystem>>,
                                   kgr::final
     {
     };

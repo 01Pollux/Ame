@@ -44,12 +44,12 @@ namespace Ame::Gfx::Cache
 
     public:
         CommonPipelineState(
-            Rhi::Device&          rhiDevice,
             Co::runtime&          coroutine,
+            Rhi::Device&          rhiDevice,
             CommonPipelineLayout& commonLayouts,
             CommonShader&         commonShaders) :
-            m_Device(rhiDevice),
             m_Runtime(coroutine),
+            m_Device(rhiDevice),
             m_CommonLayouts(commonLayouts),
             m_CommonShaders(commonShaders)
         {
@@ -93,8 +93,8 @@ namespace Ame::Gfx::Cache
             Type                            type);
 
     private:
-        Ref<Rhi::Device> m_Device;
         Ref<Co::runtime> m_Runtime;
+        Ref<Rhi::Device> m_Device;
 
         Ref<CommonPipelineLayout> m_CommonLayouts;
         Ref<CommonShader>         m_CommonShaders;

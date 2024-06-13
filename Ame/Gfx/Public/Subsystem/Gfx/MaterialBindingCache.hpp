@@ -2,8 +2,8 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Frame/Subsystem/Frame.hpp>
-#include <Rhi/Subsystem/Device.hpp>
+#include <Subsystem/Core/Frame.hpp>
+#include <Subsystem/Rhi/Device.hpp>
 
 #include <Gfx/Cache/MaterialBindingCache.hpp>
 
@@ -12,8 +12,8 @@ namespace Ame::Gfx::Cache
     struct MaterialBindingCacheSubsystem : SingleSubsystem<
                                                MaterialBindingCache,
                                                Dependency<
-                                                   Rhi::DeviceSubsystem,
-                                                   EngineFrameSubsystem>>,
+                                                   EngineFrameSubsystem,
+                                                   Rhi::DeviceSubsystem>>,
                                            kgr::final
     {
     };

@@ -2,10 +2,10 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Rhi/Subsystem/Device.hpp>
-#include <Ecs/Subsystem/Universe.hpp>
-#include <Gfx/Subsystem/ShaderCache.hpp>
-#include <Asset/Subsystem/Storage.hpp>
+#include <Subsystem/Rhi/Device.hpp>
+#include <Subsystem/Ecs/Universe.hpp>
+#include <Subsystem/Gfx/ShaderCache.hpp>
+#include <Subsystem/Asset/Storage.hpp>
 
 #include <FlappyRocket/Game.hpp>
 

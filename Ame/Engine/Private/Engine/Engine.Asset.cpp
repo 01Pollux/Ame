@@ -1,10 +1,10 @@
 #include <Engine/Engine.hpp>
 
-#include <Asset/Subsystem/Storage.hpp>
-#include <Gfx/Subsystem/Renderer.hpp>
-#include <Gfx/Subsystem/ShaderCache.hpp>
+#include <Subsystem/Asset/Storage.hpp>
+#include <Subsystem/Gfx/Renderer.hpp>
+#include <Subsystem/Gfx/ShaderCache.hpp>
 
-#include <FreeImage/Subsystem/FreeImage.hpp>
+#include <Subsystem/FreeImage/FreeImage.hpp>
 
 #include <Asset/Types/Common/TextFile.Handler.hpp>
 #include <Asset/Types/Common/BinaryBuffer.Handle.hpp>

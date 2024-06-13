@@ -1,15 +1,15 @@
 #include <FlappyRocket/Engine.hpp>
 
-#include <Rhi/Subsystem/Device.hpp>
-#include <Asset/Subsystem/Storage.hpp>
-#include <Gfx/Subsystem/Pipelines/DeferredPlusPipeline.hpp>
-#include <FlappyRocket/Subsystem/Game.hpp>
+#include <Subsystem/Rhi/Device.hpp>
+#include <Subsystem/Asset/Storage.hpp>
+#include <Subsystem/Gfx/Pipelines/DeferredPlusPipeline.hpp>
+#include <Subsystem/FlappyRocket/Game.hpp>
 
 #include <Asset/Packs/Directory.hpp>
 
 #include <Log/Wrapper.hpp>
 
-#include <WorldNTree/Subsystem.hpp>
+#include <Subsystem/WorldNTree/WorldNTree.hpp>
 
 namespace Ame::FlappyRocket
 {
@@ -35,7 +35,7 @@ namespace Ame::FlappyRocket
         auto& assetStorage = GetSubsystem<Asset::StorageSubsystem>();
         assetStorage.Mount<Asset::DirectoryAssetPackage>("Shared/Assets");
 
-        InstallSubsystem<Gfx::RG::GraphRendererSubsystem>();
+        InstallSubsystem<Gfx::GraphRendererSubsystem>();
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
 
         CreateWorld();

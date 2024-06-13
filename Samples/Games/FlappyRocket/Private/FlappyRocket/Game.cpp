@@ -13,7 +13,7 @@
 #include <Asset/Types/Gfx/TextureAsset.hpp>
 #include <Asset/Storage.hpp>
 
-#include <RG/Passes/GBufferPass.hpp>
+#include <Gfx/RenderGraph/Passes/GBufferPass.hpp>
 #include <FlappyRocket/Game.Shader.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -134,6 +134,6 @@ namespace Ame::FlappyRocket
             Math::Vector3::Constants::Backward * 5.f);
 
         camera.AddComponent<Ecs::Component::CameraOutput>(
-            Gfx::RG::Std::GBufferPass::c_BaseColor_Roughness);
+            Gfx::GBufferPass::c_BaseColor_Roughness);
     }
 } // namespace Ame::FlappyRocket

@@ -14,8 +14,8 @@ namespace Ame::Gfx::Cache
     //
 
     MaterialBindingCache::MaterialBindingCache(
-        Rhi::Device& rhiDevice,
-        EngineFrame& engineFrame) :
+        EngineFrame& engineFrame,
+        Rhi::Device& rhiDevice) :
         m_Device(rhiDevice),
         m_EndFrameHandle(engineFrame.OnUpdate({ &MaterialBindingCache::ResetFrameCache, this })),
         m_DynamicBuffer(rhiDevice, c_DynamicBufferDesc)

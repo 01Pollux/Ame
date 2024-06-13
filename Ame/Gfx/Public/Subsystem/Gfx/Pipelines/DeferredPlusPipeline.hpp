@@ -2,23 +2,23 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Ecs/Subsystem/Universe.hpp>
-#include <Gfx/Subsystem/CommonPipelineState.hpp>
-#include <Gfx/Subsystem/CommonShader.hpp>
-#include <Gfx/Subsystem/MaterialBindingCache.hpp>
-#include <Gfx/Subsystem/Pipelines/BaseGraphPipeline.hpp>
+#include <Subsystem/Ecs/Universe.hpp>
+#include <Subsystem/Gfx/CommonPipelineState.hpp>
+#include <Subsystem/Gfx/CommonShader.hpp>
+#include <Subsystem/Gfx/MaterialBindingCache.hpp>
+#include <Subsystem/Gfx/Pipelines/BaseGraphPipeline.hpp>
 
-#include <RG/Pipelines/DeferredPlusPipeline.hpp>
+#include <Gfx/RenderGraph/Pipelines/DeferredPlusPipeline.hpp>
 
-namespace Ame::Gfx::RG
+namespace Ame::Gfx
 {
     struct DeferredPlusPipelineSubsystem : SingleSubsystem<
                                                DeferredPlusPipeline,
                                                Dependency<
                                                    RG::GraphSubsystem,
                                                    Ecs::UniverseSubsystem,
-                                                   Cache::CommonPipelineStateSubsystem,
                                                    Cache::CommonShaderSubsystem,
+                                                   Cache::CommonPipelineStateSubsystem,
                                                    Cache::MaterialBindingCacheSubsystem>>,
                                            kgr::overrides<GraphRendererSubsystem>,
                                            kgr::final
@@ -26,4 +26,4 @@ namespace Ame::Gfx::RG
     };
 
     auto service_map(const DeferredPlusPipeline&) -> DeferredPlusPipelineSubsystem;
-} // namespace Ame::Gfx::RG
+} // namespace Ame::Gfx

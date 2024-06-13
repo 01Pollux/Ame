@@ -1,9 +1,10 @@
 #pragma once
 
 #include <Framework/Framework.hpp>
-#include <Rhi/Subsystem/Device.hpp>
 #include <Rhi/Device/CreateDesc.hpp>
-#include <Gfx/Subsystem/Renderer.hpp>
+
+#include <Subsystem/Rhi/Device.hpp>
+#include <Subsystem/Gfx/Renderer.hpp>
 
 namespace Ame::Framework
 {

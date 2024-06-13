@@ -2,11 +2,11 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Gfx/Subsystem/Graph.hpp>
+#include <Subsystem/RG/RenderGraph.hpp>
 
-#include <RG/Pipelines/BaseGraphPipeline.hpp>
+#include <Gfx/RenderGraph/Pipelines/BaseGraphPipeline.hpp>
 
-namespace Ame::Gfx::RG
+namespace Ame::Gfx
 {
     class DeferredPlusPipelineSubsystem;
 
@@ -14,4 +14,4 @@ namespace Ame::Gfx::RG
                                     kgr::defaults_to<DeferredPlusPipelineSubsystem>
     {
     };
-} // namespace Ame::Gfx::RG
+} // namespace Ame::Gfx

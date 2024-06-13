@@ -2,8 +2,8 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Frame/Subsystem/Timer.hpp>
-#include <Frame/Subsystem/Frame.hpp>
+#include <Subsystem/Core/Frame.hpp>
+#include <Subsystem/Core/Timer.hpp>
 
 #include <Ecs/Universe.hpp>
 
@@ -11,8 +11,9 @@ namespace Ame::Ecs
 {
     struct UniverseSubsystem : SingleSubsystem<
                                    Universe,
-                                   Dependency<EngineFrameSubsystem,
-                                              FrameTimerSubsystem>>,
+                                   Dependency<
+                                       EngineFrameSubsystem,
+                                       FrameTimerSubsystem>>,
                                kgr::final
     {
     };
