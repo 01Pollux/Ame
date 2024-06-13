@@ -43,6 +43,7 @@ namespace Ame::Rhi::Util
     class BlockBasedBuffer
     {
     public:
+        using DescType                             = BlockBasedBufferDesc;
         static constexpr uint32_t c_InvalidValue   = std::numeric_limits<uint32_t>::max();
         static constexpr uint64_t c_InvalidValue64 = std::numeric_limits<uint64_t>::max();
 

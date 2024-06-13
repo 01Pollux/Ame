@@ -3,7 +3,7 @@
 #include <Frame/EngineFrame.hpp>
 #include <Rhi/Device/Device.hpp>
 #include <Rhi/Staging/DeferredStagingManager.hpp>
-#include <Gfx/RG/Graph.hpp>
+#include <RG/Graph.hpp>
 #include <Gfx/Cache/CommonRenderPass.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>

@@ -13,7 +13,7 @@
 #include <Asset/Types/Gfx/TextureAsset.hpp>
 #include <Asset/Storage.hpp>
 
-#include <Gfx/RG/Passes/GBufferPass.hpp>
+#include <RG/Passes/GBufferPass.hpp>
 #include <FlappyRocket/Game.Shader.hpp>
 
 #include <Log/Wrapper.hpp>

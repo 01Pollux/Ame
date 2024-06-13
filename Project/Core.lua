@@ -74,10 +74,17 @@ target_end()
 
 --
 
+target("Ame.RenderGraph")
+    ame_utils:add_library("Ame", "static", "Ame/RenderGraph")
+    add_deps("Ame.Ecs", {public = true, inherit = true})
+target_end()
+
+--
+
 target("Ame.Gfx")
     ame_utils:add_library("Ame", "static", "Ame/Gfx")
     add_deps(
-        "Ame.Ecs",
+        "Ame.RenderGraph",
         "Extensions.WorldNTree",
         {public = true, inherit = true})
 target_end()

@@ -4,7 +4,7 @@
 
 #include <Gfx/Subsystem/Graph.hpp>
 
-#include <Gfx/RG/Pipelines/BaseGraphPipeline.hpp>
+#include <RG/Pipelines/BaseGraphPipeline.hpp>
 
 namespace Ame::Gfx::RG
 {

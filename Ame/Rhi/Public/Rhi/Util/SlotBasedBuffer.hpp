@@ -49,6 +49,7 @@ namespace Ame::Rhi::Util
     class SlotBasedBuffer
     {
     public:
+        using DescType                              = SlotBasedBufferDesc;
         using SlotType                              = uint32_t;
         using DataType                              = Ty;
         static constexpr uint32_t c_SizePerInstance = sizeof(DataType);

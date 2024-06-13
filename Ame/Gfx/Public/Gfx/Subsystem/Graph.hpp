@@ -6,7 +6,7 @@
 #include <Rhi/Subsystem/Device.hpp>
 #include <Ecs/Subsystem/Universe.hpp>
 
-#include <Gfx/RG/Graph.hpp>
+#include <RG/Graph.hpp>
 
 namespace Ame::Gfx::RG
 {

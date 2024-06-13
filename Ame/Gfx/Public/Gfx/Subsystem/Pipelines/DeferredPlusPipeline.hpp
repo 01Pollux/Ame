@@ -8,7 +8,7 @@
 #include <Gfx/Subsystem/MaterialBindingCache.hpp>
 #include <Gfx/Subsystem/Pipelines/BaseGraphPipeline.hpp>
 
-#include <Gfx/RG/Pipelines/DeferredPlusPipeline.hpp>
+#include <RG/Pipelines/DeferredPlusPipeline.hpp>
 
 namespace Ame::Gfx::RG
 {

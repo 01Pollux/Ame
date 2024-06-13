@@ -25,16 +25,17 @@ namespace Ame
         struct Camera;
     } // namespace Ecs::Component
 
+    namespace RG
+    {
+        class Graph;
+    } // namespace RG
+
     namespace Gfx
     {
         namespace Cache
         {
             class CommonRenderPass;
         } // namespace Cache
-        namespace RG
-        {
-            class Graph;
-        } // namespace RG
     }     // namespace Gfx
 } // namespace Ame
 
