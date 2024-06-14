@@ -13,8 +13,10 @@ namespace Ame::Gfx
         Rhi::Device&                 rhiDevice,
         Ecs::Universe&               universe,
         RG::Graph&                   renderGraph,
+        Extensions::WorldOctTreeBox& worldOctTreeBox,
         const EcsWorldResourcesDesc& ecsDesc) :
         m_Graph(renderGraph),
+        m_WorldOctTreeBox(worldOctTreeBox),
         m_EcsResources(std::make_unique<EcsWorldResources>(rhiDevice, universe, ecsDesc))
     {
     }
@@ -40,7 +42,7 @@ namespace Ame::Gfx
             cameraComponent.GetProjectionMatrix(),
             cameraComponent.GetViewporSize());
 
-        auto renderables = GetRenderables(cameraEntity);
+        auto renderables = GetRenderables(cameraComponent);
 
         Signals::Data::DrawCompositorData drawData{
             .Compositor      = DrawCompositorSubmitter(m_DrawCompositor),
@@ -74,10 +76,27 @@ namespace Ame::Gfx
 
     //
 
-    std::vector<Ecs::Entity> EntityCompositor::GetRenderables(
-        const Ecs::Entity& cameraEntity) const
+    std::vector<EntityDrawInfo> EntityCompositor::GetRenderables(
+        const Ecs::Component::Camera& cameraComponent) const
     {
-        return std::vector<Ecs::Entity>();
+        Geometry::FrustumPlanes frustumPlanes(Geometry::Frustum(cameraComponent.GetProjectionMatrix()));
+
+        auto transformToDrawInfo = [&cameraComponent](const Ecs::Entity& entity) -> EntityDrawInfo
+        {
+            auto renderable        = entity.TryGetComponent<Ecs::Component::BaseRenderable>();
+            bool isValidRenderable = renderable && ((renderable->CameraMask & cameraComponent.ViewMask) != 0);
+            return isValidRenderable ? EntityDrawInfo{ entity, renderable, entity.TryGetComponent<Ecs::Component::Transform>() } : EntityDrawInfo{};
+        };
+
+        auto filterDrawInfo = [](const EntityDrawInfo& drawInfo)
+        {
+            return drawInfo.Renderable != nullptr;
+        };
+
+        return m_WorldOctTreeBox.get().FrustumCull(frustumPlanes) |
+               std::views::transform(transformToDrawInfo) |
+               std::views::filter(filterDrawInfo) |
+               std::ranges::to<std::vector>();
     }
 
     void EntityCompositor::FetchAndSortDrawData(

@@ -86,7 +86,7 @@ namespace Ame::Ecs::Component
         /// <summary>
         /// The culling mask of the camera.
         /// </summary>
-        uint32_t CullMask = 0xFFFFFFFF;
+        uint32_t ViewMask = 0xFFFFFFFF;
 
         /// <summary>
         /// The render order of the camera.

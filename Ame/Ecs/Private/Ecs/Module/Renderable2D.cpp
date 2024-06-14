@@ -16,21 +16,8 @@ namespace Ame::Ecs::Module
             .on_set(
                 [](Ecs::Entity entity, Component::Sprite& sprite)
                 {
-                    auto& renderable = entity.GetComponentMut<Component::BaseRenderable>();
-
-                    renderable.Vertex = Component::BaseRenderable::BufferView::Local(
-                        std::bit_cast<const std::byte*>(sprite.Vertices.data()),
-                        sprite.Vertices.size(),
-                        sizeof(sprite.Vertices[0]));
-
-                    renderable.Index = Component::BaseRenderable::BufferView::Local(
-                        std::bit_cast<const std::byte*>(sprite.Indices.data()),
-                        sprite.Indices.size(),
-                        sizeof(sprite.Indices[0]));
-
-                    renderable.Material   = sprite.Material;
+                    auto& renderable      = entity.GetComponentMut<Component::BaseRenderable>();
                     renderable.CameraMask = sprite.CameraMask;
-
                     entity.MarkModified<Component::BaseRenderable>();
                 });
     }

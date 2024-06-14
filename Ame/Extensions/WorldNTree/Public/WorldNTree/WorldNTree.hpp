@@ -76,21 +76,18 @@ namespace Ame::Extensions
     public:
         /// <summary>
         /// Runs the frustum culling algorithm on the tree.
+        /// Must be called when the active world exists.
         /// </summary>
-        [[nodiscard]] std::vector<Ecs::Entity> FrustumCull(
+        [[nodiscard]] auto FrustumCull(
             const Geometry::FrustumPlanes& frustum,
             float                          tolerance = std::numeric_limits<tree_type::scalar_type>::epsilon()) const
         {
-            auto activeWorld = m_Universe.get().GetActiveWorld();
-            if (activeWorld)
-            {
-                EntityDataAccessor accessor(*activeWorld);
-                return m_Tree.FrustumCulling(frustum.GetPlanes(), tolerance, accessor) |
-                       std::views::transform([activeWorld](auto entityId)
-                                             { return activeWorld->GetEntityFromId(entityId); }) |
-                       std::ranges::to<std::vector>();
-            }
-            return {};
+            auto&              activeWorld = *m_Universe.get().GetActiveWorld();
+            EntityDataAccessor accessor(activeWorld);
+
+            return m_Tree.FrustumCulling(frustum.GetPlanes(), tolerance, accessor) |
+                   std::views::transform([&activeWorld](auto entityId)
+                                         { return activeWorld.GetEntityFromId(entityId); });
         }
 
     private:

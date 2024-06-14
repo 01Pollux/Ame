@@ -3,9 +3,7 @@
 #include <Core/Ame.hpp>
 #include <Object/Signal.hpp>
 
-#include <Ecs/Entity.hpp>
-#include <Ecs/Component/Math/Transform.hpp>
-
+#include <Gfx/Compositor/EntityDrawInfo.hpp>
 #include <Gfx/Compositor/DrawCompositorSubmitter.hpp>
 
 namespace Ame::Ecs::Component
@@ -24,7 +22,7 @@ namespace Ame::Signals::Data
         CRef<Ecs::Component::Camera>    CameraComponent;
         CRef<Ecs::Component::Transform> CameraTransform;
 
-        std::span<Ecs::Entity> Entities;
+        std::span<Gfx::EntityDrawInfo> Entities;
     };
 } // namespace Ame::Signals::Data
 

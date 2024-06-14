@@ -5,6 +5,7 @@
 #include <Subsystem/Rhi/Device.hpp>
 #include <Subsystem/Ecs/Universe.hpp>
 #include <Subsystem/RG/RenderGraph.hpp>
+#include <Subsystem/WorldNTree/WorldNTree.hpp>
 
 #include <Gfx/Compositor/EntityCompositor.hpp>
 
@@ -15,7 +16,8 @@ namespace Ame::Gfx
                                            Dependency<
                                                Rhi::DeviceSubsystem,
                                                Ecs::UniverseSubsystem,
-                                               RG::GraphSubsystem>>,
+                                               RG::GraphSubsystem,
+                                               Extensions::WorldOctTreeBoxSubsystem>>,
                                        kgr::final
     {
     };

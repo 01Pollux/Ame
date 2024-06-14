@@ -122,8 +122,12 @@ namespace Ame::FlappyRocket
 
                 Ecs::Component::Transform transform;
                 transform.SetPosition({ x, y, 0.f });
-
                 player.AddComponent(std::move(transform));
+
+                Ecs::Component::AABB aabb;
+                aabb.Min = Math::Vector3(-0.5f, -0.5f, 0.f);
+                aabb.Max = Math::Vector3(0.5f, 0.5f, 0.f);
+                player.AddComponent(std::move(aabb));
             }
         }
 

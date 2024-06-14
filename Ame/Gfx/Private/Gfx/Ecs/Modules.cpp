@@ -1,5 +1,6 @@
 #include <Gfx/Ecs/Modules.hpp>
 #include <Gfx/RenderGraph/Buffers/TransformBuffer.hpp>
+#include <Gfx/RenderGraph/Buffers/AABBBuffer.hpp>
 
 namespace Ame::Gfx
 {
@@ -8,6 +9,7 @@ namespace Ame::Gfx
     {
         flecsWorld.module<RGModule>();
 
-        flecsWorld.component<TransformBuffer::GpuId>();
+        flecsWorld.component<TransformBuffer::GpuId>("TransformBuffer.GpuId");
+        flecsWorld.component<AABBBuffer::GpuId>("AABBBuffer.GpuId");
     }
 } // namespace Ame::Gfx
