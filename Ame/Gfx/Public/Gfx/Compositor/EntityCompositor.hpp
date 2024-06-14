@@ -3,7 +3,7 @@
 #include <Core/Ame.hpp>
 #include <Gfx/Compositor/Signals.hpp>
 #include <Gfx/Compositor/DrawCompositor.hpp>
-#include <Gfx/Compositor/EcsSystemDesc.hpp>
+#include <Gfx/Compositor/EcsWorldResourcesDesc.hpp>
 
 namespace Ame::RG
 {
@@ -30,16 +30,16 @@ namespace Ame
 
 namespace Ame::Gfx
 {
-    class EcsSystemHooks;
+    class EcsWorldResources;
 
     class EntityCompositor
     {
     public:
         EntityCompositor(
-            Rhi::Device&         rhiDevice,
-            Ecs::Universe&       universe,
-            RG::Graph&           renderGraph,
-            const EcsSystemDesc& ecsDesc = {});
+            Rhi::Device&                 rhiDevice,
+            Ecs::Universe&               universe,
+            RG::Graph&                   renderGraph,
+            const EcsWorldResourcesDesc& ecsDesc = {});
 
         EntityCompositor(const EntityCompositor&) = delete;
         EntityCompositor(EntityCompositor&&)      = default;
@@ -65,6 +65,12 @@ namespace Ame::Gfx
 
     private:
         /// <summary>
+        /// Flushes and uploads resources to the render graph.
+        /// </summary>
+        void FlushAndUploadResourcesToGraph();
+
+    private:
+        /// <summary>
         /// Returns the renderable entities.
         /// </summary>
         [[nodiscard]] std::vector<Ecs::Entity> GetRenderables(
@@ -87,7 +93,7 @@ namespace Ame::Gfx
     private:
         Ref<RG::Graph> m_Graph;
 
-        UPtr<EcsSystemHooks> m_SystemHooks;
-        DrawCompositor       m_DrawCompositor;
+        UPtr<EcsWorldResources> m_EcsResources;
+        DrawCompositor          m_DrawCompositor;
     };
 } // namespace Ame::Gfx

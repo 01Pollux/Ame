@@ -54,15 +54,16 @@ namespace Ame::RG
     void ResourceHandle::Import(
         Rhi::Texture texture)
     {
-        if (texture)
+        if (auto oldTexture = AsTexture(); oldTexture)
         {
-            m_Desc     = texture.GetDesc();
-            m_Resource = std::move(texture);
+            if (oldTexture->Unwrap() == texture.Unwrap())
+            {
+                return;
+            }
         }
-        else
-        {
-            m_Resource = std::monostate();
-        }
+
+        m_Desc     = texture.GetDesc();
+        m_Resource = std::move(texture);
 
         m_ImportViewsChanged = true;
         m_IsImported         = true;
@@ -75,15 +76,16 @@ namespace Ame::RG
     void ResourceHandle::Import(
         Rhi::Buffer buffer)
     {
-        if (buffer)
+        if (auto oldBuffer = AsBuffer(); oldBuffer)
         {
-            m_Desc     = buffer.GetDesc();
-            m_Resource = std::move(buffer);
+            if (oldBuffer->Unwrap() == buffer.Unwrap())
+            {
+                return;
+            }
         }
-        else
-        {
-            m_Resource = std::monostate();
-        }
+
+        m_Desc     = buffer.GetDesc();
+        m_Resource = std::move(buffer);
 
         m_ImportViewsChanged = true;
         m_IsImported         = true;

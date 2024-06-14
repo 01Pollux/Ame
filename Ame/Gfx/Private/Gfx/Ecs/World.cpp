@@ -1,13 +1,13 @@
-#include <Gfx/Ecs/System.hpp>
+#include <Gfx/Ecs/World.hpp>
 #include <Gfx/Ecs/Modules.hpp>
-#include <Gfx/Compositor/EcsSystemDesc.hpp>
+#include <Gfx/Compositor/EcsWorldResourcesDesc.hpp>
 
 namespace Ame::Gfx
 {
-    EcsSystemHooks::EcsSystemHooks(
-        Rhi::Device&         rhiDevice,
-        Ecs::Universe&       universe,
-        const EcsSystemDesc& desc) :
+    EcsWorldResources::EcsWorldResources(
+        Rhi::Device&                 rhiDevice,
+        Ecs::Universe&               universe,
+        const EcsWorldResourcesDesc& desc) :
         m_Universe(universe),
         m_OnWorldChange(
             m_Universe.get().OnWorldChange(
@@ -26,7 +26,7 @@ namespace Ame::Gfx
     {
     }
 
-    void EcsSystemHooks::RegisterModules(
+    void EcsWorldResources::RegisterModules(
         Ecs::World& world)
     {
         world.ImportModule<RGModule>();

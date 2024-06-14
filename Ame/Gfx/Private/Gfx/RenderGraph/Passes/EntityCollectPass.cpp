@@ -6,6 +6,8 @@
 #include <Rhi/Device/Device.hpp>
 #include <Gfx/Constants.hpp>
 
+#include <Gfx/RenderGraph/Resources/Names.hpp>
+
 namespace Ame::Gfx
 {
     namespace CD = Constants::DescriptorRanges;
@@ -110,15 +112,15 @@ namespace Ame::Gfx
 
                     commandList->SetPipelineState(pipelineState);
 
-                    //auto entityStore = storage.GetEntityStore();
-                    //for (auto& row : entityStore.GetCountedRows())
+                    // auto entityStore = storage.GetEntityStore();
+                    // for (auto& row : entityStore.GetCountedRows())
                     //{
-                    //    DispatchConstants DispatchConstants{
-                    //        .DrawOffset    = row.DrawOffset,
-                    //        .DrawCount     = row->Count,
-                    //        .CounterOffset = row.CounterOffset
-                    //    };
-                    //    commandList->SetConstants(0, DispatchConstants);
+                    //     DispatchConstants DispatchConstants{
+                    //         .DrawOffset    = row.DrawOffset,
+                    //         .DrawCount     = row->Count,
+                    //         .CounterOffset = row.CounterOffset
+                    //     };
+                    //     commandList->SetConstants(0, DispatchConstants);
 
                     //    // commandList->ClearBuffer(
                     //    //     { .storageBuffer            = counterView.Unwrap(),

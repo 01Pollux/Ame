@@ -8,9 +8,9 @@
 
 namespace Ame::Gfx
 {
-    struct EcsSystemDesc;
+    struct EcsWorldResourcesDesc;
 
-    class EcsSystemHooks
+    class EcsWorldResources
     {
         struct EntityDesc
         {
@@ -19,10 +19,27 @@ namespace Ame::Gfx
         };
 
     public:
-        EcsSystemHooks(
-            Rhi::Device&         rhiDevice,
-            Ecs::Universe&       universe,
-            const EcsSystemDesc& desc);
+        EcsWorldResources(
+            Rhi::Device&                 rhiDevice,
+            Ecs::Universe&               universe,
+            const EcsWorldResourcesDesc& desc);
+
+    public:
+        /// <summary>
+        /// Returns the transform buffer.
+        /// </summary>
+        [[nodiscard]] TransformBuffer& GetTransformBuffer()
+        {
+            return m_TransformBuffer;
+        }
+
+        /// <summary>
+        /// Returns the AABB buffer.
+        /// </summary>
+        [[nodiscard]] AABBBuffer& GetAABBBuffer()
+        {
+            return m_AABBBuffer;
+        }
 
     private:
         void RegisterModules(

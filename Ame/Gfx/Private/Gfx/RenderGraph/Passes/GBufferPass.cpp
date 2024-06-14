@@ -6,6 +6,8 @@
 #include <Gfx/Constants.hpp>
 #include <Gfx/Shading/Material.hpp>
 
+#include <Gfx/RenderGraph/Resources/Names.hpp>
+
 namespace Ame::Gfx
 {
     using namespace EnumBitOperators;

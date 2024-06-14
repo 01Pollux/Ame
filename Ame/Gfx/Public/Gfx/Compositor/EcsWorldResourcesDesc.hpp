@@ -4,7 +4,7 @@
 
 namespace Ame::Gfx
 {
-    struct EcsSystemDesc
+    struct EcsWorldResourcesDesc
     {
         Rhi::Util::SlotBasedBufferDesc TransformBufferDesc;
         Rhi::Util::SlotBasedBufferDesc AABBBufferDesc;

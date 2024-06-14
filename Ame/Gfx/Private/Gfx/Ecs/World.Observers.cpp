@@ -1,4 +1,4 @@
-#include <Gfx/Ecs/System.hpp>
+#include <Gfx/Ecs/World.hpp>
 
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Math/AABB.hpp>
@@ -6,7 +6,7 @@
 
 namespace Ame::Gfx
 {
-    void EcsSystemHooks::CreateObservers(
+    void EcsWorldResources::CreateObservers(
         Ecs::World& world)
     {
         auto transformCallback =

@@ -1,19 +1,21 @@
 #include <Gfx/Compositor/EntityCompositor.hpp>
-#include <Gfx/Ecs/System.hpp>
+#include <Gfx/Ecs/World.hpp>
 
 #include <RG/Graph.hpp>
+#include <Gfx/RenderGraph/Resources/Names.hpp>
+
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
 
 namespace Ame::Gfx
 {
     EntityCompositor::EntityCompositor(
-        Rhi::Device&         rhiDevice,
-        Ecs::Universe&       universe,
-        RG::Graph&           renderGraph,
-        const EcsSystemDesc& ecsDesc) :
+        Rhi::Device&                 rhiDevice,
+        Ecs::Universe&               universe,
+        RG::Graph&                   renderGraph,
+        const EcsWorldResourcesDesc& ecsDesc) :
         m_Graph(renderGraph),
-        m_SystemHooks(std::make_unique<EcsSystemHooks>(rhiDevice, universe, ecsDesc))
+        m_EcsResources(std::make_unique<EcsWorldResources>(rhiDevice, universe, ecsDesc))
     {
     }
 
@@ -23,6 +25,7 @@ namespace Ame::Gfx
 
     void EntityCompositor::UpdateGraph()
     {
+        FlushAndUploadResourcesToGraph();
         m_Graph.get().Update();
     }
 
@@ -49,6 +52,24 @@ namespace Ame::Gfx
 
         FetchAndSortDrawData(drawData);
         ExecuteAndClearGraph();
+    }
+
+    //
+
+    void EntityCompositor::FlushAndUploadResourcesToGraph()
+    {
+        auto& transformBuffer = m_EcsResources->GetTransformBuffer();
+        auto& aabbBuffer      = m_EcsResources->GetAABBBuffer();
+
+        transformBuffer.Flush();
+        aabbBuffer.Flush();
+
+        //
+
+        auto& resourceStorage = m_Graph.get().GetResourceStorage();
+
+        resourceStorage.ImportBuffer(RG::Names::c_TransformsTable, transformBuffer.GetBuffer().Borrow());
+        resourceStorage.ImportBuffer(RG::Names::c_AABBTable, aabbBuffer.GetBuffer().Borrow());
     }
 
     //
