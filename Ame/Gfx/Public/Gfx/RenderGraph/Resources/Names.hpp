@@ -6,13 +6,4 @@ namespace Ame::RG::Names
 {
     static inline const ResourceId c_TransformsTable("_TransformsTable");
     static inline const ResourceId c_AABBTable("_AABBTable");
-
-    //
-
-    static inline const ResourceId c_RenderInstancesTable("_RenderInstancesTable");
-
-    //
-
-    static inline const ResourceId c_EntityCommandCounter("_EntityCommandCounter");
-    static inline const ResourceId c_EntityCommandBuffer("_EntityCommandBuffer");
 } // namespace Ame::RG::Names

@@ -1,6 +1,7 @@
 #include <RG/ResourceStorage.hpp>
 #include <RG/Resources/CoreResources.hpp>
 #include <RG/Resources/Names.hpp>
+#include <Rhi/Device/Device.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -21,6 +22,11 @@ namespace Ame::RG
     Rhi::Device& ResourceStorage::GetDevice() const
     {
         return m_Device.get();
+    }
+
+    const Rhi::TextureDesc& ResourceStorage::GetBackbufferDesc() const
+    {
+        return GetDevice().GetBackBufferDesc();
     }
 
     //

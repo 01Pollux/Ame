@@ -18,10 +18,10 @@ namespace Ame
 
 namespace Ame::Gfx
 {
-    class DeferredPlusPipeline final : public IBaseGraphPipeline
+    class ForwardPlusPipeline final : public IBaseGraphPipeline
     {
     public:
-        DeferredPlusPipeline(
+        ForwardPlusPipeline(
             RG::Graph&                   renderGraph,
             Ecs::Universe&               universe,
             Cache::CommonShader&         commonShaders,

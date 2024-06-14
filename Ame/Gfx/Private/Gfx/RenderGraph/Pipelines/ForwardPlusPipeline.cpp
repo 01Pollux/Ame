@@ -1,12 +1,11 @@
 #include <RG/Graph.hpp>
-#include <Gfx/RenderGraph/Pipelines/DeferredPlusPipeline.hpp>
+#include <Gfx/RenderGraph/Pipelines/ForwardPlusPipeline.hpp>
 
-#include <Gfx/RenderGraph/Passes/EntityCollectPass.hpp>
-#include <Gfx/RenderGraph/Passes/GBufferPass.hpp>
+#include <Gfx/RenderGraph/Passes/ForwardOpaquePass.hpp>
 
 namespace Ame::Gfx
 {
-    DeferredPlusPipeline::DeferredPlusPipeline(
+    ForwardPlusPipeline::ForwardPlusPipeline(
         RG::Graph&                   renderGraph,
         Ecs::Universe&               universe,
         Cache::CommonShader&         commonShaders,
@@ -16,12 +15,8 @@ namespace Ame::Gfx
         auto& passStorage = renderGraph.GetPassStorage();
 
         passStorage.Clear();
-        passStorage.NewPass<EntityCollectPass>(
-            "EntityCollectPass",
-            universe,
-            commonPipelines);
-        passStorage.NewPass<GBufferPass>(
-            "GBufferPass",
+        passStorage.NewPass<ForwardOpaquePass>(
+            "ForwardOpaquePass",
             commonShaders,
             materialCache);
     }

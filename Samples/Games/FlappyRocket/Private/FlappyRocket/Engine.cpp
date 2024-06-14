@@ -2,7 +2,7 @@
 
 #include <Subsystem/Rhi/Device.hpp>
 #include <Subsystem/Asset/Storage.hpp>
-#include <Subsystem/Gfx/Pipelines/DeferredPlusPipeline.hpp>
+#include <Subsystem/Gfx/Pipelines/ForwardPlusPipeline.hpp>
 #include <Subsystem/FlappyRocket/Game.hpp>
 
 #include <Asset/Packs/Directory.hpp>

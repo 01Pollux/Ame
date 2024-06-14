@@ -1,12 +1,10 @@
 #include <ranges>
 
 #include <Rhi/Resource/VertexView.hpp>
-#include <Gfx/RenderGraph/Passes/GBufferPass.hpp>
+#include <Gfx/RenderGraph/Passes/ForwardOpaquePass.hpp>
 
 #include <Gfx/Constants.hpp>
 #include <Gfx/Shading/Material.hpp>
-
-#include <Gfx/RenderGraph/Resources/Names.hpp>
 
 namespace Ame::Gfx
 {
@@ -15,7 +13,7 @@ namespace Ame::Gfx
 
     //
 
-    GBufferPass::GBufferPass(
+    ForwardOpaquePass::ForwardOpaquePass(
         Cache::CommonShader&         commonShaders,
         Cache::MaterialBindingCache& materialCache) :
         m_CommonShaders(commonShaders),
@@ -23,7 +21,7 @@ namespace Ame::Gfx
     {
         m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS);
 
-        Name("GBufferPass")
+        Name("ForwardOpaquePass")
             .SetFlags(RG::PassFlags::Graphics)
             .Build(
                 [this](RG::Resolver& resolver)
@@ -32,41 +30,26 @@ namespace Ame::Gfx
                     auto  textureDesc     = resolver.GetBackbufferDesc();
                     textureDesc.usageMask = {};
 
-                    for (auto [id, format] : std::views::zip(c_RenderTargetIds, c_RenderTargetFormats))
-                    {
-                        textureDesc.format = format;
-                        resolver.CreateTexture(id, textureDesc);
-                        resolver.WriteRenderTarget(id("Main"), Rhi::StageBits::DRAW, format);
-                    }
+                    resolver.CreateTexture(Output::c_OutputImage, textureDesc);
+                    resolver.WriteRenderTarget(Output::c_OutputImage("Main"), Rhi::StageBits::DRAW, textureDesc.format);
 
-                    textureDesc.format = c_DepthTargetFormat;
-                    resolver.CreateTexture(c_DepthTargetId, textureDesc);
-                    resolver.WriteDepthStencil(c_DepthTargetId("Main"), Rhi::StageBits::DRAW, c_DepthTargetFormat);
-
-                    ////
+                    //
 
                     resolver.ReadBuffer(
                         RG::Names::c_TransformsTable("GBufferPass"),
                         Rhi::StageBits::GRAPHICS_SHADERS);
                     resolver.ReadBuffer(
-                        RG::Names::c_RenderInstancesTable("GBufferPass"),
+                        RG::Names::c_AABBTable("GBufferPass"),
                         Rhi::StageBits::GRAPHICS_SHADERS);
-
-                    resolver.ReadIndirectBuffer(
-                        RG::Names::c_EntityCommandCounter("GBufferPass"));
-                    resolver.ReadIndirectBuffer(
-                        RG::Names::c_EntityCommandBuffer("GBufferPass"));
                 })
             .Execute(
                 [this](const RG::ResourceStorage& storage, Rhi::CommandList* commandList)
                 {
-                    auto& frameData = storage.GetFrameResourceData();
+                    auto& frameData      = storage.GetFrameResourceData();
+                    auto& backbufferDesc = storage.GetBackbufferDesc();
 
-                    auto& transformsTable      = storage.GetResourceViewHandle(RG::Names::c_TransformsTable("GBufferPass"));
-                    auto& renderInstancesTable = storage.GetResourceViewHandle(RG::Names::c_RenderInstancesTable("GBufferPass"));
-
-                    auto& commandsBuffer = *storage.GetResource(RG::Names::c_EntityCommandBuffer);
-                    auto& counterBuffer  = *storage.GetResource(RG::Names::c_EntityCommandCounter);
+                    auto& transformsTable = storage.GetResourceViewHandle(RG::Names::c_TransformsTable("GBufferPass"));
+                    auto& aabbTable       = storage.GetResourceViewHandle(RG::Names::c_AABBTable("GBufferPass"));
 
                     //
 
@@ -76,7 +59,7 @@ namespace Ame::Gfx
 
                     nri::Descriptor* entityDescriptors[]{
                         transformsTable.Unwrap(),
-                        renderInstancesTable.Unwrap()
+                        aabbTable.Unwrap()
                     };
 
                     //
@@ -86,9 +69,15 @@ namespace Ame::Gfx
                     gBufferShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS).get().Borrow());
                     gBufferShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
 
+                    //
+
+                    std::array renderTargets{
+                        backbufferDesc.format
+                    };
+
                     Shading::MaterialRenderState RenderState{
-                        c_RenderTargetFormats,
-                        c_DepthTargetFormat,
+                        renderTargets,
+                        Rhi::ResourceFormat::UNKNOWN,
                         std::move(gBufferShaders)
                     };
 

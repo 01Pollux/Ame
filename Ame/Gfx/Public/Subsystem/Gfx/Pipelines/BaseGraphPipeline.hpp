@@ -8,10 +8,10 @@
 
 namespace Ame::Gfx
 {
-    class DeferredPlusPipelineSubsystem;
+    class ForwardPlusPipelineSubsystem;
 
     struct GraphRendererSubsystem : AbstractSubsystem<IBaseGraphPipeline>,
-                                    kgr::defaults_to<DeferredPlusPipelineSubsystem>
+                                    kgr::defaults_to<ForwardPlusPipelineSubsystem>
     {
     };
 } // namespace Ame::Gfx

@@ -8,12 +8,12 @@
 #include <Subsystem/Gfx/MaterialBindingCache.hpp>
 #include <Subsystem/Gfx/Pipelines/BaseGraphPipeline.hpp>
 
-#include <Gfx/RenderGraph/Pipelines/DeferredPlusPipeline.hpp>
+#include <Gfx/RenderGraph/Pipelines/ForwardPlusPipeline.hpp>
 
 namespace Ame::Gfx
 {
-    struct DeferredPlusPipelineSubsystem : SingleSubsystem<
-                                               DeferredPlusPipeline,
+    struct ForwardPlusPipelineSubsystem : SingleSubsystem<
+                                              ForwardPlusPipeline,
                                                Dependency<
                                                    RG::GraphSubsystem,
                                                    Ecs::UniverseSubsystem,
@@ -25,5 +25,5 @@ namespace Ame::Gfx
     {
     };
 
-    auto service_map(const DeferredPlusPipeline&) -> DeferredPlusPipelineSubsystem;
+    auto service_map(const ForwardPlusPipeline&) -> ForwardPlusPipelineSubsystem;
 } // namespace Ame::Gfx

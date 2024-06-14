@@ -44,6 +44,11 @@ namespace Ame::RG
         /// </summary>
         [[nodiscard]] Rhi::Device& GetDevice() const;
 
+        /// <summary>
+        /// Get backbuffer texture desc
+        /// </summary>
+        [[nodiscard]] const Rhi::TextureDesc& GetBackbufferDesc() const;
+
     public:
         /// <summary>
         /// Check to see if resource of id exists
