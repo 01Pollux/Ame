@@ -70,7 +70,7 @@ namespace Ame::Gfx
             for (auto i : iter)
             {
                 Ecs::Entity entity(iter.entity(i));
-                m_EntityCompositor.DispatchCamera(m_Graph.get(), entity, cameras[i], transforms[i]);
+                m_EntityCompositor.get().RenderGraph(entity, cameras[i], transforms[i]);
                 tryOutputToTexture(entity);
             }
         };

@@ -4,7 +4,6 @@
 
 #include <Ecs/Universe.hpp>
 #include <Gfx/Compositor.hpp>
-#include <Gfx/EcsSystemDesc.hpp>
 
 #include <Core/Signals/Frame.hpp>
 
@@ -58,8 +57,8 @@ namespace Ame::Gfx
             Rhi::Staging::DeferredStagingManager& stagingManager,
             Ecs::Universe&                        universe,
             RG::Graph&                            renderGraph,
-            Cache::CommonRenderPass&              commonRenderPass,
-            const EcsSystemDesc&                  ecsDesc = {});
+            EntityCompositor&                     entityCompositor,
+            Cache::CommonRenderPass&              commonRenderPass);
 
     private:
         /// <summary>
@@ -106,6 +105,7 @@ namespace Ame::Gfx
         Ref<Ecs::Universe>                        m_Universe;
         Ref<Rhi::Staging::DeferredStagingManager> m_StagingManager;
         Ref<RG::Graph>                            m_Graph;
+        Ref<EntityCompositor>                     m_EntityCompositor;
         Ref<Cache::CommonRenderPass>              m_CommonRenderPass;
 
         Signals::ScopedConnection m_OnWorldChange;
@@ -116,6 +116,5 @@ namespace Ame::Gfx
         Signals::ScopedConnection m_OnEndFrame;
 
         CameraRenderQuery m_CameraQuery;
-        EntityCompositor  m_EntityCompositor;
     };
 } // namespace Ame::Gfx

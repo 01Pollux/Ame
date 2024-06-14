@@ -1,6 +1,6 @@
 #include <Gfx/Ecs/System.hpp>
 #include <Gfx/Ecs/Modules.hpp>
-#include <Gfx/EcsSystemDesc.hpp>
+#include <Gfx/Compositor/EcsSystemDesc.hpp>
 
 namespace Ame::Gfx
 {

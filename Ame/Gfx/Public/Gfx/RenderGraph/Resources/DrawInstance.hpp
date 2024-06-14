@@ -33,6 +33,14 @@ namespace Ame::Gfx
         Rhi::IndexType IndexType;
     };
 
+    enum class DrawInstanceType : uint8_t
+    {
+        Opaque,      // Opaque entities are rendered first with no blending
+        Transparent, // Transparent entities are rendered second with blending
+        Overlay,     // Overlay entities are rendered last with no depth testing
+        Count
+    };
+
     struct DrawInstanceOrder
     {
         /// <summary>

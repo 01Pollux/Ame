@@ -3,18 +3,28 @@
 namespace Ame::Gfx
 {
     void DrawCompositor::Submit(
-        const DrawInstanceOrder& instanceOrder)
+        const DrawInstanceOrder& instanceOrder,
+        DrawInstanceType         type)
     {
-        m_Instances.emplace_back(instanceOrder);
+        size_t index = static_cast<size_t>(type);
+        m_Instances[index].emplace_back(instanceOrder);
     }
+
+    //
 
     void DrawCompositor::Sort()
     {
-        std::ranges::sort(m_Instances, std::less<>{});
+        for (auto& instanceList : m_Instances)
+        {
+            std::ranges::sort(instanceList, std::less<>{});
+        }
     }
 
     void DrawCompositor::Clear()
     {
-        m_Instances.clear();
+        for (auto& instanceList : m_Instances)
+        {
+            instanceList.clear();
+        }
     }
 } // namespace Ame::Gfx

@@ -10,7 +10,9 @@ namespace Ame::Gfx
     EntityCompositor::EntityCompositor(
         Rhi::Device&         rhiDevice,
         Ecs::Universe&       universe,
+        RG::Graph&           renderGraph,
         const EcsSystemDesc& ecsDesc) :
+        m_Graph(renderGraph),
         m_SystemHooks(std::make_unique<EcsSystemHooks>(rhiDevice, universe, ecsDesc))
     {
     }
@@ -19,13 +21,17 @@ namespace Ame::Gfx
 
     //
 
-    void EntityCompositor::DispatchCamera(
-        RG::Graph&                       renderGraph,
+    void EntityCompositor::UpdateGraph()
+    {
+        m_Graph.get().Update();
+    }
+
+    void EntityCompositor::RenderGraph(
         const Ecs::Entity&               cameraEntity,
         const Ecs::Component::Camera&    cameraComponent,
         const Ecs::Component::Transform& cameraTransform)
     {
-        renderGraph.UpdateFrameStorage(
+        m_Graph.get().UpdateFrameStorage(
             cameraEntity,
             cameraTransform,
             cameraComponent.GetProjectionMatrix(),
@@ -41,9 +47,11 @@ namespace Ame::Gfx
             .Entities        = renderables
         };
 
-        FetchAndSort(drawData);
-        ExecuteAndClear(renderGraph);
+        FetchAndSortDrawData(drawData);
+        ExecuteAndClearGraph();
     }
+
+    //
 
     std::vector<Ecs::Entity> EntityCompositor::GetRenderables(
         const Ecs::Entity& cameraEntity) const
@@ -51,17 +59,16 @@ namespace Ame::Gfx
         return std::vector<Ecs::Entity>();
     }
 
-    void EntityCompositor::FetchAndSort(
+    void EntityCompositor::FetchAndSortDrawData(
         Signals::Data::DrawCompositorData& drawData)
     {
         m_OnRenderCompose(drawData);
         m_DrawCompositor.Sort();
     }
 
-    void EntityCompositor::ExecuteAndClear(
-        RG::Graph& renderGraph)
+    void EntityCompositor::ExecuteAndClearGraph()
     {
-        renderGraph.Execute();
+        m_Graph.get().Execute();
         m_DrawCompositor.Clear();
     }
 } // namespace Ame::Gfx

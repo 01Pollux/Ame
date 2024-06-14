@@ -8,6 +8,7 @@
 #include <Subsystem/Rhi/DeferredStagingStorage.hpp>
 #include <Subsystem/Ecs/Universe.hpp>
 #include <Subsystem/RG/RenderGraph.hpp>
+#include <Subsystem/Gfx/EntityCompositor.hpp>
 #include <Subsystem/Gfx/CommonRenderPass.hpp>
 
 #include <Gfx/Renderer.hpp>
@@ -23,6 +24,7 @@ namespace Ame::Gfx
                                        Rhi::Staging::DeferredStagingManagerSubsystem,
                                        Ecs::UniverseSubsystem,
                                        RG::GraphSubsystem,
+                                       EntityCompositorSubsystem,
                                        Cache::CommonRenderPassSubsystem>>,
                                kgr::final
     {

@@ -3,6 +3,7 @@
 #include <Core/Ame.hpp>
 #include <Gfx/Compositor/Signals.hpp>
 #include <Gfx/Compositor/DrawCompositor.hpp>
+#include <Gfx/Compositor/EcsSystemDesc.hpp>
 
 namespace Ame::RG
 {
@@ -30,7 +31,6 @@ namespace Ame
 namespace Ame::Gfx
 {
     class EcsSystemHooks;
-    struct EcsSystemDesc;
 
     class EntityCompositor
     {
@@ -38,7 +38,8 @@ namespace Ame::Gfx
         EntityCompositor(
             Rhi::Device&         rhiDevice,
             Ecs::Universe&       universe,
-            const EcsSystemDesc& ecsDesc);
+            RG::Graph&           renderGraph,
+            const EcsSystemDesc& ecsDesc = {});
 
         EntityCompositor(const EntityCompositor&) = delete;
         EntityCompositor(EntityCompositor&&)      = default;
@@ -50,10 +51,14 @@ namespace Ame::Gfx
 
     public:
         /// <summary>
+        /// Updates the render graph and upload transform and per entities data.
+        /// </summary>
+        void UpdateGraph();
+
+        /// <summary>
         /// Dispatches the camera to the render graph.
         /// </summary>
-        void DispatchCamera(
-            RG::Graph&                       renderGraph,
+        void RenderGraph(
             const Ecs::Entity&               cameraEntity,
             const Ecs::Component::Camera&    cameraComponent,
             const Ecs::Component::Transform& cameraTransform);
@@ -68,19 +73,20 @@ namespace Ame::Gfx
         /// <summary>
         /// Fetches entities and sorts them.
         /// </summary>
-        void FetchAndSort(
+        void FetchAndSortDrawData(
             Signals::Data::DrawCompositorData& drawData);
 
         /// <summary>
         /// Executes the render graph and clears the compositor.
         /// </summary>
-        void ExecuteAndClear(
-            RG::Graph& renderGraph);
+        void ExecuteAndClearGraph();
 
     public:
         AME_SIGNAL_INST(OnRenderCompose);
 
     private:
+        Ref<RG::Graph> m_Graph;
+
         UPtr<EcsSystemHooks> m_SystemHooks;
         DrawCompositor       m_DrawCompositor;
     };

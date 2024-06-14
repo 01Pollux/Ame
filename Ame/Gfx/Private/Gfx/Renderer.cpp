@@ -13,16 +13,16 @@ namespace Ame::Gfx
         Rhi::Staging::DeferredStagingManager& stagingManager,
         Ecs::Universe&                        universe,
         RG::Graph&                            renderGraph,
-        Cache::CommonRenderPass&              commonRenderPass,
-        const EcsSystemDesc&                  ecsDesc) :
+        EntityCompositor&                     entityCompositor,
+        Cache::CommonRenderPass&              commonRenderPass) :
         m_Frame(engineFrame),
         m_Timer(frameTimer),
         m_Device(rhiDevice),
         m_Universe(universe),
         m_StagingManager(stagingManager),
         m_Graph(renderGraph),
-        m_CommonRenderPass(commonRenderPass),
-        m_EntityCompositor(rhiDevice, universe, ecsDesc)
+        m_EntityCompositor(entityCompositor),
+        m_CommonRenderPass(commonRenderPass)
     {
         if (!rhiDevice.IsHeadless())
         {

@@ -31,7 +31,7 @@ namespace Ame::Gfx
 
     void Renderer::OnUpdate()
     {
-        m_Graph.get().Update();
+        m_EntityCompositor.get().UpdateGraph();
     }
 
     void Renderer::OnStartFrame()

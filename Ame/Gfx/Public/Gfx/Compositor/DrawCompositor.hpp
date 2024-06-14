@@ -6,13 +6,17 @@ namespace Ame::Gfx
 {
     class DrawCompositor
     {
+        using DrawInstanceList  = std::vector<DrawInstanceOrder>;
+        using DrawInstanceLists = std::array<DrawInstanceList, static_cast<size_t>(DrawInstanceType::Count)>;
+
     public:
         /// <summary>
         /// Submit a render instance to the compositor.
         /// </summary>
         /// <param name="instanceOrder"></param>
         void Submit(
-            const DrawInstanceOrder& instanceOrder);
+            const DrawInstanceOrder& instanceOrder,
+            DrawInstanceType         type);
 
         /// <summary>
         /// Sort the render instances.
@@ -25,6 +29,6 @@ namespace Ame::Gfx
         void Clear();
 
     private:
-        std::vector<DrawInstanceOrder> m_Instances;
+        DrawInstanceLists m_Instances;
     };
 } // namespace Ame::Gfx

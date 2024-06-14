@@ -10,8 +10,9 @@ namespace Ame::Gfx
     }
 
     void DrawCompositorSubmitter::Submit(
-        const DrawInstanceOrder& instanceOrder)
+        const DrawInstanceOrder& instanceOrder,
+        DrawInstanceType         type)
     {
-        m_Compositor.get().Submit(instanceOrder);
+        m_Compositor.get().Submit(instanceOrder, type);
     }
 } // namespace Ame::Gfx

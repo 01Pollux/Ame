@@ -16,7 +16,8 @@ namespace Ame::Gfx
         /// Submit a render instance to the compositor.
         /// </summary>
         void Submit(
-            const DrawInstanceOrder& instanceOrder);
+            const DrawInstanceOrder& instanceOrder,
+            DrawInstanceType         type);
 
     private:
         Ref<DrawCompositor> m_Compositor;
