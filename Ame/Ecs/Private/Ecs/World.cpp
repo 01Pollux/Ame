@@ -26,10 +26,7 @@ namespace Ame::Ecs
             m_World = std::make_unique<flecs::world>();
 
             m_World->component<WorldName>();
-            m_World->component<ThisWorld>();
-
-            m_World->set(WorldName{ name });
-            m_World->set(ThisWorld{ this });
+            m_World->emplace<WorldName>(name);
         }
         RegisterModules();
     }
@@ -102,14 +99,14 @@ namespace Ame::Ecs
 
     //
 
-    Entity AsyncWorld::CreateEntity(
+    Entity WorldRef::CreateEntity(
         StringView    name,
         const Entity& parent)
     {
         return CreateEntityFromWorld(m_World, name, parent);
     }
 
-    Entity AsyncWorld::GetEntityFromId(
+    Entity WorldRef::GetEntityFromId(
         const Entity::Id id) const
     {
         return Entity(m_World.entity(id));
@@ -126,8 +123,8 @@ namespace Ame::Ecs
 
     //
 
-    String AsyncWorld::GetUniqueEntityName(
-        const char* name,
+    String WorldRef::GetUniqueEntityName(
+        const char*   name,
         const Entity& parent) const
     {
         return EcsUtil::GetUniqueEntityName(m_World, name, parent.GetFlecsEntity());

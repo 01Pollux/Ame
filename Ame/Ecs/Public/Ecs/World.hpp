@@ -13,13 +13,6 @@ namespace Ame::Ecs
     class World
     {
     public:
-        // Workaround to get this world from flecs world.
-        struct ThisWorld
-        {
-            World* Self;
-        };
-
-    public:
         World(
             const String& name);
         World(
@@ -111,12 +104,12 @@ namespace Ame::Ecs
         }
 
     public:
-        [[nodiscard]] flecs::world& Get() noexcept
+        [[nodiscard]] auto operator->() const noexcept
         {
-            return *m_World;
+            return m_World.get();
         }
 
-        [[nodiscard]] const flecs::world& Get() const noexcept
+        [[nodiscard]] auto& operator*()
         {
             return *m_World;
         }
@@ -155,51 +148,14 @@ namespace Ame::Ecs
     public:
         WorldRef(
             World& world) :
-            m_World(world)
+            m_World(world->get_world())
         {
         }
 
         WorldRef(
             flecs::world world) :
-            m_World(*world.get<World::ThisWorld>()->Self)
-        {
-        }
-
-    public:
-        [[nodiscard]] auto operator->() const
-        {
-            return &m_World.get();
-        }
-
-        [[nodiscard]] auto& operator*() const
-        {
-            return m_World.get();
-        }
-
-    private:
-        Ref<World> m_World;
-    };
-
-    //
-
-    class AsyncWorld
-    {
-    public:
-        AsyncWorld(
-            World& world) :
-            m_World(world.Get().async_stage())
-        {
-        }
-
-        AsyncWorld(
-            flecs::world world) :
             m_World(std::move(world))
         {
-        }
-
-        void Merge()
-        {
-            m_World.merge();
         }
 
     public:
@@ -232,7 +188,7 @@ namespace Ame::Ecs
         template<typename... ArgsTy>
         [[nodiscard]] FilterBuilder<ArgsTy...> CreateFilter()
         {
-            return m_World->filter_builder<ArgsTy...>();
+            return m_World.filter_builder<ArgsTy...>();
         }
 
     public:
@@ -242,7 +198,7 @@ namespace Ame::Ecs
         template<typename... ArgsTy>
         [[nodiscard]] QueryBuilder<ArgsTy...> CreateQuery()
         {
-            return m_World->query_builder<ArgsTy...>();
+            return m_World.query_builder<ArgsTy...>();
         }
 
     public:
@@ -252,7 +208,7 @@ namespace Ame::Ecs
         template<typename... ArgsTy>
         [[nodiscard]] RuleBuilder<ArgsTy...> CreateRule()
         {
-            return m_World->rule_builder<ArgsTy...>();
+            return m_World.rule_builder<ArgsTy...>();
         }
 
     public:
@@ -262,7 +218,7 @@ namespace Ame::Ecs
         template<typename... ArgsTy>
         [[nodiscard]] SystemBuilder<ArgsTy...> CreateSystem()
         {
-            return m_World->system<ArgsTy...>();
+            return m_World.system<ArgsTy...>();
         }
 
     public:
@@ -272,7 +228,7 @@ namespace Ame::Ecs
         template<typename... ArgsTy>
         [[nodiscard]] ObserverBuilder<ArgsTy...> CreateObserver()
         {
-            return m_World->observer<ArgsTy...>();
+            return m_World.observer<ArgsTy...>();
         }
 
     public:
@@ -296,7 +252,123 @@ namespace Ame::Ecs
             m_World.import <Ty>();
         }
 
-    private:
+    protected:
         flecs::world m_World;
+    };
+
+    //
+
+    class AsyncWorld : public WorldRef
+    {
+    public:
+        AsyncWorld(
+            World& world) :
+            WorldRef(world->async_stage())
+        {
+        }
+
+        AsyncWorld(
+            flecs::world world) :
+            WorldRef(world.async_stage())
+        {
+        }
+
+        void Merge()
+        {
+            m_World.merge();
+        }
+    };
+
+    //
+
+    class ScopedDeferredWorld : public WorldRef
+    {
+    public:
+        ScopedDeferredWorld(
+            World& world) :
+            WorldRef(world)
+        {
+            m_World.defer_begin();
+        }
+
+        ScopedDeferredWorld(
+            flecs::world world) :
+            WorldRef(std::move(world))
+        {
+            m_World.defer_begin();
+        }
+
+        ScopedDeferredWorld(const ScopedDeferredWorld&) = delete;
+        ScopedDeferredWorld(ScopedDeferredWorld&&)      = delete;
+
+        ScopedDeferredWorld& operator=(const ScopedDeferredWorld&) = delete;
+        ScopedDeferredWorld& operator=(ScopedDeferredWorld&&)      = delete;
+
+        ~ScopedDeferredWorld()
+        {
+            m_World.defer_end();
+        }
+    };
+
+    //
+
+    class ScopedDeferredSuspensionWorld : public WorldRef
+    {
+    public:
+        ScopedDeferredSuspensionWorld(
+            World& world) :
+            WorldRef(world)
+        {
+            m_World.defer_suspend();
+        }
+
+        ScopedDeferredSuspensionWorld(
+            flecs::world world) :
+            WorldRef(std::move(world))
+        {
+            m_World.defer_suspend();
+        }
+
+        ScopedDeferredSuspensionWorld(const ScopedDeferredSuspensionWorld&) = delete;
+        ScopedDeferredSuspensionWorld(ScopedDeferredSuspensionWorld&&)      = delete;
+
+        ScopedDeferredSuspensionWorld& operator=(const ScopedDeferredSuspensionWorld&) = delete;
+        ScopedDeferredSuspensionWorld& operator=(ScopedDeferredSuspensionWorld&&)      = delete;
+
+        ~ScopedDeferredSuspensionWorld()
+        {
+            m_World.defer_resume();
+        }
+    };
+
+    //
+
+    class ScopedAsyncWorld : public AsyncWorld
+    {
+    public:
+        ScopedAsyncWorld(
+            World& world) :
+            AsyncWorld(world)
+        {
+            m_World.defer_begin();
+        }
+
+        ScopedAsyncWorld(
+            flecs::world world) :
+            AsyncWorld(std::move(world))
+        {
+            m_World.defer_begin();
+        }
+
+        ScopedAsyncWorld(const ScopedAsyncWorld&) = delete;
+        ScopedAsyncWorld(ScopedAsyncWorld&&)      = delete;
+
+        ScopedAsyncWorld& operator=(const ScopedAsyncWorld&) = delete;
+        ScopedAsyncWorld& operator=(ScopedAsyncWorld&&)      = delete;
+
+        ~ScopedAsyncWorld()
+        {
+            m_World.defer_end();
+        }
     };
 } // namespace Ame::Ecs

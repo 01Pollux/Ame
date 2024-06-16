@@ -12,7 +12,7 @@ namespace Ame::Ecs::Module
     {
         Ecs::WorldRef world(flecsWorld.get_world());
 
-        world->CreateObserver<const Component::Transform, const Component::AABB>()
+        world.CreateObserver<const Component::Transform, const Component::AABB>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .yield_existing()

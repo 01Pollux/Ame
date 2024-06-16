@@ -49,14 +49,14 @@ namespace Ame::Ecs::Module
         //
 
         m_CameraQuery =
-            world->CreateQuery<const Component::Camera,
-                               const Component::CameraFrustum>()
+            world.CreateQuery<const Component::Camera,
+                              const Component::CameraFrustum>()
                 .build();
 
         //
 
-        world->CreateObserver<const Component::BaseRenderable,
-                              const Component::AABBTransformed>()
+        world.CreateObserver<const Component::BaseRenderable,
+                             const Component::AABBTransformed>()
             .term<const Component::AABBTransformed>() // bounding box is not required
             .optional()
             .event(flecs::OnSet)
@@ -67,7 +67,7 @@ namespace Ame::Ecs::Module
                          const Component::AABBTransformed* transformedBoxes)
                   { OnVisbilityChanged(iter, renderables, transformedBoxes); });
 
-        world->CreateObserver<
+        world.CreateObserver<
                  const Component::Camera,
                  const Component::CameraFrustum>()
             .event(flecs::OnSet)
@@ -121,8 +121,8 @@ namespace Ame::Ecs::Module
         if (cameraIter.event() == flecs::OnSet)
         {
             auto filter =
-                cameraIter.world().filter_builder<const Component::BaseRenderable,
-                                                  const Component::AABBTransformed>()
+                world.CreateFilter<const Component::BaseRenderable,
+                                   const Component::AABBTransformed>()
                     .term<const Component::AABBTransformed>() // bounding box is not required
                     .optional()
                     .build();
@@ -159,7 +159,7 @@ namespace Ame::Ecs::Module
                 Ecs::Entity cameraEntity(cameraIter.entity(i));
 
                 // remove all entities that has (VisibleToCamera, cameraEntity) relation
-                world->CreateFilter()
+                world.CreateFilter()
                     .with<Tag::VisibleToCamera>(*cameraEntity)
                     .build()
                     .iter(

@@ -108,25 +108,6 @@ namespace Ame::FlappyRocket
 
         //
 
-        auto camera = world.CreateEntity(c_CameraName);
-
-        camera->emplace<Ecs::Component::Camera>();
-        camera->emplace<Ecs::Component::Transform>(
-            Math::Matrix3x3::Constants::Identity,
-            Math::Vector3::Constants::Backward * 5.f);
-
-        camera->emplace<Ecs::Component::CameraOutput>(
-            Gfx::ForwardOpaquePass::Output::c_OutputImageName);
-
-        auto& cameraComponent = *camera->get<Ecs::Component::Camera>();
-
-        auto& cameraTransform = *camera->get<Ecs::Component::Transform>();
-
-        Geometry::Frustum frustum(cameraComponent.GetProjectionMatrix());
-
-        Geometry::Frustum viewFrustum = frustum;
-        frustum.Transform(viewFrustum, cameraTransform.ToMat4x4());
-
         //
 
         auto material = CreateMaterial(*m_Device, *m_ShaderCache);
@@ -160,5 +141,21 @@ namespace Ame::FlappyRocket
                 box.Transform(transformedBox, toLocal);
             }
         }
+
+        //
+
+        auto camera = world.CreateEntity(c_CameraName);
+
+        camera->emplace<Ecs::Component::Camera>();
+        camera->emplace<Ecs::Component::Transform>(
+            Math::Matrix3x3::Constants::Identity,
+            Math::Vector3::Constants::Backward * 5.f);
+
+        camera->emplace<Ecs::Component::CameraOutput>(
+            Gfx::ForwardOpaquePass::Output::c_OutputImageName);
+
+        auto& cameraComponent = *camera->get<Ecs::Component::Camera>();
+
+        auto& cameraTransform = *camera->get<Ecs::Component::Transform>();
     }
 } // namespace Ame::FlappyRocket

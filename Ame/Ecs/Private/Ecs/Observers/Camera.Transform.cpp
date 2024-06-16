@@ -12,7 +12,7 @@ namespace Ame::Ecs::Module
     {
         Ecs::WorldRef world(flecsWorld.get_world());
 
-        world->CreateObserver<const Component::Transform>()
+        world.CreateObserver<const Component::Transform>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .with<Component::Camera>()
