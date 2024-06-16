@@ -13,10 +13,8 @@ namespace Ame::Gfx
         Rhi::Device&                 rhiDevice,
         Ecs::Universe&               universe,
         RG::Graph&                   renderGraph,
-        Extensions::WorldOctTreeBox& worldOctTreeBox,
         const EcsWorldResourcesDesc& ecsDesc) :
         m_Graph(renderGraph),
-        m_WorldOctTreeBox(worldOctTreeBox),
         m_EcsResources(std::make_unique<EcsWorldResources>(rhiDevice, universe, ecsDesc))
     {
     }
@@ -42,14 +40,14 @@ namespace Ame::Gfx
             cameraComponent.GetProjectionMatrix(),
             cameraComponent.GetViewporSize());
 
-        auto renderables = GetRenderables(cameraComponent);
+        GetRenderables(cameraEntity);
 
         Signals::Data::DrawCompositorData drawData{
             .Compositor      = DrawCompositorSubmitter(m_DrawCompositor),
             .CameraEntity    = cameraEntity,
             .CameraComponent = cameraComponent,
             .CameraTransform = cameraTransform,
-            .Entities        = renderables
+            .Entities        = m_DrawInfos
         };
 
         FetchAndSortDrawData(drawData);
@@ -76,27 +74,29 @@ namespace Ame::Gfx
 
     //
 
-    std::vector<EntityDrawInfo> EntityCompositor::GetRenderables(
-        const Ecs::Component::Camera& cameraComponent) const
+    void EntityCompositor::GetRenderables(
+        const Ecs::Entity& cameraEntity)
     {
-        Geometry::FrustumPlanes frustumPlanes(Geometry::Frustum(cameraComponent.GetProjectionMatrix()));
+        m_DrawInfos.clear();
 
-        auto transformToDrawInfo = [&cameraComponent](const Ecs::Entity& entity) -> EntityDrawInfo
-        {
-            auto renderable        = entity.TryGetComponent<Ecs::Component::BaseRenderable>();
-            bool isValidRenderable = renderable && ((renderable->CameraMask & cameraComponent.ViewMask) != 0);
-            return isValidRenderable ? EntityDrawInfo{ entity, renderable, entity.TryGetComponent<Ecs::Component::Transform>() } : EntityDrawInfo{};
-        };
+        auto&    renderRule = m_EcsResources->GetCameraRenderRule();
+        uint32_t cameraVar  = renderRule->find_var("Camera");
 
-        auto filterDrawInfo = [](const EntityDrawInfo& drawInfo)
-        {
-            return drawInfo.Renderable != nullptr;
-        };
-
-        return m_WorldOctTreeBox.get().FrustumCull(frustumPlanes) |
-               std::views::transform(transformToDrawInfo) |
-               std::views::filter(filterDrawInfo) |
-               std::ranges::to<std::vector>();
+        renderRule
+            ->iter()
+            .set_var(cameraVar, *cameraEntity)
+            .iter(
+                [this](
+                    Ecs::Iterator&                        iter,
+                    const Ecs::Component::Transform*      transforms,
+                    const Ecs::Component::BaseRenderable* renderables)
+                {
+                    m_DrawInfos.reserve(m_DrawInfos.size() + iter.count());
+                    for (auto i : iter)
+                    {
+                        m_DrawInfos.emplace_back(iter.entity(i), renderables[i], transforms[i]);
+                    }
+                });
     }
 
     void EntityCompositor::FetchAndSortDrawData(

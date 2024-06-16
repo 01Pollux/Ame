@@ -21,6 +21,32 @@ namespace Ame::Ecs
         return m_Entity;
     }
 
+    const flecs::entity* Entity::operator->() const
+    {
+        return &m_Entity;
+    }
+
+    flecs::entity* Entity::operator->()
+    {
+        return &m_Entity;
+    }
+
+    const flecs::entity& Entity::operator*() const
+    {
+        return m_Entity;
+    }
+
+    flecs::entity& Entity::operator*()
+    {
+        return m_Entity;
+    }
+
+    bool Entity::operator==(
+        const Entity& other) const
+    {
+        return m_Entity == other.m_Entity;
+    }
+
     Entity::operator bool() const noexcept
     {
         return m_Entity.is_alive();

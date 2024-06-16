@@ -6,17 +6,22 @@
 #include <Gfx/RenderGraph/Buffers/TransformBuffer.hpp>
 #include <Gfx/RenderGraph/Buffers/AABBBuffer.hpp>
 
+namespace Ame::Ecs::Component
+{
+    struct Transform;
+    struct BaseRenderable;
+} // namespace Ame::Ecs::Component
+
 namespace Ame::Gfx
 {
     struct EcsWorldResourcesDesc;
 
     class EcsWorldResources
     {
-        struct EntityDesc
-        {
-            Ecs::UniqueObserver TransformObserver;
-            Ecs::UniqueObserver AABBObserver;
-        };
+    public:
+        using CameraRenderRule = Ecs::UniqueRule<
+            const Ecs::Component::Transform,
+            const Ecs::Component::BaseRenderable>;
 
     public:
         EcsWorldResources(
@@ -28,7 +33,7 @@ namespace Ame::Gfx
         /// <summary>
         /// Returns the transform buffer.
         /// </summary>
-        [[nodiscard]] TransformBuffer& GetTransformBuffer()
+        [[nodiscard]] TransformBuffer& GetTransformBuffer() noexcept
         {
             return m_TransformBuffer;
         }
@@ -36,9 +41,17 @@ namespace Ame::Gfx
         /// <summary>
         /// Returns the AABB buffer.
         /// </summary>
-        [[nodiscard]] AABBBuffer& GetAABBBuffer()
+        [[nodiscard]] AABBBuffer& GetAABBBuffer() noexcept
         {
             return m_AABBBuffer;
+        }
+
+        /// <summary>
+        /// Returns the camera render rule.
+        /// </summary>
+        [[nodiscard]] CameraRenderRule& GetCameraRenderRule() noexcept
+        {
+            return m_WorldData.RenderRule;
         }
 
     private:
@@ -46,8 +59,16 @@ namespace Ame::Gfx
             Ecs::World& world);
 
     private:
-        void CreateObservers(
+        void CreateObserversAndRules(
             Ecs::World& world);
+
+    private:
+        struct EntityDesc
+        {
+            CameraRenderRule    RenderRule;
+            Ecs::UniqueObserver TransformObserver;
+            Ecs::UniqueObserver AABBObserver;
+        };
 
     private:
         Ref<Ecs::Universe> m_Universe;

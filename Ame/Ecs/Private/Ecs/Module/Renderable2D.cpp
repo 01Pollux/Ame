@@ -16,9 +16,9 @@ namespace Ame::Ecs::Module
             .on_set(
                 [](Ecs::Entity entity, Component::Sprite& sprite)
                 {
-                    auto& renderable      = entity.GetComponentMut<Component::BaseRenderable>();
+                    auto& renderable      = *entity->get_mut<Component::BaseRenderable>();
                     renderable.CameraMask = sprite.CameraMask;
-                    entity.MarkModified<Component::BaseRenderable>();
+                    entity->modified<Component::BaseRenderable>();
                 });
     }
 } // namespace Ame::Ecs::Module

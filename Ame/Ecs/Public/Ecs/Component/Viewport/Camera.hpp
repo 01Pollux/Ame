@@ -3,6 +3,12 @@
 #include <Core/Ame.hpp>
 #include <Math/Vector.hpp>
 #include <Math/Matrix.hpp>
+#include <Geometry/Frustum.hpp>
+
+namespace Ame::Math
+{
+    class TransformMatrix;
+} // namespace Ame::Math
 
 namespace Ame::Ecs::Component
 {
@@ -116,5 +122,13 @@ namespace Ame::Ecs::Component
         /// The type of the camera.
         /// </summary>
         CameraType m_Type = CameraType::Perspective;
+    };
+
+    /// <summary>
+    /// Component automatically set- and updated when the camera has a transform component.
+    /// </summary>
+    struct CameraFrustum
+    {
+        Geometry::Frustum Frustum;
     };
 } // namespace Ame::Ecs::Component

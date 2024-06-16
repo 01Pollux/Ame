@@ -28,7 +28,15 @@ namespace Ame::Ecs
         /// </summary>
         [[nodiscard]] const flecs::entity& GetFlecsEntity() const;
 
-        explicit operator bool() const noexcept;
+        [[nodiscard]] const flecs::entity* operator->() const;
+        [[nodiscard]] flecs::entity*       operator->();
+        [[nodiscard]] const flecs::entity& operator*() const;
+        [[nodiscard]] flecs::entity&       operator*();
+
+        [[nodiscard]] bool operator==(
+            const Entity& other) const;
+
+        [[nodiscard]] explicit operator bool() const noexcept;
 
     public:
         /// <summary>
@@ -55,57 +63,6 @@ namespace Ame::Ecs
         /// </summary>
         void SetParent(
             const Entity& parent = Entity::c_Null);
-
-    public:
-        template<typename Ty, typename... ArgsTy>
-        void AddComponent(
-            ArgsTy&&... args)
-        {
-            m_Entity.emplace<Ty>(std::forward<ArgsTy>(args)...);
-        }
-
-        template<typename Ty>
-        void AddComponent(
-            Ty&& data)
-        {
-            m_Entity.emplace<Ty>(std::forward<Ty>(data));
-        }
-
-        template<typename Ty>
-        void RemoveComponent()
-        {
-            m_Entity.remove<Ty>();
-        }
-
-        template<typename Ty>
-        [[nodiscard]] bool HasComponent() const
-        {
-            return m_Entity.has<Ty>();
-        }
-
-        template<typename Ty>
-        [[nodiscard]] const Ty& GetComponent() const
-        {
-            return *m_Entity.get<Ty>();
-        }
-
-        template<typename Ty>
-        [[nodiscard]] Ty& GetComponentMut()
-        {
-            return *m_Entity.get_mut<Ty>();
-        }
-
-        template<typename Ty>
-        void MarkModified()
-        {
-            m_Entity.modified<Ty>();
-        }
-
-        template<typename Ty>
-        [[nodiscard]] const Ty* TryGetComponent() const
-        {
-            return m_Entity.get<Ty>();
-        }
 
     private:
         flecs::entity m_Entity;

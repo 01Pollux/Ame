@@ -6,11 +6,17 @@
 namespace Ame::Ecs::Module
 {
     ViewportModule::ViewportModule(
-        flecs::world& FlecsWorld)
+        flecs::world& flecsWorld)
     {
-        FlecsWorld.module<ViewportModule>();
+        flecsWorld.module<ViewportModule>();
 
-        FlecsWorld.component<Component::Camera>();
-        FlecsWorld.component<Component::CameraOutput>();
+        flecsWorld.component<Component::Camera>();
+        flecsWorld.component<Component::CameraFrustum>();
+        flecsWorld.component<Component::CameraOutput>();
+
+        //
+
+        RegisterTransformObserver(flecsWorld);
     }
+
 } // namespace Ame::Ecs::Module

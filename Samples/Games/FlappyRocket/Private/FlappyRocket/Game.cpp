@@ -7,6 +7,7 @@
 
 #include <Ecs/Component/Renderable/2D/Sprite.hpp>
 #include <Ecs/Component/Math/Transform.hpp>
+#include <Ecs/Component/Math/AABB.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
 #include <Ecs/Component/Viewport/CameraOutput.hpp>
 
@@ -105,39 +106,59 @@ namespace Ame::FlappyRocket
     {
         auto& world = *m_EcsUniverse->GetActiveWorld();
 
+        //
+
+        auto camera = world.CreateEntity(c_CameraName);
+
+        camera->emplace<Ecs::Component::Camera>();
+        camera->emplace<Ecs::Component::Transform>(
+            Math::Matrix3x3::Constants::Identity,
+            Math::Vector3::Constants::Backward * 5.f);
+
+        camera->emplace<Ecs::Component::CameraOutput>(
+            Gfx::ForwardOpaquePass::Output::c_OutputImageName);
+
+        auto& cameraComponent = *camera->get<Ecs::Component::Camera>();
+
+        auto& cameraTransform = *camera->get<Ecs::Component::Transform>();
+
+        Geometry::Frustum frustum(cameraComponent.GetProjectionMatrix());
+
+        Geometry::Frustum viewFrustum = frustum;
+        frustum.Transform(viewFrustum, cameraTransform.ToMat4x4());
+
+        //
+
         auto material = CreateMaterial(*m_Device, *m_ShaderCache);
         SetMaterialProperties(*m_AssetStorage, c_TextureGuid, material);
+
         for (float y = -50.f; y < 100.f; y += 1.f)
         {
             for (float x = -50.f; x < 100.f; x += 1.f)
             {
                 auto name = "Player" + std::to_string(static_cast<int>(x)) + "_" + std::to_string(static_cast<int>(y));
 
-                auto player       = world.CreateEntity(name);
-                auto playerSprite = Ecs::Component::Sprite::Quad();
+                auto player = world.CreateEntity(name);
 
+                auto playerSprite     = Ecs::Component::Sprite::Quad();
                 playerSprite.Material = material;
-
-                player.AddComponent(std::move(playerSprite));
+                player->set(std::move(playerSprite));
 
                 Ecs::Component::Transform transform;
                 transform.SetPosition({ x, y, 0.f });
-                player.AddComponent(std::move(transform));
+                player->set(transform);
 
                 Ecs::Component::AABB aabb;
                 aabb.Min = Math::Vector3(-0.5f, -0.5f, 0.f);
                 aabb.Max = Math::Vector3(0.5f, 0.5f, 0.f);
-                player.AddComponent(std::move(aabb));
+                player->set(aabb);
+
+                auto toLocal = transform.ToMat4x4();
+
+                Geometry::AABB box            = aabb.ToAABB();
+                auto           transformedBox = box;
+                box.Transform(transformedBox, toLocal);
             }
         }
-
-        auto camera = world.CreateEntity(c_CameraName);
-        camera.AddComponent<Ecs::Component::Camera>();
-        camera.AddComponent<Ecs::Component::Transform>(
-            Math::Matrix3x3::Constants::Identity,
-            Math::Vector3::Constants::Backward * 5.f);
-
-        camera.AddComponent<Ecs::Component::CameraOutput>(
-            Gfx::ForwardOpaquePass::Output::c_OutputImageName);
     }
 } // namespace Ame::FlappyRocket

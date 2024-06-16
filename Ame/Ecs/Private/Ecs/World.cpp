@@ -26,9 +26,17 @@ namespace Ame::Ecs
             m_World = std::make_unique<flecs::world>();
 
             m_World->component<WorldName>();
+            m_World->component<ThisWorld>();
+
             m_World->set(WorldName{ name });
+            m_World->set(ThisWorld{ this });
         }
         RegisterModules();
+    }
+
+    World::World(
+        flecs::world& world)
+    {
     }
 
     World::World(
@@ -54,7 +62,7 @@ namespace Ame::Ecs
 
     World::~World()
     {
-        if (m_World)
+        if (m_World && m_World->m_owned)
         {
             std::lock_guard Lock(g_FlecsMutex);
             m_World.reset();
@@ -63,24 +71,48 @@ namespace Ame::Ecs
 
     //
 
-    Entity World::CreateEntity(
+    static Entity CreateEntityFromWorld(
+        flecs::world& world,
         StringView    name,
         const Entity& parent)
     {
-        auto entity = m_World->entity();
+        auto entity = world.entity();
         if (parent)
         {
             entity.child_of(parent.GetFlecsEntity());
         }
-        auto safeName = GetUniqueEntityName(name.data(), parent);
-        entity.set_name(safeName.c_str());
+        entity.set_name(name.data());
         return Entity(entity);
+    }
+
+    //
+
+    Entity World::CreateEntity(
+        StringView    name,
+        const Entity& parent)
+    {
+        return CreateEntityFromWorld(*m_World, name, parent);
     }
 
     Entity World::GetEntityFromId(
         const Entity::Id id) const
     {
         return Entity(m_World->entity(id));
+    }
+
+    //
+
+    Entity AsyncWorld::CreateEntity(
+        StringView    name,
+        const Entity& parent)
+    {
+        return CreateEntityFromWorld(m_World, name, parent);
+    }
+
+    Entity AsyncWorld::GetEntityFromId(
+        const Entity::Id id) const
+    {
+        return Entity(m_World.entity(id));
     }
 
     //
@@ -94,9 +126,19 @@ namespace Ame::Ecs
 
     //
 
+    String AsyncWorld::GetUniqueEntityName(
+        const char* name,
+        const Entity& parent) const
+    {
+        return EcsUtil::GetUniqueEntityName(m_World, name, parent.GetFlecsEntity());
+    }
+
+    //
+
     void World::Progress(
         double deltaTime)
     {
         m_World->progress(deltaTime);
     }
+
 } // namespace Ame::Ecs

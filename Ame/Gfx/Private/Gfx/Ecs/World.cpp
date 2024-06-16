@@ -18,7 +18,7 @@ namespace Ame::Gfx
                     {
                         auto& newWorld = *changeData.NewWorld;
                         RegisterModules(newWorld);
-                        CreateObservers(newWorld);
+                        CreateObserversAndRules(newWorld);
                     }
                 })),
         m_TransformBuffer(rhiDevice, desc.TransformBufferDesc),

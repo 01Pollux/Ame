@@ -12,5 +12,11 @@ namespace Ame::Ecs::Module
 
         flecsWorld.component<Component::Transform>();
         flecsWorld.component<Component::AABB>();
+
+        flecsWorld.component<Component::AABBTransformed>();
+
+        //
+
+        RegisterTransformObserver(flecsWorld);
     }
 } // namespace Ame::Ecs::Module

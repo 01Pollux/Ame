@@ -67,13 +67,6 @@ target_end()
 
 --
 
-target("Extensions.WorldNTree")
-    ame_utils:add_library("Extensions", "static", "Ame/Extensions/WorldNTree")
-    add_deps("Ame.Ecs", {public = true, inherit = true})
-target_end()
-
---
-
 target("Ame.RenderGraph")
     ame_utils:add_library("Ame", "static", "Ame/RenderGraph")
     add_deps("Ame.Ecs", {public = true, inherit = true})
@@ -85,7 +78,7 @@ target("Ame.Gfx")
     ame_utils:add_library("Ame", "static", "Ame/Gfx")
     add_deps(
         "Ame.RenderGraph",
-        "Extensions.WorldNTree",
+        "Ame.Ecs",
         {public = true, inherit = true})
 target_end()
 

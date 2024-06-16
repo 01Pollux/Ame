@@ -7,8 +7,6 @@
 #include <Gfx/Compositor/DrawCompositor.hpp>
 #include <Gfx/Compositor/EcsWorldResourcesDesc.hpp>
 
-#include <WorldNTree/WorldNTree.hpp>
-
 namespace Ame::RG
 {
     class Graph;
@@ -43,7 +41,6 @@ namespace Ame::Gfx
             Rhi::Device&                 rhiDevice,
             Ecs::Universe&               universe,
             RG::Graph&                   renderGraph,
-            Extensions::WorldOctTreeBox& worldOctTreeBox,
             const EcsWorldResourcesDesc& ecsDesc = {});
 
         EntityCompositor(const EntityCompositor&) = delete;
@@ -78,8 +75,8 @@ namespace Ame::Gfx
         /// <summary>
         /// Returns the renderable entities.
         /// </summary>
-        [[nodiscard]] std::vector<EntityDrawInfo> GetRenderables(
-            const Ecs::Component::Camera& cameraComponent) const;
+        void GetRenderables(
+            const Ecs::Entity& cameraEntity);
 
         /// <summary>
         /// Fetches entities and sorts them.
@@ -96,10 +93,11 @@ namespace Ame::Gfx
         AME_SIGNAL_INST(OnRenderCompose);
 
     private:
-        Ref<RG::Graph>                   m_Graph;
-        Ref<Extensions::WorldOctTreeBox> m_WorldOctTreeBox;
+        Ref<RG::Graph> m_Graph;
 
         UPtr<EcsWorldResources> m_EcsResources;
         DrawCompositor          m_DrawCompositor;
+
+        std::vector<EntityDrawInfo> m_DrawInfos;
     };
 } // namespace Ame::Gfx

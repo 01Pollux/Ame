@@ -36,6 +36,17 @@ namespace Ame::Geometry
         {
             return Math::Vector3(Extents) * 2.0f;
         }
+
+    public:
+        using BoundingBox::Transform;
+
+        [[nodiscard]] AABB Transform(
+            const Math::Matrix4x4& transform) const noexcept
+        {
+            auto copy = *this;
+            Transform(copy, transform);
+            return copy;
+        }
     };
 
     struct AABBMinMax
@@ -94,6 +105,15 @@ namespace Ame::Geometry
         {
             Min = aabb.Min.min(Min);
             Max = aabb.Max.max(Max);
+        }
+
+        [[nodiscard]] AABBMinMax Transform(
+            const Math::Matrix4x4& transform) const noexcept
+        {
+            return {
+                transform.DoTransformCoord(Min),
+                transform.DoTransformCoord(Max)
+            };
         }
     };
 } // namespace Ame::Geometry

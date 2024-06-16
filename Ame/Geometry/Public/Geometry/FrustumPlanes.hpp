@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <span>
 #include <Math/Plane.hpp>
 #include <Geometry/Frustum.hpp>
 

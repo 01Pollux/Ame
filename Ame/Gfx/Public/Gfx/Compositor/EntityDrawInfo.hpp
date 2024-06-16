@@ -8,8 +8,8 @@ namespace Ame::Gfx
 {
     struct EntityDrawInfo
     {
-        Ecs::Entity                           Entity;
-        const Ecs::Component::BaseRenderable* Renderable;
-        const Ecs::Component::Transform*      Transform;
+        Ecs::Entity                          Entity;
+        CRef<Ecs::Component::BaseRenderable> Renderable;
+        CRef<Ecs::Component::Transform>      Transform;
     };
 } // namespace Ame::Gfx

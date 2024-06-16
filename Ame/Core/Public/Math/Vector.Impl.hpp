@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cmath>
 
 #include <Math/Util.hpp>
 
@@ -177,6 +178,22 @@ namespace Ame::Math::Impl
         [[nodiscard]] constexpr size_t size() const noexcept
         {
             return array_size;
+        }
+
+        [[nodiscard]] constexpr void ceil()
+        {
+            for (auto& v : m_Data)
+            {
+                v = static_cast<value_type>(std::ceil(v));
+            }
+        }
+
+        [[nodiscard]] constexpr void floor()
+        {
+            for (auto& v : m_Data)
+            {
+                v = static_cast<value_type>(std::floor(v));
+            }
         }
 
         template<typename OtherTy>

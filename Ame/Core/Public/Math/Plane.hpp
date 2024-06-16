@@ -3,8 +3,6 @@
 #include <Math/Vector.hpp>
 #include <Math/Util.hpp>
 
-#include <span>
-
 namespace Ame::Math
 {
     class Plane : public Vector4

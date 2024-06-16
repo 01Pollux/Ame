@@ -14,7 +14,7 @@ namespace Ame::Gfx
         auto tryOutputToTexture =
             [&](const Ecs::Entity& entity)
         {
-            auto cameraOutput = entity.TryGetComponent<Ecs::Component::CameraOutput>();
+            auto cameraOutput = entity->get<Ecs::Component::CameraOutput>();
             if (!cameraOutput)
             {
                 return;
