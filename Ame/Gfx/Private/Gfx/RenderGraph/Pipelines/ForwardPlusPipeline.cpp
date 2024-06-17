@@ -8,9 +8,11 @@ namespace Ame::Gfx
     ForwardPlusPipeline::ForwardPlusPipeline(
         RG::Graph&                   renderGraph,
         Ecs::Universe&               universe,
+        EntityCompositor&            entityCompositor,
         Cache::CommonShader&         commonShaders,
         Cache::CommonPipelineState&  commonPipelines,
-        Cache::MaterialBindingCache& materialCache)
+        Cache::MaterialBindingCache& materialCache) :
+        m_SpriteBatchCompositor(entityCompositor)
     {
         auto& passStorage = renderGraph.GetPassStorage();
 

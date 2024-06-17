@@ -12,6 +12,11 @@ namespace Ame::Ecs::Component
     class Transform;
 } // namespace Ame::Ecs::Component
 
+namespace Ame::Gfx
+{
+    class EntityCompositor;
+} // namespace Ame::Gfx
+
 namespace Ame::Signals::Data
 {
     struct DrawCompositorData
@@ -22,7 +27,14 @@ namespace Ame::Signals::Data
         CRef<Ecs::Component::Camera>    CameraComponent;
         CRef<Ecs::Component::Transform> CameraTransform;
 
-        std::span<Gfx::EntityDrawInfo> Entities;
+        std::span<const Gfx::EntityDrawInfo> Entities;
+
+        [[nodiscard]] float DistanceTo(const Gfx::EntityDrawInfo& drawInfo) const
+        {
+            auto& cameraPosition = CameraTransform.get().GetPosition();
+            auto& entityPosition = drawInfo.Transform.get().GetPosition();
+            return cameraPosition.DistanceTo(entityPosition);
+        }
     };
 } // namespace Ame::Signals::Data
 

@@ -2,6 +2,8 @@
 
 #include <Gfx/RenderGraph/Pipelines/BaseGraphPipeline.hpp>
 
+#include <Gfx/RenderGraph/Compositors/SpriteBatchCompositor.hpp>
+
 namespace Ame
 {
     namespace Ecs
@@ -24,8 +26,12 @@ namespace Ame::Gfx
         ForwardPlusPipeline(
             RG::Graph&                   renderGraph,
             Ecs::Universe&               universe,
+            EntityCompositor&            entityCompositor,
             Cache::CommonShader&         commonShaders,
             Cache::CommonPipelineState&  commonPipelines,
             Cache::MaterialBindingCache& materialCache);
+
+    private:
+        SpriteBatchCompositor m_SpriteBatchCompositor;
     };
 } // namespace Ame::Gfx
