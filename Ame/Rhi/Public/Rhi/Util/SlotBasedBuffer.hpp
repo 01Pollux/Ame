@@ -51,6 +51,7 @@ namespace Ame::Rhi::Util
     public:
         using DescType                              = SlotBasedBufferDesc;
         using SlotType                              = uint32_t;
+        using Handle                                = SlotType;
         using DataType                              = Ty;
         static constexpr uint32_t c_SizePerInstance = sizeof(DataType);
         static constexpr uint32_t c_InvalidSlot     = std::numeric_limits<SlotType>::max();
@@ -77,6 +78,23 @@ namespace Ame::Rhi::Util
         void Flush()
         {
             m_BufferStream.Flush();
+        }
+
+        /// <summary>
+        /// Flush the stream to the buffer
+        /// </summary>
+        void Flush(
+            Handle)
+        {
+            Flush();
+        }
+
+        /// <summary>
+        /// Flush the stream to the buffer
+        /// </summary>
+        void FlushAll()
+        {
+            Flush();
         }
 
     public:

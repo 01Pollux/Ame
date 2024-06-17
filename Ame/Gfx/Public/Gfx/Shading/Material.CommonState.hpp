@@ -3,8 +3,8 @@
 #include <map>
 
 #include <Core/Coroutine.hpp>
-#include <Gfx/Shading/PropertyDescriptor.hpp>
 #include <Rhi/Resource/Shader.hpp>
+#include <Gfx/Shading/PropertyDescriptor.hpp>
 
 namespace Ame::Gfx::Cache
 {
@@ -33,6 +33,11 @@ namespace Ame::Gfx::Shading
         /// Get the pipeline layout for the material
         /// </summary>
         [[nodiscard]] Ptr<Rhi::PipelineLayout> GetPipelineLayout() const;
+
+        /// <summary>
+        /// Get the pipeline state description for the material
+        /// </summary>
+        [[nodiscard]] const MaterialPipelineState& GetPipelineStateDesc() const;
 
         /// <summary>
         /// Get the pipeline state for the given render state

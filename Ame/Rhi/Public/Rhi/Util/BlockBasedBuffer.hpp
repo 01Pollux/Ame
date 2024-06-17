@@ -85,6 +85,15 @@ namespace Ame::Rhi::Util
         }
 
         /// <summary>
+        /// Flush the stream to the buffer
+        /// </summary>
+        void Flush(
+            const Handle& handle)
+        {
+            Flush(handle.BlockSlot);
+        }
+
+        /// <summary>
         /// Flush all streams to the buffer
         /// </summary>
         void FlushAll()

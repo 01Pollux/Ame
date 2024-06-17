@@ -71,6 +71,11 @@ namespace Ame::Gfx::Shading
 
     //
 
+    const MaterialPipelineState& Material::GetPipelineStateDesc() const
+    {
+        return m_SharedData->CommonState.GetPipelineStateDesc();
+    }
+
     auto Material::GetPropertyHash() const -> PropertyHash
     {
         if (!m_PropertiesHash)

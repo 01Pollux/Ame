@@ -4,6 +4,7 @@
 
 #include <Subsystem/Ecs/Universe.hpp>
 #include <Subsystem/Gfx/EntityCompositor.hpp>
+#include <Subsystem/Gfx/FrameBufferCache.hpp>
 #include <Subsystem/Gfx/CommonPipelineState.hpp>
 #include <Subsystem/Gfx/CommonShader.hpp>
 #include <Subsystem/Gfx/MaterialBindingCache.hpp>
@@ -19,6 +20,7 @@ namespace Ame::Gfx
                                                   RG::GraphSubsystem,
                                                   Ecs::UniverseSubsystem,
                                                   EntityCompositorSubsystem,
+                                                  Cache::FrameDynamicBufferCacheSubsystem<>,
                                                   Cache::CommonShaderSubsystem,
                                                   Cache::CommonPipelineStateSubsystem,
                                                   Cache::MaterialBindingCacheSubsystem>>,

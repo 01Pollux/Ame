@@ -41,16 +41,7 @@ namespace Ame::Gfx
             cameraComponent.GetViewporSize());
 
         GetRenderables(cameraEntity);
-
-        Signals::Data::DrawCompositorData drawData{
-            .Compositor      = DrawCompositorSubmitter(m_DrawCompositor),
-            .CameraEntity    = cameraEntity,
-            .CameraComponent = cameraComponent,
-            .CameraTransform = cameraTransform,
-            .Entities        = m_DrawInfos
-        };
-
-        FetchAndSortDrawData(drawData);
+        FetchAndSortDrawData(cameraEntity, cameraComponent, cameraTransform);
         ExecuteAndClearGraph();
     }
 
@@ -100,8 +91,17 @@ namespace Ame::Gfx
     }
 
     void EntityCompositor::FetchAndSortDrawData(
-        Signals::Data::DrawCompositorData& drawData)
+        const Ecs::Entity&               cameraEntity,
+        const Ecs::Component::Camera&    cameraComponent,
+        const Ecs::Component::Transform& cameraTransform)
     {
+        Signals::Data::DrawCompositorData drawData{
+            .Compositor      = DrawCompositorSubmitter(m_DrawCompositor),
+            .CameraEntity    = cameraEntity,
+            .CameraComponent = cameraComponent,
+            .CameraTransform = cameraTransform,
+            .Entities        = m_DrawInfos
+        };
         m_OnRenderCompose(drawData);
         m_DrawCompositor.Sort();
     }

@@ -14,11 +14,12 @@ namespace Ame::Gfx::Cache
     //
 
     MaterialBindingCache::MaterialBindingCache(
-        EngineFrame& engineFrame,
-        Rhi::Device& rhiDevice) :
+        EngineFrame&                     engineFrame,
+        Rhi::Device&                     rhiDevice,
+        const BufferAllocator::DescType& desc) :
         m_Device(rhiDevice),
         m_EndFrameHandle(engineFrame.OnUpdate({ &MaterialBindingCache::ResetFrameCache, this })),
-        m_DynamicBuffer(rhiDevice, c_DynamicBufferDesc)
+        m_DynamicBuffer(rhiDevice, desc)
     {
     }
 
@@ -62,7 +63,7 @@ namespace Ame::Gfx::Cache
         uint32_t bufferSize = material.GetSizeOfUserData();
 
         std::vector<const nri::Descriptor*> descriptors;
-        for (auto iter : material.GetResources())
+        for (auto& iter : material.GetResources())
         {
             std::visit(
                 VariantVisitor{
@@ -112,7 +113,7 @@ namespace Ame::Gfx::Cache
     }
 
     const nri::Descriptor* MaterialBindingCache::GetOrCreateConstantBufferDescriptor(
-        const BlockBuffer::Handle& handle)
+        const BufferAllocator::Handle& handle)
     {
         auto& view = m_DynamicBufferDescriptors[handle.BlockSlot];
         if (!view)

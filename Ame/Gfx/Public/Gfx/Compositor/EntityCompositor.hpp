@@ -7,11 +7,6 @@
 #include <Gfx/Compositor/DrawCompositor.hpp>
 #include <Gfx/Compositor/EcsWorldResourcesDesc.hpp>
 
-namespace Ame::RG
-{
-    class Graph;
-} // namespace Ame::RG
-
 namespace Ame
 {
     namespace Ecs
@@ -28,12 +23,14 @@ namespace Ame
     {
         class Graph;
     } // namespace RG
+    namespace Gfx
+    {
+        class EcsWorldResources;
+    } // namespace Gfx
 } // namespace Ame
 
 namespace Ame::Gfx
 {
-    class EcsWorldResources;
-
     class EntityCompositor
     {
     public:
@@ -82,7 +79,9 @@ namespace Ame::Gfx
         /// Fetches entities and sorts them.
         /// </summary>
         void FetchAndSortDrawData(
-            Signals::Data::DrawCompositorData& drawData);
+            const Ecs::Entity&               cameraEntity,
+            const Ecs::Component::Camera&    cameraComponent,
+            const Ecs::Component::Transform& cameraTransform);
 
         /// <summary>
         /// Executes the render graph and clears the compositor.

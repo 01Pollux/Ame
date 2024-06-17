@@ -23,13 +23,13 @@ namespace Ame::Gfx
         /// TODO: optional material, will default to DEV material
         /// </summary>
         Shading::Material* Material = nullptr;
-        nri::Buffer*       VertexBuffer;
-        nri::Buffer*       IndexBuffer;
 
-        size_t VertexOffset;
-        size_t IndexOffset;
-        size_t IndexCount;
+        nri::Buffer* VertexBuffer;
+        uint64_t     VertexOffset;
 
+        nri::Buffer*   IndexBuffer;
+        uint64_t       IndexOffset;
+        uint32_t       IndexCount;
         Rhi::IndexType IndexType;
     };
 

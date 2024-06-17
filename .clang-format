@@ -11,6 +11,7 @@ Cpp11BracedListStyle: false
 BraceWrapping:
   AfterCaseLabel: true
   BeforeLambdaBody: true
+  AfterUnion: true
 SpaceAfterTemplateKeyword: false
 AlignConsecutiveMacros: Consecutive
 AlignConsecutiveAssignments: Consecutive

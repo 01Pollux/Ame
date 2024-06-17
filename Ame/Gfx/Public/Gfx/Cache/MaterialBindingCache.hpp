@@ -29,19 +29,18 @@ namespace Ame::Gfx::Cache
         };
 
         using SetCacheMap              = std::map<uint64_t, SetCache>;
-        using BlockBuffer              = Rhi::Util::BlockBasedBuffer<>;
         using BlockBufferDescriptorMap = std::map<uint32_t, Rhi::ResourceView>;
 
     public:
-        static constexpr Rhi::Util::BlockBasedBufferDesc c_DynamicBufferDesc = {
-            .Size       = 0xFF * 0x1000,
-            .UsageFlags = Rhi ::BufferUsageBits::CONSTANT_BUFFER
-        };
+        using BufferAllocator = Rhi::Util::BlockBasedBuffer<>;
 
     public:
         MaterialBindingCache(
-            EngineFrame& engineFrame,
-            Rhi::Device& rhiDevice);
+            EngineFrame&                     engineFrame,
+            Rhi::Device&                     rhiDevice,
+            const BufferAllocator::DescType& desc = {
+                .Size       = 0xFF * 0x1000,
+                .UsageFlags = Rhi ::BufferUsageBits::CONSTANT_BUFFER });
 
     public:
         /// <summary>
@@ -71,7 +70,7 @@ namespace Ame::Gfx::Cache
         /// Get or create a descriptor set for the buffer
         /// </summary>
         [[nodiscard]] const nri::Descriptor* GetOrCreateConstantBufferDescriptor(
-            const BlockBuffer::Handle& handle);
+            const BufferAllocator::Handle& handle);
 
     private:
         Ref<Rhi::Device> m_Device;
@@ -79,7 +78,7 @@ namespace Ame::Gfx::Cache
         Signals::ScopedConnection m_EndFrameHandle;
 
         SetCacheMap              m_SetCaches;
-        BlockBuffer              m_DynamicBuffer;
+        BufferAllocator          m_DynamicBuffer;
         BlockBufferDescriptorMap m_DynamicBufferDescriptors;
     };
 } // namespace Ame::Gfx::Cache

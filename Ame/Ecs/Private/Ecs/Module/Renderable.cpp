@@ -13,6 +13,7 @@ namespace Ame::Ecs::Module
         flecsWorld.module<RenderableModule>();
 
         flecsWorld.component<Component::BaseRenderable>();
+        flecsWorld.component<Component::BatchableRenderable>();
         flecsWorld.component<Tag::VisibleToCamera>();
 
         flecsWorld.import <Renderable2DModule>();

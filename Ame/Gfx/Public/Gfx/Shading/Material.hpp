@@ -118,6 +118,11 @@ namespace Ame::Gfx::Shading
 
     public:
         /// <summary>
+        /// Get the pipeline state description for the material
+        /// </summary>
+        [[nodiscard]] const MaterialPipelineState& GetPipelineStateDesc() const;
+
+        /// <summary>
         /// Get the hash of the properties of this material
         /// </summary>
         [[nodiscard]] PropertyHash GetPropertyHash() const;

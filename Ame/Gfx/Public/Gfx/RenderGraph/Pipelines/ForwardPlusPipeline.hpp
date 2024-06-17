@@ -2,7 +2,7 @@
 
 #include <Gfx/RenderGraph/Pipelines/BaseGraphPipeline.hpp>
 
-#include <Gfx/RenderGraph/Compositors/SpriteBatchCompositor.hpp>
+#include <Gfx/RenderGraph/Compositors/StandardBatchedCompositor.hpp>
 
 namespace Ame
 {
@@ -24,14 +24,15 @@ namespace Ame::Gfx
     {
     public:
         ForwardPlusPipeline(
-            RG::Graph&                   renderGraph,
-            Ecs::Universe&               universe,
-            EntityCompositor&            entityCompositor,
-            Cache::CommonShader&         commonShaders,
-            Cache::CommonPipelineState&  commonPipelines,
-            Cache::MaterialBindingCache& materialCache);
+            RG::Graph&                        renderGraph,
+            Ecs::Universe&                    universe,
+            EntityCompositor&                 entityCompositor,
+            Cache::FrameDynamicBufferCache<>& bufferCache,
+            Cache::CommonShader&              commonShaders,
+            Cache::CommonPipelineState&       commonPipelines,
+            Cache::MaterialBindingCache&      materialCache);
 
     private:
-        SpriteBatchCompositor m_SpriteBatchCompositor;
+        StandardBatchedCompositor m_StandardBatchedCompositor;
     };
 } // namespace Ame::Gfx

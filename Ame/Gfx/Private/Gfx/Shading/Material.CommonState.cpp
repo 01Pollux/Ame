@@ -38,6 +38,11 @@ namespace Ame::Gfx::Shading
         return m_PipelineLayout;
     }
 
+    const MaterialPipelineState& MaterialCommonState::GetPipelineStateDesc() const
+    {
+        return m_PipelineStateDesc;
+    }
+
     Co::result<Ptr<Rhi::PipelineState>> MaterialCommonState::GetPipelineState(
         const MaterialRenderState& renderState) const
     {
@@ -70,7 +75,7 @@ namespace Ame::Gfx::Shading
         HashCombine(hash, m_PipelineStateDesc.OutputMerger.RenderTarget.Color);
         HashCombine(hash, m_PipelineStateDesc.OutputMerger.RenderTarget.Alpha);
         HashCombine(hash, std::to_underlying(m_PipelineStateDesc.OutputMerger.RenderTarget.WriteMask));
-        HashCombine(hash, m_PipelineStateDesc.OutputMerger.RenderTarget.BlendEnable);
+        HashCombine(hash, std::to_underlying(m_PipelineStateDesc.OutputMerger.RenderTarget.Mode));
 
         HashCombine(hash, m_PipelineStateDesc.OutputMerger.DepthTarget);
         HashCombine(hash, m_PipelineStateDesc.OutputMerger.StencilTarget);
@@ -166,7 +171,7 @@ namespace Ame::Gfx::Shading
                                         .Color       = outputMerger.RenderTarget.Color,
                                         .Alpha       = outputMerger.RenderTarget.Alpha,
                                         .WriteMask   = outputMerger.RenderTarget.WriteMask,
-                                        .BlendEnable = outputMerger.RenderTarget.BlendEnable
+                                        .BlendEnable = outputMerger.RenderTarget.Mode != BlendMode::Opaque
                                     }; }) |
             std::ranges::to<std::vector>();
 

@@ -17,8 +17,16 @@ namespace Ame::Gfx::Shading
     enum class PrimitiveRestartType : uint8_t
     {
         Disabled,
-        MaxUint32,
-        MaxUint16
+        MaxUint16,
+        MaxUint32
+    };
+
+    enum class BlendMode : uint8_t
+    {
+        Opaque,
+        Transparent,
+        Overlay,
+        Count
     };
 
     //
@@ -41,8 +49,8 @@ namespace Ame::Gfx::Shading
     {
         Rhi::BlendingDesc   Color;
         Rhi::BlendingDesc   Alpha;
-        Rhi::ColorWriteBits WriteMask       = Rhi::ColorWriteBits::RGBA;
-        bool                BlendEnable : 1 = false;
+        Rhi::ColorWriteBits WriteMask = Rhi::ColorWriteBits::RGBA;
+        BlendMode           Mode      = BlendMode::Opaque;
     };
 
     struct OutputMergerState
