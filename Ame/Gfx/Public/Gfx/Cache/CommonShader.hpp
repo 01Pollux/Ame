@@ -19,7 +19,7 @@ namespace Ame::Gfx::Cache
         enum class Type
         {
             EntityCollectPass_CS,
-            GBufferPass_PS,
+            TiledForward_PS,
 
             Count
         };

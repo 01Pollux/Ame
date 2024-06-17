@@ -8,10 +8,14 @@
 
 #include <Gfx/RenderGraph/Resources/Names.hpp>
 
-namespace Ame::Gfx::Cache
+namespace Ame::Gfx
 {
-    class CommonPipelineState;
-} // namespace Ame::Gfx::Cache
+    class EntityCompositor;
+    namespace Cache
+    {
+        class CommonPipelineState;
+    } // namespace Cache
+} // namespace Ame::Gfx
 
 namespace Ame::Gfx
 {
@@ -30,6 +34,7 @@ namespace Ame::Gfx
 
     public:
         ForwardOpaquePass(
+            EntityCompositor&            entityCompositor,
             Cache::CommonShader&         commonShaders,
             Cache::MaterialBindingCache& materialCache);
 

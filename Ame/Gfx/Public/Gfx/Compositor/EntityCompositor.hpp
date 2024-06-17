@@ -50,6 +50,13 @@ namespace Ame::Gfx
 
     public:
         /// <summary>
+        /// Returns the draw instances.
+        /// </summary>
+        [[nodiscard]] std::span<const DrawInstanceOrder> GetDrawInstances(
+            DrawInstanceType type) const noexcept;
+
+    public:
+        /// <summary>
         /// Updates the render graph and upload transform and per entities data.
         /// </summary>
         void UpdateGraph();

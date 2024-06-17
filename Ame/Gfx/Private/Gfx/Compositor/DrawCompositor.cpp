@@ -2,6 +2,14 @@
 
 namespace Ame::Gfx
 {
+    std::span<const DrawInstanceOrder> DrawCompositor::GetInstances(
+        DrawInstanceType type) const noexcept
+    {
+        return m_Instances[static_cast<size_t>(type)];
+    }
+
+    //
+
     void DrawCompositor::Submit(
         const DrawInstanceOrder& instanceOrder,
         DrawInstanceType         type)

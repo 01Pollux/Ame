@@ -23,6 +23,14 @@ namespace Ame::Gfx
 
     //
 
+    std::span<const DrawInstanceOrder> EntityCompositor::GetDrawInstances(
+        DrawInstanceType type) const noexcept
+    {
+        return m_DrawCompositor.GetInstances(type);
+    }
+
+    //
+
     void EntityCompositor::UpdateGraph()
     {
         FlushAndUploadResourcesToGraph();

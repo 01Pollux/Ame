@@ -79,9 +79,9 @@ namespace Ame::Gfx::Cache
             break;
         }
 
-        case Type::GBufferPass_PS:
+        case Type::TiledForward_PS:
         {
-            guid = Guid::FromString(ShaderGuids::s_GBufferPass);
+            guid = Guid::FromString(ShaderGuids::s_TiledForwardPass);
             shaderDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
             shaderDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
             break;

@@ -3,6 +3,7 @@
 #include <Rhi/Resource/VertexView.hpp>
 #include <Gfx/RenderGraph/Passes/ForwardOpaquePass.hpp>
 
+#include <Gfx/Compositor.hpp>
 #include <Gfx/Constants.hpp>
 #include <Gfx/Shading/Material.hpp>
 
@@ -14,12 +15,13 @@ namespace Ame::Gfx
     //
 
     ForwardOpaquePass::ForwardOpaquePass(
+        EntityCompositor&            entityCompositor,
         Cache::CommonShader&         commonShaders,
         Cache::MaterialBindingCache& materialCache) :
         m_CommonShaders(commonShaders),
         m_MaterialCache(materialCache)
     {
-        m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS);
+        m_CommonShaders.get().Load(Cache::CommonShader::Type::TiledForward_PS);
 
         Name("ForwardOpaquePass")
             .SetFlags(RG::PassFlags::Graphics)
@@ -43,7 +45,7 @@ namespace Ame::Gfx
                         Rhi::StageBits::GRAPHICS_SHADERS);
                 })
             .Execute(
-                [this](const RG::ResourceStorage& storage, Rhi::CommandList* commandList)
+                [this, &entityCompositor](const RG::ResourceStorage& storage, Rhi::CommandList* commandList)
                 {
                     auto& frameData      = storage.GetFrameResourceData();
                     auto& backbufferDesc = storage.GetBackbufferDesc();
@@ -64,10 +66,10 @@ namespace Ame::Gfx
 
                     //
 
-                    Shading::MaterialShaderLink gBufferShaders;
+                    Shading::MaterialShaderLink tiledForwardShaders;
 
-                    gBufferShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::GBufferPass_PS).get().Borrow());
-                    gBufferShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
+                    tiledForwardShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
+                    tiledForwardShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::TiledForward_PS).get().Borrow());
 
                     //
 
@@ -78,10 +80,8 @@ namespace Ame::Gfx
                     Shading::MaterialRenderState RenderState{
                         renderTargets,
                         Rhi::ResourceFormat::UNKNOWN,
-                        std::move(gBufferShaders)
+                        std::move(tiledForwardShaders)
                     };
-
-                    // auto entityStore = storage.GetEntityStore();
 
                     Rhi::DescriptorSet frameDataSet;
                     Rhi::DescriptorSet entityDataSet;
@@ -105,35 +105,36 @@ namespace Ame::Gfx
                     commandList->SetViewports(viewports);
                     commandList->SetScissorRects(scissors);
 
-                    /* for (auto& row : entityStore.GetCountedRows())
-                     {
-                         m_MaterialCache.get().Bind(*commandList, *row->Material);
+                    //
 
-                         if (!frameDataSet)
-                         {
-                             frameDataSet  = commandList->AllocateSet(CD::c_FrameData_SetIndex);
-                             entityDataSet = commandList->AllocateSet(CD::c_EntityData_SetIndex);
+                    for (auto& [instance, order] : entityCompositor.GetDrawInstances(DrawInstanceType::Opaque))
+                    {
+                        m_MaterialCache.get().Bind(*commandList, instance.Material);
 
-                             frameDataSet.SetRange(0, { frameDescriptors, Rhi::Count32(frameDescriptors) });
-                             entityDataSet.SetRange(0, { entityDescriptors, Rhi::Count32(entityDescriptors) });
+                        if (!frameDataSet)
+                        {
+                            frameDataSet  = commandList->AllocateSet(CD::c_FrameData_SetIndex);
+                            entityDataSet = commandList->AllocateSet(CD::c_EntityData_SetIndex);
 
-                             commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
-                             commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
-                         }
+                            frameDataSet.SetRange(0, { frameDescriptors, Rhi::Count32(frameDescriptors) });
+                            entityDataSet.SetRange(0, { entityDescriptors, Rhi::Count32(entityDescriptors) });
 
-                         auto pipelineState = row->Material->GetPipelineState(RenderState).get();
-                         commandList->SetPipelineState(pipelineState);
+                            commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
+                            commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
+                        }
 
-                         commandList->SetVertexBuffer({ .Buffer = row->VtxBuffer });
-                         commandList->SetIndexBuffer({ .Buffer = row->IdxBuffer, .Type = row->IndexType });
+                        auto pipelineState = instance.Material->GetPipelineState(RenderState).get();
+                        commandList->SetPipelineState(pipelineState);
 
-                         commandList->DrawIndirectIndexed(
-                             { .DrawBuffer    = commandsBuffer.AsBuffer()->Unwrap(),
-                               .DrawOffset    = row.DrawOffset,
-                               .MaxDrawCount  = row->Count,
-                               .CounterBuffer = counterBuffer.AsBuffer()->Unwrap(),
-                               .CounterOffset = row.CounterOffset });
-                     }*/
+                        commandList->SetVertexBuffer({ .Buffer = instance.VertexBuffer });
+                        commandList->SetIndexBuffer({ .Buffer = instance.IndexBuffer, .Type = instance.IndexType });
+
+                        commandList->Draw(Rhi::DrawIndexedDesc{
+                            .indexNum    = instance.IndexCount,
+                            .instanceNum = 1,
+                            .baseIndex   = instance.IndexOffset,
+                            .baseVertex  = static_cast<int32_t>(instance.VertexOffset) });
+                    }
                 });
     }
 } // namespace Ame::Gfx

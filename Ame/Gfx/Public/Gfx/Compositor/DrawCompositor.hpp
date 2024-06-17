@@ -11,6 +11,13 @@ namespace Ame::Gfx
 
     public:
         /// <summary>
+        /// Returns the draw instances.
+        /// </summary>
+        [[nodiscard]] std::span<const DrawInstanceOrder> GetInstances(
+            DrawInstanceType type) const noexcept;
+
+    public:
+        /// <summary>
         /// Submit a render instance to the compositor.
         /// </summary>
         /// <param name="instanceOrder"></param>

@@ -75,7 +75,7 @@ namespace Ame::Gfx
                 batchEntry->VertexBuffer.size_bytes());
 
             instanceOrder.Instance.VertexBuffer = m_BufferCache.get().GetBuffer(handle).Unwrap();
-            instanceOrder.Instance.VertexOffset = handle.Offset;
+            instanceOrder.Instance.VertexOffset = static_cast<uint32_t>(handle.Offset);
 
             std::visit(
                 [&](const auto& index)
@@ -83,7 +83,7 @@ namespace Ame::Gfx
                     auto handle = m_BufferCache.get().Rent(std::bit_cast<const std::byte*>(index.data()), index.size_bytes());
 
                     instanceOrder.Instance.IndexBuffer = m_BufferCache.get().GetBuffer(handle).Unwrap();
-                    instanceOrder.Instance.IndexOffset = handle.Offset;
+                    instanceOrder.Instance.IndexOffset = static_cast<uint32_t>(handle.Offset);
                     instanceOrder.Instance.IndexCount  = static_cast<size_t>(index.size());
 
                     if constexpr (std::is_same_v<decltype(index), EC::BatchableRenderable::IndexView16>)

@@ -25,10 +25,10 @@ namespace Ame::Gfx
         Shading::Material* Material = nullptr;
 
         nri::Buffer* VertexBuffer;
-        uint64_t     VertexOffset;
+        nri::Buffer* IndexBuffer;
 
-        nri::Buffer*   IndexBuffer;
-        uint64_t       IndexOffset;
+        uint32_t       VertexOffset;
+        uint32_t       IndexOffset;
         uint32_t       IndexCount;
         Rhi::IndexType IndexType;
     };

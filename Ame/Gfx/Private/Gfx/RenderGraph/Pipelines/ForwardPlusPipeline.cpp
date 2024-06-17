@@ -20,6 +20,7 @@ namespace Ame::Gfx
         passStorage.Clear();
         passStorage.NewPass<ForwardOpaquePass>(
             "ForwardOpaquePass",
+            entityCompositor,
             commonShaders,
             materialCache);
     }
