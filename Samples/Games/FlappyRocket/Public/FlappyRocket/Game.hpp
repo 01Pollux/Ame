@@ -21,10 +21,10 @@ namespace Ame::FlappyRocket
 {
     class FlappyRocketGame
     {
-        static inline const String c_WorldName  = "Flappy Rocket";
-        static inline const String c_PlayerName = "Player";
-        static inline const String c_CameraName = "Camera";
-        static inline const String c_TextureGuid  = "f3e3e3e3-3e3e-3e3e-3e3e-3e3e3e3e3e3e";
+        static inline const String c_WorldName   = "Flappy Rocket";
+        static inline const String c_PlayerName  = "Player";
+        static inline const String c_CameraName  = "Camera";
+        static inline const String c_TextureGuid = "f3e3e3e3-3e3e-3e3e-3e3e-3e3e3e3e3e3e";
 
     public:
         FlappyRocketGame(

@@ -19,12 +19,12 @@ namespace Ame::Signals
 
 #define AME_SIGNAL_INST(Name)                              \
 public:                                                    \
-    [[nodiscard]] boost::signals2::connection Name(        \
+    boost::signals2::connection Name(                      \
         Ame::Signals::Name##_Slot slot)                    \
     {                                                      \
         return m_##Name.connect(std::move(slot));          \
     }                                                      \
-    [[nodiscard]] boost::signals2::connection Name##Ex(    \
+    boost::signals2::connection Name##Ex(                  \
         Ame::Signals::Name##_SlotEx slot)                  \
     {                                                      \
         return m_##Name.connect_extended(std::move(slot)); \
@@ -33,18 +33,18 @@ public:                                                    \
 private:                                                   \
     Ame::Signals::Name m_##Name
 
-#define AME_SIGNAL_STATIC(Name)                                \
-public:                                                        \
-    [[nodiscard]] static boost::signals2::connection Name(     \
-        Ame::Signals::Name##_Slot slot)                        \
-    {                                                          \
-        return m_##Name.connect(std::move(slot));              \
-    }                                                          \
-    [[nodiscard]] static boost::signals2::connection Name##Ex( \
-        Ame::Signals::Name##_SlotEx slot)                      \
-    {                                                          \
-        return m_##Name.connect_extended(std::move(slot));     \
-    }                                                          \
-                                                               \
-private:                                                       \
+#define AME_SIGNAL_STATIC(Name)                            \
+public:                                                    \
+    static boost::signals2::connection Name(               \
+        Ame::Signals::Name##_Slot slot)                    \
+    {                                                      \
+        return m_##Name.connect(std::move(slot));          \
+    }                                                      \
+    static boost::signals2::connection Name##Ex(           \
+        Ame::Signals::Name##_SlotEx slot)                  \
+    {                                                      \
+        return m_##Name.connect_extended(std::move(slot)); \
+    }                                                      \
+                                                           \
+private:                                                   \
     static inline Ame::Signals::Name m_##Name

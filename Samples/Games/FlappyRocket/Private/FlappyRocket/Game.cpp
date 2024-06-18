@@ -153,9 +153,5 @@ namespace Ame::FlappyRocket
 
         camera->emplace<Ecs::Component::CameraOutput>(
             Gfx::ForwardOpaquePass::Output::c_OutputImageName);
-
-        auto& cameraComponent = *camera->get<Ecs::Component::Camera>();
-
-        auto& cameraTransform = *camera->get<Ecs::Component::Transform>();
     }
 } // namespace Ame::FlappyRocket
