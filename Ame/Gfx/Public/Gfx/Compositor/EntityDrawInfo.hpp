@@ -9,6 +9,7 @@ namespace Ame::Gfx
     struct EntityDrawInfo
     {
         Ecs::Entity                          Entity;
+        uint32_t                             InstanceId = std::numeric_limits<uint32_t>::max();
         CRef<Ecs::Component::BaseRenderable> Renderable;
         CRef<Ecs::Component::Transform>      Transform;
     };

@@ -105,7 +105,6 @@ namespace Ame::Rhi::Util
             SlotType        slot,
             const DataType& data)
         {
-            AllocationMustExists(slot);
             Write(slot, std::bit_cast<const std::byte*>(std::addressof(data)), sizeof(DataType));
         }
 

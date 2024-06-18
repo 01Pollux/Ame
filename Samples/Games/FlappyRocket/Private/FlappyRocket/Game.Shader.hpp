@@ -5,6 +5,14 @@ namespace Ame::FlappyRocket
     static constexpr const char* c_ShaderSource = R"(
 #include "../Core/Material.hlsli"
 
+struct InstanceInfo
+{
+	uint InstanceId;
+};
+AME_PUSH_CONSTANT(InstanceInfo, g_RenderInstance, 0);
+
+//
+
 struct UserData
 {
 	float4 _Color;
@@ -23,7 +31,7 @@ Ecs_PSInput VS_Main(
 {
 	Ecs_PSInput output = (Ecs_PSInput) 0;
 	
-	RenderInstance instance = g_RenderInstances[AME_INSTANCE_ID_OFFSET];
+	RenderInstance instance = g_RenderInstances[g_RenderInstance.InstanceId];
 	Transform transform = g_Transforms[instance.TransformId];
 	
 	float4 PositionWS = float4(vertex.Position, 1.0f);

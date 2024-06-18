@@ -174,9 +174,10 @@ namespace Ame::Rhi::Util
         /// Rent a slot in the buffer
         /// </summary>
         [[nodiscard]] Handle Rent(
-            size_t size)
+            size_t size,
+            size_t alignment = 1)
         {
-            return FindSlot(size);
+            return FindSlot(size, alignment);
         }
 
         /// <summary>
@@ -184,9 +185,10 @@ namespace Ame::Rhi::Util
         /// </summary>
         [[nodiscard]] Handle Rent(
             const std::byte* data,
-            size_t           size)
+            size_t           size,
+            size_t           alignment = 1)
         {
-            auto handle = FindSlot(size);
+            auto handle = FindSlot(size, alignment);
             if (handle)
             {
                 Write(handle, data, size);
@@ -225,13 +227,14 @@ namespace Ame::Rhi::Util
         /// Find a slot in the buffer with the given size, if not found, create a new block
         /// </summary>
         [[nodiscard]] Handle FindSlot(
-            size_t size)
+            size_t size,
+            size_t alignment)
         {
             Handle handle;
             for (uint32_t i = 0; i < m_Blocks.size(); i++)
             {
                 auto& block       = m_Blocks[i];
-                auto  foundHandle = block.Buddy.Allocate(size);
+                auto  foundHandle = block.Buddy.Allocate(size, alignment);
 
                 if (foundHandle)
                 {
@@ -246,7 +249,7 @@ namespace Ame::Rhi::Util
 
             if (!handle)
             {
-                handle = CreateBlock(size);
+                handle = CreateBlockAndAllocateSlot(size, alignment);
             }
 
             return handle;
@@ -256,8 +259,9 @@ namespace Ame::Rhi::Util
         /// Create a new block in the buffer with the given size
         /// If the size is larger than the buffer, return an invalid handle
         /// </summary>
-        [[nodiscard]] Handle CreateBlock(
-            size_t size)
+        [[nodiscard]] Handle CreateBlockAndAllocateSlot(
+            size_t size,
+            size_t alignment)
         {
             if (m_Desc.MaxBlockCount && m_Desc.MaxBlockCount <= m_Blocks.size()) [[unlikely]]
             {
@@ -267,7 +271,7 @@ namespace Ame::Rhi::Util
             m_Desc.Size = GetSuitableBlockSize(size);
 
             auto& block  = m_Blocks.emplace_back(m_Device.get(), m_Desc.Location, m_Desc.Size, m_Desc.UsageFlags);
-            auto  handle = block.Buddy.Allocate(size);
+            auto  handle = block.Buddy.Allocate(size, alignment);
 
             return {
                 .BlockSlot = static_cast<uint32_t>(m_Blocks.size() - 1),

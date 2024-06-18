@@ -12,20 +12,21 @@ namespace Ame::Gfx::Shading
 
     struct MaterialLayoutDesc
     {
-        static constexpr uint32_t InitialSetCount  = 2;
-        static constexpr uint32_t MaterialSetCount = InitialSetCount + 1;
+        static constexpr uint32_t InitialDescriptorSetCount = 2;
+        static constexpr uint32_t MaterialSetCount          = InitialDescriptorSetCount + 1;
 
     public:
         explicit MaterialLayoutDesc(
             const PropertyDescriptor& Descriptor) :
             m_FrameData(CD::c_FrameRangeDesc<>),
             m_EntityData(CD::c_EntityRangeDesc<>),
+            m_InstanceIndexConstant(CD::c_InstanceIndexConstant<>),
             m_Sets{
                 { .registerSpace = CD::c_FrameData_RegisterSpace, .ranges = &m_FrameData, .rangeNum = 1 },
                 { .registerSpace = CD::c_EntityData_RegisterSpace, .ranges = &m_EntityData, .rangeNum = 1 },
                 { .registerSpace = CD::c_MaterialData_RegisterSpace }
             },
-            m_SetCount(InitialSetCount)
+            m_SetCount(InitialDescriptorSetCount)
         {
             FillDescriptorSet(Descriptor);
         }
@@ -35,7 +36,9 @@ namespace Ame::Gfx::Shading
         {
             return Rhi::PipelineLayoutDesc{
                 .descriptorSets                     = m_Sets,
+                .pushConstants                      = &m_InstanceIndexConstant,
                 .descriptorSetNum                   = m_SetCount,
+                .pushConstantNum                    = 1,
                 .shaderStages                       = m_ShaderBits.Flags,
                 .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation
             };
@@ -129,13 +132,15 @@ namespace Ame::Gfx::Shading
                 m_ShaderBits = Rhi::ShaderFlags::Graphics();
             }
 
-            m_FrameData.shaderStages  = m_ShaderBits.Flags;
-            m_EntityData.shaderStages = m_ShaderBits.Flags;
+            m_FrameData.shaderStages             = m_ShaderBits.Flags;
+            m_EntityData.shaderStages            = m_ShaderBits.Flags;
+            m_InstanceIndexConstant.shaderStages = m_ShaderBits.Flags;
         }
 
     private:
         Rhi::DescriptorRangeDesc m_FrameData;
         Rhi::DescriptorRangeDesc m_EntityData;
+        Rhi::PushConstantDesc    m_InstanceIndexConstant;
 
         Rhi::DynamicConstantBufferDesc        m_UserData{};
         std::vector<Rhi::DescriptorRangeDesc> m_ResourceDatas;

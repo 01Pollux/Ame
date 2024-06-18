@@ -22,7 +22,8 @@ namespace Ame::Gfx
                     }
                 })),
         m_TransformBuffer(rhiDevice, desc.TransformBufferDesc),
-        m_AABBBuffer(rhiDevice, desc.AABBBufferDesc)
+        m_AABBBuffer(rhiDevice, desc.AABBBufferDesc),
+        m_InstanceBuffer(rhiDevice, desc.InstanceBufferDesc)
     {
     }
 

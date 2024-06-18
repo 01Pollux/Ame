@@ -5,9 +5,11 @@
 
 namespace Ame::Gfx
 {
-    class DynamicInstanceBuffer : public Rhi::Util::SlotBasedBuffer<RenderInstance>
+    class InstanceBuffer : public Rhi::Util::SlotBasedBuffer<RenderInstance>
     {
     public:
+        using GpuId = typename DataType::GpuId;
+
         using SlotBasedBuffer::SlotBasedBuffer;
     };
 } // namespace Ame::Gfx

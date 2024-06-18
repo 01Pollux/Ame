@@ -10,62 +10,100 @@ namespace Ame::Gfx
     void EcsWorldResources::CreateObserversAndRules(
         Ecs::World& world)
     {
+        auto getOrAllocateFromBuffer = [](auto& buffer, auto entity, auto curGpuId, auto invalidId)
+        {
+            auto gpuId{ curGpuId ? *curGpuId : invalidId };
+            if (!curGpuId)
+            {
+                gpuId.Id = buffer.Rent();
+                entity->set(gpuId);
+            }
+            return gpuId;
+        };
+
+        auto removeFromBuffer = [](auto& buffer, auto entity, auto curGpuId)
+        {
+            if (curGpuId)
+            {
+                buffer.Return(curGpuId->Id);
+                entity->remove<decltype(curGpuId)>();
+            }
+        };
+
+        auto getOrInvalid = [](auto gpuId, auto invalidId)
+        {
+            return gpuId ? gpuId->Id : invalidId;
+        };
+
+        //
+
         auto transformCallback =
-            [this](Ecs::Iterator& iter, const Ecs::Component::Transform* transforms)
+            [&](Ecs::Iterator&                   iter,
+                const Ecs::Component::Transform* transforms)
         {
             for (size_t i : iter)
             {
                 Ecs::Entity entity(iter.entity(i));
 
-                auto curGpuId = entity->get<TransformBuffer::GpuId>();
+                auto transformIdComponent = entity->get<TransformBuffer::GpuId>();
                 if (iter.event() == flecs::OnSet)
                 {
-                    TransformBuffer::GpuId gpuId{ curGpuId ? curGpuId->Id : m_TransformBuffer.c_InvalidSlot };
-                    if (!curGpuId)
-                    {
-                        gpuId.Id = m_TransformBuffer.Rent();
-                        entity->set(gpuId);
-                    }
-                    auto matrix = transforms[i].ToMat4x4Transposed();
-                    m_TransformBuffer.Write(gpuId.Id, std::bit_cast<const std::byte*>(matrix.data()), sizeof(matrix));
+                    auto transformId = getOrAllocateFromBuffer(m_TransformBuffer, entity, transformIdComponent, TransformBuffer::GpuId{});
+                    auto matrix      = transforms[i].ToMat4x4Transposed();
+                    m_TransformBuffer.Write(transformId.Id, std::bit_cast<const std::byte*>(matrix.data()), sizeof(matrix));
                 }
                 else
                 {
-                    if (curGpuId)
-                    {
-                        m_TransformBuffer.Return(curGpuId->Id);
-                        entity->remove<TransformBuffer::GpuId>();
-                    }
+                    removeFromBuffer(m_TransformBuffer, entity, transformIdComponent);
                 }
             }
         };
 
         auto aabbCallback =
-            [this](Ecs::Iterator& iter, const Ecs::Component::AABB* aabbs)
+            [&](Ecs::Iterator&              iter,
+                const Ecs::Component::AABB* aabbs)
         {
             for (size_t i : iter)
             {
                 Ecs::Entity entity(iter.entity(i));
 
-                auto curGpuId = entity->get<AABBBuffer::GpuId>();
+                auto aabbIdComponent = entity->get<AABBBuffer::GpuId>();
                 if (iter.event() == flecs::OnSet)
                 {
-                    AABBBuffer::GpuId gpuId{ curGpuId ? curGpuId->Id : m_AABBBuffer.c_InvalidSlot };
-                    if (!curGpuId)
-                    {
-                        gpuId.Id = m_AABBBuffer.Rent();
-                        entity->set(gpuId);
-                    }
-                    AlignedAABB aabb{ aabbs[i].ToAABB() };
-                    m_AABBBuffer.Write(gpuId.Id, aabb);
+                    auto aabbId = getOrAllocateFromBuffer(m_AABBBuffer, entity, aabbIdComponent, AABBBuffer::GpuId{});
+                    auto box    = aabbs[i].ToAABB();
+                    m_AABBBuffer.Write(aabbId.Id, std::bit_cast<const std::byte*>(&box), sizeof(box));
                 }
                 else
                 {
-                    if (curGpuId)
-                    {
-                        m_AABBBuffer.Return(curGpuId->Id);
-                        entity->remove<AABBBuffer::GpuId>();
-                    }
+                    removeFromBuffer(m_AABBBuffer, entity, aabbIdComponent);
+                }
+            }
+        };
+
+        auto instanceCallback =
+            [&](Ecs::Iterator&                iter,
+                const TransformBuffer::GpuId* transformIds,
+                const AABBBuffer::GpuId*      aabbIds)
+        {
+            for (size_t i : iter)
+            {
+                Ecs::Entity entity(iter.entity(i));
+                if (iter.event() == flecs::OnSet)
+                {
+                    RenderInstance instance{
+                        .TransformId = transformIds[i].Id,
+                        .AABBId      = aabbIds[i].Id
+                    };
+
+                    auto instanceIdComponent = entity->get<InstanceBuffer::GpuId>();
+                    auto instanceId          = getOrAllocateFromBuffer(m_InstanceBuffer, entity, instanceIdComponent, InstanceBuffer::GpuId{});
+                    m_InstanceBuffer.Write(instanceId.Id, std::bit_cast<const std::byte*>(&instance), sizeof(instance));
+                    m_InstanceBuffer.Flush();
+                }
+                else
+                {
+                    removeFromBuffer(m_InstanceBuffer, entity, entity->get<InstanceBuffer::GpuId>());
                 }
             }
         };
@@ -73,7 +111,8 @@ namespace Ame::Gfx
         //
 
         m_WorldData.RenderRule =
-            world.CreateRule<const Ecs::Component::Transform,
+            world.CreateRule<const RenderInstance::GpuId,
+                             const Ecs::Component::Transform,
                              const Ecs::Component::BaseRenderable>()
                 .with<Ecs::Tag::VisibleToCamera>()
                 .second("$Camera")
@@ -92,5 +131,13 @@ namespace Ame::Gfx
                 .event(flecs::OnSet)
                 .event(flecs::OnRemove)
                 .iter(aabbCallback);
+
+        m_WorldData.InstanceObserver =
+            world.CreateObserver<const TransformBuffer::GpuId,
+                                 const AABBBuffer::GpuId>()
+                .with<const Ecs::Component::BaseRenderable>()
+                .event(flecs::OnSet)
+                .event(flecs::OnRemove)
+                .iter(instanceCallback);
     }
 } // namespace Ame::Gfx

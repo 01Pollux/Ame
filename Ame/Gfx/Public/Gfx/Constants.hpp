@@ -32,6 +32,7 @@ namespace Ame::Gfx::Constants::DescriptorRanges
     enum class EntityDataTypes : uint8_t
     {
         Transforms,
+        AABB,
         RenderInstances,
 
         Count
@@ -53,6 +54,16 @@ namespace Ame::Gfx::Constants::DescriptorRanges
     };
 
     //
+
+    static constexpr uint32_t c_InstanceIndex_RegisterIndex = 0;
+    static constexpr uint32_t c_InstanceIndex_ConstantIndex = 0;
+
+    template<typename Rhi::StageBits ShaderTypes = Rhi::StageBits::NONE>
+    static constexpr Rhi::PushConstantDesc c_InstanceIndexConstant{
+        .registerIndex = c_InstanceIndex_RegisterIndex,
+        .size          = sizeof(uint32_t),
+        .shaderStages  = ShaderTypes
+    };
 
     static constexpr uint32_t c_MaterialData_SetIndex      = 2;
     static constexpr uint32_t c_MaterialData_RegisterSpace = 15;

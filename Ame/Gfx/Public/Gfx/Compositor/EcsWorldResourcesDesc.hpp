@@ -8,5 +8,6 @@ namespace Ame::Gfx
     {
         Rhi::Util::SlotBasedBufferDesc TransformBufferDesc;
         Rhi::Util::SlotBasedBufferDesc AABBBufferDesc;
+        Rhi::Util::SlotBasedBufferDesc InstanceBufferDesc;
     };
 } // namespace Ame::Gfx

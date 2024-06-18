@@ -59,9 +59,11 @@ namespace Ame::Gfx
     {
         auto& transformBuffer = m_EcsResources->GetTransformBuffer();
         auto& aabbBuffer      = m_EcsResources->GetAABBBuffer();
+        auto& instanceBuffer  = m_EcsResources->GetInstanceBuffer();
 
         transformBuffer.Flush();
         aabbBuffer.Flush();
+        instanceBuffer.Flush();
 
         //
 
@@ -69,6 +71,7 @@ namespace Ame::Gfx
 
         resourceStorage.ImportBuffer(RG::Names::c_TransformsTable, transformBuffer.GetBuffer().Borrow());
         resourceStorage.ImportBuffer(RG::Names::c_AABBTable, aabbBuffer.GetBuffer().Borrow());
+        resourceStorage.ImportBuffer(RG::Names::c_InstanceTable, instanceBuffer.GetBuffer().Borrow());
     }
 
     //
@@ -87,13 +90,14 @@ namespace Ame::Gfx
             .iter(
                 [this](
                     Ecs::Iterator&                        iter,
+                    const RenderInstance::GpuId*          instanceIds,
                     const Ecs::Component::Transform*      transforms,
                     const Ecs::Component::BaseRenderable* renderables)
                 {
                     m_DrawInfos.reserve(m_DrawInfos.size() + iter.count());
                     for (auto i : iter)
                     {
-                        m_DrawInfos.emplace_back(iter.entity(i), renderables[i], transforms[i]);
+                        m_DrawInfos.emplace_back(iter.entity(i), instanceIds[i].Id, renderables[i], transforms[i]);
                     }
                 });
     }

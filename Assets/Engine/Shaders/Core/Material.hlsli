@@ -5,6 +5,7 @@
 #include "../Core/FrameData.hlsli"
 #include "../Core/RenderInstance.hlsli"
 #include "../Geometry/Transform.hlsli"
+#include "../Geometry/AABB.hlsli"
 
 MaterialFragment PSM_Main(Ecs_PSInput input);
 
@@ -19,6 +20,7 @@ AME_ENABLE_DRAW_PARAMETERS;
 AME_RESOURCE(ConstantBuffer<FrameDesc>, g_FrameInfo, b, 0, 1);
 
 AME_RESOURCE(StructuredBuffer<Transform>, g_Transforms, t, 0, 2);
-AME_RESOURCE(StructuredBuffer<RenderInstance>, g_RenderInstances, t, 1, 2);
+AME_RESOURCE(StructuredBuffer<AABB>, g_AABBs, t, 1, 2);
+AME_RESOURCE(StructuredBuffer<RenderInstance>, g_RenderInstances, t, 2, 2);
 
 #endif

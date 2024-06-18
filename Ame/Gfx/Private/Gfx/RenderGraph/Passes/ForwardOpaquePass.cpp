@@ -38,10 +38,13 @@ namespace Ame::Gfx
                     //
 
                     resolver.ReadBuffer(
-                        RG::Names::c_TransformsTable("GBufferPass"),
+                        RG::Names::c_TransformsTable("TiledForward"),
                         Rhi::StageBits::GRAPHICS_SHADERS);
                     resolver.ReadBuffer(
-                        RG::Names::c_AABBTable("GBufferPass"),
+                        RG::Names::c_AABBTable("TiledForward"),
+                        Rhi::StageBits::GRAPHICS_SHADERS);
+                    resolver.ReadBuffer(
+                        RG::Names::c_InstanceTable("TiledForward"),
                         Rhi::StageBits::GRAPHICS_SHADERS);
                 })
             .Execute(
@@ -50,8 +53,9 @@ namespace Ame::Gfx
                     auto& frameData      = storage.GetFrameResourceData();
                     auto& backbufferDesc = storage.GetBackbufferDesc();
 
-                    auto& transformsTable = storage.GetResourceViewHandle(RG::Names::c_TransformsTable("GBufferPass"));
-                    auto& aabbTable       = storage.GetResourceViewHandle(RG::Names::c_AABBTable("GBufferPass"));
+                    auto& transformsTable = storage.GetResourceViewHandle(RG::Names::c_TransformsTable("TiledForward"));
+                    auto& aabbTable       = storage.GetResourceViewHandle(RG::Names::c_AABBTable("TiledForward"));
+                    auto& instanceTable   = storage.GetResourceViewHandle(RG::Names::c_InstanceTable("TiledForward"));
 
                     //
 
@@ -61,7 +65,8 @@ namespace Ame::Gfx
 
                     nri::Descriptor* entityDescriptors[]{
                         transformsTable.Unwrap(),
-                        aabbTable.Unwrap()
+                        aabbTable.Unwrap(),
+                        instanceTable.Unwrap()
                     };
 
                     //
@@ -110,6 +115,7 @@ namespace Ame::Gfx
                     for (auto& [instance, order] : entityCompositor.GetDrawInstances(DrawInstanceType::Opaque))
                     {
                         m_MaterialCache.get().Bind(*commandList, instance.Material);
+                        commandList->SetConstants(CD::c_InstanceIndex_ConstantIndex, instance.InstanceId);
 
                         if (!frameDataSet)
                         {
@@ -126,14 +132,12 @@ namespace Ame::Gfx
                         auto pipelineState = instance.Material->GetPipelineState(RenderState).get();
                         commandList->SetPipelineState(pipelineState);
 
-                        commandList->SetVertexBuffer({ .Buffer = instance.VertexBuffer });
-                        commandList->SetIndexBuffer({ .Buffer = instance.IndexBuffer, .Type = instance.IndexType });
+                        commandList->SetVertexBuffer({ .Buffer = instance.VertexBuffer, .Offset = instance.VertexOffset });
+                        commandList->SetIndexBuffer({ .Buffer = instance.IndexBuffer, .Offset = instance.IndexOffset, .Type = instance.IndexType });
 
                         commandList->Draw(Rhi::DrawIndexedDesc{
                             .indexNum    = instance.IndexCount,
-                            .instanceNum = 1,
-                            .baseIndex   = instance.IndexOffset,
-                            .baseVertex  = static_cast<int32_t>(instance.VertexOffset) });
+                            .instanceNum = 1 });
                     }
                 });
     }

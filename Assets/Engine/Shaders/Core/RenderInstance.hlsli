@@ -5,16 +5,8 @@
 
 struct RenderInstance
 {
-	uint AABBId;
 	uint TransformId;
-	
-	uint VertexOffset;
-	uint VertexSize;
-	
-	uint IndexOffset;
-	uint IndexCount;
-	
-	uint2 _pad;
+	uint AABBId;
 };
 
 #endif

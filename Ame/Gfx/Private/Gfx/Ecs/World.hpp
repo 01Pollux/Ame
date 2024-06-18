@@ -5,6 +5,7 @@
 
 #include <Gfx/RenderGraph/Buffers/TransformBuffer.hpp>
 #include <Gfx/RenderGraph/Buffers/AABBBuffer.hpp>
+#include <Gfx/RenderGraph/Buffers/InstanceBuffer.hpp>
 
 namespace Ame::Ecs::Component
 {
@@ -20,6 +21,7 @@ namespace Ame::Gfx
     {
     public:
         using CameraRenderRule = Ecs::UniqueRule<
+            const RenderInstance::GpuId,
             const Ecs::Component::Transform,
             const Ecs::Component::BaseRenderable>;
 
@@ -47,6 +49,15 @@ namespace Ame::Gfx
         }
 
         /// <summary>
+        /// Returns the AABB buffer.
+        /// </summary>
+        [[nodiscard]] InstanceBuffer& GetInstanceBuffer() noexcept
+        {
+            return m_InstanceBuffer;
+        }
+
+    public:
+        /// <summary>
         /// Returns the camera render rule.
         /// </summary>
         [[nodiscard]] CameraRenderRule& GetCameraRenderRule() noexcept
@@ -68,6 +79,7 @@ namespace Ame::Gfx
             CameraRenderRule    RenderRule;
             Ecs::UniqueObserver TransformObserver;
             Ecs::UniqueObserver AABBObserver;
+            Ecs::UniqueObserver InstanceObserver;
         };
 
     private:
@@ -78,5 +90,6 @@ namespace Ame::Gfx
 
         TransformBuffer m_TransformBuffer;
         AABBBuffer      m_AABBBuffer;
+        InstanceBuffer  m_InstanceBuffer;
     };
 } // namespace Ame::Gfx

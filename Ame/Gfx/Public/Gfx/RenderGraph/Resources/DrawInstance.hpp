@@ -24,13 +24,15 @@ namespace Ame::Gfx
         /// </summary>
         Shading::Material* Material = nullptr;
 
-        nri::Buffer* VertexBuffer;
-        nri::Buffer* IndexBuffer;
+        nri::Buffer* VertexBuffer = nullptr;
+        nri::Buffer* IndexBuffer  = nullptr;
 
-        uint32_t       VertexOffset;
-        uint32_t       IndexOffset;
-        uint32_t       IndexCount;
-        Rhi::IndexType IndexType;
+        uint64_t VertexOffset = std::numeric_limits<uint64_t>::max();
+        uint64_t IndexOffset  = std::numeric_limits<uint64_t>::max();
+        uint32_t IndexCount   = std::numeric_limits<uint32_t>::max();
+
+        uint32_t       InstanceId = std::numeric_limits<uint32_t>::max();
+        Rhi::IndexType IndexType  = Rhi::IndexType::MAX_NUM;
     };
 
     enum class DrawInstanceType : uint8_t
