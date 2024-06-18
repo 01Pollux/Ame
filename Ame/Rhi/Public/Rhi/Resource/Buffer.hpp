@@ -78,7 +78,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri buffer.
         /// </summary>
-        [[nodiscard]] nri::Buffer* Unwrap() const;
+        [[nodiscard]] nri::Buffer* const& Unwrap() const;
 
         /// <summary>
         /// Get the buffer native handle.

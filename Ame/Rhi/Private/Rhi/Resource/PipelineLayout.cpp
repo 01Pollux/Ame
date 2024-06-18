@@ -18,16 +18,16 @@ namespace Ame::Rhi
 
     PipelineLayout::~PipelineLayout()
     {
-        m_RhiDevice.Release(Unwrap());
+        m_RhiDevice.Release(m_Layout);
     }
 
     void PipelineLayout::SetName(
         const char* name) const
     {
-        m_RhiDevice.SetName(Unwrap(), name);
+        m_RhiDevice.SetName(m_Layout, name);
     }
 
-    nri::PipelineLayout& PipelineLayout::Unwrap() const
+    const nri::PipelineLayout& PipelineLayout::Unwrap() const
     {
         return m_Layout;
     }

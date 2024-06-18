@@ -69,14 +69,14 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri texture.
         /// </summary>
-        [[nodiscard]] nri::Texture* Unwrap() const;
+        [[nodiscard]] nri::Texture* const& Unwrap() const;
 
         /// <summary>
         /// Get the texture native handle.
         /// </summary>
         [[nodiscard]] void* GetNative() const;
 
-        public:
+    public:
         /// <summary>
         /// Borrow the texture (The texture will not be released when the texture is destroyed)
         /// </summary>

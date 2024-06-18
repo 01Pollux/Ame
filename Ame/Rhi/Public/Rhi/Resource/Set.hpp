@@ -9,6 +9,10 @@ namespace Ame::Rhi
     public:
         DescriptorSet() = default;
 
+        DescriptorSet(std::nullptr_t)
+        {
+        }
+
         DescriptorSet(
             DeviceImpl*         rhiDeviceImpl,
             nri::DescriptorSet* nriSet) :
@@ -67,7 +71,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri descriptor set.
         /// </summary>
-        [[nodiscard]] nri::DescriptorSet* Unwrap() const;
+        [[nodiscard]] nri::DescriptorSet* const& Unwrap() const;
 
     private:
         DeviceImpl*         m_RhiDevice = nullptr;

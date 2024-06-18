@@ -19,16 +19,16 @@ namespace Ame::Rhi
 
     PipelineState::~PipelineState()
     {
-        m_RhiDevice.Release(Unwrap());
+        m_RhiDevice.Release(m_Pipeline);
     }
 
     void PipelineState::SetName(
         const char* name) const
     {
-        m_RhiDevice.SetName(Unwrap(), name);
+        m_RhiDevice.SetName(m_Pipeline, name);
     }
 
-    nri::Pipeline& PipelineState::Unwrap() const
+    const nri::Pipeline& PipelineState::Unwrap() const
     {
         return m_Pipeline;
     }

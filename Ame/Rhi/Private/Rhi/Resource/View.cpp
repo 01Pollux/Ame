@@ -273,7 +273,7 @@ namespace Ame::Rhi
         nriCore.SetDescriptorDebugName(*m_Descriptor, name);
     }
 
-    nri::Descriptor* ResourceView::Unwrap() const
+    nri::Descriptor* const& ResourceView::Unwrap() const
     {
         return m_Descriptor;
     }

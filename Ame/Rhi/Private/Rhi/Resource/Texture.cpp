@@ -83,7 +83,7 @@ namespace Ame::Rhi
         return nriCore.GetTextureDesc(*m_Texture);
     }
 
-    nri::Texture* Texture::Unwrap() const
+    nri::Texture* const& Texture::Unwrap() const
     {
         return m_Texture;
     }

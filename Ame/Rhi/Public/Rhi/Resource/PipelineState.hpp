@@ -30,7 +30,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri pipeline state.
         /// </summary>
-        [[nodiscard]] nri::Pipeline& Unwrap() const;
+        [[nodiscard]] const nri::Pipeline& Unwrap() const;
 
         /// <summary>
         /// Get the pipeline layout.

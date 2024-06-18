@@ -84,7 +84,7 @@ namespace Ame::Rhi
 
     //
 
-    nri::Buffer* Buffer::Unwrap() const
+    nri::Buffer* const& Buffer::Unwrap() const
     {
         return m_Buffer;
     }

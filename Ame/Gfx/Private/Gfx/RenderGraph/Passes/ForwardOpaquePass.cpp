@@ -112,10 +112,16 @@ namespace Ame::Gfx
 
                     //
 
-                    for (auto& [instance, order] : entityCompositor.GetDrawInstances(DrawInstanceType::Opaque))
+                    Gfx::Shading::Material* lastMaterial     = nullptr;
+                    auto                    bindMaterialOnce = [&](auto material)
                     {
-                        m_MaterialCache.get().Bind(*commandList, instance.Material);
-                        commandList->SetConstants(CD::c_InstanceIndex_ConstantIndex, instance.InstanceId);
+                        if (lastMaterial != material)
+                        {
+                            lastMaterial = material;
+                            frameDataSet = nullptr;
+                        }
+
+                        m_MaterialCache.get().Bind(*commandList, material);
 
                         if (!frameDataSet)
                         {
@@ -128,6 +134,14 @@ namespace Ame::Gfx
                             commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
                             commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
                         }
+                    };
+
+                    //
+
+                    for (auto& [instance, order] : entityCompositor.GetDrawInstances(DrawInstanceType::Opaque))
+                    {
+                        bindMaterialOnce(instance.Material);
+                        commandList->SetConstants(CD::c_InstanceIndex_ConstantIndex, instance.InstanceId);
 
                         auto pipelineState = instance.Material->GetPipelineState(RenderState).get();
                         commandList->SetPipelineState(pipelineState);

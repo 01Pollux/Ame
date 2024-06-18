@@ -69,7 +69,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri descriptor.
         /// </summary>
-        [[nodiscard]] nri::Descriptor* Unwrap() const;
+        [[nodiscard]] nri::Descriptor* const& Unwrap() const;
 
         /// <summary>
         /// Get the descriptor native handle.

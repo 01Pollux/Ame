@@ -62,19 +62,21 @@ namespace Ame::Gfx::Cache
     {
         uint32_t bufferSize = material.GetSizeOfUserData();
 
-        std::vector<const nri::Descriptor*> descriptors;
+        std::vector<nri::DescriptorRangeUpdateDesc> updateDescs;
         for (auto& iter : material.GetResources())
         {
             std::visit(
                 VariantVisitor{
-                    [&descriptors](const auto& resource)
+                    [&updateDescs](const auto& resource)
                     {
-                        descriptors.emplace_back(resource.View->Unwrap());
+                        updateDescs.emplace_back(nri::DescriptorRangeUpdateDesc{
+                            .descriptors   = &resource.View->Unwrap(),
+                            .descriptorNum = 1 });
                     } },
                 iter->second);
         }
 
-        bool hasMaterialData = bufferSize || !descriptors.empty();
+        bool hasMaterialData = bufferSize || !updateDescs.empty();
         if (hasMaterialData)
         {
             setCache.DescriptorSet = commandList.AllocateSet(CD::c_MaterialData_SetIndex);
@@ -96,19 +98,9 @@ namespace Ame::Gfx::Cache
             std::copy(userData, userData + bufferSize, bufferPtr);
         }
 
-        if (!descriptors.empty())
+        if (!updateDescs.empty())
         {
-            std::vector<Rhi::DescriptorRangeUpdateDesc> rangeUpdateDescs;
-            rangeUpdateDescs.reserve(descriptors.size());
-
-            for (uint32_t i = 0; i < descriptors.size(); ++i)
-            {
-                auto& range         = rangeUpdateDescs.emplace_back();
-                range.offsetInRange = 0;
-                range.descriptors   = &descriptors[i];
-                range.descriptorNum = 1;
-            }
-            setCache.DescriptorSet.SetRanges(0, rangeUpdateDescs);
+            setCache.DescriptorSet.SetRanges(0, updateDescs);
         }
     }
 

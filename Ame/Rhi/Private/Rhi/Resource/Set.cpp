@@ -54,7 +54,7 @@ namespace Ame::Rhi
 
     //
 
-    nri::DescriptorSet* DescriptorSet::Unwrap() const
+    nri::DescriptorSet* const& DescriptorSet::Unwrap() const
     {
         return m_Set;
     }
