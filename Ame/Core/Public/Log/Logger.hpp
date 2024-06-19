@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Log/Signals.hpp>
 #include <vector>
+#include <Log/Core.hpp>
 
 namespace spdlog
 {
@@ -168,9 +168,6 @@ namespace Ame::Log
         /// Get the current log level
         /// </summary>
         [[nodiscard]] LogLevel GetLevel() const noexcept;
-
-    public:
-        AME_SIGNAL_STATIC(OnLog);
 
     private:
         String              m_Name;

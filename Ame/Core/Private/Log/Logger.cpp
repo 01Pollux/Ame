@@ -178,8 +178,6 @@ namespace Ame::Log
             return;
         }
         }
-
-        m_OnLog({ Message, Level });
     }
 
     void Logger::SetLevel(

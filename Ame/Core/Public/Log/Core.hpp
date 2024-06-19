@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Core/String.hpp>
 
 namespace Ame::Log

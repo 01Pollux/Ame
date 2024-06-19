@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Signals/Frame.hpp>
+#include <Object/Signal.hpp>
 #include <Frame/FrameTimer.hpp>
 
 namespace Ame
@@ -8,21 +8,18 @@ namespace Ame
     class EngineFrame
     {
     public:
+        AME_SIGNAL_DECL(OnStartFrame, void());
+
+        AME_SIGNAL_DECL(OnTick, void());
+        AME_SIGNAL_DECL(OnPostTick, void());
+
+        AME_SIGNAL_DECL(OnEndFrame, void());
+
+    public:
         EngineFrame(
             FrameTimer& frameTimer);
 
         void Run();
-
-    public:
-        AME_SIGNAL_INST(OnStartFrame);
-
-        AME_SIGNAL_INST(OnUpdate);
-        AME_SIGNAL_INST(OnPostUpdate);
-
-        AME_SIGNAL_INST(OnRender);
-        AME_SIGNAL_INST(OnPostRender);
-
-        AME_SIGNAL_INST(OnEndFrame);
 
     public:
         /// <summary>
@@ -35,8 +32,13 @@ namespace Ame
         /// </summary>
         [[nodiscard]] bool IsRunning() const;
 
-    private:
-        void DoTick();
+    public:
+        AME_SIGNAL_INST(OnStartFrame);
+
+        AME_SIGNAL_INST(OnTick);
+        AME_SIGNAL_INST(OnPostTick);
+
+        AME_SIGNAL_INST(OnEndFrame);
 
     private:
         Ref<FrameTimer> m_Timer;
