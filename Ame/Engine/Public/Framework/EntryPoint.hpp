@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Framework/Framework.hpp>
-#include <Rhi/Device/Device.hpp>
 
 namespace Ame::Framework
 {
@@ -20,7 +19,6 @@ namespace Ame::Framework
     {                                        \
         Ame::Framework::Main(argc, argv);    \
         Ame::Log::Logger::CloseAllLoggers(); \
-        Ame::Rhi::Device::CleanupCheck();    \
         return 0;                            \
     }
 

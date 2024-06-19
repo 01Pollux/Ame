@@ -1,4 +1,5 @@
 target("SimpleLog")
+    set_default(true)
     ame_utils:add_binary("Samples/Engine", "Samples/Engine/SimpleLog")
 target_end()
 

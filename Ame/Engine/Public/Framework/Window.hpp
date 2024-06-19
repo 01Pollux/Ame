@@ -4,7 +4,6 @@
 #include <Rhi/Device/CreateDesc.hpp>
 
 #include <Subsystem/Rhi/Device.hpp>
-#include <Subsystem/Gfx/Renderer.hpp>
 
 namespace Ame::Framework
 {
@@ -36,7 +35,6 @@ namespace Ame::Framework
         {
             m_Engine.RegisterSubsystem<Rhi::DeviceSubsystem>(rhiDesc);
             m_Engine.RegisterSubsystem<CoroutineSubsystem>(runtimeOptions);
-            m_Engine.RegisterSubsystem<Gfx::RendererSubsystem>();
         }
 
     private:

@@ -29,7 +29,7 @@ namespace Ame::Rhi
     void NriLogCallbackInterface::AbortExecution(void*)
     {
         Log::Rhi().Fatal("GPU Fatal Error");
-        AME_DEBUG_BREAK;
+        Ame::DebugBreak();
         std::abort();
     }
 } // namespace Ame::Rhi

@@ -5,7 +5,6 @@
 #include <Rhi/Device/Device.hpp>
 
 #include <Rhi/Shader/Shader.Options.hpp>
-#include <Rhi/Shader/Shader.Handler.hpp>
 #include <Rhi/Resource/Shader.Compiler.hpp>
 
 namespace Ame::Rhi

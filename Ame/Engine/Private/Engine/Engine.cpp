@@ -4,6 +4,8 @@
 
 #include <Log/Wrapper.hpp>
 
+#include <Core/Coroutine.hpp>
+
 namespace Ame
 {
     void BaseEngine::Run()

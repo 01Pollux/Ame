@@ -92,7 +92,7 @@ namespace Ame::Rhi
         CComPtr<IDxcResult> result;
         {
             HRESULT hr = S_OK;
-            if (assetStorage) [[likely]]
+            /*if (assetStorage) [[likely]]
             {
                 ShaderIncludeHandler includeHandler(
                     m_Utils.Get(),
@@ -106,7 +106,7 @@ namespace Ame::Rhi
                     &includeHandler,
                     IID_PPV_ARGS(&result));
             }
-            else
+            else*/
             {
                 hr = m_Compiler->Compile(
                     &dxcBuffer,

@@ -1,7 +1,6 @@
 local notshared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
 target("Ame.Core")
     ame_utils:add_library("Ame", "static", "Ame/Core")
-
     add_packages(
         "boost",
         "ame.mimalloc",
@@ -40,7 +39,7 @@ target_end()
 
 target("Ame.Windowing")
     ame_utils:add_library("Ame", "static", "Ame/Windowing")
-    add_deps("Ame.Geometry", {public = true, inherit = true})
+    add_deps("Ame.Core", {public = true, inherit = true})
 target_end()
 
 --
@@ -52,9 +51,7 @@ target("Ame.Rhi")
         "directxshadercompiler",
         {public = true, inherit = true})
     add_deps(
-        "Extensions.FreeImage",
         "Ame.Windowing",
-        "Ame.Resource",
         {public = true, inherit = true})
 target_end()
 
@@ -86,7 +83,7 @@ target_end()
 
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Ame/Engine")
-    add_deps("Ame.Gfx", {public = true, inherit = true})
+    add_deps("Ame.Rhi", {public = true, inherit = true})
 target_end()
 
 --
