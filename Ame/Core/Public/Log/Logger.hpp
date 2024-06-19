@@ -139,7 +139,7 @@ namespace Ame::Log
             if (!condition)
             {
                 Fatal(std::move(message), std::forward<ArgsTy>(args)...);
-                AME_DEBUG_BREAK;
+                Ame::DebugBreak();
             }
 #endif
         }

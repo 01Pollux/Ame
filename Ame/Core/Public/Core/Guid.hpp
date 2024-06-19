@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Core/String.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <Core/String.hpp>
 
 namespace boost::serialization
 {
@@ -13,8 +13,8 @@ namespace Ame
     struct Guid : boost::uuids::uuid
     {
     public:
-        static const Guid          c_Null;
-        static inline const String c_NullString = "00000000-0000-0000-0000-000000000000";
+        static const Guid   c_Null;
+        static const String c_NullString;
 
     public:
         using uuid::uuid;

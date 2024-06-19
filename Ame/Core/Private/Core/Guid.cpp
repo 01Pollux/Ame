@@ -1,3 +1,7 @@
+#ifdef _MSC_VER
+#pragma comment(lib, "bcrypt.lib")
+#endif
+
 #include <Core/Guid.hpp>
 
 #include <boost/uuid/uuid_io.hpp>
@@ -6,13 +10,10 @@
 #include <boost/uuid/uuid_hash.hpp>
 #include <boost/uuid/nil_generator.hpp>
 
-#ifdef AME_PLATFORM_WINDOWS
-#pragma comment(lib, "bcrypt.lib")
-#endif
-
 namespace Ame
 {
-    const Guid Guid::c_Null{};
+    const Guid   Guid::c_Null{};
+    const String Guid::c_NullString{ "00000000-0000-0000-0000-000000000000" };
 
     String Guid::ToString() const
     {
