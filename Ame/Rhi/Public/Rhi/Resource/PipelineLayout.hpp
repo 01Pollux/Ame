@@ -1,24 +1,21 @@
 #pragma once
 
 #include <Rhi/Descs/Layout.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
 
 namespace Ame::Rhi
 {
-    class PipelineLayout final
+    class PipelineLayout
     {
     public:
+        PipelineLayout() = default;
+        PipelineLayout(nullptr_t)
+        {
+        }
+
         PipelineLayout(
-            Device&              rhiDevice,
-            nri::PipelineLayout& nriLayout,
-            size_t               hash);
-
-        PipelineLayout(const PipelineLayout&) = delete;
-        PipelineLayout(PipelineLayout&&)      = delete;
-
-        PipelineLayout& operator=(const PipelineLayout&) = delete;
-        PipelineLayout& operator=(PipelineLayout&&)      = delete;
-
-        ~PipelineLayout();
+            nri::CoreInterface&  nriCore,
+            nri::PipelineLayout* layout);
 
     public:
         /// <summary>
@@ -30,16 +27,23 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri pipeline layout.
         /// </summary>
-        [[nodiscard]] const nri::PipelineLayout& Unwrap() const;
-
-        /// <summary>
-        /// Get the pipeline layout hash.
-        /// </summary>
-        [[nodiscard]] size_t GetHash() const;
+        [[nodiscard]] nri::PipelineLayout* const& Unwrap() const;
 
     private:
-        Device&              m_RhiDevice;
-        nri::PipelineLayout& m_Layout;
-        size_t               m_Hash = 0;
+        nri::CoreInterface*  m_NriCore = nullptr;
+        nri::PipelineLayout* m_Layout  = nullptr;
+    };
+
+    //
+
+    class ScopedPipelineLayout : public ScopedResource<ScopedPipelineLayout, PipelineLayout>
+    {
+        friend class ScopedResource;
+
+    public:
+        using ScopedResource::ScopedResource;
+
+    protected:
+        void Release();
     };
 } // namespace Ame::Rhi

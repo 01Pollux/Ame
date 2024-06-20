@@ -11,12 +11,8 @@ target("MultiEngine")
     ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiEngine")
 target_end()
 
-target("MultiRhi OneEngine")
-    ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiRhi OneEngine")
-target_end()
-
 target("MultiRhi MultiEngine")
-    ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiRhi MultiEngine")
+    ame_utils:add_binary("Samples/Engine", "Samples/Engine/MultiEngine MultiRhi")
 target_end()
 
 --

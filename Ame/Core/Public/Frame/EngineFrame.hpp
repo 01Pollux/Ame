@@ -3,23 +3,32 @@
 #include <Object/Signal.hpp>
 #include <Frame/FrameTimer.hpp>
 
+#include <Core/Coroutine.hpp>
+
 namespace Ame
 {
     class EngineFrame
     {
     public:
-        AME_SIGNAL_DECL(OnStartFrame, void());
+        EngineFrame(
+            Co::runtime& runtime,
+            FrameTimer&  frameTimer);
 
-        AME_SIGNAL_DECL(OnTick, void());
-        AME_SIGNAL_DECL(OnPostTick, void());
-
-        AME_SIGNAL_DECL(OnEndFrame, void());
+        void Tick();
 
     public:
-        EngineFrame(
-            FrameTimer& frameTimer);
-
-        void Run();
+        [[nodiscard]] const auto& GetStartFrameExecutor() const
+        {
+            return m_StartFrame;
+        }
+        [[nodiscard]] const auto& GetTickFrameExecutor() const
+        {
+            return m_TickFrame;
+        }
+        [[nodiscard]] const auto GetEndFrameExecutor() const
+        {
+            return m_EndFrame;
+        }
 
     public:
         /// <summary>
@@ -32,16 +41,12 @@ namespace Ame
         /// </summary>
         [[nodiscard]] bool IsRunning() const;
 
-    public:
-        AME_SIGNAL_INST(OnStartFrame);
-
-        AME_SIGNAL_INST(OnTick);
-        AME_SIGNAL_INST(OnPostTick);
-
-        AME_SIGNAL_INST(OnEndFrame);
-
     private:
         Ref<FrameTimer> m_Timer;
         bool            m_IsRunning = true;
+
+        Ptr<Co::manual_executor> m_StartFrame;
+        Ptr<Co::manual_executor> m_TickFrame;
+        Ptr<Co::manual_executor> m_EndFrame;
     };
 } // namespace Ame

@@ -10,10 +10,6 @@
 
 namespace Ame::Rhi
 {
-    using PipelineLayoutDesc = nri::PipelineLayoutDesc;
-    struct GraphicsPipelineDesc;
-    struct ComputePipelineDesc;
-
     using AttachmentContentType = nri::AttachmentContentType;
 
     using ShaderType = nri::StageBits;

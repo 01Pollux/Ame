@@ -2,18 +2,21 @@
 
 #include <Core/Ame.hpp>
 
-#include <Rhi/Device/Device.hpp>
 #include <Window/Window.hpp>
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Resource/Backbuffer.hpp>
 
 #include <Rhi/Nri/Bridge.hpp>
 
 namespace Ame::Rhi
 {
+    class IDeviceWrapper;
+
     class WindowManager
     {
     public:
         WindowManager(
-            DeviceImpl&             rhiDevice,
+            IDeviceWrapper&         deviceWrapper,
             const DeviceCreateDesc& deviceCreateDesc);
 
         WindowManager(const WindowManager&) = delete;
@@ -45,6 +48,17 @@ namespace Ame::Rhi
         /// Get the nri device
         /// </summary>
         [[nodiscard]] nri::SwapChain& GetSwapChain();
+
+    public:
+        /// <summary>
+        /// Get the swapchain format.
+        /// </summary>
+        [[nodiscard]] SwapChainFormat GetSwapchainFormat() const;
+
+        /// <summary>
+        /// Get the backbuffer texture format.
+        /// </summary>
+        [[nodiscard]] ResourceFormat GetBackbufferFormat() const;
 
     public:
         /// <summary>
@@ -100,19 +114,20 @@ namespace Ame::Rhi
         void ReleaseBackBuffers();
 
     private:
-        DeviceImpl& m_Device;
+        Windowing::Window m_Window;
 
-        Windowing::Window    m_Window;
-        nri::SwapChain*      m_SwapChain        = nullptr;
-        nri::SwapChainFormat m_SwapChainFormat  = nri::SwapChainFormat::MAX_NUM;
-        nri::Format          m_BackBufferFormat = nri::Format::UNKNOWN;
+        Ref<IDeviceWrapper> m_DeviceWrapper;
+        nri::SwapChain*     m_SwapChain = nullptr;
 
         Signals::ScopedConnection m_OnWindowSizeChanged;
 
         std::vector<Backbuffer> m_BackBuffers;
         uint32_t                m_BackBufferIndex = 0;
 
-        bool m_DirtySwapChain = false;
-        bool m_VSyncEnabled   = false;
+        nri::SwapChainFormat m_SwapChainFormat  = nri::SwapChainFormat::MAX_NUM;
+        nri::Format          m_BackBufferFormat = nri::Format::UNKNOWN;
+
+        bool m_DirtySwapChain : 1 = false;
+        bool m_VSyncEnabled   : 1 = false;
     };
 } // namespace Ame::Rhi

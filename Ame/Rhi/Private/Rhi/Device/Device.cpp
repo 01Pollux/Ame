@@ -1,36 +1,29 @@
-#include <Rhi/Device/DeviceImpl.hpp>
-#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/Device.Impl.hpp>
+
+#include <Rhi/Device/WindowManager.hpp>
 
 #include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
     Device::Device() = default;
+
     Device::Device(
+        EngineFrame&            engineFrame,
+        Co::runtime&            runtime,
         const DeviceCreateDesc& desc) :
-        m_Impl(std::make_unique<DeviceImpl>(desc))
+        m_Impl(std::make_unique<DeviceImpl>(engineFrame, runtime, desc))
     {
     }
 
-    Device::Device(Device&&)            = default;
-    Device& Device::operator=(Device&&) = default;
-
-    Device::~Device()
-    {
-        if (m_Impl)
-        {
-            CleanupCache();
-            m_Impl = nullptr;
-        }
-    }
+    Device::~Device() = default;
 
     //
 
-    void Device::CleanupCheck()
+    Ptr<Co::executor> Device::GetExecutor(
+        ExecutorType type) const
     {
-#ifndef AME_DIST
-        DeviceImpl::CleanupCheck();
-#endif
+        return m_Impl->GetExecutor(type);
     }
 
     //
@@ -60,19 +53,24 @@ namespace Ame::Rhi
         return m_Impl->GetDesc();
     }
 
+    //
+
     uint64_t Device::GetFrameCount() const
     {
-        return m_Impl->GetFrameCount();
+        auto& frameManager = m_Impl->GetFrameManager();
+        return frameManager.GetFrameCount();
     }
 
     uint8_t Device::GetFrameIndex() const
     {
-        return m_Impl->GetFrameIndex();
+        auto& frameManager = m_Impl->GetFrameManager();
+        return frameManager.GetFrameIndex();
     }
 
     uint8_t Device::GetFrameCountInFlight() const
     {
-        return m_Impl->GetFrameCountInFlight();
+        auto& frameManager = m_Impl->GetFrameManager();
+        return frameManager.GetFrameCountInFlight();
     }
 
     uint32_t Device::GetDrawIndexedCommandSize() const
@@ -82,112 +80,30 @@ namespace Ame::Rhi
 
     //
 
-    const Math::Color4& Device::GetClearColor() const noexcept
+    void Device::Tick()
     {
-        return m_Impl->GetClearColor();
+        m_Impl->Tick();
     }
 
-    void Device::SetClearColor(
-        const Math::Color4& color)
+    Co::result<void> Device::WaitIdle()
     {
-        m_Impl->SetClearColor(color);
-    }
-
-    BackbufferClearType Device::GetBackbufferClearType() const noexcept
-    {
-        return m_Impl->GetBackbufferClearType();
-    }
-
-    void Device::SetBackbufferClearType(
-        BackbufferClearType type)
-    {
-        m_Impl->SetBackbufferClearType(type);
+        return m_Impl->WaitIdle();
     }
 
     //
 
-    bool Device::IsHeadless() const
+    DeviceResourceAllocator& Device::GetResourceAllocator()
     {
-        return m_Impl && m_Impl->IsHeadless();
+        return m_Impl->GetResourceAllocator();
     }
 
-    Windowing::Window& Device::GetWindow() const
+    DeviceCommandSubmitter& Device::GetCommandSubmitter()
     {
-        return m_Impl->GetWindow();
+        return m_Impl->GetCommandSubmitter();
     }
 
-    uint8_t Device::GetBackbufferCount() const
+    DeviceWindowManager& Device::GetWindowManager()
     {
-        return m_Impl->GetBackbufferCount();
-    }
-
-    uint8_t Device::GetBackbufferIndex() const
-    {
-        return m_Impl->GetBackbufferIndex();
-    }
-
-    const Backbuffer& Device::GetBackbuffer(
-        uint8_t index) const
-    {
-        return m_Impl->GetBackbuffer(index);
-    }
-
-    const Backbuffer& Device::GetBackbuffer() const
-    {
-        return m_Impl->GetBackbuffer();
-    }
-
-    const TextureDesc& Device::GetBackBufferDesc() const
-    {
-        return GetBackbuffer().Resource.GetDesc();
-    }
-
-    //
-
-    bool Device::IsVSyncEnabled() const noexcept
-    {
-        return m_Impl->IsHeadless();
-    }
-
-    void Device::SetVSyncEnabled(
-        bool state)
-    {
-        m_Impl->SetVSyncEnabled(state);
-    }
-
-    //
-
-    bool Device::ProcessEvents()
-    {
-        return m_Impl->ProcessEvents();
-    }
-
-    void Device::BeginFrame()
-    {
-        m_Impl->BeginFrame();
-    }
-
-    void Device::EndFrame()
-    {
-        m_Impl->EndFrame();
-    }
-
-    //
-
-    void Device::WaitIdle()
-    {
-        m_Impl->WaitIdle();
-    }
-
-    void Device::CleanupCache()
-    {
-        m_Impl->CleanupCache();
-    }
-
-    //
-
-    DeviceImpl& Device::GetImpl() const
-    {
-        return *m_Impl;
+        return m_Impl->GetDeviceWindowManager();
     }
 } // namespace Ame::Rhi

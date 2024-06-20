@@ -3,8 +3,9 @@
 #include <mutex>
 #include <algorithm>
 #include <execution>
+#include <vector>
 
-#include <Rhi/Device/MemoryAllocator.hpp>
+#include <Rhi/Device/Wrapper/DeviceMemoryAllocator.hpp>
 
 namespace Ame::Rhi
 {
@@ -42,13 +43,13 @@ namespace Ame::Rhi
 
     using DeferredBufferList = DeferredResourceList<
         nri::Buffer,
-        decltype([](MemoryAllocator& memoryAllocator, nri::Buffer& nriBuffer)
-                 { memoryAllocator.Release(&nriBuffer); })>;
+        decltype([](IDeviceMemoryAllocator& memoryAllocator, nri::Buffer& nriBuffer)
+                 { memoryAllocator.ReleaseBuffer(nriBuffer); })>;
 
     using DeferredTextureList = DeferredResourceList<
         nri::Texture,
-        decltype([](MemoryAllocator& memoryAllocator, nri::Texture& nriTexture)
-                 { memoryAllocator.Release(&nriTexture); })>;
+        decltype([](IDeviceMemoryAllocator& memoryAllocator, nri::Texture& nriTexture)
+                 { memoryAllocator.ReleaseTexture(nriTexture); })>;
 
     using DeferredDescriptorList = DeferredResourceList<
         nri::Descriptor,

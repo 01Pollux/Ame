@@ -1,24 +1,24 @@
 #pragma once
 
 #include <Rhi/Descs/Pipeline.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
+
+#include <Rhi/Resource/PipelineLayout.hpp>
 
 namespace Ame::Rhi
 {
-    class PipelineState final
+    class PipelineState
     {
     public:
+        PipelineState() = default;
+        PipelineState(nullptr_t)
+        {
+        }
+
         PipelineState(
-            Device&             rhiDevice,
-            Ptr<PipelineLayout> layout,
-            nri::Pipeline&      nriPipeline);
-
-        PipelineState(const PipelineState&) = delete;
-        PipelineState(PipelineState&&)      = delete;
-
-        PipelineState& operator=(const PipelineState&) = delete;
-        PipelineState& operator=(PipelineState&&)      = delete;
-
-        ~PipelineState();
+            nri::CoreInterface&  nriCore,
+            nri::PipelineLayout* layout,
+            nri::Pipeline*       pipelineState);
 
     public:
         /// <summary>
@@ -30,16 +30,29 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri pipeline state.
         /// </summary>
-        [[nodiscard]] const nri::Pipeline& Unwrap() const;
+        [[nodiscard]] nri::Pipeline* const& Unwrap() const;
 
+    public:
         /// <summary>
         /// Get the pipeline layout.
         /// </summary>
-        [[nodiscard]] Ptr<PipelineLayout> GetLayout() const;
+        [[nodiscard]] PipelineLayout GetLayout() const;
 
     private:
-        Device&             m_RhiDevice;
-        Ptr<PipelineLayout> m_Layout;
-        nri::Pipeline&      m_Pipeline;
+        nri::CoreInterface*  m_NriCore  = nullptr;
+        nri::PipelineLayout* m_Layout   = nullptr;
+        nri::Pipeline*       m_Pipeline = nullptr;
+    };
+    //
+
+    class ScopedPipelineState : public ScopedResource<ScopedPipelineState, PipelineState>
+    {
+        friend class ScopedResource;
+
+    public:
+        using ScopedResource::ScopedResource;
+
+    protected:
+        void Release();
     };
 } // namespace Ame::Rhi

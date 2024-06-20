@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Window/Signals.hpp>
+#include <Object/Signal.hpp>
 
 #include <Window/Desc.hpp>
 #include <utility>
@@ -11,6 +11,12 @@ namespace Ame::Windowing
 {
     class Window
     {
+    public:
+        AME_SIGNAL_DECL(OnWindowSizeChanged, void(const Math::Size2I& newSize));
+        AME_SIGNAL_DECL(OnWindowMinized, void(bool minimized));
+        AME_SIGNAL_DECL(OnWindowClosed, void());
+        AME_SIGNAL_DECL(OnWindowTitleHitTest, bool(const Math::Vector2I& mousePos));
+
     public:
         explicit Window(
             const WindowDesc& windowDesc);
@@ -181,6 +187,14 @@ namespace Ame::Windowing
         /// Processes events such as input, resize, etc.
         /// </summary>
         void ProcessEvents();
+
+    private:
+        /// <summary>
+        /// Create the glfw window
+        /// This function must be called inside the glfw worker thread
+        /// </summary>
+        void CreateGlfwWindow(
+            const WindowDesc& windowDesc);
 
     private:
         GLFWwindow*  m_Handle = nullptr;

@@ -1,66 +1,45 @@
 #pragma once
 
-#include <Rhi/CommandList/CommandListImpl.hpp>
+#include <Rhi/CommandList/SubmissionContext.hpp>
 #include <Rhi/Device/DeferredResource.hpp>
-
 #include <Rhi/Nri/Nri.hpp>
 
 namespace Ame::Rhi
 {
-    class MemoryAllocator;
-
     class Frame
     {
     public:
-        Frame() = default;
-
-        Frame(const Frame&) = delete;
-        Frame(Frame&&)      = delete;
-
-        Frame& operator=(const Frame&) = delete;
-        Frame& operator=(Frame&&)      = delete;
-
-        ~Frame() = default;
+        /// <summary>
+        /// Shuts down the frame resource.
+        /// </summary>
+        void Shutdown(
+            nri::CoreInterface& nriCore);
 
     public:
         /// <summary>
-        /// Initializes the frame resource.
+        /// Allocates a submission context for the given command queue.
         /// </summary>
-        void Initialize(
-            DeviceImpl&                     rhiDevice,
-            const DescriptorAllocationDesc& descriptorPoolDesc,
-            uint32_t                        frameIndex);
-
-        /// <summary>
-        /// Cleans up the frame resource.
-        /// </summary>
-        void Shutdown();
-
-    public:
-        /// <summary>
-        /// Get the command list.
-        /// </summary>
-        [[nodiscard]] CommandListImpl& GetCommandList() noexcept;
+        [[nodiscard]] SubmissionContext AllocateSubmission(
+            nri::CoreInterface& nriCore,
+            nri::Device&        nriDevice,
+            nri::CommandQueue&  nriCommandQueue,
+            CommandQueueType    queueType,
+            StageBits           stages);
 
     public:
         /// <summary>
         /// Resets the frame resource and cleans up pending resources.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& nriCore,
-            MemoryAllocator&    memoryAllocator);
-
-        /// <summary>
-        /// Ends the frame resource and submits the command buffer.
-        /// </summary>
-        void EndFrame();
+            nri::CoreInterface&     nriCore,
+            IDeviceMemoryAllocator& memoryAllocator);
 
         /// <summary>
         /// Releases the resources that are deferred for release.
         /// </summary>
         void Release(
-            nri::CoreInterface& nriCore,
-            MemoryAllocator&    memoryAllocator);
+            nri::CoreInterface&     nriCore,
+            IDeviceMemoryAllocator& memoryAllocator);
 
     public:
         /// <summary>
@@ -88,7 +67,30 @@ namespace Ame::Rhi
             nri::Pipeline& nriPipeline);
 
     private:
-        CommandListImpl m_CommandList;
+        struct CommandInfo
+        {
+            nri::CommandAllocator* NriCommandAllocator = nullptr;
+            nri::CommandBuffer*    NriCommandBuffer    = nullptr;
+            nri::Fence*            NriFence            = nullptr;
+            uint64_t               FenceValue          = 0;
+
+            CommandInfo(
+                nri::CoreInterface& nriCore,
+                nri::Device&        nriDevice,
+                nri::CommandQueue&  nriCommandQueue,
+                CommandQueueType    queueType);
+        };
+
+        struct CommandInfoPool
+        {
+            std::vector<CommandInfo> FreeCommands;
+            std::vector<CommandInfo> PendingCommands;
+        };
+
+        using CommandInfoPools = std::array<CommandInfoPool, static_cast<size_t>(CommandQueueType::MAX_NUM)>;
+
+    private:
+        CommandInfoPools m_CommandInfoPools;
 
         DeferredBufferList     m_DeferredBuffers;
         DeferredTextureList    m_DeferredTextures;

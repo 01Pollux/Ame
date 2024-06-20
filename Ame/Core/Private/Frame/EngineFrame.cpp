@@ -3,29 +3,22 @@
 namespace Ame
 {
     EngineFrame::EngineFrame(
-        FrameTimer& frameTimer) :
-        m_Timer(frameTimer)
+        Co::runtime& runtime,
+        FrameTimer&  frameTimer) :
+        m_Timer(frameTimer),
+        m_StartFrame(runtime.make_manual_executor()),
+        m_TickFrame(runtime.make_manual_executor()),
+        m_EndFrame(runtime.make_manual_executor())
     {
     }
 
-    void EngineFrame::Run()
+    void EngineFrame::Tick()
     {
-        while (m_IsRunning)
-        {
-            m_Timer.get().Tick();
+        m_Timer.get().Tick();
 
-            m_OnStartFrame();
-
-            if (!IsRunning()) [[unlikely]]
-            {
-                return;
-            }
-
-            m_OnTick();
-            m_OnPostTick();
-
-            m_OnEndFrame();
-        }
+        Co::manual_executor_loop_until_empty(m_StartFrame);
+        Co::manual_executor_loop_until_empty(m_TickFrame);
+        Co::manual_executor_loop_until_empty(m_EndFrame);
     }
 
     //

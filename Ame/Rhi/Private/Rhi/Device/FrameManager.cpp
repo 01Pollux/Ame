@@ -1,50 +1,73 @@
 #include <Rhi/Device/FrameManager.hpp>
+#include <Rhi/Device/Wrapper/DeviceWrapper.hpp>
+
+#include <Rhi/NriError.hpp>
 
 namespace Ame::Rhi
 {
     void FrameManager::Initialize(
-        DeviceImpl&                     rhiDevice,
-        const DescriptorAllocationDesc& descriptorPoolDesc,
-        uint32_t                        framesInFlightCount)
+        IDeviceWrapper& deviceWrapper,
+        uint8_t         framesInFlightCount)
     {
-        m_FrameWrapper.Initialize(rhiDevice, descriptorPoolDesc, framesInFlightCount);
+        auto& nri       = deviceWrapper.GetNri();
+        auto& nriDevice = deviceWrapper.GetNriDevice();
+        auto& nriCore   = *nri.GetCoreInterface();
+
+        m_FramesInFlightCount = framesInFlightCount;
+        ThrowIfFailed(nriCore.CreateFence(nriDevice, m_FenceValue, m_Fence), "Failed to create a frame fence");
+        m_Frames = std::make_unique<Frame[]>(framesInFlightCount);
     }
 
     void FrameManager::Shutdown(
         nri::CoreInterface& nriCore)
     {
-        m_FrameWrapper.Shutdown(nriCore);
+        for (uint8_t i = 0; i < m_FramesInFlightCount; i++)
+        {
+            m_Frames[i].Shutdown(nriCore);
+        }
+        nriCore.DestroyFence(*m_Fence);
+        m_Fence = nullptr;
     }
 
     //
 
     void FrameManager::NewFrame(
-        nri::CoreInterface& nriCore,
-        MemoryAllocator&    memoryAllocator)
+        nri::CoreInterface&     nriCore,
+        IDeviceMemoryAllocator& memoryAllocator)
     {
-        m_FrameWrapper.Sync(nriCore);
-        m_FrameWrapper.NewFrame(nriCore, memoryAllocator, GetFrameIndex());
-    }
+        if (m_FenceValue >= m_FramesInFlightCount) [[likely]]
+        {
+            nriCore.Wait(*m_Fence, 1 + m_FenceValue - m_FramesInFlightCount);
+        }
 
-    void FrameManager::EndFrame()
-    {
-        m_FrameWrapper.EndFrame(GetFrameIndex());
+        auto& frame = GetCurrentFrame();
+        frame.NewFrame(nriCore, memoryAllocator);
     }
 
     void FrameManager::AdvanceFrame(
         nri::CoreInterface& nriCore,
         nri::CommandQueue&  graphicsQueue)
     {
-        m_FrameWrapper.AdvanceFrame(nriCore, graphicsQueue);
+        nri::FenceSubmitDesc fenceDesc{
+            .fence = m_Fence,
+            .value = ++m_FenceValue
+        };
+
+        nri::QueueSubmitDesc submitDesc{
+            .signalFences   = &fenceDesc,
+            .signalFenceNum = 1,
+        };
+        nriCore.QueueSubmit(graphicsQueue, submitDesc);
     }
 
     void FrameManager::FlushIdle(
-        nri::CoreInterface& nriCore,
-        MemoryAllocator&    memoryAllocator)
+        nri::CoreInterface&     nriCore,
+        IDeviceMemoryAllocator& memoryAllocator)
     {
-        for (uint32_t i = 0; i < m_FrameWrapper.FramesInFlightCount; ++i)
+        for (uint32_t i = 0; i < m_FramesInFlightCount; ++i)
         {
-            m_FrameWrapper.Release(nriCore, memoryAllocator, i);
+            auto& frame = m_Frames[i];
+            frame.Release(nriCore, memoryAllocator);
         }
     }
 
@@ -53,37 +76,41 @@ namespace Ame::Rhi
     void FrameManager::DeferRelease(
         nri::Buffer& nriBuffer)
     {
-        GetCurrentFrame().DeferRelease(nriBuffer);
+        auto& frame = GetCurrentFrame();
+        frame.DeferRelease(nriBuffer);
     }
 
     void FrameManager::DeferRelease(
         nri::Texture& nriTexture)
     {
-        GetCurrentFrame().DeferRelease(nriTexture);
+        auto& frame = GetCurrentFrame();
+        frame.DeferRelease(nriTexture);
     }
 
     void FrameManager::DeferRelease(
         nri::Descriptor& nriDescriptor)
     {
-        GetCurrentFrame().DeferRelease(nriDescriptor);
+        auto& frame = GetCurrentFrame();
+        frame.DeferRelease(nriDescriptor);
     }
 
     void FrameManager::DeferRelease(
         nri::Pipeline& nriPipeline)
     {
-        GetCurrentFrame().DeferRelease(nriPipeline);
+        auto& frame = GetCurrentFrame();
+        frame.DeferRelease(nriPipeline);
     }
 
     Rhi::Frame& FrameManager::GetCurrentFrame() const noexcept
     {
-        return m_FrameWrapper.Frames[GetFrameIndex()];
+        return m_Frames[GetFrameIndex()];
     }
 
     //
 
     uint64_t FrameManager::GetFrameCount() const
     {
-        return m_FrameWrapper.FenceValue;
+        return m_FenceValue;
     }
 
     uint8_t FrameManager::GetFrameIndex() const
@@ -93,11 +120,6 @@ namespace Ame::Rhi
 
     uint8_t FrameManager::GetFrameCountInFlight() const
     {
-        return m_FrameWrapper.FramesInFlightCount;
-    }
-
-    CommandListImpl& FrameManager::GetCurrentCommandList() const noexcept
-    {
-        return GetCurrentFrame().GetCommandList();
+        return m_FramesInFlightCount;
     }
 } // namespace Ame::Rhi

@@ -3,58 +3,76 @@
 #include <Rhi/Device/Frame.hpp>
 #include <Rhi/Nri/Nri.hpp>
 
+#include <Rhi/NriError.hpp>
+#include <Log/Wrapper.hpp>
+
 namespace Ame::Rhi
 {
-    void Frame::Initialize(
-        DeviceImpl&                     rhiDevice,
-        const DescriptorAllocationDesc& descriptorPoolDesc,
-        uint32_t                        frameIndex)
+    void Frame::Shutdown(
+        nri::CoreInterface& nriCore)
     {
-#ifndef AME_DIST
-        auto commandAllocatorName = std::format("FrameCommandAllocator_{}", frameIndex);
-        auto commandListName      = std::format("FrameCommandList_{}", frameIndex);
+        AME_LOG_ASSERT(Log::Rhi(), m_CommandInfoPools[0].PendingCommands.empty(), "There are still pending graphics command buffers");
+        AME_LOG_ASSERT(Log::Rhi(), m_CommandInfoPools[1].PendingCommands.empty(), "There are still pending compute command buffers");
+        AME_LOG_ASSERT(Log::Rhi(), m_CommandInfoPools[2].PendingCommands.empty(), "There are still pending copy command buffers");
 
-        auto commandAllocatorNamePtr = commandAllocatorName.c_str();
-        auto commandListNamePtr      = commandListName.c_str();
-#else
-        auto commandAllocatorNamePtr = nullptr;
-        auto commandListNamePtr      = nullptr;
-#endif
-
-        m_CommandList.Initialize(rhiDevice, descriptorPoolDesc, commandAllocatorNamePtr, commandListNamePtr);
+        for (auto& pools : m_CommandInfoPools)
+        {
+            for (auto& commandInfo : pools.FreeCommands)
+            {
+                nriCore.DestroyFence(*commandInfo.NriFence);
+                nriCore.DestroyCommandBuffer(*commandInfo.NriCommandBuffer);
+                nriCore.DestroyCommandAllocator(*commandInfo.NriCommandAllocator);
+            }
+        }
     }
 
-    void Frame::Shutdown()
+    SubmissionContext Frame::AllocateSubmission(
+        nri::CoreInterface& nriCore,
+        nri::Device&        nriDevice,
+        nri::CommandQueue&  nriCommandQueue,
+        CommandQueueType    queueType,
+        StageBits           stages)
     {
-        m_CommandList.Shutdown();
-    }
+        auto& pools = m_CommandInfoPools[static_cast<uint32_t>(queueType)];
 
-    //
+        CommandInfo* commandInfo = nullptr;
+        if (pools.FreeCommands.empty())
+        {
+            commandInfo = &pools.PendingCommands.emplace_back(nriCore, nriDevice, nriCommandQueue, queueType);
+        }
+        else
+        {
+            commandInfo = &pools.PendingCommands.emplace_back(pools.FreeCommands.back());
+            pools.FreeCommands.pop_back();
+        }
 
-    CommandListImpl& Frame::GetCommandList() noexcept
-    {
-        return m_CommandList;
+        commandInfo->FenceValue++;
+        return SubmissionContext{
+            .CommandListRef{ &nriCore, commandInfo->NriCommandBuffer },
+            .FenceRef{ commandInfo->NriFence, commandInfo->FenceValue, stages },
+            .QueueType{ queueType }
+        };
     }
 
     //
 
     void Frame::NewFrame(
-        nri::CoreInterface& nriCore,
-        MemoryAllocator&    memoryAllocator)
+        nri::CoreInterface&     nriCore,
+        IDeviceMemoryAllocator& memoryAllocator)
     {
-        m_CommandList.Reset();
         Release(nriCore, memoryAllocator);
     }
 
-    void Frame::EndFrame()
-    {
-        m_CommandList.End();
-    }
-
     void Frame::Release(
-        nri::CoreInterface& nriCore,
-        MemoryAllocator&    memoryAllocator)
+        nri::CoreInterface&     nriCore,
+        IDeviceMemoryAllocator& memoryAllocator)
     {
+        for (auto& pool : m_CommandInfoPools)
+        {
+            std::ranges::move(pool.PendingCommands, std::back_inserter(pool.FreeCommands));
+            pool.PendingCommands.clear();
+        }
+
         m_DeferredBuffers.Release(memoryAllocator);
         m_DeferredTextures.Release(memoryAllocator);
         m_DeferredDescriptors.Release(nriCore);
@@ -85,5 +103,52 @@ namespace Ame::Rhi
         nri::Pipeline& nriPipeline)
     {
         m_DeferredPipelines.DeferRelease(nriPipeline);
+    }
+
+    //
+
+    Frame::CommandInfo::CommandInfo(
+        nri::CoreInterface& nriCore,
+        nri::Device&        nriDevice,
+        nri::CommandQueue&  nriCommandQueue,
+        CommandQueueType    queueType)
+    {
+        ThrowIfFailed(
+            nriCore.CreateCommandAllocator(nriCommandQueue, NriCommandAllocator),
+            "Failed to create command allocator");
+
+        ThrowIfFailed(
+            nriCore.CreateCommandBuffer(*NriCommandAllocator, NriCommandBuffer),
+            "Failed to create command buffer");
+
+        ThrowIfFailed(
+            nriCore.CreateFence(nriDevice, FenceValue, NriFence),
+            "Failed to create fence");
+
+#ifndef AME_DIST
+        const char* queueName = nullptr;
+        switch (queueType)
+        {
+        case CommandQueueType::GRAPHICS:
+            queueName = "Graphics";
+            break;
+        case CommandQueueType::COMPUTE:
+            queueName = "Compute";
+            break;
+        case CommandQueueType::COPY:
+            queueName = "Transfer";
+            break;
+        default:
+            std::unreachable();
+        }
+
+        auto commandAllocatorName = std::format("FrameCommandAllocator_{}", queueName);
+        auto commandListName      = std::format("FrameCommandList_{}", queueName);
+        auto fenceName            = std::format("FrameFence_{}", queueName);
+
+        nriCore.SetCommandAllocatorDebugName(*NriCommandAllocator, commandAllocatorName.c_str());
+        nriCore.SetCommandBufferDebugName(*NriCommandBuffer, commandListName.c_str());
+        nriCore.SetFenceDebugName(*NriFence, fenceName.c_str());
+#endif
     }
 } // namespace Ame::Rhi

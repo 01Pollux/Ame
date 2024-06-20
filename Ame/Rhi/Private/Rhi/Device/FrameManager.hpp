@@ -3,11 +3,12 @@
 #include <Core/Ame.hpp>
 
 #include <Rhi/Device/Device.hpp>
-#include <Rhi/Device/FrameWrapper.hpp>
+#include <Rhi/Device/Frame.hpp>
 
 namespace Ame::Rhi
 {
     class NRIBridge;
+    class IDeviceWrapper;
 
     class FrameManager
     {
@@ -24,9 +25,8 @@ namespace Ame::Rhi
 
     public:
         void Initialize(
-            DeviceImpl&                     rhiDevice,
-            const DescriptorAllocationDesc& descriptorPoolDesc,
-            uint32_t                        framesInFlightCount);
+            IDeviceWrapper& deviceWrapper,
+            uint8_t         framesInFlightCount);
 
         void Shutdown(
             nri::CoreInterface& nriCore);
@@ -49,24 +49,14 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] uint8_t GetFrameCountInFlight() const;
 
-        /// <summary>
-        /// Get the current command list.
-        /// </summary>
-        [[nodiscard]] CommandListImpl& GetCurrentCommandList() const noexcept;
-
     public:
         /// <summary>
         /// Mark the start of frame.
         /// Wait for previous frame to finish.
         /// </summary>
         void NewFrame(
-            nri::CoreInterface& nriCore,
-            MemoryAllocator&    memoryAllocator);
-
-        /// <summary>
-        /// End the frame.
-        /// </summary>
-        void EndFrame();
+            nri::CoreInterface&     nriCore,
+            IDeviceMemoryAllocator& memoryAllocator);
 
         /// <summary>
         /// Advance to the next frame.
@@ -79,8 +69,8 @@ namespace Ame::Rhi
         /// Flush all idle resources
         /// </summary>
         void FlushIdle(
-            nri::CoreInterface& nriCore,
-            MemoryAllocator&    memoryAllocator);
+            nri::CoreInterface&     nriCore,
+            IDeviceMemoryAllocator& memoryAllocator);
 
     public:
         /// <summary>
@@ -107,13 +97,16 @@ namespace Ame::Rhi
         void DeferRelease(
             nri::Pipeline& nriPipeline);
 
-    private:
+    public:
         /// <summary>
         /// Get the current frame.
         /// </summary>
         [[nodiscard]] Rhi::Frame& GetCurrentFrame() const noexcept;
 
     private:
-        FrameWrapper m_FrameWrapper;
+        nri::Fence*   m_Fence = nullptr;
+        UPtr<Frame[]> m_Frames;
+        uint64_t      m_FenceValue          = 0;
+        uint8_t       m_FramesInFlightCount = 0;
     };
 } // namespace Ame::Rhi

@@ -1,8 +1,9 @@
+#include <future>
 
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
 
-#include <Frame/Subsystem/Timer.hpp>
+#include <Rhi/Device/DeviceWindowManager.hpp>
 #include <Window/Window.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -11,34 +12,54 @@ static constexpr uint32_t NumberOfApps = 5;
 
 using namespace Ame;
 
-class MutliEngineSample : public BaseEngine
+class MutliEngineSample : public IoCContainer
 {
 public:
-    using BaseEngine::BaseEngine;
+    Co::result<void> Run()
+    {
+        Initialize();
+
+        auto& engineFrame = GetSubsystem<EngineFrameSubsystem>();
+        auto& rhiDevice   = GetSubsystem<Rhi::DeviceSubsystem>();
+
+        auto thisExecutor = GetSubsystem<CoroutineSubsystem>().inline_executor();
+
+        while (engineFrame.IsRunning())
+        {
+            auto frameTick   = thisExecutor->submit(std::bind(&EngineFrame::Tick, &engineFrame));
+            auto frameRender = thisExecutor->submit(std::bind(&Rhi::Device::Tick, &rhiDevice));
+
+            Co::when_all(thisExecutor, std::move(frameTick), std::move(frameRender)).run().wait();
+        }
+
+        co_return;
+    }
 
 protected:
-    void Initialize() override
+    Co::null_result Initialize()
     {
-        BaseEngine::Initialize();
-
         Log::Engine().Trace("Initializing Sample...");
         InitializeWindow(
             GetSubsystem<CoroutineSubsystem>(),
             GetSubsystem<Rhi::DeviceSubsystem>());
+
+        co_return;
     }
 
 private:
     void InitializeWindow(
-        Co::runtime& Coroutine,
-        Rhi::Device& RhiDevice)
+        Co::runtime& runtime,
+        Rhi::Device& rhiDevice)
     {
-        m_Title = RhiDevice.GetWindow().GetTitle();
+        auto& windowManager = rhiDevice.GetWindowManager();
+        auto& window        = windowManager.GetWindow();
+        m_Title             = window.GetTitle();
 
-        auto TimerQueue = Coroutine.timer_queue();
+        auto TimerQueue = runtime.timer_queue();
         m_TitleTimer    = TimerQueue->make_timer(
             std::chrono::seconds(1),
             std::chrono::seconds(1),
-            Coroutine.thread_pool_executor(),
+            runtime.thread_pool_executor(),
             [this]()
             {
                 UpdateTitle(
@@ -48,11 +69,13 @@ private:
     }
 
     void UpdateTitle(
-        FrameTimer&  Timer,
-        Rhi::Device& RhiDevice)
+        FrameTimer&  timer,
+        Rhi::Device& rhiDevice)
     {
-        double FPS = 1.0 / Timer.GetDeltaTime();
-        RhiDevice.GetWindow().SetTitle(std::format("{} - FPS: {:.2f}", m_Title, FPS));
+        auto&  windowManager = rhiDevice.GetWindowManager();
+        auto&  window        = windowManager.GetWindow();
+        double fps           = 1.0 / timer.GetDeltaTime();
+        window.SetTitle(std::format("{} - FPS: {:.2f}", m_Title, fps));
     }
 
 private:
@@ -62,29 +85,29 @@ private:
 
 AME_MAIN(Argc, Argv)
 {
-    Log::Logger::Register(Log::Names::Engine, "Engine.log");
-    Log::Logger::Register(Log::Names::Rhi, "Engine.log");
+    Log::Logger::Register(Log::Names::c_Engine, "Engine.log");
+    Log::Logger::Register(Log::Names::c_Rhi, "Engine.log");
 
-    auto Runtime(std::make_shared<Co::runtime>());
-    auto Executor = Runtime->thread_pool_executor();
-
-    std::vector<Co::result<void>> Tasks;
-    Tasks.reserve(NumberOfApps);
+    std::vector<std::future<void>> tasks;
+    tasks.reserve(NumberOfApps);
 
     for (size_t i = 0; i < NumberOfApps; i++)
     {
-        String Name = String::formatted("Sample {}", i);
-        Tasks.emplace_back(Executor->submit(
-            [Runtime, Name]
-            {
-                WindowApplication<MutliEngineSample>::Builder()
-                    .Title(Name.c_str())
-                    .Runtime(std::move(Runtime))
-                    .RendererBackend(Rhi::DeviceType::DirectX12)
-                    .Build()
-                    .Run();
-            }));
+        tasks.emplace_back(
+            std::async(
+                [i]
+                {
+                    String name = std::format("Sample {}", i);
+                    WindowApplication<MutliEngineSample>::Builder()
+                        .Title(name.c_str())
+                        .RendererBackend(Rhi::DeviceType::DirectX12)
+                        .Build()
+                        .Run();
+                }));
     }
 
-    Co::when_all(Executor, Tasks.begin(), Tasks.end()).run().get();
+    for (auto& task : tasks)
+    {
+        task.wait();
+    }
 }

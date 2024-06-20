@@ -122,7 +122,7 @@ namespace Ame::Rhi
 
     struct GraphicsPipelineDesc
     {
-        Ptr<PipelineLayout> Layout;
+        CRef<PipelineLayout> Layout;
 
         InputAssemblyDesc InputAssembly;
         RasterizationDesc Rasterizer;
@@ -138,7 +138,7 @@ namespace Ame::Rhi
 
     struct ComputePipelineDesc
     {
-        Ptr<PipelineLayout> Layout;
-        ShaderDesc          Shader;
+        CRef<PipelineLayout> Layout;
+        ShaderDesc           Shader;
     };
 } // namespace Ame::Rhi

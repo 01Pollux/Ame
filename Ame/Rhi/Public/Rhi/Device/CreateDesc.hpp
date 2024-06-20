@@ -7,7 +7,6 @@
 
 #include <Rhi/Core.hpp>
 #include <Rhi/Device/MemoryDesc.hpp>
-#include <Rhi/Device/DescriptorDesc.hpp>
 
 namespace Ame::Rhi
 {
@@ -54,19 +53,20 @@ namespace Ame::Rhi
         AdapterDesc Adapter;
 
         /// <summary>
-        /// Memory allocator settings.
+        /// Memory allocator description.
         /// </summary>
-        MemoryAllocatorDesc MemoryAllocator;
-
-        /// <summary>
-        /// Descriptor pool settings.
-        /// </summary>
-        DescriptorAllocationDesc DescriptorPoolDesc;
+        MemoryAllocatorDesc MemoryDesc;
 
         /// <summary>
         /// A headless device is a device that does not create a window.
         /// </summary>
         std::optional<WindowDesc> Window;
+
+        /// <summary>
+        /// VK only.
+        /// Required layer extensions.
+        /// </summary>
+        std::span<const char*> RequiredLayerExtensions;
 
         /// <summary>
         /// VK only.
@@ -81,9 +81,19 @@ namespace Ame::Rhi
         std::span<const char*> RequiredDeviceExtensions;
 
         /// <summary>
+        /// Loop count for concurrent frame processing.
+        /// </summary>
+        uint32_t ConcurrentLoopCount = 64;
+
+        /// <summary>
+        /// Loop count for concurrent frame processing.
+        /// </summary>
+        uint32_t ConcurrentLoopChunkSize = 4;
+
+        /// <summary>
         /// Number of frames in flight.
         /// </summary>
-        uint32_t FramesInFlight = 3;
+        uint8_t FramesInFlight = 3;
 
         /// <summary>
         /// The device type to use.

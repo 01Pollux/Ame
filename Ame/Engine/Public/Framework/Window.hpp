@@ -7,16 +7,20 @@
 
 namespace Ame::Framework
 {
-    template<typename EngineType>
+    template<AmeEngine Ty>
     class WindowApplication
     {
     public:
         struct Builder;
 
-        auto& Run()
+        void Run()
         {
-            m_Engine.Run();
-            return *this;
+            m_Engine.Run().get();
+        }
+
+        Co::result<void> RunAsync()
+        {
+            return m_Engine.Run();
         }
 
         auto& Close()
@@ -38,11 +42,11 @@ namespace Ame::Framework
         }
 
     private:
-        EngineType m_Engine;
+        Ty m_Engine;
     };
 
-    template<typename EngineType>
-    struct WindowApplication<EngineType>::Builder
+    template<AmeEngine Ty>
+    struct WindowApplication<Ty>::Builder
     {
     public:
         auto& Title(

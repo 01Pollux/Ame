@@ -10,8 +10,8 @@ namespace Ame::Rhi
 {
     struct Backbuffer
     {
-        Texture                  Resource;
-        RenderTargetResourceView View;
+        Texture      Resource;
+        ResourceView View;
     };
 
     enum class BackbufferClearType : uint8_t

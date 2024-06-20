@@ -1,57 +1,30 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-
 #include <Rhi/Descs/Resource.hpp>
-#include <Rhi/Resource/View.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
 
 namespace Ame::Rhi
 {
     class Buffer
     {
-        friend class Device;
-
-    protected:
-        Buffer(
-            Device&        rhiDevice,
-            MemoryLocation location,
-            nri::Buffer*   nriBuffer);
-
     public:
-        struct Extern
-        {
-        };
-
         Buffer() = default;
-        Buffer(std::nullptr_t) :
-            m_Owning(false)
+        Buffer(std::nullptr_t)
         {
         }
 
         Buffer(
-            Extern,
-            DeviceImpl&  rhiDeviceImpl,
-            nri::Buffer* nriBuffer);
-        Buffer(
-            Extern,
-            Device&      rhiDevice,
-            nri::Buffer* nriBuffer);
-
-        Buffer(
-            Device&           rhiDevice,
-            MemoryLocation    location,
-            const BufferDesc& desc);
+            nri::CoreInterface& nriCore,
+            nri::Buffer*        buffer,
+            MemoryLocation      location);
 
     public:
-        Buffer(const Buffer&) = delete;
-        Buffer(Buffer&& other) noexcept;
+        [[nodiscard]] auto operator<=>(
+            const Buffer& other) const noexcept
+        {
+            return m_Buffer <=> other.m_Buffer;
+        }
 
-        Buffer& operator=(const Buffer&) = delete;
-        Buffer& operator=(Buffer&& other) noexcept;
-
-        ~Buffer();
-
-    public:
         [[nodiscard]] bool operator==(
             const Buffer& other) const noexcept
         {
@@ -68,7 +41,7 @@ namespace Ame::Rhi
         /// Set the buffer name.
         /// </summary>
         void SetName(
-            const char* name);
+            const char* name) const;
 
         /// <summary>
         /// Get the buffer description.
@@ -87,45 +60,31 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Borrow the buffer. (The buffer will not be released when the buffer is destroyed)
-        /// </summary>
-        [[nodiscard]] Buffer Borrow() const;
-
-        /// <summary>
-        /// Check if the buffer is owning. (If the buffer is owning, it will be released when the buffer is destroyed)
-        /// </summary>
-        [[nodiscard]] bool IsOwning() const;
-
-    public:
-        /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        std::byte* GetPtr(
+        [[nodiscard]] std::byte* GetPtr(
             size_t offset = 0);
 
         /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        const std::byte* GetPtr(
+        [[nodiscard]] const std::byte* GetPtr(
             size_t offset = 0) const;
 
+    private:
+        nri::CoreInterface* m_NriCore = nullptr;
+        nri::Buffer*        m_Buffer  = nullptr;
+        void*               m_Mapped  = nullptr;
+    };
+
+    class ScopedBuffer : public ScopedResource<ScopedBuffer, Buffer>
+    {
+        friend class ScopedResource;
+
     public:
-        /// <summary>
-        /// Create a buffer view.
-        /// </summary>
-        [[nodiscard]] BufferResourceView CreateView(
-            const BufferViewDesc& desc) const;
+        using ScopedResource::ScopedResource;
 
     private:
-        /// <summary>
-        /// Releases the buffer.
-        /// </summary>
         void Release();
-
-    private:
-        DeviceImpl*  m_Device = nullptr;
-        nri::Buffer* m_Buffer = nullptr;
-        void*        m_Mapped = nullptr;
-        bool         m_Owning = true;
     };
 } // namespace Ame::Rhi

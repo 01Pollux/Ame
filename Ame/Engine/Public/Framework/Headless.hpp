@@ -10,10 +10,9 @@ namespace Ame::Framework
     public:
         struct Builder;
 
-        auto& Run()
+        void Run()
         {
-            m_Engine.Run();
-            return *this;
+            m_Engine.Run().get();
         }
 
         auto& Close()
