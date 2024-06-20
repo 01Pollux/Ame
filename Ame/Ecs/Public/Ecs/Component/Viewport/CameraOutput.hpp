@@ -6,8 +6,8 @@ namespace Ame::Ecs::Component
 {
     struct CameraOutput
     {
-        String            SourceView;
-        Ptr<Rhi::Texture> OutputTexture;
-        bool              OutputToBackbuffer = true;
+        String                  SourceView;
+        Ptr<Rhi::ScopedTexture> OutputTexture;
+        bool                    OutputToBackbuffer = true;
     };
 } // namespace Ame::Ecs::Component

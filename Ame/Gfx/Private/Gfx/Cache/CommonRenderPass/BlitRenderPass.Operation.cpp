@@ -6,9 +6,9 @@
 namespace Ame::Gfx::Cache
 {
     BlitRenderPass::BlitOperation::BlitOperation(
-        Rhi::Device&          rhiDevice,
+        Rhi::CommandList&     commandList,
         const BlitParameters& parameters) :
-        CommandList(rhiDevice),
+        CommandList(commandList),
         Parameters(parameters),
         SrcRect(parameters.SrcRect.Transform(parameters.SrcMipLevel, parameters.SrcTexture)),
         DstRect(parameters.DstRect.Transform(parameters.DstMipLevel, parameters.DstTexture)),

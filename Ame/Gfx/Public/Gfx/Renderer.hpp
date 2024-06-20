@@ -5,8 +5,6 @@
 #include <Ecs/Universe.hpp>
 #include <Gfx/Compositor.hpp>
 
-#include <Core/Signals/Frame.hpp>
-
 namespace Ame
 {
     class EngineFrame;
@@ -51,14 +49,13 @@ namespace Ame::Gfx
 
     public:
         Renderer(
-            EngineFrame&                          engineFrame,
-            FrameTimer&                           frameTimer,
-            Rhi::Device&                          rhiDevice,
-            Rhi::Staging::DeferredStagingManager& stagingManager,
-            Ecs::Universe&                        universe,
-            RG::Graph&                            renderGraph,
-            EntityCompositor&                     entityCompositor,
-            Cache::CommonRenderPass&              commonRenderPass);
+            EngineFrame&             engineFrame,
+            FrameTimer&              frameTimer,
+            Rhi::Device&             rhiDevice,
+            Ecs::Universe&           universe,
+            RG::Graph&               renderGraph,
+            EntityCompositor&        entityCompositor,
+            Cache::CommonRenderPass& commonRenderPass);
 
     private:
         /// <summary>
@@ -71,11 +68,6 @@ namespace Ame::Gfx
         /// Update the renderer and all its components such as the camera, the scene, lights, etc.
         /// </summary>
         void OnUpdate();
-
-        /// <summary>
-        /// Called before the frame begins
-        /// </summary>
-        void OnStartFrame();
 
         /// <summary>
         /// Called when the frame is being rendered
@@ -99,21 +91,18 @@ namespace Ame::Gfx
         void RunRenderGraph();
 
     private:
-        Ref<EngineFrame>                          m_Frame;
-        Ref<FrameTimer>                           m_Timer;
-        Ref<Rhi::Device>                          m_Device;
-        Ref<Ecs::Universe>                        m_Universe;
-        Ref<Rhi::Staging::DeferredStagingManager> m_StagingManager;
-        Ref<RG::Graph>                            m_Graph;
-        Ref<EntityCompositor>                     m_EntityCompositor;
-        Ref<Cache::CommonRenderPass>              m_CommonRenderPass;
+        Ref<EngineFrame>             m_Frame;
+        Ref<FrameTimer>              m_Timer;
+        Ref<Rhi::Device>             m_Device;
+        Ref<Ecs::Universe>           m_Universe;
+        Ref<RG::Graph>               m_Graph;
+        Ref<EntityCompositor>        m_EntityCompositor;
+        Ref<Cache::CommonRenderPass> m_CommonRenderPass;
 
         Signals::ScopedConnection m_OnWorldChange;
 
         Signals::ScopedConnection m_OnUpdate;
-        Signals::ScopedConnection m_OnStartFrame;
         Signals::ScopedConnection m_OnRender;
-        Signals::ScopedConnection m_OnEndFrame;
 
         CameraRenderQuery m_CameraQuery;
     };

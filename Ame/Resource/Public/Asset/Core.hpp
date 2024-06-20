@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Core/Guid.hpp>
 #include <concurrencpp/concurrencpp.h>
 

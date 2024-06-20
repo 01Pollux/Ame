@@ -16,11 +16,12 @@ namespace Ame::Gfx::Shading
 
     public:
         Material(
-            Rhi::Device&              rhiDevice,
-            Gfx::Cache::ShaderCache&  shaderCache,
-            Ptr<Rhi::PipelineLayout>  pipelineLayout,
-            MaterialPipelineState     pipelineState,
-            const PropertyDescriptor& descriptor);
+            Rhi::DeviceResourceAllocator&  allocator,
+            Gfx::Cache::ShaderCache&       shaderCache,
+            Cache::CommonPipelineState&    pipelineStateCache,
+            Ptr<Rhi::ScopedPipelineLayout> pipelineLayout,
+            MaterialPipelineState          pipelineState,
+            const PropertyDescriptor&      descriptor);
 
         Material(
             const Material* material);
@@ -59,18 +60,18 @@ namespace Ame::Gfx::Shading
         }
 
         void Set(
-            const String&            propertyName,
-            const Ptr<Rhi::Texture>& texture,
-            Rhi::TextureViewDesc     desc);
+            const String&                  propertyName,
+            const Ptr<Rhi::ScopedTexture>& texture,
+            Rhi::TextureViewDesc           desc);
 
         void Set(
             const String&   propertyName,
             TextureResource textureResource);
 
         void Set(
-            const String&           propertyName,
-            const Ptr<Rhi::Buffer>& buffer,
-            Rhi::BufferViewDesc     desc);
+            const String&                 propertyName,
+            const Ptr<Rhi::ScopedBuffer>& buffer,
+            Rhi::BufferViewDesc           desc);
 
         void Set(
             const String&  propertyName,
@@ -108,12 +109,12 @@ namespace Ame::Gfx::Shading
         /// <summary>
         /// Set the pipeline layout of this material
         /// </summary>
-        [[nodiscard]] Ptr<Rhi::PipelineLayout> GetPipelineLayout() const;
+        [[nodiscard]] Ptr<Rhi::ScopedPipelineLayout> GetPipelineLayout() const;
 
         /// <summary>
         /// Set the pipeline state of this material
         /// </summary>
-        [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> GetPipelineState(
+        [[nodiscard]] Co::result<Ptr<Rhi::ScopedPipelineState>> GetPipelineState(
             const MaterialRenderState& renderState) const;
 
     public:
@@ -181,11 +182,12 @@ namespace Ame::Gfx::Shading
             MaterialCommonState CommonState;
 
             SharedData(
-                Rhi::Device&              rhiDevice,
-                Gfx::Cache::ShaderCache&  shaderCache,
-                Ptr<Rhi::PipelineLayout>  pipelineLayout,
-                MaterialPipelineState     pipelineState,
-                const PropertyDescriptor& descriptor);
+                Rhi::DeviceResourceAllocator&  allocator,
+                Gfx::Cache::ShaderCache&       shaderCache,
+                Cache::CommonPipelineState&    pipelineStateCache,
+                Ptr<Rhi::ScopedPipelineLayout> pipelineLayout,
+                MaterialPipelineState          pipelineState,
+                const PropertyDescriptor&      descriptor);
         };
 
         Ptr<SharedData>  m_SharedData;

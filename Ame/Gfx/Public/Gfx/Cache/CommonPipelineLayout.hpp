@@ -17,8 +17,8 @@ namespace Ame::Gfx::Cache
             Count
         };
 
-        using CacheList     = std::array<Ptr<Rhi::PipelineLayout>, std::to_underlying(Type::Count)>;
-        using CacheLoadList = std::array<Co::result<void>, std::to_underlying(Type::Count)>;
+        using TypedCacheList = std::array<Ptr<Rhi::ScopedPipelineLayout>, std::to_underlying(Type::Count)>;
+        using CacheMap       = std::map<size_t, Ptr<Rhi::ScopedPipelineLayout>>;
 
     public:
         CommonPipelineLayout(
@@ -33,23 +33,28 @@ namespace Ame::Gfx::Cache
         /// <summary>
         /// Load or get a pipeline layout from cache.
         /// </summary>
-        Co::result<Ptr<Rhi::PipelineLayout>> Load(
+        Co::result<Ptr<Rhi::ScopedPipelineLayout>> Load(
             Type type);
+
+        /// <summary>
+        /// Load or get a pipeline layout from cache.
+        /// </summary>
+        Co::result<Ptr<Rhi::ScopedPipelineLayout>> Load(
+            const Rhi::PipelineLayoutDesc& layoutDesc);
 
     private:
         /// <summary>
         /// Get the pipeline layout desc.
         /// </summary>
-        [[nodiscard]] static Co::result<Ptr<Rhi::PipelineLayout>> Create(
-            Rhi::Device&  rhiDevice,
-            Co::executor& executor,
-            Type          type);
+        [[nodiscard]]  Co::result<Ptr<Rhi::ScopedPipelineLayout>> CreateByType(
+            Type type);
 
     private:
         Ref<Co::runtime> m_Runtime;
         Ref<Rhi::Device> m_Device;
 
-        CacheList      m_Caches;
+        TypedCacheList m_TypedCaches;
+        CacheMap       m_Caches;
         Co::async_lock m_Mutex;
     };
 } // namespace Ame::Gfx::Cache

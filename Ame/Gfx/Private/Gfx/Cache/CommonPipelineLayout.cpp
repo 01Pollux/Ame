@@ -1,5 +1,8 @@
 #include <Gfx/Cache/CommonPipelineLayout.hpp>
+
 #include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
+#include <Rhi/Hash/Layout.hpp>
 
 #include <Gfx/Constants.hpp>
 
@@ -9,29 +12,55 @@ namespace Ame::Gfx::Cache
 
     //
 
-    Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineLayout::Load(
+    Co::result<Ptr<Rhi::ScopedPipelineLayout>> CommonPipelineLayout::Load(
         Type type)
     {
         auto Index = std::to_underlying(type);
-        if (!m_Caches[Index])
+        if (!m_TypedCaches[Index])
         {
             auto                  executor  = m_Runtime.get().background_executor();
             Co::scoped_async_lock cacheLock = co_await m_Mutex.lock(executor);
-            if (!m_Caches[Index])
+            if (!m_TypedCaches[Index])
             {
-                m_Caches[Index] = co_await Create(m_Device, *executor, type);
+                m_TypedCaches[Index] = co_await CreateByType(type);
             }
         }
-        co_return m_Caches[Index];
+        co_return m_TypedCaches[Index];
+    }
+
+    Co::result<Ptr<Rhi::ScopedPipelineLayout>> CommonPipelineLayout::Load(
+        const Rhi::PipelineLayoutDesc& layoutDesc)
+    {
+        auto hash = std::hash<Rhi::PipelineLayoutDesc>{}(layoutDesc);
+        auto it   = m_Caches.find(hash);
+        if (it != m_Caches.end())
+        {
+            co_return it->second;
+        }
+
+        auto                  executor  = m_Runtime.get().background_executor();
+        Co::scoped_async_lock cacheLock = co_await m_Mutex.lock(executor);
+
+        it = m_Caches.find(hash);
+        if (it != m_Caches.end())
+        {
+            co_return it->second;
+        }
+
+        auto& resourceAllocator = m_Device.get().GetResourceAllocator();
+        auto  pipelineLayout    = std::make_shared<Rhi::ScopedPipelineLayout>(resourceAllocator.CreatePipelineLayout(layoutDesc));
+
+        it = m_Caches.emplace(hash, std::move(pipelineLayout)).first;
+        co_return it->second;
     }
 
     //
 
-    Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineLayout::Create(
-        Rhi::Device&  Device,
-        Co::executor& executor,
-        Type          type)
+    Co::result<Ptr<Rhi::ScopedPipelineLayout>> CommonPipelineLayout::CreateByType(
+        Type type)
     {
+        auto& resourceAllocator = m_Device.get().GetResourceAllocator();
+
         switch (type)
         {
         case Type::EntityCollectPass:
@@ -61,10 +90,10 @@ namespace Ame::Gfx::Cache
                 .descriptorSetNum                   = Rhi::Count32(setDescs),
                 .pushConstantNum                    = Rhi::Count32(dispatchConstants),
                 .shaderStages                       = Rhi::ShaderType::COMPUTE_SHADER,
-                .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation
+                .enableD3D12DrawParametersEmulation = Rhi::c_EnableDrawParametersEmulation
             };
 
-            co_return co_await Device.CreatePipelineLayout({}, executor, layoutDesc);
+            co_return std::make_shared<Rhi::ScopedPipelineLayout>(resourceAllocator.CreatePipelineLayout(layoutDesc));
         }
         default:
         {

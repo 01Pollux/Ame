@@ -2,6 +2,11 @@
 
 #include <RG/Core.hpp>
 
+namespace Ame::Rhi
+{
+    struct ClearDesc;
+} // namespace Ame::Rhi
+
 namespace Ame::RG
 {
     class GraphicsSetup

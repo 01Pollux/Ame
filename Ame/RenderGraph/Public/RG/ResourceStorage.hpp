@@ -1,8 +1,8 @@
 #pragma once
 
-#include <map>
 #include <RG/Resource.hpp>
 #include <RG/Resources/FrameResource.hpp>
+#include <RG/StateTracker.hpp>
 
 namespace Ame::RG
 {
@@ -40,9 +40,20 @@ namespace Ame::RG
 
     public:
         /// <summary>
+        /// Get state tracker of the rendergraph
+        /// </summary>
+        [[nodiscard]] ResourceStateTracker& GetStateTracker() noexcept;
+
+    public:
+        /// <summary>
         /// Helper function to get device of the engine
         /// </summary>
         [[nodiscard]] Rhi::Device& GetDevice() const;
+
+        /// <summary>
+        /// Get backbuffer texture format
+        /// </summary>
+        [[nodiscard]] Rhi::ResourceFormat GetBackbufferFormat() const;
 
         /// <summary>
         /// Get backbuffer texture desc
@@ -88,56 +99,47 @@ namespace Ame::RG
         /// <summary>
         /// Get resource from id
         /// </summary>
-        [[nodiscard]] ResourceHandle& GetResourceMut(
+        [[nodiscard]] ResourceHandle* GetResourceMut(
             const ResourceId& id);
-
-        /// <summary>
-        /// Get resource from id
-        /// </summary>
-        [[nodiscard]] ResourceViewDesc& GetResourceViewDescMut(
-            const ResourceViewId& viewId);
-
-        /// <summary>
-        /// Get resource from id
-        /// </summary>
-        [[nodiscard]] const ResourceViewDesc& GetResourceViewDesc(
-            const ResourceViewId& viewId) const;
 
         /// <summary>
         /// Get resource view descriptor from id
         /// </summary>
-        [[nodiscard]] const Rhi::ResourceView& GetResourceViewHandle(
+        [[nodiscard]] const Rhi::ResourceView* GetResourceViewHandle(
             const ResourceViewId& viewId) const;
 
     private:
         /// <summary>
         /// Declare buffer to be created later when dispatching passes
         /// </summary>
-        void DeclareBuffer(
-            const ResourceId&      id,
-            const Rhi::BufferDesc& desc);
-
-        /// <summary>
-        /// Declare texture to be created later when dispatching passes
-        /// </summary>
-        void DeclareTexture(
-            const ResourceId&       id,
-            const Rhi::TextureDesc& desc);
+        void DeclareResource(
+            const ResourceId& id,
+            RhiResource       resource);
 
     public:
         /// <summary>
         /// import buffer to be used later when dispatching passes
         /// </summary>
         void ImportBuffer(
-            const ResourceId& id,
-            Rhi::Buffer       buffer);
+            const ResourceId&   id,
+            Rhi::MemoryLocation location,
+            Rhi::Buffer         buffer,
+            Rhi::AccessStage    initialState);
 
         /// <summary>
         /// import texture to be used later when dispatching passes
         /// </summary>
         void ImportTexture(
-            const ResourceId& id,
-            Rhi::Texture      texture);
+            const ResourceId&      id,
+            Rhi::Texture           texture,
+            Rhi::AccessLayoutStage initialState);
+
+        /// <summary>
+        /// Discard and remove imported resource
+        /// asserts if resource is not imported
+        /// </summary>
+        void DiscardResource(
+            const ResourceId& id);
 
     private:
         /// <summary>
@@ -148,16 +150,16 @@ namespace Ame::RG
         /// <summary>
         /// Declare resource view to be bound later when dispatching passes
         /// </summary>
-        Rhi::BufferDesc& DeclareBufferView(
-            const ResourceViewId& viewId,
-            ResourceViewDesc      desc);
+        BufferResource& DeclareBufferView(
+            const ResourceViewId&         viewId,
+            const BufferResourceViewDesc& desc);
 
         /// <summary>
         /// Declare resource view to be bound later when dispatching passes
         /// </summary>
-        Rhi::TextureDesc& DeclareTextureView(
-            const ResourceViewId& viewId,
-            ResourceViewDesc      desc);
+        TextureResource& DeclareTextureView(
+            const ResourceViewId&          viewId,
+            const TextureResourceViewDesc& desc);
 
     private:
         /// <summary>
@@ -201,8 +203,11 @@ namespace Ame::RG
     private:
         Ref<Rhi::Device> m_Device;
 
-        UPtr<CoreResources>  m_CoreResources;
+        UPtr<CoreResources> m_CoreResources;
+
         ResourceMapType      m_Resources;
+        ResourceStateTracker m_StateTracker;
+
         std::set<ResourceId> m_ImportedResources;
 
 #ifndef AME_DIST

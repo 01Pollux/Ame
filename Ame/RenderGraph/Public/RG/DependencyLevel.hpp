@@ -17,9 +17,9 @@ namespace Ame::RG
             ResourceViewId              DepthStencil;
         };
 
-        using TextureSubresourceTransitionStateMap = std::unordered_map<Rhi::TextureSubresource, nri::AccessLayoutStage>;
-        using TextureTransitionStateMap            = std::map<ResourceId, TextureSubresourceTransitionStateMap>;
-        using BufferTransitionStateMap             = std::map<ResourceId, nri::AccessStage>;
+        using TextureSubresourceStateMap = std::unordered_map<Rhi::TextureSubresource, nri::AccessLayoutStage>;
+        using TextureTransitionStateMap  = std::map<ResourceId, TextureSubresourceStateMap>;
+        using BufferTransitionStateMap   = std::map<ResourceId, nri::AccessStage>;
 
     public:
         /// <summary>

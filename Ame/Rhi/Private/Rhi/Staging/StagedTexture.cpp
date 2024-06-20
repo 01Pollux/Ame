@@ -1,5 +1,7 @@
 #include <Rhi/Staging/StagedTexture.hpp>
-#include <Rhi/Device/Device.hpp>
+#include <Rhi/Descs/View.hpp>
+
+#include <Rhi/Device/ResourceAllocator.hpp>
 #include <Rhi/Util/ResourceSize.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -23,29 +25,43 @@ namespace Ame::Rhi::Staging
 
     //
 
-    StagedTexture::StagedTexture(
-        Device&            rhiDevice,
-        const TextureDesc& desc,
-        StagedAccessType   accessType) :
-        StagedTexture(
-            rhiDevice,
-            desc,
-            GetTextureSize(rhiDevice.GetDesc(), desc),
-            0,
-            Buffer(rhiDevice, StagedAccessToMemoryLocation(accessType), BufferDesc{ .size = GetTextureSize(rhiDevice.GetDesc(), desc), .usageMask = TextureUsageToBufferUsage(desc.usageMask) }))
+    StagedTexture StagedTexture::Create(
+        DeviceResourceAllocator& allocator,
+        const TextureDesc&       desc,
+        StagedAccessType         accessType)
     {
+        auto& deviceDesc = allocator.GetDeviceDesc();
+        auto  buffer     = allocator.CreateBuffer(
+            { .size      = GetTextureSize(allocator.GetDeviceDesc(), desc),
+                   .usageMask = TextureUsageToBufferUsage(desc.usageMask) },
+            StagedAccessToMemoryLocation(accessType));
+
+        size_t totalSize = buffer.GetDesc().size;
+        return StagedTexture(deviceDesc, desc, std::move(buffer), totalSize, 0);
     }
 
+    StagedTexture StagedTexture::CreateForView(
+        const Rhi::DeviceDesc& deviceDesc,
+        const TextureDesc&     desc,
+        Buffer                 buffer,
+        size_t                 totalSize,
+        size_t                 offset)
+    {
+        return StagedTexture(deviceDesc, desc, std::move(buffer), totalSize, offset);
+    }
+
+    //
+
     StagedTexture::StagedTexture(
-        Device&            rhiDevice,
-        const TextureDesc& desc,
-        size_t             totalSize,
-        size_t             offset,
-        Buffer             buffer) :
-        m_DeviceDesc(&rhiDevice.GetDesc()),
+        const Rhi::DeviceDesc& deviceDesc,
+        const TextureDesc&     desc,
+        Buffer                 buffer,
+        size_t                 totalSize,
+        size_t                 offset) :
+        Buffer(std::move(buffer)),
+        m_DeviceDesc(&deviceDesc),
         m_Desc(desc),
-        m_TextureBuffer(std::move(buffer)),
-        m_Regions(CreateRegions(*m_DeviceDesc, m_Desc, totalSize, offset))
+        m_Regions(CreateRegions(deviceDesc, m_Desc, totalSize, offset))
     {
     }
 
@@ -72,19 +88,9 @@ namespace Ame::Rhi::Staging
         return m_Desc;
     }
 
-    const Buffer& StagedTexture::GetBuffer() const
-    {
-        return m_TextureBuffer;
-    }
-
-    Buffer& StagedTexture::GetBuffer()
-    {
-        return m_TextureBuffer;
-    }
-
     size_t StagedTexture::GetBufferSize() const
     {
-        return m_TextureBuffer.GetDesc().size;
+        return GetDesc().size;
     }
 
     const StagedTextureRegion& StagedTexture::GetRegion(

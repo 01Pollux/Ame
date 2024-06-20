@@ -19,26 +19,28 @@ namespace Ame::Gfx::Shading
     //
 
     Material::SharedData::SharedData(
-        Rhi::Device&              RhiDevice,
-        Gfx::Cache::ShaderCache&  ShaderCache,
-        Ptr<Rhi::PipelineLayout>  PipelineLayout,
-        MaterialPipelineState     PipelineState,
-        const PropertyDescriptor& Descriptor) :
-        LocalData(Descriptor),
-        CommonState(RhiDevice, ShaderCache, PipelineLayout, std::move(PipelineState))
+        Rhi::DeviceResourceAllocator&  allocator,
+        Gfx::Cache::ShaderCache&       ShaderCache,
+        Cache::CommonPipelineState&    pipelineStateCache,
+        Ptr<Rhi::ScopedPipelineLayout> pipelineLayout,
+        MaterialPipelineState          pipelineState,
+        const PropertyDescriptor&      descriptor) :
+        LocalData(descriptor),
+        CommonState(allocator, ShaderCache, pipelineStateCache, std::move(pipelineLayout), std::move(pipelineState))
     {
     }
 
     //
 
     Material::Material(
-        Rhi::Device&              RhiDevice,
-        Gfx::Cache::ShaderCache&  ShaderCache,
-        Ptr<Rhi::PipelineLayout>  PipelineLayout,
-        MaterialPipelineState     PipelineState,
-        const PropertyDescriptor& Descriptor) :
-        m_SharedData(std::make_shared<SharedData>(RhiDevice, ShaderCache, PipelineLayout, std::move(PipelineState), Descriptor)),
-        m_LocalData(Descriptor)
+        Rhi::DeviceResourceAllocator&  allocator,
+        Gfx::Cache::ShaderCache&       shaderCache,
+        Cache::CommonPipelineState&    pipelineStateCache,
+        Ptr<Rhi::ScopedPipelineLayout> pipelineLayout,
+        MaterialPipelineState          pipelineState,
+        const PropertyDescriptor&      descriptor) :
+        m_SharedData(std::make_shared<SharedData>(allocator, shaderCache, pipelineStateCache, std::move(pipelineLayout), std::move(pipelineState), descriptor)),
+        m_LocalData(descriptor)
     {
     }
 
@@ -58,12 +60,12 @@ namespace Ame::Gfx::Shading
 
     //
 
-    Ptr<Rhi::PipelineLayout> Material::GetPipelineLayout() const
+    Ptr<Rhi::ScopedPipelineLayout> Material::GetPipelineLayout() const
     {
         return m_SharedData->CommonState.GetPipelineLayout();
     }
 
-    Co::result<Ptr<Rhi::PipelineState>> Material::GetPipelineState(
+    Co::result<Ptr<Rhi::ScopedPipelineState>> Material::GetPipelineState(
         const MaterialRenderState& RenderState) const
     {
         return m_SharedData->CommonState.GetPipelineState(RenderState);

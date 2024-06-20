@@ -2,10 +2,11 @@
 
 #include <Rhi/Device/Device.hpp>
 #include <Gfx/Cache/CommonPipelineState.hpp>
+#include <Gfx/Cache/CommonPipelineLayout.hpp>
 
 namespace Ame::Gfx::Cache
 {
-    Co::result<Ptr<Rhi::PipelineLayout>> CommonPipelineState::PrepareLayout(
+    Co::result<Ptr<Rhi::ScopedPipelineLayout>> CommonPipelineState::PrepareLayout(
         Type type)
     {
         return m_CommonLayouts.get().Load(GetLayoutType(type));

@@ -82,11 +82,6 @@ namespace Ame::RG
         void Build(
             Context& context);
 
-        /// <summary>
-        /// Remove one shot passes from the graph
-        /// </summary>
-        void RemoveOneShotPasses();
-
     private:
         /// <summary>
         /// Build passes from builders

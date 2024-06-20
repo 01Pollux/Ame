@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <RG/Core.hpp>
 
 namespace Ame::RG
@@ -114,7 +113,7 @@ namespace Ame::RG
         auto operator<=>(
             const ResourceViewId& other) const noexcept
         {
-            return std::tie(m_Resource, m_ViewId) <=> std::tie(other.m_Resource, other.m_ViewId);
+            return m_ViewId <=> other.m_ViewId;
         }
 
     private:
@@ -132,23 +131,51 @@ namespace Ame::RG
 
     //
 
+    using BufferResourceViewDesc = Rhi::BufferViewDesc;
+
+    using TextureResourceViewDesc = std::variant<
+        Rhi::TextureViewDesc,
+        RenderTargetViewDesc,
+        DepthStencilViewDesc>;
+
+    struct BufferResourceView
+    {
+        BufferResourceViewDesc Desc;
+        Rhi::ResourceView      View;
+    };
+
+    struct TextureResourceView
+    {
+        TextureResourceViewDesc Desc;
+        Rhi::ResourceView       View;
+    };
+
+    using BufferResourceViewMap  = std::map<ResourceViewId, BufferResourceView>;
+    using TextureResourceViewMap = std::map<ResourceViewId, TextureResourceView>;
+
+    struct TextureResource
+    {
+        Rhi::Texture           Resource;
+        Rhi::TextureDesc       Desc;
+        TextureResourceViewMap Views;
+    };
+
+    struct BufferResource
+    {
+        Rhi::Buffer           Resource;
+        Rhi::BufferDesc       Desc;
+        BufferResourceViewMap Views;
+        Rhi::MemoryLocation   Location;
+    };
+
+    using RhiResource = std::variant<std::monostate, TextureResource, BufferResource>;
+
+    //
+
     class ResourceHandle
     {
         friend class DependencyLevel;
         friend class ResourceStorage;
-
-        struct ViewDesc
-        {
-            ResourceViewDesc  Desc;
-            Rhi::ResourceView View;
-        };
-
-    public:
-        using ResourceViewMapType = std::map<size_t, ViewDesc>;
-        using ResourceType        = std::variant<
-            std::monostate,
-            Rhi::Texture,
-            Rhi::Buffer>;
 
     public:
         ResourceHandle() = default;
@@ -165,81 +192,101 @@ namespace Ame::RG
 
     public:
         /// <summary>
-        /// Get resource desc
+        /// Release resource
         /// </summary>
-        [[nodiscard]] const ResourceDesc& GetDesc() const noexcept;
+        void Release(
+            ResourceStateTracker& stateTracker);
 
+    public:
+        /// <summary>
+        /// Begin tracking resource
+        /// </summary>
+        void BeginTracking(
+            ResourceStateTracker& stateTracker);
+
+        /// <summary>
+        /// Begin tracking buffer resource
+        /// </summary>
+        void BeginTrackingBuffer(
+            ResourceStateTracker& stateTracker,
+            Rhi::AccessStage      initialState = { Rhi::AccessBits::UNKNOWN, Rhi::StageBits::ALL });
+
+        /// <summary>
+        /// Begin tracking texture resource
+        /// </summary>
+        void BeginTrackingTexture(
+            ResourceStateTracker&  stateTracker,
+            Rhi::AccessLayoutStage initialState = { Rhi::AccessBits::UNKNOWN, Rhi::LayoutType::UNKNOWN, Rhi::StageBits::ALL });
+
+    public:
         /// <summary>
         /// Import resource
         /// </summary>
         void Import(
-            Rhi::Texture texture);
-
-        /// <summary>
-        /// Import resource
-        /// </summary>
-        void Import(
-            Rhi::Buffer buffer);
+            RhiResource&& resource);
 
         /// <summary>
         /// Set resource desc and change resource to be dynamic (not imported)
         /// </summary>
         void SetDynamic(
-            const ResourceId&   id,
-            const ResourceDesc& desc);
+            const ResourceId& id,
+            RhiResource&&     resource);
 
     public:
         /// <summary>
+        /// Get resource data
+        /// </summary>
+        [[nodiscard]] const RhiResource& Get() const noexcept;
+
+        /// <summary>
         /// Get the underlying resource as a texture
         /// </summary>
-        [[nodiscard]] const Rhi::Texture* AsTexture() const;
+        [[nodiscard]] const TextureResource* AsTexture() const noexcept;
+
+        /// <summary>
+        /// Get the underlying resource as a texture
+        /// </summary>
+        [[nodiscard]] TextureResource* AsTexture() noexcept;
 
         /// <summary>
         /// Get the underlying resource as a buffer
         /// </summary>
-        [[nodiscard]] const Rhi::Buffer* AsBuffer() const;
+        [[nodiscard]] const BufferResource* AsBuffer() const noexcept;
+
+        /// <summary>
+        /// Get the underlying resource as a buffer
+        /// </summary>
+        [[nodiscard]] BufferResource* AsBuffer() noexcept;
 
     public:
         /// <summary>
         /// Create a resource view with name
         /// </summary>
-        Rhi::BufferDesc& CreateBufferView(
-            const ResourceViewId& viewId,
-            ResourceViewDesc&&    desc);
+        BufferResource& CreateBufferView(
+            const ResourceViewId&         viewId,
+            const BufferResourceViewDesc& desc);
 
         /// <summary>
         /// Create a resource view with name
         /// </summary>
-        Rhi::TextureDesc& CreateTextureView(
-            const ResourceViewId& viewId,
-            ResourceViewDesc&&    desc);
+        TextureResource& CreateTextureView(
+            const ResourceViewId&          viewId,
+            const TextureResourceViewDesc& desc);
 
     public:
         /// <summary>
-        /// Get resource view desc
+        /// Get buffer resource's view
         /// </summary>
-        [[nodiscard]] ResourceViewDesc& GetViewDescMut(
-            const ResourceViewId& viewId);
+        [[nodiscard]] const BufferResourceView* GetBufferView(
+            const ResourceViewId& viewId) const noexcept;
 
         /// <summary>
-        /// Get resource view desc
+        /// Get texture resource's view
         /// </summary>
-        [[nodiscard]] const ResourceViewDesc& GetViewDesc(
-            const ResourceViewId& viewId) const;
-
-        /// <summary>
-        /// Get resource view descriptor handle
-        /// </summary>
-        [[nodiscard]] const Rhi::ResourceView& GetViewHandle(
-            const ResourceViewId& viewId) const;
+        [[nodiscard]] const TextureResourceView* GetTextureView(
+            const ResourceViewId& viewId) const noexcept;
 
     public:
-        /// <summary>
-        /// Check if resource has a view
-        /// </summary>
-        [[nodiscard]] bool ContainsView(
-            const ResourceViewId& viewId) const;
-
         /// <summary>
         /// check if resource is imported
         /// </summary>
@@ -250,25 +297,36 @@ namespace Ame::RG
         /// Reallocate resource if the desc has changed and recreate views
         /// </summary>
         void Reallocate(
-            Rhi::Device& rhiDevice);
+            ResourceStateTracker&         stateTracker,
+            Rhi::DeviceResourceAllocator& allocator);
+
+    private:
+        /// <summary>
+        /// Recreate resource views
+        /// </summary>
+        void RecreateViews(
+            Rhi::DeviceResourceAllocator& allocator,
+            BufferResource&               bufferResource);
 
         /// <summary>
         /// Recreate resource views
         /// </summary>
-        void RecreateViews();
+        void RecreateViews(
+            Rhi::DeviceResourceAllocator& allocator,
+            TextureResource&              textureResource);
 
     private:
         /// <summary>
-        /// Release resource
+        /// Check if resource was released
         /// </summary>
-        void Release();
+        void CheckResourceState(
+            bool wasReleased,
+            bool doAssert) const;
 
     private:
-        ResourceType m_Resource;
+        RhiResource m_Resource;
 
-        ResourceDesc        m_Desc;
-        ResourceViewMapType m_Views;
-        size_t              m_DescHash = 0;
+        size_t m_DescHash = 0;
 
 #ifndef AME_DIST
         String m_Name;

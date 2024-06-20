@@ -8,6 +8,7 @@
 #include <Rhi/Resource/Texture.hpp>
 #include <Rhi/Resource/Buffer.hpp>
 #include <Rhi/Resource/View.hpp>
+#include <Rhi/Descs/View.hpp>
 
 #include <variant>
 
@@ -76,22 +77,22 @@ namespace Ame::Gfx::Shading
 
     struct BufferResource
     {
-        Ptr<Rhi::Buffer>       Buffer;
-        Rhi::BufferViewDesc    ViewDesc;
-        Ptr<Rhi::ResourceView> View;
+        Ptr<Rhi::ScopedBuffer>       Buffer;
+        Rhi::BufferViewDesc          ViewDesc;
+        Ptr<Rhi::ScopedResourceView> View;
     };
 
     struct TextureResource
     {
-        Ptr<Rhi::Texture>      Texture;
-        Rhi::TextureViewDesc   ViewDesc;
-        Ptr<Rhi::ResourceView> View;
+        Ptr<Rhi::ScopedTexture>      Texture;
+        Rhi::TextureViewDesc         ViewDesc;
+        Ptr<Rhi::ScopedResourceView> View;
     };
 
     struct SamplerResource
     {
-        Rhi::SamplerDesc       ViewDesc;
-        Ptr<Rhi::ResourceView> View;
+        Rhi::SamplerDesc             ViewDesc;
+        Ptr<Rhi::ScopedResourceView> View;
     };
 
     using RhiResourceType = std::variant<

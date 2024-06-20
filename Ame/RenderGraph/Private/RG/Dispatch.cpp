@@ -16,15 +16,15 @@ namespace Ame::RG
         }
 
         m_CommandList = &commandList;
-        std::vector<Rhi::ClearDesc> ClearDescs(renderTargets.size() + (depthStencil ? 1 : 0));
+        std::vector<Rhi::ClearDesc> clearDescs(renderTargets.size() + (depthStencil ? 1 : 0));
 
-        auto Rtvs = SetupRenderTargets(resourceStorage, ClearDescs, renderTargets);
-        auto Dsv  = SetupDepthStencil(resourceStorage, ClearDescs, depthStencil);
+        auto Rtvs = SetupRenderTargets(resourceStorage, clearDescs, renderTargets);
+        auto Dsv  = SetupDepthStencil(resourceStorage, clearDescs, depthStencil);
 
         m_CommandList->BeginRendering(Rtvs, Dsv);
-        if (!ClearDescs.empty())
+        if (!clearDescs.empty())
         {
-            m_CommandList->ClearAttachments(ClearDescs);
+            m_CommandList->ClearAttachments(clearDescs);
         }
     }
 
@@ -49,9 +49,12 @@ namespace Ame::RG
         for (uint32_t i = 0; i < static_cast<uint32_t>(renderTargets.size()); i++)
         {
             auto& rtvViewId = renderTargets[i];
-            auto& rtvDesc   = std::get<RenderTargetViewDesc>(resourceStorage.GetResourceViewDesc(rtvViewId));
+            auto  resource  = resourceStorage.GetResource(rtvViewId.GetResource());
 
-            rtvs.push_back(&resourceStorage.GetResourceViewHandle(rtvViewId));
+            auto& view    = *resource->GetTextureView(rtvViewId);
+            auto& rtvDesc = std::get<RenderTargetViewDesc>(view.Desc);
+
+            rtvs.push_back(resourceStorage.GetResourceViewHandle(rtvViewId));
             if (rtvDesc.ClearType != ERTClearType::Ignore)
             {
                 auto& handle  = *resourceStorage.GetResource(rtvViewId.GetResource());
@@ -88,11 +91,14 @@ namespace Ame::RG
             return nullptr;
         }
 
-        auto& dsvDesc = std::get<DepthStencilViewDesc>(resourceStorage.GetResourceViewDesc(depthStencil));
-        auto  dsv     = &resourceStorage.GetResourceViewHandle(depthStencil);
+        auto resource = resourceStorage.GetResource(depthStencil.GetResource());
+
+        auto& view    = *resource->GetTextureView(depthStencil);
+        auto& dsvDesc = std::get<DepthStencilViewDesc>(view.Desc);
+
+        auto dsv = resourceStorage.GetResourceViewHandle(depthStencil);
         if (dsvDesc.ClearType != EDSClearType::Ignore)
         {
-
             auto& handle    = *resourceStorage.GetResource(depthStencil.GetResource());
             auto& clearDesc = clearDescs[clearDescs.size() - 1];
             switch (dsvDesc.ClearType)

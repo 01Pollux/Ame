@@ -1,6 +1,8 @@
 #include <RG/Resources/CoreResources.hpp>
 
 #include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
+
 #include <Rhi/Util/ResourceSize.hpp>
 #include <Math/Common.hpp>
 
@@ -60,13 +62,19 @@ namespace Ame::RG
 
     //
 
-    Rhi::Buffer CoreResources::AllocateFrameResource(
+    Rhi::ScopedBuffer CoreResources::AllocateFrameResource(
         Rhi::Device& rhiDevice)
     {
+        auto& resourceAllocator = rhiDevice.GetResourceAllocator();
+
         auto&   deviceDesc = rhiDevice.GetDesc();
         uint8_t frameCount = rhiDevice.GetFrameCountInFlight();
-        size_t  bufferSize = Rhi::Util::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), frameCount);
 
-        return Rhi::Buffer(rhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, { .size = bufferSize, .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER });
+        Rhi::BufferDesc bufferDesc{
+            .size      = Rhi::Util::GetConstantBufferSize(deviceDesc, sizeof(FrameResourceGPU), frameCount),
+            .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER
+        };
+
+        return resourceAllocator.CreateBuffer(bufferDesc, Rhi::MemoryLocation::HOST_UPLOAD);
     }
 } // namespace Ame::RG

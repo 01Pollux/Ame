@@ -53,9 +53,9 @@ namespace Ame::Gfx
                     auto& frameData      = storage.GetFrameResourceData();
                     auto& backbufferDesc = storage.GetBackbufferDesc();
 
-                    auto& transformsTable = storage.GetResourceViewHandle(RG::Names::c_TransformsTable("TiledForward"));
-                    auto& aabbTable       = storage.GetResourceViewHandle(RG::Names::c_AABBTable("TiledForward"));
-                    auto& instanceTable   = storage.GetResourceViewHandle(RG::Names::c_InstanceTable("TiledForward"));
+                    auto& transformsTable = *storage.GetResourceViewHandle(RG::Names::c_TransformsTable("TiledForward"));
+                    auto& aabbTable       = *storage.GetResourceViewHandle(RG::Names::c_AABBTable("TiledForward"));
+                    auto& instanceTable   = *storage.GetResourceViewHandle(RG::Names::c_InstanceTable("TiledForward"));
 
                     //
 
@@ -71,10 +71,10 @@ namespace Ame::Gfx
 
                     //
 
-                    Shading::MaterialShaderLink tiledForwardShaders;
-
-                    tiledForwardShaders.CompileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
-                    tiledForwardShaders.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::TiledForward_PS).get().Borrow());
+                    Shading::MaterialShaderLink tiledForwardLinkDesc{
+                        .CompileDesc{ .Stage = Rhi::ShaderCompileStage::Pixel }
+                    };
+                    tiledForwardLinkDesc.Shaders.emplace_back(m_CommonShaders.get().Load(Cache::CommonShader::Type::TiledForward_PS).get());
 
                     //
 
@@ -85,7 +85,7 @@ namespace Ame::Gfx
                     Shading::MaterialRenderState RenderState{
                         renderTargets,
                         Rhi::ResourceFormat::UNKNOWN,
-                        std::move(tiledForwardShaders)
+                        std::move(tiledForwardLinkDesc)
                     };
 
                     Rhi::DescriptorSet frameDataSet;
@@ -125,14 +125,14 @@ namespace Ame::Gfx
 
                         if (!frameDataSet)
                         {
-                            frameDataSet  = commandList->AllocateSet(CD::c_FrameData_SetIndex);
-                            entityDataSet = commandList->AllocateSet(CD::c_EntityData_SetIndex);
+                            frameDataSet  = m_MaterialCache.get().AllocateSet(material, CD::c_FrameData_SetIndex);
+                            entityDataSet = m_MaterialCache.get().AllocateSet(material, CD::c_EntityData_SetIndex);
 
                             frameDataSet.SetRange(0, { frameDescriptors, Rhi::Count32(frameDescriptors) });
                             entityDataSet.SetRange(0, { entityDescriptors, Rhi::Count32(entityDescriptors) });
 
-                            commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, frameDataSet);
-                            commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, entityDataSet);
+                            commandList->SetDescriptorSet(CD::c_FrameData_SetIndex, *frameDataSet.Unwrap());
+                            commandList->SetDescriptorSet(CD::c_EntityData_SetIndex, *entityDataSet.Unwrap());
                         }
                     };
 
@@ -144,10 +144,10 @@ namespace Ame::Gfx
                         commandList->SetConstants(CD::c_InstanceIndex_ConstantIndex, instance.InstanceId);
 
                         auto pipelineState = instance.Material->GetPipelineState(RenderState).get();
-                        commandList->SetPipelineState(pipelineState);
+                        commandList->SetPipelineState(*pipelineState->Unwrap());
 
-                        commandList->SetVertexBuffer({ .Buffer = instance.VertexBuffer, .Offset = instance.VertexOffset });
-                        commandList->SetIndexBuffer({ .Buffer = instance.IndexBuffer, .Offset = instance.IndexOffset, .Type = instance.IndexType });
+                        commandList->SetVertexBuffer({ .NriBuffer = instance.VertexBuffer, .Offset = instance.VertexOffset });
+                        commandList->SetIndexBuffer({ .NriBuffer = instance.IndexBuffer, .Offset = instance.IndexOffset, .Type = instance.IndexType });
 
                         commandList->Draw(Rhi::DrawIndexedDesc{
                             .indexNum    = instance.IndexCount,

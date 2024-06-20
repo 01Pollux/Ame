@@ -9,20 +9,22 @@ namespace Ame::Ecs
     class World;
 } // namespace Ame::Ecs
 
-namespace Ame::Signals::Data
+namespace Ame::Signals
 {
-    struct WorldChangeData
+    namespace Data
     {
-        /// <summary>
-        /// The old world, can be null.
-        /// </summary>
-        Ecs::World* OldWorld;
+        struct WorldChangeData
+        {
+            /// <summary>
+            /// The old world, can be null.
+            /// </summary>
+            Ecs::World* OldWorld;
 
-        /// <summary>
-        /// The new world, can be null when the world is removed. (shutdown)
-        /// </summary>
-        Ecs::World* NewWorld;
-    };
-} // namespace Ame::Signals::Data
-
-AME_SIGNAL_DECL(OnWorldChange, void(const Data::WorldChangeData& changeData));
+            /// <summary>
+            /// The new world, can be null when the world is removed. (shutdown)
+            /// </summary>
+            Ecs::World* NewWorld;
+        };
+    } // namespace Data
+    AME_SIGNAL_DECL(OnWorldChange, void(const Data::WorldChangeData& changeData));
+} // namespace Ame::Signals::

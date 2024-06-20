@@ -69,9 +69,10 @@ namespace Ame::Gfx
 
         auto& resourceStorage = m_Graph.get().GetResourceStorage();
 
-        resourceStorage.ImportBuffer(RG::Names::c_TransformsTable, transformBuffer.GetBuffer().Borrow());
-        resourceStorage.ImportBuffer(RG::Names::c_AABBTable, aabbBuffer.GetBuffer().Borrow());
-        resourceStorage.ImportBuffer(RG::Names::c_InstanceTable, instanceBuffer.GetBuffer().Borrow());
+        Rhi::AccessStage initialState{ Rhi::AccessBits::UNKNOWN, Rhi::StageBits::ALL };
+        resourceStorage.ImportBuffer(RG::Names::c_TransformsTable, transformBuffer.GetDesc().Location, transformBuffer.GetBuffer(), initialState);
+        resourceStorage.ImportBuffer(RG::Names::c_AABBTable, aabbBuffer.GetDesc().Location, aabbBuffer.GetBuffer(), initialState);
+        resourceStorage.ImportBuffer(RG::Names::c_InstanceTable, instanceBuffer.GetDesc().Location, instanceBuffer.GetBuffer(), initialState);
     }
 
     //

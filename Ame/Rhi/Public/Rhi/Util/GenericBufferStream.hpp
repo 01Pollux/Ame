@@ -20,7 +20,7 @@ namespace Ame::Rhi::Util
         GenericBufferStream(
             Buffer&& buffer) :
             m_Buffer(std::move(buffer)),
-            m_Stream(std::make_unique<Streaming::BufferOStream>(Streaming::BufferView(m_Buffer.Borrow())))
+            m_Stream(std::make_unique<Streaming::BufferOStream>(Streaming::BufferView(m_Buffer)))
         {
         }
 
@@ -30,6 +30,15 @@ namespace Ame::Rhi::Util
         /// </summary>
         /// <returns></returns>
         const Buffer& GetBuffer() const
+        {
+            return m_Buffer;
+        }
+
+        /// <summary>
+        /// Get the buffer
+        /// </summary>
+        /// <returns></returns>
+        Buffer& GetBuffer()
         {
             return m_Buffer;
         }
@@ -50,7 +59,7 @@ namespace Ame::Rhi::Util
             Buffer buffer)
         {
             m_Buffer = std::move(buffer);
-            m_Stream->open(Streaming::BufferView(m_Buffer.Borrow()));
+            m_Stream->open(Streaming::BufferView(m_Buffer));
         }
 
         /// <summary>
@@ -106,7 +115,7 @@ namespace Ame::Rhi::Util
         }
 
     private:
-        Buffer                         m_Buffer;
+        ScopedBuffer                   m_Buffer;
         UPtr<Streaming::BufferOStream> m_Stream;
     };
 
@@ -115,7 +124,8 @@ namespace Ame::Rhi::Util
     {
     public:
         GenericBufferStream() = default;
-        GenericBufferStream(Buffer&& buffer) :
+        GenericBufferStream(
+            Buffer&& buffer) :
             m_Buffer(std::move(buffer))
         {
         }
@@ -198,6 +208,6 @@ namespace Ame::Rhi::Util
         }
 
     private:
-        Buffer m_Buffer;
+        ScopedBuffer m_Buffer;
     };
 } // namespace Ame::Rhi::Util

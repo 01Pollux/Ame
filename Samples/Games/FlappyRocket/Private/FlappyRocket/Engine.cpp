@@ -24,12 +24,22 @@ namespace Ame::FlappyRocket
         Log::Client().SetLevel(Log::LogLevel::Trace);
     }
 
-    void FlappyRocketEngine::Initialize()
+    Co::result<void> FlappyRocketEngine::Run()
     {
-        BaseEngine::Initialize();
+        auto& engineFrame = GetSubsystem<EngineFrameSubsystem>();
 
-        SetClearColor(GetSubsystem<Rhi::DeviceSubsystem>());
+        Initialize();
 
+        while (engineFrame.IsRunning())
+        {
+            engineFrame.Tick();
+        }
+
+        co_return;
+    }
+
+    Co::null_result FlappyRocketEngine::Initialize()
+    {
         auto& assetStorage = GetSubsystem<Asset::StorageSubsystem>();
         assetStorage.Mount<Asset::DirectoryAssetPackage>("Shared/Assets");
 
@@ -37,12 +47,7 @@ namespace Ame::FlappyRocket
         m_Game = GetSubsystem<FlappyRocketGameSubsystem>();
 
         CreateWorld();
-    }
-
-    void FlappyRocketEngine::SetClearColor(
-        Rhi::Device& rhiDevice) const
-    {
-        rhiDevice.SetClearColor(Colors::c_Gray);
+        co_return;
     }
 
     void FlappyRocketEngine::CreateWorld()

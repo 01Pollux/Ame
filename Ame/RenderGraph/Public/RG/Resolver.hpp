@@ -19,7 +19,12 @@ namespace Ame::RG
         [[nodiscard]] Rhi::Device& GetDevice() const;
 
         /// <summary>
-        /// Helper function to get backbuffer desc
+        /// Get backbuffer texture format
+        /// </summary>
+        [[nodiscard]] Rhi::ResourceFormat GetBackbufferFormat() const;
+
+        /// <summary>
+        /// Get backbuffer texture desc
         /// </summary>
         [[nodiscard]] const Rhi::TextureDesc& GetBackbufferDesc() const;
 
@@ -48,15 +53,18 @@ namespace Ame::RG
         /// import buffer to be used later when dispatching passes
         /// </summary>
         void ImportBuffer(
-            const ResourceId& id,
-            Rhi::Buffer       buffer);
+            const ResourceId&   id,
+            Rhi::MemoryLocation location,
+            Rhi::Buffer         buffer,
+            Rhi::AccessStage    initialState);
 
         /// <summary>
         /// import texture to be used later when dispatching passes
         /// </summary>
         void ImportTexture(
-            const ResourceId& id,
-            Rhi::Texture      texture);
+            const ResourceId&      id,
+            Rhi::Texture           texture,
+            Rhi::AccessLayoutStage initialState);
 
     public:
         /// <summary>
@@ -80,10 +88,10 @@ namespace Ame::RG
         /// Write to resource
         /// </summary>
         void WriteTexture(
-            const ResourceViewId&   viewId,
-            const ResourceViewDesc& viewDesc,
-            const Rhi::AccessStage& accessStage,
-            Rhi::TextureUsageBits   usageBits);
+            const ResourceViewId&          viewId,
+            const TextureResourceViewDesc& viewDesc,
+            const Rhi::AccessStage&        accessStage,
+            Rhi::TextureUsageBits          usageBits);
 
     public:
         /// <summary>

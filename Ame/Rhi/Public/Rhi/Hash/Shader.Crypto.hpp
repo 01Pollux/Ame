@@ -1,8 +1,7 @@
 #pragma once
 
 #include <Util/Crypto.hpp>
-#include <Rhi/Resource/Shader.hpp>
-#include <Rhi/Resource/Shader.Compiler.hpp>
+#include <Rhi/Shader/Shader.hpp>
 
 namespace Ame::Util
 {
@@ -21,8 +20,7 @@ namespace Ame::Util
             hasher.Update(std::bit_cast<const CryptoPP::byte*>(&extension), sizeof(extension));
         }
 
-        auto Stage = desc.GetStage();
-        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&Stage), sizeof(Stage));
+        hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.Stage), sizeof(desc.Stage));
         hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.Profile), sizeof(desc.Profile));
         hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.VulkanMemoryLayout), sizeof(desc.VulkanMemoryLayout));
         hasher.Update(std::bit_cast<const CryptoPP::byte*>(&desc.Flags), sizeof(desc.Flags));

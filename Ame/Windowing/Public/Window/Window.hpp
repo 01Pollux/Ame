@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Window/Signals.hpp>
+#include <Signals/Window/Window.hpp>
 
 #include <Window/Desc.hpp>
 #include <utility>
@@ -181,6 +181,14 @@ namespace Ame::Windowing
         /// Processes events such as input, resize, etc.
         /// </summary>
         void ProcessEvents();
+
+    private:
+        /// <summary>
+        /// Create the glfw window
+        /// This function must be called inside the glfw worker thread
+        /// </summary>
+        void CreateGlfwWindow(
+            const WindowDesc& windowDesc);
 
     private:
         GLFWwindow*  m_Handle = nullptr;

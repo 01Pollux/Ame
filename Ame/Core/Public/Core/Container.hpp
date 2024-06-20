@@ -6,7 +6,7 @@
 
 namespace Ame
 {
-    class Container
+    class IoCContainer
     {
     public:
         /// <summary>
@@ -64,7 +64,7 @@ namespace Ame
         ///  This function consumes the container `other`
         /// </summary>
         void Merge(
-            Container& Other)
+            IoCContainer& Other)
         {
             m_Container.merge(Other.m_Container);
         }
@@ -81,7 +81,7 @@ namespace Ame
         /// It will call rebase() with a predicate as parameter.
         /// </summary>
         void Rebase(
-            const Container& other)
+            const IoCContainer& other)
         {
             m_Container.rebase(other.m_Container);
         }
@@ -95,7 +95,7 @@ namespace Ame
         /// </summary>
         template<typename FnTy>
         void Rebase(
-            const Container& other,
+            const IoCContainer& other,
             FnTy&&           predicate)
         {
             m_Container.rebase(other.m_Container, std::forward<FnTy>(predicate));

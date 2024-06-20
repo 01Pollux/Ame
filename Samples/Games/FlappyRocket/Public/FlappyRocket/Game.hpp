@@ -10,6 +10,10 @@ namespace Ame
         {
             class ShaderCache;
         } // namespace Cache
+        namespace Shading
+        {
+            class MaterialCompiler;
+        } // namespace Shading
     }     // namespace Gfx
     namespace Asset
     {
@@ -28,10 +32,10 @@ namespace Ame::FlappyRocket
 
     public:
         FlappyRocketGame(
-            Rhi::Device&             device,
-            Ecs::Universe&           ecsUniverse,
-            Asset::Storage&          assetStorage,
-            Gfx::Cache::ShaderCache& shaderCache);
+            Ecs::Universe&                  ecsUniverse,
+            Asset::Storage&                 assetStorage,
+            Gfx::Cache::ShaderCache&        shaderCache,
+            Gfx::Shading::MaterialCompiler& materialCompiler);
 
     public:
         /// <summary>
@@ -45,9 +49,9 @@ namespace Ame::FlappyRocket
         void AddAllEntities();
 
     private:
-        Rhi::Device*             m_Device       = nullptr;
-        Ecs::Universe*           m_EcsUniverse  = nullptr;
-        Asset::Storage*          m_AssetStorage = nullptr;
-        Gfx::Cache::ShaderCache* m_ShaderCache  = nullptr;
+        Ecs::Universe*                  m_EcsUniverse      = nullptr;
+        Asset::Storage*                 m_AssetStorage     = nullptr;
+        Gfx::Cache::ShaderCache*        m_ShaderCache      = nullptr;
+        Gfx::Shading::MaterialCompiler* m_MaterialCompiler = nullptr;
     };
 } // namespace Ame::FlappyRocket

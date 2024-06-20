@@ -63,14 +63,6 @@ namespace Ame::RG
         context.Build(std::move(passes));
     }
 
-    void PassStorage::RemoveOneShotPasses()
-    {
-        using namespace EnumBitOperators;
-
-        std::erase_if(m_Passes, [](const PassIterator& pass)
-                      { return (pass->second->GetFlags() & PassFlags::OneShot) == PassFlags::OneShot; });
-    }
-
     //
 
     auto PassStorage::BuildPasses(

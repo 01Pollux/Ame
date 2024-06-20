@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/Ame.hpp>
 #include <Ecs/Entity.hpp>
 
 #include <Ecs/Filter.hpp>

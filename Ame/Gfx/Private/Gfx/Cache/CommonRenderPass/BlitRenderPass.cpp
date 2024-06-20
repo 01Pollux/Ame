@@ -3,55 +3,50 @@
 #include <Rhi/CommandList/CommandList.hpp>
 #include <Gfx/Cache/CommonRenderPass/BlitRenderPass.hpp>
 
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/CommandSubmitter.hpp>
+
 namespace Ame::Gfx::Cache
 {
     BlitRenderPass::BlitRenderPass(
         Rhi::Device& rhiDevice) :
-        m_Device(rhiDevice)
+        m_RhiDevice(rhiDevice)
     {
     }
 
-    //
-
-    void BlitRenderPass::Blit(
+    Co::result<void> BlitRenderPass::Blit(
         const BlitParameters& parameters)
     {
-        BlitOperation operation(m_Device, parameters);
+        auto& commandSubmitter = m_RhiDevice.get().GetCommandSubmitter();
+
+        auto submission = commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
+        Blit(submission.CommandListRef, parameters);
+        return commandSubmitter.SubmitCommandList(submission);
+    }
+
+    void BlitRenderPass::Blit(
+        Rhi::CommandList&     commandList,
+        const BlitParameters& parameters)
+    {
+        BlitOperation operation(commandList, parameters);
         switch (operation.OptimalType)
         {
         case OptimalBlitOperation::Copy:
         {
-            BlitCopyBarrier(operation);
+            BlitPushCopyBarrier(operation);
             BlitCopy(operation);
+            BlitPopCopyBarrier(operation);
             break;
         }
         case OptimalBlitOperation::Render:
         {
-            BlitRenderBarrier(operation);
+            BlitPushRenderBarrier(operation);
             BlitRender(operation);
+            BlitPopRenderBarrier(operation);
             break;
         }
         default:
             std::unreachable();
-        }
-        BlitRestoreState(operation);
-    }
-
-    //
-
-    void BlitRenderPass::BlitRestoreState(
-        BlitOperation& operation)
-    {
-        if (operation.Parameters.PlacePostBarrier)
-        {
-            operation.CommandList.RequireState(
-                operation.Parameters.DstTexture.get().Unwrap(),
-                operation.Parameters.NewState);
-
-            if (operation.Parameters.FlushPostBarrier)
-            {
-                operation.CommandList.CommitBarriers();
-            }
         }
     }
 } // namespace Ame::Gfx::Cache

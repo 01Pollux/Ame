@@ -28,23 +28,13 @@ namespace Ame::Asset::Gfx
 
     public:
         Handler(
-            Rhi::Device&                          rhiDevice,
-            Rhi::Staging::DeferredStagingManager& stagingManager,
+            Rhi::Device& rhiDevice,
             Extensions::FreeImageInstance&);
 
     public:
         AME_STANDARD_ASSET_HANDLER_BODY;
 
     private:
-        /// <summary>
-        /// Get the extension of a texture asset.
-        /// </summary>
-        [[nodiscard]] static String GetExtension(
-            String&              path,
-            const AssetMetaData& loaderData);
-
-    private:
         Ref<Rhi::Device>                          m_Device;
-        Ref<Rhi::Staging::DeferredStagingManager> m_StagingManager;
     };
 } // namespace Ame::Asset::Gfx

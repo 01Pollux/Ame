@@ -5,7 +5,6 @@
 #include <Subsystem/Core/Frame.hpp>
 #include <Subsystem/Core/Timer.hpp>
 #include <Subsystem/Rhi/Device.hpp>
-#include <Subsystem/Rhi/DeferredStagingStorage.hpp>
 #include <Subsystem/Ecs/Universe.hpp>
 #include <Subsystem/RG/RenderGraph.hpp>
 #include <Subsystem/Gfx/EntityCompositor.hpp>
@@ -21,7 +20,6 @@ namespace Ame::Gfx
                                        EngineFrameSubsystem,
                                        FrameTimerSubsystem,
                                        Rhi::DeviceSubsystem,
-                                       Rhi::Staging::DeferredStagingManagerSubsystem,
                                        Ecs::UniverseSubsystem,
                                        RG::GraphSubsystem,
                                        EntityCompositorSubsystem,

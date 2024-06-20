@@ -361,7 +361,19 @@ namespace Ame::Asset
                 throw AssetNotFoundException(guid, currentGuid);
             }
 
-            auto asset = handler->Load(assetFile, dependencyReader, currentGuid, path.string(), metaData->GetLoaderData());
+            AssetHandlerLoadDesc loadDesc{
+                .BackgroundExecutor = m_Runtime.get().background_executor(),
+                .ForegroundExecutor = m_Runtime.get().inline_executor(),
+
+                .Stream       = assetFile,
+                .Dependencies = dependencyReader,
+
+                .Guid = currentGuid,
+                .Path = path.string(),
+
+                .LoaderData = metaData->GetLoaderData()
+            };
+            auto asset = handler->Load(loadDesc).get();
             if (!asset)
             {
                 throw AssetHandlerFailureException(guid, currentGuid);
@@ -433,7 +445,18 @@ namespace Ame::Asset
             }
 
             DependencyWriter dependencyWriter;
-            handler->Save(assetFile, dependencyWriter, curAsset, metaData->GetLoaderData());
+
+            AssetHandlerSaveDesc saveDesc{
+                .BackgroundExecutor = m_Runtime.get().background_executor(),
+                .ForegroundExecutor = m_Runtime.get().inline_executor(),
+
+                .Stream       = assetFile,
+                .Dependencies = dependencyWriter,
+
+                .Asset      = curAsset,
+                .LoaderData = metaData->GetLoaderData()
+            };
+            handler->Save(saveDesc).wait();
 
             // Write dependencies to metadata
             {

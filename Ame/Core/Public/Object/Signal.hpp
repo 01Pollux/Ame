@@ -14,34 +14,37 @@ namespace Ame::Signals
     using Name##_Slot   = Name##_Signal::slot_type;             \
     using Name##_SlotEx = Name##_Signal::extended_slot_type;
 
-#define AME_SIGNAL_INST(Name)                              \
+#define AME_SIGNAL_INST_N(Namespace, Name)                 \
 public:                                                    \
     boost::signals2::connection Name(                      \
-        Name##_Slot slot)                                  \
+        Namespace##Name##_Slot slot)                       \
     {                                                      \
         return m_##Name.connect(std::move(slot));          \
     }                                                      \
     boost::signals2::connection Name##Ex(                  \
-        Name##_SlotEx slot)                                \
+        Namespace##Name##_SlotEx slot)                     \
     {                                                      \
         return m_##Name.connect_extended(std::move(slot)); \
     }                                                      \
                                                            \
 private:                                                   \
-    Name##_Signal m_##Name
+    Namespace##Name##_Signal m_##Name
 
-#define AME_SIGNAL_STATIC(Name)                            \
+#define AME_SIGNAL_STATIC_N(Namespace, Name)               \
 public:                                                    \
     static boost::signals2::connection Name(               \
-        Name##_Slot slot)                                  \
+        Namespace##Name##_Slot slot)                       \
     {                                                      \
         return m_##Name.connect(std::move(slot));          \
     }                                                      \
     static boost::signals2::connection Name##Ex(           \
-        Name##_SlotEx slot)                                \
+        Namespace##Name##_SlotEx slot)                     \
     {                                                      \
         return m_##Name.connect_extended(std::move(slot)); \
     }                                                      \
                                                            \
 private:                                                   \
-    static inline Name##_Signal m_##Name
+    static inline Namespace##Name##_Signal m_##Name
+
+#define AME_SIGNAL_INST(Name)   AME_SIGNAL_INST_N(Ame::Signals::, Name)
+#define AME_SIGNAL_STATIC(Name) AME_SIGNAL_STATIC_N(Ame::Signals::, Name)

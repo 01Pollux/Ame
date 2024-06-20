@@ -3,17 +3,17 @@
 namespace Ame::Asset::Gfx
 {
     TextureAsset::TextureAsset(
-        const Ptr<Rhi::Texture>& texture,
-        ImageFormat              Format,
-        const Guid&              guid,
-        String                   path) :
+        const Ptr<Rhi::ScopedTexture>& texture,
+        ImageFormat                    Format,
+        const Guid&                    guid,
+        String                         path) :
         IAsset(guid, std::move(path)),
         m_Texture(texture),
         m_Format(Format)
     {
     }
 
-    const Ptr<Rhi::Texture>& TextureAsset::GetTexture() const
+    const Ptr<Rhi::ScopedTexture>& TextureAsset::GetTexture() const
     {
         return m_Texture;
     }

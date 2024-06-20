@@ -10,10 +10,6 @@
 
 namespace Ame::Rhi
 {
-    using PipelineLayoutDesc = nri::PipelineLayoutDesc;
-    struct GraphicsPipelineDesc;
-    struct ComputePipelineDesc;
-
     using AttachmentContentType = nri::AttachmentContentType;
 
     using ShaderType = nri::StageBits;
@@ -38,6 +34,7 @@ namespace Ame::Rhi
     using TextureRegionDesc     = nri::TextureRegionDesc;
     using TextureDataLayoutDesc = nri::TextureDataLayoutDesc;
 
+    using DescriptorPoolDesc        = nri::DescriptorPoolDesc;
     using DescriptorRangeUpdateDesc = nri::DescriptorRangeUpdateDesc;
     using DescriptorSetCopyDesc     = nri::DescriptorSetCopyDesc;
 
@@ -47,6 +44,12 @@ namespace Ame::Rhi
     using AccessLayoutStage = nri::AccessLayoutStage;
 
     using GlobalBarrierDesc = nri::GlobalBarrierDesc;
+
+    struct BufferRange;
+    struct MipLevel;
+    struct ArraySlice;
+    struct TextureSubresource;
+    struct TextureRect;
 
     struct BufferViewDesc;
     struct TextureViewDesc;

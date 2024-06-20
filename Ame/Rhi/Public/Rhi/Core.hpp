@@ -10,22 +10,32 @@ namespace Ame::Rhi
 {
     class Device;
     class DeviceImpl;
+    class IDeviceWrapper;
+    class FrameManager;
+    class DeviceResourceAllocator;
+    class DeviceCommandSubmitter;
+    class DeviceWindowManager;
     class CommandList;
-    class CommandListImpl;
     class PipelineLayout;
     class PipelineState;
     class Buffer;
     class Texture;
     class ResourceView;
+    class DescriptorTable;
     class DescriptorSet;
 
     using Mip_t    = uint8_t;
     using Dim_t    = uint16_t;
     using Sample_t = uint8_t;
 
-    using DeviceDesc     = nri::DeviceDesc;
-    using ResourceFormat = nri::Format;
-    using FormatProps    = nri::FormatProps;
+    using DeviceDesc       = nri::DeviceDesc;
+    using ResourceFormat   = nri::Format;
+    using FormatProps      = nri::FormatProps;
+    using CommandQueueType = nri::CommandQueueType;
+
+    using PipelineLayoutDesc = nri::PipelineLayoutDesc;
+    struct GraphicsPipelineDesc;
+    struct ComputePipelineDesc;
 
     enum class GraphicsAPI : uint8_t
     {
@@ -61,6 +71,8 @@ namespace Ame::Rhi
 
         Count,
     };
+
+    static constexpr bool c_EnableDrawParametersEmulation = true;
 
     //
 

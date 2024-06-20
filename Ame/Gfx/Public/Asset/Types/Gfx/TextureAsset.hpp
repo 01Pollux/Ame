@@ -57,15 +57,15 @@ namespace Ame::Asset::Gfx
 
     public:
         TextureAsset(
-            const Ptr<Rhi::Texture>& texture,
-            ImageFormat              format,
-            const Guid&              guid,
-            String                   path);
+            const Ptr<Rhi::ScopedTexture>& texture,
+            ImageFormat                    format,
+            const Guid&                    guid,
+            String                         path);
 
         /// <summary>
         /// Get underlying texture
         /// </summary>
-        [[nodiscard]] const Ptr<Rhi::Texture>& GetTexture() const;
+        [[nodiscard]] const Ptr<Rhi::ScopedTexture>& GetTexture() const;
 
         /// <summary>
         /// Get texture's format
@@ -73,8 +73,8 @@ namespace Ame::Asset::Gfx
         [[nodiscard]] ImageFormat GetFormat() const;
 
     private:
-        Ptr<Rhi::Texture> m_Texture;
-        String            m_ShaderSource;
-        ImageFormat       m_Format;
+        Ptr<Rhi::ScopedTexture> m_Texture;
+        String                  m_ShaderSource;
+        ImageFormat             m_Format;
     };
 } // namespace Ame::Asset::Gfx

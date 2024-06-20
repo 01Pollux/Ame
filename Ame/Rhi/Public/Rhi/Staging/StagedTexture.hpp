@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Rhi/Staging/Desc.hpp>
 #include <Rhi/Resource/Buffer.hpp>
+#include <Rhi/Staging/Desc.hpp>
 
 namespace Ame::Rhi::Staging
 {
@@ -36,22 +36,37 @@ namespace Ame::Rhi::Staging
         }
     };
 
-    class StagedTexture
+    class StagedTexture : public Buffer
     {
     public:
+        [[nodiscard]] static StagedTexture Create(
+            DeviceResourceAllocator& allocator,
+            const TextureDesc&       desc,
+            StagedAccessType         accessType);
+
+        /// <summary>
+        /// Create a staged texture for the specified external buffer, the staged texture must not be released.
+        /// </summary>
+        [[nodiscard]] static StagedTexture CreateForView(
+            const Rhi::DeviceDesc& deviceDesc,
+            const TextureDesc&     desc,
+            Buffer                 buffer,
+            size_t                 totalSize,
+            size_t                 offset);
+
+    public:
         StagedTexture() = default;
+        StagedTexture(std::nullptr_t)
+        {
+        }
 
+    protected:
         StagedTexture(
-            Device&            rhiDevice,
-            const TextureDesc& desc,
-            StagedAccessType   accessType);
-
-        StagedTexture(
-            Device&            rhiDevice,
-            const TextureDesc& desc,
-            size_t             totalSize,
-            size_t             offset,
-            Buffer             buffer);
+            const Rhi::DeviceDesc& deviceDesc,
+            const TextureDesc&     desc,
+            Buffer                 buffer,
+            size_t                 totalSize,
+            size_t                 offset);
 
     public:
         /// <summary>
@@ -66,16 +81,6 @@ namespace Ame::Rhi::Staging
         /// Get the texture desc.
         /// </summary>
         [[nodiscard]] const TextureDesc& GetTextureDesc() const;
-
-        /// <summary>
-        /// Get the underlying buffer.
-        /// </summary>
-        [[nodiscard]] const Buffer& GetBuffer() const;
-
-        /// <summary>
-        /// Get the underlying buffer.
-        /// </summary>
-        [[nodiscard]] Buffer& GetBuffer();
 
         /// <summary>
         /// Get the buffer size.
@@ -108,12 +113,11 @@ namespace Ame::Rhi::Staging
             size_t             relativeOffset);
 
     private:
-        const DeviceDesc* m_DeviceDesc = nullptr;
-        TextureDesc       m_Desc;
-
-        size_t m_TextureSize = 0;
-        Buffer m_TextureBuffer;
-
+        const Rhi::DeviceDesc*  m_DeviceDesc = nullptr;
+        TextureDesc             m_Desc{};
+        size_t                  m_TextureSize = 0;
         StagedTextureRegionList m_Regions;
     };
+
+    AME_RHI_SCOPED_RESOURCE(StagedTexture);
 } // namespace Ame::Rhi::Staging

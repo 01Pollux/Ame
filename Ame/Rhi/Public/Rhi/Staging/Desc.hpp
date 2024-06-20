@@ -25,24 +25,4 @@ namespace Ame::Rhi::Staging
             std::unreachable();
         }
     }
-
-    //
-
-    struct DeferredCopyDesc
-    {
-        bool PreserveSrcState : 1 = true;
-        bool PreserveDstState : 1 = true;
-    };
-
-    struct DeferredBufferCopyDesc : BufferCopyDesc, DeferredCopyDesc
-    {
-    };
-
-    struct DeferredTextureCopyDesc : TextureCopyDesc, DeferredCopyDesc
-    {
-    };
-
-    struct DeferredTransferCopyDesc : TransferCopyDesc, DeferredCopyDesc
-    {
-    };
 } // namespace Ame::Rhi::Staging

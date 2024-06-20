@@ -32,13 +32,13 @@ namespace Ame::RG
         /// <summary>
         /// Allocate the frame resource
         /// </summary>
-        [[nodiscard]] static Rhi::Buffer AllocateFrameResource(
+        [[nodiscard]] static Rhi::ScopedBuffer AllocateFrameResource(
             Rhi::Device& rhiDevice);
 
     private:
         Ref<Rhi::Device> m_Device;
 
-        Rhi::Buffer      m_FrameResourceBuffer;
-        FrameResourceCPU m_FrameResource;
+        Rhi::ScopedBuffer m_FrameResourceBuffer;
+        FrameResourceCPU  m_FrameResource;
     };
 } // namespace Ame::RG

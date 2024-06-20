@@ -2,7 +2,10 @@
 #include <boost/functional/hash.hpp>
 
 #include <Gfx/Shading/Material.hpp>
+
 #include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
+
 #include <Rhi/Hash/Resource.hpp>
 #include <Rhi/Hash/View.hpp>
 
@@ -56,9 +59,9 @@ namespace Ame::Gfx::Shading
     //
 
     void Material::Set(
-        const String&            propertyName,
-        const Ptr<Rhi::Texture>& texture,
-        Rhi::TextureViewDesc     viewDesc)
+        const String&                  propertyName,
+        const Ptr<Rhi::ScopedTexture>& texture,
+        Rhi::TextureViewDesc           viewDesc)
     {
         using namespace EnumBitOperators;
 
@@ -71,7 +74,7 @@ namespace Ame::Gfx::Shading
         TextureResource textureResource{
             .Texture  = texture,
             .ViewDesc = std::move(viewDesc),
-            .View     = std::make_shared<Rhi::ResourceView>(texture->CreateView(viewDesc))
+            .View     = std::make_shared<Rhi::ScopedResourceView>(texture->CreateView(viewDesc))
         };
         Set(propertyName, std::move(textureResource));
     }
@@ -86,14 +89,14 @@ namespace Ame::Gfx::Shading
     }
 
     void Material::Set(
-        const String&           propertyName,
-        const Ptr<Rhi::Buffer>& buffer,
-        Rhi::BufferViewDesc     viewDesc)
+        const String&                 propertyName,
+        const Ptr<Rhi::ScopedBuffer>& buffer,
+        Rhi::BufferViewDesc           viewDesc)
     {
         BufferResource bufferResource{
             .Buffer   = buffer,
             .ViewDesc = std::move(viewDesc),
-            .View     = std::make_shared<Rhi::ResourceView>(buffer->CreateView(viewDesc))
+            .View     = std::make_shared<Rhi::ScopedResourceView>(buffer->CreateView(viewDesc))
         };
         Set(propertyName, std::move(bufferResource));
     }
@@ -111,9 +114,10 @@ namespace Ame::Gfx::Shading
         const String&    propertyName,
         Rhi::SamplerDesc samplerDesc)
     {
+        auto&           allocator = m_SharedData->CommonState.GetAllocator();
         SamplerResource samplerResource{
             .ViewDesc = std::move(samplerDesc),
-            .View     = std::make_shared<Rhi::SamplerResourceView>(m_SharedData->CommonState.GetDevice(), samplerDesc)
+            .View     = std::make_shared<Rhi::ScopedResourceView>(allocator.CreateSampler(samplerDesc))
         };
         Set(propertyName, std::move(samplerResource));
     }

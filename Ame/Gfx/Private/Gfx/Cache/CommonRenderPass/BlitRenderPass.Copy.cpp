@@ -5,35 +5,85 @@
 
 namespace Ame::Gfx::Cache
 {
-    void BlitRenderPass::BlitCopyBarrier(
+    void BlitRenderPass::BlitPushCopyBarrier(
         BlitOperation& operation)
     {
-        if (!operation.Parameters.PlacePreBarrier)
+        if (!operation.Parameters.SrcTransition &&
+            !operation.Parameters.DstTransition)
         {
             return;
         }
 
+        std::vector<Rhi::TextureBarrierDesc> textureBarriers;
+        textureBarriers.reserve(operation.SrcSubresources.size() + operation.DstSubresources.size());
+
         for (auto [srcSubresource, dstSubresource] : std::views::zip(operation.SrcSubresources, operation.DstSubresources))
         {
-            operation.CommandList.RequireState(
-                operation.Parameters.SrcTexture.get().Unwrap(),
-                Rhi::AccessLayoutStage{
-                    .access = Rhi::AccessBits::COPY_SOURCE,
-                    .layout = Rhi::LayoutType::COPY_SOURCE,
-                    .stages = Rhi::StageBits::COPY },
-                srcSubresource);
+            if (operation.Parameters.SrcTransition)
+            {
+                textureBarriers.emplace_back(Rhi::TextureBarrierDesc{
+                    .texture = operation.Parameters.SrcTexture.get().Unwrap(),
+                    .before  = operation.Parameters.OldSrcState,
+                    .after{ .access = Rhi::AccessBits::COPY_SOURCE, .layout = Rhi::LayoutType::COPY_SOURCE, .stages = Rhi::StageBits::COPY },
+                });
+            }
 
-            operation.CommandList.RequireState(
-                operation.Parameters.DstTexture.get().Unwrap(),
-                Rhi::AccessLayoutStage{
-                    .access = Rhi::AccessBits::COPY_DESTINATION,
-                    .layout = Rhi::LayoutType::COPY_DESTINATION,
-                    .stages = Rhi::StageBits::COPY },
-                dstSubresource);
+            if (operation.Parameters.DstTransition)
+            {
+                textureBarriers.emplace_back(Rhi::TextureBarrierDesc{
+                    .texture = operation.Parameters.DstTexture.get().Unwrap(),
+                    .before  = operation.Parameters.OldDstState,
+                    .after{ .access = Rhi::AccessBits::COPY_DESTINATION, .layout = Rhi::LayoutType::COPY_DESTINATION, .stages = Rhi::StageBits::COPY },
+                });
+            }
         }
 
-        operation.CommandList.CommitBarriers();
+        Rhi::BarrierGroupDesc barrier{
+            .textures   = textureBarriers.data(),
+            .textureNum = static_cast<uint16_t>(textureBarriers.size()),
+        };
+        operation.CommandList.get().ResourceBarrier(barrier);
     }
+
+    void BlitRenderPass::BlitPopCopyBarrier(
+        BlitOperation& operation)
+    {
+        if (!operation.Parameters.SrcTransition &&
+            !operation.Parameters.DstTransition)
+        {
+            return;
+        }
+
+        std::vector<Rhi::TextureBarrierDesc> textureBarriers;
+        textureBarriers.reserve(operation.SrcSubresources.size() + operation.DstSubresources.size());
+
+        for (auto [srcSubresource, dstSubresource] : std::views::zip(operation.SrcSubresources, operation.DstSubresources))
+        {
+            if (operation.Parameters.SrcTransition)
+            {
+                textureBarriers.emplace_back(Rhi::TextureBarrierDesc{
+                    .texture = operation.Parameters.SrcTexture.get().Unwrap(),
+                    .before{ .access = Rhi::AccessBits::COPY_SOURCE, .layout = Rhi::LayoutType::COPY_SOURCE, .stages = Rhi::StageBits::COPY },
+                    .after = operation.Parameters.OldSrcState });
+            }
+
+            if (operation.Parameters.DstTransition)
+            {
+                textureBarriers.emplace_back(Rhi::TextureBarrierDesc{
+                    .texture = operation.Parameters.DstTexture.get().Unwrap(),
+                    .before{ .access = Rhi::AccessBits::COPY_DESTINATION, .layout = Rhi::LayoutType::COPY_DESTINATION, .stages = Rhi::StageBits::COPY },
+                    .after = operation.Parameters.OldDstState });
+            }
+        }
+
+        Rhi::BarrierGroupDesc barrier{
+            .textures   = textureBarriers.data(),
+            .textureNum = static_cast<uint16_t>(textureBarriers.size()),
+        };
+        operation.CommandList.get().ResourceBarrier(barrier);
+    }
+
+    //
 
     void BlitRenderPass::BlitCopy(
         BlitOperation& operation)
@@ -67,7 +117,7 @@ namespace Ame::Gfx::Cache
                     srcRegion.arrayOffset = srcSubresource.Array.Offset + j;
                     dstRegion.arrayOffset = dstSubresource.Array.Offset + j;
 
-                    operation.CommandList.CopyTexture(
+                    operation.CommandList.get().CopyTexture(
                         { .NriTexture = operation.Parameters.SrcTexture.get().Unwrap(),
                           .Region     = srcRegion },
                         { .NriTexture = operation.Parameters.DstTexture.get().Unwrap(),

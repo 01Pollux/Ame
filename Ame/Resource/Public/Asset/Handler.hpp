@@ -16,37 +16,6 @@ namespace Ame::Asset
 
     //
 
-    class IAssetHandler
-    {
-    public:
-        /// <summary>
-        /// Query if this asset handler can handle the given asset.
-        /// </summary>
-        virtual bool CanHandle(
-            const Ptr<IAsset>& asset) = 0;
-
-        /// <summary>
-        /// Load the asset from an input stream.
-        /// </summary>
-        virtual Ptr<IAsset> Load(
-            std::istream&           stream,
-            const DependencyReader& dependencyReader,
-            const Guid&             guid,
-            String                  path,
-            const AssetMetaData&    loaderData) = 0;
-
-        /// <summary>
-        /// Save the asset to an output stream.
-        /// </summary>
-        virtual void Save(
-            std::iostream&     stream,
-            DependencyWriter&  dependencyWriter,
-            const Ptr<IAsset>& asset,
-            AssetMetaData&     loaderData) = 0;
-    };
-
-    //
-
     class DependencyReader
     {
     public:
@@ -179,22 +148,67 @@ namespace Ame::Asset
 
     //
 
-#define AME_STANDARD_ASSET_HANDLER_BODY            \
-    bool CanHandle(                                \
-        const Ptr<IAsset>& asset) override;        \
-                                                   \
-    Ptr<IAsset> Load(                              \
-        std::istream&           stream,            \
-        const DependencyReader& dependencyReader,  \
-        const Guid&             guid,              \
-        String                  path,              \
-        const AssetMetaData&    loaderData) override; \
-                                                   \
-    void Save(                                     \
-        std::iostream&     stream,                 \
-        DependencyWriter&  dependencyWriter,       \
-        const Ptr<IAsset>& asset,                  \
-        AssetMetaData&     loaderData) override
+    struct AssetHandlerLoadDesc
+    {
+        Ptr<Co::executor> BackgroundExecutor;
+        Ptr<Co::executor> ForegroundExecutor;
+
+        Ref<std::istream>      Stream;
+        CRef<DependencyReader> Dependencies;
+
+        Guid   Guid;
+        String Path;
+
+        CRef<AssetMetaData> LoaderData;
+    };
+
+    struct AssetHandlerSaveDesc
+    {
+        Ptr<Co::executor> BackgroundExecutor;
+        Ptr<Co::executor> ForegroundExecutor;
+
+        Ref<std::iostream>    Stream;
+        Ref<DependencyWriter> Dependencies;
+
+        Ptr<IAsset>        Asset;
+        Ref<AssetMetaData> LoaderData;
+    };
+
+    //
+
+    class IAssetHandler
+    {
+    public:
+        /// <summary>
+        /// Query if this asset handler can handle the given asset.
+        /// </summary>
+        virtual bool CanHandle(
+            const Ptr<IAsset>& asset) = 0;
+
+        /// <summary>
+        /// Load the asset from an input stream.
+        /// </summary>
+        [[nodiscard]] virtual Co::result<Ptr<IAsset>> Load(
+            AssetHandlerLoadDesc& desc) = 0;
+
+        /// <summary>
+        /// Save the asset to an output stream.
+        /// </summary>
+        [[nodiscard]] virtual Co::result<void> Save(
+            AssetHandlerSaveDesc& desc) = 0;
+    };
+
+    //
+
+#define AME_STANDARD_ASSET_HANDLER_BODY           \
+    bool CanHandle(                               \
+        const Ptr<IAsset>& asset) override;       \
+                                                  \
+    Co::result<Ptr<IAsset>> Load(                 \
+        AssetHandlerLoadDesc& loadDesc) override; \
+                                                  \
+    Co::result<void> Save(                        \
+        AssetHandlerSaveDesc& sqveDesc) override
 
 #define AME_STANDARD_ASSET_HANDLER(Name, ID) \
     class Name : public IAssetHandler        \

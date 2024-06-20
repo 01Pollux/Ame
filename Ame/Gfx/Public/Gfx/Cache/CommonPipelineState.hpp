@@ -4,7 +4,7 @@
 #include <concurrencpp/concurrencpp.h>
 
 #include <Rhi/Resource/PipelineState.hpp>
-#include <Rhi/Resource/Shader.hpp>
+#include <Rhi/Shader/Shader.hpp>
 
 #include <Gfx/Cache/CommonPipelineLayout.hpp>
 #include <Gfx/Cache/CommonShader.hpp>
@@ -26,9 +26,6 @@ namespace Ame::Gfx::Cache
         {
             ShaderStorage     Shaders;
             ShaderDescStorage ShaderDescs;
-
-            static Co::result<ShaderTable> Create(
-                ShaderTaskStorage tasks);
         };
 
     public:
@@ -40,7 +37,8 @@ namespace Ame::Gfx::Cache
             Count
         };
 
-        using CacheList = std::array<Ptr<Rhi::PipelineState>, std::to_underlying(Type::Count)>;
+        using TypedCacheList = std::array<Ptr<Rhi::ScopedPipelineState>, std::to_underlying(Type::Count)>;
+        using CacheMap       = std::map<size_t, Ptr<Rhi::ScopedPipelineState>>;
 
     public:
         CommonPipelineState(
@@ -59,20 +57,32 @@ namespace Ame::Gfx::Cache
         /// <summary>
         /// Load or get a pipeline layout from cache.
         /// </summary>
-        Co::result<Ptr<Rhi::PipelineState>> Load(
+        Co::result<Ptr<Rhi::ScopedPipelineState>> Load(
             Type type);
+
+        /// <summary>
+        /// Load or get a pipeline layout from cache.
+        /// </summary>
+        Co::result<Ptr<Rhi::ScopedPipelineState>> Load(
+            const Rhi::GraphicsPipelineDesc& desc);
+
+        /// <summary>
+        /// Load or get a pipeline layout from cache.
+        /// </summary>
+        Co::result<Ptr<Rhi::ScopedPipelineState>> Load(
+            const Rhi::ComputePipelineDesc& desc);
 
     private:
         /// <summary>
         /// Preload the pipeline layout.
         /// </summary>
-        [[nodiscard]] Co::result<Ptr<Rhi::PipelineLayout>> PrepareLayout(
+        [[nodiscard]] Co::result<Ptr<Rhi::ScopedPipelineLayout>> PrepareLayout(
             Type type);
 
         /// <summary>
         /// Preload the shaders.
         /// </summary>
-        [[nodiscard]] Co::result<ShaderTaskStorage> PrepareShaders(
+        [[nodiscard]] ShaderTable PrepareShaders(
             Type type);
 
     private:
@@ -85,12 +95,10 @@ namespace Ame::Gfx::Cache
         /// <summary>
         /// Get the pipeline layout desc.
         /// </summary>
-        [[nodiscard]] static Co::result<Ptr<Rhi::PipelineState>> Create(
-            Rhi::Device&                    rhiDevice,
-            Co::executor&                   executor,
-            const Ptr<Rhi::PipelineLayout>& layout,
-            const ShaderDescStorage&        shaderDescs,
-            Type                            type);
+        [[nodiscard]] Ptr<Rhi::ScopedPipelineState> CreateByType(
+            const Rhi::PipelineLayout& layout,
+            const ShaderDescStorage&   shaderDescs,
+            Type                       type);
 
     private:
         Ref<Co::runtime> m_Runtime;
@@ -99,7 +107,8 @@ namespace Ame::Gfx::Cache
         Ref<CommonPipelineLayout> m_CommonLayouts;
         Ref<CommonShader>         m_CommonShaders;
 
-        CacheList      m_Caches;
+        TypedCacheList m_TypedCaches;
+        CacheMap       m_Caches;
         Co::async_lock m_Mutex;
     };
 } // namespace Ame::Gfx::Cache

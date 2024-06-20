@@ -13,7 +13,7 @@ namespace Ame::RG
 
     const Rhi::ResourceView& ResourceStorage::GetFrameResourceHandle() const
     {
-        return GetResourceViewHandle(Names::c_FrameResourceMainView);
+        return *GetResourceViewHandle(Names::c_FrameResourceMainView);
     }
 
     const FrameResourceCPU& ResourceStorage::GetFrameResourceData() const

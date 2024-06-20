@@ -1,57 +1,56 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-
 #include <Rhi/Descs/Resource.hpp>
-#include <Rhi/Resource/View.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
 
 namespace Ame::Rhi
 {
     class Buffer
     {
-        friend class Device;
-
-    protected:
-        Buffer(
-            Device&        rhiDevice,
-            MemoryLocation location,
-            nri::Buffer*   nriBuffer);
-
     public:
-        struct Extern
-        {
-        };
-
         Buffer() = default;
-        Buffer(std::nullptr_t) :
-            m_Owning(false)
+        Buffer(std::nullptr_t)
         {
         }
 
         Buffer(
-            Extern,
-            DeviceImpl&  rhiDeviceImpl,
-            nri::Buffer* nriBuffer);
-        Buffer(
-            Extern,
-            Device&      rhiDevice,
-            nri::Buffer* nriBuffer);
+            DeviceResourceAllocator& allocator,
+            nri::Buffer*             buffer,
+            MemoryLocation           location);
 
-        Buffer(
-            Device&           rhiDevice,
-            MemoryLocation    location,
-            const BufferDesc& desc);
+        Buffer(const Buffer&) = default;
+        Buffer(Buffer&& other) noexcept :
+            m_Allocator(std::exchange(other.m_Allocator, nullptr)),
+            m_Buffer(std::exchange(other.m_Buffer, nullptr)),
+            m_Mapped(std::exchange(other.m_Mapped, nullptr))
+        {
+        }
+
+        Buffer& operator=(const Buffer&) = default;
+        Buffer& operator=(Buffer&& other) noexcept
+        {
+            if (this != &other)
+            {
+                m_Allocator = std::exchange(other.m_Allocator, nullptr);
+                m_Buffer    = std::exchange(other.m_Buffer, nullptr);
+                m_Mapped    = std::exchange(other.m_Mapped, nullptr);
+            }
+            return *this;
+        }
+
+        ~Buffer() = default;
 
     public:
-        Buffer(const Buffer&) = delete;
-        Buffer(Buffer&& other) noexcept;
-
-        Buffer& operator=(const Buffer&) = delete;
-        Buffer& operator=(Buffer&& other) noexcept;
-
-        ~Buffer();
+        void Release(
+            bool defer = true);
 
     public:
+        [[nodiscard]] auto operator<=>(
+            const Buffer& other) const noexcept
+        {
+            return m_Buffer <=> other.m_Buffer;
+        }
+
         [[nodiscard]] bool operator==(
             const Buffer& other) const noexcept
         {
@@ -65,10 +64,17 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Create a buffer view.
+        /// </summary>
+        [[nodiscard]] ResourceView CreateView(
+            const BufferViewDesc& desc) const;
+
+    public:
+        /// <summary>
         /// Set the buffer name.
         /// </summary>
         void SetName(
-            const char* name);
+            const char* name) const;
 
         /// <summary>
         /// Get the buffer description.
@@ -87,45 +93,22 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Borrow the buffer. (The buffer will not be released when the buffer is destroyed)
-        /// </summary>
-        [[nodiscard]] Buffer Borrow() const;
-
-        /// <summary>
-        /// Check if the buffer is owning. (If the buffer is owning, it will be released when the buffer is destroyed)
-        /// </summary>
-        [[nodiscard]] bool IsOwning() const;
-
-    public:
-        /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        std::byte* GetPtr(
+        [[nodiscard]] std::byte* GetPtr(
             size_t offset = 0);
 
         /// <summary>
         /// Get the buffer pointer. (Only for host visible buffers)
         /// </summary>
-        const std::byte* GetPtr(
+        [[nodiscard]] const std::byte* GetPtr(
             size_t offset = 0) const;
 
-    public:
-        /// <summary>
-        /// Create a buffer view.
-        /// </summary>
-        [[nodiscard]] BufferResourceView CreateView(
-            const BufferViewDesc& desc) const;
-
     private:
-        /// <summary>
-        /// Releases the buffer.
-        /// </summary>
-        void Release();
-
-    private:
-        DeviceImpl*  m_Device = nullptr;
-        nri::Buffer* m_Buffer = nullptr;
-        void*        m_Mapped = nullptr;
-        bool         m_Owning = true;
+        DeviceResourceAllocator* m_Allocator = nullptr;
+        nri::Buffer*             m_Buffer    = nullptr;
+        void*                    m_Mapped    = nullptr;
     };
+
+    AME_RHI_SCOPED_RESOURCE(Buffer);
 } // namespace Ame::Rhi

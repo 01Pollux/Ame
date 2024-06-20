@@ -1,18 +1,19 @@
 #pragma once
 
+#include <map>
+#include <set>
+#include <variant>
+
 #include <Core/Ame.hpp>
 #include <Core/String.hpp>
 #include <Math/Colors.hpp>
 
 #include <Rhi/Core.hpp>
+#include <Rhi/Descs/View.hpp>
+#include <Rhi/Resource/View.hpp>
 #include <Rhi/Resource/Buffer.hpp>
 #include <Rhi/Resource/Texture.hpp>
-#include <Rhi/Resource/View.hpp>
 #include <Rhi/CommandList/CommandList.hpp>
-
-#include <variant>
-#include <optional>
-#include <set>
 
 namespace Ame::RG
 {
@@ -20,6 +21,7 @@ namespace Ame::RG
     class Context;
     class DependencyLevel;
     class PassStorage;
+    class ResourceStateTracker;
     class CoreResources;
     class ResourceStorage;
     class Graph;
@@ -33,12 +35,11 @@ namespace Ame::RG
     {
         None = 0,
 
-        Transfer = 1 << 0,
+        Copy     = 1 << 0,
         Compute  = 1 << 1,
-        Graphics = Transfer | Compute,
-        TypeMask = Transfer | Compute | Graphics,
+        Graphics = 1 << 3 | Copy | Compute,
+        TypeMask = Copy | Compute | Graphics,
 
-        OneShot  = 1 << 3,
         NoSetups = 1 << 4
     };
 
@@ -101,16 +102,4 @@ namespace Ame::RG
     struct DepthStencilViewDesc : Rhi::TextureViewDesc, DsvCustomDesc
     {
     };
-
-    //
-
-    using ResourceDesc = std::variant<
-        Rhi::BufferDesc,
-        Rhi::TextureDesc>;
-
-    using ResourceViewDesc = std::variant<
-        Rhi::BufferViewDesc,
-        Rhi::TextureViewDesc,
-        RenderTargetViewDesc,
-        DepthStencilViewDesc>;
 } // namespace Ame::RG

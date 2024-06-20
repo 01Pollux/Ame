@@ -1,38 +1,62 @@
-#include <Rhi/CommandList/CommandListImpl.hpp>
-#include <Rhi/Device/DeviceImpl.hpp>
-#include <Rhi/Resource/VertexView.hpp>
+#include <ranges>
+
+#include <Rhi/CommandList/CommandList.hpp>
+
+#include <Rhi/Resource/View.hpp>
+#include <Rhi/Util/ResourceSize.hpp>
 
 namespace Ame::Rhi
 {
-    CommandList::CommandList(
-        Device& rhiDevice) :
-        m_Impl(rhiDevice.GetImpl().GetCurrentCommandList())
+    void CommandList::SetName(
+        const char* name) const
     {
+        m_NriCore->SetCommandBufferDebugName(*m_CommandBuffer, name);
     }
 
-    void CommandList::BeginMarker(
-        const char* name)
+    nri::CommandBuffer* const& CommandList::Unwrap() const noexcept
     {
-        m_Impl.get().BeginMarker(name);
-    }
-
-    void CommandList::EndMarker()
-    {
-        m_Impl.get().EndMarker();
+        return m_CommandBuffer;
     }
 
     //
 
-    void CommandList::SetPipelineLayout(
-        const Ptr<PipelineLayout>& layout)
+    void CommandList::BeginMarker(
+        const char* name)
     {
-        m_Impl.get().SetPipelineLayout(layout);
+        m_NriCore->CmdBeginAnnotation(*m_CommandBuffer, name);
+    }
+
+    void CommandList::EndMarker()
+    {
+        m_NriCore->CmdEndAnnotation(*m_CommandBuffer);
+    }
+
+    //
+
+    void CommandList::ResourceBarrier(
+        const BarrierGroupDesc& barrierGroup)
+    {
+        m_NriCore->CmdBarrier(*m_CommandBuffer, barrierGroup);
+    }
+
+    //
+
+    void CommandList::SetDescriptorTable(
+        const nri::DescriptorPool& descriptorTable)
+    {
+        m_NriCore->CmdSetDescriptorPool(*m_CommandBuffer, descriptorTable);
+    }
+
+    void CommandList::SetPipelineLayout(
+        const nri::PipelineLayout& pipelineLayout)
+    {
+        m_NriCore->CmdSetPipelineLayout(*m_CommandBuffer, pipelineLayout);
     }
 
     void CommandList::SetPipelineState(
-        const Ptr<PipelineState>& pipeline)
+        const nri::Pipeline& pipelineState)
     {
-        m_Impl.get().SetPipelineState(pipeline);
+        m_NriCore->CmdSetPipeline(*m_CommandBuffer, pipelineState);
     }
 
     //
@@ -42,39 +66,22 @@ namespace Ame::Rhi
         const void* data,
         size_t      size)
     {
-        m_Impl.get().SetConstants(constantIndex, data, size);
+        m_NriCore->CmdSetConstants(*m_CommandBuffer, constantIndex, data, size);
     }
 
     void CommandList::SetDescriptorSet(
-        uint32_t             layoutSlot,
-        const DescriptorSet& descriptorSets,
-        const uint32_t*      dynamicBufferOffset)
+        uint32_t                  layoutSlot,
+        const nri::DescriptorSet& descriptorSets,
+        const uint32_t*           dynamicBufferOffset)
     {
-        m_Impl.get().SetDescriptorSet(layoutSlot, descriptorSets, dynamicBufferOffset);
+        m_NriCore->CmdSetDescriptorSet(*m_CommandBuffer, layoutSlot, descriptorSets, dynamicBufferOffset);
     }
 
     void CommandList::SetSamplePositions(
         std::span<const SamplePosition> positions,
         Sample_t                        sampleCount)
     {
-        m_Impl.get().SetSamplePositions(positions, sampleCount);
-    }
-
-    //
-
-    DescriptorSet CommandList::AllocateSet(
-        uint32_t layoutSlot,
-        uint32_t variableCount)
-    {
-        return m_Impl.get().AllocateSet(layoutSlot, variableCount);
-    }
-
-    std::vector<DescriptorSet> CommandList::AllocateSets(
-        uint32_t layoutSlot,
-        uint32_t instanceCount,
-        uint32_t variableCount)
-    {
-        return m_Impl.get().AllocateSets(layoutSlot, instanceCount, variableCount);
+        m_NriCore->CmdSetSamplePositions(*m_CommandBuffer, positions.data(), static_cast<Sample_t>(positions.size()), sampleCount);
     }
 
     //
@@ -83,112 +90,144 @@ namespace Ame::Rhi
         std::span<const Rhi::ResourceView*> renderTargets,
         const Rhi::ResourceView*            depthStencil)
     {
-        m_Impl.get().BeginRendering(renderTargets, depthStencil);
+        auto nriRenderTargets = renderTargets |
+                                std::views::transform([](const Rhi::ResourceView* View)
+                                                      { return View->Unwrap(); }) |
+                                std::ranges::to<std::vector>();
+
+        nri::AttachmentsDesc attachements{
+            .depthStencil = depthStencil ? depthStencil->Unwrap() : nullptr,
+            .colors       = nriRenderTargets.data(),
+            .colorNum     = Count32(nriRenderTargets)
+        };
+        m_NriCore->CmdBeginRendering(*m_CommandBuffer, attachements);
     }
 
     void CommandList::ClearAttachments(
         std::span<const ClearDesc>   clears,
         std::span<const ClearRegion> regions)
     {
-        m_Impl.get().ClearAttachments(clears, regions);
+        m_NriCore->CmdClearAttachments(*m_CommandBuffer, clears.data(), Count32(clears), regions.data(), Count32(regions));
     }
 
     void CommandList::ClearAttachments(
         std::span<const ClearDesc> clears)
     {
-        m_Impl.get().ClearAttachments(clears);
+        m_NriCore->CmdClearAttachments(*m_CommandBuffer, clears.data(), Count32(clears), nullptr, 0);
     }
 
     void CommandList::SetViewports(
         std::span<const Viewport> viewports)
     {
-        m_Impl.get().SetViewports(viewports);
-    }
-
-    void CommandList::SetViewport(
-        const Viewport& viewport)
-    {
-        SetViewports({ &viewport, 1 });
+        m_NriCore->CmdSetViewports(*m_CommandBuffer, viewports.data(), Count32(viewports));
     }
 
     void CommandList::SetScissorRects(
         std::span<const ScissorRect> scissorRects)
     {
-        m_Impl.get().SetScissorRects(scissorRects);
-    }
-
-    void CommandList::SetScissorRect(
-        const ScissorRect& scissorRects)
-    {
-        SetScissorRects({ &scissorRects, 1 });
+        m_NriCore->CmdSetScissors(*m_CommandBuffer, scissorRects.data(), Count32(scissorRects));
     }
 
     void CommandList::SetStencilReference(
         uint8_t stencilReference)
     {
-        m_Impl.get().SetStencilReference(stencilReference);
+        m_NriCore->CmdSetStencilReference(*m_CommandBuffer, stencilReference, stencilReference);
     }
 
     void CommandList::SetDepthBounds(
         float minDepthBounds,
         float maxDepthBounds)
     {
-        m_Impl.get().SetDepthBounds(minDepthBounds, maxDepthBounds);
+        m_NriCore->CmdSetDepthBounds(*m_CommandBuffer, minDepthBounds, maxDepthBounds);
     }
 
     void CommandList::SetBlendConstants(
         const Math::Color4& blendConstants)
     {
-        m_Impl.get().SetBlendConstants(blendConstants);
+        nri::Color32f NriColor{
+            blendConstants.r(),
+            blendConstants.g(),
+            blendConstants.b(),
+            blendConstants.a()
+        };
+        m_NriCore->CmdSetBlendConstants(*m_CommandBuffer, NriColor);
     }
 
     void CommandList::SetVertexBuffers(
         std::span<const VertexBufferView> vertexBuffers,
         uint32_t                          baseSlot)
     {
-        m_Impl.get().SetVertexBuffers(vertexBuffers, baseSlot);
+        std::vector<nri::Buffer*> nriBuffers;
+        std::vector<uint64_t>     offsets;
+
+        nriBuffers.reserve(vertexBuffers.size());
+        offsets.reserve(vertexBuffers.size());
+
+        for (const auto& vertexBuffer : vertexBuffers)
+        {
+            nriBuffers.push_back(vertexBuffer.NriBuffer);
+            offsets.push_back(vertexBuffer.Offset);
+        }
+
+        m_NriCore->CmdSetVertexBuffers(*m_CommandBuffer, baseSlot, Count32(nriBuffers), nriBuffers.data(), offsets.data());
     }
 
     void CommandList::SetVertexBuffer(
         const VertexBufferView& vertexBuffer,
         uint32_t                baseSlot)
     {
-        SetVertexBuffers({ &vertexBuffer, 1 }, baseSlot);
+        m_NriCore->CmdSetVertexBuffers(*m_CommandBuffer, baseSlot, 1, &vertexBuffer.NriBuffer, &vertexBuffer.Offset);
     }
 
     void CommandList::SetIndexBuffer(
         const IndexBufferView& indexBuffer)
     {
-        m_Impl.get().SetIndexBuffer(indexBuffer);
+        m_NriCore->CmdSetIndexBuffer(*m_CommandBuffer, *indexBuffer.NriBuffer, indexBuffer.Offset, indexBuffer.Type);
     }
 
     void CommandList::Draw(
         const DrawDesc& drawDesc)
     {
-        m_Impl.get().Draw(drawDesc);
+        m_NriCore->CmdDraw(*m_CommandBuffer, drawDesc);
     }
 
     void CommandList::Draw(
         const DrawIndexedDesc& drawDesc)
     {
-        m_Impl.get().Draw(drawDesc);
+        m_NriCore->CmdDrawIndexed(*m_CommandBuffer, drawDesc);
     }
 
     void CommandList::DrawIndirect(
-        const DrawIndirectDesc& drawDesc)
+        const DrawIndirectDesc& drawDesc,
+        uint32_t                drawIndexedCommandSize)
     {
-        m_Impl.get().DrawIndirect(drawDesc);
+        m_NriCore->CmdDrawIndirect(
+            *m_CommandBuffer,
+            *drawDesc.DrawBuffer,
+            drawDesc.DrawOffset,
+            drawDesc.MaxDrawCount,
+            drawIndexedCommandSize,
+            drawDesc.CounterBuffer,
+            drawDesc.CounterOffset);
     }
 
     void CommandList::DrawIndirectIndexed(
-        const DrawIndirectDesc& drawDesc)
+        const DrawIndirectDesc& drawDesc,
+        uint32_t                drawIndexedCommandSize)
     {
-        m_Impl.get().DrawIndirectIndexed(drawDesc);
+        m_NriCore->CmdDrawIndexedIndirect(
+            *m_CommandBuffer,
+            *drawDesc.DrawBuffer,
+            drawDesc.DrawOffset,
+            drawDesc.MaxDrawCount,
+            drawIndexedCommandSize,
+            drawDesc.CounterBuffer,
+            drawDesc.CounterOffset);
     }
 
     void CommandList::EndRendering()
     {
-        m_Impl.get().EndRendering();
+        m_NriCore->CmdEndRendering(*m_CommandBuffer);
     }
 
     //
@@ -198,7 +237,7 @@ namespace Ame::Rhi
         uint32_t y,
         uint32_t z)
     {
-        m_Impl.get().Dispatch(x, y, z);
+        m_NriCore->CmdDispatch(*m_CommandBuffer, { x, y, z });
     }
 
     //
@@ -208,79 +247,62 @@ namespace Ame::Rhi
         const BufferCopyDesc& dst,
         size_t                size)
     {
-        m_Impl.get().CopyBuffer(src, dst, size);
+        if (!size)
+        {
+            auto& srcDesc = m_NriCore->GetBufferDesc(*src.NriBuffer);
+            auto& dstDesc = m_NriCore->GetBufferDesc(*dst.NriBuffer);
+
+            size = std::min(srcDesc.size - src.Offset, dstDesc.size - dst.Offset);
+        }
+
+        m_NriCore->CmdCopyBuffer(*m_CommandBuffer, *dst.NriBuffer, dst.Offset, *src.NriBuffer, src.Offset, size);
     }
 
     void CommandList::CopyTexture(
         const TextureCopyDesc& src,
         const TextureCopyDesc& dst)
     {
-        m_Impl.get().CopyTexture(src, dst);
+        const nri::TextureRegionDesc* dstRegion = nullptr;
+        const nri::TextureRegionDesc* srcRegion = nullptr;
+
+        if (dst.Region)
+        {
+            dstRegion = &dst.Region.value();
+        }
+        if (src.Region)
+        {
+            srcRegion = &src.Region.value();
+        }
+
+        m_NriCore->CmdCopyTexture(*m_CommandBuffer, *dst.NriTexture, dstRegion, *src.NriTexture, srcRegion);
     }
 
     void CommandList::UploadTexture(
+        const Rhi::DeviceDesc&  deviceDesc,
         const TransferCopyDesc& copyDesc)
     {
-        m_Impl.get().UploadTexture(copyDesc);
+        auto& textureDesc = m_NriCore->GetTextureDesc(*copyDesc.NriTexture);
+
+        nri::TextureDataLayoutDesc layout{
+            .offset     = copyDesc.BufferOffset,
+            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, textureDesc.format, copyDesc.TextureRegion.width),
+            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, textureDesc.format, layout.rowPitch, copyDesc.TextureRegion.height)
+        };
+        m_NriCore->CmdUploadBufferToTexture(*m_CommandBuffer, *copyDesc.NriTexture, copyDesc.TextureRegion, *copyDesc.NriBuffer, layout);
     }
 
     void CommandList::ReadbackTexture(
+        const Rhi::DeviceDesc&  deviceDesc,
         const TransferCopyDesc& copyDesc)
     {
-        m_Impl.get().ReadbackTexture(copyDesc);
-    }
+        auto& textureDesc = m_NriCore->GetTextureDesc(*copyDesc.NriTexture);
 
-    //
-
-    AccessStage CommandList::QueryState(
-        nri::Buffer* nribuffer)
-    {
-        return m_Impl.get().QueryState(nribuffer);
-    }
-
-    Co::generator<AccessLayoutStage> CommandList::QueryState(
-        nri::Texture*             nriTexture,
-        const TextureSubresource& subresource)
-    {
-        return m_Impl.get().QueryState(nriTexture, subresource);
-    }
-
-    //
-
-    void CommandList::RequireState(
-        nri::Buffer*       nribuffer,
-        const AccessStage& state,
-        bool               append)
-    {
-        m_Impl.get().RequireState(nribuffer, state, append);
-    }
-
-    void CommandList::RequireState(
-        nri::Texture*             nriTexture,
-        const AccessLayoutStage&  state,
-        const TextureSubresource& subresource,
-        bool                      append)
-    {
-        m_Impl.get().RequireState(nriTexture, state, subresource, append);
-    }
-
-    void CommandList::RequireStates(
-        nri::Texture*                      nriTexture,
-        std::span<const AccessLayoutStage> states,
-        bool                               append)
-    {
-        m_Impl.get().RequireStates(nriTexture, states, append);
-    }
-
-    void CommandList::PlaceBarrier(
-        const GlobalBarrierDesc& barrierDesc)
-    {
-        m_Impl.get().PlaceBarrier(barrierDesc);
-    }
-
-    void CommandList::CommitBarriers()
-    {
-        m_Impl.get().CommitBarriers();
+        nri::TextureDataLayoutDesc layout{
+            .offset     = copyDesc.BufferOffset,
+            .rowPitch   = Util::GetUploadBufferTextureRowSize(deviceDesc, textureDesc.format, copyDesc.TextureRegion.width),
+            .slicePitch = Util::GetUploadBufferTextureSliceSize(deviceDesc, textureDesc.format, layout.rowPitch, copyDesc.TextureRegion.height)
+        };
+        m_NriCore->CmdReadbackTextureToBuffer(*m_CommandBuffer, *copyDesc.NriBuffer, layout, *copyDesc.NriTexture, copyDesc.TextureRegion);
     }
 
     //
@@ -288,12 +310,12 @@ namespace Ame::Rhi
     void CommandList::ClearBuffer(
         const ClearBufferDesc& clearDesc)
     {
-        m_Impl.get().ClearBuffer(clearDesc);
+        m_NriCore->CmdClearStorageBuffer(*m_CommandBuffer, clearDesc);
     }
 
     void CommandList::ClearTexture(
         const ClearTextureDesc& clearDesc)
     {
-        m_Impl.get().ClearTexture(clearDesc);
+        m_NriCore->CmdClearStorageTexture(*m_CommandBuffer, clearDesc);
     }
 } // namespace Ame::Rhi

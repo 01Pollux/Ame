@@ -31,26 +31,34 @@ namespace Ame::Asset::Common
         return dynamic_cast<BinaryBufferAsset*>(asset.get());
     }
 
-    Ptr<IAsset> BinaryBufferAsset::Handler::Load(
-        std::istream& stream,
-        const Asset::DependencyReader&,
-        const Guid& guid,
-        String      path,
-        const AssetMetaData&)
+    Co::result<Ptr<IAsset>> BinaryBufferAsset::Handler::Load(
+        AssetHandlerLoadDesc& loadDesc)
     {
-        std::vector<std::byte> buffer(
-            istreambuf_iterator_byte(stream),
-            istreambuf_iterator_byte{});
-        return std::make_shared<BinaryBufferAsset>(std::move(buffer), guid, std::move(path));
+        auto buffer = loadDesc.BackgroundExecutor
+                          ->submit(
+                              [&]
+                              {
+                                  std::vector<std::byte> buffer(
+                                      istreambuf_iterator_byte(loadDesc.Stream.get()),
+                                      istreambuf_iterator_byte{});
+                                  return buffer;
+                              })
+                          .get();
+
+        co_return std::make_shared<BinaryBufferAsset>(std::move(buffer), loadDesc.Guid, std::move(loadDesc.Path));
     }
 
-    void BinaryBufferAsset::Handler::Save(
-        std::iostream& Stream,
-        DependencyWriter&,
-        const Ptr<IAsset>& Asset,
-        AssetMetaData&)
+    Co::result<void> BinaryBufferAsset::Handler::Save(
+        AssetHandlerSaveDesc& saveDesc)
     {
-        auto asset = dynamic_cast<const BinaryBufferAsset*>(Asset.get());
-        Stream.write(std::bit_cast<const char*>(asset->GetData()), asset->GetSize());
+        auto asset = dynamic_cast<const BinaryBufferAsset*>(saveDesc.Asset.get());
+        saveDesc.BackgroundExecutor
+            ->submit(
+                [&]
+                {
+                    saveDesc.Stream.get().write(std::bit_cast<const char*>(asset->GetData()), asset->GetSize());
+                })
+            .wait();
+        co_return;
     }
 } // namespace Ame::Asset::Common

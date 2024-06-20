@@ -5,6 +5,9 @@
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
 
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/WindowManager.hpp>
+
 #include <Gfx/Cache/CommonRenderPass.hpp>
 
 namespace Ame::Gfx
@@ -38,22 +41,21 @@ namespace Ame::Gfx
             // output to backbuffer if needed
             if (cameraOutput->OutputToBackbuffer)
             {
-                auto& outputTexture = m_Device.get().GetBackbuffer().Resource;
-                if (outputTexture)
-                {
-                    m_CommonRenderPass.get().Blit(
-                        { .SrcTexture      = *sourceTexture,
-                          .DstTexture      = outputTexture,
-                          .SrcSubresources = { &Rhi::c_AllSubresources, 1 },
-                          .DstSubresources = { &Rhi::c_AllSubresources, 1 } });
-                }
+                auto& windowManager = m_Device.get().GetWindowManager();
+                auto& backbuffer    = windowManager.GetBackbuffer().get();
+
+                m_CommonRenderPass.get().Blit(
+                    { .SrcTexture      = sourceTexture->Resource,
+                      .DstTexture      = backbuffer.Resource,
+                      .SrcSubresources = { &Rhi::c_AllSubresources, 1 },
+                      .DstSubresources = { &Rhi::c_AllSubresources, 1 } });
             }
 
             // output to texture if needed
             if (outputTexture)
             {
                 m_CommonRenderPass.get().Blit(
-                    { .SrcTexture      = *sourceTexture,
+                    { .SrcTexture      = sourceTexture->Resource,
                       .DstTexture      = *outputTexture,
                       .SrcSubresources = { &Rhi::c_AllSubresources, 1 },
                       .DstSubresources = { &Rhi::c_AllSubresources, 1 } });

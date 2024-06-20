@@ -6,6 +6,7 @@
 
 #include <Gfx/Shading/Material.CommonState.hpp>
 #include <Gfx/Cache/ShaderCache.hpp>
+#include <Gfx/Cache/CommonPipelineState.hpp>
 #include <Gfx/Constants.hpp>
 
 #include <cryptopp/sha.h>
@@ -16,34 +17,36 @@
 namespace Ame::Gfx::Shading
 {
     MaterialCommonState::MaterialCommonState(
-        Rhi::Device&             rhiDevice,
-        Gfx::Cache::ShaderCache& shaderCache,
-        Ptr<Rhi::PipelineLayout> pipelineLayout,
-        MaterialPipelineState    pipelineState) :
-        m_RhiDevice(rhiDevice),
+        Rhi::DeviceResourceAllocator&  allocator,
+        Cache::ShaderCache&            shaderCache,
+        Cache::CommonPipelineState&    pipelineStateCache,
+        Ptr<Rhi::ScopedPipelineLayout> pipelineLayout,
+        MaterialPipelineState          pipelineState) :
+        m_Allocator(allocator),
         m_ShaderCache(shaderCache),
-        m_PipelineLayout(pipelineLayout),
+        m_PipelineStateCahe(pipelineStateCache),
+        m_PipelineLayout(std::move(pipelineLayout)),
         m_PipelineStateDesc(std::move(pipelineState)),
         m_BasePipelineHash(CreatePipelineHash())
     {
     }
 
-    Rhi::Device& MaterialCommonState::GetDevice() const
+    Rhi::DeviceResourceAllocator& MaterialCommonState::GetAllocator() const noexcept
     {
-        return m_RhiDevice;
+        return m_Allocator;
     }
 
-    Ptr<Rhi::PipelineLayout> MaterialCommonState::GetPipelineLayout() const
+    Ptr<Rhi::ScopedPipelineLayout> MaterialCommonState::GetPipelineLayout() const noexcept
     {
         return m_PipelineLayout;
     }
 
-    const MaterialPipelineState& MaterialCommonState::GetPipelineStateDesc() const
+    const MaterialPipelineState& MaterialCommonState::GetPipelineStateDesc() const noexcept
     {
         return m_PipelineStateDesc;
     }
 
-    Co::result<Ptr<Rhi::PipelineState>> MaterialCommonState::GetPipelineState(
+    Co::result<Ptr<Rhi::ScopedPipelineState>> MaterialCommonState::GetPipelineState(
         const MaterialRenderState& renderState) const
     {
         auto  hash          = GetStateHash(renderState);
@@ -55,7 +58,7 @@ namespace Ame::Gfx::Shading
         co_return pipelineState;
     }
 
-    auto MaterialCommonState::GetPipelineHash() const -> const PipelineStateHash&
+    auto MaterialCommonState::GetPipelineHash() const noexcept -> const PipelineStateHash&
     {
         return m_BasePipelineHash;
     }
@@ -132,7 +135,8 @@ namespace Ame::Gfx::Shading
             pixelShader.emplace_back(Shader.Borrow());
         }
 
-        co_return co_await m_ShaderCache.get().Link(renderState.ShaderLink.CompileDesc, std::move(pixelShader));
+        Rhi::ShaderLinkDesc linkDesc{ renderState.ShaderLink.CompileDesc, pixelShader };
+        co_return co_await m_ShaderCache.get().Link(linkDesc);
     }
 
     Co::result<std::vector<Rhi::ShaderDesc>> MaterialCommonState::GetShaderDescs(
@@ -158,7 +162,7 @@ namespace Ame::Gfx::Shading
 
     //
 
-    Co::result<Ptr<Rhi::PipelineState>> MaterialCommonState::CreatePipelineState(
+    Co::result<Ptr<Rhi::ScopedPipelineState>> MaterialCommonState::CreatePipelineState(
         const MaterialRenderState& renderState) const
     {
         auto& outputMerger = m_PipelineStateDesc.OutputMerger;
@@ -190,7 +194,7 @@ namespace Ame::Gfx::Shading
         MaterialVertexDesc vertexDesc;
 
         Rhi::GraphicsPipelineDesc graphicsDesc{
-            .Layout        = m_PipelineLayout,
+            .Layout        = m_PipelineLayout->Unwrap(),
             .InputAssembly = m_PipelineStateDesc.InputAssembly,
             .Rasterizer    = m_PipelineStateDesc.Rasterizer,
             .OutputMerger{
@@ -213,6 +217,6 @@ namespace Ame::Gfx::Shading
             graphicsDesc.OutputMerger.DepthTarget.WriteEnable = false;
         }
 
-        co_return m_RhiDevice.get().CreatePipelineState(graphicsDesc);
+        co_return co_await m_PipelineStateCahe.get().Load(graphicsDesc);
     }
 } // namespace Ame::Gfx::Shading

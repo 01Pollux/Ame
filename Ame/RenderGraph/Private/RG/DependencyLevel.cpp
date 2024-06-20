@@ -3,8 +3,7 @@
 #include <RG/Pass.hpp>
 #include <RG/Dispatch.hpp>
 
-#include <Rhi/CommandList/CommandList.hpp>
-#include <Rhi/CommandList/Marker.hpp>
+#include <Rhi/Device/Device.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -29,21 +28,32 @@ namespace Ame::RG
         auto& resourceStorage = context.GetStorage();
         for (auto& [viewId, state] : resourceStates)
         {
+            auto& resource = *resourceStorage.GetResource(viewId.GetResource());
             std::visit(
                 VariantVisitor{
-                    [&](const Rhi::BufferViewDesc& view)
+                    [](std::monostate) {},
+                    [&](const BufferResource&)
                     {
                         auto& curState = m_BufferStatesToTransitions[viewId.GetResource()];
                         curState.access |= state.access;
                         curState.stages |= state.stages;
                     },
-                    [&](const Rhi::TextureViewDesc& view)
+                    [&](const TextureResource& texture)
                     {
-                        auto& curState = m_TextureStatesToTransitions[viewId.GetResource()][view.Subresource];
-                        curState.access |= state.access;
-                        curState.stages |= state.stages;
+                        auto it = texture.Views.find(viewId);
+                        AME_LOG_ASSERT(Log::Gfx(), it != texture.Views.end(), "Resource view doesn't exists");
+
+                        std::visit(
+                            VariantVisitor{
+                                [&](const auto& view)
+                                {
+                                    auto& curState = m_TextureStatesToTransitions[viewId.GetResource()][view.Subresource];
+                                    curState.access |= state.access;
+                                    curState.stages |= state.stages;
+                                } },
+                            it->second.Desc);
                     } },
-                resourceStorage.GetResourceViewDesc(viewId));
+                resource.Get());
         }
 
         for (auto& [id, layout] : textureLayouts)
@@ -93,23 +103,31 @@ namespace Ame::RG
         }
 
         auto& resourceStorage = context.GetStorage();
+        auto& stateTracker    = resourceStorage.GetStateTracker();
 
-        for (auto& [resource, state] : m_BufferStatesToTransitions)
+        auto& rhiDevice  = resourceStorage.GetDevice();
+        auto& deviceDesc = rhiDevice.GetDesc();
+
+        for (auto& [resourceId, state] : m_BufferStatesToTransitions)
         {
-            auto& buffer = *resourceStorage.GetResource(resource)->AsBuffer();
-            commandList.RequireState(buffer.Unwrap(), state);
+            auto& resource = *resourceStorage.GetResourceMut(resourceId);
+            auto& buffer   = resource.AsBuffer()->Resource;
+
+            stateTracker.RequireState(resource.AsBuffer()->Resource, state);
         }
 
-        for (auto& [resource, stateMap] : m_TextureStatesToTransitions)
+        for (auto& [resourceId, stateMap] : m_TextureStatesToTransitions)
         {
-            auto& texture = *resourceStorage.GetResource(resource)->AsTexture();
+            auto& resource = *resourceStorage.GetResource(resourceId);
+            auto  texture  = resource.AsTexture()->Resource;
+
             for (auto& [subresourceSet, state] : stateMap)
             {
-                commandList.RequireState(texture.Unwrap(), state, subresourceSet);
+                stateTracker.RequireState(texture, state, subresourceSet);
             }
         }
 
-        commandList.CommitBarriers();
+        stateTracker.CommitBarriers(commandList);
     }
 
     //
@@ -124,7 +142,7 @@ namespace Ame::RG
 
         for (auto& PassInfo : m_Passes)
         {
-            Rhi::CommandListMarker marker(commandList, PassInfo.NodePass->GetName().data());
+            Rhi::MarkerCommand marker(commandList, PassInfo.NodePass->GetName().data());
 
             bool noSetup = (PassInfo.NodePass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;
             switch (PassInfo.NodePass->GetQueueType())
@@ -138,7 +156,7 @@ namespace Ame::RG
             }
 
             case PassFlags::Compute:
-            case PassFlags::Transfer:
+            case PassFlags::Copy:
             {
                 PassInfo.NodePass->DoExecute(resourceStorage, &commandList);
                 break;

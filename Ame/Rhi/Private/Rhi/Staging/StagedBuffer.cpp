@@ -1,33 +1,44 @@
 #include <Rhi/Staging/StagedBuffer.hpp>
 
+#include <Rhi/Device/ResourceAllocator.hpp>
+
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi::Staging
 {
-    StagedBuffer::StagedBuffer(
-        Device&           rhiDevice,
-        StagedAccessType  accessType,
-        const BufferDesc& desc) :
-        m_Buffer(rhiDevice, StagedAccessToMemoryLocation(accessType), desc),
-        m_Size(desc.size)
+    StagedBuffer StagedBuffer::Create(
+        DeviceResourceAllocator& allocator,
+        StagedAccessType         accessType,
+        const BufferDesc&        desc)
     {
+        auto buffer = allocator.CreateBuffer(
+            desc,
+            StagedAccessToMemoryLocation(accessType));
+
+        size_t size = buffer.GetDesc().size;
+        return StagedBuffer(std::move(buffer), 0, size);
     }
+
+    StagedBuffer StagedBuffer::CreateForView(
+        Buffer buffer,
+        size_t offset,
+        size_t size)
+    {
+        return StagedBuffer(std::move(buffer), offset, size);
+    }
+
+    //
 
     StagedBuffer::StagedBuffer(
         Buffer buffer,
         size_t offset,
         size_t size) :
-        m_Buffer(std::move(buffer)),
+        Buffer(std::move(buffer)),
         m_Offset(offset)
     {
     }
 
     //
-
-    const Buffer& StagedBuffer::GetBuffer() const
-    {
-        return m_Buffer;
-    }
 
     size_t StagedBuffer::GetSize() const
     {
@@ -42,12 +53,12 @@ namespace Ame::Rhi::Staging
     const std::byte* StagedBuffer::GetPtr(
         size_t offset) const
     {
-        return m_Buffer.GetPtr(m_Offset + offset);
+        return Buffer::GetPtr(m_Offset + offset);
     }
 
     std::byte* StagedBuffer::GetPtr(
         size_t offset)
     {
-        return m_Buffer.GetPtr(m_Offset + offset);
+        return Buffer::GetPtr(m_Offset + offset);
     }
 } // namespace Ame::Rhi::Staging

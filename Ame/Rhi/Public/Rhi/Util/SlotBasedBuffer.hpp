@@ -1,7 +1,11 @@
 #pragma once
 
 #include <boost/container/flat_set.hpp>
+
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
 #include <Rhi/Util/GenericBufferStream.hpp>
+
 #include <Math/Common.hpp>
 
 namespace Ame::Rhi::Util
@@ -64,7 +68,14 @@ namespace Ame::Rhi::Util
         SlotBasedBuffer(
             Device&                    rhiDevice,
             const SlotBasedBufferDesc& desc = {}) :
-            m_Device(rhiDevice),
+            SlotBasedBuffer(rhiDevice.GetResourceAllocator(), desc)
+        {
+        }
+
+        SlotBasedBuffer(
+            DeviceResourceAllocator&   resourceAllocator,
+            const SlotBasedBufferDesc& desc = {}) :
+            m_Allocator(resourceAllocator),
             m_Desc(desc)
         {
             SlotType InitialCount = std::exchange(m_Desc.InstanceCount, 0);
@@ -155,6 +166,14 @@ namespace Ame::Rhi::Util
         [[nodiscard]] const Buffer& GetBuffer() const
         {
             return m_BufferStream.GetBuffer();
+        }
+
+        /// <summary>
+        /// Get desc of the slot based buffer
+        /// </summary>
+        [[nodiscard]] const auto& GetDesc() const
+        {
+            return m_Desc;
         }
 
     public:
@@ -269,10 +288,7 @@ namespace Ame::Rhi::Util
                 .usageMask       = m_Desc.UsageFlags,
             };
 
-            return Buffer(
-                m_Device.get(),
-                m_Desc.Location,
-                desc);
+            return m_Allocator.get().CreateBuffer(desc, m_Desc.Location);
         }
 
     private:
@@ -289,8 +305,8 @@ namespace Ame::Rhi::Util
         }
 
     private:
-        Ref<Device>         m_Device;
-        SlotBasedBufferDesc m_Desc;
+        Ref<DeviceResourceAllocator> m_Allocator;
+        SlotBasedBufferDesc          m_Desc;
 
         BufferStream m_BufferStream;
         EmptySlotSet m_EmptySlots;

@@ -1,24 +1,63 @@
 #pragma once
 
 #include <Rhi/Descs/Layout.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
 
 namespace Ame::Rhi
 {
-    class PipelineLayout final
+    class PipelineLayout
     {
     public:
+        PipelineLayout() = default;
+        PipelineLayout(nullptr_t)
+        {
+        }
+
         PipelineLayout(
-            Device&              rhiDevice,
-            nri::PipelineLayout& nriLayout,
-            size_t               hash);
+            DeviceResourceAllocator& allocator,
+            nri::PipelineLayout*     layout);
 
-        PipelineLayout(const PipelineLayout&) = delete;
-        PipelineLayout(PipelineLayout&&)      = delete;
+        PipelineLayout(const PipelineLayout&) = default;
+        PipelineLayout(PipelineLayout&& other) noexcept :
+            m_Allocator(std::exchange(other.m_Allocator, nullptr)),
+            m_Layout(std::exchange(other.m_Layout, nullptr))
+        {
+        }
 
-        PipelineLayout& operator=(const PipelineLayout&) = delete;
-        PipelineLayout& operator=(PipelineLayout&&)      = delete;
+        PipelineLayout& operator=(const PipelineLayout&) = default;
+        PipelineLayout& operator=(PipelineLayout&& other) noexcept
+        {
+            if (this != &other)
+            {
+                m_Allocator = std::exchange(other.m_Allocator, nullptr);
+                m_Layout    = std::exchange(other.m_Layout, nullptr);
+            }
+            return *this;
+        }
 
-        ~PipelineLayout();
+        ~PipelineLayout() = default;
+
+    public:
+        void Release(
+            bool defer = true);
+
+    public:
+        [[nodiscard]] auto operator<=>(
+            const PipelineLayout& other) const noexcept
+        {
+            return m_Layout <=> other.m_Layout;
+        }
+
+        [[nodiscard]] bool operator==(
+            const PipelineLayout& other) const noexcept
+        {
+            return m_Layout == other.m_Layout;
+        }
+
+        explicit operator bool() const noexcept
+        {
+            return m_Layout != nullptr;
+        }
 
     public:
         /// <summary>
@@ -30,16 +69,12 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the nri pipeline layout.
         /// </summary>
-        [[nodiscard]] const nri::PipelineLayout& Unwrap() const;
-
-        /// <summary>
-        /// Get the pipeline layout hash.
-        /// </summary>
-        [[nodiscard]] size_t GetHash() const;
+        [[nodiscard]] nri::PipelineLayout* const& Unwrap() const;
 
     private:
-        Device&              m_RhiDevice;
-        nri::PipelineLayout& m_Layout;
-        size_t               m_Hash = 0;
+        DeviceResourceAllocator* m_Allocator = nullptr;
+        nri::PipelineLayout*     m_Layout    = nullptr;
     };
+
+    AME_RHI_SCOPED_RESOURCE(PipelineLayout);
 } // namespace Ame::Rhi

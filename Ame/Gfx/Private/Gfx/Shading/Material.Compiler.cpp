@@ -1,5 +1,7 @@
-#include <Gfx/Shading/Material.Compiler.hpp>
 #include <Gfx/Shading/Material.hpp>
+#include <Gfx/Cache/CommonPipelineLayout.hpp>
+#include <Gfx/Shading/MaterialCompiler.hpp>
+
 #include <Rhi/Device/Device.hpp>
 
 #include <Gfx/Constants.hpp>
@@ -40,7 +42,7 @@ namespace Ame::Gfx::Shading
                 .descriptorSetNum                   = m_SetCount,
                 .pushConstantNum                    = 1,
                 .shaderStages                       = m_ShaderBits.Flags,
-                .enableD3D12DrawParametersEmulation = Rhi::Device::EnableDrawParametersEmulation
+                .enableD3D12DrawParametersEmulation = Rhi::c_EnableDrawParametersEmulation
             };
         }
 
@@ -151,31 +153,47 @@ namespace Ame::Gfx::Shading
         Rhi::ShaderFlags m_ShaderBits;
     };
 
-    [[nodiscard]] static Co::result<Ptr<Rhi::PipelineLayout>> CreatePipelineLayout(
-        Rhi::Device&              RhiDevice,
-        const PropertyDescriptor& Descriptor)
+    [[nodiscard]] static Co::result<Ptr<Rhi::ScopedPipelineLayout>> CreatePipelineLayout(
+        Cache::CommonPipelineLayout& pipelineLayoutCache,
+        const PropertyDescriptor&    descriptor)
     {
-        MaterialLayoutDesc MaterialLayout(Descriptor);
-        co_return RhiDevice.CreatePipelineLayout(MaterialLayout.GetLayout());
+        MaterialLayoutDesc MaterialLayout(descriptor);
+        return pipelineLayoutCache.Load(MaterialLayout.GetLayout());
     }
 
     //
 
     Co::result<Ptr<Material>> MaterialCompiler::Compile(
-        Rhi::Device&              RhiDevice,
-        Gfx::Cache::ShaderCache&  ShaderCache,
-        MaterialPipelineState     PipelineState,
-        const PropertyDescriptor& Descriptor)
+        Rhi::DeviceResourceAllocator& allocator,
+        Cache::CommonPipelineLayout&  pipelineLayoutCache,
+        Cache::ShaderCache&           shaderCache,
+        Cache::CommonPipelineState&   pipelineStateCache,
+        MaterialPipelineState         pipelineState,
+        const PropertyDescriptor&     descriptor)
     {
 #ifndef AME_DIST
-        if (!PipelineState.FindShader(Rhi::ShaderType::VERTEX_SHADER) ||
-            !PipelineState.FindShader(Rhi::LibraryShaderType))
+        if (!pipelineState.FindShader(Rhi::ShaderType::VERTEX_SHADER) ||
+            !pipelineState.FindShader(Rhi::LibraryShaderType))
         {
             co_return nullptr;
         }
 #endif
 
-        auto Layout = co_await CreatePipelineLayout(RhiDevice, Descriptor);
-        co_return std::make_shared<Material>(RhiDevice, ShaderCache, std::move(Layout), std::move(PipelineState), Descriptor);
+        auto layout = co_await CreatePipelineLayout(pipelineLayoutCache, descriptor);
+        co_return std::make_shared<Material>(allocator, shaderCache, pipelineStateCache, std::move(layout), std::move(pipelineState), descriptor);
+    }
+
+    //
+
+    MaterialCompiler::MaterialCompiler(
+        Rhi::Device&                 rhiDevice,
+        Cache::CommonPipelineLayout& pipelineLayoutCache,
+        Cache::ShaderCache&          shaderCache,
+        Cache::CommonPipelineState&  pipelineStateCache) :
+        m_Allocator(rhiDevice.GetResourceAllocator()),
+        m_PipelineLayoutCache(pipelineLayoutCache),
+        m_ShaderCache(shaderCache),
+        m_PipelineStateCache(pipelineStateCache)
+    {
     }
 } // namespace Ame::Gfx::Shading

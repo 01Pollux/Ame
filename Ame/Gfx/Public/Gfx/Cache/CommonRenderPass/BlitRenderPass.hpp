@@ -1,16 +1,24 @@
 #pragma once
 
 #include <Rhi/Resource/Texture.hpp>
+#include <Rhi/Descs/View.hpp>
+#include <Core/Coroutine.hpp>
 
 namespace Ame::Gfx::Cache
 {
     struct BlitParameters
     {
-        Ref<const Rhi::Texture> SrcTexture;
-        Ref<const Rhi::Texture> DstTexture;
+        CRef<Rhi::Texture> SrcTexture;
+        CRef<Rhi::Texture> DstTexture;
 
         Rhi::TextureRect SrcRect = Rhi::c_EntireTexture;
         Rhi::TextureRect DstRect = Rhi::c_EntireTexture;
+
+        Rhi::AccessLayoutStage OldSrcState;
+        Rhi::AccessLayoutStage NewSrcState;
+
+        Rhi::AccessLayoutStage OldDstState{};
+        Rhi::AccessLayoutStage NewDstState{};
 
         std::span<const Rhi::TextureSubresource> SrcSubresources;
         std::span<const Rhi::TextureSubresource> DstSubresources;
@@ -21,11 +29,10 @@ namespace Ame::Gfx::Cache
         bool EnableAlpha    : 1 = false;
         bool SwapRBChannels : 1 = false;
 
-        bool PlacePreBarrier  : 1 = true;
-        bool PlacePostBarrier : 1 = false;
-        bool FlushPostBarrier : 1 = false;
-
-        Rhi::AccessLayoutStage NewState;
+        // True to place a barrier before the blit operation. if false, the caller must ensure the textures are in the correct state.
+        bool SrcTransition : 1 = true;
+        // True to place a barrier before the blit operation. if false, the caller must ensure the textures are in the correct state.
+        bool DstTransition : 1 = true;
     };
 
     class BlitRenderPass
@@ -38,7 +45,7 @@ namespace Ame::Gfx::Cache
 
         struct BlitOperation
         {
-            Rhi::CommandList      CommandList;
+            Ref<Rhi::CommandList> CommandList;
             const BlitParameters& Parameters;
 
             Rhi::TextureRect SrcRect;
@@ -50,7 +57,7 @@ namespace Ame::Gfx::Cache
             OptimalBlitOperation OptimalType;
 
             BlitOperation(
-                Rhi::Device&          rhiDevice,
+                Rhi::CommandList&     commandList,
                 const BlitParameters& parameters);
         };
 
@@ -62,7 +69,14 @@ namespace Ame::Gfx::Cache
         /// <summary>
         /// Blit a texture to another texture.
         /// </summary>
+        Co::result<void> Blit(
+            const BlitParameters& parameters);
+
+        /// <summary>
+        /// Blit a texture to another texture.
+        /// </summary>
         void Blit(
+            Rhi::CommandList&     commandList,
             const BlitParameters& parameters);
 
     private:
@@ -78,9 +92,15 @@ namespace Ame::Gfx::Cache
 
     private:
         /// <summary>
-        /// Transition the textures to the correct state for a copy operation.
+        /// Transition the textures to the correct state before copy operation.
         /// </summary>
-        void BlitCopyBarrier(
+        void BlitPushCopyBarrier(
+            BlitOperation& operation);
+
+        /// <summary>
+        /// Transition the textures to the correct state after copy operation.
+        /// </summary>
+        void BlitPopCopyBarrier(
             BlitOperation& operation);
 
         /// <summary>
@@ -91,9 +111,15 @@ namespace Ame::Gfx::Cache
 
     private:
         /// <summary>
-        /// Transition the textures to the correct state for a render operation.
+        /// Transition the textures to the correct state before render operation.
         /// </summary>
-        void BlitRenderBarrier(
+        void BlitPushRenderBarrier(
+            BlitOperation& operation);
+
+        /// <summary>
+        /// Transition the textures to the correct state after render operation.
+        /// </summary>
+        void BlitPopRenderBarrier(
             BlitOperation& operation);
 
         /// <summary>
@@ -103,13 +129,6 @@ namespace Ame::Gfx::Cache
             BlitOperation& operation);
 
     private:
-        /// <summary>
-        /// Transition the textures to the old state after a blit operation.
-        /// </summary>
-        void BlitRestoreState(
-            BlitOperation& operation);
-
-    private:
-        Ref<Rhi::Device> m_Device;
+        Ref<Rhi::Device> m_RhiDevice;
     };
 } // namespace Ame::Gfx::Cache

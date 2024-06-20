@@ -4,7 +4,8 @@ package("ame.nri")
     set_description("NRI is a low-level abstract render interface which currently supports three backends: D3D11, D3D12 and Vulkan (VK).")
     set_license("MIT")
 
-    add_urls("https://github.com/NVIDIAGameWorks/NRI.git")
+    set_sourcedir("C:/Users/medra/Desktop/NRI")
+    -- add_urls("https://github.com/NVIDIAGameWorks/NRI.git")
 
     add_deps("cmake")
     if is_plat("macosx") then

@@ -3,6 +3,7 @@
 #include <Core/Subsystem.hpp>
 
 #include <Subsystem/Core/Coroutine.hpp>
+#include <Subsystem/Rhi/Device.hpp>
 #include <Subsystem/Asset/Storage.hpp>
 
 #include <Gfx/Cache/CommonShader.hpp>
@@ -13,6 +14,7 @@ namespace Ame::Gfx::Cache
                                        CommonShader,
                                        Dependency<
                                            CoroutineSubsystem,
+                                           Rhi::DeviceSubsystem,
                                            Asset::StorageSubsystem>>,
                                    kgr::final
     {

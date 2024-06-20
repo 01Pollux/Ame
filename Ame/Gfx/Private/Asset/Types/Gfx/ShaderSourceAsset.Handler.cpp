@@ -19,30 +19,33 @@ namespace Ame::Asset::Gfx
         return &shaderAsset->m_Cache == &m_Cache;
     }
 
-    Ptr<IAsset> ShaderSourceAsset::Handler::Load(
-        std::istream& stream,
-        const Asset::DependencyReader&,
-        const Guid& guid,
-        String      path,
-        const AssetMetaData&)
+    Co::result<Ptr<IAsset>> ShaderSourceAsset::Handler::Load(
+        AssetHandlerLoadDesc& loadDesc)
     {
-        stream.seekg(0, std::ios::end);
-        auto FileSize = stream.tellg();
-        stream.seekg(std::ios::beg);
-
-        String ShaderCode(FileSize, '\0');
-        stream.read(ShaderCode.data(), FileSize);
-
-        return std::make_shared<ShaderSourceAsset>(m_Cache, std::move(ShaderCode), guid, std::move(path));
+        auto shaderCode =
+            loadDesc.BackgroundExecutor
+                ->submit(
+                    [&]
+                    {
+                        std::stringstream stream;
+                        stream << loadDesc.Stream.get().rdbuf();
+                        return stream.str();
+                    })
+                .get();
+        co_return std::make_shared<ShaderSourceAsset>(m_Cache, std::move(shaderCode), loadDesc.Guid, std::move(loadDesc.Path));
     }
 
-    void ShaderSourceAsset::Handler::Save(
-        std::iostream& stream,
-        DependencyWriter&,
-        const Ptr<IAsset>& asset,
-        AssetMetaData&)
+    Co::result<void> ShaderSourceAsset::Handler::Save(
+        AssetHandlerSaveDesc& saveDesc)
     {
-        auto assetShader = dynamic_cast<ShaderSourceAsset*>(asset.get());
-        stream.write(assetShader->m_ShaderSource.data(), assetShader->m_ShaderSource.size());
+        auto assetShader = dynamic_cast<ShaderSourceAsset*>(saveDesc.Asset.get());
+        saveDesc.BackgroundExecutor
+            ->submit(
+                [&]
+                {
+                    saveDesc.Stream.get().write(assetShader->m_ShaderSource.data(), assetShader->m_ShaderSource.size());
+                })
+            .wait();
+        co_return;
     }
 } // namespace Ame::Asset::Gfx

@@ -5,17 +5,15 @@
 
 namespace Ame::FlappyRocket
 {
-    class FlappyRocketEngine : public BaseEngine
+    class FlappyRocketEngine : public IoCContainer
     {
     public:
         FlappyRocketEngine();
 
-    protected:
-        void Initialize() override;
+        Co::result<void> Run();
 
-    private:
-        void SetClearColor(
-            Rhi::Device& rhiDevice) const;
+    protected:
+        Co::null_result Initialize();
 
     private:
         void CreateWorld();

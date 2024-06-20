@@ -1,43 +1,65 @@
-#include <Rhi/Resource/Shader.Desc.hpp>
+#include <Rhi/Shader/Shader.Desc.hpp>
 
 namespace Ame::Rhi
 {
-    bool ShaderCompileDesc::ShouldValidate() const
+    /// <summary>
+    /// Get the shader entry point.
+    /// </summary>
+    [[nodiscard]] const wchar_t* GetCommonEntryPoint(
+        ShaderCompileStage type)
     {
-        using namespace EnumBitOperators;
-
-        bool NoValidation = (Flags & ShaderCompileFlags::NoValidation) == ShaderCompileFlags::NoValidation;
-
-        // dxc failed : Must disable validation for unsupported lib_6_1 or lib_6_2 targets.
-        return !(NoValidation ||
-                 (IsLibraryShader() && Profile <= ShaderProfile::_6_2));
-    }
-
-    bool ShaderCompileDesc::IsLibraryShader() const
-    {
-        using namespace EnumBitOperators;
-
-        return (Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
+        switch (type)
+        {
+        case ShaderCompileStage::Vertex:
+            return L"VS_Main";
+        case ShaderCompileStage::Domain:
+            return L"DS_Main";
+        case ShaderCompileStage::Hull:
+            return L"HS_Main";
+        case ShaderCompileStage::Geometry:
+            return L"GS_Main";
+        case ShaderCompileStage::Pixel:
+            return L"PS_Main";
+        case ShaderCompileStage::Compute:
+            return L"CS_Main";
+        case ShaderCompileStage::Amplification:
+            return L"AS_Main";
+        case ShaderCompileStage::Mesh:
+            return L"MS_Main";
+        default:
+            std::unreachable();
+        }
     }
 
     //
 
-    ShaderType ShaderCompileDesc::GetStage() const
+    bool ShaderCompileDesc::RequiresShaderValidation() const
     {
         using namespace EnumBitOperators;
 
-        bool IsLibrary = (Flags & ShaderCompileFlags::LibraryShader) == ShaderCompileFlags::LibraryShader;
-        return IsLibrary ? LibraryShaderType : Stage;
+        bool noValidation        = (Flags & ShaderCompileFlags::NoValidation) == ShaderCompileFlags::NoValidation;
+        bool libraryCantValidate = (Stage == ShaderCompileStage::Library) && (Profile <= ShaderProfile::_6_2);
+
+        // dxc failed : Must disable validation for unsupported lib_6_1 or lib_6_2 targets.
+        return !(noValidation || libraryCantValidate);
     }
 
-    ShaderType ShaderCompileDesc::GetStageUnchecked() const
+    ShaderType ShaderCompileDesc::GetShaderType() const
     {
-        return Stage;
+        return CompileStageToShaderType(Stage);
     }
 
-    void ShaderCompileDesc::SetStage(
-        ShaderType type)
+    void ShaderCompileDesc::SetAsShader(
+        ShaderCompileStage stage)
     {
-        Stage = type;
+        Stage      = stage;
+        EntryPoint = GetCommonEntryPoint(stage);
+    }
+
+    void ShaderCompileDesc::SetAsLibrary(
+        ShaderCompileStage stage)
+    {
+        Stage      = ShaderCompileStage::Library;
+        EntryPoint = GetCommonEntryPoint(stage);
     }
 } // namespace Ame::Rhi

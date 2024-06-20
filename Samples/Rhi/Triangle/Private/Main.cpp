@@ -3,22 +3,27 @@
 #include <Framework/EntryPoint.hpp>
 #include <Framework/Window.hpp>
 
-#include <Frame/Subsystem/Frame.hpp>
-#include <Frame/Subsystem/Timer.hpp>
+#include <Math/Common.hpp>
 
-#include <Rhi/Resource/Shader.hpp>
-#include <Rhi/CommandList/CommandList.hpp>
+#include <Rhi/Device/CommandSubmitter.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
+#include <Rhi/Device/WindowManager.hpp>
+
+#include <Rhi/Shader/Shader.Compiler.hpp>
+
 #include <Rhi/Resource/PipelineState.hpp>
 #include <Rhi/Resource/Buffer.hpp>
+#include <Rhi/Resource/Texture.hpp>
+#include <Rhi/Resource/View.hpp>
+#include <Rhi/Resource/DescriptorTable.hpp>
 #include <Rhi/Resource/VertexView.hpp>
-#include <Rhi/Stream/Buffer.hpp>
-#include <Math/Common.hpp>
+#include <Rhi/Descs/View.hpp>
 
 #include <Log/Wrapper.hpp>
 
 using namespace Ame;
 
-class TriangleSampleEngine : public BaseEngine
+class TriangleSampleEngine : public IoCContainer
 {
     struct ViewportScissor
     {
@@ -26,115 +31,205 @@ class TriangleSampleEngine : public BaseEngine
         std::array<Rhi::Scissor, 1>  Scissor;
     };
 
-protected:
-    void Initialize() override
+public:
+    Co::result<void> Run()
     {
-        BaseEngine::Initialize();
+        UpdateOnFrames();
+        Initialize();
 
+        auto& engineFrame  = GetSubsystem<EngineFrameSubsystem>();
+        auto& rhiDevice    = GetSubsystem<Rhi::DeviceSubsystem>();
+        auto  thisExecutor = GetSubsystem<CoroutineSubsystem>().inline_executor();
+
+        while (engineFrame.IsRunning())
+        {
+            auto frameTick   = thisExecutor->submit(std::bind(&EngineFrame::Tick, &engineFrame));
+            auto frameRender = thisExecutor->submit(std::bind(&Rhi::Device::Tick, &rhiDevice));
+
+            Co::when_all(thisExecutor, std::move(frameTick), std::move(frameRender)).run().wait();
+        }
+
+        m_DeviceResource = {};
+        co_return;
+    }
+
+protected:
+    Co::null_result Initialize()
+    {
         Log::Engine().Trace("Initializing Sample...");
 
-        auto& RhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
-        auto& Coroutine = *GetSubsystem<CoroutineSubsystem>();
-        auto& Frame     = GetSubsystem<EngineFrameSubsystem>();
+        auto& rhiDevice = GetSubsystem<Rhi::DeviceSubsystem>();
+        auto& runtime   = GetSubsystem<CoroutineSubsystem>();
 
-        m_PipelineStateTask = CreateBasicPipeline(
-            Coroutine,
-            RhiDevice);
+        auto pipelineStateTask = CreateBasicPipeline(
+            runtime.background_executor(),
+            rhiDevice);
 
-        m_BufferTask = CreateBuffers(
-            Coroutine,
-            RhiDevice);
+        auto bufferTask = CreateBuffers(rhiDevice);
+        co_await Co::when_all(runtime.background_executor(), std::move(pipelineStateTask), std::move(bufferTask)).run();
 
-        m_OnUpdate = {
-            Frame.OnRender()
-                .ObjectSignal(),
-            [this, &RhiDevice, &Timer = GetSubsystem<FrameTimerSubsystem>()]()
-            {
-                Render(Timer, RhiDevice);
-            }
-        };
+        m_ReadyToRender = true;
     }
 
 private:
-    void Render(
-        FrameTimer&  Timer,
-        Rhi::Device& RhiDevice)
+    Co::null_result UpdateOnFrames()
     {
-        if (m_PipelineStateTask)
+        auto& engineFrame = GetSubsystem<EngineFrameSubsystem>();
+        auto& rhiDevice   = GetSubsystem<Rhi::DeviceSubsystem>();
+        auto& frameTimer  = GetSubsystem<FrameTimerSubsystem>();
+
+        Log::Client().Info("Waiting for engine frame...");
+
+        auto& commandSubmitter = rhiDevice.GetCommandSubmitter();
+        auto& windowManager    = rhiDevice.GetWindowManager();
+
+        while (engineFrame.IsRunning())
         {
-            m_PipelineStateTask.wait();
+            co_await Co::resume_on(engineFrame.GetStartFrameExecutor());
+            co_await Co::resume_on(rhiDevice.GetExecutor());
+
+            auto fence = co_await ClearFrame(rhiDevice);
+            fence      = co_await Render(frameTimer, rhiDevice, fence);
+            fence      = co_await RenderFrame(rhiDevice, fence);
+        }
+    }
+
+    [[nodiscard]] Co::result<Rhi::Fence> ClearFrame(
+        Rhi::Device& rhiDevice)
+    {
+        auto& commandSubmitter = rhiDevice.GetCommandSubmitter();
+        auto& windowManager    = rhiDevice.GetWindowManager();
+
+        auto  submission = co_await commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
+        auto& backbuffer = (co_await windowManager.GetBackbuffer()).get();
+
+        Rhi::TextureBarrierDesc backbufferTextureBarrier{
+            .texture = backbuffer.Resource.Unwrap(),
+            .before{ .access = Rhi::AccessBits::UNKNOWN, .layout = Rhi::LayoutType::UNKNOWN, .stages = Rhi::ShaderType::ALL },
+            .after{ .access = Rhi::AccessBits::COLOR_ATTACHMENT, .layout = Rhi::LayoutType::COLOR_ATTACHMENT, .stages = Rhi::ShaderType::ALL }
+        };
+        Rhi::BarrierGroupDesc backbufferBarrier{
+            .textures   = &backbufferTextureBarrier,
+            .textureNum = 1
+        };
+
+        submission->ResourceBarrier(backbufferBarrier);
+
+        {
+            std::array renderTargets{ &backbuffer.View };
+            std::array clearColors{ Rhi::ClearDesc::RenderTarget(Colors::c_GreenYellow) };
+
+            Rhi::RenderingCommand rendering(submission.CommandListRef, renderTargets);
+            submission->ClearAttachments(clearColors);
         }
 
-        Rhi::CommandList CommandList(RhiDevice);
-        FinishUploadingResources(CommandList);
+        commandSubmitter.SubmitCommandList(submission);
 
-        CommandList.SetPipelineLayout(m_PipelineState->GetLayout());
-        CommandList.SetPipelineState(m_PipelineState);
+        co_return submission.FenceRef;
+    }
 
-        Rhi::AttachmentsDesc     Attachments{};
-        const Rhi::ResourceView* RenderTargets[]{
-            &RhiDevice.GetBackbuffer().View
+    [[nodiscard]] Co::result<Rhi::Fence> RenderFrame(
+        Rhi::Device&      rhiDevice,
+        const Rhi::Fence& fence)
+    {
+        auto& commandSubmitter = rhiDevice.GetCommandSubmitter();
+        auto& windowManager    = rhiDevice.GetWindowManager();
+
+        auto  submission = co_await commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
+        auto& backbuffer = (co_await windowManager.GetBackbuffer()).get();
+
+        Rhi::TextureBarrierDesc backbufferTextureBarrier{
+            .texture = backbuffer.Resource.Unwrap(),
+            .before{ .access = Rhi::AccessBits::COLOR_ATTACHMENT, .layout = Rhi::LayoutType::COLOR_ATTACHMENT, .stages = Rhi::ShaderType::ALL },
+            .after{ .access = Rhi::AccessBits::UNKNOWN, .layout = Rhi::LayoutType::PRESENT, .stages = Rhi::ShaderType::ALL }
         };
-        CommandList.BeginRendering(RenderTargets);
-
-        auto  BufferPtr = m_DynamicBuffer.GetPtr();
-        float Data[]{
-            static_cast<float>(Timer.GetEngineTime()), 0.5f,
-            0.5f, -0.5f,
-            -0.5f, -0.5f
+        Rhi::BarrierGroupDesc backbufferBarrier{
+            .textures   = &backbufferTextureBarrier,
+            .textureNum = 1
         };
-        std::memcpy(BufferPtr, Data, sizeof(Data));
 
-        auto Set = CommandList.AllocateSets(0)[0];
-        Set.SetDynamicBuffer(RhiDevice, 0, m_DynamicBufferView.Unwrap());
+        submission->ResourceBarrier(backbufferBarrier);
 
-        const nri::Descriptor* Descriptors[]{
-            m_TextureView.Unwrap()
-        };
-        Set.SetRange(RhiDevice, 0, { .descriptors = Descriptors, .descriptorNum = Rhi::Count32(Descriptors) });
+        commandSubmitter.SubmitCommandList(submission, { fence });
 
-        Descriptors[0] = m_TextureSampler.Unwrap();
-        Set.SetRange(RhiDevice, 1, { .descriptors = Descriptors, .descriptorNum = Rhi::Count32(Descriptors) });
+        co_return submission.FenceRef;
+    }
 
-        CommandList.SetDescriptorSet(0, Set, 0);
+private:
+    [[nodiscard]] Co::result<Rhi::Fence> Render(
+        FrameTimer&       frameTimer,
+        Rhi::Device&      rhiDevice,
+        const Rhi::Fence& fence)
+    {
+        if (!m_ReadyToRender)
+        {
+            co_return fence;
+        }
 
-        auto [Viewports, Scissors] = GetViewportsAndScissors(RhiDevice);
-        CommandList.SetViewports(Viewports);
-        CommandList.SetScissorRects(Scissors);
-        CommandList.SetVertexBuffer({ .Buffer = m_DrawBuffer, .Offset = VertexOffset });
-        CommandList.SetIndexBuffer({ .Buffer = m_DrawBuffer, .Offset = IndexOffset, .Type = Rhi::IndexType::UINT16 });
-        CommandList.Draw(Rhi::DrawIndexedDesc{ .indexNum = 3, .instanceNum = 1 });
-        CommandList.EndRendering();
+        auto& commandSubmitter = rhiDevice.GetCommandSubmitter();
+        auto& windowManager    = rhiDevice.GetWindowManager();
+        auto& backbuffer       = (co_await windowManager.GetBackbuffer()).get();
+
+        auto submission = co_await commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
+        {
+            std::array renderTargets{ &backbuffer.View };
+
+            Rhi::RenderingCommand rendering(submission.CommandListRef, renderTargets);
+
+            submission->SetDescriptorTable(*m_DeviceResource.DescriptorTable.Unwrap());
+            submission->SetPipelineLayout(*m_DeviceResource.PipelineLayout.Unwrap());
+            submission->SetPipelineState(*m_DeviceResource.PipelineState.Unwrap());
+
+            auto  bufferPtr = m_DeviceResource.DynamicBuffer.GetPtr();
+            float rata[]{
+                static_cast<float>(frameTimer.GetEngineTime()), 0.5f,
+                0.5f, -0.5f,
+                -0.5f, -0.5f
+            };
+            std::memcpy(bufferPtr, rata, sizeof(rata));
+
+            uint32_t constantBufferOffsets = 0;
+            submission->SetDescriptorSet(0, *m_DeviceResource.DescriptorSet.Unwrap(), &constantBufferOffsets);
+
+            auto [viewports, scissors] = GetViewportsAndScissors(backbuffer);
+            submission->SetViewports(viewports);
+            submission->SetScissorRects(scissors);
+            submission->SetVertexBuffer({ .NriBuffer = m_DeviceResource.DrawBuffer.Unwrap(), .Offset = c_VertexOffset });
+            submission->SetIndexBuffer({ .NriBuffer = m_DeviceResource.DrawBuffer.Unwrap(), .Offset = c_IndexOffset, .Type = Rhi::IndexType::UINT16 });
+            submission->Draw(Rhi::DrawIndexedDesc{ .indexNum = 3, .instanceNum = 1 });
+        }
+        commandSubmitter.SubmitCommandList(submission, { fence });
+
+        co_return submission.FenceRef;
     }
 
 private:
     [[nodiscard]] ViewportScissor GetViewportsAndScissors(
-        Rhi::Device& RhiDevice)
+        const Rhi::Backbuffer& backbuffer)
     {
-        auto& BackbufferDesc = RhiDevice.GetBackbuffer().Resource.GetDesc();
-
+        auto& backbufferDesc = backbuffer.Resource.GetDesc();
         return ViewportScissor{
             .Viewport{
                 Rhi::Viewport{
-                    .width         = static_cast<float>(BackbufferDesc.width),
-                    .height        = static_cast<float>(BackbufferDesc.height),
+                    .width         = static_cast<float>(backbufferDesc.width),
+                    .height        = static_cast<float>(backbufferDesc.height),
                     .depthRangeMax = 1.0f } },
             .Scissor{
                 Rhi::Scissor{
-                    .width  = BackbufferDesc.width,
-                    .height = BackbufferDesc.height } }
+                    .width  = backbufferDesc.width,
+                    .height = backbufferDesc.height } }
         };
     }
 
+private:
     [[nodiscard]] Co::result<std::vector<Rhi::ShaderBytecode>> LoadShaders(
-        Co::executor_tag,
-        Co::thread_pool_executor& Executor,
-        Rhi::Device&              RhiDevice) const
+        const Ptr<Co::executor>& shaderExecutor,
+        const Rhi::DeviceDesc&   rhiDeviceDesc) const
     {
-        std::vector<Rhi::ShaderBytecode> Shaders;
-        Shaders.reserve(2);
+        std::vector<Rhi::ShaderBytecode> shaders;
+        shaders.reserve(2);
 
-        constexpr const char* SourceCode = R"(
+        const StringView sourceCode = R"(
         struct VSInput
         {
         	float2 pos : POSITION;  
@@ -162,30 +257,44 @@ private:
         }
         float4 PS_Main(VSOutput ps) : SV_TARGET
         {
-            return ps.color * Texture.Sample(Sampler, float2(0.5, 0.5));
+            return float4(1.0, 0.0, 0.0, 1.0);
+            //return ps.color * Texture.Sample(Sampler, float2(0.5, 0.5));
 		}
 		)";
 
-        auto VertexShader = Rhi::ShaderBytecode::Compile({}, Executor, RhiDevice.GetGraphicsAPI(), SourceCode, { .Stage = Rhi::ShaderType::VERTEX_SHADER });
-        auto PixelShader  = Rhi::ShaderBytecode::Compile({}, Executor, RhiDevice.GetGraphicsAPI(), SourceCode, { .Stage = Rhi::ShaderType::FRAGMENT_SHADER });
+        auto compileShader = [&](Rhi::ShaderCompileStage stage)
+        {
+            Rhi::ShaderCompilerDesc compilerDesc{ .DeviceDesc = rhiDeviceDesc };
+            compilerDesc.SetAsShader(stage);
 
-        Shaders.emplace_back(std::move(co_await VertexShader));
-        Shaders.emplace_back(std::move(co_await PixelShader));
+            Rhi::ShaderCompileDesc compileDesc{
+                .CompilerDesc = compilerDesc,
+                .SourceCode   = sourceCode
+            };
 
-        co_return Shaders;
+            return Rhi::ShaderCompiler::Compile(compileDesc);
+        };
+
+        auto [vertexShader, pixelShader] = co_await Co::when_all(
+            shaderExecutor,
+            co_await shaderExecutor->submit(compileShader, Rhi::ShaderCompileStage::Vertex).resolve(),
+            co_await shaderExecutor->submit(compileShader, Rhi::ShaderCompileStage::Pixel).resolve());
+
+        shaders.emplace_back(std::move(co_await vertexShader));
+        shaders.emplace_back(std::move(co_await pixelShader));
+
+        co_return shaders;
     }
 
-    [[nodiscard]] Co::result<Ptr<Rhi::PipelineLayout>> LoadLayout(
-        Co::executor_tag,
-        Co::thread_pool_executor& Executor,
-        Rhi::Device&              RhiDevice) const
+    [[nodiscard]] Co::result<Rhi::ScopedPipelineLayout> LoadLayout(
+        Rhi::DeviceResourceAllocator& resourceAllocator) const
     {
-        Rhi::DynamicConstantBufferDesc Buffers[]{
+        Rhi::DynamicConstantBufferDesc buffers[]{
             { .registerIndex = 0,
               .shaderStages  = Rhi::ShaderType::VERTEX_SHADER }
         };
 
-        Rhi::DescriptorRangeDesc Ranges[]{
+        Rhi::DescriptorRangeDesc ranges[]{
             { .descriptorNum  = 1,
               .descriptorType = Rhi::DescriptorType::TEXTURE,
               .shaderStages   = Rhi::ShaderType::FRAGMENT_SHADER },
@@ -194,42 +303,48 @@ private:
               .shaderStages   = Rhi::ShaderType::FRAGMENT_SHADER }
         };
 
-        Rhi::DescriptorSetDesc DescriptorSets[]{
+        Rhi::DescriptorSetDesc descriptorSets[]{
             { .registerSpace            = 1,
-              .ranges                   = Ranges,
-              .rangeNum                 = Rhi::Count32(Ranges),
-              .dynamicConstantBuffers   = Buffers,
-              .dynamicConstantBufferNum = Rhi::Count32(Buffers) }
+              .ranges                   = ranges,
+              .rangeNum                 = Rhi::Count32(ranges),
+              .dynamicConstantBuffers   = buffers,
+              .dynamicConstantBufferNum = Rhi::Count32(buffers) }
         };
 
-        Rhi::PipelineLayoutDesc Desc{
-            .descriptorSets   = DescriptorSets,
-            .descriptorSetNum = Rhi::Count32(DescriptorSets),
+        Rhi::PipelineLayoutDesc desc{
+            .descriptorSets   = descriptorSets,
+            .descriptorSetNum = Rhi::Count32(descriptorSets),
             .shaderStages     = Rhi::ShaderType::VERTEX_SHADER | Rhi::ShaderType::FRAGMENT_SHADER
         };
-        co_return co_await RhiDevice.CreatePipelineLayout({}, Executor, Desc);
+
+        auto pipelineLayout = co_await resourceAllocator.CreatePipelineLayout(desc);
+        co_return Rhi::ScopedPipelineLayout(resourceAllocator, std::move(pipelineLayout));
     }
 
     [[nodiscard]] Co::result<void> CreateBasicPipeline(
-        Co::runtime& Coroutine,
-        Rhi::Device& RhiDevice)
+        const Ptr<Co::executor>& shaderExecutor,
+        Rhi::Device&             rhiDevice)
     {
-        auto& Executor = *Coroutine.thread_pool_executor();
+        co_await Co::resume_on(rhiDevice.GetExecutor(Rhi::ExecutorType::Resources));
 
-        auto ShaderTask = LoadShaders({}, Executor, RhiDevice);
-        auto LayoutTask = LoadLayout({}, Executor, RhiDevice);
+        auto& resourceAllocator = rhiDevice.GetResourceAllocator();
 
-        Rhi::RenderTargetDesc RenderTargets[]{
-            { RhiDevice.GetBackbuffer().Resource.GetDesc().format }
+        auto shaderTask = LoadShaders(shaderExecutor, rhiDevice.GetDesc());
+        auto layoutTask = LoadLayout(resourceAllocator);
+
+        auto backbufferFormat = rhiDevice.GetWindowManager().GetBackbufferFormat();
+
+        Rhi::RenderTargetDesc renderTargets[]{
+            { backbufferFormat }
         };
 
-        Rhi::VertexStreamDesc VertexStreams[]{
-            { .stride      = sizeof(Vertices[0]),
+        Rhi::VertexStreamDesc vertexStreams[]{
+            { .stride      = sizeof(c_Vertices[0]),
               .bindingSlot = 0,
               .stepRate    = Rhi::VertexStreamStepRate::PER_VERTEX }
         };
 
-        Rhi::VertexAttributeDesc VertexAttributes[]{
+        Rhi::VertexAttributeDesc vertexAttributes[]{
             { .d3d{ "POSITION", 0 },
               .vk{ 0 },
               .offset      = 0,
@@ -237,170 +352,247 @@ private:
               .streamIndex = 0 }
         };
 
-        Rhi::VertexInputDesc VertexInput{
-            .attributes   = VertexAttributes,
-            .streams      = VertexStreams,
-            .attributeNum = Rhi::Count8(VertexAttributes),
-            .streamNum    = Rhi::Count8(VertexStreams)
+        Rhi::VertexInputDesc vertexInput{
+            .attributes   = vertexAttributes,
+            .streams      = vertexStreams,
+            .attributeNum = Rhi::Count8(vertexAttributes),
+            .streamNum    = Rhi::Count8(vertexStreams)
         };
 
-        Rhi::GraphicsPipelineDesc Desc{
+        Rhi::GraphicsPipelineDesc pipelineDesc{
+            .Layout = &m_DeviceResource.PipelineLayout,
             .InputAssembly{ Rhi::TopologyType::TRIANGLE_LIST },
             .Rasterizer{ .Cull = Rhi::CullMode::NONE },
-            .OutputMerger{ RenderTargets },
-            .VertexInput = &VertexInput
+            .OutputMerger{ renderTargets },
+            .VertexInput = &vertexInput
         };
 
-        Desc.Layout = co_await LayoutTask;
+        m_DeviceResource.PipelineLayout = co_await layoutTask;
 
-        auto Shaders     = co_await ShaderTask;
-        auto ShaderDescs = Shaders |
-                           std::views::transform([](const auto& Shader)
-                                                 { return Shader.GetDesc(); }) |
-                           std::ranges::to<std::vector>();
+        auto shaders      = co_await shaderTask;
+        auto shadersDescs = shaders |
+                            std::views::transform([](const auto& shader)
+                                                  { return shader.GetDesc(); }) |
+                            std::ranges::to<std::vector>();
 
-        Desc.Shaders = ShaderDescs;
+        pipelineDesc.Shaders = shadersDescs;
 
-        m_PipelineState = co_await RhiDevice.CreatePipelineState({}, Executor, Desc);
+        auto pipelineState             = co_await resourceAllocator.CreatePipelineState(pipelineDesc);
+        m_DeviceResource.PipelineState = Rhi::ScopedPipelineState(resourceAllocator, std::move(pipelineState));
     }
 
 private:
-    static constexpr Math::Vector2 Vertices[]{
+    static constexpr Math::Vector2 c_Vertices[]{
         { 0.0f, 0.5f },
         { 0.5f, -0.5f },
         { -0.5f, -0.5f }
     };
 
-    static constexpr uint16_t Indices[]{
+    static constexpr uint16_t c_Indices[]{
         0, 1, 2
     };
-    std::array<uint8_t, 4> TextureData{ 255, 0, 0, 255 };
+    std::array<uint8_t, 4> c_TextureData{ 255, 0, 0, 255 };
 
-    static constexpr Rhi::BufferDesc BufferDesc{
-        .size      = sizeof(Vertices) + sizeof(Indices),
+    static constexpr Rhi::BufferDesc c_BufferDesc{
+        .size      = sizeof(c_Vertices) + sizeof(c_Indices),
         .usageMask = Rhi::BufferUsageBits::VERTEX_BUFFER | Rhi::BufferUsageBits::INDEX_BUFFER
     };
 
-    static constexpr uint32_t IndexOffset  = sizeof(Vertices);
-    static constexpr uint32_t VertexOffset = 0;
+    static constexpr uint32_t c_IndexOffset  = sizeof(c_Vertices);
+    static constexpr uint32_t c_VertexOffset = 0;
 
-    static constexpr Rhi::TextureDesc TextureDesc = Rhi::Tex2D(
+    static constexpr Rhi::TextureDesc c_TextureDesc = Rhi::Tex2D(
         Rhi::ResourceFormat::RGBA8_UNORM,
         1, 1, 1);
 
-    static constexpr Rhi::BufferDesc DynamicDesc{
+    static constexpr Rhi::BufferDesc c_DynamicDesc{
         .size      = 1024,
         .usageMask = Rhi::BufferUsageBits::CONSTANT_BUFFER
     };
 
-    static constexpr Rhi::BufferDesc UploadDesc{
-        .size = sizeof(TextureData) + BufferDesc.size
+    static constexpr Rhi::BufferDesc c_UploadDesc{
+        .size = sizeof(c_TextureData) + c_BufferDesc.size
     };
 
-    static constexpr Rhi::SamplerDesc SamplerDesc{
+    static constexpr Rhi::SamplerDesc c_SamplerDesc{
         .filters{ nri::Filter::LINEAR, nri::Filter::LINEAR, nri::Filter::LINEAR },
         .anisotropy = 8,
         .mipMax     = 16.0f,
         .addressModes{ nri::AddressMode::REPEAT, nri::AddressMode::REPEAT }
     };
 
-    void AllocateResources(
-        Rhi::Device& RhiDevice)
+private:
+    [[nodiscard]] Co::result<void> AllocateResources(
+        Rhi::DeviceResourceAllocator& resourceAllocator)
     {
-        m_DrawBuffer    = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::DEVICE, BufferDesc);
-        m_Texture       = Rhi::Texture(RhiDevice, Rhi::MemoryLocation::DEVICE, TextureDesc);
-        m_DynamicBuffer = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, DynamicDesc);
-        m_TempBuffer    = Rhi::Buffer(RhiDevice, Rhi::MemoryLocation::HOST_UPLOAD, UploadDesc);
+        m_DeviceResource.DrawBuffer    = { resourceAllocator, co_await resourceAllocator.CreateBuffer(c_BufferDesc, Rhi::MemoryLocation::DEVICE) };
+        m_DeviceResource.Texture       = { resourceAllocator, co_await resourceAllocator.CreateTexture(c_TextureDesc) };
+        m_DeviceResource.DynamicBuffer = { resourceAllocator, co_await resourceAllocator.CreateBuffer(c_DynamicDesc, Rhi::MemoryLocation::HOST_UPLOAD) };
 
-        m_DynamicBufferView = m_DynamicBuffer.CreateView({});
-        m_TextureView       = m_Texture.CreateShaderView(Rhi::TextureViewDesc{ Rhi::TextureViewType::ShaderResource2D });
-        m_TextureSampler    = Rhi::SamplerResourceView(RhiDevice, SamplerDesc);
+        m_DeviceResource.DynamicBufferView = { resourceAllocator, co_await resourceAllocator.CreateView(m_DeviceResource.DynamicBuffer, {}) };
+        m_DeviceResource.TextureView       = { resourceAllocator, co_await resourceAllocator.CreateView(m_DeviceResource.Texture, Rhi::TextureViewDesc{
+                                                                                                                                      .Type   = Rhi::TextureViewType::ShaderResource2D,
+                                                                                                                                      .Format = c_TextureDesc.format }) };
+        m_DeviceResource.TextureSampler    = { resourceAllocator, co_await resourceAllocator.CreateSampler(c_SamplerDesc) };
 
-        m_DrawBuffer.SetName("DrawBuffer");
-        m_Texture.SetName("Texture");
-        m_DynamicBuffer.SetName("DynamicBuffer");
-        m_TempBuffer.SetName("TempBuffer");
-    }
+        m_DeviceResource.DescriptorTable = {
+            resourceAllocator,
+            co_await resourceAllocator.CreateDescriptorTable(
+                { .descriptorSetMaxNum         = 1, // one descriptor set, containting 1 sampler, 2 constant buffer, and one texture
+                  .samplerMaxNum               = 1,
+                  .dynamicConstantBufferMaxNum = 2,
+                  .textureMaxNum               = 1 })
+        };
 
-    void UploadResources()
-    {
-        namespace RS = Rhi::Streaming;
-        RS::BufferOStream Stream(RS::BufferView(m_TempBuffer, Rhi::EntireBuffer));
-
-        Stream.write(std::bit_cast<const char*>(&TextureData[0]), sizeof(TextureData));
-
-        Stream.write(std::bit_cast<const char*>(&Vertices[0]), sizeof(Vertices));
-        Stream.write(std::bit_cast<const char*>(&Indices[0]), sizeof(Indices));
-    }
-
-    void FinishUploadingResources(
-        Rhi::CommandList& CommandList)
-    {
-        if (m_TempBuffer) [[unlikely]]
+        m_DeviceResource.DescriptorSet = m_DeviceResource.DescriptorTable.AllocateSet(*m_DeviceResource.PipelineLayout.Unwrap(), 0);
         {
-            m_BufferTask.wait();
+            m_DeviceResource.DescriptorSet.SetDynamicBuffer(0, m_DeviceResource.DynamicBufferView.Unwrap());
 
-            CommandList.RequireState(m_Texture, { Rhi::AccessBits::COPY_DESTINATION, Rhi::LayoutType::COPY_DESTINATION });
-            CommandList.CommitBarriers();
+            const nri::Descriptor* descriptors[]{ m_DeviceResource.TextureView.Unwrap() };
+            m_DeviceResource.DescriptorSet.SetRange(0, { .descriptors = descriptors, .descriptorNum = Rhi::Count32(descriptors) });
 
-            CommandList.UploadTexture(
-                { .RhiTexture = m_Texture,
-                  .RhiBuffer  = m_TempBuffer,
-                  .Layout{ .rowPitch = sizeof(TextureData) } });
-            CommandList.CopyBuffer({ m_TempBuffer, Rhi::Size32(TextureData) }, { m_DrawBuffer });
-
-            CommandList.RequireState(m_DrawBuffer, { Rhi::AccessBits::VERTEX_BUFFER | Rhi::AccessBits::INDEX_BUFFER });
-            CommandList.RequireState(m_Texture, { Rhi::AccessBits::SHADER_RESOURCE, Rhi::LayoutType::SHADER_RESOURCE });
-            CommandList.RequireState(m_DynamicBuffer, { Rhi::AccessBits::CONSTANT_BUFFER });
-            CommandList.CommitBarriers();
-
-            m_TempBuffer = nullptr;
+            descriptors[0] = m_DeviceResource.TextureSampler.Unwrap();
+            m_DeviceResource.DescriptorSet.SetRange(1, { .descriptors = descriptors, .descriptorNum = Rhi::Count32(descriptors) });
         }
+
+        m_DeviceResource.DrawBuffer.SetName("DrawBuffer");
+        m_DeviceResource.Texture.SetName("Texture");
+        m_DeviceResource.DynamicBuffer.SetName("DynamicBuffer");
     }
 
-    Co::result<void> CreateBuffers(
-        Co::executor_tag,
-        Co::thread_pool_executor& Executor,
-        Rhi::Device&              RhiDevice)
+    [[nodiscard]] Co::result<void> UploadResources(
+        Rhi::Buffer& buffer)
     {
-        AllocateResources(RhiDevice);
-        UploadResources();
+        auto   ptr    = buffer.GetPtr();
+        size_t offset = 0;
+
+        std::memcpy(ptr, c_TextureData.data(), sizeof(c_TextureData));
+        ptr += sizeof(c_TextureData);
+
+        std::memcpy(ptr, c_Vertices, sizeof(c_Vertices));
+        ptr += sizeof(c_Vertices);
+
+        std::memcpy(ptr, c_Indices, sizeof(c_Indices));
+
         co_return;
     }
 
-    Co::result<void> CreateBuffers(
-        Co::runtime& Coroutine,
-        Rhi::Device& RhiDevice)
+    [[nodiscard]] Co::result<void> FinishUploadingResources(
+        const Rhi::DeviceDesc&        deviceDesc,
+        Rhi::SubmissionContext&       submissionContext,
+        Rhi::DeviceResourceAllocator& resourceAllocator)
     {
-        co_await CreateBuffers({}, *Coroutine.thread_pool_executor(), RhiDevice);
+        Rhi::ScopedBuffer tempBuffer{ resourceAllocator, co_await resourceAllocator.CreateBuffer(c_UploadDesc, Rhi::MemoryLocation::HOST_UPLOAD) };
+        tempBuffer.SetName("TempBuffer");
+
+        co_await UploadResources(tempBuffer);
+
+        Rhi::TextureBarrierDesc textureBarrier{
+            .texture = m_DeviceResource.Texture.Unwrap(),
+            .before{ Rhi::AccessBits::UNKNOWN, Rhi::LayoutType::UNKNOWN, Rhi::StageBits::NONE },
+            .after{ Rhi::AccessBits::COPY_DESTINATION, Rhi::LayoutType::COPY_DESTINATION, Rhi::StageBits::ALL }
+        };
+
+        Rhi::BufferBarrierDesc bufferBarriers[]{
+            {
+                .buffer = m_DeviceResource.DrawBuffer.Unwrap(),
+                .before{ Rhi::AccessBits::UNKNOWN, Rhi::StageBits::NONE },
+                .after{ Rhi::AccessBits::COPY_DESTINATION, Rhi::StageBits::COPY },
+            },
+            {
+                .buffer = tempBuffer.Unwrap(),
+                .before{ Rhi::AccessBits::UNKNOWN, Rhi::StageBits::NONE },
+                .after{ Rhi::AccessBits::COPY_SOURCE, Rhi::StageBits::COPY },
+            }
+        };
+
+        Rhi::BarrierGroupDesc barrierDesc{
+            .buffers    = bufferBarriers,
+            .textures   = &textureBarrier,
+            .bufferNum  = Rhi::Count32(bufferBarriers),
+            .textureNum = 1
+        };
+
+        submissionContext->ResourceBarrier(barrierDesc);
+
+        submissionContext->UploadTexture(
+            deviceDesc,
+            {
+                .NriTexture = m_DeviceResource.Texture.Unwrap(),
+                .NriBuffer  = tempBuffer.Unwrap(),
+                .TextureRegion{
+                    .width  = c_TextureDesc.width,
+                    .height = c_TextureDesc.height,
+                    .depth  = c_TextureDesc.depth },
+            });
+        // std::memcpy(m_DeviceResource.DrawBuffer.GetPtr(), tempBuffer.GetPtr(sizeof(c_TextureData)), 30);
+        submissionContext->CopyBuffer({ tempBuffer.Unwrap(), sizeof(c_TextureData) }, { m_DeviceResource.DrawBuffer.Unwrap(), 0 }, 30);
+
+        textureBarrier.before    = std::exchange(textureBarrier.after, { Rhi::AccessBits::SHADER_RESOURCE, Rhi::LayoutType::SHADER_RESOURCE, Rhi::StageBits::FRAGMENT_SHADER });
+        bufferBarriers[0].before = std::exchange(bufferBarriers[0].after, { Rhi::AccessBits::VERTEX_BUFFER | Rhi::AccessBits::INDEX_BUFFER, Rhi::StageBits::ALL });
+        bufferBarriers[1]        = {
+                   .buffer = m_DeviceResource.DynamicBuffer.Unwrap(),
+                   .before{ Rhi::AccessBits::UNKNOWN, Rhi::StageBits::NONE },
+                   .after{ Rhi::AccessBits::CONSTANT_BUFFER, Rhi::StageBits::ALL }
+        };
+
+        submissionContext->ResourceBarrier(barrierDesc);
+    }
+
+    [[nodiscard]] Co::result<void> FinishUploadingResources(
+        Rhi::Device& rhiDevice)
+    {
+        auto& commandSubmitter  = rhiDevice.GetCommandSubmitter();
+        auto& resourceAllocator = rhiDevice.GetResourceAllocator();
+
+        co_await Co::resume_on(rhiDevice.GetExecutor(Rhi::ExecutorType::Graphics));
+
+        auto submissionContext = co_await commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
+
+        co_await FinishUploadingResources(rhiDevice.GetDesc(), submissionContext, resourceAllocator);
+
+        co_await commandSubmitter.SubmitCommandList(std::move(submissionContext));
     }
 
 private:
-    Co::result<void> m_PipelineStateTask;
-    Co::result<void> m_BufferTask;
+    [[nodiscard]] Co::result<void> CreateBuffers(
+        Rhi::Device& rhiDevice)
+    {
+        co_await Co::resume_on(rhiDevice.GetExecutor(Rhi::ExecutorType::Resources));
+        co_await AllocateResources(rhiDevice.GetResourceAllocator());
+        co_await FinishUploadingResources(rhiDevice);
+    }
 
-    Ptr<Rhi::PipelineState> m_PipelineState;
+private:
+    struct DeviceResource
+    {
+        Rhi::ScopedPipelineLayout PipelineLayout;
+        Rhi::ScopedPipelineState  PipelineState;
 
-    Rhi::Buffer m_DrawBuffer;
+        Rhi::ScopedDescriptorTable DescriptorTable;
+        Rhi::DescriptorSet         DescriptorSet;
 
-    Rhi::Buffer             m_DynamicBuffer;
-    Rhi::BufferResourceView m_DynamicBufferView;
+        Rhi::ScopedBuffer DrawBuffer;
 
-    Rhi::Texture             m_Texture;
-    Rhi::ShaderResourceView  m_TextureView;
-    Rhi::SamplerResourceView m_TextureSampler;
+        Rhi::ScopedBuffer       DynamicBuffer;
+        Rhi::ScopedResourceView DynamicBufferView;
 
-    Rhi::Buffer m_TempBuffer;
+        Rhi::ScopedTexture      Texture;
+        Rhi::ScopedResourceView TextureView;
+        Rhi::ScopedResourceView TextureSampler;
+    };
 
-    Signals::OnUpdate::Handle m_OnUpdate;
+    DeviceResource m_DeviceResource;
+    bool           m_ReadyToRender = false;
 };
 
 AME_MAIN(Argc, Argv)
 {
-    Log::Logger::Register(Log::Names::Engine, "Engine.log");
-    Log::Logger::Register(Log::Names::Rhi, "Engine.log");
+    Log::Logger::Register(Log::Names::c_Engine, "Engine.log");
+    Log::Logger::Register(Log::Names::c_Rhi, "Engine.log");
 
     WindowApplication<TriangleSampleEngine>::Builder()
+        //.RendererBackend(Rhi::DeviceType::DirectX12)
         .Title("Triangle")
         .Build()
         .Run();

@@ -1,55 +1,55 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-#include <Rhi/Descs/View.hpp>
+#include <Rhi/Descs/Resource.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
 
 namespace Ame::Rhi
 {
     class ResourceView
     {
-        friend class Texture;
-        friend class Buffer;
-
-    protected:
-        ResourceView(
-            DeviceImpl*      rhiDevice,
-            nri::Descriptor* nriDescriptor);
-
-        ResourceView(
-            Device&            rhiDevice,
-            const SamplerDesc& desc);
-
     public:
-        struct Extern
-        {
-        };
-
         ResourceView() = default;
-        ResourceView(std::nullptr_t) :
-            m_Owning(false)
+        ResourceView(std::nullptr_t)
         {
         }
 
         ResourceView(
-            Extern,
-            DeviceImpl&      rhiDevice,
-            nri::Descriptor* descriptor);
-        ResourceView(
-            Extern,
-            Device&          rhiDevice,
-            nri::Descriptor* descriptor);
+            DeviceResourceAllocator& allocator,
+            nri::Descriptor*         descriptor);
+
+        ResourceView(const ResourceView&) = default;
+        ResourceView(ResourceView&& other) noexcept :
+            m_Allocator(std::exchange(other.m_Allocator, nullptr)),
+            m_Descriptor(std::exchange(other.m_Descriptor, nullptr))
+        {
+        }
+
+        ResourceView& operator=(const ResourceView&) = default;
+        ResourceView& operator=(ResourceView&& other) noexcept
+        {
+            if (this != &other)
+            {
+                m_Allocator  = std::exchange(other.m_Allocator, nullptr);
+                m_Descriptor = std::exchange(other.m_Descriptor, nullptr);
+            }
+            return *this;
+        }
+
+        ~ResourceView() = default;
 
     public:
-        ResourceView(const ResourceView&) = delete;
-        ResourceView(ResourceView&& other) noexcept;
+        void Release(
+            bool defer = true);
 
-        ResourceView& operator=(const ResourceView&) = delete;
-        ResourceView& operator=(ResourceView&& other) noexcept;
+    public:
+        [[nodiscard]] auto operator<=>(
+            const ResourceView& other) const noexcept
+        {
+            return m_Descriptor <=> other.m_Descriptor;
+        }
 
-        ~ResourceView();
-
-        auto operator<=>(
-            const ResourceView& other) const
+        [[nodiscard]] bool operator==(
+            const ResourceView& other) const noexcept
         {
             return m_Descriptor == other.m_Descriptor;
         }
@@ -76,88 +76,10 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] void* GetNative() const;
 
-    public:
-        /// <summary>
-        /// Borrow the resource view. (The resource view will not be released when the resource view is destroyed)
-        /// </summary>
-        [[nodiscard]] ResourceView Borrow() const;
-
-        /// <summary>
-        /// Check if the resource view is owning. (If the resource view is owning, it will be released when the resource view is destroyed)
-        /// </summary>
-        [[nodiscard]] bool IsOwning() const;
-
-    private:
-        /// <summary>
-        /// Releases the resource view.
-        /// </summary>
-        void Release();
-
     protected:
-        DeviceImpl*      m_Device     = nullptr;
-        nri::Descriptor* m_Descriptor = nullptr;
-        bool             m_Owning     = true;
+        DeviceResourceAllocator* m_Allocator  = nullptr;
+        nri::Descriptor*         m_Descriptor = nullptr;
     };
 
-    //
-
-    class BufferResourceView : public ResourceView
-    {
-    public:
-        using ResourceView::ResourceView;
-    };
-
-    class ShaderResourceView : public ResourceView
-    {
-    public:
-        using ResourceView::ResourceView;
-    };
-
-    class UnorderedAccessResourceView : public ResourceView
-    {
-    public:
-        using ResourceView::ResourceView;
-    };
-
-    class RenderTargetResourceView : public ResourceView
-    {
-    public:
-        using ResourceView::ResourceView;
-    };
-
-    class DepthStencilResourceView : public ResourceView
-    {
-    public:
-        using ResourceView::ResourceView;
-    };
-
-    class SamplerResourceView : public ResourceView
-    {
-    public:
-        SamplerResourceView() = default;
-        SamplerResourceView(
-            Extern,
-            DeviceImpl&      rhiDevice,
-            nri::Descriptor* descriptor);
-        SamplerResourceView(
-            Extern,
-            Device&          rhiDevice,
-            nri::Descriptor* descriptor);
-        SamplerResourceView(std::nullptr_t) :
-            ResourceView(nullptr)
-        {
-        }
-
-        SamplerResourceView(
-            Device&            rhiDevice,
-            const SamplerDesc& desc);
-
-        SamplerResourceView(const SamplerResourceView&)           = delete;
-        SamplerResourceView(SamplerResourceView&& other) noexcept = default;
-
-        SamplerResourceView& operator=(const SamplerResourceView&)           = delete;
-        SamplerResourceView& operator=(SamplerResourceView&& other) noexcept = default;
-
-        ~SamplerResourceView() = default;
-    };
+    AME_RHI_SCOPED_RESOURCE(ResourceView);
 } // namespace Ame::Rhi

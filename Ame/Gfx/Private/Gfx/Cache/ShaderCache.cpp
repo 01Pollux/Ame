@@ -17,7 +17,8 @@ namespace Ame::Gfx::Cache
 {
     struct ShaderHeader
     {
-        static constexpr uint32_t DEFAULT_MAGIC = 0x414D4553; // "AMES"
+        static constexpr uint32_t DEFAULT_MAGIC    = 0x414D4553; // "AMES"
+        static constexpr uint32_t ENTRY_POINT_SIZE = 24;
 
         uint32_t Magic = DEFAULT_MAGIC;
         uint32_t DataSize;
@@ -27,12 +28,13 @@ namespace Ame::Gfx::Cache
     {
         ShaderHeader                       Header;
         bip::managed_mapped_file::handle_t DataHandle;
+        char                               EntryPoint[ShaderHeader::ENTRY_POINT_SIZE];
         std::byte                          Data[1];
     };
 
     struct ShaderDataHelper
     {
-        [[nodiscard]] static size_t CalculateBlobSize(
+        [[nodiscard]] static size_t ComputeBlobSize(
             const Rhi::ShaderBytecode& byteCode)
         {
             return byteCode ? sizeof(ShaderData) + byteCode.GetSize() - 1 : 0;
@@ -41,7 +43,7 @@ namespace Ame::Gfx::Cache
         [[nodiscard]] static Rhi::ShaderBytecode ToByteCode(
             const bip::managed_mapped_file& mappedFile,
             const ShaderData&               shaderData,
-            Rhi::ShaderType                 type)
+            Rhi::ShaderCompileStage         stage)
         {
             if (shaderData.Header.Magic != ShaderHeader::DEFAULT_MAGIC)
             {
@@ -51,7 +53,7 @@ namespace Ame::Gfx::Cache
             auto byteCode(std::make_unique<std::byte[]>(shaderData.Header.DataSize));
             std::copy(shaderData.Data, shaderData.Data + shaderData.Header.DataSize, byteCode.get());
 
-            return Rhi::ShaderBytecode(byteCode.release(), shaderData.Header.DataSize, type);
+            return Rhi::ShaderBytecode(shaderData.EntryPoint, std::move(byteCode), shaderData.Header.DataSize, Rhi::CompileStageToShaderType(stage));
         }
 
         static void FromBytecode(
@@ -112,58 +114,56 @@ namespace Ame::Gfx::Cache
     //
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::Load(
-        StringView             sourceCode,
-        Rhi::ShaderCompileDesc desc)
+        const Rhi::ShaderBuildDesc& desc)
     {
         auto executor = m_Runtime.get().background_executor();
 
-        auto fileTask       = CreateOrOpenFile({}, executor, sourceCode);
-        auto permutationKey = GeneratePermutationKey(desc);
+        auto fileTask       = CreateOrOpenFile({}, executor, desc.SourceCode);
+        auto permutationKey = GeneratePermutationKey(desc.CompileDesc);
 
         Rhi::ShaderBytecode result;
         try
         {
             auto mappedFile = co_await fileTask;
-            result          = co_await LoadFromCache({}, executor, *mappedFile, permutationKey, desc);
+            result          = co_await LoadFromCache({}, executor, *mappedFile, permutationKey, desc.CompileDesc);
 
             if (!result)
             {
-                result = co_await CompileAndInsertToCache({}, executor, *mappedFile, sourceCode, permutationKey, desc);
+                result = co_await CompileAndInsertToCache({}, executor, *mappedFile, desc.SourceCode, permutationKey, desc);
             }
         }
         catch (const std::exception& ex)
         {
             Log::Gfx().Error("Failed to load file from cache: {}", ex.what());
-            result = Rhi::ShaderCompiler::Compile(m_Device, sourceCode, desc, &m_AssetStorage.get());
+            result = Rhi::ShaderCompiler::Compile(GetShaderResolveDesc(), desc);
         }
 
         co_return result;
     }
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::Link(
-        Rhi::ShaderCompileDesc           desc,
-        std::vector<Rhi::ShaderBytecode> shaders)
+        const Rhi::ShaderLinkDesc& desc)
     {
         auto executor = m_Runtime.get().background_executor();
 
-        auto fileTask       = CreateOrOpenFile({}, executor, shaders);
-        auto permutationKey = GeneratePermutationKey(desc);
+        auto fileTask       = CreateOrOpenFile({}, executor, desc.Shaders);
+        auto permutationKey = GeneratePermutationKey(desc.CompileDesc);
 
         Rhi::ShaderBytecode result;
         try
         {
             auto mappedFile = co_await fileTask;
-            result          = co_await LoadFromCache({}, executor, *mappedFile, permutationKey, desc);
+            result          = co_await LoadFromCache({}, executor, *mappedFile, permutationKey, desc.CompileDesc);
 
             if (!result)
             {
-                result = co_await LinkAndInsertToCache({}, executor, *mappedFile, shaders, permutationKey, desc);
+                result = co_await LinkAndInsertToCache({}, executor, *mappedFile, desc.Shaders, permutationKey, desc);
             }
         }
         catch (const std::exception& ex)
         {
             Log::Gfx().Error("Failed to link shaders: {}", ex.what());
-            result = Rhi::ShaderCompiler::Link(m_Device, desc, shaders, &m_AssetStorage.get());
+            result = Rhi::ShaderCompiler::Link(GetShaderResolveDesc(), desc);
         }
 
         co_return result;
@@ -236,7 +236,7 @@ namespace Ame::Gfx::Cache
         if (iter != cache->end())
         {
             auto shaderData = ShaderDataHelper::ToBlob(fileInfo.File, iter->second);
-            auto byteCode   = ShaderDataHelper::ToByteCode(fileInfo.File, *shaderData, desc.GetStage());
+            auto byteCode   = ShaderDataHelper::ToByteCode(fileInfo.File, *shaderData, desc.Stage);
             if (shaderData)
             {
                 result = std::move(byteCode);
@@ -249,14 +249,14 @@ namespace Ame::Gfx::Cache
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::CompileAndInsertToCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&      executor,
-        MappedFileInfo&               fileInfo,
-        StringView                    sourceCode,
-        const PermutationKey&         permutationKey,
-        const Rhi::ShaderCompileDesc& desc)
+        const Ptr<Co::executor>&    executor,
+        MappedFileInfo&             fileInfo,
+        StringView                  sourceCode,
+        const PermutationKey&       permutationKey,
+        const Rhi::ShaderBuildDesc& desc)
     {
-        auto compileTask = Rhi::ShaderCompiler::CompileAsync({}, *executor, m_Device, sourceCode, desc, &m_AssetStorage.get());
-        co_return co_await InsertToCache({}, executor, fileInfo, std::move(compileTask), permutationKey, desc);
+        auto compileTask = Rhi::ShaderCompiler::Compile(GetShaderResolveDesc(), desc);
+        co_return co_await InsertToCache({}, executor, fileInfo, std::move(compileTask), permutationKey, desc.CompileDesc);
     }
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::LinkAndInsertToCache(
@@ -265,19 +265,21 @@ namespace Ame::Gfx::Cache
         MappedFileInfo&                      fileInfo,
         std::span<const Rhi::ShaderBytecode> shaders,
         const PermutationKey&                permutationKey,
-        const Rhi::ShaderCompileDesc&        desc)
+        const Rhi::ShaderLinkDesc&           desc)
     {
-        auto compileTask = Rhi::ShaderCompiler::LinkAsync({}, *executor, m_Device, desc, shaders, &m_AssetStorage.get());
-        co_return co_await InsertToCache({}, executor, fileInfo, std::move(compileTask), permutationKey, desc);
+        auto compileTask = Rhi::ShaderCompiler::Link(GetShaderResolveDesc(), desc);
+        co_return co_await InsertToCache({}, executor, fileInfo, std::move(compileTask), permutationKey, desc.CompileDesc);
     }
+
+    //
 
     Co::result<Rhi::ShaderBytecode> ShaderCache::InsertToCache(
         Co::executor_tag,
-        const Ptr<Co::executor>&        executor,
-        MappedFileInfo&                 fileInfo,
-        Co::result<Rhi::ShaderBytecode> finalShader,
-        const PermutationKey&           permutationKey,
-        const Rhi::ShaderCompileDesc&   desc)
+        const Ptr<Co::executor>&      executor,
+        MappedFileInfo&               fileInfo,
+        Rhi::ShaderBytecode           compiledShader,
+        const PermutationKey&         permutationKey,
+        const Rhi::ShaderCompileDesc& desc)
     {
         Co::scoped_async_lock cacheLock = co_await fileInfo.Mutex.lock(executor);
         CacheMap*             cache     = fileInfo.GetCache<CacheMap>();
@@ -293,8 +295,7 @@ namespace Ame::Gfx::Cache
             cache->erase(iter);
         }
 
-        auto   compiledShader = co_await finalShader;
-        size_t blobSize       = ShaderDataHelper::CalculateBlobSize(compiledShader);
+        size_t blobSize = ShaderDataHelper::ComputeBlobSize(compiledShader);
         if (blobSize)
         {
             for (uint32_t i = 1; i <= c_GrowAttempts; i++)
@@ -335,5 +336,13 @@ namespace Ame::Gfx::Cache
         const String& hash)
     {
         return std::format("{}_{}{}.acs", std::filesystem::temp_directory_path().string(), hash, rhiDevice.GetGraphicsAPIName());
+    }
+
+    Rhi::ShaderResolveDesc ShaderCache::GetShaderResolveDesc() const
+    {
+        return {
+            .DeviceDesc   = m_Device.get().GetDesc(),
+            .AssetStorage = &m_AssetStorage.get()
+        };
     }
 } // namespace Ame::Gfx::Cache

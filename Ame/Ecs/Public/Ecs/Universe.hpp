@@ -4,8 +4,6 @@
 #include <Ecs/World.hpp>
 #include <Ecs/Signals/Universe.hpp>
 
-#include <Core/Signals/Frame.hpp>
-
 namespace Ame
 {
     class EngineFrame;

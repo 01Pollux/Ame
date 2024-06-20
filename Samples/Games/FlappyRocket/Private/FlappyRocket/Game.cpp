@@ -1,8 +1,8 @@
 #include <FlappyRocket/Engine.hpp>
 
 #include <Gfx/Renderer.hpp>
-#include <Gfx/Shading/Material.Compiler.hpp>
 #include <Gfx/Shading/Material.hpp>
+#include <Gfx/Shading/MaterialCompiler.hpp>
 #include <Gfx/Cache/ShaderCache.hpp>
 
 #include <Ecs/Component/Renderable/2D/Sprite.hpp>
@@ -22,14 +22,14 @@
 namespace Ame::FlappyRocket
 {
     FlappyRocketGame::FlappyRocketGame(
-        Rhi::Device&             device,
-        Ecs::Universe&           ecsUniverse,
-        Asset::Storage&          assetStorage,
-        Gfx::Cache::ShaderCache& shaderCache) :
-        m_Device(&device),
+        Ecs::Universe&                  ecsUniverse,
+        Asset::Storage&                 assetStorage,
+        Gfx::Cache::ShaderCache&        shaderCache,
+        Gfx::Shading::MaterialCompiler& materialCompiler) :
         m_EcsUniverse(&ecsUniverse),
         m_AssetStorage(&assetStorage),
-        m_ShaderCache(&shaderCache)
+        m_ShaderCache(&shaderCache),
+        m_MaterialCompiler(&materialCompiler)
     {
     }
 
@@ -45,8 +45,8 @@ namespace Ame::FlappyRocket
     //
 
     [[nodiscard]] static Ptr<Gfx::Shading::Material> CreateMaterial(
-        Rhi::Device&             device,
-        Gfx::Cache::ShaderCache& shaderCache)
+        Gfx::Cache::ShaderCache&        shaderCache,
+        Gfx::Shading::MaterialCompiler& materialCompiler)
     {
         using namespace EnumBitOperators;
         namespace GS = Gfx::Shading;
@@ -60,21 +60,22 @@ namespace Ame::FlappyRocket
             .Sampler("_Sampler")
             .Resource("_Texture", Gfx::Shading::ResourceType::Texture2D, Gfx::Shading::ResourceDataType::Float4);
 
-        Rhi::ShaderCompileDesc compileDesc;
+        Rhi::ShaderCompileDesc compileDesc{};
+        Rhi::ShaderBuildDesc   buildDesc{ compileDesc, c_ShaderSource };
 
-        compileDesc.SetStage(Rhi::ShaderType::VERTEX_SHADER);
-        pipelineState.Shaders.emplace_back(shaderCache.Load(c_ShaderSource, compileDesc).get());
+        {
+            compileDesc.Stage      = Rhi::ShaderCompileStage::Vertex;
+            compileDesc.EntryPoint = L"VS_Main";
+            pipelineState.Shaders.emplace_back(shaderCache.Load(buildDesc).get());
+        }
+        {
+            compileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
+            compileDesc.Stage      = Rhi::ShaderCompileStage::Pixel;
+            compileDesc.EntryPoint = L"PSM_Main";
+            pipelineState.Shaders.emplace_back(shaderCache.Load(buildDesc).get());
+        }
 
-        compileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
-        compileDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
-        pipelineState.Shaders.emplace_back(shaderCache.Load(c_ShaderSource, compileDesc).get());
-
-        return GS::MaterialCompiler::Compile(
-                   device,
-                   shaderCache,
-                   std::move(pipelineState),
-                   descriptor)
-            .get();
+        return materialCompiler.Compile(std::move(pipelineState), descriptor).get();
     }
 
     static void SetMaterialProperties(
@@ -110,7 +111,7 @@ namespace Ame::FlappyRocket
 
         //
 
-        auto material = CreateMaterial(*m_Device, *m_ShaderCache);
+        auto material = CreateMaterial(*m_ShaderCache, *m_MaterialCompiler);
         SetMaterialProperties(*m_AssetStorage, c_TextureGuid, material);
 
         for (float y = -50.f; y < 100.f; y += 1.f)

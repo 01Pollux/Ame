@@ -4,7 +4,7 @@
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <concurrencpp/concurrencpp.h>
 
-#include <Rhi/Resource/Shader.Compiler.hpp>
+#include <Rhi/Shader/Shader.hpp>
 
 namespace Ame::Asset
 {
@@ -30,8 +30,10 @@ namespace Ame::Gfx::Cache
     public:
         CommonShader(
             Co::runtime&    coroutine,
+            Rhi::Device&    rhiDevice,
             Asset::Storage& assetStorage) :
             m_Runtime(coroutine),
+            m_Device(rhiDevice),
             m_AssetStorage(assetStorage)
         {
         }
@@ -54,6 +56,7 @@ namespace Ame::Gfx::Cache
 
     private:
         Ref<Co::runtime>    m_Runtime;
+        Ref<Rhi::Device>    m_Device;
         Ref<Asset::Storage> m_AssetStorage;
 
         CacheList      m_Caches;

@@ -16,6 +16,6 @@ namespace Ame::Asset::Gfx
     Co::result<Rhi::ShaderBytecode> ShaderSourceAsset::Load(
         const Rhi::ShaderCompileDesc& desc)
     {
-        return m_Cache.get().Load(m_ShaderSource, desc);
+        return m_Cache.get().Load({ desc, m_ShaderSource });
     }
 } // namespace Ame::Asset::Gfx

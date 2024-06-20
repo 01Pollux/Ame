@@ -1,8 +1,6 @@
 #include <RG/Resolver.hpp>
 #include <RG/ResourceStorage.hpp>
 
-#include <Rhi/Device/Device.hpp>
-
 #include <Log/Wrapper.hpp>
 
 namespace Ame::RG
@@ -20,9 +18,14 @@ namespace Ame::RG
         return m_Storage.GetDevice();
     }
 
+    Rhi::ResourceFormat Resolver::GetBackbufferFormat() const
+    {
+        return m_Storage.GetBackbufferFormat();
+    }
+
     const Rhi::TextureDesc& Resolver::GetBackbufferDesc() const
     {
-        return GetDevice().GetBackBufferDesc();
+        return m_Storage.GetBackbufferDesc();
     }
 
     const FrameResourceCPU& Resolver::GetFrameResourceData() const
@@ -36,7 +39,7 @@ namespace Ame::RG
         const ResourceId&      id,
         const Rhi::BufferDesc& desc)
     {
-        m_Storage.DeclareBuffer(id, desc);
+        m_Storage.DeclareResource(id, BufferResource{ .Desc = desc });
         m_ResourcesCreated.emplace(id);
     }
 
@@ -44,26 +47,29 @@ namespace Ame::RG
         const ResourceId&       id,
         const Rhi::TextureDesc& desc)
     {
-        m_Storage.DeclareTexture(id, desc);
+        m_Storage.DeclareResource(id, TextureResource{ .Desc = desc });
         m_ResourcesCreated.emplace(id);
     }
 
     //
 
     void Resolver::ImportBuffer(
-        const ResourceId& id,
-        Rhi::Buffer       buffer)
+        const ResourceId&   id,
+        Rhi::MemoryLocation location,
+        Rhi::Buffer         buffer,
+        Rhi::AccessStage    initialState)
     {
         m_ResourcesCreated.emplace(id);
-        m_Storage.ImportBuffer(id, std::move(buffer));
+        m_Storage.ImportBuffer(id, location, std::move(buffer), initialState);
     }
 
     void Resolver::ImportTexture(
-        const ResourceId& id,
-        Rhi::Texture      texture)
+        const ResourceId&      id,
+        Rhi::Texture           texture,
+        Rhi::AccessLayoutStage initialState)
     {
         m_ResourcesCreated.emplace(id);
-        m_Storage.ImportTexture(id, std::move(texture));
+        m_Storage.ImportTexture(id, std::move(texture), initialState);
     }
 
     //
@@ -86,29 +92,29 @@ namespace Ame::RG
         WriteResourceEmpty(viewId.GetResource());
         AppendResourceState(viewId, { Rhi::AccessBits::SHADER_RESOURCE_STORAGE, stages });
 
-        auto& desc = m_Storage.DeclareBufferView(
+        auto& buffer = m_Storage.DeclareBufferView(
             viewId,
             Rhi::BufferViewDesc{
                 .Range  = range,
                 .Format = format,
                 .Type   = Rhi::BufferViewType::UnorderedAccess });
 
-        desc.usageMask |= Rhi::BufferUsageBits::SHADER_RESOURCE_STORAGE;
+        buffer.Desc.usageMask |= Rhi::BufferUsageBits::SHADER_RESOURCE_STORAGE;
     }
 
     //
 
     void Resolver::WriteTexture(
-        const ResourceViewId&   viewId,
-        const ResourceViewDesc& desc,
-        const Rhi::AccessStage& accessStage,
-        Rhi::TextureUsageBits   usageBits)
+        const ResourceViewId&          viewId,
+        const TextureResourceViewDesc& viewDesc,
+        const Rhi::AccessStage&        accessStage,
+        Rhi::TextureUsageBits          usageBits)
     {
         WriteResourceEmpty(viewId.GetResource());
         AppendResourceState(viewId, accessStage);
 
-        auto& viewDesc = m_Storage.DeclareTextureView(viewId, desc);
-        viewDesc.usageMask |= usageBits;
+        auto& texture = m_Storage.DeclareTextureView(viewId, viewDesc);
+        texture.Desc.usageMask |= usageBits;
     }
 
     //
@@ -139,8 +145,9 @@ namespace Ame::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto  resource = m_Storage.GetResource(viewId.GetResource());
-        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
+        auto resource = m_Storage.GetResource(viewId.GetResource());
+        auto texture  = resource->AsTexture();
+        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         RenderTargetViewDesc viewDesc{
             { .Subresource = Subresource,
@@ -150,7 +157,7 @@ namespace Ame::RG
               .ForceColor = RtvDesc.ForceColor }
         };
 
-        switch (desc.type)
+        switch (texture->Desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
             viewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
@@ -174,15 +181,16 @@ namespace Ame::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto  resource = m_Storage.GetResource(viewId.GetResource());
-        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
+        auto resource = m_Storage.GetResource(viewId.GetResource());
+        auto texture  = resource->AsTexture();
+        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         RenderTargetViewDesc viewDesc{
             { .Subresource = Subresource,
               .Format      = format }
         };
 
-        switch (desc.type)
+        switch (texture->Desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
             viewDesc.Type = Rhi::TextureViewType::RenderTarget2D;
@@ -209,8 +217,9 @@ namespace Ame::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto  resource = m_Storage.GetResource(viewId.GetResource());
-        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
+        auto resource = m_Storage.GetResource(viewId.GetResource());
+        auto texture  = resource->AsTexture();
+        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         DepthStencilViewDesc viewDesc{
             { .Subresource = Subresource,
@@ -220,7 +229,7 @@ namespace Ame::RG
               .ClearType = DsvDesc.ClearType }
         };
 
-        switch (desc.type)
+        switch (texture->Desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
             viewDesc.Type = Rhi::TextureViewType::DepthStencil1D;
@@ -244,15 +253,16 @@ namespace Ame::RG
         Rhi::ResourceFormat            format,
         const Rhi::TextureSubresource& Subresource)
     {
-        auto  resource = m_Storage.GetResource(viewId.GetResource());
-        auto& desc     = std::get<Rhi::TextureDesc>(resource->GetDesc());
+        auto resource = m_Storage.GetResource(viewId.GetResource());
+        auto texture  = resource->AsTexture();
+        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         DepthStencilViewDesc viewDesc{
             { .Subresource = Subresource,
               .Format      = format }
         };
 
-        switch (desc.type)
+        switch (texture->Desc.type)
         {
         case Rhi::TextureType::TEXTURE_1D:
             viewDesc.Type = Rhi::TextureViewType::DepthStencil1D;
@@ -290,8 +300,8 @@ namespace Ame::RG
         ReadResourceEmpty(viewId.GetResource());
         AppendResourceState(viewId, State);
 
-        auto& desc = m_Storage.DeclareBufferView(viewId, ViewDesc);
-        desc.usageMask |= Usage;
+        auto& buffer = m_Storage.DeclareBufferView(viewId, ViewDesc);
+        buffer.Desc.usageMask |= Usage;
     }
 
     //
@@ -305,8 +315,8 @@ namespace Ame::RG
         AppendResourceState(viewId, { Rhi::AccessBits::SHADER_RESOURCE, stages });
         SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE);
 
-        auto& desc = m_Storage.DeclareTextureView(viewId, ViewDesc);
-        desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE;
+        auto& texture = m_Storage.DeclareTextureView(viewId, ViewDesc);
+        texture.Desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE;
     }
 
     void Resolver::ReadCopyDstResource(
@@ -326,8 +336,8 @@ namespace Ame::RG
         AppendResourceState(viewId, { Rhi::AccessBits::DEPTH_STENCIL_READ, stages });
         SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::DEPTH_STENCIL_READONLY);
 
-        auto& desc = m_Storage.DeclareTextureView(viewId, viewDesc);
-        desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE | Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT;
+        auto& texture = m_Storage.DeclareTextureView(viewId, viewDesc);
+        texture.Desc.usageMask |= Rhi::TextureUsageBits::SHADER_RESOURCE | Rhi::TextureUsageBits::DEPTH_STENCIL_ATTACHMENT;
     }
 
     //

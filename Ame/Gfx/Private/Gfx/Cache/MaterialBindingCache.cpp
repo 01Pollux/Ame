@@ -4,7 +4,10 @@
 #include <Gfx/Shading/Material.hpp>
 
 #include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
 #include <Rhi/CommandList/CommandList.hpp>
+#include <Rhi/Resource/PipelineLayout.hpp>
+
 #include <Rhi/Util/ResourceSize.hpp>
 
 namespace Ame::Gfx::Cache
@@ -14,12 +17,13 @@ namespace Ame::Gfx::Cache
     //
 
     MaterialBindingCache::MaterialBindingCache(
-        EngineFrame&                     engineFrame,
-        Rhi::Device&                     rhiDevice,
-        const BufferAllocator::DescType& desc) :
+        EngineFrame&                    engineFrame,
+        Rhi::Device&                    rhiDevice,
+        const MaterialBindingCacheDesc& desc) :
         m_Device(rhiDevice),
         m_EndFrameHandle(engineFrame.OnUpdate({ &MaterialBindingCache::ResetFrameCache, this })),
-        m_DynamicBuffer(rhiDevice, desc)
+        m_DescriptorTable(rhiDevice.GetResourceAllocator().CreateDescriptorTable(desc.DescriptorPoolDesc)),
+        m_DynamicBuffer(rhiDevice, desc.BufferAllocatorDesc)
     {
     }
 
@@ -27,7 +31,7 @@ namespace Ame::Gfx::Cache
         Rhi::CommandList&        commandList,
         const Shading::Material& material)
     {
-        commandList.SetPipelineLayout(material.GetPipelineLayout());
+        commandList.SetPipelineLayout(*material.GetPipelineLayout()->Unwrap());
 
         auto& setCache = m_SetCaches[material.GetPropertyHash()];
         if (!setCache.WasSet)
@@ -40,15 +44,24 @@ namespace Ame::Gfx::Cache
         {
             commandList.SetDescriptorSet(
                 CD::c_MaterialData_SetIndex,
-                setCache.DescriptorSet,
+                *setCache.DescriptorSet.Unwrap(),
                 setCache.DynamicBufferOffset == InvalidDynamicBufferOffset ? nullptr : &setCache.DynamicBufferOffset);
         }
+    }
+
+    Rhi::DescriptorSet MaterialBindingCache::AllocateSet(
+        const Shading::Material& material,
+        uint32_t                 setIndex,
+        uint32_t                 variableCount)
+    {
+        return m_DescriptorTable.AllocateSet(*material.GetPipelineLayout()->Unwrap(), setIndex, variableCount);
     }
 
     //
 
     void MaterialBindingCache::ResetFrameCache()
     {
+        m_DescriptorTable.Reset();
         m_DynamicBuffer.Reset();
         m_SetCaches.clear();
     }
@@ -79,7 +92,7 @@ namespace Ame::Gfx::Cache
         bool hasMaterialData = bufferSize || !updateDescs.empty();
         if (hasMaterialData)
         {
-            setCache.DescriptorSet = commandList.AllocateSet(CD::c_MaterialData_SetIndex);
+            setCache.DescriptorSet = AllocateSet(material, CD::c_MaterialData_SetIndex);
         }
 
         if (bufferSize)
@@ -110,8 +123,11 @@ namespace Ame::Gfx::Cache
         auto& view = m_DynamicBufferDescriptors[handle.BlockSlot];
         if (!view)
         {
+            auto& resourceAllocator = m_Device.get().GetResourceAllocator();
+
             auto&            buffer = m_DynamicBuffer.GetBuffer(handle.BlockSlot);
             Rhi::BufferRange range(handle.Offset, handle.Size);
+
             view = buffer.CreateView({ .Range = range });
         }
         return view.Unwrap();

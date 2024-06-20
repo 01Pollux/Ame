@@ -36,7 +36,6 @@ namespace Ame::RG
     void Graph::Execute()
     {
         m_Context.Execute();
-        m_Passes.RemoveOneShotPasses();
     }
 
     //

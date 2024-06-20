@@ -247,7 +247,8 @@ namespace std
         size_t operator()(
             const Ame::Rhi::GraphicsPipelineDesc& desc) const noexcept
         {
-            size_t hash = desc.Layout->GetHash();
+            size_t hash = 0;
+            Ame::HashCombine(hash, desc.Layout);
 
             Ame::HashCombine(hash, desc.InputAssembly);
             Ame::HashCombine(hash, desc.Rasterizer);
@@ -275,8 +276,9 @@ namespace std
         size_t operator()(
             const Ame::Rhi::ComputePipelineDesc& desc) const noexcept
         {
-            size_t hash = desc.Layout->GetHash();
+            size_t hash = 0;
 
+            Ame::HashCombine(hash, desc.Layout);
             Ame::HashCombine(hash, desc.Shader);
 
             return hash;

@@ -6,15 +6,11 @@ namespace Ame::RG
 {
     void ResourceStorage::ImportCoreResources()
     {
-        auto& frameResource = m_Resources[Names::c_FrameResource];
-        if (!frameResource) [[unlikely]]
+        if (!ContainsResource(Names::c_FrameResource)) [[unlikely]]
         {
-            frameResource.Import(m_CoreResources->GetFrameResource().Borrow());
+            ImportBuffer(Names::c_FrameResource, Rhi::MemoryLocation::HOST_UPLOAD, m_CoreResources->GetFrameResource(), { Rhi::AccessBits::UNKNOWN, Rhi::StageBits::ALL });
         }
-
-        frameResource.CreateBufferView(
-            Names::c_FrameResourceMainView,
-            m_CoreResources->GetFrameResourceViewDesc());
+        DeclareBufferView(Names::c_FrameResourceMainView, m_CoreResources->GetFrameResourceViewDesc());
     }
 
     void ResourceStorage::UpdateFrameResource(

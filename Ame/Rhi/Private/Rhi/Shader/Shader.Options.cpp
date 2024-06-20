@@ -8,39 +8,41 @@ namespace Ame::Rhi
     /// Get the shader entry model.
     /// </summary>
     [[nodiscard]] static WideString GetShaderTargetProfile(
-        ShaderType    stage,
-        ShaderProfile profile)
+        ShaderCompileStage stage,
+        ShaderProfile      profile)
     {
         WideString model;
 
         switch (stage)
         {
-        case LibraryShaderType:
-            model = L"lib";
-            break;
-        case ShaderType::COMPUTE_SHADER:
-            model = L"cs";
-            break;
-        case ShaderType::VERTEX_SHADER:
+        case ShaderCompileStage::Vertex:
             model = L"vs";
             break;
-        case ShaderType::GEOMETRY_SHADER:
-            model = L"gs";
-            break;
-        case ShaderType::TESS_CONTROL_SHADER:
-            model = L"hs";
-            break;
-        case ShaderType::TESS_EVALUATION_SHADER:
+        case ShaderCompileStage::Domain:
             model = L"ds";
             break;
-        case ShaderType::FRAGMENT_SHADER:
+        case ShaderCompileStage::Hull:
+            model = L"hs";
+            break;
+        case ShaderCompileStage::Geometry:
+            model = L"gs";
+            break;
+        case ShaderCompileStage::Pixel:
             model = L"ps";
             break;
-        case ShaderType::MESH_CONTROL_SHADER:
+        case ShaderCompileStage::Compute:
+            model = L"cs";
+            break;
+        case ShaderCompileStage::Amplification:
             model = L"as";
             break;
-        case ShaderType::MESH_EVALUATION_SHADER:
+        case ShaderCompileStage::Mesh:
             model = L"ms";
+            break;
+        case ShaderCompileStage::Library:
+            model = L"lib";
+            break;
+        case ShaderCompileStage::Count:
             break;
         default:
             std::unreachable();
@@ -71,37 +73,6 @@ namespace Ame::Rhi
         }
 
         return model;
-    }
-
-    //
-
-    /// <summary>
-    /// Get the shader define macro.
-    /// </summary>
-    [[nodiscard]] static const WideChar* GetShaderMacro(
-        ShaderType stage)
-    {
-        switch (stage)
-        {
-        case ShaderType::COMPUTE_SHADER:
-            return L"-DCOMPUTE_SHADER=1";
-        case ShaderType::VERTEX_SHADER:
-            return L"-DVERTEX_SHADER=1";
-        case ShaderType::TESS_CONTROL_SHADER:
-            return L"-DHULL_SHADER=1";
-        case ShaderType::TESS_EVALUATION_SHADER:
-            return L"-DDOMAIN_SHADER=1";
-        case ShaderType::GEOMETRY_SHADER:
-            return L"-DGEOMETRY_SHADER=1";
-        case ShaderType::FRAGMENT_SHADER:
-            return L"-DPIXEL_SHADER=1";
-        case ShaderType::MESH_CONTROL_SHADER:
-            return L"-DAMPLIFICATION_SHADER=1";
-        case ShaderType::MESH_EVALUATION_SHADER:
-            return L"-DMESHSHADER_Main";
-        default:
-            std::unreachable();
-        }
     }
 
     //
@@ -209,7 +180,7 @@ namespace Ame::Rhi
     /// Add SPIRV layout for the shader compiler.
     /// </summary>
     static void AddSpirvLayout(
-        const ShaderCompileDesc&      desc,
+        const ShaderCompileDesc&     desc,
         std::vector<WideString>&      registerShift,
         std::vector<const WideChar*>& options)
     {
@@ -264,28 +235,26 @@ namespace Ame::Rhi
     //
 
     CompileShaderOption::CompileShaderOption(
-        Device&                  rhiDevice,
+        const ShaderResolveDesc& resolver,
         const ShaderCompileDesc& desc) :
-        Api(rhiDevice.GetGraphicsAPI()),
-        TargetProfile(GetShaderTargetProfile(desc.GetStage(), desc.Profile)),
-        EntryPoint(GetShaderEntryPointWide(desc.GetStageUnchecked())),
-        m_DefineMacro(GetShaderMacro(desc.GetStageUnchecked()))
+        Api(resolver.DeviceDesc.get().graphicsAPI),
+        TargetProfile(GetShaderTargetProfile(desc.Stage, desc.Profile)),
+        EntryPoint(desc.EntryPoint)
     {
         using namespace EnumBitOperators;
 
         //
 
-        auto& rhiDesc = rhiDevice.GetDesc();
+        auto& rhiDesc = resolver.DeviceDesc.get();
 
         FinalOptions = {
             DXC_ARG_ALL_RESOURCES_BOUND,
             L"-HV 2021",
             L"-E", EntryPoint,
-            L"-T", TargetProfile.c_str(),
-            m_DefineMacro.c_str()
+            L"-T", TargetProfile.c_str()
         };
 
-        if (!desc.ShouldValidate())
+        if (!desc.RequiresShaderValidation())
         {
             FinalOptions.emplace_back(DXC_ARG_SKIP_VALIDATION);
         }
@@ -342,12 +311,12 @@ namespace Ame::Rhi
 
         switch (Api)
         {
-        case GraphicsAPI::DirectX12:
+        case nri::GraphicsAPI::D3D12:
         {
             FinalOptions.emplace_back(L"-DAME_SHADER_COMPILER_D3D12=1");
             break;
         }
-        case GraphicsAPI::Vulkan:
+        case nri::GraphicsAPI::VULKAN:
         {
             FinalOptions.emplace_back(L"-DAME_SHADER_COMPILER_SPIRV=1");
             FinalOptions.emplace_back(L"-spirv");

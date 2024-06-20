@@ -1,50 +1,55 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-
 #include <Rhi/Descs/Resource.hpp>
-#include <Rhi/Resource/View.hpp>
+#include <Rhi/Resource/ScopedResource.hpp>
 
 namespace Ame::Rhi
 {
     class Texture
     {
     public:
-        struct Extern
-        {
-        };
-
         Texture() = default;
-        Texture(std::nullptr_t) :
-            m_Owning(false)
+        Texture(std::nullptr_t)
         {
         }
 
         Texture(
-            Extern,
-            DeviceImpl&   rhiDeviceImpl,
-            nri::Texture* nriTexture);
-        Texture(
-            Extern,
-            Device&       rhiDevice,
-            nri::Texture* nriTexture);
+            DeviceResourceAllocator& allocator,
+            nri::Texture*            texture);
 
-        Texture(
-            Device&            rhiDevice,
-            MemoryLocation     location,
-            const TextureDesc& desc);
+        Texture(const Texture&) = default;
+        Texture(Texture&& other) noexcept :
+            m_Allocator(std::exchange(other.m_Allocator, nullptr)),
+            m_Texture(std::exchange(other.m_Texture, nullptr))
+        {
+        }
+
+        Texture& operator=(const Texture&) = default;
+        Texture& operator=(Texture&& other) noexcept
+        {
+            if (this != &other)
+            {
+                m_Allocator = std::exchange(other.m_Allocator, nullptr);
+                m_Texture   = std::exchange(other.m_Texture, nullptr);
+            }
+            return *this;
+        }
+
+        ~Texture() = default;
 
     public:
-        Texture(const Texture& other) = delete;
-        Texture(Texture&& Other) noexcept;
+        void Release(
+            bool defer = true);
 
-        Texture& operator=(const Texture& other) = delete;
-        Texture& operator=(Texture&& other) noexcept;
+    public:
+        [[nodiscard]] auto operator<=>(
+            const Texture& other) const noexcept
+        {
+            return m_Texture <=> other.m_Texture;
+        }
 
-        ~Texture();
-
-        auto operator==(
-            const Texture& other) const
+        [[nodiscard]] bool operator==(
+            const Texture& other) const noexcept
         {
             return m_Texture == other.m_Texture;
         }
@@ -53,6 +58,13 @@ namespace Ame::Rhi
         {
             return m_Texture != nullptr;
         }
+
+    public:
+        /// <summary>
+        /// Create a texture view.
+        /// </summary>
+        [[nodiscard]] ResourceView CreateView(
+            const TextureViewDesc& desc) const;
 
     public:
         /// <summary>
@@ -76,51 +88,10 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] void* GetNative() const;
 
-    public:
-        /// <summary>
-        /// Borrow the texture (The texture will not be released when the texture is destroyed)
-        /// </summary>
-        [[nodiscard]] Texture Borrow() const;
-
-        /// <summary>
-        /// Check if the texture is owning. (If the texture is owning, it will be released when the texture is destroyed)
-        /// </summary>
-        [[nodiscard]] bool IsOwning() const;
-
-    public:
-        /// <summary>
-        /// Create a texture view.
-        /// </summary>
-        [[nodiscard]] ResourceView CreateView(
-            const TextureViewDesc& desc) const;
-
-        /// <summary>
-        /// Create a shader resource view.
-        /// </summary>
-        [[nodiscard]] ShaderResourceView CreateShaderView(
-            const TextureViewDesc& desc) const;
-
-        /// <summary>
-        /// Create a render target view.
-        /// </summary>
-        [[nodiscard]] RenderTargetResourceView CreateRenderTargetView(
-            const TextureViewDesc& desc) const;
-
-        /// <summary>
-        /// Create a depth stencil view.
-        /// </summary>
-        [[nodiscard]] DepthStencilResourceView CreateDepthStencilView(
-            const TextureViewDesc& desc) const;
-
     private:
-        /// <summary>
-        /// Releases the texture.
-        /// </summary>
-        void Release();
-
-    private:
-        DeviceImpl*   m_Device  = nullptr;
-        nri::Texture* m_Texture = nullptr;
-        bool          m_Owning  = true;
+        DeviceResourceAllocator* m_Allocator = nullptr;
+        nri::Texture*            m_Texture   = nullptr;
     };
+
+    AME_RHI_SCOPED_RESOURCE(Texture);
 } // namespace Ame::Rhi

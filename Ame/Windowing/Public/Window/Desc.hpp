@@ -6,8 +6,15 @@
 
 namespace Ame::Windowing
 {
+    class GlfwContext;
+
     struct WindowDesc
     {
+        /// <summary>
+        /// Previous context to have single glfw context across processes for the engine
+        /// </summary>
+        Ptr<GlfwContext> PreviousContext;
+
         /// <summary>
         /// Window title
         /// </summary>

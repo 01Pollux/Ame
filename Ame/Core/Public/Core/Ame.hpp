@@ -25,6 +25,7 @@ namespace Ame
     };
 } // namespace Ame
 
+
 namespace Ame
 {
     template<typename Ty>

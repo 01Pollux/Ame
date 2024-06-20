@@ -3,12 +3,17 @@
 #include <map>
 
 #include <Core/Coroutine.hpp>
-#include <Rhi/Resource/Shader.hpp>
+
+#include <Rhi/Shader/Shader.hpp>
+#include <Rhi/Resource/PipelineLayout.hpp>
+#include <Rhi/Resource/PipelineState.hpp>
+
 #include <Gfx/Shading/PropertyDescriptor.hpp>
 
 namespace Ame::Gfx::Cache
 {
     class ShaderCache;
+    class CommonPipelineState;
 } // namespace Ame::Gfx::Cache
 
 namespace Ame::Gfx::Shading
@@ -17,38 +22,42 @@ namespace Ame::Gfx::Shading
     {
     public:
         using PipelineStateHash = std::array<uint8_t, 32>;
-        using PipelineStateMap  = std::map<PipelineStateHash, Ptr<Rhi::PipelineState>>;
+        using PipelineStateMap  = std::map<PipelineStateHash, Ptr<Rhi::ScopedPipelineState>>;
 
     public:
         MaterialCommonState(
-            Rhi::Device&             rhiDevice,
-            Gfx::Cache::ShaderCache& shaderCache,
-            Ptr<Rhi::PipelineLayout> pipelineLayout,
-            MaterialPipelineState    pipelineState);
+            Rhi::DeviceResourceAllocator&  allocator,
+            Cache::ShaderCache&            shaderCache,
+            Cache::CommonPipelineState&    pipelineStateCache,
+            Ptr<Rhi::ScopedPipelineLayout> pipelineLayout,
+            MaterialPipelineState          pipelineState);
 
     public:
-        [[nodiscard]] Rhi::Device& GetDevice() const;
+        /// <summary>
+        /// Get the device resource allocator
+        /// </summary>
+        [[nodiscard]] Rhi::DeviceResourceAllocator& GetAllocator() const noexcept;
 
         /// <summary>
         /// Get the pipeline layout for the material
         /// </summary>
-        [[nodiscard]] Ptr<Rhi::PipelineLayout> GetPipelineLayout() const;
+        [[nodiscard]] Ptr<Rhi::ScopedPipelineLayout> GetPipelineLayout() const noexcept;
 
         /// <summary>
         /// Get the pipeline state description for the material
         /// </summary>
-        [[nodiscard]] const MaterialPipelineState& GetPipelineStateDesc() const;
+        [[nodiscard]] const MaterialPipelineState& GetPipelineStateDesc() const noexcept;
 
         /// <summary>
         /// Get the pipeline state for the given render state
         /// </summary>
-        [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> GetPipelineState(
+        [[nodiscard]] Co::result<Ptr<Rhi::ScopedPipelineState>> GetPipelineState(
             const MaterialRenderState& renderState) const;
 
         /// <summary>
         /// Get the pipeline state hash for the base material
         /// </summary>
-        [[nodiscard]] const PipelineStateHash& GetPipelineHash() const;
+        [[nodiscard]] const PipelineStateHash& GetPipelineHash() const noexcept;
 
     private:
         /// <summary>
@@ -77,15 +86,17 @@ namespace Ame::Gfx::Shading
         /// <summary>
         /// Create pipeline state for the material
         /// </summary>
-        [[nodiscard]] Co::result<Ptr<Rhi::PipelineState>> CreatePipelineState(
+        [[nodiscard]] Co::result<Ptr<Rhi::ScopedPipelineState>> CreatePipelineState(
             const MaterialRenderState& renderState) const;
 
     private:
-        Ref<Rhi::Device>             m_RhiDevice;
-        Ref<Gfx::Cache::ShaderCache> m_ShaderCache;
+        Ref<Rhi::DeviceResourceAllocator> m_Allocator;
 
-        Ptr<Rhi::PipelineLayout>     m_PipelineLayout;
-        std::vector<Rhi::ShaderDesc> m_ShaderDescs;
+        Ref<Cache::ShaderCache>         m_ShaderCache;
+        Ref<Cache::CommonPipelineState> m_PipelineStateCahe;
+
+        Ptr<Rhi::ScopedPipelineLayout> m_PipelineLayout;
+        std::vector<Rhi::ShaderDesc>   m_ShaderDescs;
 
         MaterialPipelineState    m_PipelineStateDesc;
         mutable PipelineStateMap m_PipelineStates;

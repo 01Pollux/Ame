@@ -34,26 +34,14 @@ namespace Ame::Gfx
         m_EntityCompositor.get().UpdateGraph();
     }
 
-    void Renderer::OnStartFrame()
-    {
-        if (!m_Device.get().ProcessEvents()) [[unlikely]]
-        {
-            m_Frame.get().Stop();
-        }
-        else
-        {
-            m_Device.get().BeginFrame();
-        }
-    }
-
     void Renderer::OnRender()
     {
-        FlushDeferredUploads();
-        RunRenderGraph();
-    }
-
-    void Renderer::OnEndFrame()
-    {
-        m_Device.get().EndFrame();
+        auto& executor = *m_Device.get().GetExecutor();
+        executor.submit(
+            [this]
+            {
+                FlushDeferredUploads();
+                RunRenderGraph();
+            });
     }
 } // namespace Ame::Gfx

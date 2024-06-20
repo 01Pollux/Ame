@@ -4,7 +4,7 @@
 #include <Core/String.hpp>
 
 #include <Rhi/Descs/Pipeline.hpp>
-#include <Rhi/Resource/Shader.Compiler.hpp>
+#include <Rhi/Shader/Shader.Compiler.hpp>
 
 #include <Gfx/Shading/Constants.hpp>
 
@@ -79,7 +79,7 @@ namespace Ame::Gfx::Shading
         ///
         /// The pixel shader is required.
         /// The pixel shader must be a library shader.
-        /// The pixel shader must have a 'PSM_Main' entry point with no [shader("...")] attribute.
+        /// The pixel shader must have a with no [shader("...")] attribute.
         /// The pixel shader input layout must be same as 'VSToPS'.
         /// The pixel shader output layout must be same as 'MaterialFragment'.
         /// </summary>

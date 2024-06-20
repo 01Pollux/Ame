@@ -1,7 +1,11 @@
 #pragma once
 
 #include <boost/container/flat_set.hpp>
+
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/ResourceAllocator.hpp>
 #include <Rhi/Util/GenericBufferStream.hpp>
+
 #include <Allocator/Utils/Buddy.hpp>
 
 namespace Ame::Rhi::Util
@@ -68,7 +72,14 @@ namespace Ame::Rhi::Util
         BlockBasedBuffer(
             Device&                     rhiDevice,
             const BlockBasedBufferDesc& desc = {}) :
-            m_Device(rhiDevice),
+            BlockBasedBuffer(rhiDevice.GetResourceAllocator(), desc)
+        {
+        }
+
+        BlockBasedBuffer(
+            DeviceResourceAllocator&    resourceAllocator,
+            const BlockBasedBufferDesc& desc = {}) :
+            m_Allocator(resourceAllocator),
             m_Desc(desc)
         {
         }
@@ -141,6 +152,14 @@ namespace Ame::Rhi::Util
             const Handle& handle) const
         {
             return GetBuffer(handle.BlockSlot);
+        }
+
+        /// <summary>
+        /// Get the description of the buffer
+        /// </summary>
+        [[nodiscard]] const auto& GetDesc() const
+        {
+            return m_Desc;
         }
 
     public:
@@ -270,7 +289,7 @@ namespace Ame::Rhi::Util
 
             m_Desc.Size = GetSuitableBlockSize(size);
 
-            auto& block  = m_Blocks.emplace_back(m_Device.get(), m_Desc.Location, m_Desc.Size, m_Desc.UsageFlags);
+            auto& block  = m_Blocks.emplace_back(m_Allocator, m_Desc.Location, m_Desc.Size, m_Desc.UsageFlags);
             auto  handle = block.Buddy.Allocate(size, alignment);
 
             return {
@@ -300,20 +319,17 @@ namespace Ame::Rhi::Util
         /// Create an empty buffer
         /// </summary>
         [[nodiscard]] static Buffer CreateBuffer(
-            Device&         rhiDevice,
-            MemoryLocation  location,
-            size_t          size,
-            BufferUsageBits usageFlags)
+            DeviceResourceAllocator& resourceAllocator,
+            MemoryLocation           location,
+            size_t                   size,
+            BufferUsageBits          usageFlags)
         {
             BufferDesc desc{
                 .size      = size,
                 .usageMask = usageFlags
             };
 
-            return Buffer(
-                rhiDevice,
-                location,
-                desc);
+            return resourceAllocator.CreateBuffer(desc, location);
         }
 
     private:
@@ -329,8 +345,8 @@ namespace Ame::Rhi::Util
         }
 
     private:
-        Ref<Device>          m_Device;
-        BlockBasedBufferDesc m_Desc;
+        Ref<DeviceResourceAllocator> m_Allocator;
+        BlockBasedBufferDesc         m_Desc;
 
         struct Block
         {
@@ -338,12 +354,12 @@ namespace Ame::Rhi::Util
             BufferStream     BufferRef;
 
             Block(
-                Device&         rhiDevice,
-                MemoryLocation  location,
-                size_t          size,
-                BufferUsageBits usageFlags) :
+                DeviceResourceAllocator& resourceAllocator,
+                MemoryLocation           location,
+                size_t                   size,
+                BufferUsageBits          usageFlags) :
                 Buddy(size),
-                BufferRef(CreateBuffer(rhiDevice, location, size, usageFlags))
+                BufferRef(CreateBuffer(resourceAllocator, location, size, usageFlags))
             {
             }
 

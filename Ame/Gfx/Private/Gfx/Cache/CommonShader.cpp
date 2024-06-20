@@ -2,6 +2,9 @@
 #include <Gfx/Cache/CommonShader.hpp>
 #include <Gfx/Cache/CommonShader.ShaderGuids.hpp>
 
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Shader/Shader.Compiler.hpp>
+
 #include <Asset/Storage.hpp>
 #include <Asset/Types/Gfx/ShaderSourceAsset.hpp>
 
@@ -67,23 +70,24 @@ namespace Ame::Gfx::Cache
     {
         using namespace EnumBitOperators;
 
-        Guid                   guid;
-        Rhi::ShaderCompileDesc shaderDesc;
+        Guid guid;
+
+        Rhi::ShaderCompileDesc compileDesc{};
 
         switch (type)
         {
         case Type::EntityCollectPass_CS:
         {
-            guid = Guid::FromString(ShaderGuids::s_EntityCollectPass);
-            shaderDesc.SetStage(Rhi::ShaderType::COMPUTE_SHADER);
+            guid              = Guid::FromString(ShaderGuids::s_EntityCollectPass);
+            compileDesc.Stage = Rhi::ShaderCompileStage::Compute;
             break;
         }
 
         case Type::TiledForward_PS:
         {
-            guid = Guid::FromString(ShaderGuids::s_TiledForwardPass);
-            shaderDesc.SetStage(Rhi::ShaderType::FRAGMENT_SHADER);
-            shaderDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
+            guid              = Guid::FromString(ShaderGuids::s_TiledForwardPass);
+            compileDesc.Stage = Rhi::ShaderCompileStage::Pixel;
+            compileDesc.Flags |= Rhi::ShaderCompileFlags::LibraryShader;
             break;
         }
 
@@ -91,6 +95,6 @@ namespace Ame::Gfx::Cache
             std::unreachable();
         }
 
-        co_return co_await LoadAndCompile({}, executor, assetStorage, std::move(guid), std::move(shaderDesc));
+        return LoadAndCompile({}, executor, assetStorage, std::move(guid), std::move(compileDesc));
     }
 } // namespace Ame::Gfx::Cache

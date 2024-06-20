@@ -5,7 +5,12 @@
 
 namespace Ame::Gfx::Cache
 {
-    void BlitRenderPass::BlitRenderBarrier(
+    void BlitRenderPass::BlitPushRenderBarrier(
+        BlitOperation& operation)
+    {
+    }
+
+    void BlitRenderPass::BlitPopRenderBarrier(
         BlitOperation& operation)
     {
     }

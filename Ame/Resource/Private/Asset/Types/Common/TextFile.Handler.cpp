@@ -11,24 +11,33 @@ namespace Ame::Asset::Common
         return dynamic_cast<TextFileAsset*>(asset.get());
     }
 
-    Ptr<IAsset> TextFileAsset::Handler::Load(
-        std::istream& stream,
-        const Asset::DependencyReader&,
-        const Guid& guid,
-        String      path,
-        const AssetMetaData&)
+    Co::result<Ptr<IAsset>> TextFileAsset::Handler::Load(
+        AssetHandlerLoadDesc& loadDesc)
     {
-        std::stringstream text;
-        text << stream.rdbuf();
-        return std::make_shared<TextFileAsset>(text.str(), guid, std::move(path));
+        auto text = loadDesc.BackgroundExecutor
+                        ->submit(
+                            [&]
+                            {
+                                std::stringstream text;
+                                text << loadDesc.Stream.get().rdbuf();
+                                return text.str();
+                            })
+                        .get();
+
+        co_return std::make_shared<TextFileAsset>(std::move(text), loadDesc.Guid, std::move(loadDesc.Path));
     }
 
-    void TextFileAsset::Handler::Save(
-        std::iostream& stream,
-        DependencyWriter&,
-        const Ptr<IAsset>& asset,
-        AssetMetaData&)
+    Co::result<void> TextFileAsset::Handler::Save(
+        AssetHandlerSaveDesc& saveDesc)
     {
-        stream << dynamic_cast<const TextFileAsset*>(asset.get())->Get();
+        saveDesc.BackgroundExecutor
+			->submit(
+				[&]
+				{
+					auto asset = dynamic_cast<const TextFileAsset*>(saveDesc.Asset.get());
+					saveDesc.Stream.get() << asset->Get();
+				})
+			.wait();
+		co_return;
     }
 } // namespace Ame::Asset::Common

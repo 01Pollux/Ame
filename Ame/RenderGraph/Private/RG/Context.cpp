@@ -1,5 +1,8 @@
 #include <RG/Context.hpp>
 
+#include <Rhi/Device/Device.hpp>
+#include <Rhi/Device/CommandSubmitter.hpp>
+
 namespace Ame::RG
 {
     Context::Context(
@@ -53,11 +56,14 @@ namespace Ame::RG
     {
         GetStorage().UpdateResources();
 
-        Rhi::CommandList commandList(m_Device.get());
+        auto& commandSubmitter = m_Device.get().GetCommandSubmitter();
+
+        auto submission = commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
         for (auto& level : m_Levels)
         {
-            level.Execute(*this, commandList);
+            level.Execute(*this, submission.CommandListRef);
         }
+        commandSubmitter.SubmitCommandList(submission);
     }
 
     void Context::Build(
