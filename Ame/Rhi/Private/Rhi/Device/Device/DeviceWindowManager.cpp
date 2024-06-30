@@ -66,7 +66,7 @@ namespace Ame::Rhi
 
     uint8_t DeviceWindowManager::GetBackbufferIndex() const
     {
-        m_RhiDeviceImpl.get().AssertRenderingThread();
+        m_RhiDeviceImpl.get().AssertInRenderingThread();
 
         auto windowManager = m_RhiDeviceImpl.get().GetWindowManager();
         return windowManager->GetBackbufferIndex();
@@ -75,7 +75,7 @@ namespace Ame::Rhi
     CRef<Backbuffer> DeviceWindowManager::GetBackbuffer(
         uint8_t index) const
     {
-        m_RhiDeviceImpl.get().AssertRenderingThread();
+        m_RhiDeviceImpl.get().AssertInRenderingThread();
 
         auto windowManager = m_RhiDeviceImpl.get().GetWindowManager();
         return windowManager->GetBackbuffer(index);
@@ -83,7 +83,7 @@ namespace Ame::Rhi
 
     CRef<Backbuffer> DeviceWindowManager::GetBackbuffer() const
     {
-        m_RhiDeviceImpl.get().AssertRenderingThread();
+        m_RhiDeviceImpl.get().AssertInRenderingThread();
 
         auto windowManager = m_RhiDeviceImpl.get().GetWindowManager();
         return windowManager->GetBackbuffer(windowManager->GetBackbufferIndex());

@@ -2,18 +2,18 @@
 
 #include <Signals/Core/Frame.hpp>
 #include <Frame/FrameTimer.hpp>
-#include <Core/Coroutine.hpp>
+#include <Frame/EngineTick.hpp>
 
 namespace Ame
 {
-    class EngineFrame
+    class EngineFrame : public IEngineTick
     {
     public:
         EngineFrame(
-            Co::runtime& runtime,
-            FrameTimer&  frameTimer);
+            Co::runtime& runtime);
 
-        void Tick();
+        [[nodiscard]] Co::result<void> Tick(
+            Co::runtime& runtime) override;
 
     public:
         AME_COROUTINE_INST(manual_executor, StartFrameExecutor);
@@ -39,7 +39,6 @@ namespace Ame
         [[nodiscard]] bool IsRunning() const;
 
     private:
-        Ref<FrameTimer> m_Timer;
-        bool            m_IsRunning = true;
+        bool m_IsRunning = true;
     };
 } // namespace Ame

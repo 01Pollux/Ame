@@ -29,7 +29,6 @@ namespace Ame::Rhi
 
     public:
         DeviceImpl(
-            EngineFrame&            engineFrame,
             Co::runtime&            runtime,
             const DeviceCreateDesc& desc);
 
@@ -86,9 +85,20 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Update the rendering device.
+        /// Begin the rendering device frame.
+        /// Returns true if the frame was started successfully.
         /// </summary>
-        void Tick();
+        [[nodiscard]] bool BeginFrame();
+
+        /// <summary>
+        /// Run the tasks that have been submitted to the device.
+        /// </summary>
+        void ProcessTasks();
+
+        /// <summary>
+        /// End the rendering device frame.
+        /// </summary>
+        void EndFrame();
 
         /// <summary>
         /// Idle the GPU.
@@ -129,7 +139,7 @@ namespace Ame::Rhi
         /// This should be called once per frame.
         /// Returns false if the window is closed.
         /// </summary>
-        void ProcessEvents();
+        [[nodiscard]] bool ProcessEvents();
 
         /// <summary>
         /// Start the frame.
@@ -150,11 +160,10 @@ namespace Ame::Rhi
         /// <summary>
         /// Assert that the current thread is the rendering thread.
         /// </summary>
-        void AssertRenderingThread(
+        void AssertInRenderingThread(
             bool InThread = true) const;
 
     private:
-        Ref<EngineFrame>     m_EngineFrame;
         UPtr<IDeviceWrapper> m_DeviceWrapper;
 
         DeviceResourceAllocator m_ResourceAllocator;
@@ -173,6 +182,6 @@ namespace Ame::Rhi
 
         uint32_t m_DrawIndexedCommandSize = 0;
 
-        static inline thread_local bool s_IsInRenderingThread = false;
+        static inline std::thread::id s_RenderingThreadId{};
     };
 } // namespace Ame::Rhi

@@ -4,8 +4,6 @@
 #include <Rhi/Device/CreateDesc.hpp>
 #include <Rhi/Device/Swapchain/WindowManager.hpp>
 
-#include <Frame/EngineFrame.hpp>
-
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi
@@ -15,10 +13,8 @@ namespace Ame::Rhi
     //
 
     DeviceImpl::DeviceImpl(
-        EngineFrame&            engineFrame,
         Co::runtime&            runtime,
         const DeviceCreateDesc& desc) :
-        m_EngineFrame(engineFrame),
         m_ResourceAllocator(*this, desc.MemoryDesc.MultiThreaded),
         m_CommandSubmitter(*this),
         m_DeviceWindowManager(*this),
@@ -117,22 +113,36 @@ namespace Ame::Rhi
 
     //
 
-    void DeviceImpl::Tick()
+    bool DeviceImpl::BeginFrame()
     {
-        ProcessEvents();
+        AME_LOG_ASSERT(Log::Rhi(), s_RenderingThreadId == std::thread::id{}, "The rendering thread is already running");
 
-        s_IsInRenderingThread = true;
+        if (!ProcessEvents())
+        {
+            return false;
+        }
 
+        s_RenderingThreadId = std::this_thread::get_id();
         StartFrame();
-        FrameUpdate();
-        FrameEnd();
+        return true;
+    }
 
-        s_IsInRenderingThread = false;
+    void DeviceImpl::ProcessTasks()
+    {
+        FrameUpdate();
+    }
+
+    void DeviceImpl::EndFrame()
+    {
+        AME_LOG_ASSERT(Log::Rhi(), s_RenderingThreadId == std::this_thread::get_id(), "The rendering thread is not running");
+
+        FrameEnd();
+        s_RenderingThreadId = std::thread::id{};
     }
 
     Co::result<void> DeviceImpl::WaitIdle()
     {
-        AssertRenderingThread(false);
+        AssertInRenderingThread(false);
 
         auto& memoryAllocator = m_DeviceWrapper->GetMemoryAllocator();
         auto& nri             = m_DeviceWrapper->GetNri();
@@ -214,14 +224,14 @@ namespace Ame::Rhi
 
     //
 
-    void DeviceImpl::ProcessEvents()
+    bool DeviceImpl::ProcessEvents()
     {
         if (m_WindowManager) [[likely]]
         {
             auto& window = *m_WindowManager->GetWindow();
             if (!window.IsRunning())
             {
-                m_EngineFrame.get().Stop();
+                return false;
             }
             window.ProcessEvents();
 
@@ -231,6 +241,7 @@ namespace Ame::Rhi
                 m_WindowManager->RecreateSwapchain();
             }
         }
+        return true;
     }
 
     void DeviceImpl::StartFrame()
@@ -285,11 +296,12 @@ namespace Ame::Rhi
 
     //
 
-    void DeviceImpl::AssertRenderingThread(
+    void DeviceImpl::AssertInRenderingThread(
         bool InThread) const
     {
 #ifndef AME_DIST
-        if (s_IsInRenderingThread != InThread) [[unlikely]]
+        bool isRenderingThread = s_RenderingThreadId == std::this_thread::get_id();
+        if (isRenderingThread != InThread) [[unlikely]]
         {
             Log::Rhi().Fatal("The current thread {} be the rendering thread", InThread ? "must" : "must not");
         }

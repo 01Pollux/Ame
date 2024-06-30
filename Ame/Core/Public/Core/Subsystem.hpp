@@ -98,4 +98,7 @@ namespace Ame
     {
         auto forward() -> std::unique_ptr<Ty>;
     };
+
+    template<typename Ty>
+    using OverrideRangeSubsystem = kgr::override_range_service<Ty>;
 } // namespace Ame

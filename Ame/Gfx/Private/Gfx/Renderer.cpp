@@ -27,7 +27,22 @@ namespace Ame::Gfx
 
             m_OnWorldChange = universe.OnWorldChange({ &Renderer::OnWorldChange, this, _1 });
             m_OnUpdate      = engineFrame.OnUpdate({ &Renderer::OnUpdate, this });
-            m_OnRender      = engineFrame.OnUpdate({ &Renderer::OnRender, this });
         }
+    }
+
+    Co::result<void> Renderer::Tick(
+        Co::runtime&)
+    {
+        if (!m_Device.get().BeginFrame())
+        {
+            m_Frame.get().Stop();
+            co_return;
+        }
+
+        // RunRenderGraph();
+        m_Device.get().ProcessTasks();
+
+        m_Device.get().EndFrame();
+        co_return;
     }
 } // namespace Ame::Gfx

@@ -37,7 +37,8 @@ namespace Ame::Log
     class Logger final
     {
     public:
-        using SinkList = std::vector<Ptr<spdlog::sinks::sink>>;
+        using Sink     = spdlog::sinks::sink;
+        using SinkList = std::vector<Ptr<Sink>>;
 
     private:
         Logger()

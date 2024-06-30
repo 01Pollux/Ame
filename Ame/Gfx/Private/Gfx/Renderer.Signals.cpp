@@ -33,15 +33,4 @@ namespace Ame::Gfx
     {
         m_EntityCompositor.get().UpdateGraph();
     }
-
-    void Renderer::OnRender()
-    {
-        auto& executor = *m_Device.get().GetExecutor();
-        executor.submit(
-            [this]
-            {
-                FlushDeferredUploads();
-                RunRenderGraph();
-            });
-    }
 } // namespace Ame::Gfx

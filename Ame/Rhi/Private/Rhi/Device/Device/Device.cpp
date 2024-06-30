@@ -9,10 +9,9 @@ namespace Ame::Rhi
     Device::Device() = default;
 
     Device::Device(
-        EngineFrame&            engineFrame,
         Co::runtime&            runtime,
         const DeviceCreateDesc& desc) :
-        m_Impl(std::make_unique<DeviceImpl>(engineFrame, runtime, desc))
+        m_Impl(std::make_unique<DeviceImpl>(runtime, desc))
     {
     }
 
@@ -85,9 +84,19 @@ namespace Ame::Rhi
 
     //
 
-    void Device::Tick()
+    bool Device::BeginFrame()
     {
-        m_Impl->Tick();
+        return m_Impl->BeginFrame();
+    }
+
+    void Device::ProcessTasks()
+    {
+        m_Impl->ProcessTasks();
+    }
+
+    void Device::EndFrame()
+    {
+        m_Impl->EndFrame();
     }
 
     Co::result<void> Device::WaitIdle()

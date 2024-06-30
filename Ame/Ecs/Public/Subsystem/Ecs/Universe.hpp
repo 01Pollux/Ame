@@ -2,8 +2,8 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Subsystem/Core/Frame.hpp>
-#include <Subsystem/Core/Timer.hpp>
+#include <Subsystem/Core/EngineFrame.hpp>
+#include <Subsystem/Core/FrameTimer.hpp>
 
 #include <Ecs/Universe.hpp>
 

@@ -2,7 +2,7 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Subsystem/Core/Frame.hpp>
+#include <Subsystem/Core/EngineFrame.hpp>
 #include <Subsystem/Rhi/Device.hpp>
 
 #include <Gfx/Cache/FrameBufferCache.hpp>

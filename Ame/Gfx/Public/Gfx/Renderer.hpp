@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+#include <Frame/EngineTick.hpp>
 
 #include <Ecs/Universe.hpp>
 #include <Gfx/Compositor.hpp>
@@ -41,7 +42,7 @@ namespace Ame
 
 namespace Ame::Gfx
 {
-    class Renderer
+    class Renderer : public IEngineTick
     {
         using CameraRenderQuery = Ecs::UniqueQuery<
             const Ecs::Component::Transform,
@@ -56,6 +57,10 @@ namespace Ame::Gfx
             RG::Graph&               renderGraph,
             EntityCompositor&        entityCompositor,
             Cache::CommonRenderPass& commonRenderPass);
+
+    public:
+        [[nodiscard]] Co::result<void> Tick(
+            Co::runtime& runtime) override;
 
     private:
         /// <summary>
@@ -81,11 +86,6 @@ namespace Ame::Gfx
 
     private:
         /// <summary>
-        /// Flush all deferred uploads
-        /// </summary>
-        void FlushDeferredUploads();
-
-        /// <summary>
         /// Run the render graph to render the frame
         /// </summary>
         void RunRenderGraph();
@@ -100,9 +100,7 @@ namespace Ame::Gfx
         Ref<Cache::CommonRenderPass> m_CommonRenderPass;
 
         Signals::ScopedConnection m_OnWorldChange;
-
         Signals::ScopedConnection m_OnUpdate;
-        Signals::ScopedConnection m_OnRender;
 
         CameraRenderQuery m_CameraQuery;
     };

@@ -38,7 +38,6 @@ namespace Ame::Rhi
     public:
         Device();
         explicit Device(
-            EngineFrame&            engineFrame,
             Co::runtime&            runtime,
             const DeviceCreateDesc& desc);
 
@@ -103,9 +102,20 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Update the rendering device.
+        /// Begin the rendering device frame.
+        /// Returns true if the frame was started successfully.
         /// </summary>
-        void Tick();
+        [[nodiscard]] bool BeginFrame();
+
+        /// <summary>
+        /// Run the tasks that have been submitted to the device.
+        /// </summary>
+        void ProcessTasks();
+
+        /// <summary>
+        /// End the rendering device frame.
+        /// </summary>
+        void EndFrame();
 
         /// <summary>
         /// Idle the GPU.

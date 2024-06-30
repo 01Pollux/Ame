@@ -13,7 +13,7 @@ namespace Ame::Rhi
         CommandQueueType queueType,
         StageBits        stages)
     {
-        m_RhiDeviceImpl.get().AssertRenderingThread();
+        m_RhiDeviceImpl.get().AssertInRenderingThread();
 
         auto& deviceWrapper = m_RhiDeviceImpl.get().GetDeviceWrapper();
         auto& frameManager  = m_RhiDeviceImpl.get().GetFrameManager();
@@ -33,7 +33,7 @@ namespace Ame::Rhi
     Co::result<void> DeviceCommandSubmitter::SubmitCommandList(
         const SubmissionContext& submissionContext)
     {
-        m_RhiDeviceImpl.get().AssertRenderingThread();
+        m_RhiDeviceImpl.get().AssertInRenderingThread();
 
         auto& deviceWrapper = m_RhiDeviceImpl.get().GetDeviceWrapper();
         auto& nri           = deviceWrapper.GetNri();
@@ -60,7 +60,7 @@ namespace Ame::Rhi
         const SubmissionContext& submissionContext,
         std::vector<Rhi::Fence>  dependencies)
     {
-        m_RhiDeviceImpl.get().AssertRenderingThread();
+        m_RhiDeviceImpl.get().AssertInRenderingThread();
 
         auto& deviceWrapper = m_RhiDeviceImpl.get().GetDeviceWrapper();
         auto& nri           = deviceWrapper.GetNri();

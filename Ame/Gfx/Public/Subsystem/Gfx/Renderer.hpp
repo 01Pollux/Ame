@@ -2,8 +2,8 @@
 
 #include <Core/Subsystem.hpp>
 
-#include <Subsystem/Core/Frame.hpp>
-#include <Subsystem/Core/Timer.hpp>
+#include <Subsystem/Core/EngineFrame.hpp>
+#include <Subsystem/Core/FrameTimer.hpp>
 #include <Subsystem/Rhi/Device.hpp>
 #include <Subsystem/Ecs/Universe.hpp>
 #include <Subsystem/RG/RenderGraph.hpp>
@@ -24,6 +24,7 @@ namespace Ame::Gfx
                                        RG::GraphSubsystem,
                                        EntityCompositorSubsystem,
                                        Cache::CommonRenderPassSubsystem>>,
+                               kgr::overrides<EngineTickSubsystem>,
                                kgr::final
     {
     };

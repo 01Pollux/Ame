@@ -3,17 +3,16 @@
 namespace Ame
 {
     EngineFrame::EngineFrame(
-        Co::runtime& runtime,
-        FrameTimer&  frameTimer) :
-        m_Timer(frameTimer),
+        Co::runtime& runtime) :
         m_StartFrameExecutor(runtime.make_manual_executor()),
         m_EndFrameExecutor(runtime.make_manual_executor())
     {
     }
 
-    void EngineFrame::Tick()
+    Co::result<void> EngineFrame::Tick(
+        Co::runtime& runtime)
     {
-        m_Timer.get().Tick();
+        co_await Co::resume_on(runtime.inline_executor());
 
         m_OnStartFrame();
 
