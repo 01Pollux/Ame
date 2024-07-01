@@ -6,13 +6,6 @@ namespace Ame::Math
 
     //
 
-    constexpr Matrix4x4::Matrix4x4(const Matrix3x3& matrix) :
-        m_Data({ matrix(0), matrix(1), matrix(2), {} })
-    {
-    }
-
-    //
-
     Matrix4x4::Matrix4x4(Util::XMMATRIX matrix)
     {
         XMStoreFloat4x4(std::bit_cast<XMFLOAT4X4*>(this), matrix);
@@ -220,13 +213,6 @@ namespace Ame::Math
     {
         *this = XMMatrixMultiply(*this, other);
         return *this;
-    }
-
-    //
-
-    constexpr Matrix3x3::Matrix3x3(const Matrix4x4& matrix) :
-        m_Data({ matrix(0), matrix(1), matrix(2) })
-    {
     }
 
     //

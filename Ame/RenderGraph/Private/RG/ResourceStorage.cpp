@@ -70,15 +70,7 @@ namespace Ame::RG
         {
             return false;
         }
-
-        bool contains = false;
-        std::visit(
-            VariantVisitor{
-                [](std::monostate) {},
-                [&](const auto& resource)
-                { contains = resource.Views.contains(viewId); } },
-            iter->second.Get());
-        return contains;
+        return std::holds_alternative<std::monostate>(iter->second.GetView(viewId));
     }
 
     //
@@ -98,21 +90,25 @@ namespace Ame::RG
         return iter != m_Resources.end() ? &iter->second : nullptr;
     }
 
-    const Rhi::ResourceView* ResourceStorage::GetResourceViewHandle(
+    RhiResourceView ResourceStorage::GetResourceView(
         const ResourceViewId& viewId) const
     {
         auto iter = m_Resources.find(viewId.GetResource());
         AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        return iter->second.GetView(viewId);
+    }
 
-        const Rhi::ResourceView* view = nullptr;
-        std::visit(
+    const Rhi::ResourceView* ResourceStorage::GetResourceViewHandle(
+        const ResourceViewId& viewId) const
+    {
+        auto view = GetResourceView(viewId);
+        return std::visit(
             VariantVisitor{
-                [](std::monostate) {},
+                [](std::monostate) -> const Rhi::ResourceView*
+                { return nullptr; },
                 [&](const auto& resource)
-                { view = &resource.Views.at(viewId).View; } },
-            iter->second.Get());
-
-        return view;
+                { return &resource.get().View; } },
+            view);
     }
 
     //

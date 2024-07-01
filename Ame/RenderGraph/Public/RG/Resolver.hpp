@@ -93,6 +93,27 @@ namespace Ame::RG
             const Rhi::AccessStage&        accessStage,
             Rhi::TextureUsageBits          usageBits);
 
+        /// <summary>
+        /// Write resource as renter target with clear operations
+        /// Used also for present backbuffer
+        /// </summary>
+        void WriteRenderTargetImpl(
+            const ResourceViewId&          viewId,
+            Rhi::AccessLayoutStage         accessType,
+            const RtvCustomDesc&           rtvDesc,
+            Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
+            const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
+
+        /// <summary>
+        /// Write resource as renter target with no clear operations
+        /// Used also for present backbuffer
+        /// </summary>
+        void WriteRenderTargetImpl(
+            const ResourceViewId&          viewId,
+            Rhi::AccessLayoutStage         accessType,
+            Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
+            const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
+
     public:
         /// <summary>
         /// Write to texture resource
@@ -106,13 +127,6 @@ namespace Ame::RG
         /// Write to texture resource as copy destination
         /// </summary>
         void WriteCopyDstResource(
-            const ResourceViewId& viewId);
-
-        /// <summary>
-        /// Present resource to the backbuffer
-        /// Resource must be an imported backbuffer, otherwise will thrown an assertion
-        /// </summary>
-        void WritePresentResource(
             const ResourceViewId& viewId);
 
         /// <summary>
@@ -133,6 +147,21 @@ namespace Ame::RG
             Rhi::StageBits                 stages,
             Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
+
+        /// <summary>
+        /// Present resource to the backbuffer
+        /// Resource must be an imported backbuffer, otherwise will thrown an assertion
+        /// </summary>
+        void WritePresentResource(
+            const ResourceViewId& viewId,
+            const RtvCustomDesc&  rtvDesc);
+
+        /// <summary>
+        /// Present resource to the backbuffer
+        /// Resource must be an imported backbuffer, otherwise will thrown an assertion
+        /// </summary>
+        void WritePresentResource(
+            const ResourceViewId& viewId);
 
         /// <summary>
         /// Write resource as depth stencil

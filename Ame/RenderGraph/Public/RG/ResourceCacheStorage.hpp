@@ -15,7 +15,7 @@ namespace Ame::RG
 
             auto operator<=>(const ResoureIndexTimeStamp& other) const
             {
-                return TimeStamp <=> other.TimeStamp;
+                return std::tie(TimeStamp, Hash) <=> std::tie(other.TimeStamp, other.Hash);
             }
         };
 
@@ -27,7 +27,7 @@ namespace Ame::RG
         };
 
         using ResourceViewMap          = std::map<size_t, ResourceViewTimeStamp>; // Key is the hash of the resource view name
-        using ResourceViewTimeStampSet = boost::container::flat_multiset<ResoureIndexTimeStamp>;
+        using ResourceViewTimeStampSet = boost::container::flat_set<ResoureIndexTimeStamp>;
 
     public:
         ResourceCacheStorage(

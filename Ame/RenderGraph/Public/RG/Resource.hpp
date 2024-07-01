@@ -150,25 +150,32 @@ namespace Ame::RG
         Rhi::ResourceView       View;
     };
 
-    using BufferResourceViewMap  = std::map<ResourceViewId, BufferResourceView>;
-    using TextureResourceViewMap = std::map<ResourceViewId, TextureResourceView>;
-
     struct TextureResource
     {
-        Rhi::Texture           Resource;
-        Rhi::TextureDesc       Desc;
-        TextureResourceViewMap Views;
+        Rhi::Texture     Resource;
+        Rhi::TextureDesc Desc;
     };
 
     struct BufferResource
     {
-        Rhi::Buffer           Resource;
-        Rhi::BufferDesc       Desc;
-        BufferResourceViewMap Views;
-        Rhi::MemoryLocation   Location;
+        Rhi::Buffer         Resource;
+        Rhi::BufferDesc     Desc;
+        Rhi::MemoryLocation Location;
     };
 
-    using RhiResource = std::variant<std::monostate, TextureResource, BufferResource>;
+    using RhiBufferViewMap  = std::map<ResourceViewId, BufferResourceView>;
+    using RhiTextureViewMap = std::map<ResourceViewId, TextureResourceView>;
+
+    using RhiTextureViewRef = CRef<TextureResourceView>;
+    using RhiBufferViewRef  = CRef<BufferResourceView>;
+
+    //
+
+    // Both RhiResource and RhiResourceViewMap, must have same variant index for ResourceHandle::InitializeViewMap to work
+    using RhiResource        = std::variant<std::monostate, TextureResource, BufferResource>;
+    using RhiResourceViewMap = std::variant<std::monostate, RhiTextureViewMap, RhiBufferViewMap>;
+
+    using RhiResourceView = std::variant<std::monostate, RhiTextureViewRef, RhiBufferViewRef>;
 
     //
 
@@ -180,11 +187,11 @@ namespace Ame::RG
     public:
         ResourceHandle() = default;
 
-        ResourceHandle(const ResourceHandle&) = delete;
-        ResourceHandle(ResourceHandle&&) noexcept;
+        ResourceHandle(const ResourceHandle&)     = delete;
+        ResourceHandle(ResourceHandle&&) noexcept = default;
 
-        ResourceHandle& operator=(const ResourceHandle&) = delete;
-        ResourceHandle& operator=(ResourceHandle&&) noexcept;
+        ResourceHandle& operator=(const ResourceHandle&)     = delete;
+        ResourceHandle& operator=(ResourceHandle&&) noexcept = default;
 
         ~ResourceHandle();
 
@@ -280,15 +287,21 @@ namespace Ame::RG
 
     public:
         /// <summary>
-        /// Get buffer resource's view
+        /// Get texture resource's view or nullptr if view is not found or not for buffer
         /// </summary>
         [[nodiscard]] const BufferResourceView* GetBufferView(
             const ResourceViewId& viewId) const noexcept;
 
         /// <summary>
-        /// Get texture resource's view
+        /// Get texture resource's view or nullptr if view is not found or not for texture
         /// </summary>
         [[nodiscard]] const TextureResourceView* GetTextureView(
+            const ResourceViewId& viewId) const noexcept;
+        
+        /// <summary>
+        /// Get texture resource's view or std::monostate if view is not found
+        /// </summary>
+        [[nodiscard]] RhiResourceView GetView(
             const ResourceViewId& viewId) const noexcept;
 
     public:
@@ -306,20 +319,25 @@ namespace Ame::RG
             ResourceCacheStorage&         cacheStorage,
             Rhi::DeviceResourceAllocator& allocator);
 
+        /// <summary>
+        /// Initialize view map
+        /// </summary>
+        void InitializeViewMap();
+
     private:
         /// <summary>
         /// Recreate resource views
         /// </summary>
         void RecreateViews(
-            ResourceCacheStorage&         cacheStorage,
-            BufferResource&               bufferResource);
+            ResourceCacheStorage& cacheStorage,
+            BufferResource&       bufferResource);
 
         /// <summary>
         /// Recreate resource views
         /// </summary>
         void RecreateViews(
-            ResourceCacheStorage&         cacheStorage,
-            TextureResource&              textureResource);
+            ResourceCacheStorage& cacheStorage,
+            TextureResource&      textureResource);
 
     private:
         /// <summary>
@@ -330,7 +348,8 @@ namespace Ame::RG
             bool doAssert) const;
 
     private:
-        RhiResource m_Resource;
+        RhiResource        m_Resource;
+        RhiResourceViewMap m_Views;
 
         size_t m_DescHash = 0;
 
@@ -338,7 +357,6 @@ namespace Ame::RG
         String m_Name;
 #endif
 
-        bool m_ImportViewsChanged : 1 = false;
         bool m_IsImported         : 1 = false;
     };
 } // namespace Ame::RG

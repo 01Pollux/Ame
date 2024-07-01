@@ -140,10 +140,8 @@ namespace Ame::Rhi
         s_RenderingThreadId = std::thread::id{};
     }
 
-    Co::result<void> DeviceImpl::WaitIdle()
+    void DeviceImpl::WaitIdle()
     {
-        AssertInRenderingThread(false);
-
         auto& memoryAllocator = m_DeviceWrapper->GetMemoryAllocator();
         auto& nri             = m_DeviceWrapper->GetNri();
         auto& nriCore         = *nri.GetCoreInterface();
@@ -154,7 +152,6 @@ namespace Ame::Rhi
         }
 
         m_FrameManager.FlushIdle(nriCore, memoryAllocator);
-        co_return;
     }
 
     //
@@ -206,7 +203,7 @@ namespace Ame::Rhi
             return;
         }
 
-        WaitIdle().get();
+        WaitIdle();
 
         if (m_WindowManager)
         {
@@ -237,7 +234,7 @@ namespace Ame::Rhi
 
             if (m_WindowManager->IsDirty()) [[unlikely]]
             {
-                WaitIdle().wait();
+                WaitIdle();
                 m_WindowManager->RecreateSwapchain();
             }
         }

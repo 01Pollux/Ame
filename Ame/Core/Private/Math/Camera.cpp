@@ -1,8 +1,7 @@
-#include <Ecs/Component/Viewport/Camera.hpp>
-
+#include <Math/Camera.hpp>
 #include <Math/Transform.hpp>
 
-namespace Ame::Ecs::Component
+namespace Ame::Math
 {
     Camera::Camera(
         CameraType type) :
@@ -97,4 +96,4 @@ namespace Ame::Ecs::Component
     {
         return { m_Viewport.Width, m_Viewport.Height };
     }
-} // namespace Ame::Ecs::Component
+} // namespace Ame::Math

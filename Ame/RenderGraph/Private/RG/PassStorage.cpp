@@ -1,3 +1,6 @@
+#include <boost/range.hpp>
+#include <boost/range/join.hpp>
+
 #include <RG/PassStorage.hpp>
 #include <RG/Context.hpp>
 #include <RG/DependencyLevel.hpp>
@@ -89,9 +92,9 @@ namespace Ame::RG
             for (size_t j = i + 1; j < m_Passes.size(); j++)
             {
                 auto& otherResolver = builders[j].GraphResolver;
-                for (auto& otherPassRead : otherResolver.m_ResourcesRead)
+                for (auto& resource : boost::range::join(otherResolver.m_ResourcesRead, otherResolver.m_ResourcesWritten))
                 {
-                    if (resolver.m_ResourcesWritten.contains(otherPassRead))
+                    if (resolver.m_ResourcesWritten.contains(resource))
                     {
                         adjacencies.push_back(j);
                         break;

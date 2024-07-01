@@ -147,7 +147,10 @@ namespace Ame::Math
             m_Data{ row1, row2, row3 }
         {
         }
-        constexpr Matrix3x3(const Matrix4x4& matrix);
+        constexpr Matrix3x3(const Matrix4x4& matrix) :
+            m_Data({ matrix(0), matrix(1), matrix(2) })
+        {
+        }
 
     public:
         Matrix3x3(Util::XMMATRIX matrix);
@@ -232,14 +235,21 @@ namespace Ame::Math
 
     //
 
+    inline constexpr Matrix4x4::Matrix4x4(const Matrix3x3& matrix) :
+        m_Data({ matrix(0), matrix(1), matrix(2), {} })
+	{
+	}
+
+    //
+
     struct Matrix4x4::Constants
     {
         static constexpr Matrix4x4 Zero{};
         static constexpr Matrix4x4 Identity{
-            Vector4{ 0.f, 0.f, 0.f, 0.f },
-            Vector4{ 0.f, 0.f, 0.f, 0.f },
-            Vector4{ 0.f, 0.f, 0.f, 0.f },
-            Vector4{ 0.f, 0.f, 0.f, 0.f }
+            Vector4{ 1.f, 0.f, 0.f, 0.f },
+            Vector4{ 0.f, 1.f, 0.f, 0.f },
+            Vector4{ 0.f, 0.f, 1.f, 0.f },
+            Vector4{ 0.f, 0.f, 0.f, 1.f }
         };
     };
 

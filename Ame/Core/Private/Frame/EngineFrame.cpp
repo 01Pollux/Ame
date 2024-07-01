@@ -12,8 +12,6 @@ namespace Ame
     Co::result<void> EngineFrame::Tick(
         Co::runtime& runtime)
     {
-        co_await Co::resume_on(runtime.inline_executor());
-
         m_OnStartFrame();
 
         Co::manual_executor_loop_until_empty(m_StartFrameExecutor);
@@ -24,6 +22,7 @@ namespace Ame
         Co::manual_executor_loop_until_empty(m_EndFrameExecutor);
 
         m_OnEndFrame();
+        co_return;
     }
 
     //

@@ -1,1 +1,0 @@
-﻿{"configurations":[{"name":"Ame","inheritEnvironments":["msvc_x64"],"includePath":["${env.INCLUDE}","${workspaceRoot}\\**"],"defines":[],"intelliSenseMode":"windows-msvc-x64"}]}

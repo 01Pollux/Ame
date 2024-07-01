@@ -46,6 +46,11 @@ namespace Ame::Ecs
         }
 
     public:
+        [[nodiscard]] explicit operator bool() const noexcept
+        {
+            return IsValid();
+        }
+
         /// <summary>
         /// Check if the entity is valid.
         /// </summary>

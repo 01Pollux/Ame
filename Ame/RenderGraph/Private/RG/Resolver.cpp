@@ -128,48 +128,25 @@ namespace Ame::RG
         SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::SHADER_RESOURCE_STORAGE);
     }
 
-    void Resolver::WriteCopyDstResource(
-        const ResourceViewId& viewId)
-    {
-        WriteResourceEmpty(viewId.GetResource());
-        AppendResourceState(viewId, { Rhi::AccessBits::COPY_SOURCE, Rhi::StageBits::NONE });
-        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COPY_SOURCE);
-    }
-
     //
 
-    void Resolver::WritePresentResource(
-        const ResourceViewId& viewId)
-    {
-        auto resource = m_Storage.GetResource(viewId.GetResource());
-        auto texture  = resource->AsTexture();
-        AME_LOG_ASSERT(Log::Gfx(), resource->IsImported(), "Resource is not imported");
-        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
-
-        WriteResourceEmpty(viewId.GetResource());
-        AppendResourceState(viewId, { Rhi::AccessBits::UNKNOWN, Rhi::StageBits::ALL });
-        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::PRESENT);
-    }
-
-    //
-
-    void Resolver::WriteRenderTarget(
+    void Resolver::WriteRenderTargetImpl(
         const ResourceViewId&          viewId,
-        Rhi::StageBits                 stages,
-        const RtvCustomDesc&           RtvDesc,
+        Rhi::AccessLayoutStage         accessType,
+        const RtvCustomDesc&           rtvDesc,
         Rhi::ResourceFormat            format,
-        const Rhi::TextureSubresource& Subresource)
+        const Rhi::TextureSubresource& subresource)
     {
         auto resource = m_Storage.GetResource(viewId.GetResource());
         auto texture  = resource->AsTexture();
         AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         RenderTargetViewDesc viewDesc{
-            { .Subresource = Subresource,
+            { .Subresource = subresource,
               .Format      = format },
-            { .ClearColor = RtvDesc.ClearColor,
-              .ClearType  = RtvDesc.ClearType,
-              .ForceColor = RtvDesc.ForceColor }
+            { .ClearColor = rtvDesc.ClearColor,
+              .ClearType  = rtvDesc.ClearType,
+              .ForceColor = rtvDesc.ForceColor }
         };
 
         switch (texture->Desc.type)
@@ -185,23 +162,23 @@ namespace Ame::RG
             break;
         }
 
-        WriteTexture(viewId, viewDesc, { Rhi::AccessBits::COLOR_ATTACHMENT, stages }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
-        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COLOR_ATTACHMENT);
+        WriteTexture(viewId, viewDesc, { accessType.access, accessType.stages }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
+        SetTextureLayout(viewId.GetResource(), accessType.layout);
         m_RenderTargets.emplace_back(viewId);
     }
 
-    void Resolver::WriteRenderTarget(
+    void Resolver::WriteRenderTargetImpl(
         const ResourceViewId&          viewId,
-        Rhi::StageBits                 stages,
+        Rhi::AccessLayoutStage         accessType,
         Rhi::ResourceFormat            format,
-        const Rhi::TextureSubresource& Subresource)
+        const Rhi::TextureSubresource& subresource)
     {
         auto resource = m_Storage.GetResource(viewId.GetResource());
         auto texture  = resource->AsTexture();
         AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         RenderTargetViewDesc viewDesc{
-            { .Subresource = Subresource,
+            { .Subresource = subresource,
               .Format      = format }
         };
 
@@ -218,9 +195,55 @@ namespace Ame::RG
             break;
         }
 
-        WriteTexture(viewId, viewDesc, { Rhi::AccessBits::COLOR_ATTACHMENT, stages }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
-        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COLOR_ATTACHMENT);
+        WriteTexture(viewId, viewDesc, { accessType.access, accessType.stages }, Rhi::TextureUsageBits::COLOR_ATTACHMENT);
+        SetTextureLayout(viewId.GetResource(), accessType.layout);
         m_RenderTargets.emplace_back(viewId);
+    }
+
+    //
+
+    void Resolver::WriteCopyDstResource(
+        const ResourceViewId& viewId)
+    {
+        WriteResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::COPY_SOURCE, Rhi::StageBits::NONE });
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::COPY_SOURCE);
+    }
+
+    //
+
+    void Resolver::WriteRenderTarget(
+        const ResourceViewId&          viewId,
+        Rhi::StageBits                 stages,
+        const RtvCustomDesc&           rtvDesc,
+        Rhi::ResourceFormat            format,
+        const Rhi::TextureSubresource& subresource)
+    {
+        WriteRenderTargetImpl(viewId, { Rhi::AccessBits::COLOR_ATTACHMENT, Rhi::LayoutType::COLOR_ATTACHMENT, stages }, rtvDesc, format, subresource);
+    }
+
+    void Resolver::WriteRenderTarget(
+        const ResourceViewId&          viewId,
+        Rhi::StageBits                 stages,
+        Rhi::ResourceFormat            format,
+        const Rhi::TextureSubresource& subresource)
+    {
+        WriteRenderTargetImpl(viewId, { Rhi::AccessBits::COLOR_ATTACHMENT, Rhi::LayoutType::COLOR_ATTACHMENT, stages }, format, subresource);
+    }
+
+    //
+
+    void Resolver::WritePresentResource(
+        const ResourceViewId& viewId,
+        const RtvCustomDesc&  rtvDesc)
+    {
+        WriteRenderTargetImpl(viewId, { Rhi::AccessBits::UNKNOWN, Rhi::LayoutType::PRESENT, Rhi::StageBits::ALL }, rtvDesc);
+    }
+
+    void Resolver::WritePresentResource(
+        const ResourceViewId& viewId)
+    {
+        WriteRenderTargetImpl(viewId, { Rhi::AccessBits::UNKNOWN, Rhi::LayoutType::PRESENT, Rhi::StageBits::ALL });
     }
 
     //
@@ -230,14 +253,14 @@ namespace Ame::RG
         Rhi::StageBits                 stages,
         const DsvCustomDesc&           DsvDesc,
         Rhi::ResourceFormat            format,
-        const Rhi::TextureSubresource& Subresource)
+        const Rhi::TextureSubresource& subresource)
     {
         auto resource = m_Storage.GetResource(viewId.GetResource());
         auto texture  = resource->AsTexture();
         AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         DepthStencilViewDesc viewDesc{
-            { .Subresource = Subresource,
+            { .Subresource = subresource,
               .Format      = format },
             { .Depth     = DsvDesc.Depth,
               .Stencil   = DsvDesc.Stencil,
@@ -266,14 +289,14 @@ namespace Ame::RG
         const ResourceViewId&          viewId,
         Rhi::StageBits                 stages,
         Rhi::ResourceFormat            format,
-        const Rhi::TextureSubresource& Subresource)
+        const Rhi::TextureSubresource& subresource)
     {
         auto resource = m_Storage.GetResource(viewId.GetResource());
         auto texture  = resource->AsTexture();
         AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
 
         DepthStencilViewDesc viewDesc{
-            { .Subresource = Subresource,
+            { .Subresource = subresource,
               .Format      = format }
         };
 

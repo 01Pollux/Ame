@@ -40,18 +40,16 @@ namespace Ame::RG
                     },
                     [&](const TextureResource& texture)
                     {
-                        auto it = texture.Views.find(viewId);
-                        AME_LOG_ASSERT(Log::Gfx(), it != texture.Views.end(), "Resource view doesn't exists");
-
+                        auto view = std::get<RhiTextureViewRef>(resourceStorage.GetResourceView(viewId));
                         std::visit(
                             VariantVisitor{
-                                [&](const auto& view)
+                                [&](const auto& viewDesc)
                                 {
-                                    auto& curState = m_TextureStatesToTransitions[viewId.GetResource()][view.Subresource];
+                                    auto& curState = m_TextureStatesToTransitions[viewId.GetResource()][viewDesc.Subresource];
                                     curState.access |= state.access;
                                     curState.stages |= state.stages;
                                 } },
-                            it->second.Desc);
+                            view.get().Desc);
                     } },
                 resource.Get());
         }

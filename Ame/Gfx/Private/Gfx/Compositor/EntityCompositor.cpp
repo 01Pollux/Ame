@@ -38,18 +38,30 @@ namespace Ame::Gfx
     }
 
     void EntityCompositor::RenderGraph(
-        const Ecs::Entity&               cameraEntity,
-        const Ecs::Component::Camera&    cameraComponent,
-        const Ecs::Component::Transform& cameraTransform)
+        const Math::Camera& camera)
+    {
+        m_Graph.get().UpdateFrameStorage(
+            Ecs::Entity::c_Null,
+            Math::Matrix4x4::Constants::Identity,
+            camera.GetProjectionMatrix(),
+            camera.GetViewporSize());
+
+        ExecuteAndClearGraph();
+    }
+
+    void EntityCompositor::RenderGraph(
+        const Ecs::Entity&           cameraEntity,
+        const Math::Camera&          camera,
+        const Math::TransformMatrix& transform)
     {
         m_Graph.get().UpdateFrameStorage(
             cameraEntity,
-            cameraTransform,
-            cameraComponent.GetProjectionMatrix(),
-            cameraComponent.GetViewporSize());
+            transform,
+            camera.GetProjectionMatrix(),
+            camera.GetViewporSize());
 
         GetRenderables(cameraEntity);
-        FetchAndSortDrawData(cameraEntity, cameraComponent, cameraTransform);
+        FetchAndSortDrawData(cameraEntity, camera, transform);
         ExecuteAndClearGraph();
     }
 
@@ -104,15 +116,15 @@ namespace Ame::Gfx
     }
 
     void EntityCompositor::FetchAndSortDrawData(
-        const Ecs::Entity&               cameraEntity,
-        const Ecs::Component::Camera&    cameraComponent,
-        const Ecs::Component::Transform& cameraTransform)
+        const Ecs::Entity&           cameraEntity,
+        const Math::Camera&          camera,
+        const Math::TransformMatrix& transform)
     {
         Signals::Data::DrawCompositorData drawData{
             .Compositor      = DrawCompositorSubmitter(m_DrawCompositor),
             .CameraEntity    = cameraEntity,
-            .CameraComponent = cameraComponent,
-            .CameraTransform = cameraTransform,
+            .CameraComponent = camera,
+            .CameraTransform = transform,
             .Entities        = m_DrawInfos
         };
         m_OnRenderCompose(drawData);

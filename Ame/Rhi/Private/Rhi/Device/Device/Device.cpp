@@ -99,7 +99,7 @@ namespace Ame::Rhi
         m_Impl->EndFrame();
     }
 
-    Co::result<void> Device::WaitIdle()
+    void Device::WaitIdle()
     {
         return m_Impl->WaitIdle();
     }

@@ -18,10 +18,10 @@ namespace Ame::RG
         m_CommandList = &commandList;
         std::vector<Rhi::ClearDesc> clearDescs(renderTargets.size() + (depthStencil ? 1 : 0));
 
-        auto Rtvs = SetupRenderTargets(resourceStorage, clearDescs, renderTargets);
-        auto Dsv  = SetupDepthStencil(resourceStorage, clearDescs, depthStencil);
+        auto rtvs = SetupRenderTargets(resourceStorage, clearDescs, renderTargets);
+        auto dsv  = SetupDepthStencil(resourceStorage, clearDescs, depthStencil);
 
-        m_CommandList->BeginRendering(Rtvs, Dsv);
+        m_CommandList->BeginRendering(rtvs, dsv);
         if (!clearDescs.empty())
         {
             m_CommandList->ClearAttachments(clearDescs);

@@ -32,6 +32,10 @@ namespace Ame::RG
 
     struct FrameResourceCPU : FrameResourceGPU
     {
+        /// <summary>
+        /// Camera can be null indicating that the graph is being rendered without a camera.
+        /// In that case, world and view matrices are identity matrices.
+        /// </summary>
         Ecs::Entity CurrentCamera;
     };
 } // namespace Ame::RG

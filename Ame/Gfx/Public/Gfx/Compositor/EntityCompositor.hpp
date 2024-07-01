@@ -62,12 +62,18 @@ namespace Ame::Gfx
         void UpdateGraph();
 
         /// <summary>
+        /// Dispatches rendergraph without camera.
+        /// </summary>
+        void RenderGraph(
+            const Math::Camera& camera);
+
+        /// <summary>
         /// Dispatches the camera to the render graph.
         /// </summary>
         void RenderGraph(
-            const Ecs::Entity&               cameraEntity,
-            const Ecs::Component::Camera&    cameraComponent,
-            const Ecs::Component::Transform& cameraTransform);
+            const Ecs::Entity&           cameraEntity,
+            const Math::Camera&          camera,
+            const Math::TransformMatrix& transform);
 
     private:
         /// <summary>
@@ -86,9 +92,9 @@ namespace Ame::Gfx
         /// Fetches entities and sorts them.
         /// </summary>
         void FetchAndSortDrawData(
-            const Ecs::Entity&               cameraEntity,
-            const Ecs::Component::Camera&    cameraComponent,
-            const Ecs::Component::Transform& cameraTransform);
+            const Ecs::Entity&           cameraEntity,
+            const Math::Camera&          camera,
+            const Math::TransformMatrix& transform);
 
         /// <summary>
         /// Executes the render graph and clears the compositor.

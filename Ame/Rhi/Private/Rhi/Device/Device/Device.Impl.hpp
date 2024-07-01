@@ -103,7 +103,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Idle the GPU.
         /// </summary>
-        [[nodiscard]] Co::result<void> WaitIdle();
+        void WaitIdle();
 
     public:
         /// <summary>

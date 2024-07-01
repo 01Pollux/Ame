@@ -16,7 +16,7 @@ AME_MAIN(Argc, Argv)
     Log::Client().Info("Hello, World!");
     Log::Editor().Warning("Ignored");
 
-    application.Run();
+    application.Run().wait();
 
     Log::Client().Error("Goodbye, World!");
 }

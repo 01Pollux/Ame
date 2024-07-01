@@ -106,6 +106,12 @@ namespace Ame::RG
         /// <summary>
         /// Get resource view descriptor from id
         /// </summary>
+        [[nodiscard]] RhiResourceView GetResourceView(
+            const ResourceViewId& viewId) const;
+
+        /// <summary>
+        /// Get resource view descriptor from id
+        /// </summary>
         [[nodiscard]] const Rhi::ResourceView* GetResourceViewHandle(
             const ResourceViewId& viewId) const;
 

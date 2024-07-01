@@ -104,6 +104,7 @@ namespace Ame::RG
     {
         CheckResourceState(true, true);
         m_Resource = std::move(resource);
+        InitializeViewMap();
 
         std::visit(
             VariantVisitor{
@@ -117,8 +118,7 @@ namespace Ame::RG
                 } },
             m_Resource);
 
-        m_ImportViewsChanged = true;
-        m_IsImported         = true;
+        m_IsImported = true;
 
 #ifndef AME_DIST
         m_Name.clear();
@@ -131,9 +131,9 @@ namespace Ame::RG
     {
         CheckResourceState(true, true);
         m_Resource = std::move(resource);
+        InitializeViewMap();
 
-        m_ImportViewsChanged = false;
-        m_IsImported         = false;
+        m_IsImported = false;
 
 #ifndef AME_DIST
         m_Name = id.GetName();
@@ -173,22 +173,22 @@ namespace Ame::RG
         const ResourceViewId&         viewId,
         const BufferResourceViewDesc& desc)
     {
-        auto buffer = AsBuffer();
-        AME_LOG_ASSERT(Log::Gfx(), buffer != nullptr, "Resource is not a buffer");
+        auto viewMap = std::get_if<RhiBufferViewMap>(&m_Views);
+        AME_LOG_ASSERT(Log::Gfx(), viewMap != nullptr, "Resource is not a buffer");
 
-        buffer->Views.emplace(viewId, desc);
-        return *buffer;
+        viewMap->emplace(viewId, desc);
+        return std::get<BufferResource>(m_Resource);
     }
 
     TextureResource& ResourceHandle::CreateTextureView(
         const ResourceViewId&          viewId,
         const TextureResourceViewDesc& desc)
     {
-        auto texture = AsTexture();
-        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
+        auto viewMap = std::get_if<RhiTextureViewMap>(&m_Views);
+        AME_LOG_ASSERT(Log::Gfx(), viewMap != nullptr, "Resource is not a texture");
 
-        texture->Views.emplace(viewId, desc);
-        return *texture;
+        viewMap->emplace(viewId, desc);
+        return std::get<TextureResource>(m_Resource);
     }
 
     //
@@ -197,10 +197,10 @@ namespace Ame::RG
         const ResourceViewId& viewId) const noexcept
     {
         const BufferResourceView* view = nullptr;
-        if (auto buffer = AsBuffer())
+        if (auto viewMap = std::get_if<RhiBufferViewMap>(&m_Views))
         {
-            auto viewIter = buffer->Views.find(viewId);
-            view          = viewIter != buffer->Views.end() ? &viewIter->second : nullptr;
+            auto iter = viewMap->find(viewId);
+            view      = iter != viewMap->end() ? &iter->second : nullptr;
         }
         return view;
     }
@@ -209,11 +209,30 @@ namespace Ame::RG
         const ResourceViewId& viewId) const noexcept
     {
         const TextureResourceView* view = nullptr;
-        if (auto texture = AsTexture())
+        if (auto viewMap = std::get_if<RhiTextureViewMap>(&m_Views))
         {
-            auto viewIter = texture->Views.find(viewId);
-            view          = viewIter != texture->Views.end() ? &viewIter->second : nullptr;
+            auto iter = viewMap->find(viewId);
+            view      = iter != viewMap->end() ? &iter->second : nullptr;
         }
+        return view;
+    }
+
+    RhiResourceView ResourceHandle::GetView(
+        const ResourceViewId& viewId) const noexcept
+    {
+        RhiResourceView view = std::monostate{};
+        std::visit(
+            VariantVisitor{
+                [&](std::monostate) {},
+                [&](const auto& viewMap)
+                {
+                    auto iter = viewMap.find(viewId);
+                    if (iter != viewMap.end())
+                    {
+                        view = iter->second;
+                    }
+                } },
+            m_Views);
         return view;
     }
 
@@ -269,11 +288,36 @@ namespace Ame::RG
 
     //
 
+    void ResourceHandle::InitializeViewMap()
+    {
+        if (m_Views.index() != m_Resource.index())
+        {
+            std::visit(
+                VariantVisitor{
+                    [&](std::monostate)
+                    {
+                        m_Views = {};
+                    },
+                    [&](const BufferResource&)
+                    {
+                        m_Views = RhiBufferViewMap{};
+                    },
+                    [&](const TextureResource&)
+                    {
+                        m_Views = RhiTextureViewMap{};
+                    } },
+                m_Resource);
+        }
+    }
+
+    //
+
     void ResourceHandle::RecreateViews(
         ResourceCacheStorage& cacheStorage,
         BufferResource&       bufferResource)
     {
-        for (auto& [id, view] : bufferResource.Views)
+        auto& viewMap = std::get<RhiBufferViewMap>(m_Views);
+        for (auto& [id, view] : viewMap)
         {
             view.View = cacheStorage.CreateView(bufferResource.Resource, view.Desc);
         }
@@ -283,7 +327,8 @@ namespace Ame::RG
         ResourceCacheStorage& cacheStorage,
         TextureResource&      textureResource)
     {
-        for (auto& [id, view] : textureResource.Views)
+        auto& viewMap = std::get<RhiTextureViewMap>(m_Views);
+        for (auto& [id, view] : viewMap)
         {
             std::visit(
                 VariantVisitor{

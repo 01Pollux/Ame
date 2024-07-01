@@ -6,16 +6,18 @@
 #include <Gfx/Compositor/EntityDrawInfo.hpp>
 #include <Gfx/Compositor/DrawCompositorSubmitter.hpp>
 
-namespace Ame::Ecs::Component
+namespace Ame
 {
-    class Camera;
-    class Transform;
-} // namespace Ame::Ecs::Component
-
-namespace Ame::Gfx
-{
-    class EntityCompositor;
-} // namespace Ame::Gfx
+    namespace Math
+    {
+        class Camera;
+        class Transform;
+    } // namespace Math
+    namespace Gfx
+    {
+        class EntityCompositor;
+    } // namespace Gfx
+} // namespace Ame
 
 namespace Ame::Signals
 {
@@ -25,9 +27,9 @@ namespace Ame::Signals
         {
             Gfx::DrawCompositorSubmitter Compositor;
 
-            Ecs::Entity                     CameraEntity;
-            CRef<Ecs::Component::Camera>    CameraComponent;
-            CRef<Ecs::Component::Transform> CameraTransform;
+            Ecs::Entity                 CameraEntity;
+            CRef<Math::Camera>          CameraComponent;
+            CRef<Math::TransformMatrix> CameraTransform;
 
             std::span<const Gfx::EntityDrawInfo> Entities;
 

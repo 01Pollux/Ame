@@ -1,6 +1,7 @@
 #include <Gfx/Renderer.hpp>
 
 #include <RG/Graph.hpp>
+
 #include <Ecs/Component/Viewport/CameraOutput.hpp>
 #include <Ecs/Component/Math/Transform.hpp>
 #include <Ecs/Component/Viewport/Camera.hpp>
@@ -110,6 +111,25 @@ namespace Ame::Gfx
 
         //
 
-        m_CameraQuery->iter(std::move(renderCallback));
+        if (!m_CameraQuery.IsValid() || m_CameraQuery->count() == 0)
+        {
+            auto& windowManager  = m_Device.get().GetWindowManager();
+            auto& backbuffer     = windowManager.GetBackbuffer().get();
+            auto& backbufferDesc = backbuffer.Resource.GetDesc();
+
+            auto viewport = m_DefaultCamera.GetViewport();
+            if (viewport.Width != backbufferDesc.width || viewport.Height != backbufferDesc.height)
+            {
+                viewport.Width  = static_cast<float>(backbufferDesc.width);
+                viewport.Height = static_cast<float>(backbufferDesc.height);
+                m_DefaultCamera.SetViewport(viewport);
+            }
+
+            m_EntityCompositor.get().RenderGraph(m_DefaultCamera);
+        }
+        else
+        {
+            m_CameraQuery->iter(std::move(renderCallback));
+        }
     }
 } // namespace Ame::Gfx

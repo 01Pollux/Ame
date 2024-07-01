@@ -56,14 +56,15 @@ namespace Ame::Rhi
             const Texture&         texture,
             const TextureViewDesc& viewDesc)
         {
+            auto subresource = viewDesc.Subresource.Transform(texture);
             return {
                 .texture     = texture.Unwrap(),
                 .viewType    = Convert(viewDesc.Type),
                 .format      = viewDesc.Format == ResourceFormat::UNKNOWN ? texture.GetDesc().format : viewDesc.Format,
-                .mipOffset   = viewDesc.Subresource.Mips.Offset,
-                .mipNum      = viewDesc.Subresource.Mips.Count,
-                .arrayOffset = viewDesc.Subresource.Array.Offset,
-                .arraySize   = viewDesc.Subresource.Array.Count,
+                .mipOffset   = subresource.Mips.Offset,
+                .mipNum      = subresource.Mips.Count,
+                .arrayOffset = subresource.Array.Offset,
+                .arraySize   = subresource.Array.Count,
                 .flags       = ConvertViewBits(viewDesc.Flags)
             };
         }
@@ -104,14 +105,15 @@ namespace Ame::Rhi
             const Texture&         texture,
             const TextureViewDesc& viewDesc)
         {
+            auto subresource = viewDesc.Subresource.Transform(texture);
             return {
                 .texture     = texture.Unwrap(),
                 .viewType    = Convert(viewDesc.Type),
                 .format      = viewDesc.Format == ResourceFormat::UNKNOWN ? texture.GetDesc().format : viewDesc.Format,
-                .mipOffset   = viewDesc.Subresource.Mips.Offset,
-                .mipNum      = viewDesc.Subresource.Mips.Count,
-                .arrayOffset = viewDesc.Subresource.Array.Offset,
-                .arraySize   = viewDesc.Subresource.Array.Count,
+                .mipOffset   = subresource.Mips.Offset,
+                .mipNum      = subresource.Mips.Count,
+                .arrayOffset = subresource.Array.Offset,
+                .arraySize   = subresource.Array.Count,
                 .flags       = ConvertViewBits(viewDesc.Flags)
             };
         }
@@ -142,14 +144,15 @@ namespace Ame::Rhi
             const Texture&         texture,
             const TextureViewDesc& viewDesc)
         {
+            auto subresource = viewDesc.Subresource.Transform(texture);
             return {
                 .texture     = texture.Unwrap(),
                 .viewType    = Convert(viewDesc.Type),
                 .format      = viewDesc.Format == ResourceFormat::UNKNOWN ? texture.GetDesc().format : viewDesc.Format,
-                .mipOffset   = viewDesc.Subresource.Mips.Offset,
-                .mipNum      = viewDesc.Subresource.Mips.Count,
-                .sliceOffset = viewDesc.Subresource.Array.Offset,
-                .sliceNum    = viewDesc.Subresource.Array.Count,
+                .mipOffset   = subresource.Mips.Offset,
+                .mipNum      = subresource.Mips.Count,
+                .sliceOffset = subresource.Array.Offset,
+                .sliceNum    = subresource.Array.Count,
                 .flags       = ConvertViewBits(viewDesc.Flags)
             };
         }
@@ -179,12 +182,13 @@ namespace Ame::Rhi
             const Buffer&         buffer,
             const BufferViewDesc& viewDesc)
         {
+            auto range = viewDesc.Range.Transform(buffer);
             return {
                 .buffer   = buffer.Unwrap(),
                 .viewType = Convert(viewDesc.Type),
                 .format   = viewDesc.Format,
-                .offset   = viewDesc.Range.Offset,
-                .size     = viewDesc.Range.Size,
+                .offset   = range.Offset,
+                .size     = range.Size,
             };
         }
     };

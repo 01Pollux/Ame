@@ -41,8 +41,9 @@ namespace Ame::Gfx
         }
 
         BuildRenderGraph();
-        m_Device.get().ProcessTasks();
         RunRenderGraph();
+
+        m_Device.get().ProcessTasks();
 
         m_Device.get().EndFrame();
         co_return;

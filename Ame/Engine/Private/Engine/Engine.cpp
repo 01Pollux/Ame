@@ -3,6 +3,8 @@
 #include <Subsystem/Core/FrameTimer.hpp>
 #include <Subsystem/Core/EngineFrame.hpp>
 
+#include <Log/Wrapper.hpp>
+
 namespace Ame
 {
     [[nodiscard]] std::vector<Ref<IEngineTick>> GetAllTickables(
@@ -29,17 +31,27 @@ namespace Ame
 
         //
 
-        while (engineFrame.IsRunning())
+        try
         {
-            frameTimer.Tick();
-
-            for (auto& tickable : allTickables)
+            while (engineFrame.IsRunning())
             {
-                allTasks.emplace_back(tickable.get().Tick(runtime));
-            }
+                frameTimer.Tick();
 
-            co_await Co::when_all(runtime.inline_executor(), allTasks.begin(), allTasks.end()).run();
-            allTasks.clear();
+                for (auto& tickable : allTickables)
+                {
+                    allTasks.emplace_back(tickable.get().Tick(runtime));
+                }
+
+                for (auto& task : co_await Co::when_all(runtime.inline_executor(), allTasks.begin(), allTasks.end()).run())
+                {
+                    task.get();
+                }
+                allTasks.clear();
+            }
+        }
+        catch (const std::exception& e)
+        {
+            Log::Engine().Fatal("Fatal exception occurred: {}", e.what());
         }
 
         //

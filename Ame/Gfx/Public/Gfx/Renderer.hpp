@@ -6,6 +6,9 @@
 #include <Ecs/Universe.hpp>
 #include <Gfx/Compositor.hpp>
 
+#include <Math/Camera.hpp>
+#include <Math/Transform.hpp>
+
 namespace Ame
 {
     class EngineFrame;
@@ -79,7 +82,7 @@ namespace Ame::Gfx
         /// Build the render graph if needed
         /// </summary>
         void BuildRenderGraph();
-        
+
         /// <summary>
         /// Run the render graph to render the frame
         /// </summary>
@@ -97,5 +100,6 @@ namespace Ame::Gfx
         Signals::ScopedConnection m_OnWorldChange;
 
         CameraRenderQuery m_CameraQuery;
+        Math::Camera      m_DefaultCamera;
     };
 } // namespace Ame::Gfx

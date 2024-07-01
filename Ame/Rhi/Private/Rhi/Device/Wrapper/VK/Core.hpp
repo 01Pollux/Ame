@@ -48,7 +48,7 @@ namespace Ame::Rhi::VK
 #ifndef AME_DIST
             Log::Rhi().Assert(false, std::move(message));
 #else
-            if (FAILED(hr))
+            if (FAILED(result))
             {
                 Log::Rhi().Error(std::move(message));
             }

@@ -14,13 +14,18 @@ namespace Ame::RG
         uint64_t timeStamp = m_RhiDevice.get().GetFrameCount();
 
         size_t hash = std::hash<Rhi::BufferViewDesc>{}(desc);
-        auto   it   = m_ResourceViews.find(hash);
+        HashCombine(hash, buffer.Unwrap());
 
+        auto it = m_ResourceViews.find(hash);
         if (it != m_ResourceViews.end())
         {
-            // Update the time stamp
-            m_ResourceViewTimeStamps.erase({ it->second.Hash, it->second.TimeStamp });
-            m_ResourceViewTimeStamps.insert({ it->second.Hash, timeStamp });
+            if (it->second.TimeStamp < timeStamp)
+            {
+                // Update the time stamp
+                m_ResourceViewTimeStamps.erase({ it->second.Hash, it->second.TimeStamp });
+                m_ResourceViewTimeStamps.insert({ it->second.Hash, timeStamp });
+                it->second.TimeStamp = timeStamp;
+            }
         }
         else
         {
@@ -38,23 +43,28 @@ namespace Ame::RG
     {
         uint64_t timeStamp = m_RhiDevice.get().GetFrameCount();
 
-		size_t hash = std::hash<Rhi::TextureViewDesc>{}(textureDesc);
-		auto   it   = m_ResourceViews.find(hash);
+        size_t hash = std::hash<Rhi::TextureViewDesc>{}(textureDesc);
+        HashCombine(hash, texture.Unwrap());
 
-		if (it != m_ResourceViews.end())
-		{
-			// Update the time stamp
-			m_ResourceViewTimeStamps.erase({ it->second.Hash, it->second.TimeStamp });
-			m_ResourceViewTimeStamps.insert({ it->second.Hash, timeStamp });
-		}
-		else
-		{
-			// Create a new resource view
-			it = m_ResourceViews.emplace(hash, ResourceViewTimeStamp{ texture.CreateView(textureDesc), hash, timeStamp }).first;
-			m_ResourceViewTimeStamps.insert({ hash, timeStamp });
-		}
+        auto it = m_ResourceViews.find(hash);
+        if (it != m_ResourceViews.end())
+        {
+            if (it->second.TimeStamp < timeStamp)
+            {
+                // Update the time stamp
+                m_ResourceViewTimeStamps.erase({ it->second.Hash, it->second.TimeStamp });
+                m_ResourceViewTimeStamps.insert({ it->second.Hash, timeStamp });
+                it->second.TimeStamp = timeStamp;
+            }
+        }
+        else
+        {
+            // Create a new resource view
+            it = m_ResourceViews.emplace(hash, ResourceViewTimeStamp{ texture.CreateView(textureDesc), hash, timeStamp }).first;
+            m_ResourceViewTimeStamps.insert({ hash, timeStamp });
+        }
 
-		return it->second.View;
+        return it->second.View;
     }
 
     void ResourceCacheStorage::ReleaseTimestamps()
@@ -66,7 +76,19 @@ namespace Ame::RG
             return;
         }
 
-        timeStamp -= frameCount;
-        m_ResourceViewTimeStamps.erase(m_ResourceViewTimeStamps.begin(), m_ResourceViewTimeStamps.lower_bound({ 0, timeStamp }));
+        timeStamp = timeStamp - frameCount;
+
+        auto end = m_ResourceViewTimeStamps.upper_bound({ 0, timeStamp });
+        auto it  = m_ResourceViewTimeStamps.begin();
+
+        if (it != end)
+        {
+            while (it != end)
+            {
+                m_ResourceViews.erase(it->Hash);
+                it++;
+            }
+            m_ResourceViewTimeStamps.erase(m_ResourceViewTimeStamps.begin(), end);
+        }
     }
 } // namespace Ame::RG
