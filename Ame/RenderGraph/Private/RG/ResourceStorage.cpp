@@ -13,12 +13,19 @@ namespace Ame::RG
         Rhi::Device& rhiDevice) :
         m_Device(rhiDevice),
         m_StateTracker(rhiDevice.GetDesc()),
+        m_ResourceCache(rhiDevice),
         m_CoreResources(std::make_unique<CoreResources>(rhiDevice))
     {
         ImportCoreResources();
     }
 
-    ResourceStorage::~ResourceStorage() = default;
+    ResourceStorage::~ResourceStorage()
+    {
+        for (auto& [_, resource] : m_Resources)
+        {
+            resource.Release();
+        }
+    }
 
     //
 
@@ -170,8 +177,9 @@ namespace Ame::RG
         auto& resourceAllocator = m_Device.get().GetResourceAllocator();
         for (auto& Handle : m_Resources)
         {
-            Handle.second.Reallocate(m_StateTracker, resourceAllocator);
+            Handle.second.Reallocate(m_StateTracker, m_ResourceCache, resourceAllocator);
         }
+        m_ResourceCache.ReleaseTimestamps();
     }
 
     BufferResource& ResourceStorage::DeclareBufferView(

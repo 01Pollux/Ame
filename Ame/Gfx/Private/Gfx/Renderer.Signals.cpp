@@ -28,9 +28,4 @@ namespace Ame::Gfx
                     .build();
         }
     }
-
-    void Renderer::OnUpdate()
-    {
-        m_EntityCompositor.get().UpdateGraph();
-    }
 } // namespace Ame::Gfx

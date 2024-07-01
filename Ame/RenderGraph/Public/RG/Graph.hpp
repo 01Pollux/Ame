@@ -19,7 +19,7 @@ namespace Ame::RG
         /// <summary>
         /// Build the render graph if needed
         /// </summary>
-        void Update();
+        void Build();
 
         /// <summary>
         /// Update the frame storage

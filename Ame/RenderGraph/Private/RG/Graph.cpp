@@ -11,7 +11,7 @@ namespace Ame::RG
     {
     }
 
-    void Graph::Update()
+    void Graph::Build()
     {
         m_Passes.Build(m_Context);
         m_Context.Update();

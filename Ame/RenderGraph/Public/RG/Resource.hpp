@@ -192,10 +192,15 @@ namespace Ame::RG
 
     public:
         /// <summary>
-        /// Release resource
+        /// Release resource and remove from state tracker
         /// </summary>
         void Release(
             ResourceStateTracker& stateTracker);
+
+        /// <summary>
+        /// Release resource
+        /// </summary>
+        void Release();
 
     public:
         /// <summary>
@@ -298,6 +303,7 @@ namespace Ame::RG
         /// </summary>
         void Reallocate(
             ResourceStateTracker&         stateTracker,
+            ResourceCacheStorage&         cacheStorage,
             Rhi::DeviceResourceAllocator& allocator);
 
     private:
@@ -305,14 +311,14 @@ namespace Ame::RG
         /// Recreate resource views
         /// </summary>
         void RecreateViews(
-            Rhi::DeviceResourceAllocator& allocator,
+            ResourceCacheStorage&         cacheStorage,
             BufferResource&               bufferResource);
 
         /// <summary>
         /// Recreate resource views
         /// </summary>
         void RecreateViews(
-            Rhi::DeviceResourceAllocator& allocator,
+            ResourceCacheStorage&         cacheStorage,
             TextureResource&              textureResource);
 
     private:

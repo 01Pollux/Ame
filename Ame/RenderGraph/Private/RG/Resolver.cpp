@@ -138,6 +138,21 @@ namespace Ame::RG
 
     //
 
+    void Resolver::WritePresentResource(
+        const ResourceViewId& viewId)
+    {
+        auto resource = m_Storage.GetResource(viewId.GetResource());
+        auto texture  = resource->AsTexture();
+        AME_LOG_ASSERT(Log::Gfx(), resource->IsImported(), "Resource is not imported");
+        AME_LOG_ASSERT(Log::Gfx(), texture != nullptr, "Resource is not a texture");
+
+        WriteResourceEmpty(viewId.GetResource());
+        AppendResourceState(viewId, { Rhi::AccessBits::UNKNOWN, Rhi::StageBits::ALL });
+        SetTextureLayout(viewId.GetResource(), Rhi::LayoutType::PRESENT);
+    }
+
+    //
+
     void Resolver::WriteRenderTarget(
         const ResourceViewId&          viewId,
         Rhi::StageBits                 stages,

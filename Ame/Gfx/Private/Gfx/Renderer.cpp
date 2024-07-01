@@ -26,8 +26,9 @@ namespace Ame::Gfx
             using namespace std::placeholders;
 
             m_OnWorldChange = universe.OnWorldChange({ &Renderer::OnWorldChange, this, _1 });
-            m_OnUpdate      = engineFrame.OnUpdate({ &Renderer::OnUpdate, this });
         }
+
+        CreateEmptyGraph();
     }
 
     Co::result<void> Renderer::Tick(
@@ -39,8 +40,9 @@ namespace Ame::Gfx
             co_return;
         }
 
-        // RunRenderGraph();
+        BuildRenderGraph();
         m_Device.get().ProcessTasks();
+        RunRenderGraph();
 
         m_Device.get().EndFrame();
         co_return;

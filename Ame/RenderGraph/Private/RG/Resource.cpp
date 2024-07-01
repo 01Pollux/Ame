@@ -3,6 +3,7 @@
 
 #include <Rhi/Device/ResourceAllocator.hpp>
 #include <RG/StateTracker.hpp>
+#include <RG/ResourceCacheStorage.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -10,7 +11,7 @@ namespace Ame::RG
 {
     ResourceHandle::~ResourceHandle()
     {
-        CheckResourceState(true, false);
+        CheckResourceState(true, true);
     }
 
     ResourceHandle::operator bool() const noexcept
@@ -41,11 +42,31 @@ namespace Ame::RG
         m_Resource = std::monostate{};
     }
 
+    void ResourceHandle::Release()
+    {
+        if (!m_IsImported)
+        {
+            std::visit(
+                VariantVisitor{
+                    [&](std::monostate) {},
+                    [&](auto& data)
+                    {
+                        if (data.Resource)
+                        {
+                            data.Resource.Release();
+                        }
+                    } },
+                m_Resource);
+        }
+        m_Resource = std::monostate{};
+    }
+
     //
 
     void ResourceHandle::BeginTracking(
         ResourceStateTracker& stateTracker)
     {
+        CheckResourceState(false, true);
         std::visit(
             VariantVisitor{
                 [](std::monostate) {},
@@ -207,6 +228,7 @@ namespace Ame::RG
 
     void ResourceHandle::Reallocate(
         ResourceStateTracker&         stateTracker,
+        ResourceCacheStorage&         cacheStorage,
         Rhi::DeviceResourceAllocator& allocator)
     {
         std::visit(
@@ -218,30 +240,29 @@ namespace Ame::RG
                     {
                         using descType = std::decay_t<decltype(data.Desc)>;
                         size_t hash    = std::hash<descType>{}(data.Desc);
-                        if (hash == m_DescHash)
+                        if (hash != m_DescHash)
                         {
-                            return;
-                        }
-                        m_DescHash = hash;
+                            m_DescHash = hash;
 
-                        Release(stateTracker);
+                            Release(stateTracker);
 
-                        if constexpr (std::is_same_v<descType, Rhi::TextureDesc>)
-                        {
-                            data.Resource = allocator.CreateTexture(data.Desc);
-                        }
-                        else
-                        {
-                            data.Resource = allocator.CreateBuffer(data.Desc, data.Location);
-                        }
+                            if constexpr (std::is_same_v<descType, Rhi::TextureDesc>)
+                            {
+                                data.Resource = allocator.CreateTexture(data.Desc);
+                            }
+                            else
+                            {
+                                data.Resource = allocator.CreateBuffer(data.Desc, data.Location);
+                            }
 
 #ifndef AME_DIST
-                        data.Resource.SetName(m_Name.c_str());
+                            data.Resource.SetName(m_Name.c_str());
 #endif
-                        BeginTracking(stateTracker);
+                            BeginTracking(stateTracker);
+                        }
                     }
 
-                    RecreateViews(allocator, data);
+                    RecreateViews(cacheStorage, data);
                 } },
             m_Resource);
     }
@@ -249,30 +270,26 @@ namespace Ame::RG
     //
 
     void ResourceHandle::RecreateViews(
-        Rhi::DeviceResourceAllocator& allocator,
-        BufferResource&               bufferResource)
+        ResourceCacheStorage& cacheStorage,
+        BufferResource&       bufferResource)
     {
         for (auto& [id, view] : bufferResource.Views)
         {
-            // TODO: precache views for n frames
-            view.View.Release();
-            view.View = bufferResource.Resource.CreateView(view.Desc);
+            view.View = cacheStorage.CreateView(bufferResource.Resource, view.Desc);
         }
     }
 
     void ResourceHandle::RecreateViews(
-        Rhi::DeviceResourceAllocator& allocator,
-        TextureResource&              textureResource)
+        ResourceCacheStorage& cacheStorage,
+        TextureResource&      textureResource)
     {
         for (auto& [id, view] : textureResource.Views)
         {
-            // TODO: precache views for n frames
-            view.View.Release();
             std::visit(
                 VariantVisitor{
                     [&](const auto& desc)
                     {
-                        view.View = textureResource.Resource.CreateView(desc);
+                        view.View = cacheStorage.CreateView(textureResource.Resource, desc);
                     } },
                 view.Desc);
         }

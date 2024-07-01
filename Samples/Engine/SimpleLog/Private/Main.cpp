@@ -5,14 +5,12 @@
 
 AME_MAIN(Argc, Argv)
 {
-    namespace BF = Bootstrap::Features;
+    Log::Logger::Register(Log::Names::c_Engine, "Engine.log");
+    Log::Logger::Register(Log::Names::c_Client, "Client.log");
+    Log::Logger::Register(Log::Names::c_Client, "Ignore.log");
 
     auto application =
         Bootstrap::Application()
-            .Feature<BF::Logger>(Log::Names::c_Engine, "Engine.log")
-            .Feature<BF::Logger>(Log::Names::c_Client, "Client.log")
-            .Feature<BF::Logger>(Log::Names::c_Client, "Ignore.log")
-            .Feature<BF::Logger>(Log::Names::c_Asset, nullptr)
             .Build();
 
     Log::Client().Info("Hello, World!");

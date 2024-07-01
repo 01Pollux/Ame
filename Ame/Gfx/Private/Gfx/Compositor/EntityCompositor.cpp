@@ -34,7 +34,7 @@ namespace Ame::Gfx
     void EntityCompositor::UpdateGraph()
     {
         FlushAndUploadResourcesToGraph();
-        m_Graph.get().Update();
+        m_Graph.get().Build();
     }
 
     void EntityCompositor::RenderGraph(

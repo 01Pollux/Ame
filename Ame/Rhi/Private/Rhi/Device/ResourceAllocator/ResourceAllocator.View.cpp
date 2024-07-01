@@ -53,18 +53,18 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::Texture&          nriTexture,
-            const TextureViewDesc& desc)
+            const Texture&         texture,
+            const TextureViewDesc& viewDesc)
         {
             return {
-                .texture     = &nriTexture,
-                .viewType    = Convert(desc.Type),
-                .format      = desc.Format,
-                .mipOffset   = desc.Subresource.Mips.Offset,
-                .mipNum      = desc.Subresource.Mips.Count,
-                .arrayOffset = desc.Subresource.Array.Offset,
-                .arraySize   = desc.Subresource.Array.Count,
-                .flags       = ConvertViewBits(desc.Flags)
+                .texture     = texture.Unwrap(),
+                .viewType    = Convert(viewDesc.Type),
+                .format      = viewDesc.Format == ResourceFormat::UNKNOWN ? texture.GetDesc().format : viewDesc.Format,
+                .mipOffset   = viewDesc.Subresource.Mips.Offset,
+                .mipNum      = viewDesc.Subresource.Mips.Count,
+                .arrayOffset = viewDesc.Subresource.Array.Offset,
+                .arraySize   = viewDesc.Subresource.Array.Count,
+                .flags       = ConvertViewBits(viewDesc.Flags)
             };
         }
     };
@@ -101,18 +101,18 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::Texture&          nriTexture,
-            const TextureViewDesc& desc)
+            const Texture&         texture,
+            const TextureViewDesc& viewDesc)
         {
             return {
-                .texture     = &nriTexture,
-                .viewType    = Convert(desc.Type),
-                .format      = desc.Format,
-                .mipOffset   = desc.Subresource.Mips.Offset,
-                .mipNum      = desc.Subresource.Mips.Count,
-                .arrayOffset = desc.Subresource.Array.Offset,
-                .arraySize   = desc.Subresource.Array.Count,
-                .flags       = ConvertViewBits(desc.Flags)
+                .texture     = texture.Unwrap(),
+                .viewType    = Convert(viewDesc.Type),
+                .format      = viewDesc.Format == ResourceFormat::UNKNOWN ? texture.GetDesc().format : viewDesc.Format,
+                .mipOffset   = viewDesc.Subresource.Mips.Offset,
+                .mipNum      = viewDesc.Subresource.Mips.Count,
+                .arrayOffset = viewDesc.Subresource.Array.Offset,
+                .arraySize   = viewDesc.Subresource.Array.Count,
+                .flags       = ConvertViewBits(viewDesc.Flags)
             };
         }
     };
@@ -139,18 +139,18 @@ namespace Ame::Rhi
         }
 
         static DescType Convert(
-            nri::Texture&          nriTexture,
-            const TextureViewDesc& desc)
+            const Texture&         texture,
+            const TextureViewDesc& viewDesc)
         {
             return {
-                .texture     = &nriTexture,
-                .viewType    = Convert(desc.Type),
-                .format      = desc.Format,
-                .mipOffset   = desc.Subresource.Mips.Offset,
-                .mipNum      = desc.Subresource.Mips.Count,
-                .sliceOffset = desc.Subresource.Array.Offset,
-                .sliceNum    = desc.Subresource.Array.Count,
-                .flags       = ConvertViewBits(desc.Flags)
+                .texture     = texture.Unwrap(),
+                .viewType    = Convert(viewDesc.Type),
+                .format      = viewDesc.Format == ResourceFormat::UNKNOWN ? texture.GetDesc().format : viewDesc.Format,
+                .mipOffset   = viewDesc.Subresource.Mips.Offset,
+                .mipNum      = viewDesc.Subresource.Mips.Count,
+                .sliceOffset = viewDesc.Subresource.Array.Offset,
+                .sliceNum    = viewDesc.Subresource.Array.Count,
+                .flags       = ConvertViewBits(viewDesc.Flags)
             };
         }
     };
@@ -176,26 +176,28 @@ namespace Ame::Rhi
             }
         }
         [[nodiscard]] static nri::BufferViewDesc Convert(
-            nri::Buffer&          nriBuffer,
-            const BufferViewDesc& desc)
+            const Buffer&         buffer,
+            const BufferViewDesc& viewDesc)
         {
             return {
-                .buffer   = &nriBuffer,
-                .viewType = Convert(desc.Type),
-                .format   = desc.Format,
-                .offset   = desc.Range.Offset,
-                .size     = desc.Range.Size,
+                .buffer   = buffer.Unwrap(),
+                .viewType = Convert(viewDesc.Type),
+                .format   = viewDesc.Format,
+                .offset   = viewDesc.Range.Offset,
+                .size     = viewDesc.Range.Size,
             };
         }
     };
 
+    //
+
     ResourceView Buffer::CreateView(
-        const BufferViewDesc& desc) const
+        const BufferViewDesc& viewDesc) const
     {
         auto& nriCore = m_Allocator->GetNriCore();
 
         nri::Descriptor* descriptor = nullptr;
-        auto             nriDesc    = BufferView::Convert(*Unwrap(), desc);
+        auto             nriDesc    = BufferView::Convert(*this, viewDesc);
         ThrowIfFailed(
             nriCore.CreateBufferView(nriDesc, descriptor),
             "Failed to create buffer view");
@@ -204,30 +206,30 @@ namespace Ame::Rhi
     }
 
     ResourceView Texture::CreateView(
-        const TextureViewDesc& desc) const
+        const TextureViewDesc& viewDesc) const
     {
         using namespace EnumBitOperators;
 
         auto& nriCore = m_Allocator->GetNriCore();
 
         nri::Descriptor* descriptor = nullptr;
-        if ((desc.Type & TextureViewType::AnyOneDimensional) != TextureViewType::None)
+        if ((viewDesc.Type & TextureViewType::AnyOneDimensional) != TextureViewType::None)
         {
-            auto nriDesc = TexView1D::Convert(*Unwrap(), desc);
+            auto nriDesc = TexView1D::Convert(*this, viewDesc);
             ThrowIfFailed(
                 nriCore.CreateTexture1DView(nriDesc, descriptor),
                 "Failed to create texture view");
         }
-        else if ((desc.Type & TextureViewType::AnyTwoDimensional) != TextureViewType::None)
+        else if ((viewDesc.Type & TextureViewType::AnyTwoDimensional) != TextureViewType::None)
         {
-            auto nriDesc = TexView2D::Convert(*Unwrap(), desc);
+            auto nriDesc = TexView2D::Convert(*this, viewDesc);
             ThrowIfFailed(
                 nriCore.CreateTexture2DView(nriDesc, descriptor),
                 "Failed to create texture view");
         }
-        else if ((desc.Type & TextureViewType::AnyThreeDimensional) != TextureViewType::None)
+        else if ((viewDesc.Type & TextureViewType::AnyThreeDimensional) != TextureViewType::None)
         {
-            auto nriDesc = TexView3D::Convert(*Unwrap(), desc);
+            auto nriDesc = TexView3D::Convert(*this, viewDesc);
             ThrowIfFailed(
                 nriCore.CreateTexture3DView(nriDesc, descriptor),
                 "Failed to create texture view");

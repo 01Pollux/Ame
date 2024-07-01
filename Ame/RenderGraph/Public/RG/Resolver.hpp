@@ -80,8 +80,8 @@ namespace Ame::RG
         void WriteBuffer(
             const ResourceViewId&   viewId,
             Rhi::StageBits          stages,
-            Rhi::ResourceFormat     format = Rhi::ResourceFormat::UNKNOWN,
-            const Rhi::BufferRange& range  = Rhi::c_EntireBuffer);
+            Rhi::ResourceFormat     format,
+            const Rhi::BufferRange& range = Rhi::c_EntireBuffer);
 
     private:
         /// <summary>
@@ -109,13 +109,20 @@ namespace Ame::RG
             const ResourceViewId& viewId);
 
         /// <summary>
+        /// Present resource to the backbuffer
+        /// Resource must be an imported backbuffer, otherwise will thrown an assertion
+        /// </summary>
+        void WritePresentResource(
+            const ResourceViewId& viewId);
+
+        /// <summary>
         /// Write resource as renter target with clear operations
         /// </summary>
         void WriteRenderTarget(
             const ResourceViewId&          viewId,
             Rhi::StageBits                 stages,
             const RtvCustomDesc&           rtvDesc,
-            Rhi::ResourceFormat            format,
+            Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
         /// <summary>
@@ -124,7 +131,7 @@ namespace Ame::RG
         void WriteRenderTarget(
             const ResourceViewId&          viewId,
             Rhi::StageBits                 stages,
-            Rhi::ResourceFormat            format,
+            Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
         /// <summary>
@@ -134,7 +141,7 @@ namespace Ame::RG
             const ResourceViewId&          viewId,
             Rhi::StageBits                 stages,
             const DsvCustomDesc&           dsvDesc,
-            Rhi::ResourceFormat            format,
+            Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
         /// <summary>
@@ -143,7 +150,7 @@ namespace Ame::RG
         void WriteDepthStencil(
             const ResourceViewId&          viewId,
             Rhi::StageBits                 stages,
-            Rhi::ResourceFormat            format,
+            Rhi::ResourceFormat            format      = Rhi::ResourceFormat::UNKNOWN,
             const Rhi::TextureSubresource& subresource = Rhi::c_AllSubresources);
 
     public:

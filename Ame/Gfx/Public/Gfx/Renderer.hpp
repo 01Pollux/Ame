@@ -69,22 +69,17 @@ namespace Ame::Gfx
         void OnWorldChange(
             const Signals::Data::WorldChangeData& changeData);
 
-        /// <summary>
-        /// Update the renderer and all its components such as the camera, the scene, lights, etc.
-        /// </summary>
-        void OnUpdate();
-
-        /// <summary>
-        /// Called when the frame is being rendered
-        /// </summary>
-        void OnRender();
-
-        /// <summary>
-        /// Called after the frame ends
-        /// </summary>
-        void OnEndFrame();
-
     private:
+        /// <summary>
+        /// Create an empty render graph
+        /// </summary>
+        void CreateEmptyGraph();
+
+        /// <summary>
+        /// Build the render graph if needed
+        /// </summary>
+        void BuildRenderGraph();
+        
         /// <summary>
         /// Run the render graph to render the frame
         /// </summary>
@@ -100,7 +95,6 @@ namespace Ame::Gfx
         Ref<Cache::CommonRenderPass> m_CommonRenderPass;
 
         Signals::ScopedConnection m_OnWorldChange;
-        Signals::ScopedConnection m_OnUpdate;
 
         CameraRenderQuery m_CameraQuery;
     };

@@ -67,7 +67,7 @@ namespace Ame::Rhi
         /// Create a buffer view.
         /// </summary>
         [[nodiscard]] ResourceView CreateView(
-            const BufferViewDesc& desc) const;
+            const BufferViewDesc& viewDesc) const;
 
     public:
         /// <summary>

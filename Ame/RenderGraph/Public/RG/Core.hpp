@@ -23,6 +23,7 @@ namespace Ame::RG
     class PassStorage;
     class ResourceStateTracker;
     class CoreResources;
+    class ResourceCacheStorage;
     class ResourceStorage;
     class Graph;
 

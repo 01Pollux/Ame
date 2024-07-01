@@ -64,7 +64,7 @@ namespace Ame::Rhi
         /// Create a texture view.
         /// </summary>
         [[nodiscard]] ResourceView CreateView(
-            const TextureViewDesc& desc) const;
+            const TextureViewDesc& viewDesc) const;
 
     public:
         /// <summary>

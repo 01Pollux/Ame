@@ -10,12 +10,42 @@
 
 #include <Gfx/Cache/CommonRenderPass.hpp>
 
+#include <Gfx/RenderGraph/Passes/ClearBackbufferPass.hpp>
+#include <Gfx/RenderGraph/Passes/PresentBackbufferPass.hpp>
+
 namespace Ame::Gfx
 {
+    void Renderer::CreateEmptyGraph()
+    {
+        auto& passStorage = m_Graph.get().GetPassStorage();
+
+        passStorage.Clear();
+        passStorage.NewPass<ClearBackbufferPass>("Clear Backbuffer");
+        passStorage.NewPass<PresentBackbufferPass>("Present");
+    }
+
+    void Renderer::BuildRenderGraph()
+    {
+        constexpr Rhi::AccessLayoutStage backbufferInitialLayout{
+            Rhi::AccessBits::UNKNOWN,
+            Rhi::LayoutType::UNKNOWN,
+            Rhi::StageBits::ALL
+        };
+
+        auto& windowManager = m_Device.get().GetWindowManager();
+        auto& backbuffer    = windowManager.GetBackbuffer().get();
+
+        auto& resourceStorage = m_Graph.get().GetResourceStorage();
+        resourceStorage.ImportTexture(RG::Names::c_BackbufferImage, backbuffer.Resource, backbufferInitialLayout);
+
+        m_EntityCompositor.get().UpdateGraph();
+    }
+
     void Renderer::RunRenderGraph()
     {
         auto tryOutputToTexture =
-            [&](const Ecs::Entity& entity)
+            [this](
+                const Ecs::Entity& entity)
         {
             auto cameraOutput = entity->get<Ecs::Component::CameraOutput>();
             if (!cameraOutput)
@@ -65,7 +95,8 @@ namespace Ame::Gfx
         //
 
         auto renderCallback =
-            [&](Ecs::Iterator                    iter,
+            [this, tryOutputToTexture](
+                Ecs::Iterator                    iter,
                 const Ecs::Component::Transform* transforms,
                 const Ecs::Component::Camera*    cameras)
         {
@@ -76,6 +107,8 @@ namespace Ame::Gfx
                 tryOutputToTexture(entity);
             }
         };
+
+        //
 
         m_CameraQuery->iter(std::move(renderCallback));
     }

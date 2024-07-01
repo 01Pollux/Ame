@@ -19,7 +19,7 @@ AME_MAIN(Argc, Argv)
     Bootstrap::Application()
         .With<Rhi::DeviceSubsystem>(Rhi::DeviceCreateDesc{
             .Window = Rhi::WindowDesc{ .Window{ .Title = "Simple Window" } },
-            .Type   = Rhi::DeviceType::DirectX12 })
+            .Type   = Rhi::DeviceType::Vulkan })
         .With<Gfx::RendererSubsystem>()
         .Build()
         .Run()

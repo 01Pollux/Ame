@@ -3,6 +3,7 @@
 #include <RG/Resource.hpp>
 #include <RG/Resources/FrameResource.hpp>
 #include <RG/StateTracker.hpp>
+#include <RG/ResourceCacheStorage.hpp>
 
 namespace Ame::RG
 {
@@ -203,10 +204,11 @@ namespace Ame::RG
     private:
         Ref<Rhi::Device> m_Device;
 
-        UPtr<CoreResources> m_CoreResources;
-
-        ResourceMapType      m_Resources;
         ResourceStateTracker m_StateTracker;
+        ResourceCacheStorage m_ResourceCache;
+        UPtr<CoreResources>  m_CoreResources;
+
+        ResourceMapType m_Resources;
 
         std::set<ResourceId> m_ImportedResources;
 
