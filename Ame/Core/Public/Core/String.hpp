@@ -238,22 +238,4 @@ namespace std
             return Ame::StringHash{ str };
         }
     };
-
-    template<>
-    struct hash<Ame::String>
-    {
-        size_t operator()(const Ame::String& str) const
-        {
-            return Ame::StringHash{ str };
-        }
-    };
-
-    template<>
-    struct hash<Ame::WideString>
-    {
-        size_t operator()(const Ame::WideString& str) const
-        {
-            return Ame::StringHash{ str };
-        }
-    };
 } // namespace std

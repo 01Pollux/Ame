@@ -1,6 +1,18 @@
 #include <Window/Window.hpp>
 #include <Window/GlfwContext.hpp>
 
+#include <boost/predef.h>
+
+#ifdef BOOST_OS_WINDOWS
+#define GLFW_EXPOSE_NATIVE_WIN32
+#elif defined(BOOST_OS_MACOS)
+#define GLFW_EXPOSE_NATIVE_COCOA
+#elif defined(BOOST_OS_LINUX)
+#define GLFW_EXPOSE_NATIVE_X11
+#endif
+
+#include <GLFW/glfw3native.h>
+
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Windowing
@@ -18,15 +30,23 @@ namespace Ame::Windowing
 
     Window::~Window()
     {
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwDestroyWindow(m_Handle); })
-            .wait();
+        ReleaseGlfwWindow();
     }
 
     GLFWwindow* Window::GetHandle() const
     {
         return m_Handle;
+    }
+
+    void* Window::GetNativeHandle() const
+    {
+#ifdef BOOST_OS_WINDOWS
+        return glfwGetWin32Window(m_Handle);
+#elif defined(BOOST_OS_MACOS)
+        return std::bit_cast<void*>(glfwGetCocoaWindow(m_Handle));
+#elif defined(BOOST_OS_LINUX)
+        return std::bit_cast<void*>(glfwGetX11Window(m_Handle));
+#endif
     }
 
     void Window::Close()
@@ -326,5 +346,16 @@ namespace Ame::Windowing
                 bool wasHit = false;
                 window->m_OnWindowMinized(iconified);
             });
+    }
+
+    void Window::ReleaseGlfwWindow()
+    {
+        if (m_Handle)
+        {
+            GlfwContext::Get()
+                .PushTask([this]
+                          { glfwDestroyWindow(m_Handle); })
+                .wait();
+        }
     }
 } // namespace Ame::Windowing

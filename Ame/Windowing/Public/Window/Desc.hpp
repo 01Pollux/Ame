@@ -12,6 +12,7 @@ namespace Ame::Windowing
     {
         /// <summary>
         /// Previous context to have single glfw context across processes for the engine
+        /// Must be set externally outside of this engine's process
         /// </summary>
         Ptr<GlfwContext> PreviousContext;
 

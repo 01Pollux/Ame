@@ -1,22 +1,7 @@
 #pragma once
 
 #include <Core/Coroutine.hpp>
-#include <Rhi/Descs/Core.hpp>
-
-#include <Rhi/CommandList/SubmissionContext.hpp>
-
-namespace Ame
-{
-    class EngineFrame;
-    namespace Math
-    {
-        class Color4;
-    } // namespace Math
-    namespace Windowing
-    {
-        class Window;
-    } // namespace Windowing
-} // namespace Ame
+#include <Rhi/Wrapper/DeviceWrapper.hpp>
 
 namespace Ame::Rhi
 {
@@ -24,7 +9,8 @@ namespace Ame::Rhi
 
     enum class ExecutorType : uint8_t
     {
-        Primary,   // Executor for the main thread
+        Primary, // Executor for the main rendering operations
+
         Graphics,  // Executor for graphics commands
         Compute,   // Executor for compute commands
         Copy,      // Executor for copy commands
@@ -33,112 +19,102 @@ namespace Ame::Rhi
         Count
     };
 
-    class Device
+    class RhiDevice
     {
+    private:
+        using DeviceThreadExecutors = std::array<Ptr<Co::manual_executor>, static_cast<size_t>(ExecutorType::Count)>;
+
     public:
-        Device();
-        explicit Device(
+        RhiDevice();
+        explicit RhiDevice(
             Co::runtime&            runtime,
-            const DeviceCreateDesc& desc);
+            const DeviceCreateDesc& createDesc);
 
-        Device(const Device&) = delete;
-        Device(Device&&)      = delete;
+        RhiDevice(const RhiDevice&) = delete;
+        RhiDevice(RhiDevice&&)      = delete;
 
-        Device& operator=(const Device&) = delete;
-        Device& operator=(Device&&)      = delete;
+        RhiDevice& operator=(const RhiDevice&) = delete;
+        RhiDevice& operator=(RhiDevice&&)      = delete;
 
-        ~Device();
+        ~RhiDevice();
 
     public:
         /// <summary>
-        /// Check if the device is headless.
+        /// Check if the device is null (without graphic dev ice and window)
+        /// </summary>
+        [[nodiscard]] bool IsNull() const noexcept;
+
+        /// <summary>
+        /// Check if the device is headless (without window)
         /// </summary>
         [[nodiscard]] bool IsHeadless() const noexcept;
 
         /// <summary>
+        /// Check if the device has window.
+        /// </summary>
+        [[nodiscard]] bool HasSurface() const noexcept;
+
+        /// <summary>
         /// Get the device coroutine executor.
         /// </summary>
-        [[nodiscard]] Ptr<Co::executor> GetExecutor(
+        [[nodiscard]] const Ptr<Co::manual_executor>& GetExecutor(
             ExecutorType type = ExecutorType::Primary) const;
 
     public:
         /// <summary>
         /// Get the graphics API used by the device.
         /// </summary>
-        [[nodiscard]] GraphicsAPI GetGraphicsAPI() const;
+        [[nodiscard]] Dg::RENDER_DEVICE_TYPE GetGraphicsAPI() const;
 
         /// <summary>
         /// Get the graphics API used by the device.
         /// </summary>
         [[nodiscard]] const char* GetGraphicsAPIName() const;
 
-        /// <summary>
-        /// Get the device description.
-        /// </summary>
-        [[nodiscard]] const DeviceDesc& GetDesc() const;
-
     public:
         /// <summary>
-        /// Get the number of frames that have been rendered.
-        /// This is the number of frames that have been presented.
+        /// Get the engine factory.
         /// </summary>
-        [[nodiscard]] uint64_t GetFrameCount() const;
+        [[nodiscard]] Dg::IEngineFactory* GetFactory() const;
 
         /// <summary>
-        /// Get the index of the current frame.
-        /// This is the index of the frame that is currently being rendered.
+        /// Get the graphics device.
         /// </summary>
-        [[nodiscard]] uint8_t GetFrameIndex() const;
+        [[nodiscard]] Dg::IRenderDevice* GetDevice() const;
 
         /// <summary>
-        /// Get the number of frames that are in flight.
+        /// Get the device immediate context.
         /// </summary>
-        [[nodiscard]] uint8_t GetFrameCountInFlight() const;
+        [[nodiscard]] Dg::IDeviceContext* GetImmediateContext() const;
 
         /// <summary>
-        /// Helper function to get the size of draw indexed command size for indirect execution of command list
+        /// Get the swapchain window.
         /// </summary>
-        [[nodiscard]] uint32_t GetDrawIndexedCommandSize() const;
+        [[nodiscard]] Dg::ISwapChain* GetSwapchain() const;
+
+        /// <summary>
+        /// Get the window.
+        /// </summary>
+        [[nodiscard]] Ptr<Windowing::Window> GetWindow() const;
 
     public:
-        /// <summary>
-        /// Begin the rendering device frame.
-        /// Returns true if the frame was started successfully.
-        /// </summary>
-        [[nodiscard]] bool BeginFrame();
-
         /// <summary>
         /// Run the tasks that have been submitted to the device.
         /// </summary>
-        void ProcessTasks();
+        [[nodiscard]] bool ProcessTasks();
 
         /// <summary>
-        /// End the rendering device frame.
+        /// End the rendering device frame and present if device has window.
         /// </summary>
-        void EndFrame();
-
-        /// <summary>
-        /// Idle the GPU.
-        /// </summary>
-        void WaitIdle();
-
-    public:
-        /// <summary>
-        /// Get the device resource allocator.
-        /// </summary>
-        [[nodiscard]] DeviceResourceAllocator& GetResourceAllocator();
-
-        /// <summary>
-        /// Get the device command submitter.
-        /// </summary>
-        [[nodiscard]] DeviceCommandSubmitter& GetCommandSubmitter();
-
-        /// <summary>
-        /// Get the device window manager.
-        /// </summary>
-        [[nodiscard]] DeviceWindowManager& GetWindowManager();
+        void AdvanceFrame(
+            uint32_t syncInterval = 1);
 
     private:
-        UPtr<DeviceImpl> m_Impl;
+        DeviceWrapper m_Wrapper;
+
+        DeviceThreadExecutors m_Executors;
+
+        uint32_t m_ConcurrentLoopCount;
+        uint32_t m_ConcurrentLoopChunkSize;
     };
 } // namespace Ame::Rhi

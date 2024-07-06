@@ -46,14 +46,9 @@ target_end()
 
 target("Ame.Rhi")
     ame_utils:add_library("Ame", "static", "Ame/Rhi")
-    add_packages("ame.nri", {public = true, inherit = true})
-    
+    add_packages("ame.diligent_core", {public = true, inherit = true})
     add_packages("directxshadercompiler", notshared_public_inherit)
-    add_packages("vulkan-memory-allocator", notshared_public_inherit)
-
-    if is_plat("windows") then
-        add_packages("d3d12-memory-allocator", notshared_public_inherit)
-    end
+    add_packages("vulkansdk", notshared_public_inherit)
 
     add_deps("Ame.Resource", notshared_public_inherit)
     add_deps("Ame.Windowing", notshared_public_inherit)
@@ -89,7 +84,7 @@ target_end()
 
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Ame/Engine")
-    add_deps("Ame.Gfx", notshared_public_inherit)
+    add_deps("Ame.Rhi", notshared_public_inherit)
 target_end()
 
 --

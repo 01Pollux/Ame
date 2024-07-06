@@ -3,76 +3,34 @@
 #include <span>
 
 #include <Core/Ame.hpp>
-#include <NRI/NRI.h>
-#include <NRI/Extensions/NRIHelper.h>
+
+#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/GraphicsTypes.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/EngineFactory.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/RenderDevice.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
+
+namespace Diligent
+{
+    template<typename Ty>
+    using Ptr = RefCntAutoPtr<Ty>;
+
+    template<typename Ty>
+    using WeakPtr = RefCntWeakPtr<Ty>;
+} // namespace Diligent
+
+namespace Ame::Windowing
+{
+    class Window;
+} // namespace Ame::Windowing
 
 namespace Ame::Rhi
 {
-    class Device;
-    class DeviceImpl;
-    class IDeviceWrapper;
-    class FrameManager;
-    class DeviceResourceAllocator;
-    class DeviceCommandSubmitter;
-    class DeviceWindowManager;
-    class CommandList;
-    class PipelineLayout;
-    class PipelineState;
-    class Buffer;
-    class Texture;
-    class ResourceView;
-    class DescriptorTable;
-    class DescriptorSet;
+    namespace Dg = Diligent;
 
-    using Mip_t    = uint8_t;
-    using Dim_t    = uint16_t;
-    using Sample_t = uint8_t;
-
-    using DeviceDesc       = nri::DeviceDesc;
-    using ResourceFormat   = nri::Format;
-    using FormatProps      = nri::FormatProps;
-    using CommandQueueType = nri::CommandQueueType;
-
-    using PipelineLayoutDesc = nri::PipelineLayoutDesc;
-    struct GraphicsPipelineDesc;
-    struct ComputePipelineDesc;
-
-    enum class GraphicsAPI : uint8_t
-    {
-        Null,
-        DirectX12,
-        Vulkan,
-
-        Count,
-    };
-
-    enum class DeviceFeatureType : uint8_t
-    {
-        Disabled,
-        Optional,
-        Required
-    };
-
-    // Color space:
-    //  - BT.709 - LDR https://en.wikipedia.org/wiki/Rec._709
-    //  - BT.2020 - HDR https://en.wikipedia.org/wiki/Rec._2020
-    // Transfer function:
-    //  - G10 - linear (gamma 1.0)
-    //  - G22 - sRGB (gamma ~2.2)
-    //  - G2084 - SMPTE ST.2084 (Perceptual Quantization)
-    // Bits per channel:
-    //  - 8, 10, 16 (float)
-    enum class SwapChainFormat : uint8_t
-    {
-        BT709_G10_16BIT,
-        BT709_G22_8BIT,
-        BT709_G22_10BIT,
-        BT2020_G2084_10BIT,
-
-        Count,
-    };
-
-    static constexpr bool c_EnableDrawParametersEmulation = true;
+    class DeviceWrapper;
+    class RhiDevice;
 
     //
 
@@ -169,10 +127,4 @@ namespace Ame::Rhi
     {
         return static_cast<uint8_t>(sizeof(Ty));
     }
-
-    /// <summary>
-    /// Get format properties for the specified format.
-    /// </summary>
-    const FormatProps& GetFormatProps(
-        ResourceFormat format);
 } // namespace Ame::Rhi

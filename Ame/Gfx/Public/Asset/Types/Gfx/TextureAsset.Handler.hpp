@@ -11,7 +11,7 @@ namespace Ame
     } // namespace Extensions
     namespace Rhi
     {
-        class Device;
+        class RhiDevice;
         namespace Staging
         {
             class DeferredStagingManager;

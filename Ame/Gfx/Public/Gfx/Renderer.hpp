@@ -16,12 +16,8 @@ namespace Ame
 
     namespace Rhi
     {
-        class Device;
-        namespace Staging
-        {
-            class DeferredStagingManager;
-        } // namespace Staging
-    }     // namespace Rhi
+        class RhiDevice;
+    } // namespace Rhi
 
     namespace Ecs::Component
     {

@@ -3,6 +3,10 @@ file_utils = {}
 function file_utils:path_from_root(path)
     return _script_root_dir .. "/" .. path
 end
+
+function file_utils:path_from_tmp(path)
+    return _script_root_dir .. "/Tmp/" .. path
+end
  
 --This function finds the filename when given a complete path
 function file_utils:get_file_name(path)

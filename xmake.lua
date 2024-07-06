@@ -9,6 +9,7 @@ _script_root_dir = os.scriptdir()
 _use_asan = false
 _use_exception = false
 _debug_packages = false
+_width_symbols = false
 _vc_runtime = ""
 
 --
@@ -39,12 +40,15 @@ if is_mode("debug") then
     _use_asan = true
     _use_exception = true
     _debug_packages = true
+    _width_symbols = true
 end
 
 if is_mode("releasedbg") then
     add_defines("DNDEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
     add_defines("AME_RELEASE")
+
+    _width_symbols = true
 end
 
 if is_mode("release") then

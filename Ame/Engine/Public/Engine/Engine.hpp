@@ -13,7 +13,7 @@ namespace Ame
 
     namespace Rhi
     {
-        class Device;
+        class RhiDevice;
     } // namespace Rhi
 
     class BaseAmeEngine

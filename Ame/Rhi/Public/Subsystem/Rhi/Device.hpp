@@ -8,14 +8,14 @@
 
 namespace Ame::Rhi
 {
-    struct DeviceSubsystem : SingleSubsystem<
-                                 Device,
-                                 Dependency<
-                                     CoroutineSubsystem>>,
-                             kgr::supplied,
-                             kgr::final
+    struct RhiDeviceSubsystem : SingleSubsystem<
+                                    RhiDevice,
+                                    Dependency<
+                                        CoroutineSubsystem>>,
+                                kgr::supplied,
+                                kgr::final
     {
     };
 
-    auto service_map(const Device&) -> DeviceSubsystem;
+    auto service_map(const RhiDevice&) -> RhiDeviceSubsystem;
 } // namespace Ame::Rhi

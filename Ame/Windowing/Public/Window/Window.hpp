@@ -17,16 +17,34 @@ namespace Ame::Windowing
 
         Window(
             Window&& other) noexcept :
-            m_Handle(std::exchange(other.m_Handle, nullptr))
+            m_OnWindowSizeChanged(std::exchange(other.m_OnWindowSizeChanged, {})),
+            m_OnWindowMinized(std::exchange(other.m_OnWindowMinized, {})),
+            m_OnWindowClosed(std::exchange(other.m_OnWindowClosed, {})),
+            m_OnWindowTitleHitTest(std::exchange(other.m_OnWindowTitleHitTest, {})),
+            m_Handle(std::exchange(other.m_Handle, nullptr)),
+            m_WindowSize(other.m_WindowSize),
+            m_Title(std::exchange(other.m_Title, {}))
         {
         }
+
+        Window& operator=(
+            const Window& other) = delete;
 
         Window& operator=(
             Window&& other) noexcept
         {
             if (this != &other)
             {
-                m_Handle = std::exchange(other.m_Handle, nullptr);
+                ReleaseGlfwWindow();
+
+                m_OnWindowSizeChanged  = std::exchange(other.m_OnWindowSizeChanged, {});
+                m_OnWindowMinized      = std::exchange(other.m_OnWindowMinized, {});
+                m_OnWindowClosed       = std::exchange(other.m_OnWindowClosed, {});
+                m_OnWindowTitleHitTest = std::exchange(other.m_OnWindowTitleHitTest, {});
+
+                m_Handle     = std::exchange(other.m_Handle, nullptr);
+                m_WindowSize = other.m_WindowSize;
+                m_Title      = std::exchange(other.m_Title, {});
             }
             return *this;
         }
@@ -38,6 +56,11 @@ namespace Ame::Windowing
         /// The handle of the window
         /// </summary>
         [[nodiscard]] GLFWwindow* GetHandle() const;
+
+        /// <summary>
+        /// The native handle of the window
+        /// </summary>
+        [[nodiscard]] void* GetNativeHandle() const;
 
         /// <summary>
         /// Close the window
@@ -189,6 +212,11 @@ namespace Ame::Windowing
         /// </summary>
         void CreateGlfwWindow(
             const WindowDesc& windowDesc);
+
+        /// <summary>
+        /// Release the glfw window
+        /// </summary>
+        void ReleaseGlfwWindow();
 
     private:
         GLFWwindow*  m_Handle = nullptr;

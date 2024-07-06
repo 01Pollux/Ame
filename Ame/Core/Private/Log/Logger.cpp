@@ -127,7 +127,7 @@ namespace Ame::Log
     //
 
     bool Logger::CanLog(
-        LogLevel Level) const noexcept
+        LogLevel level) const noexcept
     {
         if (!m_Logger) [[unlikely]]
         {
@@ -141,37 +141,38 @@ namespace Ame::Log
             return false;
         }
 #endif
-        return CurLevel >= Level;
+        return CurLevel >= level;
     }
 
     void Logger::LogMessage(
-        LogLevel   Level,
-        StringView Message) const
+        LogLevel   level,
+        StringView message) const
     {
         if (!m_Logger) [[unlikely]]
         {
             return;
         }
 
-        switch (Level)
+        switch (level)
         {
         case LogLevel::Trace:
-            m_Logger->trace(Message);
+            m_Logger->trace(message);
             break;
         case LogLevel::Debug:
-            m_Logger->debug(Message);
+            m_Logger->debug(message);
             break;
         case LogLevel::Info:
-            m_Logger->info(Message);
+            m_Logger->info(message);
             break;
         case LogLevel::Warning:
-            m_Logger->warn(Message);
+            m_Logger->warn(message);
             break;
         case LogLevel::Error:
-            m_Logger->error(Message);
+            m_Logger->error(message);
             break;
         case LogLevel::Fatal:
-            m_Logger->critical(Message);
+            m_Logger->critical(message);
+            throw std::runtime_error(message.data());
             break;
         default:
         {
@@ -181,14 +182,14 @@ namespace Ame::Log
     }
 
     void Logger::SetLevel(
-        LogLevel Level)
+        LogLevel level)
     {
         if (!m_Logger) [[unlikely]]
         {
             return;
         }
 
-        switch (Level)
+        switch (level)
         {
         case LogLevel::Disabled:
             m_Logger->set_level(spdlog::level::off);
