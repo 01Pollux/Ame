@@ -1,81 +1,35 @@
 #include <RG/DependencyLevel.hpp>
 #include <RG/Context.hpp>
 #include <RG/Pass.hpp>
-#include <RG/Dispatch.hpp>
 
-#include <Rhi/Device/Device.hpp>
+#include <DiligentCore/Graphics/GraphicsTools/interface/ScopedDebugGroup.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::RG
 {
     void DependencyLevel::AddPass(
-        Context&                                          context,
-        Pass*                                             pass,
-        std::vector<ResourceViewId>                       renderTargets,
-        ResourceViewId                                    depthStencil,
-        std::set<ResourceId>                              resourceToCreate,
-        const std::map<ResourceViewId, Rhi::AccessStage>& resourceStates,
-        const std::map<ResourceId, Rhi::LayoutType>&      textureLayouts)
+        Context&                    context,
+        Pass*                       pass,
+        std::vector<ResourceViewId> renderTargets,
+        ResourceViewId              depthStencil,
+        std::set<ResourceId>        resourceToCreate)
     {
         m_Passes.emplace_back(RenderPassInfo{
             .NodePass      = std::move(pass),
             .RenderTargets = std::move(renderTargets),
             .DepthStencil  = std::move(depthStencil) });
-
         m_ResourcesToCreate.merge(std::move(resourceToCreate));
-
-        auto& resourceStorage = context.GetStorage();
-        for (auto& [viewId, state] : resourceStates)
-        {
-            auto& resource = *resourceStorage.GetResource(viewId.GetResource());
-            std::visit(
-                VariantVisitor{
-                    [](std::monostate) {},
-                    [&](const BufferResource&)
-                    {
-                        auto& curState = m_BufferStatesToTransitions[viewId.GetResource()];
-                        curState.access |= state.access;
-                        curState.stages |= state.stages;
-                    },
-                    [&](const TextureResource& texture)
-                    {
-                        auto view = std::get<RhiTextureViewRef>(resourceStorage.GetResourceView(viewId));
-                        std::visit(
-                            VariantVisitor{
-                                [&](const auto& viewDesc)
-                                {
-                                    auto& curState = m_TextureStatesToTransitions[viewId.GetResource()][viewDesc.Subresource];
-                                    curState.access |= state.access;
-                                    curState.stages |= state.stages;
-                                } },
-                            view.get().Desc);
-                    } },
-                resource.Get());
-        }
-
-        for (auto& [id, layout] : textureLayouts)
-        {
-            auto& curState = m_TextureStatesToTransitions[id];
-            for (auto& iter : curState)
-            {
-                auto& state  = iter.second;
-                state.layout = layout;
-            }
-        }
     }
 
     //
 
     void DependencyLevel::Execute(
-        Context&          context,
-        Rhi::CommandList& commandList) const
+        Context&                       context,
+        std::span<Dg::IDeviceContext*> deviceContexts) const
     {
         LockStorage(context);
-
-        ExecuteBarriers(context, commandList);
-        ExecutePasses(context, commandList);
-
+        ExecutePasses(context, deviceContexts);
         UnlockStorage(context);
     }
 
@@ -90,79 +44,143 @@ namespace Ame::RG
 
     //
 
-    void DependencyLevel::ExecuteBarriers(
-        Context&          context,
-        Rhi::CommandList& commandList) const
+    static void SetupForRendering(
+        Dg::IDeviceContext*             deviceContext,
+        const ResourceStorage&          resourceStorage,
+        std::span<const ResourceViewId> renderTargets,
+        const ResourceViewId&           depthStencil)
     {
-        if (m_BufferStatesToTransitions.empty() &&
-            m_TextureStatesToTransitions.empty())
+        std::vector<Dg::ITextureView*> renderTargetsViews;
+        std::vector<Math::Color4>      clearColors;
+
+        Dg::ITextureView*             depthStencilView  = nullptr;
+        float                         depthClearValue   = 0.0f;
+        uint8_t                       stencilClearValue = 0;
+        Dg::CLEAR_DEPTH_STENCIL_FLAGS depthClearFlags;
+
+        clearColors.reserve(renderTargets.size());
+        renderTargetsViews.reserve(renderTargets.size());
+
+        for (auto& viewId : renderTargets)
         {
-            return;
-        }
+            auto  resource = resourceStorage.GetResource(viewId.GetResource());
+            auto& viewDesc = *resource->GetTextureView(viewId);
+            auto& rtv      = std::get<RenderTargetViewDesc>(viewDesc.Desc);
 
-        auto& resourceStorage = context.GetStorage();
-        auto& stateTracker    = resourceStorage.GetStateTracker();
-
-        auto& rhiDevice  = resourceStorage.GetDevice();
-        auto& deviceDesc = rhiDevice.GetDesc();
-
-        for (auto& [resourceId, state] : m_BufferStatesToTransitions)
-        {
-            auto& resource = *resourceStorage.GetResourceMut(resourceId);
-            auto& buffer   = resource.AsBuffer()->Resource;
-
-            stateTracker.RequireState(resource.AsBuffer()->Resource, state);
-        }
-
-        for (auto& [resourceId, stateMap] : m_TextureStatesToTransitions)
-        {
-            auto& resource = *resourceStorage.GetResource(resourceId);
-            auto  texture  = resource.AsTexture()->Resource;
-
-            for (auto& [subresourceSet, state] : stateMap)
+            if (rtv.ClearType != ERTClearType::Ignore)
             {
-                stateTracker.RequireState(texture, state, subresourceSet);
+                auto texture = resource->AsTexture();
+                if (rtv.ForceColor)
+                {
+                    clearColors.emplace_back(rtv.ClearColor);
+                }
+                else
+                {
+                    auto& clearColor = texture->Desc.ClearValue.Color;
+                    clearColors.emplace_back(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                }
+                renderTargetsViews.emplace_back(viewDesc.View);
             }
         }
 
-        stateTracker.CommitBarriers(commandList);
+        if (depthStencil)
+        {
+            auto  resource = resourceStorage.GetResource(depthStencil.GetResource());
+            auto& viewDesc = *resource->GetTextureView(depthStencil);
+            auto& dsv      = std::get<DepthStencilViewDesc>(viewDesc.Desc);
+
+            if (dsv.ClearType != EDSClearType::Ignore)
+            {
+                auto& handle            = *resourceStorage.GetResource(depthStencil.GetResource());
+                auto& textureClearValue = handle.AsTexture()->Desc.ClearValue.DepthStencil;
+                depthStencilView        = viewDesc.View;
+
+                switch (dsv.ClearType)
+                {
+                case EDSClearType::Depth:
+                {
+                    depthClearFlags = Dg::CLEAR_DEPTH_FLAG;
+                    depthClearValue = dsv.ForceDepth ? dsv.Depth : textureClearValue.Depth;
+
+                    break;
+                }
+                case EDSClearType::Stencil:
+                {
+                    depthClearFlags   = Dg::CLEAR_STENCIL_FLAG;
+                    stencilClearValue = dsv.ForceStencil ? dsv.Stencil : textureClearValue.Stencil;
+
+                    break;
+                }
+                case EDSClearType::DepthStencil:
+                {
+                    depthClearFlags   = Dg::CLEAR_DEPTH_FLAG | Dg::CLEAR_STENCIL_FLAG;
+                    depthClearValue   = dsv.ForceDepth ? dsv.Depth : textureClearValue.Depth;
+                    stencilClearValue = dsv.ForceStencil ? dsv.Stencil : textureClearValue.Depth;
+
+                    break;
+                }
+
+                default:
+                    std::unreachable();
+                }
+            }
+        }
+
+        deviceContext->SetRenderTargets(renderTargetsViews.size(), renderTargetsViews.data(), depthStencilView, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        for (auto [view, clearColor] : std::views::zip(renderTargetsViews, clearColors))
+        {
+            deviceContext->ClearRenderTarget(view, clearColor.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
+        }
+        if (depthStencilView)
+        {
+            deviceContext->ClearDepthStencil(depthStencilView, depthClearFlags, depthClearValue, stencilClearValue, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
+        }
     }
 
-    //
-
     void DependencyLevel::ExecutePasses(
-        Context&          context,
-        Rhi::CommandList& commandList) const
+        Context&                       context,
+        std::span<Dg::IDeviceContext*> deviceContexts) const
     {
         using namespace EnumBitOperators;
 
         auto& resourceStorage = context.GetStorage();
 
-        for (auto& PassInfo : m_Passes)
+        auto nextDeviceContext = [i = 0, &deviceContexts]() mutable
         {
-            Rhi::MarkerCommand marker(commandList, PassInfo.NodePass->GetName().data());
+            auto context = deviceContexts[i++];
+            i            = i % deviceContexts.size();
+            return context;
+        };
 
-            bool noSetup = (PassInfo.NodePass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;
-            switch (PassInfo.NodePass->GetQueueType())
+        for (auto& passInfo : m_Passes)
+        {
+            auto deviceContext = nextDeviceContext();
+
+            Dg::ScopedDebugGroup marker(deviceContext, passInfo.NodePass->GetName().data(), passInfo.NodePass->GetColorPtr());
+
+            bool noSetup = (passInfo.NodePass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;
+            switch (passInfo.NodePass->GetQueueType())
             {
             case PassFlags::Graphics:
             {
-                GraphicsSetup RenderSetup(commandList, resourceStorage, !noSetup, PassInfo.RenderTargets, PassInfo.DepthStencil);
-                PassInfo.NodePass->DoExecute(resourceStorage, &commandList);
-
+                if (!noSetup)
+                {
+                    SetupForRendering(deviceContext, resourceStorage, passInfo.RenderTargets, passInfo.DepthStencil);
+                }
+                passInfo.NodePass->DoExecute(resourceStorage, deviceContext);
                 break;
             }
 
             case PassFlags::Compute:
             case PassFlags::Copy:
             {
-                PassInfo.NodePass->DoExecute(resourceStorage, &commandList);
+                passInfo.NodePass->DoExecute(resourceStorage, deviceContext);
                 break;
             }
 
             default:
             {
-                PassInfo.NodePass->DoExecute(resourceStorage, nullptr);
+                passInfo.NodePass->DoExecute(resourceStorage, nullptr);
                 break;
             }
             }

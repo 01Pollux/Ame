@@ -56,17 +56,15 @@ target_end()
 
 --
 
+target("Ame.RenderGraph")
+    ame_utils:add_library("Ame", "static", "Ame/RenderGraph")
+    add_deps("Ame.Rhi", notshared_public_inherit)
+target_end()
+
 target("Ame.Ecs")
     ame_utils:add_library("Ame", "static", "Ame/Ecs")
     add_deps("Ame.Rhi", notshared_public_inherit)
     add_deps("Ame.Geometry", notshared_public_inherit)
-target_end()
-
---
-
-target("Ame.RenderGraph")
-    ame_utils:add_library("Ame", "static", "Ame/RenderGraph")
-    add_deps("Ame.Ecs", notshared_public_inherit)
 target_end()
 
 --

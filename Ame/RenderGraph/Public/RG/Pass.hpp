@@ -4,8 +4,6 @@
 
 #include <RG/Core.hpp>
 #include <RG/Resolver.hpp>
-
-#include <RG/Resources/Names.hpp>
 #include <RG/ResourceStorage.hpp>
 
 #include <Math/Common.hpp>
@@ -19,7 +17,7 @@ namespace Ame::RG
 
     public:
         using BuildFuncType   = std::move_only_function<void(Resolver&)>;
-        using ExecuteFuncType = std::move_only_function<void(const ResourceStorage&, Rhi::CommandList*)>;
+        using ExecuteFuncType = std::move_only_function<void(const ResourceStorage&, Dg::IDeviceContext*)>;
 
         Pass() = default;
 
@@ -39,6 +37,15 @@ namespace Ame::RG
         {
             using namespace EnumBitOperators;
             m_Flags |= flags;
+            return *this;
+        }
+
+        Pass& Color(
+            Math::Color4 color)
+        {
+#ifndef AME_DIST
+            m_Color = color;
+#endif
             return *this;
         }
 
@@ -74,17 +81,55 @@ namespace Ame::RG
             return *this;
         }
 
+#ifndef AME_DIST
+        /// <summary>
+        /// Get the color of the pass
+        /// </summary>
+        [[nodiscard]] const Math::Color4& GetColor() const
+        {
+            return m_Color;
+        }
+
+        /// <summary>
+        /// Get the color of the pass
+        /// </summary>
+        [[nodiscard]] const float* GetColorPtr() const
+        {
+            return m_Color.a() != 0.f ? m_Color.data() : nullptr;
+        }
+
         /// <summary>
         /// Get the name of the pass
         /// </summary>
         [[nodiscard]] StringView GetName() const
         {
-#ifndef AME_DIST
             return m_Name;
-#else
-            return "";
-#endif
         }
+#else
+        /// <summary>
+        /// Get the color of the pass
+        /// </summary>
+        [[nodiscard]] Math::Color4 GetColor() const
+        {
+            return {};
+        }
+
+        /// <summary>
+        /// Get the color of the pass
+        /// </summary>
+        [[nodiscard]] const float* GetColorPtr() const
+        {
+            return nullptr;
+        }
+
+        /// <summary>
+        /// Get the name of the pass
+        /// </summary>
+        [[nodiscard]] StringView GetName() const
+        {
+            return "";
+        }
+#endif
 
         /// <summary>
         /// Get the flags of the pass
@@ -121,11 +166,11 @@ namespace Ame::RG
         /// </summary>
         void DoExecute(
             const ResourceStorage& storage,
-            Rhi::CommandList*      commandList)
+            Dg::IDeviceContext*    deviceContext)
         {
             if (m_ExecuteFunc) [[likely]]
             {
-                m_ExecuteFunc(storage, commandList);
+                m_ExecuteFunc(storage, deviceContext);
             }
         }
 
@@ -133,8 +178,10 @@ namespace Ame::RG
         BuildFuncType   m_BuildFunc;
         ExecuteFuncType m_ExecuteFunc;
         PassFlags       m_Flags = PassFlags::None;
+
 #ifndef AME_DIST
-        String m_Name = "Unnamed";
+        String       m_Name = "Unnamed";
+        Math::Color4 m_Color;
 #endif
     };
 
@@ -145,7 +192,7 @@ namespace Ame::RG
     {
     public:
         using BuildFuncType   = std::move_only_function<void(Ty&, Resolver&)>;
-        using ExecuteFuncType = std::move_only_function<void(const Ty&, const ResourceStorage&, nri::CommandBuffer*)>;
+        using ExecuteFuncType = std::move_only_function<void(const Ty&, const ResourceStorage&, Dg::IDeviceContext*)>;
 
         /// <summary>
         /// Initializes a build callback
@@ -182,4 +229,6 @@ namespace Ame::RG
     {
     public:
     };
+
+    using UntypedPass = TypedPass<void>;
 } // namespace Ame::RG

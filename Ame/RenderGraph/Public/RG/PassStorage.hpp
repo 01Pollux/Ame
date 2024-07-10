@@ -14,8 +14,9 @@ namespace Ame::RG
         {
             Resolver GraphResolver;
             BuilderInfo(
+                Rhi::RhiDevice&  rhiDevice,
                 ResourceStorage& storage) :
-                GraphResolver(storage)
+                GraphResolver(rhiDevice, storage)
             {
             }
         };
@@ -80,7 +81,19 @@ namespace Ame::RG
         /// Build render graph from graph builder
         /// </summary>
         void Build(
-            Context& context);
+            Rhi::RhiDevice& rhiDevice,
+            Context&        context);
+
+        /// <summary>
+        /// Check if passes were changed and needs to be rebuilt
+        /// </summary>
+        [[nodiscard]] bool NeedsRebuild() const noexcept;
+
+        /// <summary>
+        /// Set rebuild state
+        /// </summary>
+        void SetRebuildState(
+            bool state) noexcept;
 
     private:
         /// <summary>
@@ -127,5 +140,7 @@ namespace Ame::RG
 
         PassMap  m_NamedPasses;
         PassList m_Passes;
+
+        bool m_NeedsRebuild : 1 = false;
     };
 } // namespace Ame::RG

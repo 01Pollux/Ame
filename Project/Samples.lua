@@ -12,11 +12,6 @@ target_end()
 target("Triangle")
     ame_utils:add_binary("Samples", "Samples/Triangle")
 target_end()
-
-target("RenderGraph")
-    ame_utils:add_binary("Samples", "Samples/RenderGraph")
-target_end()
-
 --
 
 target("FlappyRocket")

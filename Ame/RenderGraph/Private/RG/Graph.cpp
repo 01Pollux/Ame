@@ -1,41 +1,30 @@
 #include <RG/Graph.hpp>
+#include <Rhi/Device/Device.hpp>
+
+#include <Frame/FrameTimer.hpp>
 
 namespace Ame::RG
 {
-    Graph::Graph(
-        FrameTimer&  frameTimer,
-        Rhi::Device& rhiDevice) :
-        m_Timer(frameTimer),
-        m_Device(rhiDevice),
-        m_Context(rhiDevice)
+    void Graph::Execute(
+        Rhi::RhiDevice& rhiDevice)
     {
+        auto context = rhiDevice.GetImmediateContext();
+        Execute(rhiDevice, { &context, 1 });
     }
 
-    void Graph::Build()
+    void Graph::Execute(
+        Rhi::RhiDevice&                rhiDevice,
+        std::span<Dg::IDeviceContext*> contexts)
     {
-        m_Passes.Build(m_Context);
-        m_Context.Update();
-    }
+        auto renderDevice = rhiDevice.GetDevice();
+        auto& resourceStorage = GetResourceStorage();
 
-    void Graph::UpdateFrameStorage(
-        const Ecs::Entity&           cameraEntity,
-        const Math::TransformMatrix& transform,
-        const Math::Matrix4x4&       projection,
-        const Math::Vector2&         viewport)
-    {
-        m_Context.UpdateFrameStorage(
-            static_cast<float>(m_Timer.get().GetEngineTime()),
-            static_cast<float>(m_Timer.get().GetDeltaTime()),
-            static_cast<float>(m_Timer.get().GetDeltaTime()),
-            cameraEntity,
-            transform,
-            projection,
-            viewport);
-    }
-
-    void Graph::Execute()
-    {
-        m_Context.Execute();
+        if (resourceStorage.NeedsRebuild() || m_Passes.NeedsRebuild())
+        {
+            resourceStorage.SetRebuildState(false);
+            m_Passes.Build(rhiDevice, m_Context);
+        }
+        m_Context.Execute(renderDevice, contexts);
     }
 
     //

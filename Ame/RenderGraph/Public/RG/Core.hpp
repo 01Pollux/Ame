@@ -5,15 +5,18 @@
 #include <variant>
 
 #include <Core/Ame.hpp>
+#include <Core/Enum.hpp>
 #include <Core/String.hpp>
 #include <Math/Colors.hpp>
 
 #include <Rhi/Core.hpp>
-#include <Rhi/Descs/View.hpp>
-#include <Rhi/Resource/View.hpp>
-#include <Rhi/Resource/Buffer.hpp>
-#include <Rhi/Resource/Texture.hpp>
-#include <Rhi/CommandList/CommandList.hpp>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
+#include <DiligentCore/Graphics/GraphicsEngine/interface/BufferView.h>
+
+namespace Ame::Rhi
+{
+    class RhiDevice;
+} // namespace Ame::Rhi
 
 namespace Ame::RG
 {
@@ -21,9 +24,7 @@ namespace Ame::RG
     class Context;
     class DependencyLevel;
     class PassStorage;
-    class ResourceStateTracker;
     class CoreResources;
-    class ResourceCacheStorage;
     class ResourceStorage;
     class Graph;
 
@@ -89,18 +90,19 @@ namespace Ame::RG
 
     struct DsvCustomDesc
     {
-        float Depth = 1.f;
-
+        float   Depth   = 1.f;
         uint8_t Stencil = 0;
 
-        EDSClearType ClearType : 2 = EDSClearType::Ignore;
+        EDSClearType ClearType    : 2 = EDSClearType::Ignore;
+        bool         ForceDepth   : 1 = false;
+        bool         ForceStencil : 1 = false;
     };
 
-    struct RenderTargetViewDesc : Rhi::TextureViewDesc, RtvCustomDesc
+    struct RenderTargetViewDesc : Dg::TextureViewDesc, RtvCustomDesc
     {
     };
 
-    struct DepthStencilViewDesc : Rhi::TextureViewDesc, DsvCustomDesc
+    struct DepthStencilViewDesc : Dg::TextureViewDesc, DsvCustomDesc
     {
     };
 } // namespace Ame::RG

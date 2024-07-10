@@ -1,19 +1,8 @@
 #include <RG/Context.hpp>
-
 #include <Rhi/Device/Device.hpp>
-#include <Rhi/Device/CommandSubmitter.hpp>
 
 namespace Ame::RG
 {
-    Context::Context(
-        Rhi::Device& rhiDevice) :
-        m_Device(rhiDevice),
-        m_Resources(rhiDevice)
-    {
-    }
-
-    //
-
     const ResourceStorage& Context::GetStorage() const
     {
         return m_Resources;
@@ -26,44 +15,15 @@ namespace Ame::RG
 
     //
 
-    void Context::Update()
+    void Context::Execute(
+        Dg::IRenderDevice*             renderDevice,
+        std::span<Dg::IDeviceContext*> contexts)
     {
-        auto& resourceStorage = GetStorage();
-        resourceStorage.ImportCoreResources();
-    }
-
-    void Context::UpdateFrameStorage(
-        float                        engineTime,
-        float                        gameTime,
-        float                        deltaTime,
-        const Ecs::Entity&           cameraEntity,
-        const Math::TransformMatrix& transform,
-        const Math::Matrix4x4&       projection,
-        const Math::Vector2&         viewport)
-    {
-        auto& resourceStorage = GetStorage();
-        resourceStorage.UpdateFrameResource(
-            engineTime,
-            gameTime,
-            deltaTime,
-            cameraEntity,
-            transform,
-            projection,
-            viewport);
-    }
-
-    void Context::Execute()
-    {
-        GetStorage().UpdateResources();
-
-        auto& commandSubmitter = m_Device.get().GetCommandSubmitter();
-
-        auto submission = commandSubmitter.BeginCommandList(Rhi::CommandQueueType::GRAPHICS);
+        GetStorage().UpdateResources(renderDevice);
         for (auto& level : m_Levels)
         {
-            level.Execute(*this, submission.CommandListRef);
+            level.Execute(*this, contexts);
         }
-        commandSubmitter.SubmitCommandList(submission);
     }
 
     void Context::Build(

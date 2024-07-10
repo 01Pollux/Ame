@@ -131,36 +131,40 @@ namespace Ame::RG
 
     //
 
-    using BufferResourceViewDesc = Rhi::BufferViewDesc;
+    using BufferResourceViewDesc = std::variant<
+        Dg::BUFFER_VIEW_TYPE,
+        Dg::BufferViewDesc>;
 
     using TextureResourceViewDesc = std::variant<
-        Rhi::TextureViewDesc,
+        Dg::TEXTURE_VIEW_TYPE,
+        Dg::TextureViewDesc,
         RenderTargetViewDesc,
         DepthStencilViewDesc>;
 
     struct BufferResourceView
     {
-        BufferResourceViewDesc Desc;
-        Rhi::ResourceView      View;
+        Dg::Ptr<Dg::IBufferView> View;
+        BufferResourceViewDesc   Desc;
+        size_t                   Hash = 0;
     };
 
     struct TextureResourceView
     {
-        TextureResourceViewDesc Desc;
-        Rhi::ResourceView       View;
-    };
-
-    struct TextureResource
-    {
-        Rhi::Texture     Resource;
-        Rhi::TextureDesc Desc;
+        Dg::Ptr<Dg::ITextureView> View;
+        TextureResourceViewDesc   Desc;
+        size_t                    Hash = 0;
     };
 
     struct BufferResource
     {
-        Rhi::Buffer         Resource;
-        Rhi::BufferDesc     Desc;
-        Rhi::MemoryLocation Location;
+        Dg::Ptr<Dg::IBuffer> Resource;
+        Dg::BufferDesc       Desc;
+    };
+
+    struct TextureResource
+    {
+        Dg::Ptr<Dg::ITexture> Resource;
+        Dg::TextureDesc       Desc;
     };
 
     using RhiBufferViewMap  = std::map<ResourceViewId, BufferResourceView>;
@@ -187,48 +191,7 @@ namespace Ame::RG
     public:
         ResourceHandle() = default;
 
-        ResourceHandle(const ResourceHandle&)     = delete;
-        ResourceHandle(ResourceHandle&&) noexcept = default;
-
-        ResourceHandle& operator=(const ResourceHandle&)     = delete;
-        ResourceHandle& operator=(ResourceHandle&&) noexcept = default;
-
-        ~ResourceHandle();
-
         explicit operator bool() const noexcept;
-
-    public:
-        /// <summary>
-        /// Release resource and remove from state tracker
-        /// </summary>
-        void Release(
-            ResourceStateTracker& stateTracker);
-
-        /// <summary>
-        /// Release resource
-        /// </summary>
-        void Release();
-
-    public:
-        /// <summary>
-        /// Begin tracking resource
-        /// </summary>
-        void BeginTracking(
-            ResourceStateTracker& stateTracker);
-
-        /// <summary>
-        /// Begin tracking buffer resource
-        /// </summary>
-        void BeginTrackingBuffer(
-            ResourceStateTracker& stateTracker,
-            Rhi::AccessStage      initialState = { Rhi::AccessBits::UNKNOWN, Rhi::StageBits::ALL });
-
-        /// <summary>
-        /// Begin tracking texture resource
-        /// </summary>
-        void BeginTrackingTexture(
-            ResourceStateTracker&  stateTracker,
-            Rhi::AccessLayoutStage initialState = { Rhi::AccessBits::UNKNOWN, Rhi::LayoutType::UNKNOWN, Rhi::StageBits::ALL });
 
     public:
         /// <summary>
@@ -297,7 +260,7 @@ namespace Ame::RG
         /// </summary>
         [[nodiscard]] const TextureResourceView* GetTextureView(
             const ResourceViewId& viewId) const noexcept;
-        
+
         /// <summary>
         /// Get texture resource's view or std::monostate if view is not found
         /// </summary>
@@ -315,12 +278,10 @@ namespace Ame::RG
         /// Reallocate resource if the desc has changed and recreate views
         /// </summary>
         void Reallocate(
-            ResourceStateTracker&         stateTracker,
-            ResourceCacheStorage&         cacheStorage,
-            Rhi::DeviceResourceAllocator& allocator);
+            Dg::IRenderDevice* renderDevice);
 
         /// <summary>
-        /// Initialize view map
+        /// Initialize views to the view map
         /// </summary>
         void InitializeViewMap();
 
@@ -328,24 +289,14 @@ namespace Ame::RG
         /// <summary>
         /// Recreate resource views
         /// </summary>
-        void RecreateViews(
-            ResourceCacheStorage& cacheStorage,
-            BufferResource&       bufferResource);
+        void RecreateViewsIfNeeded(
+            BufferResource& bufferResource);
 
         /// <summary>
         /// Recreate resource views
         /// </summary>
-        void RecreateViews(
-            ResourceCacheStorage& cacheStorage,
-            TextureResource&      textureResource);
-
-    private:
-        /// <summary>
-        /// Check if resource was released
-        /// </summary>
-        void CheckResourceState(
-            bool wasReleased,
-            bool doAssert) const;
+        void RecreateViewsIfNeeded(
+            TextureResource& textureResource);
 
     private:
         RhiResource        m_Resource;
@@ -357,6 +308,6 @@ namespace Ame::RG
         String m_Name;
 #endif
 
-        bool m_IsImported         : 1 = false;
+        bool m_IsImported : 1 = false;
     };
 } // namespace Ame::RG

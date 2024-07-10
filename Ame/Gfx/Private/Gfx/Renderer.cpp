@@ -8,7 +8,7 @@ namespace Ame::Gfx
     Renderer::Renderer(
         EngineFrame&             engineFrame,
         FrameTimer&              frameTimer,
-        Rhi::Device&             rhiDevice,
+        Rhi::RhiDevice&          rhiDevice,
         Ecs::Universe&           universe,
         RG::Graph&               renderGraph,
         EntityCompositor&        entityCompositor,
@@ -34,18 +34,16 @@ namespace Ame::Gfx
     Co::result<void> Renderer::Tick(
         Co::runtime&)
     {
-        if (!m_Device.get().BeginFrame())
-        {
-            m_Frame.get().Stop();
-            co_return;
-        }
-
+        bool isRunning = m_Device.get().ProcessTasks();
+        
         BuildRenderGraph();
         RunRenderGraph();
 
         m_Device.get().ProcessTasks();
 
-        m_Device.get().EndFrame();
-        co_return;
+        if (!isRunning)
+        {
+            m_Frame.get().Stop();
+        }
     }
 } // namespace Ame::Gfx

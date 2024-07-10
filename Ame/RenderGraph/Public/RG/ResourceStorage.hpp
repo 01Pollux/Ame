@@ -1,65 +1,17 @@
 #pragma once
 
 #include <RG/Resource.hpp>
-#include <RG/Resources/FrameResource.hpp>
-#include <RG/StateTracker.hpp>
-#include <RG/ResourceCacheStorage.hpp>
 
 namespace Ame::RG
 {
-    struct FrameUpdateDesc
-    {
-        CRef<Math::TransformMatrix> Transform;
-        Math::Matrix4x4             Projection;
-        Math::Vector2               Viewport;
-        Ecs::Entity                 CameraEntity;
-
-        float EngineTime;
-        float GameTime;
-        float DeltaTime;
-    };
-
     class ResourceStorage
     {
         friend class Resolver;
         friend class Context;
+        friend class Graph;
         friend class DependencyLevel;
 
         using ResourceMapType = std::map<ResourceId, ResourceHandle>;
-
-    public:
-        ResourceStorage(
-            Rhi::Device& rhiDevice);
-
-        ResourceStorage(const ResourceStorage&)     = delete;
-        ResourceStorage(ResourceStorage&&) noexcept = default;
-
-        ResourceStorage& operator=(const ResourceStorage&)     = delete;
-        ResourceStorage& operator=(ResourceStorage&&) noexcept = default;
-
-        ~ResourceStorage();
-
-    public:
-        /// <summary>
-        /// Get state tracker of the rendergraph
-        /// </summary>
-        [[nodiscard]] ResourceStateTracker& GetStateTracker() noexcept;
-
-    public:
-        /// <summary>
-        /// Helper function to get device of the engine
-        /// </summary>
-        [[nodiscard]] Rhi::Device& GetDevice() const;
-
-        /// <summary>
-        /// Get backbuffer texture format
-        /// </summary>
-        [[nodiscard]] Rhi::ResourceFormat GetBackbufferFormat() const;
-
-        /// <summary>
-        /// Get backbuffer texture desc
-        /// </summary>
-        [[nodiscard]] const Rhi::TextureDesc& GetBackbufferDesc() const;
 
     public:
         /// <summary>
@@ -73,22 +25,6 @@ namespace Ame::RG
         /// </summary>
         [[nodiscard]] bool ContainsResourceView(
             const ResourceViewId& viewId);
-
-    public:
-        /// <summary>
-        /// Get frame for the current frame
-        /// </summary>
-        [[nodiscard]] const ResourceHandle& GetFrameResource() const;
-
-        /// <summary>
-        /// Get frame resource view for the current frame
-        /// </summary>
-        [[nodiscard]] const Rhi::ResourceView& GetFrameResourceHandle() const;
-
-        /// <summary>
-        /// Get frame resource data for the current frame
-        /// </summary>
-        [[nodiscard]] const FrameResourceCPU& GetFrameResourceData() const;
 
     public:
         /// <summary>
@@ -112,8 +48,28 @@ namespace Ame::RG
         /// <summary>
         /// Get resource view descriptor from id
         /// </summary>
-        [[nodiscard]] const Rhi::ResourceView* GetResourceViewHandle(
+        [[nodiscard]] Dg::Ptr<Dg::IObject> GetResourceViewHandle(
             const ResourceViewId& viewId) const;
+
+        /// <summary>
+        /// Get resource view descriptor from id as buffer view
+        /// </summary>
+        [[nodiscard]] Dg::Ptr<Dg::IBufferView> GetBufferViewHandleT(
+            const ResourceViewId& viewId) const
+        {
+            auto view = GetResourceViewHandle(viewId);
+            return view.Cast<Dg::IBufferView>(Dg::IID_BufferView);
+        }
+
+        /// <summary>
+        /// Get resource view descriptor from id as texture view
+        /// </summary>
+        [[nodiscard]] Dg::Ptr<Dg::ITextureView> GetTextureViewHandleT(
+            const ResourceViewId& viewId) const
+        {
+            auto view = GetResourceViewHandle(viewId);
+            return view.Cast<Dg::ITextureView>(Dg::IID_TextureView);
+        }
 
     private:
         /// <summary>
@@ -128,21 +84,19 @@ namespace Ame::RG
         /// import buffer to be used later when dispatching passes
         /// </summary>
         void ImportBuffer(
-            const ResourceId&   id,
-            Rhi::MemoryLocation location,
-            Rhi::Buffer         buffer,
-            Rhi::AccessStage    initialState);
+            const ResourceId&    id,
+            Dg::Ptr<Dg::IBuffer> buffer);
 
         /// <summary>
         /// import texture to be used later when dispatching passes
+        /// Importing backbuffer texture might result in device removal if not handled properly (discard resource when window is resized)
         /// </summary>
         void ImportTexture(
-            const ResourceId&      id,
-            Rhi::Texture           texture,
-            Rhi::AccessLayoutStage initialState);
+            const ResourceId&     id,
+            Dg::Ptr<Dg::ITexture> texture);
 
         /// <summary>
-        /// Discard and remove imported resource
+        /// Remove imported resource
         /// asserts if resource is not imported
         /// </summary>
         void DiscardResource(
@@ -152,7 +106,8 @@ namespace Ame::RG
         /// <summary>
         /// Update and recreate resources if needed
         /// </summary>
-        void UpdateResources();
+        void UpdateResources(
+            Dg::IRenderDevice* renderDevice);
 
         /// <summary>
         /// Declare resource view to be bound later when dispatching passes
@@ -167,25 +122,6 @@ namespace Ame::RG
         TextureResource& DeclareTextureView(
             const ResourceViewId&          viewId,
             const TextureResourceViewDesc& desc);
-
-    private:
-        /// <summary>
-        /// Update core resources such as frame resource, transform buffer, etc.
-        /// </summary>
-        void ImportCoreResources();
-
-    private:
-        /// <summary>
-        /// Update frame resource for the current frame
-        /// </summary>
-        void UpdateFrameResource(
-            float                        engineTime,
-            float                        gameTime,
-            float                        deltaTime,
-            const Ecs::Entity&           cameraEntity,
-            const Math::TransformMatrix& transform,
-            const Math::Matrix4x4&       projection,
-            const Math::Vector2&         viewport);
 
     private:
         /// <summary>
@@ -208,18 +144,23 @@ namespace Ame::RG
             bool locked) const;
 
     private:
-        Ref<Rhi::Device> m_Device;
+        /// <summary>
+        /// Check if imported resources were changed and needs to be rebuilt
+        /// </summary>
+        [[nodiscard]] bool NeedsRebuild() const noexcept;
 
-        ResourceStateTracker m_StateTracker;
-        ResourceCacheStorage m_ResourceCache;
-        UPtr<CoreResources>  m_CoreResources;
+        /// <summary>
+        /// Set rebuild state
+        /// </summary>
+        void SetRebuildState(
+            bool state) noexcept;
 
+    private:
         ResourceMapType m_Resources;
 
-        std::set<ResourceId> m_ImportedResources;
-
+        bool m_NeedRebuild : 1 = false;
 #ifndef AME_DIST
-        bool m_Locked = false;
+        bool m_Locked : 1 = false;
 #endif
     };
 } // namespace Ame::RG

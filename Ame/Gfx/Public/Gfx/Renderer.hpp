@@ -25,13 +25,9 @@ namespace Ame
         struct Camera;
     } // namespace Ecs::Component
 
-    namespace RG
-    {
-        class Graph;
-    } // namespace RG
-
     namespace Gfx
     {
+        class IRenderPipeline;
         namespace Cache
         {
             class CommonRenderPass;
@@ -51,7 +47,7 @@ namespace Ame::Gfx
         Renderer(
             EngineFrame&             engineFrame,
             FrameTimer&              frameTimer,
-            Rhi::Device&             rhiDevice,
+            Rhi::RhiDevice&          rhiDevice,
             Ecs::Universe&           universe,
             RG::Graph&               renderGraph,
             EntityCompositor&        entityCompositor,
@@ -87,8 +83,9 @@ namespace Ame::Gfx
     private:
         Ref<EngineFrame>             m_Frame;
         Ref<FrameTimer>              m_Timer;
-        Ref<Rhi::Device>             m_Device;
+        Ref<Rhi::RhiDevice>          m_Device;
         Ref<Ecs::Universe>           m_Universe;
+        Ref<IRenderPipeline>         m_RenderPipeline;
         Ref<RG::Graph>               m_Graph;
         Ref<EntityCompositor>        m_EntityCompositor;
         Ref<Cache::CommonRenderPass> m_CommonRenderPass;

@@ -19,6 +19,7 @@ namespace Diligent
     template<typename Ty>
     using WeakPtr = RefCntWeakPtr<Ty>;
 } // namespace Diligent
+namespace Dg = Diligent;
 
 namespace Ame::Windowing
 {
@@ -27,8 +28,6 @@ namespace Ame::Windowing
 
 namespace Ame::Rhi
 {
-    namespace Dg = Diligent;
-
     class DeviceWrapper;
     class RhiDevice;
 

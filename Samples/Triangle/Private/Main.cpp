@@ -128,10 +128,10 @@ private:
         }
 
         deviceContext->SetRenderTargets(1, &rtv, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        deviceContext->ClearRenderTarget(rtv, clearColor.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->ClearRenderTarget(rtv, clearColor.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
 
         deviceContext->SetPipelineState(m_PipelineState);
-        deviceContext->CommitShaderResources(m_SRB, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->CommitShaderResources(m_SRB, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
 
         Dg::DrawAttribs drawAttrs{ 3, Dg::DRAW_FLAG_VERIFY_ALL };
         deviceContext->Draw(drawAttrs);

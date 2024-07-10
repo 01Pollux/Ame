@@ -1,7 +1,6 @@
 #pragma once
 
 #include <RG/Resource.hpp>
-#include <Rhi/Hash/View.hpp>
 
 namespace Ame::RG
 {
@@ -17,29 +16,23 @@ namespace Ame::RG
             ResourceViewId              DepthStencil;
         };
 
-        using TextureSubresourceStateMap = std::unordered_map<Rhi::TextureSubresource, nri::AccessLayoutStage>;
-        using TextureTransitionStateMap  = std::map<ResourceId, TextureSubresourceStateMap>;
-        using BufferTransitionStateMap   = std::map<ResourceId, nri::AccessStage>;
-
     public:
         /// <summary>
         /// Append render pass
         /// </summary>
         void AddPass(
-            Context&                                          context,
-            Pass*                                             pass,
-            std::vector<ResourceViewId>                       renderTargets,
-            ResourceViewId                                    depthStencil,
-            std::set<ResourceId>                              resourceToCreate,
-            const std::map<ResourceViewId, Rhi::AccessStage>& resourceStates,
-            const std::map<ResourceId, Rhi::LayoutType>&      textureLayouts);
+            Context&                    context,
+            Pass*                       pass,
+            std::vector<ResourceViewId> renderTargets,
+            ResourceViewId              depthStencil,
+            std::set<ResourceId>        resourceToCreate);
 
         /// <summary>
         /// Execute render passes
         /// </summary>
         void Execute(
-            Context&          context,
-            Rhi::CommandList& commandList) const;
+            Context&                       context,
+            std::span<Dg::IDeviceContext*> deviceContexts) const;
 
     private:
         /// <summary>
@@ -49,18 +42,11 @@ namespace Ame::RG
             Context& context) const;
 
         /// <summary>
-        /// Execute pending resource barriers before render passes
-        /// </summary>
-        void ExecuteBarriers(
-            Context&          context,
-            Rhi::CommandList& commandList) const;
-
-        /// <summary>
         /// Execute render passes
         /// </summary>
         void ExecutePasses(
-            Context&          context,
-            Rhi::CommandList& commandList) const;
+            Context&                       context,
+            std::span<Dg::IDeviceContext*> deviceContexts) const;
 
         /// <summary>
         /// </summary>
@@ -69,9 +55,6 @@ namespace Ame::RG
 
     private:
         std::vector<RenderPassInfo> m_Passes;
-
-        std::set<ResourceId>      m_ResourcesToCreate;
-        BufferTransitionStateMap  m_BufferStatesToTransitions;
-        TextureTransitionStateMap m_TextureStatesToTransitions;
+        std::set<ResourceId>        m_ResourcesToCreate;
     };
 } // namespace Ame::RG

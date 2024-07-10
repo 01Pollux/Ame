@@ -14,8 +14,11 @@ namespace Ame::RG
         UPtr<Pass>    pass)
     {
         AME_LOG_ASSERT(Log::Gfx(), !m_NamedPasses.contains(name), "Pass with name '{}' already exists", name);
+
         auto iter = m_NamedPasses.emplace(name, std::move(pass)).first;
         m_Passes.emplace_back(iter);
+
+        SetRebuildState(true);
         return iter->second.get();
     }
 
@@ -27,6 +30,8 @@ namespace Ame::RG
         {
             std::erase(m_Passes, iter);
             m_NamedPasses.erase(iter);
+
+            SetRebuildState(true);
         }
     }
 
@@ -40,13 +45,17 @@ namespace Ame::RG
     void PassStorage::Clear()
     {
         m_NamedPasses.clear();
+        SetRebuildState(true);
     }
 
     //
 
     void PassStorage::Build(
-        Context& context)
+        Rhi::RhiDevice& rhiDevice,
+        Context&        context)
     {
+        SetRebuildState(false);
+
         if (m_Passes.empty()) [[unlikely]]
         {
             context.Build({});
@@ -58,12 +67,23 @@ namespace Ame::RG
 
         for (auto& pass : m_Passes)
         {
-            auto& passStorage = builders.emplace_back(context.GetStorage());
+            auto& passStorage = builders.emplace_back(rhiDevice, context.GetStorage());
             pass->second->DoBuild(passStorage.GraphResolver);
         }
 
         auto passes = BuildPasses(context, builders);
         context.Build(std::move(passes));
+    }
+
+    bool PassStorage::NeedsRebuild() const noexcept
+    {
+        return m_NeedsRebuild;
+    }
+
+    void PassStorage::SetRebuildState(
+        bool state) noexcept
+    {
+        m_NeedsRebuild = state;
     }
 
     //
@@ -188,9 +208,7 @@ namespace Ame::RG
                 m_Passes[i]->second.get(),
                 std::move(resolver.m_RenderTargets),
                 std::move(resolver.m_DepthStencil),
-                std::move(resolver.m_ResourcesCreated),
-                resolver.m_ResourceStates,
-                resolver.m_TextureLayouts);
+                std::move(resolver.m_ResourcesCreated));
         }
 
         return Dependencies;

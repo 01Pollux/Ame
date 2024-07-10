@@ -3,6 +3,9 @@
 
 #include <Log/Wrapper.hpp>
 
+// TODO:
+// Add MSAA swapchain support
+// Add auxiliary texture gl texture for swapchain support, since we can't use the swapchain texture directly
 namespace Ame::Rhi
 {
     Opt<DeviceWrapper> DeviceWrapper::Create(

@@ -3,37 +3,23 @@
 #include <RG/PassStorage.hpp>
 #include <RG/Context.hpp>
 
-#include <Frame/FrameTimer.hpp>
-#include <Rhi/Device/Device.hpp>
-
 namespace Ame::RG
 {
     class Graph
     {
     public:
-        Graph(
-            FrameTimer&  frameTimer,
-            Rhi::Device& rhiDevice);
-
-    public:
         /// <summary>
-        /// Build the render graph if needed
+        /// Execute the render graph with the immediate context
         /// </summary>
-        void Build();
+        void Execute(
+            Rhi::RhiDevice& rhiDevice);
 
         /// <summary>
-        /// Update the frame storage
+        /// Execute the render graph with the specified execution context
         /// </summary>
-        void UpdateFrameStorage(
-            const Ecs::Entity&           cameraEntity,
-            const Math::TransformMatrix& transform,
-            const Math::Matrix4x4&       projection,
-            const Math::Vector2&         viewport);
-
-        /// <summary>
-        /// Build and execute the render graph
-        /// </summary>
-        void Execute();
+        void Execute(
+            Rhi::RhiDevice&                rhiDevice,
+            std::span<Dg::IDeviceContext*> contexts);
 
     public:
         /// <summary>
@@ -52,9 +38,6 @@ namespace Ame::RG
         [[nodiscard]] ResourceStorage& GetResourceStorage();
 
     private:
-        Ref<FrameTimer>  m_Timer;
-        Ref<Rhi::Device> m_Device;
-
         Context     m_Context;
         PassStorage m_Passes;
     };

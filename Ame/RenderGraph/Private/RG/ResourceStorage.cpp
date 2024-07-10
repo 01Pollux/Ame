@@ -1,61 +1,10 @@
 #include <RG/ResourceStorage.hpp>
-#include <RG/Resources/CoreResources.hpp>
-#include <RG/Resources/Names.hpp>
-
 #include <Rhi/Device/Device.hpp>
-#include <Rhi/Device/WindowManager.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::RG
 {
-    ResourceStorage::ResourceStorage(
-        Rhi::Device& rhiDevice) :
-        m_Device(rhiDevice),
-        m_StateTracker(rhiDevice.GetDesc()),
-        m_ResourceCache(rhiDevice),
-        m_CoreResources(std::make_unique<CoreResources>(rhiDevice))
-    {
-        ImportCoreResources();
-    }
-
-    ResourceStorage::~ResourceStorage()
-    {
-        for (auto& [_, resource] : m_Resources)
-        {
-            resource.Release();
-        }
-    }
-
-    //
-
-    ResourceStateTracker& ResourceStorage::GetStateTracker() noexcept
-    {
-        return m_StateTracker;
-    }
-
-    //
-
-    Rhi::Device& ResourceStorage::GetDevice() const
-    {
-        return m_Device.get();
-    }
-
-    Rhi::ResourceFormat ResourceStorage::GetBackbufferFormat() const
-    {
-        auto& windowManager = GetDevice().GetWindowManager();
-        return windowManager.GetBackbufferFormat();
-    }
-
-    const Rhi::TextureDesc& ResourceStorage::GetBackbufferDesc() const
-    {
-        auto& windowManager = GetDevice().GetWindowManager();
-        auto& backbuffer    = windowManager.GetBackbuffer().get();
-        return backbuffer.Resource.GetDesc();
-    }
-
-    //
-
     bool ResourceStorage::ContainsResource(
         const ResourceId& id) const
     {
@@ -98,16 +47,16 @@ namespace Ame::RG
         return iter->second.GetView(viewId);
     }
 
-    const Rhi::ResourceView* ResourceStorage::GetResourceViewHandle(
+    Dg::Ptr<Dg::IObject> ResourceStorage::GetResourceViewHandle(
         const ResourceViewId& viewId) const
     {
         auto view = GetResourceView(viewId);
         return std::visit(
             VariantVisitor{
-                [](std::monostate) -> const Rhi::ResourceView*
-                { return nullptr; },
-                [&](const auto& resource)
-                { return &resource.get().View; } },
+                [](std::monostate) -> Dg::Ptr<Dg::IObject>
+                { return {}; },
+                [&](const auto& resource) -> Dg::Ptr<Dg::IObject>
+                { return resource.get().View; } },
             view);
     }
 
@@ -125,57 +74,47 @@ namespace Ame::RG
     //
 
     void ResourceStorage::ImportBuffer(
-        const ResourceId&   id,
-        Rhi::MemoryLocation location,
-        Rhi::Buffer         buffer,
-        Rhi::AccessStage    initialState)
+        const ResourceId&    id,
+        Dg::Ptr<Dg::IBuffer> buffer)
     {
         CheckLockState(false);
 
-        auto& resource          = m_Resources[id];
-        auto& resourceAllocator = m_Device.get().GetResourceAllocator();
-
-        resource.Release(m_StateTracker);
-        resource.Import(BufferResource{ .Resource = std::move(buffer), .Location = location });
-        resource.BeginTrackingBuffer(m_StateTracker, initialState);
+        auto& resource = m_Resources[id];
+        resource.Import(BufferResource{ .Resource = std::move(buffer) });
     }
 
     void ResourceStorage::ImportTexture(
-        const ResourceId&      id,
-        Rhi::Texture           texture,
-        Rhi::AccessLayoutStage initialState)
+        const ResourceId&     id,
+        Dg::Ptr<Dg::ITexture> texture)
     {
         CheckLockState(false);
 
-        auto& resource          = m_Resources[id];
-        auto& resourceAllocator = m_Device.get().GetResourceAllocator();
-
-        resource.Release(m_StateTracker);
+        auto& resource = m_Resources[id];
         resource.Import(TextureResource{ .Resource = std::move(texture) });
-        resource.BeginTrackingTexture(m_StateTracker, initialState);
     }
 
     void ResourceStorage::DiscardResource(
         const ResourceId& id)
     {
         CheckLockState(false);
+
         auto& resource = m_Resources.at(id);
         AME_LOG_ASSERT(Log::Gfx(), resource.IsImported(), "Resource is not imported");
         m_Resources.erase(id);
+
+        SetRebuildState(true);
     }
 
     //
 
-    void ResourceStorage::UpdateResources()
+    void ResourceStorage::UpdateResources(
+        Dg::IRenderDevice* renderDevice)
     {
         CheckLockState(false);
-
-        auto& resourceAllocator = m_Device.get().GetResourceAllocator();
-        for (auto& Handle : m_Resources)
+        for (auto& handle : m_Resources | std::views::values)
         {
-            Handle.second.Reallocate(m_StateTracker, m_ResourceCache, resourceAllocator);
+            handle.Reallocate(renderDevice);
         }
-        m_ResourceCache.ReleaseTimestamps();
     }
 
     BufferResource& ResourceStorage::DeclareBufferView(
@@ -222,5 +161,18 @@ namespace Ame::RG
 #ifndef AME_DIST
         AME_LOG_ASSERT(Log::Gfx(), m_Locked == locked, "ResourceStorage is{} locked", locked ? "" : "n't");
 #endif
+    }
+
+    //
+
+    bool ResourceStorage::NeedsRebuild() const noexcept
+    {
+        return m_NeedRebuild;
+    }
+
+    void ResourceStorage::SetRebuildState(
+        bool state) noexcept
+    {
+        m_NeedRebuild = state;
     }
 } // namespace Ame::RG
