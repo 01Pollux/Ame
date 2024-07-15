@@ -4,7 +4,7 @@
 namespace Ame
 {
     String ToLower(
-        const StringView& str) noexcept
+        StringView str) noexcept
     {
         return str |
                std::views::transform([](Char c)
@@ -13,7 +13,7 @@ namespace Ame
     }
 
     WideString ToLower(
-        const WideStringView& str) noexcept
+        WideStringView str) noexcept
     {
         return str |
                std::views::transform([](WideChar c)
@@ -24,7 +24,7 @@ namespace Ame
     //
 
     String ToUpper(
-        const StringView& str) noexcept
+        StringView str) noexcept
     {
         return str |
                std::views::transform([](Char c)
@@ -33,7 +33,7 @@ namespace Ame
     }
 
     WideString ToUpper(
-        const WideStringView& str) noexcept
+        WideStringView str) noexcept
     {
         return str |
                std::views::transform([](WideChar c)

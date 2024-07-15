@@ -91,25 +91,25 @@ namespace Ame::Strings
     /// Convert string to lower case
     /// </summary>
     [[nodiscard]] String ToLower(
-        const StringView& str) noexcept;
+        StringView str) noexcept;
 
     /// <summary>
     /// Convert string to lower case
     /// </summary>
     [[nodiscard]] WideString ToLower(
-        const WideStringView& str) noexcept;
+        WideStringView str) noexcept;
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
     [[nodiscard]] String ToUpper(
-        const StringView& str) noexcept;
+        StringView str) noexcept;
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
     [[nodiscard]] WideString ToUpper(
-        const WideStringView& str) noexcept;
+        WideStringView str) noexcept;
 
     //
 

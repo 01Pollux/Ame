@@ -1,3 +1,20 @@
+if (CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    # add sanitizer to the project
+    set(AME_SANITIZER_ENABLED ON)
+else()
+    set(AME_SANITIZER_ENABLED OFF)
+endif()
+
+#
+
+if (AME_SANITIZER_ENABLED)
+    set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_SOURCE_DIR}/vcpkg_triplets/asan" CACHE STRING "Vcpkg overlay triplets path")
+else ()
+    set(VCPKG_OVERLAY_TRIPLETS "${CMAKE_SOURCE_DIR}/vcpkg_triplets/std" CACHE STRING "Vcpkg overlay triplets path")
+endif ()
+
+#
+
 cmake_minimum_required(VERSION 3.14)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -23,7 +40,10 @@ set(AME_SRC_DIR ${CMAKE_SOURCE_DIR}/Source)
 set(AME_THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/ThirdParty)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/Modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/ThirdParty")
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
+include(ucm)
 include(AmeOptions)
 include(AmeCommon)
 
