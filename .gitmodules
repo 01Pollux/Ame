@@ -1,0 +1,6 @@
+[submodule "ThirdParty/sanitizers-cmake"]
+	path = ThirdParty/sanitizers-cmake
+	url = https://github.com/arsenm/sanitizers-cmake.git
+[submodule "ThirdParty/potto"]
+	path = ThirdParty/potto
+	url = https://github.com/01Pollux/potto.git
