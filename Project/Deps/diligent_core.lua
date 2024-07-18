@@ -4,7 +4,7 @@ package("ame.diligent_core")
     set_description("A modern cross-platform low-level graphics API.")
     set_license("Apache-2.0")
 
-    set_sourcedir("Deps/DiligentCore")
+    set_sourcedir("ThirdParty/DiligentCore")
     add_deps("cmake")
 
     add_configs("d3d11",                {description = "Build support for D3D11", default = true, type = "boolean"})
