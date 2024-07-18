@@ -27,6 +27,12 @@ public:                                                    \
         return m_##Name.connect_extended(std::move(slot)); \
     }                                                      \
                                                            \
+    template<typename... Args>                             \
+    auto Invoke_##Name(Args&&... args)                     \
+    {                                                      \
+        return m_##Name(std::forward<Args>(args)...);      \
+    }                                                      \
+                                                           \
 private:                                                   \
     Namespace##Name##_Signal m_##Name
 
@@ -35,16 +41,22 @@ public:                                                    \
     static boost::signals2::connection Name(               \
         Namespace##Name##_Slot slot)                       \
     {                                                      \
-        return m_##Name.connect(std::move(slot));          \
+        return s_##Name.connect(std::move(slot));          \
     }                                                      \
     static boost::signals2::connection Name##Ex(           \
         Namespace##Name##_SlotEx slot)                     \
     {                                                      \
-        return m_##Name.connect_extended(std::move(slot)); \
+        return s_##Name.connect_extended(std::move(slot)); \
+    }                                                      \
+                                                           \
+    template<typename... Args>                             \
+    auto Invoke_##Name(Args&&... args)                     \
+    {                                                      \
+        return s_##Name(std::forward<Args>(args)...);      \
     }                                                      \
                                                            \
 private:                                                   \
-    static inline Namespace##Name##_Signal m_##Name
+    static inline Namespace##Name##_Signal s_##Name
 
 #define AME_SIGNAL_INST(Name)   AME_SIGNAL_INST_N(Ame::Signals::, Name)
 #define AME_SIGNAL_STATIC(Name) AME_SIGNAL_STATIC_N(Ame::Signals::, Name)

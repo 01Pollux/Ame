@@ -14,15 +14,8 @@ namespace Ame::Signals
 
 namespace Ame::Window
 {
-    AME_DECL_CLASS(WindowEventListener, "{2e630a59-4693-4ee7-b21f-b1cff0a41da2}");
-
-    AME_MT_OBJECT(WindowEventListener)
-    AME_INTERFACE_OF(Pt::IUnknown)
+    class WindowEventListener
     {
-    public:
-        AME_BEGIN_COMPONENT_MAP(WindowEventListener, CLSID_WindowEventListener)
-        AME_END_COMPONENT_MAP()
-
     public:
         /// <summary>
         /// Event fired when the window is resized
@@ -44,6 +37,4 @@ namespace Ame::Window
         /// </summary>
         AME_SIGNAL_INST(OnWindowTitleHitTest);
     };
-
-    AME_CLASS_REGISTER(WindowEventListener);
 } // namespace Ame::Window

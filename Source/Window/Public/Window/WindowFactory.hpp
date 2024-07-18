@@ -11,7 +11,6 @@ namespace Ame::Window
 
     enum class WindowType : uint8_t
     {
-        // Uses GLFW backend for window creation
         DesktopWindow,
         Count
     };
@@ -22,8 +21,6 @@ namespace Ame::Window
         /// Window title
         /// </summary>
         const char* Title = nullptr;
-
-        WindowType Type = WindowType::DesktopWindow;
 
         /// <summary>
         /// Window size
@@ -58,9 +55,7 @@ namespace Ame::Window
 
     //
 
-    AME_DECL_CLASS(WindowFactory, "{35e69e93-2904-4182-a85e-baf623c86752}");
-
-    AME_INTERFACE_BEGIN("{d4c5a174-763c-4e6b-83f8-73355002fb7e}", IWindowFactory);
-    [[nodiscard]] virtual Ptr<IWindow> CreateWindow(const WindowCreateDesc& createDesc) = 0;
-    AME_INTERFACE_END();
+    Ptr<IWindow> CreateWindow(
+        const WindowType&       windowType,
+        const WindowCreateDesc& createDesc);
 } // namespace Ame::Window

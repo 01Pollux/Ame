@@ -7,18 +7,9 @@ namespace Ame
 {
     static void Main()
     {
-        Pt::Initialize();
+        auto window = Window::CreateWindow(Window::WindowType::DesktopWindow, { .Title = "Hello world" });
 
-        Ptr<Window::IWindowFactory> windowFactory;
-        windowFactory.create(Window::CLSID_WindowFactory);
-
-        auto window = windowFactory->CreateWindow({ .Title = "Hello world" });
-        windowFactory.reset();
-
-        Ptr<Window::IDesktopWindow> desktopWindow;
-        window.as(IID_PTR(desktopWindow));
-        window.reset();
-
+        auto desktopWindow = window.Cast<Window::IDesktopWindow>(Window::IID_WindowDesktop);
         while (desktopWindow->IsRunning())
         {
             desktopWindow->ProcessEvents();

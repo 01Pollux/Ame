@@ -6,12 +6,3 @@ namespace Ame
     {
     }
 } // namespace Ame
-
-Sparrow::Sparrow()
-{
-}
-
-bool Sparrow::Fly(int distance)
-{
-    return true;
-}

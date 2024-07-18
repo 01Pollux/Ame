@@ -49,6 +49,8 @@ if is_mode("debug") then
     set_policy("build.sanitizer.address", true)
     set_exceptions("cxx", "objc")
 
+    add_ldflags("/opt:ref", "/opt:noicf")
+
     _use_asan = true
     _use_exception = true
     _debug_packages = true
@@ -59,6 +61,9 @@ if is_mode("releasedbg") then
     add_defines("DNDEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
     add_defines("AME_RELEASE")
+
+    add_ldflags("/LTCG", "/opt:ref,icf")
+
     _width_symbols = true
 end
 

@@ -1,18 +1,23 @@
 #include <Core/Interface.hpp>
-#include <potto/module/pottodef.hpp>
 
-#include <boost/dll.hpp>
-#include <Log/Wrapper.hpp>
+#include <mimalloc.h>
 
-namespace Potto
+namespace Ame
 {
-    static constexpr const char c_ModuleFile[] = "module.aml";
+    static inline ObjectMemoryAllocator s_ObjectMemoryAllocator;
 
-    void Initialize()
+    ObjectMemoryAllocator& ObjectMemoryAllocator::Instance()
     {
-        auto libDir     = boost::dll::program_location().parent_path();
-        auto modulePath = libDir / c_ModuleFile;
-
-        Ame::Log::Engine().Validate(Initialize(modulePath.string(), libDir.string()) == POTTO_E_OK, "Failed to initialize Engine");
+        return s_ObjectMemoryAllocator;
     }
-} // namespace Potto
+
+    void* ObjectMemoryAllocator::Allocate(size_t size, const char*, const char*, const int)
+    {
+        return mi_malloc(size);
+    }
+
+    void ObjectMemoryAllocator::Free(void* ptr)
+    {
+        mi_free(ptr);
+    }
+} // namespace Ame

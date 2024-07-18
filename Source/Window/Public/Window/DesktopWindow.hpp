@@ -6,33 +6,41 @@ struct GLFWwindow;
 
 namespace Ame::Window
 {
-    AME_DECL_CLASS(WindowGlfw, "{35e69e93-2904-4182-a85e-baf623c86752}");
+    class WindowEventListener;
 
-    AME_INTERFACE_BEGIN_EX("{7fb8e691-1cfd-4c23-9981-930830e14162}", IDesktopWindow, public IWindow)
+    // {CAAD6B48-505E-4B7A-A962-EA5FAC0718FD}
+    static const UId IID_WindowDesktop = { 0xcaad6b48, 0x505e, 0x4b7a, { 0xa9, 0x62, 0xea, 0x5f, 0xac, 0x7, 0x18, 0xfd } };
 
-    [[nodiscard]] virtual GLFWwindow* GetGlfwHandle() const = 0;
+    class IDesktopWindow : public IWindow
+    {
+    public:
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Window, IDesktopWindow);
 
-    virtual void SetFullscreen(bool state) = 0;
+    public:
+        [[nodiscard]] virtual GLFWwindow* GetGlfwHandle() const = 0;
 
-    [[nodiscard]] virtual bool IsMinimized() const = 0;
-    [[nodiscard]] virtual bool IsMaximized() const = 0;
+        virtual void SetFullscreen(bool state) = 0;
 
-    virtual void Maximize() = 0;
-    virtual void Minimize() = 0;
+        [[nodiscard]] virtual bool IsMinimized() const = 0;
+        [[nodiscard]] virtual bool IsMaximized() const = 0;
 
-    [[nodiscard]] virtual bool IsFullScreen() const = 0;
-    [[nodiscard]] virtual bool IsVisible() const    = 0;
+        virtual void Maximize() = 0;
+        virtual void Minimize() = 0;
 
-    [[nodiscard]] virtual bool HasFocus() const      = 0;
-    virtual void               RequestFocus()        = 0;
-    virtual void               SetVisible(bool show) = 0;
+        [[nodiscard]] virtual bool IsFullScreen() const = 0;
+        [[nodiscard]] virtual bool IsVisible() const    = 0;
 
-    /// <summary>
-    /// This function restores the specified window if it was previously iconified
-    ///  (minimized) or maximized.  If the window is already restored, this function
-    ///  does nothing.
-    /// </summary>
-    virtual void Restore() = 0;
+        [[nodiscard]] virtual bool HasFocus() const      = 0;
+        virtual void               RequestFocus()        = 0;
+        virtual void               SetVisible(bool show) = 0;
 
-    AME_INTERFACE_END();
+        /// <summary>
+        /// This function restores the specified window if it was previously iconified
+        ///  (minimized) or maximized.  If the window is already restored, this function
+        ///  does nothing.
+        /// </summary>
+        virtual void Restore() = 0;
+
+        [[nodiscard]] virtual WindowEventListener& GetEventListener() = 0;
+    };
 } // namespace Ame::Window

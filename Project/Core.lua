@@ -27,6 +27,6 @@ target_end()
 --
 
 target("Ame.Engine")
-    ame_utils:add_library("Ame", "shared", "Source/Engine")
+    ame_utils:add_library("Ame", "static", "Source/Engine")
     add_deps("Ame.Window", notshared_public_inherit)
 target_end()

@@ -6,10 +6,12 @@
 
 namespace Ame::Window
 {
-    void WindowImplGlfw::Initialize(
-        const WindowCreateDesc& windowDesc)
+    WindowImplGlfw::WindowImplGlfw(
+        IReferenceCounters*     referenceCounters,
+        const WindowCreateDesc& windowDesc) :
+        Base(referenceCounters),
+        m_Title(windowDesc.Title)
     {
-        m_Title = windowDesc.Title;
         GlfwContext::Initialize();
         GlfwContext::Get()
             .PushTask([this, windowDesc]
@@ -23,11 +25,6 @@ namespace Ame::Window
             .PushTask([this]
                       { glfwDestroyWindow(m_Handle); })
             .wait();
-    }
-
-    PtError WindowImplGlfw::FinalConstruct()
-    {
-        return CreateInstance<WindowEventListener>(&m_EventListener);
     }
 
     //
@@ -233,6 +230,11 @@ namespace Ame::Window
             .wait();
     }
 
+    WindowEventListener& WindowImplGlfw::GetEventListener()
+    {
+        return m_EventListener;
+    }
+
     //
 
     void WindowImplGlfw::CreateGlfwWindow(
@@ -287,44 +289,44 @@ namespace Ame::Window
 
         //
 
-        // glfwSetWindowSizeCallback(
-        //     m_Handle,
-        //     [](GLFWwindow* glfwWindow, int width, int height)
-        //     {
-        //         auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-        //         if (width && height)
-        //         {
-        //             window->m_OnWindowSizeChanged(window->m_WindowSize);
-        //         }
-        //         window->m_WindowSize = Math::Size2I{ width, height };
-        //     });
+        glfwSetWindowSizeCallback(
+            m_Handle,
+            [](GLFWwindow* glfwWindow, int width, int height)
+            {
+                auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+                if (width && height)
+                {
+                    window->m_EventListener.Invoke_OnWindowSizeChanged(window->m_WindowSize);
+                }
+                window->m_WindowSize = Math::Size2I{ width, height };
+            });
 
-        // glfwSetWindowCloseCallback(
-        //     m_Handle,
-        //     [](GLFWwindow* glfwWindow)
-        //     {
-        //         auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-        //         window->m_OnWindowClosed();
-        //     });
+        glfwSetWindowCloseCallback(
+            m_Handle,
+            [](GLFWwindow* glfwWindow)
+            {
+                auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+                window->m_EventListener.Invoke_OnWindowClosed();
+            });
 
-        // if (windowDesc.CustomTitleBar)
-        //{
-        //     glfwSetTitlebarHitTestCallback(
-        //         m_Handle,
-        //         [](GLFWwindow* glfwWindow, int x, int y, int* hit)
-        //         {
-        //             auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-        //             *hit        = window->m_OnWindowTitleHitTest({ x, y }).value_or(false);
-        //         });
-        // }
+        if (windowDesc.CustomTitleBar)
+        {
+            glfwSetTitlebarHitTestCallback(
+                m_Handle,
+                [](GLFWwindow* glfwWindow, int x, int y, int* hit)
+                {
+                    auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+                    *hit        = window->m_EventListener.Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
+                });
+        }
 
-        // glfwSetWindowIconifyCallback(
-        //     m_Handle,
-        //     [](GLFWwindow* glfwWindow, int iconified)
-        //     {
-        //         auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-        //         bool wasHit = false;
-        //         window->m_OnWindowMinized(iconified);
-        //     });
+        glfwSetWindowIconifyCallback(
+            m_Handle,
+            [](GLFWwindow* glfwWindow, int iconified)
+            {
+                auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+                bool wasHit = false;
+                window->m_EventListener.Invoke_OnWindowMinized(iconified);
+            });
     }
 } // namespace Ame::Window

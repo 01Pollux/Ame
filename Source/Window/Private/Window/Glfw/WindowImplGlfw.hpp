@@ -8,22 +8,19 @@ namespace Ame::Window
 {
     struct WindowCreateDesc;
 
-    AME_MT_OBJECT(WindowImplGlfw)
-    AME_INTERFACE_OF(IDesktopWindow)
+    class WindowImplGlfw : public BaseObject<IDesktopWindow>
     {
     public:
-        AME_BEGIN_INTERFACE_MAP(WindowImplGlfw, CLSID_WindowGlfw)
-        AME_INTERFACE_ENTRY(IDesktopWindow)
-        AME_COMPONENT_ENTRY(m_EventListener)
-        AME_END_INTERFACE_MAP()
+        using Base = BaseObject<IDesktopWindow>;
+
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_WindowDesktop, IDesktopWindow);
 
     public:
-        void Initialize(
+        WindowImplGlfw(
+            IReferenceCounters*     referenceCounters,
             const WindowCreateDesc& windowDesc);
 
         ~WindowImplGlfw() override;
-
-        PtError FinalConstruct();
 
     public:
         void ProcessEvents() override;
@@ -58,6 +55,8 @@ namespace Ame::Window
 
         void Restore() override;
 
+        [[nodiscard]] WindowEventListener& GetEventListener() override;
+
     private:
         void CreateGlfwWindow(const WindowCreateDesc& windowDesc);
 
@@ -66,8 +65,6 @@ namespace Ame::Window
         String       m_Title;
         Math::Size2I m_WindowSize;
 
-        Ptr<WindowEventListener> m_EventListener;
+        WindowEventListener m_EventListener;
     };
-
-    AME_CLASS_REGISTER(WindowImplGlfw);
 } // namespace Ame::Window
