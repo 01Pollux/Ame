@@ -1,6 +1,6 @@
-#include "WindowImplGlfw.hpp"
-#include "GlfwContext.hpp"
-#include <Window/WindowFactory.hpp>
+#include <Window/Window.hpp>
+#include <Window/Glfw/WindowImplGlfw.hpp>
+#include <Window/Glfw/GlfwContext.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -21,6 +21,7 @@ namespace Ame::Window
 
     WindowImplGlfw::~WindowImplGlfw()
     {
+        printf("WindowImplGlfw::~WindowImplGlfw()");
         GlfwContext::Get()
             .PushTask([this]
                       { glfwDestroyWindow(m_Handle); })

@@ -52,10 +52,4 @@ namespace Ame::Window
         /// </summary>
         bool NoResize : 1 = false;
     };
-
-    //
-
-    Ptr<IWindow> CreateWindow(
-        const WindowType&       windowType,
-        const WindowCreateDesc& createDesc);
 } // namespace Ame::Window

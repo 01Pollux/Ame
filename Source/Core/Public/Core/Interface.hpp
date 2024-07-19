@@ -1,9 +1,9 @@
 #pragma once
 
+#include <source_location>
+
 #include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #include <DiligentCore/Common/interface/ObjectBase.hpp>
-
-#include <source_location>
 
 namespace Dg = Diligent;
 

@@ -19,6 +19,7 @@ target("Ame.Core")
 target_end()
 
 --
+
 target("Ame.Window")
     ame_utils:add_library("Ame", "static", "Source/Window")
     add_deps("Ame.Core", notshared_public_inherit)
@@ -26,7 +27,14 @@ target_end()
 
 --
 
+target("Ame.Rhi")
+    ame_utils:add_library("Ame", "static", "Source/Rhi")
+    add_deps("Ame.Window", notshared_public_inherit)
+target_end()
+
+--
+
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Source/Engine")
-    add_deps("Ame.Window", notshared_public_inherit)
+    add_deps("Ame.Rhi", notshared_public_inherit)
 target_end()

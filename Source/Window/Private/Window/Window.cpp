@@ -1,5 +1,3 @@
-#include <Window/WindowFactory.hpp>
-
 #include <Window/Glfw/WindowImplGlfw.hpp>
 
 #include <Log/Wrapper.hpp>

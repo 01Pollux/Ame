@@ -1,4 +1,4 @@
-#include "GlfwContext.hpp"
+#include <Window/Glfw/GlfwContext.hpp>
 #include <GLFW/glfw3.h>
 
 #include <Log/Wrapper.hpp>
