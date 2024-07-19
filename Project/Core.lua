@@ -38,3 +38,17 @@ target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Source/Engine")
     add_deps("Ame.Rhi", notshared_public_inherit)
 target_end()
+
+--
+
+target("Ame.Application")
+    ame_utils:add_library("Ame", "static", "Source/Application")
+    add_deps("Ame.Engine", notshared_public_inherit)
+target_end()
+
+--
+
+target("Ame.EditorApplication")
+    ame_utils:add_library("Ame", "binary", "Source/EditorApplication")
+    add_deps("Ame.Application")
+target_end()

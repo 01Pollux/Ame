@@ -29,44 +29,6 @@ namespace Ame::Rhi
 
     //
 
-    void AME_CALL_TYPE RhiDeviceImpl::QueryInterface(
-        const UId& iid,
-        IObject**  outObject)
-    {
-        if (iid == IID_Unknown || iid == IID_RhiDevice)
-        {
-            *outObject = this;
-            (*outObject)->AddRef();
-        }
-        else
-        {
-            auto& windowWrapper = m_Wrapper.GetWindowWrapper();
-
-            IObject* subObjects[]{
-                m_Wrapper.GetDevice(),
-                m_Wrapper.GetImmediateContext(),
-                windowWrapper ? windowWrapper.GetWindow() : nullptr,
-                windowWrapper ? windowWrapper.GetSwapchain() : nullptr,
-            };
-
-            for (auto subObject : subObjects)
-            {
-                if (subObject)
-                {
-                    subObject->QueryInterface(iid, outObject);
-                    if (*outObject)
-                    {
-                        return;
-                    }
-                }
-            }
-
-            Base::QueryInterface(iid, outObject);
-        }
-    }
-
-    //
-
     RhiDeviceImpl::RhiDeviceImpl(
         IReferenceCounters*     counters,
         const DeviceCreateDesc& createDesc) :

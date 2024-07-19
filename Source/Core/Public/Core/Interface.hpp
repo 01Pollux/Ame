@@ -17,9 +17,6 @@ namespace Ame
 
     using IObject = Dg::IObject;
 
-    template<typename Ty>
-    using BaseObject = Dg::ObjectBase<Ty>;
-
     using IReferenceCounters = Dg::IReferenceCounters;
 
     template<typename Ty>
@@ -32,6 +29,13 @@ namespace Ame
     using WPtr = Dg::RefCntWeakPtr<Ty>;
 
     static constexpr UId IID_Unknown = Dg::IID_Unknown;
+
+    //
+
+    struct UIdHasher
+    {
+        size_t operator()(const UId& id) const;
+    };
 
     //
 
@@ -65,4 +69,106 @@ namespace Ame
         {
         }
     };
+
+    /// Template class implementing base functionality for an object
+    template<typename BaseInterface>
+    class BaseObject : public RefCountedObject<BaseInterface>
+    {
+    public:
+        using base_type = RefCountedObject<BaseInterface>;
+
+    public:
+        template<typename... Args>
+        explicit BaseObject(
+            IReferenceCounters* counters,
+            Args&&... args) noexcept(std::is_nothrow_constructible_v<base_type, IReferenceCounters*, Args...>) :
+            base_type(counters, std::forward<Args>(args)...)
+        {
+        }
+
+        void AME_METHOD(QueryInterface)(
+            const INTERFACE_ID& iid,
+            IObject**           outObject) override
+        {
+            if (outObject == nullptr)
+                return;
+
+            *outObject = nullptr;
+            if (iid == IID_Unknown)
+            {
+                *outObject = this;
+                (*outObject)->AddRef();
+            }
+        }
+    };
 } // namespace Ame
+
+#define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, ...) \
+    {                                                                                               \
+        if (iid == IID_Unknown || iid == InterfaceID1 || iid == InterfaceID2)                       \
+        {                                                                                           \
+            *outObject = this;                                                                      \
+            (*outObject)->AddRef();                                                                 \
+        }                                                                                           \
+        else                                                                                        \
+        {                                                                                           \
+            IObject* const subObjects[]{                                                            \
+                __VA_ARGS__                                                                         \
+            };                                                                                      \
+                                                                                                    \
+            for (auto subObject : subObjects)                                                       \
+            {                                                                                       \
+                if (subObject)                                                                      \
+                {                                                                                   \
+                    subObject->QueryInterface(iid, outObject);                                      \
+                    if (*outObject)                                                                 \
+                    {                                                                               \
+                        return;                                                                     \
+                    }                                                                               \
+                }                                                                                   \
+            }                                                                                       \
+                                                                                                    \
+            ParentClassName::QueryInterface(iid, outObject);                                        \
+        }                                                                                           \
+    }
+
+#define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS_BODY(InterfaceID, ParentClassName, ...) \
+    {                                                                               \
+        if (iid == IID_Unknown || iid == InterfaceID)                               \
+        {                                                                           \
+            *outObject = this;                                                      \
+            (*outObject)->AddRef();                                                 \
+        }                                                                           \
+        else                                                                        \
+        {                                                                           \
+            IObject* const subObjects[]{                                            \
+                __VA_ARGS__                                                         \
+            };                                                                      \
+                                                                                    \
+            for (auto subObject : subObjects)                                       \
+            {                                                                       \
+                if (subObject)                                                      \
+                {                                                                   \
+                    subObject->QueryInterface(iid, outObject);                      \
+                    if (*outObject)                                                 \
+                    {                                                               \
+                        return;                                                     \
+                    }                                                               \
+                }                                                                   \
+            }                                                                       \
+                                                                                    \
+            ParentClassName::QueryInterface(iid, outObject);                        \
+        }                                                                           \
+    }
+
+#define IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(InterfaceID, ParentClassName, ...) \
+    void AME_METHOD(QueryInterface)(                                                    \
+        const INTERFACE_ID& iid,                                                        \
+        IObject**           outObject) override                                                   \
+        IMPLEMENT_QUERY_INTERFACE_SUBOJECTS_BODY(InterfaceID, ParentClassName, __VA_ARGS__)
+
+#define IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(InterfaceID1, InterfaceID2, ParentClassName, ...) \
+    void AME_METHOD(QueryInterface)(                                                                    \
+        const INTERFACE_ID& iid,                                                                        \
+        IObject**           outObject) override                                                                   \
+        IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, __VA_ARGS__)

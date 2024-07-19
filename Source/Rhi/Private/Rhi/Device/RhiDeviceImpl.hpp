@@ -24,9 +24,12 @@ namespace Ame::Rhi
     public:
         using Base = BaseObject<IRhiDevice>;
 
-        void AME_METHOD(QueryInterface)(
-            const UId& iid,
-            IObject**  outObject) override;
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
+            IID_RhiDevice, Base,
+            m_Wrapper.GetDevice(),
+            m_Wrapper.GetImmediateContext(),
+            m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper().GetWindow() : nullptr,
+            m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper().GetSwapchain() : nullptr)
 
     public:
         RhiDeviceImpl(

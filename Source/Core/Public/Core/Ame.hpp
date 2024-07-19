@@ -4,6 +4,7 @@
 #include <Core/Ame.Debug.hpp>
 
 #include <memory>
+#include <span>
 #include <optional>
 #include <tuple>
 #include <variant>
