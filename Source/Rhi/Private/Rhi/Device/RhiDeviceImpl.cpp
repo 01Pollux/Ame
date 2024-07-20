@@ -37,6 +37,17 @@ namespace Ame::Rhi
     {
     }
 
+    bool RhiDeviceImpl::BeginFrame()
+    {
+        if (m_Wrapper.GetWindowWrapper())
+        {
+            auto window = m_Wrapper.GetWindowWrapper().GetWindow();
+            window->ProcessEvents();
+            return window->IsRunning();
+        }
+        return true;
+    }
+
     void RhiDeviceImpl::AdvanceFrame(
         uint32_t syncInterval)
     {

@@ -1,14 +1,10 @@
 #pragma once
 
 #include <Application/Application.hpp>
+#include <Editor/Config.hpp>
 
 namespace Ame
 {
-    struct EditorApplicationConfig
-    {
-        ApplicationConfig Application;
-    };
-
     class EditorApplication : public BaseApplication
     {
     public:

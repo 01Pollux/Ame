@@ -7,7 +7,10 @@ namespace Ame::Signals
 {
     AME_SIGNAL_DECL(OnFrameStart, void());
     AME_SIGNAL_DECL(OnFrameUpdate, void());
-    AME_SIGNAL_DECL(OnFrameEnd, void());
+    /// <summary>
+    /// Returns true if the application should continue running.
+    /// </summary>
+    AME_SIGNAL_DECL(OnFrameEnd, bool());
 } // namespace Ame::Signals
 
 namespace Ame

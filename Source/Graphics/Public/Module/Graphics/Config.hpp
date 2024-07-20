@@ -15,10 +15,13 @@ namespace Ame
     struct GraphicsModuleConfig
     {
         Rhi::DeviceCreateDesc RhiDeviceDesc;
-        bool                  EnableImGuiSubmodule : 1 = true;
+        uint32_t              SyncInterval                = 0; // 0 = no vsync
+        bool                  EnableRendererSubmodule : 1 = true;
+        bool                  EnableImGuiSubmodule    : 1 = true;
     };
 
     class PlatformWindowSubmodule;
     class RhiGraphicsSubmodule;
+    class RendererSubmodule;
     class ImGuiSubmodule;
 } // namespace Ame

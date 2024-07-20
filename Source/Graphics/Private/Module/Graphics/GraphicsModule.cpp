@@ -17,6 +17,7 @@ namespace Ame
         Base(counters, IID_GraphicsModule),
         m_PlatformWindowSubmodule(CreateWindowSubmodule(config.RhiDeviceDesc)),
         m_RhiGraphicsSubmodule(ObjectAllocator<RhiGraphicsSubmodule>()(Rhi::CreateRhiDevice(config.RhiDeviceDesc))),
+        m_RendererSubmodule(config.EnableRendererSubmodule ? ObjectAllocator<RendererSubmodule>()(m_RhiGraphicsSubmodule, config.SyncInterval) : nullptr),
         m_ImGuiSubmodule((m_PlatformWindowSubmodule && m_RhiGraphicsSubmodule && config.EnableImGuiSubmodule) ? ObjectAllocator<ImGuiSubmodule>()() : nullptr)
     {
     }

@@ -16,8 +16,7 @@ namespace Ame
     /// Core Module:
     ///     TimeSubmodule
     ///     CoroutineSubmodule
-    ///     FrameEventSubmodule (OnFrameStart, OnFrameEnd)
-    ///     StateSubmodule
+    ///     FrameEventSubmodule (OnFrameStart, OnFrameUpdate, OnFrameEnd)
     /// Plugin Module:
     ///     PluginManagerSubmodule
     ///     PluginEventSubmodule (OnPluginLoad, OnPluginUnload, OnPluginReload)
@@ -42,9 +41,11 @@ namespace Ame
     ///     VoiceSubmodule
     ///     MixerSubmodule
     /// Graphics Module:
+    ///     PlatformWindowSubmodule
+    ///     RhiGraphicsSubmodule
     ///     RendererSubmodule
+    ///     ImGuiSubmodule
     ///     UISubmodule
-    ///     ImGUISubmodule
     /// Script Module:
     ///     LuaSubmodule
     ///     CSharpScriptSubmodule

@@ -5,6 +5,7 @@
 
 namespace Ame
 {
+
     class AmeEngine
     {
     public:
@@ -20,6 +21,12 @@ namespace Ame
         ~AmeEngine();
 
     public:
+        /// <summary>
+        /// Refreshes the submodule cache if a module is added or removed.
+        /// </summary>
+        void RefreshSubmoduleCache();
+
+    public:
         void               Tick();
         [[nodiscard]] bool IsRunning() const;
         void               Exit(int exitCode = 0);
@@ -29,14 +36,12 @@ namespace Ame
         [[nodiscard]] ModuleRegistry&       GetRegistry() noexcept;
 
     private:
-        void PreloadSubmodules();
-
-    private:
         ModuleRegistry m_ModuleRegistery;
 
         // precaching frequently used submodules
         Ptr<TimeSubmodule>       m_TimeSubmodule;
         Ptr<FrameEventSubmodule> m_FrameEventSubmodule;
+        Ptr<RendererSubmodule>   m_RendererSubmodule;
 
         Opt<int> m_ExitCode;
     };

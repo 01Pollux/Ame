@@ -20,6 +20,8 @@ namespace Ame::Rhi
     class IRhiDevice : public IObject
     {
     public:
+        [[nodiscard]] virtual bool AME_METHOD(BeginFrame)() = 0;
+
         /// <summary>
         /// End the rendering device frame and present if device has window.
         /// </summary>

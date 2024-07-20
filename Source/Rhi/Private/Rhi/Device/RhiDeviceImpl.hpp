@@ -37,6 +37,8 @@ namespace Ame::Rhi
             const DeviceCreateDesc& createDesc);
 
     public:
+        bool BeginFrame() override;
+
         void AdvanceFrame(
             uint32_t syncInterval) override;
 
