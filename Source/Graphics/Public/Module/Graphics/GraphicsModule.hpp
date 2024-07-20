@@ -3,10 +3,7 @@
 #include <Module/Module.hpp>
 
 #include <Module/Graphics/Config.hpp>
-#include <Module/Graphics/PlatformWindowSubmodule.hpp>
-#include <Module/Graphics/RhiGraphicsSubmodule.hpp>
 #include <Module/Graphics/RendererSubmodule.hpp>
-#include <Module/Graphics/ImGuiSubmodule.hpp>
 
 namespace Ame
 {
@@ -17,20 +14,15 @@ namespace Ame
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(
             IID_GraphicsModule, IID_BaseModule, Base,
-            m_PlatformWindowSubmodule,
-            m_RhiGraphicsSubmodule,
-            m_RendererSubmodule,
-            m_ImGuiSubmodule);
+            m_RendererSubmodule);
 
     public:
         GraphicsModule(
             IReferenceCounters*         counters,
+            RhiModule*                  rhiModule,
             const GraphicsModuleConfig& config);
 
     private:
-        Ptr<PlatformWindowSubmodule> m_PlatformWindowSubmodule;
-        Ptr<RhiGraphicsSubmodule>    m_RhiGraphicsSubmodule;
-        Ptr<RendererSubmodule>       m_RendererSubmodule;
-        Ptr<ImGuiSubmodule>          m_ImGuiSubmodule;
+        Ptr<RendererSubmodule> m_RendererSubmodule;
     }; // namespace Ame
 } // namespace Ame

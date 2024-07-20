@@ -1,6 +1,7 @@
 #include <Engine/Engine.hpp>
 
 #include <Module/Core/CoreModule.hpp>
+#include <Module/Rhi/RhiModule.hpp>
 #include <Module/Graphics/GraphicsModule.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -11,9 +12,13 @@ namespace Ame
         const EngineConfig& engineConfig)
     {
         m_ModuleRegistery.RegisterModule<CoreModule>(engineConfig.CoreConfig);
-        if (engineConfig.GraphicsConfig)
+        if (engineConfig.RhiConfig)
         {
-            m_ModuleRegistery.RegisterModule<GraphicsModule>(*engineConfig.GraphicsConfig);
+            auto rhiModule = m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
+            if (engineConfig.GraphicsConfig)
+            {
+                m_ModuleRegistery.RegisterModule<GraphicsModule>(rhiModule, *engineConfig.GraphicsConfig);
+            }
         }
 
         RefreshSubmoduleCache();

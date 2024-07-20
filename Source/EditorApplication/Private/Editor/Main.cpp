@@ -19,9 +19,10 @@ static Ame::EditorApplicationConfig ParseEditorConfig(
 
     EditorApplicationConfig editorConfig;
 
-    editorConfig.Application.Engine.GraphicsConfig = GraphicsModuleConfig{
+    editorConfig.Application.Engine.RhiConfig = RhiModuleConfig{
         .RhiDeviceDesc = std::move(rhiDeviceDesc)
     };
+    editorConfig.Application.Engine.GraphicsConfig.emplace();
 
     return editorConfig;
 }

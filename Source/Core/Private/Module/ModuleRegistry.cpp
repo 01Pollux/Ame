@@ -5,7 +5,7 @@
 
 namespace Ame
 {
-    void ModuleRegistry::RegisterModule(
+    IModule* ModuleRegistry::RegisterModule(
         Ptr<IModule> module)
     {
         AME_LOG_ASSERT(Log::Engine(), module != nullptr, "Module is nullptr");
@@ -13,6 +13,8 @@ namespace Ame
 
         module->Initialize();
         m_Modules[module->GetId()] = module;
+
+        return module;
     }
 
     void ModuleRegistry::UnregisterModule(

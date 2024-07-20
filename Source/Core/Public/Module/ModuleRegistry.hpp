@@ -40,11 +40,12 @@ namespace Ame
     ///     SoundSubmodule
     ///     VoiceSubmodule
     ///     MixerSubmodule
-    /// Graphics Module:
+    /// Rhi Module:
     ///     PlatformWindowSubmodule
     ///     RhiGraphicsSubmodule
-    ///     RendererSubmodule
     ///     ImGuiSubmodule
+    /// Graphics Module:
+    ///     RendererSubmodule
     ///     UISubmodule
     /// Script Module:
     ///     LuaSubmodule
@@ -57,16 +58,18 @@ namespace Ame
         /// Register a preloaded module
         /// </summary>
         template<typename Ty, typename... Args>
-        void RegisterModule(
+        Ty* RegisterModule(
             Args&&... args)
         {
-            RegisterModule({ ObjectAllocator<Ty>()(std::forward<Args>(args)...), IID_BaseModule });
+            Ptr<Ty> module{ ObjectAllocator<Ty>()(std::forward<Args>(args)...) };
+            RegisterModule(module.Cast<IModule>(IID_BaseModule));
+            return module;
         }
 
         /// <summary>
         /// Register a preloaded module
         /// </summary>
-        void RegisterModule(
+        IModule* RegisterModule(
             Ptr<IModule> module);
 
         /// <summary>
