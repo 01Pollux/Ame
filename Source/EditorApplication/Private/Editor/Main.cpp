@@ -1,7 +1,7 @@
 #include <Application/EntryPoint.hpp>
 #include <Editor/EditorApplication.hpp>
 
-Ame::EditorApplicationConfig ParseEditorConfig(
+static Ame::EditorApplicationConfig ParseEditorConfig(
     int    argc,
     char** argv)
 {
@@ -20,8 +20,7 @@ Ame::EditorApplicationConfig ParseEditorConfig(
     EditorApplicationConfig editorConfig;
 
     editorConfig.Application.Engine.GraphicsConfig = GraphicsModuleConfig{
-        .RhiDeviceDesc        = std::move(rhiDeviceDesc),
-        .EnableImGuiSubmodule = true
+        .RhiDeviceDesc = std::move(rhiDeviceDesc)
     };
 
     return editorConfig;

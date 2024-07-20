@@ -2,6 +2,10 @@
 #include <Window/Glfw/WindowImplGlfw.hpp>
 #include <Window/Glfw/GlfwContext.hpp>
 
+#ifndef AME_DIST
+#include <Window/Glfw/ImGuiGlfwImpl.hpp>
+#endif
+
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Window
@@ -234,6 +238,44 @@ namespace Ame::Window
     WindowEventListener& WindowImplGlfw::GetEventListener()
     {
         return m_EventListener;
+    }
+
+    void WindowImplGlfw::InitializeImGui(
+        void* imguiContext)
+    {
+#ifndef AME_DIST
+        GlfwContext::Get()
+            .PushTask(
+                [this, imguiContext]
+                {
+                    IMGUI_CHECKVERSION();
+
+                    ImGuiIO& io = ImGui::GetIO();
+                    io.BackendFlags |= ImGuiConfigFlags_NavEnableKeyboard |
+                                       ImGuiConfigFlags_NavEnableGamepad |
+                                       ImGuiConfigFlags_DockingEnable |
+                                       ImGuiConfigFlags_ViewportsEnable;
+
+                    ImGui::SetCurrentContext(std::bit_cast<ImGuiContext*>(imguiContext));
+                    ImGui_ImplGlfw_InitForOther(m_Handle, true);
+                })
+            .wait();
+#endif
+    }
+
+    void WindowImplGlfw::ShutdownImGui(
+        void* imguiContext)
+    {
+#ifndef AME_DIST
+        GlfwContext::Get()
+            .PushTask(
+                [imguiContext]
+                {
+                    ImGui::SetCurrentContext(std::bit_cast<ImGuiContext*>(imguiContext));
+                    ImGui_ImplGlfw_Shutdown();
+                })
+            .wait();
+#endif
     }
 
     //

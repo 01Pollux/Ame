@@ -19,8 +19,7 @@ namespace Ame::Window
 
 namespace Ame::Rhi
 {
-    class DeviceWrapper;
-    class RhiDevice;
+    class IRhiDevice;
 
     //
 

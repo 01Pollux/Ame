@@ -58,6 +58,11 @@ namespace Ame::Window
 
         [[nodiscard]] WindowEventListener& GetEventListener() override;
 
+        void InitializeImGui(
+            void* imguiContext) override;
+        void ShutdownImGui(
+            void* imguiContext) override;
+
     private:
         void CreateGlfwWindow(const WindowCreateDesc& windowDesc);
 

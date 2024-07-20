@@ -26,3 +26,4 @@ add_requires("ame.concurrencpp",            {system = false, debug = _debug_pack
 add_requires("ame.glfw",                    {system = false, debug = _debug_packages, configs = {symbols = _width_symbols}})
 add_requires("ame.diligent_core",           {system = false, debug = _debug_packages, configs = {symbols = _width_symbols, exceptions = _use_exception}})
 add_requires("directxshadercompiler",       {system = false, debug = _debug_packages, configs = {symbols = _width_symbols}}) 
+add_requires("imgui v1.90.9-docking",       {system = false, debug = _debug_packages, configs = {symbols = _width_symbols, freetype = true}})

@@ -23,6 +23,9 @@ target_end()
 target("Ame.Window")
     ame_utils:add_library("Ame", "static", "Source/Window")
     add_deps("Ame.Core", notshared_public_inherit)
+    if not is_mode("release") then
+        add_packages("imgui", notshared_public_inherit)
+    end
 target_end()
 
 --
