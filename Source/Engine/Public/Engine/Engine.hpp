@@ -1,17 +1,15 @@
 #pragma once
 
-#include <Core/Ame.hpp>
+#include <Engine/Config.hpp>
 #include <Module/ModuleRegistry.hpp>
 
 namespace Ame
 {
-    class TimeSubmodule;
-    class FrameEventSubmodule;
-
     class AmeEngine
     {
     public:
-        AmeEngine();
+        explicit AmeEngine(
+            const EngineConfig& engineConfig);
 
         AmeEngine(const AmeEngine&)            = delete;
         AmeEngine& operator=(const AmeEngine&) = delete;

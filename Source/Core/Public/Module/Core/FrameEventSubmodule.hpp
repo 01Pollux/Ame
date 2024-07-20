@@ -24,7 +24,7 @@ namespace Ame
             IID_FrameEventSubmodule, IID_BaseSubmodule, Base);
 
     public:
-        FrameEventSubmodule(
+        explicit FrameEventSubmodule(
             IReferenceCounters* counters) :
             Base(counters, IID_FrameEventSubmodule)
         {

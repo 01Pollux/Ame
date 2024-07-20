@@ -1,26 +1,25 @@
 #pragma once
 
-#include <Core/Interface.hpp>
 #include <Core/Ame.hpp>
+#include <Application/Config.hpp>
 
 namespace Ame
 {
     class AmeEngine;
 
-    class BareApplication
+    class BaseApplication
     {
     public:
-        BareApplication(
-            int    argc,
-            char** argv);
+        explicit BaseApplication(
+            const ApplicationConfig& applicationConfig);
 
-        BareApplication(const BareApplication&)            = delete;
-        BareApplication& operator=(const BareApplication&) = delete;
+        BaseApplication(const BaseApplication&)            = delete;
+        BaseApplication& operator=(const BaseApplication&) = delete;
 
-        BareApplication(BareApplication&&)            = delete;
-        BareApplication& operator=(BareApplication&&) = delete;
+        BaseApplication(BaseApplication&&)            = delete;
+        BaseApplication& operator=(BaseApplication&&) = delete;
 
-        virtual ~BareApplication();
+        virtual ~BaseApplication();
 
     public:
         int Run();
@@ -57,10 +56,3 @@ namespace Ame
         UniquePtr<AmeEngine> m_Engine;
     };
 } // namespace Ame
-
-#define AME_APPLICATION_MAIN(ApplicationClass) \
-    int main(int argc, char** argv)            \
-    {                                          \
-        ApplicationClass app;                  \
-        return app.Run();                      \
-    }

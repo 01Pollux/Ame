@@ -4,16 +4,19 @@
 
 namespace Ame
 {
-    class EditorApplication : public BareApplication
+    struct EditorApplicationConfig
+    {
+        ApplicationConfig Application;
+    };
+
+    class EditorApplication : public BaseApplication
     {
     public:
-        using Base = BareApplication;
+        using Base = BaseApplication;
 
     public:
-        EditorApplication(int argc, char** argv) :
-            Base(argc, argv)
-        {
-        }
+        explicit EditorApplication(
+            const EditorApplicationConfig& editorConfig);
 
     protected:
         void OnLoad() override;

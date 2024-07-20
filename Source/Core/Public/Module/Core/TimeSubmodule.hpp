@@ -17,7 +17,7 @@ namespace Ame
             IID_TimeSubmodule, IID_BaseSubmodule, Base);
 
     public:
-        TimeSubmodule(
+        explicit TimeSubmodule(
             IReferenceCounters* counters) :
             Base(counters, IID_TimeSubmodule)
         {

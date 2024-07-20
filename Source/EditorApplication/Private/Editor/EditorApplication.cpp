@@ -1,16 +1,16 @@
 #include <Editor/EditorApplication.hpp>
-#include <Engine/Engine.hpp>
-
-#include <Module/Graphics/GraphicsModule.hpp>
 
 namespace Ame
 {
+    EditorApplication::EditorApplication(
+        const EditorApplicationConfig& editorConfig) :
+        Base(editorConfig.Application)
+    {
+    }
+
     void EditorApplication::OnLoad()
     {
         Base::OnLoad();
-
-        auto& moduleRegistry = GetEngine().GetRegistry();
-        moduleRegistry.RegisterModule<GraphicsModule>();
     }
 
     void EditorApplication::OnInitialize()

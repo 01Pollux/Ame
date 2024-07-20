@@ -5,21 +5,20 @@
 
 namespace Ame
 {
-    BareApplication::BareApplication(
-        int    argc,
-        char** argv)
+    BaseApplication::BaseApplication(
+        const ApplicationConfig& applicationConfig) :
+        m_Engine(std::make_unique<AmeEngine>(applicationConfig.Engine))
     {
-        m_Engine = std::make_unique<AmeEngine>();
     }
 
-    BareApplication::~BareApplication()
+    BaseApplication::~BaseApplication()
     {
         Log::Engine().Trace("Application destroyed");
     }
 
     //
 
-    int BareApplication::Run()
+    int BaseApplication::Run()
     {
         Log::Engine().Trace("Application started");
 #if !(defined(AME_DIST) || defined(AME_NO_EXCEPTIONS))
@@ -37,7 +36,9 @@ namespace Ame
             }
 
             OnShutdown();
+            Log::Engine().Trace("Application shutdown");
             OnUnload();
+            Log::Engine().Trace("Application unloaded");
 #if !(defined(AME_DIST) || defined(AME_NO_EXCEPTIONS))
         }
         catch (const std::bad_alloc& e)
@@ -46,6 +47,7 @@ namespace Ame
             return EXIT_FAILURE;
         }
 #endif
+        Log::Engine().Trace("Application stopped");
         return EXIT_SUCCESS;
     }
 } // namespace Ame

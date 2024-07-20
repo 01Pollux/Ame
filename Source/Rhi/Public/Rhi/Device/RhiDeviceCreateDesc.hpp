@@ -1,13 +1,11 @@
 #pragma once
 
-#include <concurrencpp/concurrencpp.h>
 #include <Core/Ame.hpp>
-
 #include <Rhi/Core.hpp>
 
-namespace Ame::Windowing
+namespace Ame::Window
 {
-    class Window;
+    class IWindow;
 } // namespace Ame::Windowing
 
 namespace Ame::Rhi
@@ -465,9 +463,9 @@ namespace Ame::Rhi
 
     struct RenderSurfaceDesc
     {
-        Window::IWindow*   Window; // Window may be shared across multiple devices.
-        FullscreenModeDesc FullscreenMode;
-        SwapchainDesc      Swapchain;
+        Ptr<Window::IWindow> Window; // Window may be shared across multiple devices.
+        FullscreenModeDesc   FullscreenMode;
+        SwapchainDesc        Swapchain;
     };
 
     //

@@ -23,9 +23,16 @@
 
 #endif
 
+#define AME_MAIN_APPLICATION_CONFIG(ApplicationType, Config) \
+    AME_MAIN_ENTRY_POINT                                     \
+    {                                                        \
+        ApplicationType app(Config);                         \
+        return app.Run();                                    \
+    }
+
 #define AME_MAIN_APPLICATION(ApplicationType) \
     AME_MAIN_ENTRY_POINT                      \
     {                                         \
-        ApplicationType app(argc, argv);      \
+        ApplicationType app({});              \
         return app.Run();                     \
     }

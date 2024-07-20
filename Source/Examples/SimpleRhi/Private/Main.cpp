@@ -7,7 +7,7 @@
 namespace Ame
 {
     static auto GetDeviceDesc(
-        Window::IWindow* window)
+        Ptr<Window::IWindow> window)
     {
         return Rhi::DeviceCreateDesc{
             .Types{
@@ -15,7 +15,7 @@ namespace Ame
                 Rhi::DeviceCreateDescVulkan{},
                 Rhi::DeviceCreateDescD3D11{},
                 Rhi::DeviceCreateDescGL{} },
-            .Surface = Rhi::RenderSurfaceDesc{ window }
+            .Surface = Rhi::RenderSurfaceDesc{ std::move(window) }
         };
     }
 

@@ -1,15 +1,18 @@
 #include <Engine/Engine.hpp>
 
 #include <Module/Core/CoreModule.hpp>
-
-#include <stacktrace>
-#include <exception>
+#include <Module/Graphics/GraphicsModule.hpp>
 
 namespace Ame
 {
-    AmeEngine::AmeEngine()
+    AmeEngine::AmeEngine(
+        const EngineConfig& engineConfig)
     {
-        m_ModuleRegistery.RegisterModule<CoreModule>();
+        m_ModuleRegistery.RegisterModule<CoreModule>(engineConfig.CoreConfig);
+        if (engineConfig.GraphicsConfig)
+        {
+            m_ModuleRegistery.RegisterModule<GraphicsModule>(*engineConfig.GraphicsConfig);
+        }
 
         PreloadSubmodules();
     }

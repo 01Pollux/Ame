@@ -2,15 +2,13 @@
 
 #include <Module/Module.hpp>
 
+#include <Module/Core/Config.hpp>
 #include <Module/Core/TimeSubmodule.hpp>
 #include <Module/Core/FrameEventSubmodule.hpp>
 #include <Module/Core/CoroutineSubmodule.hpp>
 
 namespace Ame
 {
-    // {C9E70A4E-1AA4-4B93-B086-05314A078048}
-    static const UId IID_CoreModule = { 0xc9e70a4e, 0x1aa4, 0x4b93, { 0xb0, 0x86, 0x5, 0x31, 0x4a, 0x7, 0x80, 0x48 } };
-
     class CoreModule final : public BaseObject<IModule>
     {
     public:
@@ -20,15 +18,16 @@ namespace Ame
             IID_CoreModule, IID_BaseModule, Base,
             m_TimeSubmodule,
             m_FrameEventSubmodule,
-            m_CoroutineSubmodule)
+            m_CoroutineSubmodule);
 
     public:
         CoreModule(
-            IReferenceCounters* counters) :
+            IReferenceCounters* counters,
+            CoreModuleConfig    config) :
             Base(counters, IID_CoreModule),
-            m_TimeSubmodule(ObjectAllocator<TimeSubmodule>(this)()),
-            m_FrameEventSubmodule(ObjectAllocator<FrameEventSubmodule>(this)()),
-            m_CoroutineSubmodule(ObjectAllocator<CoroutineSubmodule>(this)())
+            m_TimeSubmodule(config.EnableTimeSubmodule ? ObjectAllocator<TimeSubmodule>(this)() : nullptr),
+            m_FrameEventSubmodule(config.EnableFrameEventSubmodule ? ObjectAllocator<FrameEventSubmodule>(this)() : nullptr),
+            m_CoroutineSubmodule(config.EnableCoroutineSubmodule ? ObjectAllocator<CoroutineSubmodule>(this)() : nullptr)
         {
         }
 

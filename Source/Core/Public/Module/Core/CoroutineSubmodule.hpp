@@ -18,7 +18,7 @@ namespace Ame
             IID_CoroutineSubmodule, IID_BaseSubmodule, Base);
 
     public:
-        CoroutineSubmodule(
+        explicit CoroutineSubmodule(
             IReferenceCounters* counters) :
             Base(counters, IID_CoroutineSubmodule)
         {

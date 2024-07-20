@@ -16,7 +16,7 @@ namespace Ame
             IID_ImGuiSubmodule, IID_BaseSubmodule, Base);
 
     public:
-        ImGuiSubmodule(
+        explicit ImGuiSubmodule(
             IReferenceCounters* counters) :
             Base(counters, IID_ImGuiSubmodule)
         {
