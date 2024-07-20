@@ -62,24 +62,6 @@ namespace Ame::Rhi
         const DeviceCreateDesc& createDesc,
         Dg::EngineCreateInfo&   createInfo)
     {
-        struct MemoryAllocator : public Dg::IMemoryAllocator
-        {
-            void* Allocate(
-                size_t          size,
-                const Dg::Char* dbgDescription,
-                const char*     dbgFileName,
-                const Dg::Int32 dbgLineNumber) override
-            {
-                return mi_malloc(size);
-            }
-
-            void Free(
-                void* ptr) override
-            {
-                mi_free(ptr);
-            }
-        } static memoryAllocator;
-
         using namespace EnumBitOperators;
 
         createInfo.Features = createDesc.Features;
@@ -90,7 +72,7 @@ namespace Ame::Rhi
             createInfo.ValidationFlags |= Dg::VALIDATION_FLAGS::VALIDATION_FLAG_CHECK_SHADER_BUFFER_SIZE;
         }
 
-        createInfo.pRawMemAllocator = &memoryAllocator;
+        createInfo.pRawMemAllocator = &ObjectMemoryAllocator::Instance();
     }
 
     //
