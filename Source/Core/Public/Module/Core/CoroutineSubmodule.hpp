@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Module/Submodule.hpp>
+#include <Core/Coroutine.hpp>
+#include <Core/Ame.hpp>
 
 namespace Ame
 {
@@ -21,5 +23,18 @@ namespace Ame
             Base(counters, IID_CoroutineSubmodule)
         {
         }
+
+        [[nodiscard]] Co::runtime& GetRuntime() noexcept
+        {
+            return m_Runtime;
+        }
+
+        [[nodiscard]] const Co::runtime& GetRuntime() const noexcept
+        {
+            return m_Runtime;
+        }
+
+    private:
+        Co::runtime m_Runtime;
     };
 } // namespace Ame

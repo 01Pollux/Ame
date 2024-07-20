@@ -144,8 +144,11 @@ namespace Ame::DbgImpl
 
 namespace Ame
 {
+#ifndef AME_DIST
+    void DebugBreak();
+#else
     inline void DebugBreak()
     {
-        DbgImpl::DebugBreak();
     }
+#endif
 } // namespace Ame

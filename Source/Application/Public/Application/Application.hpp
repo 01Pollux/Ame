@@ -10,9 +10,17 @@ namespace Ame
     class BareApplication
     {
     public:
-        BareApplication();
+        BareApplication(
+            int    argc,
+            char** argv);
 
-        virtual ~BareApplication() = default;
+        BareApplication(const BareApplication&)            = delete;
+        BareApplication& operator=(const BareApplication&) = delete;
+
+        BareApplication(BareApplication&&)            = delete;
+        BareApplication& operator=(BareApplication&&) = delete;
+
+        virtual ~BareApplication();
 
     public:
         int Run();
@@ -26,12 +34,23 @@ namespace Ame
         {
         }
 
-        virtual void Shutdown()
+        virtual void OnShutdown()
         {
         }
 
         virtual void OnUnload()
         {
+        }
+
+    protected:
+        [[nodiscard]] AmeEngine& GetEngine() noexcept
+        {
+            return *m_Engine;
+        }
+
+        [[nodiscard]] const AmeEngine& GetEngine() const noexcept
+        {
+            return *m_Engine;
         }
 
     private:
@@ -40,8 +59,8 @@ namespace Ame
 } // namespace Ame
 
 #define AME_APPLICATION_MAIN(ApplicationClass) \
-	int main(int argc, char** argv) \
-	{ \
-		ApplicationClass app; \
-		return app.Run(); \
-	}
+    int main(int argc, char** argv)            \
+    {                                          \
+        ApplicationClass app;                  \
+        return app.Run();                      \
+    }

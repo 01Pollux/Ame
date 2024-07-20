@@ -2,6 +2,9 @@
 
 #include <Module/Core/CoreModule.hpp>
 
+#include <stacktrace>
+#include <exception>
+
 namespace Ame
 {
     AmeEngine::AmeEngine()
@@ -11,16 +14,21 @@ namespace Ame
         PreloadSubmodules();
     }
 
+    AmeEngine::~AmeEngine() = default;
+
     //
 
     void AmeEngine::Tick()
     {
         m_TimeSubmodule->GetTimer().Tick();
+        m_FrameEventSubmodule->Invoke_OnFrameStart();
+        m_FrameEventSubmodule->Invoke_OnFrameUpdate();
+        m_FrameEventSubmodule->Invoke_OnFrameEnd();
     }
 
     bool AmeEngine::IsRunning() const
     {
-        return m_ExitCode.has_value();
+        return !m_ExitCode.has_value();
     }
 
     void AmeEngine::Exit(
@@ -36,7 +44,7 @@ namespace Ame
         return m_ModuleRegistery;
     }
 
-    const ModuleRegistry& AmeEngine::GetRegistry() noexcept
+    ModuleRegistry& AmeEngine::GetRegistry() noexcept
     {
         return m_ModuleRegistery;
     }
@@ -48,5 +56,6 @@ namespace Ame
         auto coreModule = m_ModuleRegistery.GetModule(IID_CoreModule);
 
         coreModule->QueryInterface(IID_TimeSubmodule, m_TimeSubmodule.DblPtr<IObject>());
+        coreModule->QueryInterface(IID_FrameEventSubmodule, m_FrameEventSubmodule.DblPtr<IObject>());
     }
 } // namespace Ame

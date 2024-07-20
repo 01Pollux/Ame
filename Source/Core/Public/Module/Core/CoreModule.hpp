@@ -5,7 +5,6 @@
 #include <Module/Core/TimeSubmodule.hpp>
 #include <Module/Core/FrameEventSubmodule.hpp>
 #include <Module/Core/CoroutineSubmodule.hpp>
-#include <Module/Core/StateSubmodule.hpp>
 
 namespace Ame
 {
@@ -21,8 +20,7 @@ namespace Ame
             IID_CoreModule, IID_BaseModule, Base,
             m_TimeSubmodule,
             m_FrameEventSubmodule,
-            m_CoroutineSubmodule,
-            m_StateSubmodule)
+            m_CoroutineSubmodule)
 
     public:
         CoreModule(
@@ -30,8 +28,7 @@ namespace Ame
             Base(counters, IID_CoreModule),
             m_TimeSubmodule(ObjectAllocator<TimeSubmodule>(this)()),
             m_FrameEventSubmodule(ObjectAllocator<FrameEventSubmodule>(this)()),
-            m_CoroutineSubmodule(ObjectAllocator<CoroutineSubmodule>(this)()),
-            m_StateSubmodule(ObjectAllocator<StateSubmodule>(this)())
+            m_CoroutineSubmodule(ObjectAllocator<CoroutineSubmodule>(this)())
         {
         }
 
@@ -39,6 +36,5 @@ namespace Ame
         Ptr<TimeSubmodule>       m_TimeSubmodule;
         Ptr<FrameEventSubmodule> m_FrameEventSubmodule;
         Ptr<CoroutineSubmodule>  m_CoroutineSubmodule;
-        Ptr<StateSubmodule>      m_StateSubmodule;
     }; // namespace Ame
 } // namespace Ame

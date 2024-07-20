@@ -34,9 +34,16 @@ target_end()
 
 --
 
+target("Ame.Graphics")
+    ame_utils:add_library("Ame", "static", "Source/Graphics")
+    add_deps("Ame.Rhi", notshared_public_inherit)
+target_end()
+
+--
+
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Source/Engine")
-    add_deps("Ame.Rhi", notshared_public_inherit)
+    add_deps("Ame.Graphics", notshared_public_inherit)
 target_end()
 
 --

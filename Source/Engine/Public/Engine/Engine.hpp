@@ -6,11 +6,20 @@
 namespace Ame
 {
     class TimeSubmodule;
+    class FrameEventSubmodule;
 
     class AmeEngine
     {
     public:
         AmeEngine();
+
+        AmeEngine(const AmeEngine&)            = delete;
+        AmeEngine& operator=(const AmeEngine&) = delete;
+
+        AmeEngine(AmeEngine&&)            = delete;
+        AmeEngine& operator=(AmeEngine&&) = delete;
+
+        ~AmeEngine();
 
     public:
         void               Tick();
@@ -19,7 +28,7 @@ namespace Ame
 
     public:
         [[nodiscard]] const ModuleRegistry& GetRegistry() const noexcept;
-        [[nodiscard]] const ModuleRegistry& GetRegistry() noexcept;
+        [[nodiscard]] ModuleRegistry&       GetRegistry() noexcept;
 
     private:
         void PreloadSubmodules();
@@ -28,7 +37,8 @@ namespace Ame
         ModuleRegistry m_ModuleRegistery;
 
         // precaching frequently used submodules
-        Ptr<TimeSubmodule> m_TimeSubmodule;
+        Ptr<TimeSubmodule>       m_TimeSubmodule;
+        Ptr<FrameEventSubmodule> m_FrameEventSubmodule;
 
         Opt<int> m_ExitCode;
     };

@@ -1,12 +1,24 @@
 #pragma once
 
-#include <Core/Interface.hpp>
+#include <Application/Application.hpp>
 
 namespace Ame
 {
-    class AmeEngine
+    class EditorApplication : public BareApplication
     {
     public:
-        void Run();
+        using Base = BareApplication;
+
+    public:
+        EditorApplication(int argc, char** argv) :
+            Base(argc, argv)
+        {
+        }
+
+    protected:
+        void OnLoad() override;
+        void OnInitialize() override;
+        void OnShutdown() override;
+        void OnUnload() override;
     };
 } // namespace Ame
