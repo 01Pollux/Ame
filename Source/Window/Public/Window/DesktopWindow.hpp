@@ -7,13 +7,10 @@ struct GLFWwindow;
 namespace Ame::Window
 {
     // {CAAD6B48-505E-4B7A-A962-EA5FAC0718FD}
-    static const UId IID_WindowDesktop = { 0xcaad6b48, 0x505e, 0x4b7a, { 0xa9, 0x62, 0xea, 0x5f, 0xac, 0x7, 0x18, 0xfd } };
+    static const UId IID_DesktopWindow = { 0xcaad6b48, 0x505e, 0x4b7a, { 0xa9, 0x62, 0xea, 0x5f, 0xac, 0x7, 0x18, 0xfd } };
 
     class IDesktopWindow : public IWindow
     {
-    public:
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Window, IDesktopWindow);
-
     public:
         [[nodiscard]] virtual GLFWwindow* AME_METHOD(GetGlfwHandle)() const = 0;
 

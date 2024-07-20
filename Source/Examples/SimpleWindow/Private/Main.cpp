@@ -9,7 +9,7 @@ namespace Ame
     {
         auto window = Window::CreateWindow(Window::WindowType::DesktopWindow, { .Title = "Hello world" });
 
-        auto desktopWindow = window.Cast<Window::IDesktopWindow>(Window::IID_WindowDesktop);
+        auto desktopWindow = window.Cast<Window::IDesktopWindow>(Window::IID_DesktopWindow);
         while (desktopWindow->IsRunning())
         {
             desktopWindow->ProcessEvents();

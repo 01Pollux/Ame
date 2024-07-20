@@ -29,7 +29,7 @@ namespace Ame::Rhi
         const RenderSurfaceDesc& surface)
     {
         Ptr<Window::IDesktopWindow> desktopWindow;
-        surface.Window->QueryInterface(Window::IID_WindowDesktop, desktopWindow.DblPtr<IObject>());
+        surface.Window->QueryInterface(Window::IID_DesktopWindow, desktopWindow.DblPtr<IObject>());
         return desktopWindow;
     }
 

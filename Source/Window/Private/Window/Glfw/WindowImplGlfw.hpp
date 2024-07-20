@@ -13,7 +13,8 @@ namespace Ame::Window
     public:
         using Base = BaseObject<IDesktopWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_WindowDesktop, IDesktopWindow);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
+            IID_DesktopWindow, IID_Window, Base);
 
     public:
         WindowImplGlfw(

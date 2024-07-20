@@ -29,7 +29,7 @@ namespace Ame::Rhi
             m_Wrapper.GetDevice(),
             m_Wrapper.GetImmediateContext(),
             m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper().GetWindow() : nullptr,
-            m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper().GetSwapchain() : nullptr)
+            m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper().GetSwapchain() : nullptr);
 
     public:
         RhiDeviceImpl(
