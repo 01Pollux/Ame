@@ -63,8 +63,6 @@ namespace Ame::Rhi
         Ptr<Dg::IDeviceContext> deviceContext;
         Ptr<Dg::ISwapChain>     swapchain;
 
-        WindowWrapper windowWrapper;
-
         if (!createDesc.Surface || !createDesc.Surface->Window)
         {
             Log::Rhi().Warning("Failed to create swapchain for {} graphics engine: Surface is null", DeviceCreateTraitsGL::GetName());
@@ -98,7 +96,7 @@ namespace Ame::Rhi
         }
 
         factoryDev->QueryInterface(Dg::IID_EngineFactory, engineFactory.RawDblPtr<Dg::IObject>());
-        windowWrapper = WindowWrapper(Ptr(surfaceDesc.Window), std::move(swapchain));
+        auto windowWrapper = std::make_unique<WindowWrapper>(Ptr(surfaceDesc.Window), std::move(swapchain));
 
         deviceWrapper.emplace(std::move(engineFactory), std::move(renderDevice), std::move(deviceContext), std::move(windowWrapper));
 #endif

@@ -2,6 +2,7 @@
 
 #include <Module/Submodule.hpp>
 #include <Core/Signal.hpp>
+#include <Math/Colors.hpp>
 
 namespace Ame::Signals
 {
@@ -9,11 +10,21 @@ namespace Ame::Signals
     AME_SIGNAL_DECL(OnRenderUpdate, void());
     AME_SIGNAL_DECL(OnRenderPostUpdate, void());
     AME_SIGNAL_DECL(OnRenderEnd, void());
+
+    AME_SIGNAL_DECL(OnImGuiRender, void());
+    AME_SIGNAL_DECL(OnImGuiPostRender, void());
 } // namespace Ame::Signals
+
+namespace Diligent
+{
+    class ISwapChain;
+    class IDeviceContext;
+} // namespace Diligent
 
 namespace Ame::Rhi
 {
     class IRhiDevice;
+    class IImGuiRenderer;
 } // namespace Ame::Rhi
 
 namespace Ame
@@ -37,6 +48,8 @@ namespace Ame
             RhiModule*          rhiModule,
             uint32_t            syncInterval);
 
+        ~RendererSubmodule() override;
+
         /// <summary>
         /// Returns true if the application should continue running.
         /// </summary>
@@ -54,14 +67,44 @@ namespace Ame
             m_SyncInterval = syncInterval;
         }
 
+        [[nodiscard]] Math::Color4 GetClearColor() const noexcept
+        {
+            return m_ClearColor;
+        }
+
+        void SetClearColor(
+            const Math::Color4& clearColor) noexcept
+        {
+            m_ClearColor = clearColor;
+        }
+
     public:
         AME_SIGNAL_INST(OnRenderBegin);
         AME_SIGNAL_INST(OnRenderUpdate);
         AME_SIGNAL_INST(OnRenderPostUpdate);
         AME_SIGNAL_INST(OnRenderEnd);
 
+#ifndef AME_DIST
+        AME_SIGNAL_INST(OnImGuiRender);
+        AME_SIGNAL_INST(OnImGuiPostRender);
+#endif
+
     private:
-        Ptr<Rhi::IRhiDevice> m_RhiDevice;
+        /// <summary>
+        /// Clears the render target.
+        /// </summary>
+        void ClearRenderTarget();
+
+    private:
+        Ptr<Rhi::IRhiDevice>    m_RhiDevice;
+        Ptr<Dg::IDeviceContext> m_DeviceContext;
+        Ptr<Dg::ISwapChain>     m_Swapchain;
+
+#ifndef AME_DIST
+        Ptr<Rhi::IImGuiRenderer> m_ImGuiRenderer;
+#endif
+
+        Math::Color4 m_ClearColor = Colors::c_DimGray;
 
         uint32_t m_SyncInterval = 0;
     };

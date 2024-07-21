@@ -9,8 +9,8 @@ namespace Ame::Rhi
     public:
         using Base = BaseObject<IImGuiRenderer>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_ImGuiNullRenderer, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
+            IID_ImGuiNullRenderer, IID_ImGuiRenderer, Base);
 
     public:
         ImGuiNullRendererImpl(
@@ -20,13 +20,11 @@ namespace Ame::Rhi
         }
 
     public:
-        void BeginFrame() override
+        void BeginFrame(
+            Dg::SURFACE_TRANSFORM transform) override
         {
         }
         void EndFrame() override
-        {
-        }
-        void SubmitDrawData() override
         {
         }
         void Reset() override

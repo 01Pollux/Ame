@@ -2,7 +2,7 @@
 
 #include <Rhi/ImGui/ImGuiRenderer.hpp>
 
-namespace Ame
+namespace Ame::Rhi
 {
     /// <summary>
     /// Helper class to manage the ImGui frame context.
@@ -14,6 +14,7 @@ namespace Ame
             IImGuiRenderer* renderer = nullptr) :
             m_Renderer(renderer)
         {
+            BeginFrame();
         }
 
         ImGuiFrameContext(
@@ -64,4 +65,4 @@ namespace Ame
     private:
         IImGuiRenderer* m_Renderer = nullptr;
     };
-} // namespace Ame
+} // namespace Ame::Rhi

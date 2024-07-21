@@ -11,29 +11,28 @@ namespace Ame::Rhi
     Opt<DeviceWrapper> DeviceWrapper::Create(
         const DeviceCreateDesc& createDesc)
     {
-        Opt<DeviceWrapper> deviceWrapper;
         for (auto& type : createDesc.Types)
         {
-            std::visit(
+            auto deviceWrapper = std::visit(
                 VariantVisitor{
                     [&](const auto& deviceDesc)
-                    { deviceWrapper = CreateImpl(createDesc, deviceDesc); } },
+                    { return CreateImpl(createDesc, deviceDesc); } },
                 type);
             if (deviceWrapper)
             {
-                break;
+                return deviceWrapper;
             }
         }
-        return deviceWrapper;
+        return std::nullopt;
     }
 
     //
 
     DeviceWrapper::DeviceWrapper(
-        Ptr<Dg::IEngineFactory> engineFactory,
-        Ptr<Dg::IRenderDevice>  renderDevice,
-        Ptr<Dg::IDeviceContext> deviceContext,
-        WindowWrapper               windowWrapper) :
+        Ptr<Dg::IEngineFactory>  engineFactory,
+        Ptr<Dg::IRenderDevice>   renderDevice,
+        Ptr<Dg::IDeviceContext>  deviceContext,
+        UniquePtr<WindowWrapper> windowWrapper) :
         m_EngineFactory(std::move(engineFactory)),
         m_RenderDevice(std::move(renderDevice)),
         m_ImmediateContext(std::move(deviceContext)),
@@ -66,13 +65,13 @@ namespace Ame::Rhi
         return m_ImmediateContext.RawPtr();
     }
 
-    const WindowWrapper& DeviceWrapper::GetWindowWrapper() const noexcept
+    const WindowWrapper* DeviceWrapper::GetWindowWrapper() const noexcept
     {
-        return m_WindowWrapper;
+        return m_WindowWrapper.get();
     }
 
-    WindowWrapper& DeviceWrapper::GetWindowWrapper() noexcept
+    WindowWrapper* DeviceWrapper::GetWindowWrapper() noexcept
     {
-        return m_WindowWrapper;
+        return m_WindowWrapper.get();
     }
 } // namespace Ame::Rhi

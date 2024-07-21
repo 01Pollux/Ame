@@ -17,11 +17,13 @@ namespace Ame::Rhi
             Ptr<Window::IWindow> window,
             Ptr<Dg::ISwapChain>  swapchain);
 
-    public:
-        [[nodiscard]] explicit operator bool() const noexcept
-        {
-            return m_Window != nullptr;
-        }
+        WindowWrapper(const WindowWrapper&)           = delete;
+        WindowWrapper(WindowWrapper&& other) noexcept = default;
+
+        WindowWrapper& operator=(const WindowWrapper&)     = delete;
+        WindowWrapper& operator=(WindowWrapper&&) noexcept = default;
+
+        ~WindowWrapper() = default;
 
     public:
         /// <summary>

@@ -33,15 +33,16 @@ namespace Ame::Rhi
         IReferenceCounters*     counters,
         const DeviceCreateDesc& createDesc) :
         Base(counters),
-        m_Wrapper(std::move(*DeviceWrapper::Create(createDesc)))
+        m_Wrapper(*DeviceWrapper::Create(createDesc))
     {
     }
 
     bool RhiDeviceImpl::BeginFrame()
     {
-        if (m_Wrapper.GetWindowWrapper())
+        auto windowWrapper = m_Wrapper.GetWindowWrapper();
+        if (windowWrapper)
         {
-            auto window = m_Wrapper.GetWindowWrapper().GetWindow();
+            auto window = windowWrapper->GetWindow();
             window->ProcessEvents();
             return window->IsRunning();
         }
@@ -51,10 +52,10 @@ namespace Ame::Rhi
     void RhiDeviceImpl::AdvanceFrame(
         uint32_t syncInterval)
     {
-        auto& windowWrapper = m_Wrapper.GetWindowWrapper();
+        auto windowWrapper = m_Wrapper.GetWindowWrapper();
         if (windowWrapper)
         {
-            windowWrapper.Present(syncInterval);
+            windowWrapper->Present(syncInterval);
         }
         else
         {

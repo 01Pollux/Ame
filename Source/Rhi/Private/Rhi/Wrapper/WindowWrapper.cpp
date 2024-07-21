@@ -10,11 +10,12 @@ namespace Ame::Rhi
         Ptr<Dg::ISwapChain>  swapchain) :
         m_Window(std::move(window)),
         m_Swapchain(std::move(swapchain)),
-
         m_WindowSizeChangedConnection(
             m_Window->GetEventListener().OnWindowSizeChanged(
-                [this](const Math::Size2I&)
-                { m_DirtySwapChain = true; }))
+                [this](const Math::Size2I& newSize)
+                {
+                    m_DirtySwapChain = true;
+                }))
     {
     }
 
@@ -35,6 +36,7 @@ namespace Ame::Rhi
         {
             auto size = m_Window->GetSize();
             m_Swapchain->Resize(size.x(), size.y());
+            m_DirtySwapChain = false;
         }
     }
 

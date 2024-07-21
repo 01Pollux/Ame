@@ -19,11 +19,9 @@ namespace Ame::Rhi
     class IImGuiRenderer : public IObject
     {
     public:
-        virtual void AME_METHOD(BeginFrame)() = 0;
-        virtual void AME_METHOD(EndFrame)()   = 0;
-
-        virtual void AME_METHOD(SubmitDrawData)() = 0;
-        virtual void AME_METHOD(Reset)()          = 0;
+        virtual void AME_METHOD(BeginFrame)(Dg::SURFACE_TRANSFORM transform = Dg::SURFACE_TRANSFORM_IDENTITY) = 0;
+        virtual void AME_METHOD(EndFrame)()                                  = 0;
+        virtual void AME_METHOD(Reset)()                                     = 0;
 
         [[nodiscard]] virtual ImFont* AME_METHOD(FindFont)(const String& fontName) const                                   = 0;
         [[nodiscard]] virtual ImFont* AME_METHOD(LoadFont)(const String& fontName, const ImFontConfig& fontConfig)         = 0;

@@ -2,10 +2,6 @@
 #include <Window/Glfw/WindowImplGlfw.hpp>
 #include <Window/Glfw/GlfwContext.hpp>
 
-#ifndef AME_DIST
-#include <Window/Glfw/ImGuiGlfwImpl.hpp>
-#endif
-
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Window
@@ -21,11 +17,12 @@ namespace Ame::Window
             .PushTask([this, windowDesc]
                       { CreateGlfwWindow(windowDesc); })
             .wait();
+
+        m_ImGuiWindow = ObjectAllocator<ImGuiWindowImplGlfw>()(m_Handle);
     }
 
     WindowImplGlfw::~WindowImplGlfw()
     {
-        printf("WindowImplGlfw::~WindowImplGlfw()");
         GlfwContext::Get()
             .PushTask([this]
                       { glfwDestroyWindow(m_Handle); })
@@ -240,44 +237,6 @@ namespace Ame::Window
         return m_EventListener;
     }
 
-    void WindowImplGlfw::InitializeImGui(
-        void* imguiContext)
-    {
-#ifndef AME_DIST
-        GlfwContext::Get()
-            .PushTask(
-                [this, imguiContext]
-                {
-                    IMGUI_CHECKVERSION();
-
-                    ImGuiIO& io = ImGui::GetIO();
-                    io.BackendFlags |= ImGuiConfigFlags_NavEnableKeyboard |
-                                       ImGuiConfigFlags_NavEnableGamepad |
-                                       ImGuiConfigFlags_DockingEnable |
-                                       ImGuiConfigFlags_ViewportsEnable;
-
-                    ImGui::SetCurrentContext(std::bit_cast<ImGuiContext*>(imguiContext));
-                    ImGui_ImplGlfw_InitForOther(m_Handle, true);
-                })
-            .wait();
-#endif
-    }
-
-    void WindowImplGlfw::ShutdownImGui(
-        void* imguiContext)
-    {
-#ifndef AME_DIST
-        GlfwContext::Get()
-            .PushTask(
-                [imguiContext]
-                {
-                    ImGui::SetCurrentContext(std::bit_cast<ImGuiContext*>(imguiContext));
-                    ImGui_ImplGlfw_Shutdown();
-                })
-            .wait();
-#endif
-    }
-
     //
 
     void WindowImplGlfw::CreateGlfwWindow(
@@ -337,9 +296,10 @@ namespace Ame::Window
             [](GLFWwindow* glfwWindow, int width, int height)
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+                Math::Size2I newSize{ width, height };
                 if (width && height)
                 {
-                    window->m_EventListener.Invoke_OnWindowSizeChanged(window->m_WindowSize);
+                    window->GetEventListener().Invoke_OnWindowSizeChanged(newSize);
                 }
                 window->m_WindowSize = Math::Size2I{ width, height };
             });
@@ -349,7 +309,7 @@ namespace Ame::Window
             [](GLFWwindow* glfwWindow)
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-                window->m_EventListener.Invoke_OnWindowClosed();
+                window->GetEventListener().Invoke_OnWindowClosed();
             });
 
         if (windowDesc.CustomTitleBar)
@@ -359,7 +319,7 @@ namespace Ame::Window
                 [](GLFWwindow* glfwWindow, int x, int y, int* hit)
                 {
                     auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-                    *hit        = window->m_EventListener.Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
+                    *hit        = window->GetEventListener().Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
                 });
         }
 
@@ -369,7 +329,7 @@ namespace Ame::Window
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
                 bool wasHit = false;
-                window->m_EventListener.Invoke_OnWindowMinized(iconified);
+                window->GetEventListener().Invoke_OnWindowMinized(iconified);
             });
     }
 } // namespace Ame::Window

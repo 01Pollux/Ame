@@ -21,24 +21,18 @@ namespace Ame::Rhi
     public:
         DeviceWrapper() = default;
         DeviceWrapper(
-            Ptr<Dg::IEngineFactory> engineFactory,
-            Ptr<Dg::IRenderDevice>  renderDevice,
-            Ptr<Dg::IDeviceContext> deviceContext,
-            WindowWrapper               windowWrapper);
+            Ptr<Dg::IEngineFactory>  engineFactory,
+            Ptr<Dg::IRenderDevice>   renderDevice,
+            Ptr<Dg::IDeviceContext>  deviceContext,
+            UniquePtr<WindowWrapper> windowWrapper);
 
-        DeviceWrapper(const DeviceWrapper&) = default;
+        DeviceWrapper(const DeviceWrapper&) = delete;
         DeviceWrapper(DeviceWrapper&&)      = default;
 
-        DeviceWrapper& operator=(const DeviceWrapper&) = default;
-        DeviceWrapper& operator=(DeviceWrapper&&)      = default;
+        DeviceWrapper& operator=(const DeviceWrapper&) = delete;
+        DeviceWrapper& operator=(DeviceWrapper&&)      = delete;
 
         ~DeviceWrapper();
-
-    public:
-        [[nodiscard]] explicit operator bool() const noexcept
-        {
-            return m_EngineFactory != nullptr;
-        }
 
     public:
         /// <summary>
@@ -59,12 +53,12 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the window wrapper.
         /// </summary>
-        [[nodiscard]] const WindowWrapper& GetWindowWrapper() const noexcept;
+        [[nodiscard]] const WindowWrapper* GetWindowWrapper() const noexcept;
 
         /// <summary>
         /// Get the window wrapper.
         /// </summary>
-        [[nodiscard]] WindowWrapper& GetWindowWrapper() noexcept;
+        [[nodiscard]] WindowWrapper* GetWindowWrapper() noexcept;
 
     private:
         /// <summary>
@@ -96,9 +90,9 @@ namespace Ame::Rhi
             const DeviceCreateDescVulkan& createDescVK);
 
     protected:
-        Ptr<Dg::IEngineFactory> m_EngineFactory;
-        Ptr<Dg::IRenderDevice>  m_RenderDevice;
-        Ptr<Dg::IDeviceContext> m_ImmediateContext;
-        WindowWrapper               m_WindowWrapper;
+        Ptr<Dg::IEngineFactory>  m_EngineFactory;
+        Ptr<Dg::IRenderDevice>   m_RenderDevice;
+        Ptr<Dg::IDeviceContext>  m_ImmediateContext;
+        UniquePtr<WindowWrapper> m_WindowWrapper;
     };
 } // namespace Ame::Rhi

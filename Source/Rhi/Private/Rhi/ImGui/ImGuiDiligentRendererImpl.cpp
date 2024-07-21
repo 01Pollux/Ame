@@ -1,12 +1,14 @@
 #ifndef AME_DIST
 
 #include <mutex>
+#include <ranges>
 
 #include <Rhi/ImGui/ImGuiDiligentRendererImpl.hpp>
 #include <Rhi/ImGui/ImGuiRendererCreateDesc.hpp>
 
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
+#include <DiligentCore/Graphics/GraphicsTools/interface/MapHelper.hpp>
 
 #include <Rhi/Device/RhiDevice.hpp>
 #include <Math/Matrix.hpp>
@@ -94,35 +96,36 @@ float4 main(in PSInput PSIn) : SV_Target
         IReferenceCounters*            counters,
         const ImGuiRendererCreateDesc& desc) :
         Base(counters),
-        m_ConversionMode(desc.ConversionMode),
-        m_MultiThreaded(desc.MultiThreaded)
+        m_MultiThreaded(desc.MultiThreaded),
+        m_VertexBufferSize(desc.InitialVertexBufferSize),
+        m_IndexBufferSize(desc.InitialIndexBufferSize),
+        m_ConversionMode(desc.ConversionMode)
     {
         desc.RhiDevice->QueryInterface(Dg::IID_RenderDevice, m_RenderDevice.DblPtr<IObject>());
-        desc.RhiDevice->QueryInterface(Dg::IID_RenderDevice, m_RenderDevice.DblPtr<IObject>());
-        desc.RhiDevice->QueryInterface(Window::IID_Window, m_Window.DblPtr<IObject>());
+        desc.RhiDevice->QueryInterface(Dg::IID_DeviceContext, m_DeviceContext.DblPtr<IObject>());
+        desc.RhiDevice->QueryInterface(Window::IID_ImGuiWindow, m_ImGuiWindow.DblPtr<IObject>());
+        desc.RhiDevice->QueryInterface(Dg::IID_SwapChain, m_Swapchain.DblPtr<IObject>());
 
-        Ptr<Dg::ISwapChain> swapChain;
-        desc.RhiDevice->QueryInterface(Dg::IID_SwapChain, swapChain.DblPtr<IObject>());
-
-        auto& swapchainDesc = swapChain->GetDesc();
+        auto& swapchainDesc = m_Swapchain->GetDesc();
 
         m_BackBufferFormat  = swapchainDesc.ColorBufferFormat;
         m_DepthBufferFormat = swapchainDesc.DepthBufferFormat;
 
         // Check base vertex support
-        m_BaseVertexSupported = m_RenderDevice->GetAdapterInfo().DrawCommand.CapFlags & Dg::DRAW_COMMAND_CAP_FLAG_BASE_VERTEX;
+        // m_BaseVertexSupported = m_RenderDevice->GetAdapterInfo().DrawCommand.CapFlags & Dg::DRAW_COMMAND_CAP_FLAG_BASE_VERTEX;
 
-        // Setup back-end capabilities flags
         if (m_MultiThreaded)
         {
             std::scoped_lock lock(s_Mutex);
             m_Context = ImGui::CreateContext();
-            m_Window->InitializeImGui(m_Context);
+            m_ImGuiWindow->InitializeImGui(m_Context);
+            m_ImGuiWindow->InstallImGuiCallbacks(m_Context);
         }
         else
         {
             m_Context = ImGui::CreateContext();
-            m_Window->InitializeImGui(m_Context);
+            m_ImGuiWindow->InitializeImGui(m_Context);
+            m_ImGuiWindow->InstallImGuiCallbacks(m_Context);
         }
 
         CreateDeviceObjects();
@@ -133,14 +136,17 @@ float4 main(in PSInput PSIn) : SV_Target
         if (m_MultiThreaded)
         {
             std::scoped_lock lock(s_Mutex);
+
             ImGui::SetCurrentContext(m_Context);
-            m_Window->ShutdownImGui(m_Context);
+            m_ImGuiWindow->UninstallImGuiCallbacks(m_Context);
+            m_ImGuiWindow->ShutdownImGui(m_Context);
             ImGui::DestroyContext(m_Context);
         }
         else
         {
             ImGui::SetCurrentContext(m_Context);
-            m_Window->ShutdownImGui(m_Context);
+            m_ImGuiWindow->UninstallImGuiCallbacks(m_Context);
+            m_ImGuiWindow->ShutdownImGui(m_Context);
             ImGui::DestroyContext(m_Context);
         }
 
@@ -149,7 +155,8 @@ float4 main(in PSInput PSIn) : SV_Target
 
     //
 
-    void ImGuiDiligentRendererImpl::BeginFrame()
+    void ImGuiDiligentRendererImpl::BeginFrame(
+        Dg::SURFACE_TRANSFORM transform)
     {
         if (!m_PipelineState)
         {
@@ -160,6 +167,7 @@ float4 main(in PSInput PSIn) : SV_Target
             s_Mutex.lock();
         }
 
+        m_Transform = transform;
         ImGui::SetCurrentContext(m_Context);
 
         ImGuiIO& io = ImGui::GetIO();
@@ -171,10 +179,24 @@ float4 main(in PSInput PSIn) : SV_Target
         {
             io.BackendFlags &= ~ImGuiBackendFlags_RendererHasVtxOffset;
         }
+
+        CreateFontsTextures();
+        m_ImGuiWindow->NewFrameImGui(m_Context);
+        ImGui::NewFrame();
     }
 
     void ImGuiDiligentRendererImpl::EndFrame()
     {
+        ImGui::Render();
+        SubmitDrawData(ImGui::GetDrawData());
+
+        // Update and Render additional Platform Windows
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable) [[likely]]
+        {
+            ImGui::UpdatePlatformWindows();
+            ImGui::RenderPlatformWindowsDefault(nullptr, nullptr);
+        }
+
         ImGui::SetCurrentContext(nullptr);
         if (m_MultiThreaded)
         {
@@ -183,10 +205,6 @@ float4 main(in PSInput PSIn) : SV_Target
     }
 
     //
-
-    void ImGuiDiligentRendererImpl::SubmitDrawData()
-    {
-    }
 
     void ImGuiDiligentRendererImpl::Reset()
     {
@@ -385,10 +403,349 @@ float4 main(in PSInput PSIn) : SV_Target
 
         m_SRB.Release();
         m_PipelineState->CreateShaderResourceBinding(&m_SRB, true);
-
-        m_SRB->GetVariableByName(Dg::SHADER_TYPE_PIXEL, "Texture")->Set(fontTexture->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE));
+        m_TextureVariable = m_SRB->GetVariableByName(Dg::SHADER_TYPE_PIXEL, "Texture");
 
         io.Fonts->TexID = static_cast<ImTextureID>(m_FontTextureView.RawPtr());
+    }
+
+    //
+
+    static Math::Vector4 TransformClipRect(
+        Dg::SURFACE_TRANSFORM transform,
+        const ImVec2&         displaySize,
+        const Math::Vector4&  rect)
+    {
+        switch (transform)
+        {
+        case Dg::SURFACE_TRANSFORM_IDENTITY:
+            return rect;
+
+        case Dg::SURFACE_TRANSFORM_ROTATE_90:
+        {
+            // The image content is rotated 90 degrees clockwise. The origin is in the left-top corner.
+            //
+            //                                                             DsplSz.y
+            //                a.x                                            -a.y     a.y     Old origin
+            //              0---->|                                       0------->|<------| /
+            //           0__|_____|____________________                0__|________|_______|/
+            //            | |     '                    |                | |        '       |
+            //        a.y | |     '                    |            a.x | |        '       |
+            //           _V_|_ _ _a____b               |               _V_|_ _d'___a'      |
+            //            A |     |    |               |                  |   |    |       |
+            //  DsplSz.y  | |     |____|               |                  |   |____|       |
+            //    -a.y    | |     d    c               |                  |   c'   b'      |
+            //           _|_|__________________________|                  |                |
+            //              A                                             |                |
+            //              |-----> Y'                                    |                |
+            //         New Origin                                         |________________|
+            //
+            Math::Vector2 a{ rect.x(), rect.y() };
+            Math::Vector2 c{ rect.z(), rect.w() };
+            return Math::Vector4 //
+                {
+                    displaySize.y - c.y(), // min_x = c'.x
+                    a.x(),                 // min_y = a'.y
+                    displaySize.y - a.y(), // max_x = a'.x
+                    c.x()                  // max_y = c'.y
+                };
+        }
+
+        case Dg::SURFACE_TRANSFORM_ROTATE_180:
+        {
+            // The image content is rotated 180 degrees clockwise. The origin is in the left-top corner.
+            //
+            //                a.x                                               DsplSz.x - a.x
+            //              0---->|                                         0------------------>|
+            //           0__|_____|____________________                 0_ _|___________________|______
+            //            | |     '                    |                  | |                   '      |
+            //        a.y | |     '                    |        DsplSz.y  | |              c'___d'     |
+            //           _V_|_ _ _a____b               |          -a.y    | |              |    |      |
+            //              |     |    |               |                 _V_|_ _ _ _ _ _ _ |____|      |
+            //              |     |____|               |                    |              b'   a'     |
+            //              |     d    c               |                    |                          |
+            //              |__________________________|                    |__________________________|
+            //                                         A                                               A
+            //                                         |                                               |
+            //                                     New Origin                                      Old Origin
+            Math::Vector2 a{ rect.x(), rect.y() };
+            Math::Vector2 c{ rect.z(), rect.w() };
+            return Math::Vector4 //
+                {
+                    displaySize.x - c.x(), // min_x = c'.x
+                    displaySize.y - c.y(), // min_y = c'.y
+                    displaySize.x - a.x(), // max_x = a'.x
+                    displaySize.y - a.y()  // max_y = a'.y
+                };
+        }
+
+        case Dg::SURFACE_TRANSFORM_ROTATE_270:
+        {
+            // The image content is rotated 270 degrees clockwise. The origin is in the left-top corner.
+            //
+            //              0  a.x     DsplSz.x-a.x   New Origin              a.y
+            //              |---->|<-------------------|                    0----->|
+            //          0_ _|_____|____________________V                 0 _|______|_________
+            //            | |     '                    |                  | |      '         |
+            //            | |     '                    |                  | |      '         |
+            //        a.y_V_|_ _ _a____b               |        DsplSz.x  | |      '         |
+            //              |     |    |               |          -a.x    | |      '         |
+            //              |     |____|               |                  | |      b'___c'   |
+            //              |     d    c               |                  | |      |    |    |
+            //  DsplSz.y _ _|__________________________|                 _V_|_ _ _ |____|    |
+            //                                                              |      a'   d'   |
+            //                                                              |                |
+            //                                                              |________________|
+            //                                                              A
+            //                                                              |
+            //                                                            Old origin
+            Math::Vector2 a{ rect.x(), rect.y() };
+            Math::Vector2 c{ rect.z(), rect.w() };
+            return Math::Vector4 //
+                {
+                    a.y(),                 // min_x = a'.x
+                    displaySize.x - c.x(), // min_y = c'.y
+                    c.y(),                 // max_x = c'.x
+                    displaySize.x - a.x()  // max_y = a'.y
+                };
+        }
+
+        case Dg::SURFACE_TRANSFORM_OPTIMAL:
+            Log::Rhi().Warning("SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
+            return rect;
+
+        case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR:
+        case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90:
+        case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180:
+        case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270:
+            Log::Rhi().Warning("Mirror transforms are not supported");
+            return rect;
+
+        default:
+            std::unreachable();
+        }
+    }
+
+    void ImGuiDiligentRendererImpl::SubmitDrawData(
+        ImDrawData* drawData)
+    {
+        // Avoid rendering when minimized
+        if (drawData->DisplaySize.x <= 0.0f || drawData->DisplaySize.y <= 0.0f || drawData->CmdListsCount == 0)
+        {
+            return;
+        }
+
+        auto reserveBuffer = [this](auto& buffer, const char* name, auto& bufferSize, auto totalCount, auto structSize, Dg::BIND_FLAGS flags)
+        {
+            auto totalSize = totalCount * structSize;
+            if (!buffer || bufferSize < totalSize)
+            {
+                buffer.Release();
+                while (bufferSize < totalSize)
+                {
+                    bufferSize *= 2;
+                }
+
+                Dg::BufferDesc bufferDesc{
+                    name,
+                    bufferSize,
+                    flags,
+                    Dg::USAGE_DYNAMIC,
+                    Dg::CPU_ACCESS_WRITE
+                };
+                m_RenderDevice->CreateBuffer(bufferDesc, nullptr, &buffer);
+            }
+        };
+        reserveBuffer(m_VertexBuffer, "ImGui Vertex Buffer", m_VertexBufferSize, drawData->TotalVtxCount, sizeof(ImDrawVert), Dg::BIND_VERTEX_BUFFER);
+        reserveBuffer(m_IndexBuffer, "ImGui Index Buffer", m_IndexBufferSize, drawData->TotalIdxCount, sizeof(ImDrawIdx), Dg::BIND_INDEX_BUFFER);
+
+        {
+            Dg::MapHelper<ImDrawVert> vertices(m_DeviceContext, m_VertexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+            Dg::MapHelper<ImDrawIdx>  indices(m_DeviceContext, m_IndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+
+            ImDrawVert* vertexDst = vertices;
+            ImDrawIdx*  indexDst  = indices;
+            for (int id : std::views::iota(0, drawData->CmdListsCount))
+            {
+                const ImDrawList* cmdList = drawData->CmdLists[id];
+
+                memcpy(vertexDst, cmdList->VtxBuffer.Data, cmdList->VtxBuffer.Size * sizeof(ImDrawVert));
+                memcpy(indexDst, cmdList->IdxBuffer.Data, cmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
+
+                vertexDst += cmdList->VtxBuffer.Size;
+                indexDst += cmdList->IdxBuffer.Size;
+            }
+        }
+
+        // Setup orthographic projection matrix into our constant buffer
+        // Our visible imgui space lies from drawData->DisplayPos (top left) to drawData->DisplayPos+data_data->DisplaySize (bottom right).
+        // DisplayPos is (0,0) for single viewport apps.
+        {
+            // DisplaySize always refers to the logical dimensions that account for pre-transform, hence
+            // the aspect ratio will be correct after applying appropriate rotation.
+            float L = drawData->DisplayPos.x;
+            float R = drawData->DisplayPos.x + drawData->DisplaySize.x;
+            float T = drawData->DisplayPos.y;
+            float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
+
+            // clang-format off
+            Math::Matrix4x4 projection{
+                { 2.0f / (R - L),                  0.0f,   0.0f,   0.0f },
+                { 0.0f,                  2.0f / (T - B),   0.0f,   0.0f },
+                { 0.0f,                            0.0f,   0.5f,   0.0f },
+                { (R + L) / (L - R),  (T + B) / (B - T),   0.5f,   1.0f } };
+
+            // clang-format on
+
+            // Bake pre-transform into projection
+            switch (m_Transform)
+            {
+            case Dg::SURFACE_TRANSFORM_IDENTITY:
+                // Nothing to do
+                break;
+
+            case Dg::SURFACE_TRANSFORM_ROTATE_90:
+                // The image content is rotated 90 degrees clockwise.
+                projection *= Math::Matrix4x4::RotationZ(-std::numbers::pi_v<float> * 0.5f);
+                break;
+
+            case Dg::SURFACE_TRANSFORM_ROTATE_180:
+                // The image content is rotated 180 degrees clockwise.
+                projection *= Math::Matrix4x4::RotationZ(-std::numbers::pi_v<float>);
+                break;
+
+            case Dg::SURFACE_TRANSFORM_ROTATE_270:
+                // The image content is rotated 270 degrees clockwise.
+                projection *= Math::Matrix4x4::RotationZ(-std::numbers::pi_v<float> * 1.5f);
+                break;
+
+            case Dg::SURFACE_TRANSFORM_OPTIMAL:
+                Log::Rhi().Warning("SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
+                break;
+
+            case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR:
+            case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90:
+            case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180:
+            case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270:
+                Log::Rhi().Warning("Mirror transforms are not supported");
+                break;
+
+            default:
+                std::unreachable();
+            }
+
+            Dg::MapHelper<Math::Matrix4x4> transform(m_DeviceContext, m_TransformBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+            *transform = projection;
+        }
+
+        auto setupRenderState = [&]() //
+        {
+            // Setup shader and vertex buffers
+            Dg::IBuffer* vertices[] = { m_VertexBuffer };
+            m_DeviceContext->SetVertexBuffers(0, 1, vertices, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Dg::SET_VERTEX_BUFFERS_FLAG_RESET);
+            m_DeviceContext->SetIndexBuffer(m_IndexBuffer, 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+            m_DeviceContext->SetPipelineState(m_PipelineState);
+
+            const float blend_factor[4] = { 0.f, 0.f, 0.f, 0.f };
+            m_DeviceContext->SetBlendFactors(blend_factor);
+
+            Dg::Viewport viewport{
+                0.0f, 0.0f,
+                drawData->DisplaySize.x, drawData->DisplaySize.y,
+                0.0f, 1.0f
+            };
+            m_DeviceContext->SetViewports(1, &viewport, 0, 0);
+        };
+
+        setupRenderState();
+
+        // Render command lists
+        // (Because we merged all buffers into a single one, we maintain our own offset into them)
+        uint32_t globalIdxOffset = 0;
+        uint64_t globalVtxOffset = 0;
+
+        Dg::ITextureView* lastTextureView = nullptr;
+        for (int id : std::views::iota(0, drawData->CmdListsCount))
+        {
+            const ImDrawList* cmdList = drawData->CmdLists[id];
+            for (auto cmdId : std::views::iota(0, cmdList->CmdBuffer.Size))
+            {
+                const ImDrawCmd* cmd = &cmdList->CmdBuffer[cmdId];
+                if (cmd->UserCallback != NULL)
+                {
+                    // User callback, registered via ImDrawList::AddCallback()
+                    // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+                    if (cmd->UserCallback == ImDrawCallback_ResetRenderState)
+                    {
+                        setupRenderState();
+                    }
+                    else
+                    {
+                        cmd->UserCallback(cmdList, cmd);
+                    }
+                }
+                else
+                {
+                    if (cmd->ElemCount == 0)
+                    {
+                        continue;
+                    }
+
+                    // Apply scissor/clipping rectangle
+                    Math::Vector4 clipRect //
+                        {
+                            (cmd->ClipRect.x - drawData->DisplayPos.x) * drawData->FramebufferScale.x,
+                            (cmd->ClipRect.y - drawData->DisplayPos.y) * drawData->FramebufferScale.y,
+                            (cmd->ClipRect.z - drawData->DisplayPos.x) * drawData->FramebufferScale.x,
+                            (cmd->ClipRect.w - drawData->DisplayPos.y) * drawData->FramebufferScale.y //
+                        };
+                    // Apply pretransform
+                    clipRect = TransformClipRect(m_Transform, drawData->DisplaySize, clipRect);
+
+                    Dg::Rect scissor //
+                        {
+                            static_cast<int>(clipRect.x()),
+                            static_cast<int>(clipRect.y()),
+                            static_cast<int>(clipRect.z()),
+                            static_cast<int>(clipRect.w()) //
+                        };
+                    scissor.left   = std::max(scissor.left, 0);
+                    scissor.top    = std::max(scissor.top, 0);
+                    scissor.right  = std::min(scissor.right, static_cast<int>(drawData->DisplaySize.x));
+                    scissor.bottom = std::min(scissor.bottom, static_cast<int>(drawData->DisplaySize.y));
+                    if (!scissor.IsValid())
+                    {
+                        continue;
+                    }
+                    m_DeviceContext->SetScissorRects(1, &scissor, 0, 0);
+
+                    // Bind texture
+                    auto* textureView = reinterpret_cast<Dg::ITextureView*>(cmd->TextureId);
+                    VERIFY_EXPR(textureView);
+                    if (textureView != lastTextureView)
+                    {
+                        lastTextureView = textureView;
+                        m_TextureVariable->Set(textureView);
+                        m_DeviceContext->CommitShaderResources(m_SRB, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    }
+
+                    Dg::DrawIndexedAttribs drawAtributes{ cmd->ElemCount, sizeof(ImDrawIdx) == sizeof(uint16_t) ? Dg::VT_UINT16 : Dg::VT_UINT32, Dg::DRAW_FLAG_VERIFY_STATES };
+                    drawAtributes.FirstIndexLocation = cmd->IdxOffset + globalIdxOffset;
+                    if (m_BaseVertexSupported)
+                    {
+                        drawAtributes.BaseVertex = cmd->VtxOffset + globalVtxOffset;
+                    }
+                    else
+                    {
+                        Dg::IBuffer* vertices[] = { m_VertexBuffer };
+                        uint64_t     offsets[]  = { sizeof(ImDrawVert) * (size_t{ cmd->VtxOffset } + globalVtxOffset) };
+                        m_DeviceContext->SetVertexBuffers(0, 1, vertices, offsets, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Dg::SET_VERTEX_BUFFERS_FLAG_NONE);
+                    }
+                    m_DeviceContext->DrawIndexed(drawAtributes);
+                }
+            }
+            globalIdxOffset += cmdList->IdxBuffer.Size;
+            globalVtxOffset += cmdList->VtxBuffer.Size;
+        }
     }
 } // namespace Ame::Rhi
 #endif

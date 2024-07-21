@@ -28,24 +28,6 @@ namespace Ame::Window
         [[nodiscard]] virtual Math::Vector2I      AME_METHOD(GetPosition)() const = 0;
 
         [[nodiscard]] virtual WindowEventListener& AME_METHOD(GetEventListener)() = 0;
-
-        /// <summary>
-        /// Initialize ImGui for this window.
-        /// Since GLFW is used for window creation, and it uses singleton for handling window events,
-        /// Our only option is to delegate ImGui initialization to the window inside GLFW thread.
-        /// This function also has no effect on release builds.
-        /// </summary>
-        virtual void AME_METHOD(InitializeImGui)(
-            void* imguiContext) = 0;
-
-        /// <summary>
-        /// Shutdown ImGui for this window.
-        /// Since GLFW is used for window creation, and it uses singleton for handling window events,
-        /// Our only option is to delegate ImGui initialization to the window inside GLFW thread.
-        /// This function also has no effect on release builds.
-        /// </summary>
-        virtual void AME_METHOD(ShutdownImGui)(
-            void* imguiContext) = 0;
     };
 
     [[nodiscard]] Ptr<IWindow> AME_METHOD(CreateWindow)(

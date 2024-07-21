@@ -140,7 +140,7 @@ namespace Ame::Rhi
             Ptr<Dg::IDeviceContext> deviceContext;
             Ptr<Dg::ISwapChain>     swapchain;
 
-            WindowWrapper windowWrapper;
+            UniquePtr<WindowWrapper> windowWrapper;
 
             auto createInfo = traits_type::GetCreateInfo(createDesc, createDescDev);
             ParseDiligentEngineCreateDesc(createDesc, createInfo);
@@ -188,7 +188,7 @@ namespace Ame::Rhi
                     return deviceWrapper;
                 }
 
-                windowWrapper = WindowWrapper(Ptr(surfaceDesc.Window), std::move(swapchain));
+                windowWrapper = std::make_unique<WindowWrapper>(Ptr(surfaceDesc.Window), std::move(swapchain));
             }
 
             deviceWrapper.emplace(std::move(engineFactory), std::move(renderDevice), std::move(deviceContext), std::move(windowWrapper));
