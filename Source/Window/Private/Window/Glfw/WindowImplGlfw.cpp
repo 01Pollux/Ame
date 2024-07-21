@@ -24,8 +24,15 @@ namespace Ame::Window
     WindowImplGlfw::~WindowImplGlfw()
     {
         GlfwContext::Get()
-            .PushTask([this]
-                      { glfwDestroyWindow(m_Handle); })
+            .PushTask(
+                [this]
+                {
+                    GlfwContext::GetHooks().Uninstall_WindowSize(m_Handle, m_WindowSizeCallbackId);
+                    GlfwContext::GetHooks().Uninstall_WindowPos(m_Handle, m_WindowPosCallbackId);
+                    GlfwContext::GetHooks().Uninstall_TitlebarHitTest(m_Handle, m_WindowTitlebarCallbackId);
+                    GlfwContext::GetHooks().Uninstall_WindowIconified(m_Handle, m_WindowIconifyCallbackId);
+                    glfwDestroyWindow(m_Handle);
+                })
             .wait();
     }
 
@@ -291,45 +298,48 @@ namespace Ame::Window
 
         //
 
-        glfwSetWindowSizeCallback(
+        m_WindowSizeCallbackId = GlfwContext::GetHooks().Install_WindowSize(
             m_Handle,
             [](GLFWwindow* glfwWindow, int width, int height)
             {
-                auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+                auto         window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
                 Math::Size2I newSize{ width, height };
                 if (width && height)
                 {
                     window->GetEventListener().Invoke_OnWindowSizeChanged(newSize);
                 }
                 window->m_WindowSize = Math::Size2I{ width, height };
+                return true;
             });
 
-        glfwSetWindowCloseCallback(
+        m_WindowPosCallbackId = GlfwContext::GetHooks().Install_WindowClose(
             m_Handle,
             [](GLFWwindow* glfwWindow)
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
                 window->GetEventListener().Invoke_OnWindowClosed();
+                return true;
             });
 
         if (windowDesc.CustomTitleBar)
         {
-            glfwSetTitlebarHitTestCallback(
+            m_WindowTitlebarCallbackId = GlfwContext::GetHooks().Install_TitlebarHitTest(
                 m_Handle,
                 [](GLFWwindow* glfwWindow, int x, int y, int* hit)
                 {
                     auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
                     *hit        = window->GetEventListener().Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
+                    return true;
                 });
         }
 
-        glfwSetWindowIconifyCallback(
+        m_WindowIconifyCallbackId = GlfwContext::GetHooks().Install_WindowIconified(
             m_Handle,
             [](GLFWwindow* glfwWindow, int iconified)
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-                bool wasHit = false;
                 window->GetEventListener().Invoke_OnWindowMinized(iconified);
+                return true;
             });
     }
 } // namespace Ame::Window

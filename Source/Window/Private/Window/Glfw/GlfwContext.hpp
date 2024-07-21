@@ -7,6 +7,8 @@
 #include <condition_variable>
 #include <future>
 
+#include <Window/Glfw/GlfwHooks.hpp>
+
 namespace Ame::Window
 {
     /// <summary>
@@ -28,6 +30,8 @@ namespace Ame::Window
         /// Get the glfw context
         /// </summary>
         [[nodiscard]] static GlfwContext& Get();
+
+        [[nodiscard]] static GlfwHooks& GetHooks();
 
     public:
         GlfwContext();
@@ -86,5 +90,7 @@ namespace Ame::Window
         std::mutex              m_TaskMutex;
         std::queue<Task>        m_Tasks;
         std::condition_variable m_TaskNotifier;
+
+        GlfwHooks m_Hooks;
     };
 } // namespace Ame::Window

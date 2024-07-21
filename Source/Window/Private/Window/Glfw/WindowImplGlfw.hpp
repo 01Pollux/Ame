@@ -71,5 +71,10 @@ namespace Ame::Window
         Ptr<ImGuiWindowImplGlfw> m_ImGuiWindow;
 
         WindowEventListener m_EventListener;
+
+        uint32_t m_WindowSizeCallbackId     = 0;
+        uint32_t m_WindowPosCallbackId      = 0;
+        uint32_t m_WindowTitlebarCallbackId = 0;
+        uint32_t m_WindowIconifyCallbackId  = 0;
     };
 } // namespace Ame::Window

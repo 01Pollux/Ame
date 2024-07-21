@@ -45,13 +45,13 @@ IMGUI_IMPL_API void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWw
 IMGUI_IMPL_API void ImGui_ImplGlfw_SetCallbacksChainForAllWindows(ImGuiContext* context, GLFWwindow* window, bool chain_for_all_windows);
 
 // GLFW callbacks (individual callbacks to call yourself if you didn't install callbacks)
-IMGUI_IMPL_API void ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused);      // Since 1.84
-IMGUI_IMPL_API void ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered);      // Since 1.84
-IMGUI_IMPL_API void ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y); // Since 1.87
-IMGUI_IMPL_API void ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-IMGUI_IMPL_API void ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-IMGUI_IMPL_API void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-IMGUI_IMPL_API void ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c);
-IMGUI_IMPL_API void ImGui_ImplGlfw_MonitorCallback(GLFWmonitor* monitor, int event);
+IMGUI_IMPL_API bool ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused);      // Since 1.84
+IMGUI_IMPL_API bool ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered);      // Since 1.84
+IMGUI_IMPL_API bool ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y); // Since 1.87
+IMGUI_IMPL_API bool ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+IMGUI_IMPL_API bool ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+IMGUI_IMPL_API bool ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+IMGUI_IMPL_API bool ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c);
+IMGUI_IMPL_API bool ImGui_ImplGlfw_MonitorCallback(GLFWmonitor* monitor, GLFWwindow* window, int event);
 
 #endif // #ifndef IMGUI_DISABLE

@@ -34,6 +34,16 @@ namespace Ame::Window
         return *s_Instance;
     }
 
+    GlfwHooks& GlfwContext::GetHooks()
+    {
+        return Get().m_Hooks;
+    }
+
+    GlfwHooks& GlfwHooks::Get()
+    {
+        return GlfwContext::GetHooks();
+    }
+
     GlfwContext::GlfwContext()
     {
         m_GlfwThread = std::jthread(&GlfwContext::GlfwWorker, this);
