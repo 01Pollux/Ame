@@ -40,10 +40,6 @@ IMGUI_IMPL_API void ImGui_ImplGlfw_InstallEmscriptenCallbacks(GLFWwindow* window
 IMGUI_IMPL_API void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext* context, GLFWwindow* window);
 IMGUI_IMPL_API void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWwindow* window);
 
-// GFLW callbacks options:
-// - Set 'chain_for_all_windows=true' to enable chaining callbacks for all windows (including secondary viewports created by backends or by user)
-IMGUI_IMPL_API void ImGui_ImplGlfw_SetCallbacksChainForAllWindows(ImGuiContext* context, GLFWwindow* window, bool chain_for_all_windows);
-
 // GLFW callbacks (individual callbacks to call yourself if you didn't install callbacks)
 IMGUI_IMPL_API bool ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused);      // Since 1.84
 IMGUI_IMPL_API bool ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered);      // Since 1.84

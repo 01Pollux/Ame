@@ -36,7 +36,10 @@ private:                                                                   \
                 return;                                                    \
             }                                                              \
         }                                                                  \
-        self.m_Old##name##Callback(std::forward<Args>(args)...);           \
+        if (self.m_Old##name##Callback)                                    \
+        {                                                                  \
+            self.m_Old##name##Callback(std::forward<Args>(args)...);       \
+        }                                                                  \
     }                                                                      \
                                                                            \
 public:                                                                    \
@@ -93,7 +96,10 @@ private:                                                                        
                 return;                                                                  \
             }                                                                            \
         }                                                                                \
-        originalCallback(window, std::forward<Args>(args)...);                           \
+        if (originalCallback)                                                            \
+        {                                                                                \
+            originalCallback(window, std::forward<Args>(args)...);                       \
+        }                                                                                \
     }                                                                                    \
                                                                                          \
 public:                                                                                  \

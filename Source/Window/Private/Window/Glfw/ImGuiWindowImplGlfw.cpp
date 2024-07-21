@@ -26,10 +26,12 @@ namespace Ame::Window
                     IMGUI_CHECKVERSION();
 
                     ImGuiIO& io = ImGui::GetIO();
-                    io.BackendFlags |= ImGuiConfigFlags_NavEnableKeyboard |
-                                       ImGuiConfigFlags_NavEnableGamepad |
-                                       ImGuiConfigFlags_DockingEnable |
-                                       ImGuiConfigFlags_ViewportsEnable;
+                    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable |
+                                      ImGuiConfigFlags_DockingEnable |
+                                      ImGuiConfigFlags_NavEnableKeyboard |
+                                      ImGuiConfigFlags_NavEnableGamepad |
+                                      ImGuiBackendFlags_RendererHasVtxOffset |
+                                      ImGuiBackendFlags_RendererHasViewports;
 
                     ImGui_ImplGlfw_InitForOther(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle, false);
                 })
@@ -50,8 +52,6 @@ namespace Ame::Window
                         Log::Window().Warning("ImGui context mismatch");
                     }
                     ImGui_ImplGlfw_InstallCallbacks(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle);
-                    ImGui_ImplGlfw_SetCallbacksChainForAllWindows(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle, true);
-                    glfwPollEvents();
                 })
             .wait();
 #endif
