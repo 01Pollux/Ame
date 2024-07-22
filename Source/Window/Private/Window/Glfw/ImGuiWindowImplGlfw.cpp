@@ -26,12 +26,13 @@ namespace Ame::Window
                     IMGUI_CHECKVERSION();
 
                     ImGuiIO& io = ImGui::GetIO();
-                    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable |
+                    io.ConfigFlags |= /*ImGuiConfigFlags_ViewportsEnable |*/ // TODO
                                       ImGuiConfigFlags_DockingEnable |
                                       ImGuiConfigFlags_NavEnableKeyboard |
-                                      ImGuiConfigFlags_NavEnableGamepad |
-                                      ImGuiBackendFlags_RendererHasVtxOffset |
-                                      ImGuiBackendFlags_RendererHasViewports;
+                                      ImGuiConfigFlags_NavEnableGamepad;
+
+                    io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports |
+                                       ImGuiBackendFlags_RendererHasVtxOffset;
 
                     ImGui_ImplGlfw_InitForOther(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle, false);
                 })
