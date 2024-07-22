@@ -96,21 +96,22 @@ namespace Ame::Window
             Task task;
             {
                 std::unique_lock lock(m_TaskMutex);
-                m_TaskNotifier.wait(lock,
-                                    [&]
-                                    {
-                                        if (stopToken.stop_requested())
-                                        {
-                                            return true;
-                                        }
-                                        if (!m_Tasks.empty())
-                                        {
-                                            task = std::move(m_Tasks.front());
-                                            m_Tasks.pop();
-                                            return true;
-                                        }
-                                        return false;
-                                    });
+                m_TaskNotifier.wait(
+                    lock,
+                    [&]
+                    {
+                        if (stopToken.stop_requested())
+                        {
+                            return true;
+                        }
+                        if (!m_Tasks.empty())
+                        {
+                            task = std::move(m_Tasks.front());
+                            m_Tasks.pop();
+                            return true;
+                        }
+                        return false;
+                    });
             }
 #ifdef AME_DEBUG
             try

@@ -754,12 +754,12 @@ void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext* context, GLFWwindow* window)
     bd->InstalledCallbacks        = true;
 
     // Windows: register a WndProc hook so we can intercept some messages.
-#ifdef _WIN32
-    auto viewport   = context->Viewports[0];
-    bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC);
-    IM_ASSERT(bd->PrevWndProc != nullptr);
-    ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
-#endif
+//#ifdef _WIN32
+//    auto viewport   = context->Viewports[0];
+//    bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC);
+//    IM_ASSERT(bd->PrevWndProc != nullptr);
+//    ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+//#endif
 }
 
 void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWwindow* window)
@@ -856,7 +856,9 @@ static bool ImGui_ImplGlfw_Init(ImGuiContext* context, GLFWwindow* window, bool 
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
 #ifndef __EMSCRIPTEN__
-        io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports; // We can create multi-viewports on the Platform side (optional)
+        // We can create multi-viewports on the Platform side (optional)
+        io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports |
+                           ImGuiBackendFlags_RendererHasViewports;
 #endif
 #if GLFW_HAS_MOUSE_PASSTHROUGH || GLFW_HAS_WINDOW_HOVERED
         io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can call io.AddMouseViewportEvent() with correct data (optional)
