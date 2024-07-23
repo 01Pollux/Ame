@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Interface.hpp>
-#include <Core/Export.hpp>
 
 namespace Ame::Editor
 {
@@ -30,6 +29,6 @@ namespace Ame::Editor
             IEditorWindow* window) = 0;
     };
 
-    [[nodiscard]] AME_API Ptr<IEditorWindowManager> CreateEditorWindowManager(
+    [[nodiscard]] Ptr<IEditorWindowManager> CreateEditorWindowManager(
         const EditorWindowManagerCreateDesc& desc);
 } // namespace Ame::Editor

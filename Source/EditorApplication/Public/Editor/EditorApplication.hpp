@@ -12,7 +12,7 @@ namespace Ame
 
     public:
         explicit EditorApplication(
-            const EditorApplicationConfig& editorConfig);
+            const EditorApplicationConfig& config);
 
     protected:
         void OnLoad() override;

@@ -64,21 +64,19 @@ target_end()
 
 target("Ame.Application")
     ame_utils:add_library("Ame", "static", "Source/Application")
-    add_deps("Ame.Engine", notshared_public_inherit)
+    add_deps("Ame.Engine")
 target_end()
 
 --
 
 target("Ame.EditorPlugin")
-    add_defines("AME_DYNAMIC_LINKING", {public = true, inherit = true})
-    add_defines("AME_EXPORT_API", {public = false, inherit = false})
-    ame_utils:add_library("Ame", "shared", "Source/EditorPlugin")
+    ame_utils:add_library("Ame", "static", "Source/EditorPlugin")
     add_deps("Ame.Engine", notshared_public_inherit)
     add_packages("Ame.ImGuiUtils", notshared_public_inherit)
 target_end()
 
 target("AmeEditor")
     ame_utils:add_library("Ame", "binary", "Source/EditorApplication")
-    add_deps("Ame.EditorPlugin", notshared_public_inherit)
     add_deps("Ame.Application", notshared_public_inherit)
+    add_deps("Ame.EditorPlugin", notshared_public_inherit)
 target_end()
