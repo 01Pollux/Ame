@@ -105,7 +105,7 @@ namespace Ame
 
 #define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, ...) \
     {                                                                                               \
-        if (iid == IID_Unknown || iid == InterfaceID1 || iid == InterfaceID2)                       \
+        if (iid == InterfaceID1 || iid == InterfaceID2)                                             \
         {                                                                                           \
             *outObject = this;                                                                      \
             (*outObject)->AddRef();                                                                 \
@@ -134,7 +134,7 @@ namespace Ame
 
 #define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS_BODY(InterfaceID, ParentClassName, ...) \
     {                                                                               \
-        if (iid == IID_Unknown || iid == InterfaceID)                               \
+        if (iid == InterfaceID)                                                     \
         {                                                                           \
             *outObject = this;                                                      \
             (*outObject)->AddRef();                                                 \
