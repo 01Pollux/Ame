@@ -17,8 +17,11 @@ namespace Ame::Editor
     public:
         SceneViewEditorWindow(
             IReferenceCounters* counter) :
-            Base(counter, "Scene$Scene View")
+            Base(counter, c_SceneViewEditorWindowPath)
         {
         }
+
+    public:
+        void OnDrawVisible() override;
     };
 } // namespace Ame::Editor

@@ -99,8 +99,7 @@ namespace Ame
         Ptr<Rhi::IRhiDevice>    m_RhiDevice;
         Ptr<Dg::IDeviceContext> m_DeviceContext;
         Ptr<Dg::ISwapChain>     m_Swapchain;
-
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         Ptr<Rhi::IImGuiRenderer> m_ImGuiRenderer;
 #endif
 

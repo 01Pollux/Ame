@@ -107,6 +107,13 @@ namespace Ame::Editor
              * F = Content browser
              */
 
+            ImGui::DockBuilderDockWindow(c_HierarchyEditorWindowPath, left);
+            ImGui::DockBuilderDockWindow(c_SceneViewEditorWindowPath, topCenter);
+            ImGui::DockBuilderDockWindow(c_GameViewEditorWindowPath, topCenter);
+            ImGui::DockBuilderDockWindow(c_InspectorEditorWindowPath, right);
+            ImGui::DockBuilderDockWindow(c_ConsoleEditorWindowPath, bottom);
+            ImGui::DockBuilderDockWindow(c_ContentBrowserEditorWindowPath, bottom);
+
             ImGui::DockBuilderFinish(dockerspaceId);
         }
 

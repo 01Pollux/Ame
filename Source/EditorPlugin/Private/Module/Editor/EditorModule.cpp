@@ -4,9 +4,10 @@ namespace Ame
 {
     EditorModule::EditorModule(
         IReferenceCounters*       counters,
+        Dependencies              dependencies,
         const EditorModuleConfig& config) :
         Base(counters, IID_EditorModule),
-        m_EditorWindowSubmodule(ObjectAllocator<EditorWindowSubmodule>()(config.EditorManagerDesc))
+        m_EditorWindowSubmodule(ObjectAllocator<EditorWindowSubmodule>()(dependencies.RhiMod, dependencies.GfxMod, config.EditorManagerDesc))
     {
     }
 } // namespace Ame

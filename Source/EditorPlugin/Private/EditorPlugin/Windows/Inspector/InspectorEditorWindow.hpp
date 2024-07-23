@@ -17,8 +17,11 @@ namespace Ame::Editor
     public:
         InspectorEditorWindow(
             IReferenceCounters* counter) :
-            Base(counter, "General$Inspector")
+            Base(counter, c_InspectorEditorWindowPath)
         {
         }
+
+    public:
+        void OnDrawVisible() override;
     };
 } // namespace Ame::Editor

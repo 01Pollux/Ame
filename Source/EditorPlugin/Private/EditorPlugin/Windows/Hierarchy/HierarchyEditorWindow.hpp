@@ -4,7 +4,7 @@
 
 namespace Ame::Editor
 {
-    class HierachyEditorWindow : public BaseObject<IEditorWindow>
+    class HierarchyEditorWindow : public BaseObject<IEditorWindow>
     {
     public:
         static Ptr<IEditorWindow> Create();
@@ -12,13 +12,16 @@ namespace Ame::Editor
         using Base = BaseObject<IEditorWindow>;
 
         IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
-            IID_HierachyEditorWindow, IID_BaseEditorWindow, Base);
+            IID_HierarchyEditorWindow, IID_BaseEditorWindow, Base);
 
     public:
-        HierachyEditorWindow(
+        HierarchyEditorWindow(
             IReferenceCounters* counter) :
-            Base(counter, "Scene$Hierachy")
+            Base(counter, c_HierarchyEditorWindowPath)
         {
         }
+
+    public:
+        void OnDrawVisible() override;
     };
 } // namespace Ame::Editor

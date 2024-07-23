@@ -2,7 +2,7 @@
 #include <Window/Glfw/ImGuiWindowImplGlfw.hpp>
 #include <Window/Glfw/GlfwContext.hpp>
 
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
 #include <Window/Glfw/ImGuiGlfwImpl.hpp>
 #include <Window/Glfw/ImGuiWindowImplGlfw.hpp>
 #endif
@@ -14,7 +14,7 @@ namespace Ame::Window
     void ImGuiWindowImplGlfw::InitializeImGui(
         void* imguiContext)
     {
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         GlfwContext::Get()
             .PushTask(
                 [this, imguiContext]
@@ -43,7 +43,7 @@ namespace Ame::Window
     void ImGuiWindowImplGlfw::InstallImGuiCallbacks(
         void* imguiContext)
     {
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         GlfwContext::Get()
             .PushTask(
                 [this, imguiContext]
@@ -61,7 +61,7 @@ namespace Ame::Window
     void ImGuiWindowImplGlfw::NewFrameImGui(
         void* imguiContext)
     {
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         GlfwContext::Get()
             .PushTask(
                 [this, imguiContext]
@@ -79,7 +79,7 @@ namespace Ame::Window
     void ImGuiWindowImplGlfw::UninstallImGuiCallbacks(
         void* imguiContext)
     {
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         GlfwContext::Get()
             .PushTask(
                 [this, imguiContext]
@@ -97,7 +97,7 @@ namespace Ame::Window
     void ImGuiWindowImplGlfw::ShutdownImGui(
         void* imguiContext)
     {
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         GlfwContext::Get()
             .PushTask(
                 [this, imguiContext]

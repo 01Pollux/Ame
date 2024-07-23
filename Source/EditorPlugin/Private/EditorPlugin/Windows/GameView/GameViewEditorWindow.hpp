@@ -17,8 +17,11 @@ namespace Ame::Editor
     public:
         GameViewEditorWindow(
             IReferenceCounters* counter) :
-            Base(counter, "Scene$Game View")
+            Base(counter, c_GameViewEditorWindowPath)
         {
         }
+
+    public:
+        void OnDrawVisible() override;
     };
 } // namespace Ame::Editor

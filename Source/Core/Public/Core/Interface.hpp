@@ -103,6 +103,20 @@ namespace Ame
     };
 } // namespace Ame
 
+//
+
+#define IMPLEMENT_QUERY_INTERFACE_DECL() \
+    void AME_METHOD(QueryInterface)(     \
+        const INTERFACE_ID& iid,         \
+        IObject**           outObject) override
+
+#define IMPLEMENT_QUERY_INTERFACE_HEAD(ClassName) \
+    void ClassName::QueryInterface(               \
+        const INTERFACE_ID& iid,                  \
+        IObject**           outObject)
+
+//
+
 #define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, ...) \
     {                                                                                               \
         if (iid == InterfaceID1 || iid == InterfaceID2)                                             \
@@ -161,14 +175,22 @@ namespace Ame
         }                                                                           \
     }
 
+//
+
 #define IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(InterfaceID, ParentClassName, ...) \
-    void AME_METHOD(QueryInterface)(                                                    \
-        const INTERFACE_ID& iid,                                                        \
-        IObject**           outObject) override                                                   \
-        IMPLEMENT_QUERY_INTERFACE_SUBOJECTS_BODY(InterfaceID, ParentClassName, __VA_ARGS__)
+    IMPLEMENT_QUERY_INTERFACE_DECL()                                                    \
+    IMPLEMENT_QUERY_INTERFACE_SUBOJECTS_BODY(InterfaceID, ParentClassName, __VA_ARGS__)
 
 #define IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(InterfaceID1, InterfaceID2, ParentClassName, ...) \
-    void AME_METHOD(QueryInterface)(                                                                    \
-        const INTERFACE_ID& iid,                                                                        \
-        IObject**           outObject) override                                                                   \
-        IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, __VA_ARGS__)
+    IMPLEMENT_QUERY_INTERFACE_DECL()                                                                    \
+    IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, __VA_ARGS__)
+
+//
+
+#define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS(InterfaceID, ParentClassName, ...) \
+    IMPLEMENT_QUERY_INTERFACE_HEAD()                                           \
+    IMPLEMENT_QUERY_INTERFACE_SUBOJECTS_BODY(InterfaceID, ParentClassName, __VA_ARGS__)
+
+#define IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2(InterfaceID1, InterfaceID2, ParentClassName, ...) \
+    IMPLEMENT_QUERY_INTERFACE_HEAD()                                                           \
+    IMPLEMENT_QUERY_INTERFACE_SUBOJECTS2_BODY(InterfaceID1, InterfaceID2, ParentClassName, __VA_ARGS__)

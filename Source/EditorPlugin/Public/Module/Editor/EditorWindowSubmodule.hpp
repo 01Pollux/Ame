@@ -21,6 +21,8 @@ namespace Ame
     public:
         EditorWindowSubmodule(
             IReferenceCounters*                          counters,
+            RhiModule*                                   rhiModule,
+            GraphicsModule*                              graphicsModule,
             const Editor::EditorWindowManagerCreateDesc& editorManagerCreateDesc);
 
     private:

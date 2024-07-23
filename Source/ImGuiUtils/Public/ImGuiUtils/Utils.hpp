@@ -5,7 +5,7 @@
 
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 #include <ImGuiUtils/WindowUtils.hpp>
-#include <ImGuiUtils/Fonts/FontAwesome5.hpp>
+#include <Rhi/ImGui/Fonts/FontAwesome5.hpp>
 
 #include <Core/Enum.hpp>
 #include <Core/String.hpp>

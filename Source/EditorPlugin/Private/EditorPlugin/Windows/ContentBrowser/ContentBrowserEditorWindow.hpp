@@ -17,8 +17,11 @@ namespace Ame::Editor
     public:
         ContentBrowserEditorWindow(
             IReferenceCounters* counter) :
-            Base(counter, "General$Content Browser")
+            Base(counter, c_ContentBrowserEditorWindowPath)
         {
         }
+
+    public:
+        void OnDrawVisible() override;
     };
 } // namespace Ame::Editor

@@ -91,8 +91,20 @@ namespace Ame
         /// </summary>
         /// <param name="name">The name of the module</param>
         /// <returns>The module if it is loaded, nullptr otherwise</returns>
-        [[nodiscard]] Ptr<IModule> GetModule(
+        [[nodiscard]] const Ptr<IModule>& GetModule(
             const UId& moduleId) const;
+
+        /// <summary>
+        /// Get a module by id
+        /// </summary>
+        /// <param name="name">The name of the module</param>
+        /// <returns>The module if it is loaded, nullptr otherwise</returns>
+        template<typename Ty>
+        [[nodiscard]] Ptr<Ty> GetModule(
+            const UId& moduleId) const
+        {
+            return GetModule(moduleId).Cast<Ty>(moduleId);
+        }
 
     private:
         using ModuleMap = std::unordered_map<UId, Ptr<IModule>, UIdHasher>;

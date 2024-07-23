@@ -16,10 +16,15 @@ namespace Ame
             IID_GraphicsModule, IID_BaseModule, Base,
             m_RendererSubmodule);
 
+        struct Dependencies
+        {
+            RhiModule*      RhiMod;
+        };
+
     public:
         GraphicsModule(
             IReferenceCounters*         counters,
-            RhiModule*                  rhiModule,
+            Dependencies				dependencies,
             const GraphicsModuleConfig& config);
 
     private:

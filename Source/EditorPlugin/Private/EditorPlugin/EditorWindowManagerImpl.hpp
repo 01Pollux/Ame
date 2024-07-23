@@ -7,6 +7,8 @@
 #include <EditorPlugin/EditorWindowManager.hpp>
 #include <EditorPlugin/EditorWindowManagerDesc.hpp>
 
+#include <Module/Graphics/RendererSubmodule.hpp>
+
 #include <Window/Window.hpp>
 #include <Window/DesktopWindow.hpp>
 
@@ -23,7 +25,9 @@ namespace Ame::Editor
     public:
         EditorWindowManagerImpl(
             IReferenceCounters*                  counters,
-            const EditorWindowManagerCreateDesc& desc);
+            RhiModule*                           rhiModule,
+            GraphicsModule*                      graphicsModule,
+            const EditorWindowManagerCreateDesc& createDesc);
 
     public:
         void ResetDefaultWindows() override;
@@ -54,11 +58,12 @@ namespace Ame::Editor
         [[nodiscard]] bool IsWindowOpen(IEditorWindow* window) const;
 
     private:
-        Ptr<Window::IWindow>        m_Window;
         Ptr<Window::IDesktopWindow> m_DesktopWindow;
 
         std::map<String, Ptr<IEditorWindow>> m_Windows;
         std::unordered_set<IEditorWindow*>   m_OpenWindows;
+
+        Ame::Signals::ScopedConnection m_OnImGuiRender;
 
         bool m_IsTitlebarHovered = false;
     };

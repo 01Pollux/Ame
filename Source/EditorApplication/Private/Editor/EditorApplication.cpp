@@ -1,6 +1,8 @@
 #include <Editor/EditorApplication.hpp>
 #include <Engine/Engine.hpp>
 
+#include <Module/Rhi/RhiModule.hpp>
+#include <Module/Graphics/GraphicsModule.hpp>
 #include <Module/Editor/EditorModule.hpp>
 
 namespace Ame
@@ -10,7 +12,12 @@ namespace Ame
         Base(config.Application)
     {
         auto& moduleRegistry = GetEngine().GetRegistry();
-        moduleRegistry.RegisterModule<EditorModule>(config.EditorConfig);
+
+        EditorModule::Dependencies deps{
+            moduleRegistry.GetModule<RhiModule>(IID_RhiModule),
+            moduleRegistry.GetModule<GraphicsModule>(IID_GraphicsModule)
+        };
+        moduleRegistry.RegisterModule<EditorModule>(deps, config.EditorConfig);
     }
 
     void EditorApplication::OnLoad()

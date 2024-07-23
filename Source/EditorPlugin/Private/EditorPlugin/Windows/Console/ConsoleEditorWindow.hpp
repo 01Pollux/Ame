@@ -17,8 +17,11 @@ namespace Ame::Editor
     public:
         ConsoleEditorWindow(
             IReferenceCounters* counter) :
-            Base(counter, "General$Console")
+            Base(counter, c_ConsoleEditorWindowPath)
         {
         }
+
+    public:
+        void OnDrawVisible() override;
     };
 } // namespace Ame::Editor

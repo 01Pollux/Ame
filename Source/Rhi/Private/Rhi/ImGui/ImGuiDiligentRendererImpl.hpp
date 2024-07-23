@@ -1,6 +1,6 @@
 #pragma once
 
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
 #include <map>
 #include <imgui.h>
 
@@ -37,6 +37,10 @@ namespace Ame::Rhi
         ImFont* AME_METHOD(FindFont)(const String& fontName) const override;
         ImFont* AME_METHOD(LoadFont)(const String& fontName, const ImFontConfig& fontConfig) override;
         ImFont* AME_METHOD(LoadCompressedFont)(const char* fontName, const ImFontConfig& fontConfig) override;
+
+    private:
+        void SetDefaultTheme();
+        void LoadDefaultFonts();
 
     private:
         void InvalidateDeviceObjects();

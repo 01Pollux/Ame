@@ -7,6 +7,9 @@
 
 namespace Ame
 {
+    class RhiModule;
+    class GraphicsModule;
+
     class EditorModule final : public BaseObject<IModule>
     {
     public:
@@ -16,9 +19,16 @@ namespace Ame
             IID_EditorModule, IID_BaseModule, Base,
             m_EditorWindowSubmodule);
 
+        struct Dependencies
+        {
+            RhiModule*      RhiMod;
+            GraphicsModule* GfxMod;
+        };
+
     public:
         EditorModule(
             IReferenceCounters*       counters,
+            Dependencies              dependencies,
             const EditorModuleConfig& config);
 
     private:

@@ -19,7 +19,7 @@ namespace Ame
         rhiModule->QueryInterface(Rhi::IID_RhiDevice, m_RhiDevice.DblPtr<IObject>());
         rhiModule->QueryInterface(Dg::IID_DeviceContext, m_DeviceContext.DblPtr<IObject>());
         rhiModule->QueryInterface(Dg::IID_SwapChain, m_Swapchain.DblPtr<IObject>());
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         rhiModule->QueryInterface(Rhi::IID_ImGuiRenderer, m_ImGuiRenderer.DblPtr<IObject>());
 #endif
     }
@@ -37,13 +37,11 @@ namespace Ame
             Invoke_OnRenderPostUpdate();
             Invoke_OnRenderEnd();
 
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
             {
                 Rhi::ImGuiFrameContext imguiContext(m_ImGuiRenderer);
                 Invoke_OnImGuiRender();
                 Invoke_OnImGuiPostRender();
-
-                ImGui::ShowDemoWindow();
             }
 #endif
             m_RhiDevice->AdvanceFrame(m_SyncInterval);

@@ -14,7 +14,10 @@ static Ame::EditorApplicationConfig ParseEditorConfig(
             Rhi::DeviceCreateDescD3D11{},
             Rhi::DeviceCreateDescGL{} },
         .Surface = Rhi::RenderSurfaceDesc{
-            Window::CreateWindow(Window::WindowType::DesktopWindow, { .Title = "Ame Editor" }) }
+            Window::CreateWindow(Window::WindowType::DesktopWindow,
+                                 { .Title          = "Ame Editor",
+                                   .Size           = { 1280, 720 },
+                                   .CustomTitleBar = true }) }
     };
 
     EditorApplicationConfig editorConfig;

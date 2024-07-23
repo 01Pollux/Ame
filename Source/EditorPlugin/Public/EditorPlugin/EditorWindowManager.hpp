@@ -2,6 +2,12 @@
 
 #include <Core/Interface.hpp>
 
+namespace Ame
+{
+    class RhiModule;
+    class GraphicsModule;
+} // namespace Ame
+
 namespace Ame::Editor
 {
     struct EditorWindowManagerCreateDesc;
@@ -30,5 +36,7 @@ namespace Ame::Editor
     };
 
     [[nodiscard]] Ptr<IEditorWindowManager> CreateEditorWindowManager(
+        RhiModule*                           rhiModule,
+        GraphicsModule*                      graphicsModule,
         const EditorWindowManagerCreateDesc& desc);
 } // namespace Ame::Editor

@@ -17,7 +17,10 @@ namespace Ame
             auto rhiModule = m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
             if (engineConfig.GraphicsConfig)
             {
-                m_ModuleRegistery.RegisterModule<GraphicsModule>(rhiModule, *engineConfig.GraphicsConfig);
+                GraphicsModule::Dependencies deps{
+                    rhiModule
+                };
+                m_ModuleRegistery.RegisterModule<GraphicsModule>(deps, *engineConfig.GraphicsConfig);
             }
         }
 

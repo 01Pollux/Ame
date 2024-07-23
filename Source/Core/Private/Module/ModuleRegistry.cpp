@@ -33,7 +33,7 @@ namespace Ame
         return m_Modules.contains(moduleId);
     }
 
-    Ptr<IModule> ModuleRegistry::GetModule(
+    const Ptr<IModule>& ModuleRegistry::GetModule(
         const UId& moduleId) const
     {
         return m_Modules.at(moduleId);

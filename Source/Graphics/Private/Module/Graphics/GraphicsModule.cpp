@@ -7,10 +7,10 @@ namespace Ame
 {
     GraphicsModule::GraphicsModule(
         IReferenceCounters*         counters,
-        RhiModule*                  rhiModule,
+        Dependencies                dependencies,
         const GraphicsModuleConfig& config) :
         Base(counters, IID_GraphicsModule),
-        m_RendererSubmodule(ObjectAllocator<RendererSubmodule>()(rhiModule, config.SyncInterval))
+        m_RendererSubmodule(ObjectAllocator<RendererSubmodule>()(dependencies.RhiMod, config.SyncInterval))
     {
     }
 } // namespace Ame

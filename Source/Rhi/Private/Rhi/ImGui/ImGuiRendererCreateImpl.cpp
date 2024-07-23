@@ -6,7 +6,7 @@ namespace Ame::Rhi
     Ptr<IImGuiRenderer> CreateImGuiRenderer(
         const ImGuiRendererCreateDesc& desc)
     {
-#ifdef AME_DIST
+#ifdef AME_NO_IMGUI
         return CreateImGuiNullRenderer();
 #else
         return { ObjectAllocator<ImGuiDiligentRendererImpl>()(desc), IID_ImGuiRenderer };
