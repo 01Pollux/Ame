@@ -143,7 +143,7 @@ float4 main(in PSInput PSIn) : SV_Target
         }
 
         SetDefaultTheme();
-        // LoadDefaultFonts();
+        LoadDefaultFonts();
         CreateDeviceObjects();
     }
 
@@ -197,6 +197,7 @@ float4 main(in PSInput PSIn) : SV_Target
         }
 
         CreateFontsTextures();
+
         m_ImGuiWindow->NewFrameImGui(m_Context);
         ImGui::NewFrame();
     }
@@ -402,8 +403,6 @@ float4 main(in PSInput PSIn) : SV_Target
                     &fontCfg,
                     iconRanges);
             }
-
-            io.Fonts->Build();
         };
 
         static std::once_flag s_Loaded;
@@ -869,7 +868,7 @@ float4 main(in PSInput PSIn) : SV_Target
                     m_DeviceContext->SetScissorRects(1, &scissor, 0, 0);
 
                     // Bind texture
-                    auto* textureView = reinterpret_cast<Dg::ITextureView*>(cmd->TextureId);
+                    auto textureView = static_cast<Dg::ITextureView*>(cmd->TextureId);
                     VERIFY_EXPR(textureView);
                     if (textureView != lastTextureView)
                     {
