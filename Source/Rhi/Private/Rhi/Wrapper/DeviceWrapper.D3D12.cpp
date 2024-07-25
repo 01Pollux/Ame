@@ -76,9 +76,16 @@ namespace Ame::Rhi
 
         static diligent_factory_type* LoadFactory()
         {
-            auto getEngineFactoryD3D12 = Dg::LoadGraphicsEngineD3D12();
-            auto factory               = getEngineFactoryD3D12();
-            factory->LoadD3D12();
+            diligent_factory_type* factory               = nullptr;
+            auto                   getEngineFactoryD3D12 = Dg::LoadGraphicsEngineD3D12();
+            if (getEngineFactoryD3D12)
+            {
+                factory = getEngineFactoryD3D12();
+                if (factory)
+                {
+                    factory->LoadD3D12();
+                }
+            }
             return factory;
         }
 

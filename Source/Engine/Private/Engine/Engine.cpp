@@ -6,6 +6,8 @@
 
 #include <Log/Wrapper.hpp>
 
+#include <iostream>
+
 namespace Ame
 {
     AmeEngine::AmeEngine(

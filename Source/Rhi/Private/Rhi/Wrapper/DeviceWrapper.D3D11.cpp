@@ -49,7 +49,7 @@ namespace Ame::Rhi
         static diligent_factory_type* LoadFactory()
         {
             auto getEngineFactoryD3D11 = Dg::LoadGraphicsEngineD3D11();
-            return getEngineFactoryD3D11();
+            return getEngineFactoryD3D11 ? getEngineFactoryD3D11() : nullptr;
         }
 
         static void CreateDeviceAndContext(

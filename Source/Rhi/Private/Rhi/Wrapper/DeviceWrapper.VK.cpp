@@ -89,7 +89,7 @@ namespace Ame::Rhi
         static diligent_factory_type* LoadFactory()
         {
             auto getEngineFactoryVK = Dg::LoadGraphicsEngineVk();
-            return getEngineFactoryVK();
+            return getEngineFactoryVK ? getEngineFactoryVK() : nullptr;
         }
 
         static void CreateDeviceAndContext(

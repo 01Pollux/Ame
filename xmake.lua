@@ -1,6 +1,14 @@
 includes("Project/Utils.lua")
 
-add_rules("mode.debug", "mode.releasedbg")
+--
+
+rule("mode.debug_sanitize")
+    add_deps("debug")
+rule_end()
+
+--
+
+add_rules("mode.debug", "mode.debug_sanitize", "mode.releasedbg")
 set_languages("cxxlatest")
 
 --
@@ -9,12 +17,12 @@ _script_root_dir = os.scriptdir()
 _use_asan = false
 _use_exception = false
 _debug_packages = false
-_width_symbols = false
+_with_symbols = false
 _vc_runtime = ""
 
 --
 
-if is_mode("debug") then
+if is_mode("debug") or is_mode("debug_sanitize") then
     _vc_runtime = "MTd"
 else 
     _vc_runtime = "MT"
@@ -32,29 +40,37 @@ if is_mode("debug") then
     add_defines("AME_DEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
 
+    set_symbols("debug", "edit")
+
+    _use_exception = true
+    _debug_packages = true
+    _with_symbols = true
+end
+
+if is_mode("debug_sanitize") then 
+    add_defines("DEBUG")
+    add_defines("AME_DEBUG")
+    add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
+
     set_policy("build.sanitizer.address", true)
     set_exceptions("cxx", "objc")
-
-    add_ldflags("/opt:ref", "/opt:noicf")
 
     _use_asan = true
     _use_exception = true
     _debug_packages = true
-    _width_symbols = true
+    _with_symbols = true
 end
 
 if is_mode("releasedbg") then
-    add_defines("DNDEBUG")
+    add_defines("NDEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
     add_defines("AME_RELEASE")
 
-    add_ldflags("/LTCG", "/opt:ref,icf")
-
-    _width_symbols = true
+    _with_symbols = true
 end
 
 if is_mode("release") then
-    add_defines("DNDEBUG")
+    add_defines("NDEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
     add_defines("AME_DIST")
 end

@@ -42,7 +42,7 @@ namespace Ame::Rhi
         static diligent_factory_type* LoadFactory()
         {
             auto getEngineFactoryGL = Dg::LoadGraphicsEngineOpenGL();
-            return getEngineFactoryGL();
+            return getEngineFactoryGL ? getEngineFactoryGL() : nullptr;
         }
     };
 #endif

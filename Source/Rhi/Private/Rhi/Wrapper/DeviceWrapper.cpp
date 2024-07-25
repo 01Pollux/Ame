@@ -23,6 +23,8 @@ namespace Ame::Rhi
                 return deviceWrapper;
             }
         }
+
+        Log::Rhi().Fatal("Failed to create renderer device");
         return std::nullopt;
     }
 
