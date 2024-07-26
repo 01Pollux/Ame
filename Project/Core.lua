@@ -55,9 +55,16 @@ target_end()
 
 --
 
+target("Ame.Ecs")
+    ame_utils:add_library("Ame", "static", "Source/Entity")
+    add_deps("Ame.Graphics", notshared_public_inherit)
+target_end()
+
+--
+
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Source/Engine")
-    add_deps("Ame.Graphics", notshared_public_inherit)
+    add_deps("Ame.Ecs", notshared_public_inherit)
 target_end()
 
 --

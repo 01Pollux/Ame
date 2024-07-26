@@ -50,6 +50,12 @@ namespace Ame
     /// Script Module:
     ///     LuaSubmodule
     ///     CSharpScriptSubmodule
+    /// World Entity Module:
+    ///     EntityStorageSubmodule
+    ///     EntityComponentSubmodule
+    ///     EntityPrefabSubmodule
+    /// Editor Module:
+    ///     EditorWindowSubmodule
     /// </summary>
     class ModuleRegistry
     {

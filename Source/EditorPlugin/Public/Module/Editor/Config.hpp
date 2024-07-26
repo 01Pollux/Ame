@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Module/Module.hpp>
+#include <Core/Interface.hpp>
 #include <EditorPlugin/EditorWindowManagerDesc.hpp>
 
 namespace Ame
