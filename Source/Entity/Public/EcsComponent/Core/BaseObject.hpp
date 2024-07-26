@@ -14,8 +14,7 @@ namespace Ame::Ecs
             .on_set([](flecs::entity e, Ty& c)
                     { e.emplace<BaseTy>(c.Object); })
             .on_remove([](flecs::entity e, Ty&)
-                       { e.remove<BaseTy>(); })
-            .is_a<BaseTy>();
+                       { e.remove<BaseTy>(); });
         return component;
     }
 } // namespace Ame::Ecs
