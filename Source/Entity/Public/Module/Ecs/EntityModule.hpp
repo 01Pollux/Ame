@@ -17,7 +17,7 @@ namespace Ame
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(
             IID_EntityModule, IID_BaseModule, Base,
-            nullptr);
+            m_EntityStorageSubmodule);
 
     public:
         EntityModule(

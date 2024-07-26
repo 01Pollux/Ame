@@ -7,7 +7,7 @@ namespace Ame
         Dependencies              dependencies,
         const EditorModuleConfig& config) :
         Base(counters, IID_EditorModule),
-        m_EditorWindowSubmodule(ObjectAllocator<EditorWindowSubmodule>()(dependencies.RhiMod, dependencies.GfxMod, config.EditorManagerDesc))
+        m_EditorWindowSubmodule(ObjectAllocator<EditorWindowSubmodule>()(dependencies.RhiMod, dependencies.GfxMod, config))
     {
     }
 } // namespace Ame

@@ -2,12 +2,10 @@
 
 #include <Module/Submodule.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
+#include <Module/Rhi/Config.hpp>
 
 namespace Ame
 {
-    // {116F0CD7-9584-417E-BA5E-5EC61E74C7E6}
-    static constexpr UId IID_RhiGraphicsSubmodule = { 0x116f0cd7, 0x9584, 0x417e, { 0xba, 0x5e, 0x5e, 0xc6, 0x1e, 0x74, 0xc7, 0xe6 } };
-
     class RhiGraphicsSubmodule final : public BaseObject<ISubmodule>
     {
     public:

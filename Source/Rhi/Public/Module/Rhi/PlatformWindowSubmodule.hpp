@@ -2,12 +2,10 @@
 
 #include <Module/Submodule.hpp>
 #include <Window/Window.hpp>
+#include <Module/Rhi/Config.hpp>
 
 namespace Ame
 {
-    // {640F1A0F-8EBC-4722-931D-92EAD1EFFE74}
-    static constexpr UId IID_PlatformWindowSubmodule = { 0x640f1a0f, 0x8ebc, 0x4722, { 0x93, 0x1d, 0x92, 0xea, 0xd1, 0xef, 0xfe, 0x74 } };
-
     class PlatformWindowSubmodule final : public BaseObject<ISubmodule>
     {
     public:

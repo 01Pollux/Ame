@@ -6,9 +6,6 @@
 
 namespace Ame
 {
-    // {8390DBB1-17D2-49BD-9C90-C70524E3E17A}
-    static constexpr UId IID_CoroutineSubmodule = { 0x8390dbb1, 0x17d2, 0x49bd, { 0x9c, 0x90, 0xc7, 0x5, 0x24, 0xe3, 0xe1, 0x7a } };
-
     class CoroutineSubmodule final : public BaseObject<ISubmodule>
     {
     public:

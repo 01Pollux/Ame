@@ -10,11 +10,12 @@ namespace Ame::Ecs
         const char*   name)
     {
         auto component = world.component<Ty>(name);
-        component.on_set([](flecs::entity e, Ty& c)
-                         { e.emplace<BaseTy>(c.Object); });
-        component.on_remove([](flecs::entity e, Ty&)
-                            { e.remove<BaseTy>(); });
-        component.is_a<BaseTy>();
+        component
+            .on_set([](flecs::entity e, Ty& c)
+                    { e.emplace<BaseTy>(c.Object); })
+            .on_remove([](flecs::entity e, Ty&)
+                       { e.remove<BaseTy>(); })
+            .is_a<BaseTy>();
         return component;
     }
 } // namespace Ame::Ecs

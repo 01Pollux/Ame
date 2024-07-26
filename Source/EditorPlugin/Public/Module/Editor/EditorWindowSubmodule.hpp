@@ -2,13 +2,11 @@
 
 #include <Module/Submodule.hpp>
 
+#include <Module/Editor/Config.hpp>
 #include <EditorPlugin/EditorWindowManager.hpp>
 
 namespace Ame
 {
-    // {BE08421C-CE71-4D12-8CDF-7BE552A8C033}
-    static constexpr UId IID_EditorWindowSubmodule = { 0xbe08421c, 0xce71, 0x4d12, { 0x8c, 0xdf, 0x7b, 0xe5, 0x52, 0xa8, 0xc0, 0x33 } };
-
     class EditorWindowSubmodule final : public BaseObject<ISubmodule>
     {
     public:
@@ -20,10 +18,10 @@ namespace Ame
 
     public:
         EditorWindowSubmodule(
-            IReferenceCounters*                          counters,
-            RhiModule*                                   rhiModule,
-            GraphicsModule*                              graphicsModule,
-            const Editor::EditorWindowManagerCreateDesc& editorManagerCreateDesc);
+            IReferenceCounters*       counters,
+            RhiModule*                rhiModule,
+            GraphicsModule*           graphicsModule,
+            const EditorModuleConfig& config);
 
     private:
         Ptr<Editor::IEditorWindowManager> m_EditorWindowManager;

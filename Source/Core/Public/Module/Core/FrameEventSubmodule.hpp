@@ -15,9 +15,6 @@ namespace Ame::Signals
 
 namespace Ame
 {
-    // {919C726D-72E2-4573-ACC2-98EA5AF1781B}
-    static constexpr UId IID_FrameEventSubmodule = { 0x919c726d, 0x72e2, 0x4573, { 0xac, 0xc2, 0x98, 0xea, 0x5a, 0xf1, 0x78, 0x1b } };
-
     class FrameEventSubmodule final : public BaseObject<ISubmodule>
     {
     public:

@@ -16,6 +16,6 @@ namespace Ame::Ecs
     /// </summary>
     struct RenderableComponent
     {
-        IBaseRenderable* cs;
+        IBaseRenderable* Object;
     };
 } // namespace Ame::Ecs

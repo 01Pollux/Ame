@@ -2,12 +2,10 @@
 
 #include <Module/Submodule.hpp>
 #include <Rhi/ImGui/ImGuiRenderer.hpp>
+#include <Module/Rhi/Config.hpp>
 
 namespace Ame
 {
-    // {CF40EE16-0DE3-4095-938A-FB8993CD01FD}
-    static constexpr UId IID_ImGuiSubmodule = { 0xcf40ee16, 0xde3, 0x4095, { 0x93, 0x8a, 0xfb, 0x89, 0x93, 0xcd, 0x1, 0xfd } };
-
     class ImGuiSubmodule final : public BaseObject<ISubmodule>
     {
     public:
