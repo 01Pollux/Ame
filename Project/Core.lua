@@ -3,6 +3,7 @@ target("Ame.Core")
     ame_utils:add_library("Ame", "static", "Source/Core")
     add_packages(
         "boost",
+        "cereal",
         "ame.mimalloc",
         "ame.diligent_core",
         "ame.kangaru",
@@ -19,6 +20,11 @@ target("Ame.Core")
 target_end()
 
 --
+
+target("Ame.Geometry")
+    ame_utils:add_library("Ame", "static", "Source/Geometry")
+    add_deps("Ame.Core", notshared_public_inherit)
+target_end()
 
 target("Ame.Window")
     ame_utils:add_library("Ame", "static", "Source/Window")
@@ -58,6 +64,7 @@ target_end()
 target("Ame.Ecs")
     ame_utils:add_library("Ame", "static", "Source/Entity")
     add_deps("Ame.Graphics", notshared_public_inherit)
+    add_deps("Ame.Geometry", notshared_public_inherit)
 target_end()
 
 --

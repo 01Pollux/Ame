@@ -1,9 +1,8 @@
-#include <Ecs/World.hpp>
-#include <EcsUtil/Entity.hpp>
-
-#include <Log/Wrapper.hpp>
-
 #include <mutex>
+#include <Ecs/World.hpp>
+
+#include <EcsModule/CoreModule.hpp>
+#include <EcsComponent/Core/EntityTagComponent.hpp>
 
 namespace Ame::Ecs
 {
@@ -13,27 +12,14 @@ namespace Ame::Ecs
     /// </summary>
     static std::mutex g_FlecsMutex;
 
-    struct WorldName
-    {
-        String Name;
-    };
-
-    World::World(
-        const String& name)
+    World::World()
     {
         {
             std::lock_guard initLock(g_FlecsMutex);
             m_World = std::make_unique<flecs::world>();
-
-            m_World->component<WorldName>();
-            m_World->emplace<WorldName>(name);
+            m_World->import <CoreEcsModule>();
         }
         RegisterModules();
-    }
-
-    World::World(
-        flecs::world& world)
-    {
     }
 
     World::World(
@@ -59,7 +45,7 @@ namespace Ame::Ecs
 
     World::~World()
     {
-        if (m_World && m_World->m_owned)
+        if (m_World)
         {
             std::lock_guard Lock(g_FlecsMutex);
             m_World.reset();
@@ -73,13 +59,13 @@ namespace Ame::Ecs
         StringView    name,
         const Entity& parent)
     {
-        auto entity = world.entity();
+        Entity entity(world.entity());
         if (parent)
         {
-            entity.child_of(parent.GetFlecsEntity());
+            entity.SetParent(parent);
         }
-        entity.set_name(name.data());
-        return Entity(entity);
+        entity.SetName(String{ name });
+        return entity;
     }
 
     //
@@ -92,7 +78,7 @@ namespace Ame::Ecs
     }
 
     Entity World::GetEntityById(
-        const Entity::Id id) const
+        const EntityId id) const
     {
         return Entity(m_World->entity(id));
     }
@@ -107,27 +93,9 @@ namespace Ame::Ecs
     }
 
     Entity WorldRef::GetEntityById(
-        const Entity::Id id) const
+        const EntityId id) const
     {
         return Entity(m_World.entity(id));
-    }
-
-    //
-
-    String World::GetUniqueEntityName(
-        const char*   name,
-        const Entity& parent) const
-    {
-        return EcsUtil::GetUniqueEntityName(*m_World, name, parent.GetFlecsEntity());
-    }
-
-    //
-
-    String WorldRef::GetUniqueEntityName(
-        const char*   name,
-        const Entity& parent) const
-    {
-        return EcsUtil::GetUniqueEntityName(m_World, name, parent.GetFlecsEntity());
     }
 
     //

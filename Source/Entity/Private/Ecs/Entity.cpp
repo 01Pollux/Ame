@@ -1,5 +1,5 @@
 #include <Ecs/Entity.hpp>
-#include <EcsUtil/Entity.hpp>
+#include <EcsComponent/Core/EntityTagComponent.hpp>
 
 namespace Ame::Ecs
 {
@@ -11,7 +11,7 @@ namespace Ame::Ecs
 
     //
 
-    auto Entity::GetId() const -> Id
+    EntityId Entity::GetId() const
     {
         return m_Entity.id();
     }
@@ -96,15 +96,15 @@ namespace Ame::Ecs
         }
         else
         {
-            auto filter =
+            auto query =
                 m_Entity.world()
-                    .filter_builder()
-                    .term(flecs::ChildOf, m_Entity)
-                    .term(flecs::Disabled)
+                    .query_builder()
+                    .with(flecs::ChildOf, m_Entity)
+                    .with(flecs::Disabled)
                     .optional()
                     .build();
 
-            filter.iter(
+            query.run(
                 [&children](flecs::iter& It)
                 {
                     children.reserve(children.size() + It.count());
@@ -117,13 +117,21 @@ namespace Ame::Ecs
         return children;
     }
 
+    void Entity::SetName(String name) const
+    {
+        m_Entity.get_ref<EntityTagComponent>()->Tag = name;
+    }
+
+    const String& Entity::GetName() const
+    {
+        return m_Entity.get_ref<EntityTagComponent>()->Tag;
+    }
+
     //
 
     void Entity::SetParent(
         const Entity& parent)
     {
-        auto SafeName = EcsUtil::GetUniqueEntityName(m_Entity.world(), m_Entity.name(), parent.GetFlecsEntity());
-        m_Entity.set_name(SafeName.c_str());
         m_Entity.child_of(parent.GetFlecsEntity());
     }
 } // namespace Ame::Ecs

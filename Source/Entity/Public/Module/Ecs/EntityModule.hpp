@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Module/Module.hpp>
+#include <Module/Ecs/EntityStorageSubmodule.hpp>
 
 #include <Module/Ecs/Config.hpp>
 
@@ -24,5 +25,6 @@ namespace Ame
             const EcsModuleConfig& config);
 
     private:
+        Ptr<EntityStorageSubmodule> m_EntityStorageSubmodule;
     }; // namespace Ame
 } // namespace Ame

@@ -5,7 +5,7 @@
 namespace Ame::Window
 {
     // {2B4A9BAA-B9D0-4DEC-A84B-A0107392D2CD}
-    static const UId IID_ImGuiWindow = { 0x2b4a9baa, 0xb9d0, 0x4dec, { 0xa8, 0x4b, 0xa0, 0x10, 0x73, 0x92, 0xd2, 0xcd } };
+    static constexpr UId IID_ImGuiWindow = { 0x2b4a9baa, 0xb9d0, 0x4dec, { 0xa8, 0x4b, 0xa0, 0x10, 0x73, 0x92, 0xd2, 0xcd } };
 
     /// <summary>
     /// Since GLFW is used for window creation, and it uses singleton for handling window events,

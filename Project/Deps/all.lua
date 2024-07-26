@@ -12,13 +12,14 @@ add_requires("boost", {system = false, debug = _debug_packages, configs = {
     program_options = true,
     serialization = true
 }})
+add_requires("cereal",                      {system = false, debug = _debug_packages})
 add_requires("boost_ut",                    {system = false, debug = _debug_packages, configs = {shared = true}})
 add_requires("vulkansdk",                   {debug = _debug_packages})
 add_requires("ame.mimalloc",                {system = false, debug = _debug_packages})
 add_requires("ame.kangaru",                 {system = false, debug = _debug_packages})
 add_requires("spdlog",                      {system = false, debug = _debug_packages})
 add_requires("fmt",                         {system = false, debug = _debug_packages})
-add_requires("flecs",                       {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
+add_requires("flecs v4.0.0",                {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
 add_requires("freeimage",                   {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
 add_requires("cryptopp",                    {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
 add_requires("magic_enum",                  {system = false, debug = _debug_packages})

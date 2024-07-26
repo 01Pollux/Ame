@@ -101,6 +101,41 @@ namespace Ame
             }
         }
     };
+
+    //
+
+    template<typename ObjectType, UId Id, typename BaseInterface = IObject>
+        requires(!std::is_base_of_v<IObject, ObjectType> &&
+                 std::is_base_of_v<IObject, BaseInterface>)
+    class WrappedObject : public BaseObject<BaseInterface>, public ObjectType
+    {
+    public:
+        using Base = BaseObject<BaseInterface>;
+
+        template<typename... ArgsTy>
+        WrappedObject(
+            IReferenceCounters* counters,
+            ArgsTy&&... args) noexcept(std::is_nothrow_constructible_v<BaseObject<BaseInterface>, IReferenceCounters*> &&
+                                       std::is_nothrow_constructible_v<ObjectType, ArgsTy...>) :
+            Base(counters),
+            ObjectType(std::forward<ArgsTy>(args)...)
+        {
+        }
+
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
+            Id, IID_Unknown, Base);
+
+    public:
+        [[nodiscard]] ObjectType& Get() noexcept
+        {
+            return *this;
+        }
+
+        [[nodiscard]] const ObjectType& Get() const noexcept
+        {
+            return *this;
+        }
+    };
 } // namespace Ame
 
 //

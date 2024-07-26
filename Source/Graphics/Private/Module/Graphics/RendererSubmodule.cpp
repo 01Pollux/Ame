@@ -10,11 +10,11 @@
 namespace Ame
 {
     RendererSubmodule::RendererSubmodule(
-        IReferenceCounters* counters,
-        RhiModule*          rhiModule,
-        uint32_t            syncInterval) :
+        IReferenceCounters*         counters,
+        RhiModule*                  rhiModule,
+        const GraphicsModuleConfig& config) :
         Base(counters, IID_RendererSubmodule),
-        m_SyncInterval(syncInterval)
+        m_SyncInterval(config.SyncInterval)
     {
         rhiModule->QueryInterface(Rhi::IID_RhiDevice, m_RhiDevice.DblPtr<IObject>());
         rhiModule->QueryInterface(Dg::IID_DeviceContext, m_DeviceContext.DblPtr<IObject>());

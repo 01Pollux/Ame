@@ -18,13 +18,13 @@ namespace Ame
 
         struct Dependencies
         {
-            RhiModule*      RhiMod;
+            RhiModule* RhiMod;
         };
 
     public:
         GraphicsModule(
             IReferenceCounters*         counters,
-            Dependencies				dependencies,
+            Dependencies                dependencies,
             const GraphicsModuleConfig& config);
 
     private:
