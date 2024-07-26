@@ -3,6 +3,9 @@
 #include <Module/Rhi/RhiModule.hpp>
 #include <Module/Graphics/GraphicsModule.hpp>
 
+#include <Window/DesktopWindow.hpp>
+#include <Window/WindowEventListener.hpp>
+
 #include <EditorPlugin/Windows/Console/ConsoleEditorWindow.hpp>
 #include <EditorPlugin/Windows/ContentBrowser/ContentBrowserEditorWindow.hpp>
 #include <EditorPlugin/Windows/GameView/GameViewEditorWindow.hpp>
@@ -36,6 +39,15 @@ namespace Ame::Editor
         rhiModule->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
 
         m_OnImGuiRender = rendererSubmodule->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));
+
+        if (m_DesktopWindow)
+        {
+            m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest(
+                [this](const Math::Vector2I&)
+                {
+                    return m_IsTitlebarHovered;
+                });
+        }
 
         ResetDefaultWindows();
     }
