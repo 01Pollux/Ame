@@ -5,7 +5,6 @@
 
 namespace Ame
 {
-
     class AmeEngine
     {
     public:

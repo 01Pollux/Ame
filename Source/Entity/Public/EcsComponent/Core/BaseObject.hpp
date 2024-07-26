@@ -14,7 +14,7 @@ namespace Ame::Ecs
                          { e.emplace<BaseTy>(c.Object); });
         component.on_remove([](flecs::entity e, Ty&)
                             { e.remove<BaseTy>(); });
-        component.is_a<Ty>();
+        component.is_a<BaseTy>();
         return component;
     }
 } // namespace Ame::Ecs

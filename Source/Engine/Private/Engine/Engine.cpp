@@ -2,6 +2,7 @@
 
 #include <Module/Core/CoreModule.hpp>
 #include <Module/Rhi/RhiModule.hpp>
+#include <Module/Ecs/EntityModule.hpp>
 #include <Module/Graphics/GraphicsModule.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -24,6 +25,11 @@ namespace Ame
                 };
                 m_ModuleRegistery.RegisterModule<GraphicsModule>(deps, *engineConfig.GraphicsConfig);
             }
+        }
+
+        if (engineConfig.EcsConfig)
+        {
+            m_ModuleRegistery.RegisterModule<EntityModule>(*engineConfig.EcsConfig);
         }
 
         RefreshSubmoduleCache();

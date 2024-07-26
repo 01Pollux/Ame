@@ -23,10 +23,10 @@ namespace Ame
         bool anyRenderable = config.Enable3DModule;
         if (anyRenderable)
         {
-            world->import <Ecs::RenderableEcsModule>();
+            world.ImportModule<Ecs::RenderableEcsModule>();
             if (config.Enable3DModule)
             {
-                world->import <Ecs::Renderable3DEcsModule>();
+                world.ImportModule<Ecs::Renderable3DEcsModule>();
             }
         }
     }

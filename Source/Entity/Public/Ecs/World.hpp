@@ -97,12 +97,6 @@ namespace Ame::Ecs
         }
 
     private:
-        /// <summary>
-        /// Register all components in the world.
-        /// </summary>
-        void RegisterModules();
-
-    private:
         UniquePtr<flecs::world> m_World;
     };
 

@@ -36,6 +36,8 @@ static Ame::EditorApplicationConfig ParseEditorConfig(
     editorConfig.Application.Engine.RhiConfig = RhiModuleConfig{
         .RhiDeviceDesc = std::move(rhiDeviceDesc)
     };
+
+    editorConfig.Application.Engine.EcsConfig.emplace();
     editorConfig.Application.Engine.GraphicsConfig.emplace();
 
     return editorConfig;
