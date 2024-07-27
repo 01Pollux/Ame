@@ -13,6 +13,7 @@ add_requires("boost", {system = false, debug = _debug_packages, configs = {
     serialization = true
 }})
 add_requires("cereal",                      {system = false, debug = _debug_packages})
+add_requires("rttr",                        {system = false, debug = _debug_packages})
 add_requires("boost_ut",                    {system = false, debug = _debug_packages, configs = {shared = true}})
 add_requires("vulkansdk",                   {debug = _debug_packages})
 add_requires("ame.mimalloc",                {system = false, debug = _debug_packages})

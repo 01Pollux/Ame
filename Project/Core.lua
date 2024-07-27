@@ -26,6 +26,11 @@ target("Ame.Geometry")
     add_deps("Ame.Core", notshared_public_inherit)
 target_end()
 
+target("Ame.Resource")
+    ame_utils:add_library("Ame", "static", "Source/Resource")
+    add_deps("Ame.Core", notshared_public_inherit)
+target_end()
+
 target("Ame.Window")
     ame_utils:add_library("Ame", "static", "Source/Window")
     add_deps("Ame.Core", notshared_public_inherit)

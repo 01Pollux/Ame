@@ -9,9 +9,7 @@ namespace Ame
     class IModule;
 
     /// <summary>
-    /// Modules are DLLs that are loaded at runtime, they may also be statically linked.
     /// Modules are used to separate the engine into smaller parts.
-    /// Modules are lazy loaded, meaning they are only loaded when they are needed by calling LoadModule() then GetModule().
     ///
     /// Core Module:
     ///     TimeSubmodule
