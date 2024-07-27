@@ -9,14 +9,9 @@ namespace Ame::Asset::Common
     {
     public:
         using Base = BaseObject<IAsset>;
-        RTTR_ENABLE(Base);
-
-    public:
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
             IID_DataBlobAsset, Base,
             m_Blob);
-
-        [[nodiscard]] static Ptr<DataBlobAsset> Create();
 
         DataBlobAsset(IReferenceCounters* counters) :
             Base(counters)
@@ -29,7 +24,7 @@ namespace Ame::Asset::Common
             Base::Serialize(ar);
 
             ar(m_Blob->GetSize());
-            ar(cereal::binary_data(m_Blob->GetConstDataPtr(), m_Blob->GetSize()));
+            ar(cereal::binary_data(std::bit_cast<const std::byte*>(m_Blob->GetConstDataPtr()), m_Blob->GetSize()));
         }
 
         void Deserialize(BinaryIArchiver& ar) override
@@ -39,7 +34,7 @@ namespace Ame::Asset::Common
             size_t size;
             ar(size);
             m_Blob->Resize(size);
-            ar(cereal::binary_data(m_Blob->GetDataPtr(), m_Blob->GetSize()));
+            ar(cereal::binary_data(std::bit_cast<std::byte*>(m_Blob->GetDataPtr()), m_Blob->GetSize()));
         }
 
     public:
@@ -63,9 +58,4 @@ namespace Ame::Asset::Common
     private:
         Ptr<IDataBlob> m_Blob;
     };
-
-    inline Ptr<DataBlobAsset> DataBlobAsset::Create()
-    {
-        return Ptr(ObjectAllocator<DataBlobAsset>()());
-    }
 } // namespace Ame::Asset::Common

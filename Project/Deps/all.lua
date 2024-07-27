@@ -4,7 +4,6 @@ includes("imgui.lua")
 includes("concurrencpp.lua")
 includes("kangaru.lua")
 includes("mimalloc.lua")
-includes("rttr.lua")
 
 add_requires("boost", {system = false, debug = _debug_packages, configs = {
     vs_runtime = vs_runtime,
@@ -14,7 +13,6 @@ add_requires("boost", {system = false, debug = _debug_packages, configs = {
     serialization = true
 }})
 add_requires("cereal",                      {system = false, debug = _debug_packages})
-add_requires("ame.rttr",                    {system = false, debug = _debug_packages})
 add_requires("boost_ut",                    {system = false, debug = _debug_packages, configs = {shared = true}})
 add_requires("vulkansdk",                   {debug = _debug_packages})
 add_requires("ame.mimalloc",                {system = false, debug = _debug_packages})

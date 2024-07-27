@@ -399,12 +399,12 @@ namespace Ame::Asset
     void DirectoryAssetPackage::SaveAssetAndDependencies(
         Ptr<IAsset> firstAsset)
     {
-        std::queue<Ptr<IAsset>> toSave;
+        std::queue<IAsset*> toSave;
         toSave.emplace(firstAsset);
 
         while (!toSave.empty())
         {
-            auto curAsset = std::move(toSave.front());
+            IAsset* curAsset = toSave.front();
             toSave.pop();
 
             auto& uid = curAsset->GetUId();
@@ -464,7 +464,7 @@ namespace Ame::Asset
                 std::vector<String> depsInMetaData;
 
                 auto& dependencies = dependencyWriter.GetDependencies();
-                for (auto& childAsset : dependencies)
+                for (IAsset* childAsset : dependencies)
                 {
                     if (childAsset->IsDirty())
                     {

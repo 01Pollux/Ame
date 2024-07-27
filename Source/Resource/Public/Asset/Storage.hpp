@@ -114,7 +114,7 @@ namespace Ame::Asset
         /// Not thread safe.
         /// </summary>
         [[nodiscard]] std::pair<UId, IAssetHandler*> GetHandler(
-            const Ptr<IAsset>& asset);
+            IAsset* asset);
 
         /// <summary>
         /// Gets the asset handler for the specified id.

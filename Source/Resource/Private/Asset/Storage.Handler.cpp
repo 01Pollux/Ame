@@ -24,7 +24,7 @@ namespace Ame::Asset
     }
 
     std::pair<UId, IAssetHandler*> Storage::GetHandler(
-        const Ptr<IAsset>& asset)
+        IAsset* asset)
     {
         for (auto& [uid, handler] : m_Handlers)
         {

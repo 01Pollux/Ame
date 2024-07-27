@@ -127,18 +127,6 @@ namespace Ame
     };
 } // namespace Ame
 
-namespace std
-{
-    template<typename Ty>
-    struct hash<Ame::Ptr<Ty>>
-    {
-        size_t operator()(const Ame::Ptr<Ty>& ptr) const
-        {
-            return std::hash<Ty*>{}(ptr.RawPtr());
-        }
-    };
-} // namespace std
-
 //
 
 #define IMPLEMENT_QUERY_INTERFACE_DECL() \

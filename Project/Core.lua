@@ -3,7 +3,6 @@ target("Ame.Core")
     ame_utils:add_library("Ame", "static", "Source/Core")
     add_packages(
         "boost",
-        "ame.rttr",
         "cereal",
         "ame.mimalloc",
         "ame.diligent_core",
@@ -78,6 +77,7 @@ target_end()
 target("Ame.Engine")
     ame_utils:add_library("Ame", "static", "Source/Engine")
     add_deps("Ame.Ecs", notshared_public_inherit)
+    add_deps("Ame.Resource", notshared_public_inherit)
 target_end()
 
 --

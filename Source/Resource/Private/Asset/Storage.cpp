@@ -3,6 +3,9 @@
 #include <Asset/Pack.hpp>
 #include <Asset/Packs/Memory.hpp>
 
+#include <Asset/Types/Common/DataBlob.hpp>
+#include <Asset/Types/Common/TextFile.hpp>
+
 namespace Ame::Asset
 {
     Storage::Storage(
@@ -11,7 +14,8 @@ namespace Ame::Asset
         m_Manager(*this)
     {
         Mount<MemoryAssetPackage>();
-        RegisterHandler<DefaultAssetHandler>();
+        RegisterHandler<DefaultAssetHandler<Common::DataBlobAsset, IID_DataBlobAssetHandler>>();
+        RegisterHandler<DefaultAssetHandler<Common::TextFileAsset, IID_TextFileAssetHandler>>();
     }
 
     Storage::~Storage() = default;

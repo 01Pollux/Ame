@@ -32,15 +32,17 @@ namespace Ame::Asset
     // {9A9AC404-D850-4485-8ED3-D90B2818F077}
     static constexpr UId IID_BaseAssetHandler{ 0x9a9ac404, 0xd850, 0x4485, { 0x8e, 0xd3, 0xd9, 0xb, 0x28, 0x18, 0xf0, 0x77 } };
 
+    // {94A0E847-3B48-4EDA-B689-308B39A7A719}
+    static constexpr UId IID_DataBlobAssetHandler{ 0x94a0e847, 0x3b48, 0x4eda, { 0xb6, 0x89, 0x30, 0x8b, 0x39, 0xa7, 0xa7, 0x19 } };
+
     // {39A4BB74-FE17-4C7D-B423-D6893349249C}
-    static constexpr UId IID_DefaultAssetHandler{ 0x39a4bb74, 0xfe17, 0x4c7d, { 0xb4, 0x23, 0xd6, 0x89, 0x33, 0x49, 0x24, 0x9c } };
+    static constexpr UId IID_TextFileAssetHandler{ 0x39a4bb74, 0xfe17, 0x4c7d, { 0xb4, 0x23, 0xd6, 0x89, 0x33, 0x49, 0x24, 0x9c } };
 
     //
 
     class IAsset;
     class IAssetPackage;
     class IAssetHandler;
-    class DefaultAssetHandler;
     class Manager;
     class Storage;
 } // namespace Ame::Asset

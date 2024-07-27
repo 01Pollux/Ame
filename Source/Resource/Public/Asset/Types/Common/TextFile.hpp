@@ -9,13 +9,8 @@ namespace Ame::Asset::Common
     {
     public:
         using Base = BaseObject<IAsset>;
-        RTTR_ENABLE(Base);
-
-    public:
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
             IID_TextFileAsset, Base);
-
-        [[nodiscard]] static Ptr<TextFileAsset> Create();
 
         TextFileAsset(
             IReferenceCounters* counters) :
@@ -63,9 +58,4 @@ namespace Ame::Asset::Common
     private:
         String m_Text;
     };
-
-    inline Ptr<TextFileAsset> TextFileAsset::Create()
-    {
-        return Ptr(ObjectAllocator<TextFileAsset>()());
-    }
 } // namespace Ame::Asset::Common

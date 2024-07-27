@@ -1,6 +1,5 @@
 #pragma once
 
-#include <rttr/rttr_enable.h>
 #include <Core/Interface.hpp>
 #include <cereal/archives/portable_binary.hpp>
 
@@ -26,9 +25,6 @@ namespace Ame
             }
             ISerializable::QueryInterface(uid, object);
         }
-
-    public:
-        RTTR_ENABLE();
 
     public:
         virtual void AME_METHOD(Serialize)(BinaryOArchiver& ar) const = 0;

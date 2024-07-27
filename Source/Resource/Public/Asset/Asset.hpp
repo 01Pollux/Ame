@@ -9,9 +9,6 @@ namespace Ame::Asset
     class IAsset : public ISerializable
     {
     public:
-        RTTR_ENABLE(ISerializable);
-
-    public:
         void QueryInterface(
             const UId& uid,
             IObject**  object) override
@@ -39,9 +36,15 @@ namespace Ame::Asset
 
     public:
         /// <summary>
-        /// Gets the asset guid.
+        /// Gets the asset uid.
         /// </summary>
         [[nodiscard]] const UId& GetUId() const noexcept;
+
+        /// <summary>
+        /// Sets the asset uid.
+        /// </summary>
+        [[nodiscard]] void SetUId(
+            const UId& uid) noexcept;
 
         /// <summary>
         /// Get the asset path.
@@ -52,7 +55,7 @@ namespace Ame::Asset
         /// Set the asset path.
         /// </summary>
         void SetPath(
-            String path) noexcept;
+            const String& path) noexcept;
 
         /// <summary>
         /// Query if the asset is dirty.
@@ -63,7 +66,7 @@ namespace Ame::Asset
         /// Marks the asset as dirty.
         /// </summary>
         void MarkDirty(
-            bool isDirty = true) noexcept;
+            bool isDirty) noexcept;
 
     protected:
         String m_AssetPath;

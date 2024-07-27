@@ -101,12 +101,12 @@ namespace Ame::Asset
         template<typename ArchiveTy, typename Ty>
             requires std::is_base_of_v<IAsset, Ty>
         void WriteOne(
-            ArchiveTy&     archive,
-            const Ptr<Ty>& asset)
+            ArchiveTy& archive,
+            Ty*        asset)
         {
             if (asset)
             {
-                archive << asset->GetGuid();
+                archive << asset->GetUId();
                 m_Assets.emplace(asset);
             }
             else
@@ -127,7 +127,7 @@ namespace Ame::Asset
             for (auto& asset : assets)
             {
                 m_Assets.emplace(asset);
-                handles.emplace_back(asset->GetGuid());
+                handles.emplace_back(asset->GetUId());
             }
             archive << handles;
         }
@@ -143,7 +143,7 @@ namespace Ame::Asset
         }
 
     private:
-        std::unordered_set<Ptr<IAsset>> m_Assets;
+        std::unordered_set<IAsset*> m_Assets;
     };
 
     //
@@ -170,7 +170,7 @@ namespace Ame::Asset
         Ref<std::iostream>    Stream;
         Ref<DependencyWriter> Dependencies;
 
-        Ptr<IAsset>        Asset;
+        IAsset*            Asset;
         Ref<AssetMetaData> LoaderData;
     };
 
@@ -183,7 +183,7 @@ namespace Ame::Asset
         /// Query if this asset handler can handle the given asset.
         /// </summary>
         virtual bool CanHandle(
-            const Ptr<IAsset>& asset) = 0;
+            IAsset* asset) = 0;
 
         /// <summary>
         /// Load the asset from an input stream.
@@ -202,7 +202,7 @@ namespace Ame::Asset
 
 #define AME_STANDARD_ASSET_HANDLER_BODY           \
     bool CanHandle(                               \
-        const Ptr<IAsset>& asset) override;       \
+        IAsset* asset) override;                  \
                                                   \
     Co::result<Ptr<IAsset>> Load(                 \
         AssetHandlerLoadDesc& loadDesc) override; \
@@ -233,8 +233,52 @@ namespace Ame::Asset
 
     //
 
-    /// <summary>
-    /// By default, the asset handler will call IAsset::Serialize and IAsset::Deserialize.
-    /// </summary>
-    AME_STANDARD_ASSET_HANDLER(DefaultAssetHandler, IID_DefaultAssetHandler);
+    template<typename Ty, UId ID>
+    class DefaultAssetHandler : public BaseObject<IAssetHandler>
+    {
+    public:
+        static inline UId UID = ID;
+
+        using Base = BaseObject<IAssetHandler>;
+
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
+            UID, IID_BaseAssetHandler, Base);
+
+        DefaultAssetHandler(
+            IReferenceCounters* counters) :
+            Base(counters)
+        {
+        }
+
+    public:
+        bool CanHandle(IAsset* asset) override
+        {
+            return dynamic_cast<Ty*>(asset) != nullptr;
+        }
+
+        Co::result<Ptr<IAsset>> Load(
+            AssetHandlerLoadDesc& loadDesc) override
+        {
+            Ptr asset{ ObjectAllocator<Ty>()() };
+            if (!asset)
+            {
+                co_return asset;
+            }
+
+            co_await Co::resume_on(loadDesc.BackgroundExecutor);
+
+            BinaryIArchiver archiver(loadDesc.Stream);
+            asset->Deserialize(archiver);
+
+            co_return asset;
+        }
+
+        Co::result<void> Save(AssetHandlerSaveDesc& saveDesc) override
+        {
+            co_await Co::resume_on(saveDesc.BackgroundExecutor);
+
+            BinaryOArchiver archiver(saveDesc.Stream);
+            saveDesc.Asset->Serialize(archiver);
+        }
+    };
 } // namespace Ame::Asset
