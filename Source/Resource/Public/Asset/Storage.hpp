@@ -52,7 +52,7 @@ namespace Ame::Asset
     class Storage
     {
         using AssetPackageList = std::vector<Ptr<IAssetPackage>>;
-        using AssetHandlerMap  = std::map<size_t, Ptr<IAssetHandler>>;
+        using AssetHandlerMap  = std::unordered_map<UId, Ptr<IAssetHandler>, UIdUtils::Hasher>;
 
         friend class IAssetPackage;
 
@@ -79,7 +79,7 @@ namespace Ame::Asset
         /// Removes an asset from the storage system.
         /// </summary>
         void RemoveAsset(
-            const Guid& guid);
+            const UId& uid);
 
     public:
         /// <summary>
@@ -87,7 +87,7 @@ namespace Ame::Asset
         /// Not thread safe.
         /// </summary>
         void RegisterHandler(
-            size_t             id,
+            const UId&         uid,
             Ptr<IAssetHandler> handler);
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Ame::Asset
         void RegisterHandler(
             ArgsTy&&... args)
         {
-            RegisterHandler(Ty::UID, std::make_unique<Ty>(std::forward<ArgsTy>(args)...));
+            RegisterHandler(Ty::UID, { ObjectAllocator<Ty>()(std::forward<ArgsTy>(args)...), IID_BaseAssetHandler });
         }
 
         /// <summary>
@@ -107,13 +107,13 @@ namespace Ame::Asset
         /// Not thread safe.
         /// </summary>
         void UnregisterHandler(
-            size_t id);
+            const UId& uid);
 
         /// <summary>
         /// Gets the asset handler for the specified asset.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] std::pair<IAssetHandler*, size_t> GetHandler(
+        [[nodiscard]] std::pair<UId, IAssetHandler*> GetHandler(
             const Ptr<IAsset>& asset);
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace Ame::Asset
         /// Not thread safe.
         /// </summary>
         [[nodiscard]] IAssetHandler* GetHandler(
-            size_t id);
+            const UId& uid);
 
         /// <summary>
         /// Get the associated asset manager.
@@ -143,10 +143,12 @@ namespace Ame::Asset
         /// </summary>
         template<typename Ty, typename... ArgsTy>
             requires std::derived_from<Ty, IAssetPackage>
-        IAssetPackage* Mount(
+        Ty* Mount(
             ArgsTy&&... args)
         {
-            return Mount(std::make_unique<Ty>(*this, std::forward<ArgsTy>(args)...));
+            auto handler = ObjectAllocator<Ty>()(*this, std::forward<ArgsTy>(args)...);
+            Mount(Ptr<IAssetPackage>{ handler, IID_BaseAssetPackage });
+            return handler;
         }
 
         /// <summary>
@@ -166,7 +168,7 @@ namespace Ame::Asset
         struct PackageAndAsset
         {
             Ptr<IAssetPackage> Package;
-            Guid               Handle;
+            UId                Handle;
         };
 
         /// <summary>
@@ -185,10 +187,10 @@ namespace Ame::Asset
 
     public:
         /// <summary>
-        /// Finds an asset by guid.
+        /// Finds an asset by uid.
         /// </summary>
         [[nodiscard]] IAssetPackage* FindPackage(
-            const Guid&         guid,
+            const UId&          uid,
             const PackageFlags& flags = PackageFlags::Disk);
 
         /// <summary>

@@ -79,12 +79,12 @@ namespace Ame::Asset
     //
 
     IAssetPackage* Storage::FindPackage(
-        const Guid&         guid,
+        const UId&          uid,
         const PackageFlags& flags)
     {
         for (auto& package : GetPackages(flags))
         {
-            if (package->ContainsAsset(guid))
+            if (package->ContainsAsset(uid))
             {
                 return package;
             }

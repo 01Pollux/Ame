@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Asset/Asset.hpp>
-#include <Asset/Metadata.hpp>
-
-#include <boost/serialization/vector.hpp>
 #include <unordered_set>
 #include <unordered_map>
-#include <fstream>
 #include <queue>
+#include <iosfwd>
+#include <cereal/types/vector.hpp>
+
+#include <Asset/Asset.hpp>
+#include <Asset/Metadata.hpp>
 
 namespace Ame::Asset
 {
@@ -27,11 +27,11 @@ namespace Ame::Asset
         [[nodiscard]] Ptr<Ty> ReadOne(
             ArchiveTy& archive) const
         {
-            Guid guid;
-            archive >> guid;
-            if (guid != Guid::c_Null)
+            UId uid;
+            archive >> uid;
+            if (!UIdUtils::IsNull(uid))
             {
-                auto iter = m_Assets.find(guid);
+                auto iter = m_Assets.find(uid);
                 if (iter != m_Assets.end())
                 {
                     return std::dynamic_pointer_cast<Ty>(iter->second);
@@ -48,18 +48,18 @@ namespace Ame::Asset
         [[nodiscard]] auto ReadMany(
             ArchiveTy& archive) const
         {
-            std::vector<Guid> guids;
+            std::vector<UId> guids;
             archive >> guids;
 
             std::vector<Ptr<Ty>> assets;
             assets.reserve(guids.size());
 
-            for (const auto& guid : guids)
+            for (const auto& uid : guids)
             {
                 Ptr<Ty> asset;
-                if (guid != Guid::c_Null)
+                if (!UIdUtils::IsNull(uid))
                 {
-                    auto iter = m_Assets.find(guid);
+                    auto iter = m_Assets.find(uid);
                     if (iter != m_Assets.end())
                     {
                         asset = std::dynamic_pointer_cast<Ty>(iter->second);
@@ -80,14 +80,14 @@ namespace Ame::Asset
         /// Link an asset for depdendency reading.
         /// </summary>
         void Link(
-            const Guid&        guid,
+            const UId&         uid,
             const Ptr<IAsset>& asset)
         {
-            m_Assets.emplace(guid, asset);
+            m_Assets.emplace(uid, asset);
         }
 
     private:
-        std::unordered_map<Guid, Ptr<IAsset>> m_Assets;
+        std::unordered_map<UId, Ptr<IAsset>, UIdUtils::Hasher> m_Assets;
     };
 
     //
@@ -111,7 +111,7 @@ namespace Ame::Asset
             }
             else
             {
-                archive << Guid::c_Null;
+                archive << UId::c_Null;
             }
         }
 
@@ -123,7 +123,7 @@ namespace Ame::Asset
             ArchiveTy& archive,
             const Ty&  assets)
         {
-            std::vector<Guid> handles;
+            std::vector<UId> handles;
             for (auto& asset : assets)
             {
                 m_Assets.emplace(asset);
@@ -156,7 +156,7 @@ namespace Ame::Asset
         Ref<std::istream>      Stream;
         CRef<DependencyReader> Dependencies;
 
-        Guid   Guid;
+        UId    UId;
         String Path;
 
         CRef<AssetMetaData> LoaderData;
@@ -210,14 +210,25 @@ namespace Ame::Asset
     Co::result<void> Save(                        \
         AssetHandlerSaveDesc& saveDesc) override
 
-#define AME_STANDARD_ASSET_HANDLER(Name, ID) \
-    class Name : public IAssetHandler        \
-    {                                        \
-    public:                                  \
-        static constexpr size_t UID = ID;    \
-                                             \
-    public:                                  \
-        AME_STANDARD_ASSET_HANDLER_BODY;     \
+#define AME_STANDARD_ASSET_HANDLER(Name, ID)      \
+    class Name : public BaseObject<IAssetHandler> \
+    {                                             \
+    public:                                       \
+        static inline const UId& UID = ID;        \
+                                                  \
+        using Base = BaseObject<IAssetHandler>;   \
+                                                  \
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(      \
+            UID, IID_BaseAssetHandler, Base);     \
+                                                  \
+        Name(                                     \
+            IReferenceCounters* counters) :       \
+            Base(counters)                        \
+        {                                         \
+        }                                         \
+                                                  \
+    public:                                       \
+        AME_STANDARD_ASSET_HANDLER_BODY;          \
     };
 
     //
@@ -225,5 +236,5 @@ namespace Ame::Asset
     /// <summary>
     /// By default, the asset handler will call IAsset::Serialize and IAsset::Deserialize.
     /// </summary>
-    AME_STANDARD_ASSET_HANDLER(DefaultAssetHandler, 0xFFFF'FFFF'FFFF'FFFF);
+    AME_STANDARD_ASSET_HANDLER(DefaultAssetHandler, IID_DefaultAssetHandler);
 } // namespace Ame::Asset

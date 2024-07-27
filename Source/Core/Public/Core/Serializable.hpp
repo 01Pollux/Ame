@@ -1,5 +1,6 @@
 #pragma once
 
+#include <rttr/rttr_enable.h>
 #include <Core/Interface.hpp>
 #include <cereal/archives/portable_binary.hpp>
 
@@ -14,7 +15,40 @@ namespace Ame
     class ISerializable : public IObject
     {
     public:
+        void QueryInterface(
+            const UId& uid,
+            IObject**  object) override
+        {
+            if (uid == IID_BaseSerializable)
+            {
+                *object = static_cast<ISerializable*>(this);
+                return;
+            }
+            ISerializable::QueryInterface(uid, object);
+        }
+
+    public:
+        RTTR_ENABLE();
+
+    public:
         virtual void AME_METHOD(Serialize)(BinaryOArchiver& ar) const = 0;
         virtual void AME_METHOD(Deserialize)(BinaryIArchiver& ar)     = 0;
     };
 } // namespace Ame
+
+namespace cereal
+{
+    //! Serialization for UId, if binary data is supported
+    template<class Archive>
+    inline void CEREAL_SAVE_FUNCTION_NAME(Archive& ar, const Ame::UId& uid)
+    {
+        ar(binary_data(&uid, sizeof(Ame::UId)));
+    }
+
+    //! Serialization for Uid, if binary data is supported
+    template<class Archive>
+    inline void CEREAL_LOAD_FUNCTION_NAME(Archive& ar, Ame::UId& uid)
+    {
+        ar(binary_data(&uid, sizeof(Ame::UId)));
+    }
+} // namespace cereal

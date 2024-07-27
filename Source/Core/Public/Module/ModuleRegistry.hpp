@@ -111,7 +111,7 @@ namespace Ame
         }
 
     private:
-        using ModuleMap = std::unordered_map<UId, Ptr<IModule>, UIdHasher>;
+        using ModuleMap = std::unordered_map<UId, Ptr<IModule>, UIdUtils::Hasher>;
 
     private:
         ModuleMap m_Modules;

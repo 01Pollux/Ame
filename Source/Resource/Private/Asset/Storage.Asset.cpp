@@ -40,17 +40,17 @@ namespace Ame::Asset
     }
 
     void Storage::RemoveAsset(
-        const Guid& guid)
+        const UId& uid)
     {
         for (auto& package : m_Packages)
         {
-            if (package->RemoveAsset(guid))
+            if (package->RemoveAsset(uid))
             {
                 return;
             }
         }
 
-        Log::Asset().Warning("Asset '{}' not found", guid.ToString());
+        Log::Asset().Warning("Asset '{}' not found", UIdUtils::ToString(uid));
     }
 
     //
@@ -60,9 +60,9 @@ namespace Ame::Asset
     {
         for (auto& package : GetPackages(flags))
         {
-            for (auto& guid : package->GetAssets())
+            for (auto& uid : package->GetAssets())
             {
-                co_yield { package, guid };
+                co_yield { package, uid };
             }
         }
     }
@@ -76,9 +76,9 @@ namespace Ame::Asset
         PackageAndAsset result;
         for (auto& package : GetPackages(flags))
         {
-            if (auto guid = package->FindAsset(path); !guid.is_nil())
+            if (auto uid = package->FindAsset(path); UIdUtils::IsNull(uid))
             {
-                result = { package, guid };
+                result = { package, uid };
                 break;
             }
         }
@@ -91,9 +91,9 @@ namespace Ame::Asset
     {
         for (auto& package : GetPackages(flags))
         {
-            for (auto& guid : package->FindAssets(pathRegex))
+            for (auto& uid : package->FindAssets(pathRegex))
             {
-                co_yield { package, guid };
+                co_yield { package, uid };
             }
         }
     }

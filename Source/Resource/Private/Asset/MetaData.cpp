@@ -21,11 +21,11 @@ namespace Ame::Asset
     }
 
     AssetMetaDataDef::AssetMetaDataDef(
-        const Guid& guid,
-        String      path) :
+        const UId& uid,
+        String     path) :
         m_IsDirty(true)
     {
-        SetGuid(guid);
+        SetGuid(uid);
         SetMetaPath(std::move(path));
         m_MetaData.add_child("LoaderData", boost::property_tree::ptree());
         m_MetaData.add_child("Dependencies", boost::property_tree::ptree());
@@ -39,22 +39,22 @@ namespace Ame::Asset
 
     //
 
-    Guid AssetMetaDataDef::GetGuid() const noexcept
+    UId AssetMetaDataDef::GetUId() const noexcept
     {
         auto Iter = m_MetaData.find("Guid");
-        return Iter != m_MetaData.not_found() ? Guid::FromString(Iter->second.get_value<std::string>()) : Guid::c_Null;
+        return Iter != m_MetaData.not_found() ? UIdUtils::FromString(Iter->second.get_value<String>()) : UIdUtils::Null();
     }
 
     void AssetMetaDataDef::SetGuid(
-        const Guid& guid) noexcept
+        const UId& uid) noexcept
     {
-        m_MetaData.put("Guid", guid.ToString());
+        m_MetaData.put("Guid", UIdUtils::ToString(uid));
     }
 
     String AssetMetaDataDef::GetHash() const noexcept
     {
         auto iter = m_MetaData.find("Hash");
-        return iter != m_MetaData.not_found() ? iter->second.get_value<std::string>() : String();
+        return iter != m_MetaData.not_found() ? iter->second.get_value<String>() : String();
     }
 
     void AssetMetaDataDef::SetHash(
@@ -63,15 +63,16 @@ namespace Ame::Asset
         m_MetaData.put("Hash", std::move(hash));
     }
 
-    size_t AssetMetaDataDef::GetLoaderId() const noexcept
+    UId AssetMetaDataDef::GetLoaderId() const noexcept
     {
-        return m_MetaData.get_optional<size_t>("LoaderId").value_or(0);
+        auto uid = m_MetaData.get_optional<String>("LoaderId");
+        return uid ? UIdUtils::FromString(uid.get()) : UIdUtils::Null();
     }
 
     void AssetMetaDataDef::SetLoaderId(
-        size_t id) noexcept
+        const UId& uid) noexcept
     {
-        m_MetaData.put("LoaderId", id);
+        m_MetaData.put("LoaderId", UIdUtils::ToString(uid));
     }
 
     AssetMetaData& AssetMetaDataDef::GetLoaderData() noexcept
@@ -114,11 +115,11 @@ namespace Ame::Asset
         m_IsDirty = IsDirty;
     }
 
-    Co::generator<Guid> AssetMetaDataDef::GetDependencies() const
+    Co::generator<UId> AssetMetaDataDef::GetDependencies() const
     {
         for (auto& dependency : m_MetaData.get_child("Dependencies"))
         {
-            co_yield Guid::FromString(dependency.second.get_value<String>());
+            co_yield UIdUtils::FromString(dependency.second.get_value<String>());
         }
     }
 

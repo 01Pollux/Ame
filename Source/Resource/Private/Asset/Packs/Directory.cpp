@@ -16,9 +16,10 @@
 namespace Ame::Asset
 {
     DirectoryAssetPackage::DirectoryAssetPackage(
+        IReferenceCounters*   counters,
         Storage&              assetStorage,
         std::filesystem::path path) :
-        IAssetPackage(assetStorage),
+        Base(counters, assetStorage),
         m_RootPath(std::move(path))
     {
         auto& logger = Log::Asset();
@@ -70,16 +71,16 @@ namespace Ame::Asset
                     continue;
                 }
 
-                auto guid = metaData.GetGuid();
-                if (guid == Guid::c_Null)
+                auto uid = metaData.GetUId();
+                if (UIdUtils::IsNull(uid))
                 {
-                    logger.Error("Asset", "Meta file '{}' does not have a Guid", metafilePath);
+                    logger.Error("Asset", "Meta file '{}' does not have a UId", metafilePath);
                     continue;
                 }
 
-                if (m_AssetMeta.contains(guid))
+                if (m_AssetMeta.contains(uid))
                 {
-                    logger.Error("Meta file '{}' has a Guid that is already in use", metafilePath);
+                    logger.Error("Meta file '{}' has a UId that is already in use", metafilePath);
                     continue;
                 }
 
@@ -120,45 +121,45 @@ namespace Ame::Asset
 #endif
                 }
 
-                m_AssetPath.emplace(metaData.GetAssetPath().string(), guid);
-                m_AssetMeta.emplace(guid, std::move(metaData));
+                m_AssetPath.emplace(metaData.GetAssetPath().string(), uid);
+                m_AssetMeta.emplace(uid, std::move(metaData));
             }
         }
     }
 
-    Co::generator<Guid> DirectoryAssetPackage::GetAssets()
+    Co::generator<UId> DirectoryAssetPackage::GetAssets()
     {
         RLock readLock(m_CacheMutex);
-        for (auto& guid : m_AssetMeta | std::views::keys)
+        for (auto& uid : m_AssetMeta | std::views::keys)
         {
-            co_yield Guid{ guid };
+            co_yield UId{ uid };
         }
     }
 
     bool DirectoryAssetPackage::ContainsAsset(
-        const Guid& guid) const
+        const UId& uid) const
     {
         RLock readLock(m_CacheMutex);
-        return m_AssetMeta.contains(guid);
+        return m_AssetMeta.contains(uid);
     }
 
-    Guid DirectoryAssetPackage::FindAsset(
+    UId DirectoryAssetPackage::FindAsset(
         const String& path) const
     {
         RLock readLock(m_CacheMutex);
         auto  iter = m_AssetPath.find(path);
-        return iter != m_AssetPath.end() ? iter->second : Guid::c_Null;
+        return iter != m_AssetPath.end() ? iter->second : UIdUtils::Null();
     }
 
-    Co::generator<Guid> DirectoryAssetPackage::FindAssets(
+    Co::generator<UId> DirectoryAssetPackage::FindAssets(
         const std::regex& pathRegex) const
     {
         RLock readLock(m_CacheMutex);
-        for (auto& [path, guid] : m_AssetPath)
+        for (auto& [path, uid] : m_AssetPath)
         {
             if (std::regex_match(path, pathRegex))
             {
-                co_yield Guid{ guid };
+                co_yield UId{ uid };
             }
         }
     }
@@ -170,7 +171,7 @@ namespace Ame::Asset
             // Export all dirty assets
             {
                 RWLock readWriteLock(m_CacheMutex);
-                for (auto& [guid, metaData] : m_AssetMeta)
+                for (auto& [uid, metaData] : m_AssetMeta)
                 {
                     if (!metaData.IsDirty())
                     {
@@ -195,53 +196,53 @@ namespace Ame::Asset
     }
 
     bool DirectoryAssetPackage::RemoveAsset(
-        const Guid& guid)
+        const UId& uid)
     {
         RWLock readWriteLock(m_CacheMutex);
 
-        auto iter = m_AssetMeta.find(guid);
+        auto iter = m_AssetMeta.find(uid);
         if (iter == m_AssetMeta.end())
         {
             return false;
         }
 
-        m_Cache.erase(guid);
+        m_Cache.erase(uid);
         m_AssetPath.erase(iter->second.GetMetaPath().generic_string());
         m_AssetMeta.erase(iter);
         return true;
     }
 
-    const Guid& DirectoryAssetPackage::GetGuidOfPath(
+    const UId& DirectoryAssetPackage::GetGuidOfPath(
         const String& path) const
     {
         RLock readLock(m_CacheMutex);
         auto  iter = m_AssetPath.find(path);
-        return iter != m_AssetPath.end() ? iter->second : Guid::c_Null;
+        return iter != m_AssetPath.end() ? iter->second : UIdUtils::Null();
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAsset(
-        const Guid& guid,
-        bool        loadTemp)
+        const UId& uid,
+        bool       loadTemp)
     {
         // The reason for checking if the asset is already loaded in the cache
         // is because we later will only load the asset if it's not already loaded
-        if (auto asset = LoadAssetFromCache(guid))
+        if (auto asset = LoadAssetFromCache(uid))
         {
             return asset;
         }
-        return LoadAssetAndDependencies(guid, loadTemp);
+        return LoadAssetAndDependencies(uid, loadTemp);
     }
 
     bool DirectoryAssetPackage::UnloadAsset(
-        const Guid& guid,
-        bool        force)
+        const UId& uid,
+        bool       force)
     {
         RWLock readWriteLock(m_CacheMutex);
 
-        auto iter = m_Cache.find(guid);
+        auto iter = m_Cache.find(uid);
         if (iter == m_Cache.end())
         {
-            m_Cache.erase(guid);
+            m_Cache.erase(uid);
         }
 
         if (!force && iter->second->GetReferenceCounters()->GetNumStrongRefs() == 1)
@@ -277,10 +278,10 @@ namespace Ame::Asset
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAssetFromCache(
-        const Guid& guid)
+        const UId& uid)
     {
         RLock readLock(m_CacheMutex);
-        if (auto iter = m_Cache.find(guid); iter != m_Cache.end())
+        if (auto iter = m_Cache.find(uid); iter != m_Cache.end())
         {
             return iter->second;
         }
@@ -288,11 +289,11 @@ namespace Ame::Asset
     }
 
     Ptr<IAsset> DirectoryAssetPackage::LoadAssetAndDependencies(
-        const Guid& guid,
-        bool        loadTemp)
+        const UId& uid,
+        bool       loadTemp)
     {
-        std::stack<Guid> toLoad;
-        toLoad.push(guid);
+        std::stack<UId> toLoad;
+        toLoad.push(uid);
 
         DependencyReader         dependencyReader;
         std::vector<Ptr<IAsset>> tempAssets;
@@ -309,7 +310,7 @@ namespace Ame::Asset
                 auto  iter = m_AssetMeta.find(currentGuid);
                 if (iter == m_AssetMeta.end())
                 {
-                    throw AssetChildMetaNotFoundException(guid, currentGuid);
+                    throw AssetChildMetaNotFoundException(uid, currentGuid);
                 }
 
                 metaData = &iter->second;
@@ -342,7 +343,7 @@ namespace Ame::Asset
             auto path = m_RootPath / metaData->GetAssetPath();
             if (!std::filesystem::exists(path))
             {
-                throw AssetNotFoundException(guid, currentGuid);
+                throw AssetNotFoundException(uid, currentGuid);
             }
 
             //
@@ -352,13 +353,13 @@ namespace Ame::Asset
             IAssetHandler* handler = m_Storage.get().GetHandler(metaData->GetLoaderId());
             if (!handler)
             {
-                throw toLoad.size() == 1 ? AssetWithNoHandlerException(guid) : AssetWithNoHandlerException(guid, currentGuid);
+                throw toLoad.size() == 1 ? AssetWithNoHandlerException(uid) : AssetWithNoHandlerException(uid, currentGuid);
             }
 
             std::ifstream assetFile(path, std::ios::in | std::ios::binary);
             if (!assetFile.is_open())
             {
-                throw AssetNotFoundException(guid, currentGuid);
+                throw AssetNotFoundException(uid, currentGuid);
             }
 
             AssetHandlerLoadDesc loadDesc{
@@ -368,7 +369,7 @@ namespace Ame::Asset
                 .Stream       = assetFile,
                 .Dependencies = dependencyReader,
 
-                .Guid = currentGuid,
+                .UId  = currentGuid,
                 .Path = path.string(),
 
                 .LoaderData = metaData->GetLoaderData()
@@ -376,7 +377,7 @@ namespace Ame::Asset
             auto asset = handler->Load(loadDesc).get();
             if (!asset)
             {
-                throw AssetHandlerFailureException(guid, currentGuid);
+                throw AssetHandlerFailureException(uid, currentGuid);
             }
 
             asset->MarkDirty(false);
@@ -406,18 +407,18 @@ namespace Ame::Asset
             auto curAsset = std::move(toSave.front());
             toSave.pop();
 
-            auto& guid = curAsset->GetGuid();
+            auto& uid = curAsset->GetUId();
 
             // Check if asset already exists in the package
             // else add it to the package
             AssetMetaDataDef* metaData = nullptr;
             {
                 RWLock readWriteLock(m_CacheMutex);
-                auto   iter = m_AssetMeta.find(guid);
+                auto   iter = m_AssetMeta.find(uid);
                 if (iter == m_AssetMeta.end())
                 {
-                    iter = m_AssetMeta.emplace(guid, AssetMetaDataDef(guid, curAsset->GetPath())).first;
-                    m_AssetPath.emplace(curAsset->GetPath(), guid);
+                    iter = m_AssetMeta.emplace(uid, AssetMetaDataDef(uid, curAsset->GetPath())).first;
+                    m_AssetPath.emplace(curAsset->GetPath(), uid);
                     iter->second.SetMetaPath(std::format("{}{}", curAsset->GetPath(), AssetMetaDataDef::c_MetaFileExtension));
                 }
                 metaData = &iter->second;
@@ -427,10 +428,10 @@ namespace Ame::Asset
             // Write asset file
             //
 
-            auto [handler, handlerId] = m_Storage.get().GetHandler(curAsset);
+            auto [handlerId, handler] = m_Storage.get().GetHandler(curAsset);
             if (!handler)
             {
-                Log::Asset().Error("Failed to get handler for asset '{}'", guid.ToString());
+                Log::Asset().Error("Failed to get handler for asset '{}'", UIdUtils::ToString(uid));
                 continue;
             }
 
@@ -463,13 +464,13 @@ namespace Ame::Asset
                 std::vector<String> depsInMetaData;
 
                 auto& dependencies = dependencyWriter.GetDependencies();
-                for (auto& childAsset : dependencyWriter.GetDependencies())
+                for (auto& childAsset : dependencies)
                 {
                     if (childAsset->IsDirty())
                     {
                         toSave.push(childAsset);
                     }
-                    depsInMetaData.emplace_back(childAsset->GetGuid().ToString());
+                    depsInMetaData.emplace_back(UIdUtils::ToString(childAsset->GetUId()));
                 }
                 dependencies.clear();
 

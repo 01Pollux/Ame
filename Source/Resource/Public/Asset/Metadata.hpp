@@ -23,8 +23,8 @@ namespace Ame::Asset
         /// Creating an empty asset's metadata.
         /// </summary>
         AssetMetaDataDef(
-            const Guid& guid,
-            String      path);
+            const UId& uid,
+            String     path);
 
         /// <summary>
         /// Creating an asset's metadata from an input stream.
@@ -33,15 +33,15 @@ namespace Ame::Asset
             std::ostream& stream) const;
 
         /// <summary>
-        /// Get the asset's GUID.
+        /// Get the asset's UId.
         /// </summary>
-        [[nodiscard]] Guid GetGuid() const noexcept;
+        [[nodiscard]] UId GetUId() const noexcept;
 
         /// <summary>
         /// Set the asset's GUID.
         /// </summary>
         void SetGuid(
-            const Guid& guid) noexcept;
+            const UId& uid) noexcept;
 
         /// <summary>
         /// Get the asset's hash.
@@ -57,13 +57,13 @@ namespace Ame::Asset
         /// <summary>
         /// Get the asset's loader id.
         /// </summary>
-        [[nodiscard]] size_t GetLoaderId() const noexcept;
+        [[nodiscard]] UId GetLoaderId() const noexcept;
 
         /// <summary>
         /// Set the asset's loader id.
         /// </summary>
         void SetLoaderId(
-            size_t id) noexcept;
+            const UId& uid) noexcept;
 
         /// <summary>
         /// Get the asset's loader data.
@@ -105,7 +105,7 @@ namespace Ame::Asset
         /// <summary>
         /// Get the asset's dependencies.
         /// </summary>
-        [[nodiscard]] Co::generator<Guid> GetDependencies() const;
+        [[nodiscard]] Co::generator<UId> GetDependencies() const;
 
         /// <summary>
         /// Set the asset's dependencies.

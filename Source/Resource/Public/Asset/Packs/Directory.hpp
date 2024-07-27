@@ -5,26 +5,34 @@
 
 namespace Ame::Asset
 {
-    class DirectoryAssetPackage : public IAssetPackage
+    class DirectoryAssetPackage : public BaseObject<IAssetPackage>
     {
-        using AssetMetaMap = std::unordered_map<Guid, AssetMetaDataDef>;
-        using AssetPathMap = std::unordered_map<String, Guid>;
+    public:
+        using Base = BaseObject<IAssetPackage>;
+
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
+            IID_DirectoryAssetPackage, IID_BaseAssetPackage, Base);
+
+    public:
+        using AssetMetaMap = std::unordered_map<UId, AssetMetaDataDef, UIdUtils::Hasher>;
+        using AssetPathMap = std::unordered_map<String, UId>;
 
     public:
         DirectoryAssetPackage(
+            IReferenceCounters*   counters,
             Storage&              storage,
             std::filesystem::path path);
 
-        [[nodiscard]] Co::generator<Guid> GetAssets() override;
+        [[nodiscard]] Co::generator<UId> GetAssets() override;
 
         bool ContainsAsset(
-            const Guid& guid) const override;
+            const UId& uid) const override;
 
     public:
-        Guid FindAsset(
+        UId FindAsset(
             const String& path) const override;
 
-        Co::generator<Guid> FindAssets(
+        Co::generator<UId> FindAssets(
             const std::regex& pathRegex) const override;
 
     public:
@@ -34,23 +42,23 @@ namespace Ame::Asset
             Ptr<IAsset> asset) override;
 
         bool RemoveAsset(
-            const Guid& guid) override;
+            const UId& uid) override;
 
     public:
         /// <summary>
-        /// Get asset's guid from a path, or returns an empty guid if not found.
+        /// Get asset's uid from a path, or returns an empty uid if not found.
         /// </summary>
-        const Guid& GetGuidOfPath(
+        const UId& GetGuidOfPath(
             const String& path) const;
 
     protected:
         Ptr<IAsset> LoadAsset(
-            const Guid& guid,
-            bool        loadTemp) override;
+            const UId& uid,
+            bool       loadTemp) override;
 
         bool UnloadAsset(
-            const Guid& guid,
-            bool        force) override;
+            const UId& uid,
+            bool       force) override;
 
     private:
         /// <summary>
@@ -69,14 +77,14 @@ namespace Ame::Asset
         /// Load asset from the cache if it exists
         /// </summary>
         [[nodiscard]] Ptr<IAsset> LoadAssetFromCache(
-            const Guid& guid);
+            const UId& uid);
 
         /// <summary>
         /// Load asset and its dependencies
         /// </summary>
         [[nodiscard]] Ptr<IAsset> LoadAssetAndDependencies(
-            const Guid& guid,
-            bool        loadTemp);
+            const UId& uid,
+            bool       loadTemp);
 
         /// <summary>
         /// Save asset and its dependencies

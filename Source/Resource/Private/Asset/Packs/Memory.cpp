@@ -4,47 +4,47 @@
 
 namespace Ame::Asset
 {
-    Co::generator<Guid> MemoryAssetPackage::GetAssets()
+    Co::generator<UId> MemoryAssetPackage::GetAssets()
     {
         RLock readLock(m_CacheMutex);
-        for (auto& guid : m_Cache | std::views::keys)
+        for (auto& uid : m_Cache | std::views::keys)
         {
-            co_yield Guid{ guid };
+            co_yield UId{ uid };
         }
     }
 
     bool MemoryAssetPackage::ContainsAsset(
-        const Guid& guid) const
+        const UId& uid) const
     {
         RLock readLock(m_CacheMutex);
-        return m_Cache.contains(guid);
+        return m_Cache.contains(uid);
     }
 
     //
 
-    Guid MemoryAssetPackage::FindAsset(
+    UId MemoryAssetPackage::FindAsset(
         const String& path) const
     {
         RLock readLock(m_CacheMutex);
-        for (auto& [guid, asset] : m_Cache)
+        for (auto& [uid, asset] : m_Cache)
         {
             if (asset->GetPath() == path)
             {
-                return guid;
+                return uid;
             }
         }
-        return Guid::c_Null;
+        return UIdUtils::Null();
     }
 
-    Co::generator<Guid> MemoryAssetPackage::FindAssets(
+    Co::generator<UId> MemoryAssetPackage::FindAssets(
         const std::regex& pathRegex) const
     {
         RLock readLock(m_CacheMutex);
-        for (auto& [guid, asset] : m_Cache)
+        for (auto& [uid, asset] : m_Cache)
         {
             if (std::regex_match(asset->GetPath(), pathRegex))
             {
-                co_yield Guid{ guid };
+                co_yield UId{ uid };
             }
         }
     }
@@ -60,33 +60,33 @@ namespace Ame::Asset
         Ptr<IAsset> asset)
     {
         RWLock readWriteLock(m_CacheMutex);
-        m_Cache[asset->GetGuid()] = std::move(asset);
+        m_Cache[asset->GetUId()] = std::move(asset);
         co_return;
     }
 
     bool MemoryAssetPackage::RemoveAsset(
-        const Guid& guid)
+        const UId& uid)
     {
         RWLock readWriteLock(m_CacheMutex);
-        return m_Cache.erase(guid) > 0;
+        return m_Cache.erase(uid) > 0;
     }
 
     Ptr<IAsset> MemoryAssetPackage::LoadAsset(
-        const Guid& guid,
+        const UId& uid,
         bool)
     {
         RWLock readWriteLock(m_CacheMutex);
-        auto   iter = m_Cache.find(guid);
+        auto   iter = m_Cache.find(uid);
         return iter != m_Cache.end() ? iter->second : Ptr<IAsset>{};
     }
 
     bool MemoryAssetPackage::UnloadAsset(
-        const Guid& guid,
-        bool        force)
+        const UId& uid,
+        bool       force)
     {
         RWLock readWriteLock(m_CacheMutex);
 
-        auto iter = m_Cache.find(guid);
+        auto iter = m_Cache.find(uid);
         if (iter == m_Cache.end())
         {
             return false;

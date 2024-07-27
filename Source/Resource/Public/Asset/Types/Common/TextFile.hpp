@@ -5,16 +5,17 @@
 
 namespace Ame::Asset::Common
 {
-    // {22EA167D-E6C2-4A94-8E54-F8F38FACEC25}
-    static constexpr UId IID_TextFileAsset{ 0x22ea167d, 0xe6c2, 0x4a94, { 0x8e, 0x54, 0xf8, 0xf3, 0x8f, 0xac, 0xec, 0x25 } };
-
     class TextFileAsset : public BaseObject<IAsset>
     {
     public:
         using Base = BaseObject<IAsset>;
+        RTTR_ENABLE(Base);
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
-            IID_TextFileAsset, IID_BaseSerializable, Base);
+    public:
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
+            IID_TextFileAsset, Base);
+
+        [[nodiscard]] static Ptr<TextFileAsset> Create();
 
         TextFileAsset(
             IReferenceCounters* counters) :
@@ -23,23 +24,48 @@ namespace Ame::Asset::Common
         }
 
     public:
+        void Serialize(BinaryOArchiver& ar) const override
+        {
+            ar(m_Text);
+        }
+
+        void Deserialize(BinaryIArchiver& ar) override
+        {
+            ar(m_Text);
+        }
+
+    public:
         /// <summary>
         /// Get the underlying string
         /// </summary>
-        [[nodiscard]] String& Get() noexcept;
+        [[nodiscard]] String& GetRef() noexcept
+        {
+            return m_Text;
+        }
 
         /// <summary>
         /// Get the underlying string
         /// </summary>
-        [[nodiscard]] const String& Get() const noexcept;
+        [[nodiscard]] const String& Get() const noexcept
+        {
+            return m_Text;
+        }
 
         /// <summary>
         /// Get the underlying string
         /// </summary>
         void Set(
-            String text);
+            String text)
+        {
+            m_Text = std::move(text);
+        }
 
     private:
         String m_Text;
     };
+
+    inline Ptr<TextFileAsset> TextFileAsset::Create()
+    {
+        return Ptr(ObjectAllocator<TextFileAsset>()());
+    }
 } // namespace Ame::Asset::Common

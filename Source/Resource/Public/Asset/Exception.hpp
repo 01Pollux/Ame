@@ -9,37 +9,37 @@ namespace Ame::Asset
     {
     public:
         AssetException(
-            const Guid& guid,
+            const UId&  uid,
             const char* message) noexcept :
-            runtime_error(std::format("{} '{}'", message, guid.ToString())),
-            m_AssetGuid(guid)
+            runtime_error(std::format("{} '{}'", message, UIdUtils::ToString(uid))),
+            m_AssetGuid(uid)
         {
         }
 
         AssetException(
-            const Guid& parentGuid,
-            const Guid& childGuid,
+            const UId&  parentUId,
+            const UId&  childUId,
             const char* message) noexcept :
-            runtime_error(std::format("{} '{}::{}'", message, parentGuid.ToString(), childGuid.ToString())),
-            m_AssetGuid(parentGuid)
+            runtime_error(std::format("{} '{}::{}'", message, UIdUtils::ToString(parentUId), UIdUtils::ToString(childUId))),
+            m_AssetGuid(parentUId)
         {
         }
 
-        [[nodiscard]] const Guid& GetAssetGuid() const noexcept
+        [[nodiscard]] const UId& GetAssetGuid() const noexcept
         {
             return m_AssetGuid;
         }
 
     private:
-        const Guid m_AssetGuid;
+        const UId m_AssetGuid;
     };
 
     class InvalidAssetTypeException : public AssetException
     {
     public:
         InvalidAssetTypeException(
-            const Guid& guid) noexcept :
-            AssetException(guid, "Invalid asset type")
+            const UId& uid) noexcept :
+            AssetException(uid, "Invalid asset type")
         {
         }
     };
@@ -48,15 +48,15 @@ namespace Ame::Asset
     {
     public:
         AssetNotFoundException(
-            const Guid& guid = Guid::c_Null) noexcept :
-            AssetException(guid, "Asset not found")
+            const UId& uid) noexcept :
+            AssetException(uid, "Asset not found")
         {
         }
 
         AssetNotFoundException(
-            const Guid& parentGuid,
-            const Guid& childGuid) noexcept :
-            AssetException(parentGuid, childGuid, "Asset not found in meta file")
+            const UId& parentUId,
+            const UId& childUId) noexcept :
+            AssetException(parentUId, childUId, "Asset not found in meta file")
         {
         }
     };
@@ -65,15 +65,15 @@ namespace Ame::Asset
     {
     public:
         AssetWithNoHandlerException(
-            const Guid& guid) noexcept :
-            AssetException(guid, "Asset with no handler")
+            const UId& uid) noexcept :
+            AssetException(uid, "Asset with no handler")
         {
         }
 
         AssetWithNoHandlerException(
-            const Guid& parentGuid,
-            const Guid& childGuid) noexcept :
-            AssetException(parentGuid, childGuid, "Asset with no handler")
+            const UId& parentUId,
+            const UId& childUId) noexcept :
+            AssetException(parentUId, childUId, "Asset with no handler")
         {
         }
     };
@@ -82,15 +82,15 @@ namespace Ame::Asset
     {
     public:
         AssetHandlerFailureException(
-            const Guid& guid) noexcept :
-            AssetException(guid, "Asset handler failure")
+            const UId& uid) noexcept :
+            AssetException(uid, "Asset handler failure")
         {
         }
 
         AssetHandlerFailureException(
-            const Guid& parentGuid,
-            const Guid& childGuid) noexcept :
-            AssetException(parentGuid, childGuid, "Asset handler failure")
+            const UId& parentUId,
+            const UId& childUId) noexcept :
+            AssetException(parentUId, childUId, "Asset handler failure")
         {
         }
     };
@@ -99,9 +99,9 @@ namespace Ame::Asset
     {
     public:
         AssetChildMetaNotFoundException(
-            const Guid& parentGuid,
-            const Guid& childGuid) noexcept :
-            AssetException(parentGuid, childGuid, "Asset child not found in meta file")
+            const UId& parentUId,
+            const UId& childUId) noexcept :
+            AssetException(parentUId, childUId, "Asset child not found in meta file")
         {
         }
     };

@@ -12,7 +12,9 @@ namespace Ame::Ecs
     {
     public:
         using Base = BaseObject<IBaseRenderable3D>;
+        RTTR_ENABLE(Base);
 
+    public:
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
             IID_StaticMesh, Base);
 

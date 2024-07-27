@@ -9,19 +9,19 @@ namespace Ame::Asset
 {
     Co::result<Ptr<IAsset>> Manager::LoadAsync(
         IAssetPackage* package,
-        Guid           guid,
+        UId            uid,
         bool           loadTemp)
     {
-        if (package->ContainsAsset(guid)) [[likely]]
+        if (package->ContainsAsset(uid)) [[likely]]
         {
-            co_return package->LoadAsset(guid, loadTemp);
+            co_return package->LoadAsset(uid, loadTemp);
         }
 
         co_return nullptr;
     }
 
     Co::result<Ptr<IAsset>> Manager::LoadAsync(
-        Guid guid,
+        UId  uid,
         bool loadTemp)
     {
         using namespace EnumBitOperators;
@@ -29,9 +29,9 @@ namespace Ame::Asset
         PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
         for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (package->ContainsAsset(guid))
+            if (package->ContainsAsset(uid))
             {
-                co_return package->LoadAsset(guid, loadTemp);
+                co_return package->LoadAsset(uid, loadTemp);
             }
         }
 
@@ -39,17 +39,17 @@ namespace Ame::Asset
     }
 
     Ptr<IAsset> Manager::Load(
-        const Guid& guid,
-        bool        loadTemp)
+        const UId& uid,
+        bool       loadTemp)
     {
         using namespace EnumBitOperators;
 
         PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
         for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (package->ContainsAsset(guid))
+            if (package->ContainsAsset(uid))
             {
-                return package->LoadAsset(guid, loadTemp);
+                return package->LoadAsset(uid, loadTemp);
             }
         }
 
@@ -58,60 +58,60 @@ namespace Ame::Asset
 
     Ptr<IAsset> Manager::Load(
         IAssetPackage* package,
-        const Guid&    guid,
+        const UId&     uid,
         bool           loadTemp)
     {
-        if (package->ContainsAsset(guid))
+        if (package->ContainsAsset(uid))
         {
-            return package->LoadAsset(guid, loadTemp);
+            return package->LoadAsset(uid, loadTemp);
         }
 
         return {};
     }
 
     Co::result<Ptr<IAsset>> Manager::ReloadAsync(
-        Guid guid)
+        UId uid)
     {
         using namespace EnumBitOperators;
 
         PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
         for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (package->UnloadAsset(guid, true))
+            if (package->UnloadAsset(uid, true))
             {
                 break;
             }
         }
 
-        return LoadAsync(guid);
+        return LoadAsync(uid);
     }
 
     Ptr<IAsset> Manager::Reload(
-        const Guid& guid)
+        const UId& uid)
     {
         using namespace EnumBitOperators;
 
         PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
         for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (package->UnloadAsset(guid, true))
+            if (package->UnloadAsset(uid, true))
             {
                 break;
             }
         }
 
-        return Load(guid);
+        return Load(uid);
     }
 
     bool Manager::Unload(
-        const Guid& guid)
+        const UId& uid)
     {
         using namespace EnumBitOperators;
 
         PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
         for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (package->UnloadAsset(guid, true))
+            if (package->UnloadAsset(uid, true))
             {
                 return true;
             }
@@ -121,14 +121,14 @@ namespace Ame::Asset
     }
 
     bool Manager::RequestUnload(
-        const Guid& guid)
+        const UId& uid)
     {
         using namespace EnumBitOperators;
 
         PackageFlags flags = PackageFlags::Disk | PackageFlags::Memory;
         for (auto package : m_Storage.get().GetPackages(flags))
         {
-            if (package->UnloadAsset(guid, false))
+            if (package->UnloadAsset(uid, false))
             {
                 return true;
             }

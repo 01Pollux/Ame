@@ -1,9 +1,8 @@
 #pragma once
 
 #include <source_location>
-
-#include <DiligentCore/Common/interface/RefCntAutoPtr.hpp>
 #include <DiligentCore/Common/interface/ObjectBase.hpp>
+#include <Core/UId.hpp>
 
 namespace Dg = Diligent;
 
@@ -12,9 +11,6 @@ namespace Dg = Diligent;
 
 namespace Ame
 {
-    using UId          = Dg::INTERFACE_ID;
-    using INTERFACE_ID = Dg::INTERFACE_ID;
-
     using IObject = Dg::IObject;
 
     using IReferenceCounters = Dg::IReferenceCounters;
@@ -29,13 +25,6 @@ namespace Ame
     using WPtr = Dg::RefCntWeakPtr<Ty>;
 
     static constexpr UId IID_Unknown = Dg::IID_Unknown;
-
-    //
-
-    struct UIdHasher
-    {
-        size_t operator()(const UId& id) const;
-    };
 
     //
 
@@ -138,6 +127,18 @@ namespace Ame
     };
 } // namespace Ame
 
+namespace std
+{
+    template<typename Ty>
+    struct hash<Ame::Ptr<Ty>>
+    {
+        size_t operator()(const Ame::Ptr<Ty>& ptr) const
+        {
+            return std::hash<Ty*>{}(ptr.RawPtr());
+        }
+    };
+} // namespace std
+
 //
 
 #define IMPLEMENT_QUERY_INTERFACE_DECL() \
@@ -190,10 +191,13 @@ namespace Ame
         }                                                                           \
         else                                                                        \
         {                                                                           \
-            IObject* const subObjects[]{                                            \
-                __VA_ARGS__                                                         \
-            };                                                                      \
+            ParentClassName::QueryInterface(iid, outObject);                        \
+            if (*outObject)                                                         \
+            {                                                                       \
+                return;                                                             \
+            }                                                                       \
                                                                                     \
+            IObject* const subObjects[]{ __VA_ARGS__ };                             \
             for (auto subObject : subObjects)                                       \
             {                                                                       \
                 if (subObject)                                                      \
@@ -205,8 +209,6 @@ namespace Ame
                     }                                                               \
                 }                                                                   \
             }                                                                       \
-                                                                                    \
-            ParentClassName::QueryInterface(iid, outObject);                        \
         }                                                                           \
     }
 

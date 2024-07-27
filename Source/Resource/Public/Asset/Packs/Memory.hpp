@@ -4,22 +4,32 @@
 
 namespace Ame::Asset
 {
-    class MemoryAssetPackage : public IAssetPackage
+    class MemoryAssetPackage : public BaseObject<IAssetPackage>
     {
     public:
-        using IAssetPackage::IAssetPackage;
+        using Base = BaseObject<IAssetPackage>;
+
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
+            IID_MemoryAssetPackage, IID_BaseAssetPackage, Base);
+
+        MemoryAssetPackage(
+            IReferenceCounters* counters,
+            Storage&            assetStorage) :
+            Base(counters, assetStorage)
+        {
+        }
 
     public:
-        [[nodiscard]] Co::generator<Guid> GetAssets() override;
+        [[nodiscard]] Co::generator<UId> GetAssets() override;
 
         bool ContainsAsset(
-            const Guid& guid) const override;
+            const UId& uid) const override;
 
     public:
-        Guid FindAsset(
+        UId FindAsset(
             const String& path) const override;
 
-        Co::generator<Guid> FindAssets(
+        Co::generator<UId> FindAssets(
             const std::regex& pathRegex) const override;
 
     public:
@@ -29,15 +39,15 @@ namespace Ame::Asset
             Ptr<IAsset> asset) override;
 
         bool RemoveAsset(
-            const Guid& guid) override;
+            const UId& uid) override;
 
     protected:
         Ptr<IAsset> LoadAsset(
-            const Guid& guid,
-            bool                 loadTemp) override;
+            const UId& uid,
+            bool       loadTemp) override;
 
         bool UnloadAsset(
-            const Guid& guid,
-            bool                 force) override;
+            const UId& uid,
+            bool       force) override;
     };
 } // namespace Ame::Asset

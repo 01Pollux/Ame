@@ -3,6 +3,7 @@ target("Ame.Core")
     ame_utils:add_library("Ame", "static", "Source/Core")
     add_packages(
         "boost",
+        "ame.rttr",
         "cereal",
         "ame.mimalloc",
         "ame.diligent_core",

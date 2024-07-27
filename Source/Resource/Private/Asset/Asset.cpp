@@ -2,7 +2,7 @@
 
 namespace Ame::Asset
 {
-    const Guid& IAsset::GetGuid() const noexcept
+    const UId& IAsset::GetUId() const noexcept
     {
         return m_AssetGuid;
     }

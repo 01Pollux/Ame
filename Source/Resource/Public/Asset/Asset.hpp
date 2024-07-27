@@ -1,35 +1,47 @@
 #pragma once
 
-#include <Asset/Core.hpp>
 #include <variant>
+#include <cereal/types/string.hpp>
+#include <Asset/Core.hpp>
 
 namespace Ame::Asset
 {
     class IAsset : public ISerializable
     {
     public:
-        IAsset() = default;
+        RTTR_ENABLE(ISerializable);
 
-        virtual ~IAsset() = default;
+    public:
+        void QueryInterface(
+            const UId& uid,
+            IObject**  object) override
+        {
+            if (uid == IID_BaseAsset)
+            {
+                *object = static_cast<IAsset*>(this);
+                return;
+            }
+            ISerializable::QueryInterface(uid, object);
+        }
 
     public:
         void Serialize(
             BinaryOArchiver& ar) const override
         {
-            ar(m_AssetGuid, m_AssetPath);
+            ar(m_AssetPath, m_AssetGuid);
         }
 
         void Deserialize(
             BinaryIArchiver& ar) override
         {
-            ar(m_AssetGuid, m_AssetPath);
+            ar(m_AssetPath, m_AssetGuid);
         }
 
     public:
         /// <summary>
         /// Gets the asset guid.
         /// </summary>
-        [[nodiscard]] const Guid& GetGuid() const noexcept;
+        [[nodiscard]] const UId& GetUId() const noexcept;
 
         /// <summary>
         /// Get the asset path.
@@ -55,7 +67,7 @@ namespace Ame::Asset
 
     protected:
         String m_AssetPath;
-        Guid   m_AssetGuid;
+        UId    m_AssetGuid;
         bool   m_IsDirty = true;
     };
 
