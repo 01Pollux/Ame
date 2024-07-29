@@ -12,6 +12,7 @@ add_requires("boost", {system = false, debug = _debug_packages, configs = {
     program_options = true,
     serialization = true
 }})
+add_requires("assimp",                      {system = false, debug = _debug_packages, configs = {asan = _use_asan}})
 add_requires("cereal",                      {system = false, debug = _debug_packages})
 add_requires("boost_ut",                    {system = false, debug = _debug_packages, configs = {shared = true}})
 add_requires("vulkansdk",                   {debug = _debug_packages})

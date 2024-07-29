@@ -62,6 +62,7 @@ target("Ame.Graphics")
     if not is_mode("release") then
         add_deps("Ame.ImGuiUtils", notshared_public_inherit)
     end
+    add_packages("assimp")
 target_end()
 
 --
