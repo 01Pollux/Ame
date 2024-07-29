@@ -5,6 +5,8 @@
 #include <Module/Graphics/GraphicsModule.hpp>
 #include <Module/Editor/EditorModule.hpp>
 
+#include <EcsComponent/Renderables/3D/Model.hpp>
+
 namespace Ame
 {
     EditorApplication::EditorApplication(
@@ -23,6 +25,11 @@ namespace Ame
     void EditorApplication::OnLoad()
     {
         Base::OnLoad();
+
+        Ptr<Dg::IRenderDevice> renderDevice;
+        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
+
+        auto mdl = Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .Path = "Shared/Assets/Models/cottage_fbx.fbx" });
     }
 
     void EditorApplication::OnInitialize()

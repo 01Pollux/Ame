@@ -155,6 +155,8 @@ namespace Ame::Ecs
     AssImpModelImporter::AssImpModelImporter(
         const String& path)
     {
+        AssimpLogStream::InitializeOnce();
+
         m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
         m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_LIGHTS, false);
         m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_CAMERAS, false);
@@ -265,6 +267,7 @@ namespace Ame::Ecs
                 use16BitIndices = false;
                 // transfer the data to 32 bit buffer
                 indices32.Buffer.insert(indices32.Buffer.end(), indices16.Buffer.begin(), indices16.Buffer.end());
+                indices32.Offset = indices16.Offset;
 
                 indices16.Buffer.clear();
                 indices16.Buffer.shrink_to_fit();
@@ -337,7 +340,7 @@ namespace Ame::Ecs
                 .NormalOffset   = normals.Offset,
                 .TangentOffset  = mesh->HasTangentsAndBitangents() ? tangents.Offset : c_InvalidIndex,
                 .TexCoordOffset = mesh->HasTextureCoords(0) ? texCoords.Offset : c_InvalidIndex,
-                .IndexOffset    = indices32.Offset,
+                .IndexOffset    = use16BitIndices ? indices16.Offset : indices32.Offset,
                 .IndexCount     = indexCount,
                 .MaterialIndex  = mesh->mMaterialIndex });
 
@@ -346,6 +349,7 @@ namespace Ame::Ecs
             tangents.Sync();
             texCoords.Sync();
             indices32.Sync();
+            indices16.Sync();
 
             Log::Asset().Info("Mesh {} has {} vertices and {} indices", i, mesh->mNumVertices, indexCount);
         }
@@ -361,7 +365,7 @@ namespace Ame::Ecs
         auto createBuffer = [&bufferDesc, renderDevice, scene](const auto& buffer, const char* name, Dg::BIND_FLAGS bindFlags)
         {
             Dg::IBuffer* result = nullptr;
-            if (buffer.Empty())
+            if (!buffer.Empty())
             {
 #ifndef AME_DIST
                 auto combinedName = std::format("{}_{}", name, StringView(scene->mName.data, scene->mName.length));
@@ -385,14 +389,14 @@ namespace Ame::Ecs
         createDesc.TangentBuffer  = createBuffer(tangents, "VI3_Tangent", Dg::BIND_VERTEX_BUFFER);
         createDesc.TexCoordBuffer = createBuffer(texCoords, "VI_TexCoord", Dg::BIND_VERTEX_BUFFER);
 
-        if (use16BitIndices) [[unlikely]]
+        createDesc.SmallIndexBuffer = use16BitIndices;
+        if (use16BitIndices) [[likely]]
         {
-            createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER);
+            createDesc.IndexBuffer = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER);
         }
         else
         {
-            createDesc.IndexBuffer      = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER);
-            createDesc.SmallIndexBuffer = true;
+            createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER);
         }
 
         return createDesc;

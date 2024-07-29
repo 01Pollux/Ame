@@ -102,7 +102,8 @@ namespace Ame::Ecs
     {
         struct ImportDesc
         {
-            String Path;
+            Dg::IRenderDevice* RenderDevice = nullptr;
+            String             Path;
         };
 
         using CreateDesc = MeshModel::CreateDesc;

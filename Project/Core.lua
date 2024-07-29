@@ -99,6 +99,8 @@ target_end()
 target("AmeEditor")
     set_default(true)
     ame_utils:add_library("Ame", "binary", "Source/EditorApplication")
+    ame_utils:install_assets()
+
     add_deps("Ame.Application", notshared_public_inherit)
     add_deps("Ame.EditorPlugin", notshared_public_inherit)
 target_end()
