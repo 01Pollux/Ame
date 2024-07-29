@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EcsComponent/Renderables/BaseRenderable3D.hpp>
+#include <EcsComponent/Renderables/3D/Model.hpp>
 
 namespace Ame::Ecs
 {
@@ -16,8 +16,12 @@ namespace Ame::Ecs
             IID_StaticMesh, Base);
 
         StaticMesh(
-            IReferenceCounters* counters) :
-            Base(counters)
+            IReferenceCounters* counters,
+            MeshModel*          model,
+            uint32_t            subMeshIndex) :
+            Base(counters),
+            m_Model(model),
+            m_SubMeshIndex(subMeshIndex)
         {
         }
 
@@ -29,6 +33,10 @@ namespace Ame::Ecs
         void Deserialize(BinaryIArchiver& ar) override
         {
         }
+
+    private:
+        Ptr<MeshModel> m_Model;
+        uint32_t       m_SubMeshIndex = 0;
     };
 
     struct StaticMeshComponent

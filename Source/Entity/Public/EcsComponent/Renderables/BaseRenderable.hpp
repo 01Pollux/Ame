@@ -1,9 +1,23 @@
 #pragma once
 
 #include <Core/Serializable.hpp>
+#include <Math/Matrix.hpp>
+#include <Geometry/AABB.hpp>    
 
 namespace Ame::Ecs
 {
+    using VI3_Position = Math::Vector3;
+    using VI3_Normal   = Math::Vector3;
+    using VI3_Tangent  = Math::Vector3;
+
+    using VI2_Position = Math::Vector2;
+    using VI2_Normal   = Math::Vector2;
+    using VI2_Tangent  = Math::Vector2;
+
+    using VI_TexCoord = Math::Vector2;
+
+    //
+
     class IBaseRenderable : public ISerializable
     {
     public:

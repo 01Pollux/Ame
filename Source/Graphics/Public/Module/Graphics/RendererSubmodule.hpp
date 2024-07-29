@@ -50,7 +50,7 @@ namespace Ame
         ~RendererSubmodule() override;
 
         /// <summary>
-        /// Returns true if the application should continue running.
+        /// Returns true if the application should continue running. (the window is not closed) 
         /// </summary>
         [[nodiscard]] bool Tick();
 
