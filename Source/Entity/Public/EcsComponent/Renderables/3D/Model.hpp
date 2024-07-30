@@ -95,23 +95,4 @@ namespace Ame::Ecs
         Ptr<Dg::IBuffer> m_IndexBuffer;    // uint32_t | uint16_t=
         bool             m_SmallIndexBuffer = false;
     };
-
-    //
-
-    struct MeshModelLoader
-    {
-        struct ImportDesc
-        {
-            Dg::IRenderDevice* RenderDevice = nullptr;
-            String             Path;
-        };
-
-        using CreateDesc = MeshModel::CreateDesc;
-
-        static MeshModel* LoadModel(
-            const ImportDesc& desc);
-
-        static MeshModel* CreateModel(
-            CreateDesc desc);
-    };
 } // namespace Ame::Ecs

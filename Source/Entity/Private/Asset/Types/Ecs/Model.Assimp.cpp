@@ -168,6 +168,11 @@ namespace Ame::Ecs
         m_Importer.GetScene()->mNumMeshes;
     }
 
+    bool AssImpModelImporter::HasMeshes() const
+    {
+        return m_Importer.GetScene() && m_Importer.GetScene()->HasMeshes();
+    }
+
     //
 
     template<typename Ty>
@@ -223,14 +228,21 @@ namespace Ame::Ecs
     MeshModel::CreateDesc AssImpModelImporter::CreateModelDesc(
         Dg::IRenderDevice* renderDevice) const
     {
+        Log::Asset().Assert(HasMeshes(), "No meshes found in scene when importing model");
+
         MeshModel::CreateDesc createDesc;
 
+        CreateBufferResources(createDesc, renderDevice);
+        CreateMaterials(createDesc, renderDevice);
+
+        return createDesc;
+    }
+
+    void AssImpModelImporter::CreateBufferResources(
+        MeshModel::CreateDesc& createDesc,
+        Dg::IRenderDevice*     renderDevice) const
+    {
         const aiScene* scene = m_Importer.GetScene();
-        if (!scene || !scene->HasMeshes())
-        {
-            Log::Asset().Warning("No meshes found in scene when importing model");
-            return createDesc;
-        }
 
         createDesc.MeshNodes.reserve(scene->mNumMeshes);
         createDesc.SubMeshes.reserve(scene->mNumMeshes);
@@ -398,7 +410,34 @@ namespace Ame::Ecs
         {
             createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER);
         }
+    }
 
-        return createDesc;
+    void AssImpModelImporter::CreateMaterials(
+        MeshModel::CreateDesc& createDesc,
+        Dg::IRenderDevice*     renderDevice) const
+    {
+        const aiScene* scene = m_Importer.GetScene();
+
+        if (!scene->HasMaterials())
+        {
+            return;
+        }
+
+        for (uint32_t i = 0; i < scene->mNumMaterials; i++)
+        {
+            aiMaterial* material = scene->mMaterials[i];
+
+            aiString name;
+            material->Get(AI_MATKEY_NAME, name);
+
+            aiColor3D color;
+            material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+
+            aiString texturePath;
+            if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0)
+            {
+                material->GetTexture(aiTextureType_DIFFUSE, 0, &texturePath);
+            }
+        }
     }
 } // namespace Ame::Ecs

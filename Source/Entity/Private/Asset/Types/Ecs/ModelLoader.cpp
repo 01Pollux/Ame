@@ -1,4 +1,4 @@
-#include <EcsComponent/Renderables/3D/Model.hpp>
+#include <EcsComponent/Renderables/3D/ModelLoader.hpp>
 #include <Asset/Types/Ecs/Model.Assimp.hpp>
 
 namespace Ame::Ecs

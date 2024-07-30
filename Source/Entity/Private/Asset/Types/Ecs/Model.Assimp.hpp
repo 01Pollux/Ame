@@ -10,9 +10,20 @@ namespace Ame::Ecs
         AssImpModelImporter(
             const String& path);
 
+        [[nodiscard]] bool HasMeshes() const;
+
     public:
         [[nodiscard]] MeshModel::CreateDesc CreateModelDesc(
             Dg::IRenderDevice* renderDevice) const;
+
+    private:
+        void CreateBufferResources(
+            MeshModel::CreateDesc& createDesc,
+            Dg::IRenderDevice* renderDevice) const;
+
+        void CreateMaterials(
+            MeshModel::CreateDesc& createDesc,
+            Dg::IRenderDevice*     renderDevice) const;
 
     private:
         Assimp::Importer m_Importer;
