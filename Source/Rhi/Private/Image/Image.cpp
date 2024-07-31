@@ -5,10 +5,24 @@
 
 namespace Ame::Rhi
 {
-    Dg::TextureData Image::GetTextureData(
-        Dg::IDeviceContext* deviceContext) const noexcept
+    ImageReferenceType Image::GetType() const noexcept
     {
-        return Dg::TextureData();
+        return m_ReferenceType;
+    }
+
+    Dg::TextureSubResData Image::GetSubresource() const noexcept
+    {
+        Dg::TextureSubResData subresource;
+        if (m_ReferenceType == ImageReferenceType::Local)
+        {
+            // iterate through mips in freeimage
+            auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
+
+            subresource.pData       = FreeImage_GetBits(bitmap);
+            subresource.Stride      = FreeImage_GetPitch(bitmap);
+            subresource.DepthStride = 0; // TODO: support 1D/3D textures
+        }
+        return subresource;
     }
 
     //
@@ -20,28 +34,42 @@ namespace Ame::Rhi
 
     Math::Vector2U Image::GetSize() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return { FreeImage_GetWidth(bitmap), FreeImage_GetHeight(bitmap) };
     }
 
     uint32_t Image::GetLine() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return FreeImage_GetPitch(bitmap);
     }
 
     uint32_t Image::GetPitch() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return FreeImage_GetPitch(bitmap);
     }
 
+    std::byte* Image::GetPixels()
+    {
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
+        auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
+        return std::bit_cast<std::byte*>(FreeImage_GetBits(bitmap));
+    }
+
+    const std::byte* Image::GetPixels() const
+    {
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
+        auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
+        return std::bit_cast<std::byte*>(FreeImage_GetBits(bitmap));
+    }
+
     uint32_t Image::GetMemorySize() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return FreeImage_GetDIBSize(bitmap);
     }
@@ -50,24 +78,24 @@ namespace Ame::Rhi
 
     Image Image::Clone() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         auto clone  = FreeImage_Clone(bitmap);
-        return Image::Wrap(clone, m_Format, false, true);
+        return Image::Wrap(clone, m_Format, m_ReferenceType, true);
     }
 
     Image Image::Clone(const Math::RectI& rect) const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         auto clone  = FreeImage_Copy(bitmap, rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
-        return Image::Wrap(clone, m_Format, false, true);
+        return Image::Wrap(clone, m_Format, m_ReferenceType, true);
     }
 
     bool Image::Paste(const Image& srcImage, const Math::RectI& rect)
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
-        Log::Rhi().Assert(!srcImage.IsArray(), "Source image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
+        Log::Rhi().Assert(srcImage.m_ReferenceType == ImageReferenceType::Local, "Source image is not a local bitmap");
 
         auto dstBitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         auto srcBitmap = FreeImageUtils::GetBitmap(srcImage.m_BitmapData);
@@ -77,120 +105,120 @@ namespace Ame::Rhi
 
     Image Image::Rescale(const Math::Vector2U size, ImageFilterType filter)
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap   = FreeImageUtils::GetBitmap(m_BitmapData);
         auto fiFilter = FreeImageUtils::ConvertFilter(filter);
         auto rescale  = FreeImage_Rescale(bitmap, size.x(), size.y(), fiFilter);
 
-        return Image::Wrap(rescale, m_Format, false, true);
+        return Image::Wrap(rescale, m_Format, m_ReferenceType, true);
     }
 
     Image Image::View(const Math::RectI& rect) const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         auto view   = FreeImage_Copy(bitmap, rect.Left(), rect.Top(), rect.Right(), rect.Bottom());
-        return Image::Wrap(view, m_Format, false, true);
+        return Image::Wrap(view, m_Format, m_ReferenceType, true);
     }
 
     //
 
     Image Image::ConvertTo(ImageDataType dataType) const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         auto type   = FreeImageUtils::ConvertType(dataType);
 
         auto convert = FreeImage_ConvertToType(bitmap, type);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertTo4Bits() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertTo4Bits(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertTo8Bits() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertTo8Bits(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertToGreyscale() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertToGreyscale(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertTo16Bits555() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertTo16Bits555(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertTo16Bits565() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertTo16Bits565(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertTo24Bits() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertTo24Bits(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::ConvertTo32Bits() const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_ConvertTo32Bits(bitmap);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::Threshold(uint8_t value) const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_Threshold(bitmap, value);
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     Image Image::Dither(ImageDitherType algorithm) const
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap  = FreeImageUtils::GetBitmap(m_BitmapData);
         auto convert = FreeImage_Dither(bitmap, static_cast<FREE_IMAGE_DITHER>(algorithm));
-        return Image::Wrap(convert, m_Format, false, true);
+        return Image::Wrap(convert, m_Format, m_ReferenceType, true);
     }
 
     bool Image::FlipHorizontal()
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return FreeImage_FlipHorizontal(bitmap);
@@ -198,7 +226,7 @@ namespace Ame::Rhi
 
     bool Image::FlipVertical()
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return FreeImage_FlipVertical(bitmap);
@@ -206,23 +234,18 @@ namespace Ame::Rhi
 
     bool Image::Invert()
     {
-        Log::Rhi().Assert(!IsArray(), "Image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
 
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
         return FreeImage_Invert(bitmap);
-    }
-
-    bool Image::IsArray() const noexcept
-    {
-        return m_IsImageArray;
     }
 
     //
 
     void Image::Append(const Image& image)
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
-        Log::Rhi().Assert(!image.IsArray(), "Source image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
+        Log::Rhi().Assert(image.m_ReferenceType == ImageReferenceType::Local, "Source image is not a local bitmap");
 
         auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
         auto src    = FreeImageUtils::GetBitmap(image.m_BitmapData);
@@ -232,8 +255,8 @@ namespace Ame::Rhi
 
     void Image::Add(uint32_t page, const Image& image)
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
-        Log::Rhi().Assert(!image.IsArray(), "Source image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
+        Log::Rhi().Assert(image.m_ReferenceType == ImageReferenceType::Local, "Source image is not a local bitmap");
 
         auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
         auto src    = FreeImageUtils::GetBitmap(image.m_BitmapData);
@@ -243,7 +266,7 @@ namespace Ame::Rhi
 
     void Image::Remove(uint32_t page)
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
 
         auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
         FreeImage_DeletePage(bitmap, page);
@@ -251,17 +274,17 @@ namespace Ame::Rhi
 
     Image Image::Lock(int page) const
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
 
         auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
         auto lock   = FreeImage_LockPage(bitmap, page);
-        return Image::Wrap(lock, m_Format, false, true);
+        return Image::Wrap(lock, m_Format, m_ReferenceType, true);
     }
 
     void Image::Unlock(const Image& image, bool changed) const
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
-        Log::Rhi().Assert(!image.IsArray(), "Source image is a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
+        Log::Rhi().Assert(image.m_ReferenceType == ImageReferenceType::Local, "Source image is not a local bitmap");
 
         auto bitmap      = FreeImageUtils::GetBitmapArray(m_BitmapData);
         auto imageBitmap = FreeImageUtils::GetBitmap(image.m_BitmapData);
@@ -271,7 +294,7 @@ namespace Ame::Rhi
 
     bool Image::Move(int srcPage, int dstPage)
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
 
         auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
         return FreeImage_MovePage(bitmap, srcPage, dstPage);
@@ -279,7 +302,7 @@ namespace Ame::Rhi
 
     int Image::GetPagesCount() const
     {
-        Log::Rhi().Assert(IsArray(), "Image is not a bitmap array");
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::MultiBitmap, "Image is not a bitmap array");
 
         auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
         return FreeImage_GetPageCount(bitmap);
@@ -290,39 +313,25 @@ namespace Ame::Rhi
         return m_BitmapData;
     }
 
-    Image Image::Wrap(void* bitmap, ImageFormat format, bool isImageArray, bool ownsBitmapData)
-    {
-        return Image(bitmap, format, isImageArray, ownsBitmapData);
-    }
-
-    void Image::InitializeSubresource()
-    {
-        if (!IsArray())
-        {
-            // iterate through mips in freeimage
-            auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
-
-            m_Subresource.pData       = FreeImage_GetBits(bitmap);
-            m_Subresource.Stride      = FreeImage_GetPitch(bitmap);
-            m_Subresource.DepthStride = 0; // TODO: support 1D/3D textures
-        }
-    }
-
     void Image::Release() noexcept
     {
         if (m_OwnsBitmapData)
         {
             try
             {
-                if (IsArray())
+                switch (m_ReferenceType)
                 {
-                    auto bitmap = FreeImageUtils::GetBitmapArray(m_BitmapData);
-                    FreeImage_CloseMultiBitmap(bitmap);
-                }
-                else
-                {
-                    auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
-                    FreeImage_Unload(bitmap);
+                case ImageReferenceType::Local:
+                    FreeImage_Unload(FreeImageUtils::GetBitmap(m_BitmapData));
+                    break;
+                case ImageReferenceType::Memory:
+                    FreeImage_CloseMemory(FreeImageUtils::GetMemory(m_BitmapData));
+                    break;
+                case ImageReferenceType::MultiBitmap:
+                    FreeImage_CloseMultiBitmap(FreeImageUtils::GetBitmapArray(m_BitmapData));
+                    break;
+                default:
+                    std::unreachable();
                 }
             }
             catch (...)
@@ -330,6 +339,24 @@ namespace Ame::Rhi
                 Log::Rhi().Error("Failed to release image");
             }
         }
+    }
+
+    //
+
+    ImageMemory::ImageMemory(void* memory, void* bitmap, ImageFormat format) :
+        m_Memory(Image::Wrap(memory, format, ImageReferenceType::Memory, true)),
+        m_Image(Image::Wrap(bitmap, format, ImageReferenceType::Local, true))
+    {
+    }
+
+    const Image& ImageMemory::GetMemory() const noexcept
+    {
+        return m_Memory;
+    }
+
+    const Image& ImageMemory::GetImage() const noexcept
+    {
+        return m_Image;
     }
 
     //
@@ -351,5 +378,44 @@ namespace Ame::Rhi
 
             m_Images.emplace_back(m_Images.back().Rescale(size, filter));
         }
+    }
+
+    const Image& ImageMipChain::GetMip(uint32_t level) const noexcept
+    {
+        Log::Rhi().Assert(level < m_Images.size(), "Mip level out of range");
+        return m_Images[level];
+    }
+
+    uint32_t ImageMipChain::GetMipCount() const noexcept
+    {
+        return static_cast<uint32_t>(m_Images.size());
+    }
+
+    uint32_t ImageMipChain::GetMemorySize() const
+    {
+        uint32_t size = 0;
+        for (const auto& image : m_Images)
+        {
+            size += image.GetMemorySize();
+        }
+        return size;
+    }
+
+    const std::span<const Image> ImageMipChain::GetMips() const noexcept
+    {
+        return m_Images;
+    }
+
+    std::vector<Dg::TextureSubResData> ImageMipChain::GetSubresource() const
+    {
+        std::vector<Dg::TextureSubResData> subresources;
+        subresources.reserve(m_Images.size());
+
+        for (const auto& image : m_Images)
+        {
+            subresources.emplace_back(image.GetSubresource());
+        }
+
+        return subresources;
     }
 } // namespace Ame::Rhi

@@ -298,6 +298,11 @@ namespace Ame::Rhi
         return static_cast<FIBITMAP*>(bitmap);
     }
 
+    FIMEMORY* FreeImageUtils::GetMemory(void* bitmap)
+    {
+        return static_cast<FIMEMORY*>(bitmap);
+    }
+
     FIMULTIBITMAP* FreeImageUtils::GetBitmapArray(
         void* bitmap)
     {

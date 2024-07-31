@@ -39,18 +39,62 @@ namespace Ame::Rhi
 
         auto fiFormat = FreeImageUtils::ConvertFormat(image.GetFormat());
         auto fiFlags  = FreeImageUtils::ConvertFlags(flags);
+        auto io       = FreeImageUtils::GetIO();
 
-        auto io = FreeImageUtils::GetIO();
-        if (image.IsArray())
+        switch (image.GetType())
+        {
+        case ImageReferenceType::Local:
         {
             auto bitmap = FreeImageUtils::GetBitmap(image.GetBitmap());
             return FreeImage_SaveToHandle(fiFormat, bitmap, &io, &stream, fiFlags);
         }
-        else
+        case ImageReferenceType::MultiBitmap:
         {
             auto bitmap = FreeImageUtils::GetBitmapArray(image.GetBitmap());
             return FreeImage_SaveMultiBitmapToHandle(fiFormat, bitmap, &io, &stream, fiFlags);
         }
+        default:
+        {
+            return false;
+        }
+        }
+    }
+
+    ImageMemory ImageStorage::Load(
+        ImageFormat      format,
+        std::byte*       data,
+        size_t           size,
+        ImageDecodeFlags flags)
+    {
+        FreeImageUtils::Initialize();
+
+        auto fiFormat = FreeImageUtils::ConvertFormat(format);
+        auto fiFlags  = FreeImageUtils::ConvertFlags(flags);
+
+        auto io     = FreeImageUtils::GetIO();
+        auto mem    = FreeImage_OpenMemory(std::bit_cast<BYTE*>(data), static_cast<DWORD>(size));
+        auto bitmap = FreeImage_LoadFromMemory(fiFormat, mem, fiFlags);
+
+        return ImageMemory::Wrap(mem, bitmap, format);
+    }
+
+    ImageMemory ImageStorage::Load(
+        std::byte*       data,
+        size_t           size,
+        ImageDecodeFlags flags)
+    {
+        FreeImageUtils::Initialize();
+
+        auto mem = FreeImage_OpenMemory(std::bit_cast<BYTE*>(data), static_cast<DWORD>(size));
+
+        auto fif     = FreeImage_GetFileTypeFromMemory(mem, static_cast<DWORD>(size));
+        auto format  = FreeImageUtils::ConvertFormat(fif);
+        auto fiFlags = FreeImageUtils::ConvertFlags(flags);
+
+        auto io     = FreeImageUtils::GetIO();
+        auto bitmap = FreeImage_LoadFromMemory(fif, mem, fiFlags);
+
+        return ImageMemory::Wrap(mem, bitmap, format);
     }
 
     Image ImageStorage::Decode(
@@ -66,7 +110,7 @@ namespace Ame::Rhi
         auto io     = FreeImageUtils::GetIO();
         auto bitmap = FreeImage_LoadFromHandle(fiFormat, &io, &stream, fiFlags);
 
-        return Image::Wrap(bitmap, format, false, true);
+        return Image::Wrap(bitmap, format, ImageReferenceType::Local, true);
     }
 
     Image ImageStorage::DecodeArray(
@@ -82,6 +126,6 @@ namespace Ame::Rhi
         auto io     = FreeImageUtils::GetIO();
         auto bitmap = FreeImage_OpenMultiBitmapFromHandle(fiFormat, &io, &stream, fiFlags);
 
-        return Image::Wrap(bitmap, format, true, true);
+        return Image::Wrap(bitmap, format, ImageReferenceType::MultiBitmap, true);
     }
 } // namespace Ame::Rhi

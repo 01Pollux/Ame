@@ -20,6 +20,17 @@ namespace Ame::Rhi
             std::ostream&    stream,
             ImageEncodeFlags flags = ImageEncodeFlags::None);
 
+        [[nodiscard]] static ImageMemory Load(
+            ImageFormat      format,
+            std::byte*       data,
+            size_t           size,
+            ImageDecodeFlags flags = ImageDecodeFlags::None);
+
+        [[nodiscard]] static ImageMemory Load(
+            std::byte*       data,
+            size_t           size,
+            ImageDecodeFlags flags = ImageDecodeFlags::None);
+
         [[nodiscard]] static Image Decode(
             ImageFormat      format,
             std::istream&    stream,

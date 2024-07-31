@@ -5,7 +5,7 @@
 #include <Module/Graphics/GraphicsModule.hpp>
 #include <Module/Editor/EditorModule.hpp>
 
-#include <EcsComponent/Renderables/3D/Model.hpp>
+#include <EcsComponent/Renderables/3D/ModelLoader.hpp>
 
 namespace Ame
 {
@@ -29,7 +29,7 @@ namespace Ame
         Ptr<Dg::IRenderDevice> renderDevice;
         GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
 
-        auto mdl = Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .Path = "Shared/Assets/Models/cottage_fbx.fbx" });
+        auto mdl = Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .ModelPath = "Shared/Assets/Models/cottage_fbx.fbx" });
     }
 
     void EditorApplication::OnInitialize()

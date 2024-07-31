@@ -10,8 +10,6 @@ namespace Ame::Rhi
 {
     class Image
     {
-        friend class ImageStorage;
-
     public:
         Image() = default;
 
@@ -22,20 +20,17 @@ namespace Ame::Rhi
         Image(const Image& image) noexcept :
             m_BitmapData(image.m_BitmapData),
             m_Format(image.m_Format),
-            m_Subresource(image.m_Subresource),
-            m_IsImageArray(image.m_IsImageArray),
+            m_ReferenceType(image.m_ReferenceType),
             m_OwnsBitmapData(false)
         {
         }
 
         Image(Image&& image) noexcept :
-            m_BitmapData(image.m_BitmapData),
+            m_BitmapData(std::exchange(image.m_BitmapData, nullptr)),
             m_Format(image.m_Format),
-            m_Subresource(std::move(image.m_Subresource)),
-            m_IsImageArray(image.m_IsImageArray),
+            m_ReferenceType(image.m_ReferenceType),
             m_OwnsBitmapData(image.m_OwnsBitmapData)
         {
-            image.m_BitmapData     = nullptr;
             image.m_OwnsBitmapData = false;
         }
 
@@ -47,8 +42,7 @@ namespace Ame::Rhi
 
                 m_BitmapData     = image.m_BitmapData;
                 m_Format         = image.m_Format;
-                m_Subresource    = image.m_Subresource;
-                m_IsImageArray   = image.m_IsImageArray;
+                m_ReferenceType  = image.m_ReferenceType;
                 m_OwnsBitmapData = false;
             }
 
@@ -61,13 +55,11 @@ namespace Ame::Rhi
             {
                 Release();
 
-                m_BitmapData     = image.m_BitmapData;
+                m_BitmapData     = std::exchange(image.m_BitmapData, nullptr);
                 m_Format         = image.m_Format;
-                m_Subresource    = std::move(image.m_Subresource);
-                m_IsImageArray   = image.m_IsImageArray;
+                m_ReferenceType  = image.m_ReferenceType;
                 m_OwnsBitmapData = image.m_OwnsBitmapData;
 
-                image.m_BitmapData     = nullptr;
                 image.m_OwnsBitmapData = false;
             }
 
@@ -79,16 +71,24 @@ namespace Ame::Rhi
             Release();
         }
 
-    public:
-        [[nodiscard]] Dg::TextureData GetTextureData(
-            Dg::IDeviceContext* deviceContext = nullptr) const noexcept;
+        explicit operator bool() const noexcept
+        {
+            return m_BitmapData != nullptr;
+        }
 
     public:
-        [[nodiscard]] ImageFormat    GetFormat() const;
-        [[nodiscard]] Math::Vector2U GetSize() const;
-        [[nodiscard]] uint32_t       GetLine() const;
-        [[nodiscard]] uint32_t       GetPitch() const;
-        [[nodiscard]] uint32_t       GetMemorySize() const;
+        [[nodiscard]] ImageReferenceType GetType() const noexcept;
+
+        [[nodiscard]] Dg::TextureSubResData GetSubresource() const noexcept;
+
+    public:
+        [[nodiscard]] ImageFormat      GetFormat() const;
+        [[nodiscard]] Math::Vector2U   GetSize() const;
+        [[nodiscard]] uint32_t         GetLine() const;
+        [[nodiscard]] uint32_t         GetPitch() const;
+        [[nodiscard]] std::byte*       GetPixels();
+        [[nodiscard]] const std::byte* GetPixels() const;
+        [[nodiscard]] uint32_t         GetMemorySize() const;
 
     public:
         [[nodiscard]] Image Clone() const;
@@ -115,8 +115,6 @@ namespace Ame::Rhi
         bool Invert();
 
     public:
-        [[nodiscard]] bool IsArray() const noexcept;
-
         void Append(const Image& image);
         void Add(uint32_t page, const Image& image);
         void Remove(uint32_t page);
@@ -128,28 +126,50 @@ namespace Ame::Rhi
         [[nodiscard]] int GetPagesCount() const;
 
     private:
-        Image(void* bitmap, ImageFormat format, bool isImageArray, bool ownsBitmapData) :
+        Image(void* bitmap, ImageFormat format, ImageReferenceType referenceType, bool ownsBitmapData) :
             m_BitmapData(bitmap),
             m_Format(format),
-            m_IsImageArray(isImageArray),
+            m_ReferenceType(referenceType),
             m_OwnsBitmapData(ownsBitmapData)
         {
-            InitializeSubresource();
+        }
+
+    public:
+        [[nodiscard]] void*        GetBitmap() const;
+        [[nodiscard]] static Image Wrap(void* bitmap, ImageFormat format, ImageReferenceType referenceType, bool ownsBitmapData)
+        {
+            return Image(bitmap, format, referenceType, ownsBitmapData);
         }
 
     private:
-        [[nodiscard]] void*        GetBitmap() const;
-        [[nodiscard]] static Image Wrap(void* bitmap, ImageFormat format, bool isImageArray, bool ownsBitmapData);
-
-        void InitializeSubresource();
         void Release() noexcept;
 
     private:
-        void*                 m_BitmapData = nullptr;
-        ImageFormat           m_Format     = ImageFormat::Unknown;
-        Dg::TextureSubResData m_Subresource;
-        bool                  m_IsImageArray   : 1 = false;
-        bool                  m_OwnsBitmapData : 1 = false;
+        void*              m_BitmapData         = nullptr;
+        ImageFormat        m_Format             = ImageFormat::Unknown;
+        ImageReferenceType m_ReferenceType      = ImageReferenceType::Unknown;
+        bool               m_OwnsBitmapData : 1 = false;
+    };
+
+    class ImageMemory
+    {
+    public:
+        ImageMemory() = default;
+
+        [[nodiscard]] static ImageMemory Wrap(void* memory, void* bitmap, ImageFormat format)
+        {
+            return ImageMemory(memory, bitmap, format);
+        }
+
+        [[nodiscard]] const Image& GetMemory() const noexcept;
+        [[nodiscard]] const Image& GetImage() const noexcept;
+
+    private:
+        ImageMemory(void* memory, void* bitmap, ImageFormat format);
+
+    private:
+        Image m_Memory;
+        Image m_Image;
     };
 
     class ImageMipChain
@@ -158,6 +178,16 @@ namespace Ame::Rhi
         ImageMipChain() = default;
 
         ImageMipChain(Image image, uint32_t maxMipCount = 0, ImageFilterType filter = ImageFilterType::Catmullrom);
+
+    public:
+        [[nodiscard]] const Image& GetMip(uint32_t level) const noexcept;
+
+        [[nodiscard]] uint32_t GetMipCount() const noexcept;
+
+        [[nodiscard]] uint32_t GetMemorySize() const;
+
+        [[nodiscard]] const std::span<const Image>       GetMips() const noexcept;
+        [[nodiscard]] std::vector<Dg::TextureSubResData> GetSubresource() const;
 
     private:
         std::vector<Image> m_Images;

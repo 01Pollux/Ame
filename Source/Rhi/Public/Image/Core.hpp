@@ -5,6 +5,14 @@
 
 namespace Ame::Rhi
 {
+    enum class ImageReferenceType : uint8_t
+    {
+        Unknown,
+        Local,
+        MultiBitmap,
+        Memory
+    };
+
     enum class ImageFormat : int8_t
     {
         Unknown = -1,

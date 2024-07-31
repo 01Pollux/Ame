@@ -22,6 +22,7 @@ namespace Ame::Rhi
         [[nodiscard]] static int ConvertFlags(ImageDecodeFlags flags);
 
         [[nodiscard]] static FIBITMAP*      GetBitmap(void* bitmap);
+        [[nodiscard]] static FIMEMORY*      GetMemory(void* bitmap);
         [[nodiscard]] static FIMULTIBITMAP* GetBitmapArray(void* bitmap);
     };
 } // namespace Ame::Rhi

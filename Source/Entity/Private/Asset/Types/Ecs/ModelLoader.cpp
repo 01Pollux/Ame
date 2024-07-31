@@ -6,7 +6,7 @@ namespace Ame::Ecs
     MeshModel* MeshModelLoader::LoadModel(
         const ImportDesc& desc)
     {
-        AssImpModelImporter importer(desc.Path);
+        AssImpModelImporter importer(desc.ModelPath);
         return ObjectAllocator<MeshModel>()(importer.CreateModelDesc(desc.RenderDevice));
     }
 
