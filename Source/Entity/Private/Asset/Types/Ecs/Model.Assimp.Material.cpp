@@ -175,7 +175,8 @@ namespace Ame::Ecs
             std::pair{ "Displacement", aiTextureType_DISPLACEMENT },
             std::pair{ "Lightmap", aiTextureType_LIGHTMAP },
             std::pair{ "Reflection", aiTextureType_REFLECTION },
-            std::pair{ "BaseColor", aiTextureType_EMISSION_COLOR },
+            std::pair{ "Diffuse", aiTextureType_BASE_COLOR },
+            std::pair{ "Emissive", aiTextureType_EMISSION_COLOR },
             std::pair{ "Metallic", aiTextureType_METALNESS },
             std::pair{ "Roughness", aiTextureType_DIFFUSE_ROUGHNESS },
             std::pair{ "AmbientOcclusion", aiTextureType_AMBIENT_OCCLUSION }
@@ -205,15 +206,11 @@ namespace Ame::Ecs
             aiString name;
             material->Get(AI_MATKEY_NAME, name);
 
-            aiColor3D color;
-            material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-
             for (auto& [textureName, textureType] : c_TextureTypes)
             {
                 if (material->GetTextureCount(textureType) > 0)
                 {
                     auto texture = loadTextureFromCache(material, texturePath);
-                    texture      = loadTextureFromCache(material, texturePath);
                 }
             }
         }

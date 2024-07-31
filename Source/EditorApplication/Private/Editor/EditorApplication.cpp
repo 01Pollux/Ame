@@ -29,7 +29,7 @@ namespace Ame
         Ptr<Dg::IRenderDevice> renderDevice;
         GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
 
-        auto mdl = Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .ModelPath = "Shared/Assets/Models/cottage_fbx.fbx" });
+        auto mdl = Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .ModelPath = "Shared/Assets/Models/Sponza/sponza.obj" });
     }
 
     void EditorApplication::OnInitialize()
