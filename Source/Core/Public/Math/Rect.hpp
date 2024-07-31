@@ -32,33 +32,33 @@ namespace Ame::Math
     public:
         [[nodiscard]] constexpr value_type Width() const noexcept
         {
-            return Size.x;
+            return Size.x();
         }
 
         [[nodiscard]] constexpr value_type Height() const noexcept
         {
-            return Size.y;
+            return Size.y();
         }
 
     public:
         [[nodiscard]] constexpr value_type Left() const noexcept
         {
-            return Position.x;
+            return Position.x();
         }
 
         [[nodiscard]] constexpr value_type Top() const noexcept
         {
-            return Position.y;
+            return Position.y();
         }
 
         [[nodiscard]] constexpr value_type Right() const noexcept
         {
-            return Position.x + Width();
+            return Position.x() + Width();
         }
 
         [[nodiscard]] constexpr value_type Bottom() const noexcept
         {
-            return Position.y + Height();
+            return Position.y() + Height();
         }
 
     public:
