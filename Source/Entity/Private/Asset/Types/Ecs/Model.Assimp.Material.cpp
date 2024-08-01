@@ -184,7 +184,7 @@ namespace Ame::Ecs
 
         std::map<String, Ptr<Dg::ITexture>> textureCache;
 
-        auto loadTextureFromCache = [renderDevice, scene, &textureCache](aiMaterial* material, const aiString& texturePath)
+        auto getOrCreateTexture = [renderDevice, scene, &textureCache](aiMaterial* material, const aiString& texturePath)
         {
             auto iter = textureCache.find(texturePath.C_Str());
             if (iter != textureCache.end())
@@ -201,16 +201,17 @@ namespace Ame::Ecs
         aiString texturePath;
         for (uint32_t i = 0; i < scene->mNumMaterials; i++)
         {
-            aiMaterial* material = scene->mMaterials[i];
+            aiMaterial* aimaterial = scene->mMaterials[i];
 
             aiString name;
-            material->Get(AI_MATKEY_NAME, name);
+            aimaterial->Get(AI_MATKEY_NAME, name);
 
             for (auto& [textureName, textureType] : c_TextureTypes)
             {
-                if (material->GetTextureCount(textureType) > 0)
+                if (aimaterial->GetTextureCount(textureType) > 0)
                 {
-                    auto texture = loadTextureFromCache(material, texturePath);
+                    aimaterial->GetTexture(textureType, 0, &texturePath);
+                    auto texture = getOrCreateTexture(aimaterial, texturePath);
                 }
             }
         }
