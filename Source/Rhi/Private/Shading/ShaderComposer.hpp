@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/String.hpp>
+#include <Shading/VertexInput.hpp>
 
 namespace Ame::Rhi
 {
@@ -14,8 +14,11 @@ namespace Ame::Rhi
             StringView epilogue);
 
     private:
+        void WriteHeader(
+            StringView                           defineTag,
+            std::span<const VertexAttributeDesc> attributes);
+
         void WriteShader(
-            StringView header,
             StringView sourceCode);
 
     private:

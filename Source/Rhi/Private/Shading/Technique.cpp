@@ -6,15 +6,25 @@
 #include <Shading/ShaderComposer.hpp>
 #include <Shading/Hash.hpp>
 
+#include <Core/Enum.hpp>
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi
 {
+    MaterialTechnique* MaterialTechnique::Create(
+        Dg::IRenderDevice*  renderDevice,
+        MaterialRenderState renderState)
+    {
+        return ObjectAllocator<MaterialTechnique>()(renderDevice, std::move(renderState));
+    }
+
     MaterialTechnique::MaterialTechnique(
-        Dg::IRenderDevice*         renderDevice,
-        const MaterialRenderState& renderState) :
+        IReferenceCounters* counters,
+        Dg::IRenderDevice*  renderDevice,
+        MaterialRenderState renderState) :
+        Base(counters),
         m_RenderDevice(renderDevice),
-        m_RenderState(renderState)
+        m_RenderState(std::move(renderState))
     {
     }
 
@@ -22,13 +32,18 @@ namespace Ame::Rhi
 
     Dg::IPipelineState* MaterialTechnique::GetPipelineState(
         MaterialVertexInputFlags vertexInputFlags,
+        Dg::PRIMITIVE_TOPOLOGY   topology,
         const Material*          material) const
     {
-        auto  hash          = Dg::ComputeHash(material->GetMaterialHash(), vertexInputFlags);
+        auto hash = Dg::ComputeHash(
+            material->GetMaterialHash(),
+            vertexInputFlags,
+            topology);
+
         auto& pipelineState = m_PipelineStates[hash];
         if (!pipelineState)
         {
-            pipelineState = CreatePipelineState(vertexInputFlags, material);
+            pipelineState = CreatePipelineState(vertexInputFlags, topology, material);
         }
         return pipelineState;
     }
@@ -37,8 +52,11 @@ namespace Ame::Rhi
 
     auto MaterialTechnique::CombineShaders(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+        MaterialVertexInputFlags             vertexInputFlags,
         const MaterialDesc&                  materialDesc) const -> ShadersToKeepAliveList
     {
+        using namespace EnumBitOperators;
+
         auto setShader = [&graphicsPsoDesc](Dg::SHADER_TYPE type, Dg::IShader* shader)
         {
             switch (type)
@@ -106,9 +124,10 @@ namespace Ame::Rhi
         auto& renderStateShaders = m_RenderState.Links;
 
         MaterialShaderComposer shaderComposer;
-        Dg::ShaderCreateInfo   createDesc{ "", nullptr, Dg::SHADER_SOURCE_LANGUAGE_HLSL };
+        Dg::ShaderCreateInfo   createDesc{ nullptr, nullptr, Dg::SHADER_SOURCE_LANGUAGE_HLSL };
 
         ShadersToKeepAliveList shadersToKeepAlive;
+
         for (auto shaderType : MaterialCommonState::c_AllSupportedShaders)
         {
             macros.clear();
@@ -125,19 +144,19 @@ namespace Ame::Rhi
                 StringView prologueSource = initializeShaderSource(
                     materialIter,
                     materialDesc.ShaderSources.end(),
-                    [](auto desc) -> StringView
+                    [](auto& desc) -> StringView
                     { return desc.PreShaderCode; });
 
                 StringView epilogueSource = initializeShaderSource(
                     materialIter,
                     materialDesc.ShaderSources.end(),
-                    [](auto desc) -> StringView
+                    [](auto& desc) -> StringView
                     { return desc.PostShaderCode; });
 
                 StringView bodySource = initializeShaderSource(
                     bodyIter,
                     renderStateShaders.ShaderSources.end(),
-                    [](auto desc) -> StringView
+                    [](auto& desc) -> StringView
                     { return desc.ShaderCode; });
 
                 // No shader was found, so skip it
@@ -156,7 +175,8 @@ namespace Ame::Rhi
                 createDesc.Macros.Count    = macros.size();
                 createDesc.Desc.ShaderType = shaderType;
 
-                auto sourceCode         = shaderComposer.Write(prologueSource, bodySource, epilogueSource);
+                auto sourceCode = shaderComposer.Write(prologueSource, bodySource, epilogueSource);
+
                 createDesc.Source       = sourceCode.data();
                 createDesc.SourceLength = sourceCode.size();
 
@@ -204,13 +224,14 @@ namespace Ame::Rhi
 
     void MaterialTechnique::InitializePipelineState(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+        Dg::PRIMITIVE_TOPOLOGY               topology,
         const MaterialDesc&                  materialDesc) const
     {
         graphicsPsoDesc.GraphicsPipeline.BlendDesc         = materialDesc.Blend;
         graphicsPsoDesc.GraphicsPipeline.SampleMask        = materialDesc.SampleMask;
         graphicsPsoDesc.GraphicsPipeline.RasterizerDesc    = materialDesc.Rasterizer;
         graphicsPsoDesc.GraphicsPipeline.DepthStencilDesc  = materialDesc.DepthStencil;
-        graphicsPsoDesc.GraphicsPipeline.PrimitiveTopology = m_RenderState.Topology;
+        graphicsPsoDesc.GraphicsPipeline.PrimitiveTopology = topology;
         graphicsPsoDesc.GraphicsPipeline.NumRenderTargets  = Rhi::Count8(m_RenderState.RenderTargets);
         graphicsPsoDesc.GraphicsPipeline.ShadingRateFlags  = m_RenderState.ShadingRateFlags;
         for (size_t i = 0; i < m_RenderState.RenderTargets.size(); i++)
@@ -224,6 +245,7 @@ namespace Ame::Rhi
 
     Ptr<Dg::IPipelineState> MaterialTechnique::CreatePipelineState(
         MaterialVertexInputFlags vertexInputFlags,
+        Dg::PRIMITIVE_TOPOLOGY   topology,
         const Material*          material) const
     {
         MaterialVertexDesc inputLayout(vertexInputFlags);
@@ -246,9 +268,9 @@ namespace Ame::Rhi
         }
 #endif
 
-        InitializePipelineState(psoCreateDesc, materialDesc);
+        InitializePipelineState(psoCreateDesc, topology, materialDesc);
         auto signatures = CombineSignatures(psoCreateDesc, material);
-        auto shaders    = CombineShaders(psoCreateDesc, materialDesc);
+        auto shaders    = CombineShaders(psoCreateDesc, vertexInputFlags, materialDesc);
 
         Ptr<Dg::IPipelineState> pipelineState;
         m_RenderDevice->CreateGraphicsPipelineState(psoCreateDesc, &pipelineState);

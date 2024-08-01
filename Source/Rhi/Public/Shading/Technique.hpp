@@ -5,18 +5,26 @@
 
 namespace Ame::Rhi
 {
+    // {2A8E47FC-F038-4C7A-B090-1117A595C68A}
+    static constexpr UId IID_MaterialTechnique = { 0x2a8e47fc, 0xf038, 0x4c7a, { 0xb0, 0x90, 0x11, 0x17, 0xa5, 0x95, 0xc6, 0x8a } };
+
     /// <summary>
     /// Class that defines material's pipeline state and shaders
     /// </summary>
-    class MaterialTechnique
+    class MaterialTechnique : public BaseObject<IObject>
     {
     private:
         using PipelineStateMap = std::map<MaterialHash, Ptr<Dg::IPipelineState>>;
 
     public:
-        MaterialTechnique(
-            Dg::IRenderDevice*         renderDevice,
-            const MaterialRenderState& renderState);
+        using Base = BaseObject<IObject>;
+
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_MaterialTechnique, Base);
+
+    public:
+        [[nodiscard]] static MaterialTechnique* Create(
+            Dg::IRenderDevice*  renderDevice,
+            MaterialRenderState renderState);
 
     public:
         /// <summary>
@@ -24,6 +32,7 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] Dg::IPipelineState* GetPipelineState(
             MaterialVertexInputFlags vertexInputFlags,
+            Dg::PRIMITIVE_TOPOLOGY   topology,
             const Material*          material) const;
 
     private:
@@ -36,6 +45,7 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] ShadersToKeepAliveList CombineShaders(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+            MaterialVertexInputFlags             vertexInputFlags,
             const MaterialDesc&                  materialDesc) const;
 
         /// <summary>
@@ -50,6 +60,7 @@ namespace Ame::Rhi
         /// </summary>
         void InitializePipelineState(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+            Dg::PRIMITIVE_TOPOLOGY               topology,
             const MaterialDesc&                  materialDesc) const;
 
         /// <summary>
@@ -57,7 +68,17 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] Ptr<Dg::IPipelineState> CreatePipelineState(
             MaterialVertexInputFlags vertexInputFlags,
+            Dg::PRIMITIVE_TOPOLOGY   topology,
             const Material*          material) const;
+
+    private:
+        template<typename, typename>
+        friend class Dg::MakeNewRCObj;
+
+        MaterialTechnique(
+            IReferenceCounters* counters,
+            Dg::IRenderDevice*  renderDevice,
+            MaterialRenderState renderState);
 
     private:
         Dg::IRenderDevice* m_RenderDevice = nullptr;

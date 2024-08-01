@@ -7,8 +7,12 @@ namespace Ame::Rhi
 {
     struct VertexAttributeDesc
     {
-        /// Attribute name ("POSITION", "NORMAL", "TEXCOORD_0", "TEXCOORD_1", "JOINTS_0", "WEIGHTS_0", etc.).
+        const char* TypeString;
+
+        /// Attribute name {POSITION, NORMAL, TEXCOORD, TANGENT}.
         const char* Name;
+
+        const char* SemanticName;
 
         /// The type of the attribute's components.
         Dg::VALUE_TYPE Type;
@@ -20,19 +24,22 @@ namespace Ame::Rhi
         uint8_t NumComponents = 0;
     };
 
-    static constexpr VertexAttributeDesc c_VertexAttributes3D[] = {
-        { "POSITION", Dg::VT_FLOAT32, 0, 3 },
-        { "NORMAL", Dg::VT_FLOAT32, 1, 3 },
-        { "TEXCOORD", Dg::VT_FLOAT32, 2, 2 },
-        { "TANGENT", Dg::VT_FLOAT32, 3, 3 },
+    // clang-format off
+    static constexpr VertexAttributeDesc c_InputVertexAttributes[] = {
+        { "float3", "position",     "ATTRIB0", Dg::VT_FLOAT32, 0, 3 },
+        { "float3", "normal",       "ATTRIB1", Dg::VT_FLOAT32, 1, 3 },
+        { "float2", "tex_coord",    "ATTRIB2", Dg::VT_FLOAT32, 2, 2 },
+        { "float3", "tangent",      "ATTRIB3", Dg::VT_FLOAT32, 3, 3 },
     };
-
-    static constexpr VertexAttributeDesc c_VertexAttributes2D[] = {
-        { "POSITION", Dg::VT_FLOAT32, 0, 2 },
-        { "NORMAL", Dg::VT_FLOAT32, 1, 2 },
-        { "TEXCOORD", Dg::VT_FLOAT32, 2, 2 },
-        { "TANGENT", Dg::VT_FLOAT32, 3, 2 },
+    
+    static constexpr VertexAttributeDesc c_OutputVertexAttributes[] = {
+        { "float4", "screen_position",  "SV_POSITION",      Dg::VT_FLOAT32, 0xFF, 4 },
+        { "float3", "world_position",   "WORLD_POSITION",   Dg::VT_FLOAT32, 0xFF, 3 },
+        { "float3", "world_normal",     "WORLD_NORMAL",     Dg::VT_FLOAT32, 0xFF, 3 },
+        { "float2", "tex_coord",        "TEXCOORD",         Dg::VT_FLOAT32, 0xFF, 2 },
+        { "float3", "world_tangent",    "WORLD_TANGENT",    Dg::VT_FLOAT32, 0xFF, 3 },
     };
+    // clang-format on
 
     //
 
@@ -48,23 +55,9 @@ namespace Ame::Rhi
         void Fill(
             MaterialVertexInputFlags flags)
         {
-            if (std::to_underlying(flags) & std::to_underlying(MaterialVertexInputFlags::Is2D))
+            for (uint32_t i = 0; i < std::to_underlying(MaterialVertexInputFlags::Count); i++)
             {
-                Fill(flags, c_VertexAttributes2D);
-            }
-            else
-            {
-                Fill(flags, c_VertexAttributes3D);
-            }
-        }
-
-        void Fill(
-            MaterialVertexInputFlags                   flags,
-            const std::span<const VertexAttributeDesc> attributes)
-        {
-            for (uint32_t i = 0; i < std::to_underlying(MaterialVertexInputFlags::Count); ++i)
-            {
-                const auto& attribute = attributes[i];
+                const auto& attribute = c_InputVertexAttributes[i];
 
                 bool isEnabled    = std::to_underlying(flags) & (1 << i);
                 bool isNormalized = (attribute.Type == Dg::VT_UINT8 || attribute.Type == Dg::VT_INT8);

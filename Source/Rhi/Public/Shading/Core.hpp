@@ -10,6 +10,9 @@
 namespace Ame::Rhi
 {
     class Material;
+    class MaterialTechnique;
+
+    static constexpr uint32_t c_MaterialBindingIndex = 0;
 
     //
 
@@ -57,7 +60,7 @@ namespace Ame::Rhi
         /// depend on whether an application uses multisample render targets.
         uint32_t SampleMask = 0xFFFF'FFFF;
 
-        MaterialMode Mode;
+        MaterialMode Mode = MaterialMode::Opaque;
 
         /// <summary>
         /// All shader sources must be written in HLSL
@@ -69,7 +72,7 @@ namespace Ame::Rhi
     {
         MaterialDesc                      Desc;
         Dg::PipelineResourceSignatureDesc Properties{
-            .BindingIndex = 2
+            .BindingIndex = c_MaterialBindingIndex // must be c_MaterialBindingIndex
         };
     };
 
@@ -107,8 +110,6 @@ namespace Ame::Rhi
 
         Dg::TEXTURE_FORMAT DepthStencil = Dg::TEX_FORMAT_UNKNOWN;
         bool               ReadOnlyDSV  = false;
-
-        Dg::PRIMITIVE_TOPOLOGY Topology = Dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     };
 
     //
@@ -120,15 +121,13 @@ namespace Ame::Rhi
     /// </summary>
     enum class MaterialVertexInputFlags : uint16_t
     {
-        Neon = 0,
+        None = 0,
 
         Position = 1 << 0, // VIX_Position
         Normal   = 1 << 1, // VIX_Normal
         TexCoord = 1 << 2, // VI_TexCoord
         Tangent  = 1 << 3, // VIX_Tangent
 
-        Count = 7,
-
-        Is2D = 1 << 8,
+        Count = 4,
     };
 } // namespace Ame::Rhi

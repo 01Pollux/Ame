@@ -1,4 +1,5 @@
 #include <Shading/ShaderComposer.hpp>
+#include <Shading/VertexInput.hpp>
 
 namespace Ame::Rhi
 {
@@ -34,15 +35,9 @@ namespace Ame::Rhi
 
     //
 
-    static constexpr const char s_PrologueShaderCode[] = "void pre_main(inout vs_input input){";
-
-    static constexpr const char s_EpilogueShaderCode[] = "void post_main(in vs_input input, inout vs_output output){";
-
-    static constexpr const char s_DoMainShaderCode[] = "void do_main(in vs_input input, out vs_output output){";
-
-    static constexpr const char s_MainShaderCode[] = "void main(in vs_input input, out vs_output output){pre_main(input);do_main(input, output);post_main(input, output);}";
-
-    static constexpr const char s_CloseBrace[] = "}";
+    static constexpr const char s_DefineInputString[]  = "#define VS_INPUT_LAYOUT ";
+    static constexpr const char s_DefineOutputString[] = "#define VS_OUTPUT_LAYOUT ";
+    static constexpr const char s_StructElementCode[]  = "{} {}:{};";
 
     //
 
@@ -53,28 +48,47 @@ namespace Ame::Rhi
     {
         m_SourceCode.clear();
         m_SourceCode.reserve(
-            prologue.size() +
+            sizeof(s_DefineInputString) +
+            sizeof(s_DefineOutputString) +
+            sizeof(s_StructElementCode) * std::size(c_InputVertexAttributes) * 4 +
             sourceCode.size() +
-            epilogue.size() +
-            sizeof(s_MainShaderCode) +
-            sizeof(s_PrologueShaderCode) +
-            sizeof(s_EpilogueShaderCode) +
-            sizeof(s_CloseBrace) * 2);
+            prologue.size() +
+            epilogue.size());
 
-        WriteShader(s_PrologueShaderCode, prologue);
-        WriteShader(s_DoMainShaderCode, sourceCode);
-        WriteShader(s_EpilogueShaderCode, epilogue);
-        m_SourceCode.append(s_MainShaderCode);
+        WriteHeader(s_DefineInputString, c_InputVertexAttributes);
+        WriteHeader(s_DefineOutputString, c_OutputVertexAttributes);
+
+        WriteShader(sourceCode);
+        WriteShader(prologue);
+        WriteShader(epilogue);
 
         return m_SourceCode;
     }
 
+    void MaterialShaderComposer::WriteHeader(
+        StringView                           defineTag,
+        std::span<const VertexAttributeDesc> attributes)
+    {
+        m_SourceCode.append(defineTag);
+        for (const auto& attribute : attributes)
+        {
+            std::format_to(
+                std::back_inserter(m_SourceCode),
+                s_StructElementCode,
+                attribute.TypeString,
+                attribute.Name,
+                attribute.SemanticName);
+        }
+        m_SourceCode.append("\n");
+    }
+
     void MaterialShaderComposer::WriteShader(
-        StringView header,
         StringView sourceCode)
     {
-        m_SourceCode.append(header);
-        m_SourceCode.append(sourceCode);
-        m_SourceCode.append(s_CloseBrace);
+        if (!sourceCode.empty())
+        {
+            m_SourceCode.append(sourceCode);
+            m_SourceCode.append("\n");
+        }
     }
 } // namespace Ame::Rhi

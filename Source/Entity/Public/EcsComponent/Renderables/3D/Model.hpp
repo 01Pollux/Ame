@@ -84,6 +84,42 @@ namespace Ame::Ecs
         {
         }
 
+    public:
+        [[nodiscard]] Dg::IBuffer* GetPositionBuffer() const noexcept
+        {
+            return m_PositionBuffer;
+        }
+        [[nodiscard]] Dg::IBuffer* GetNormalBuffer() const noexcept
+        {
+            return m_NormalBuffer;
+        }
+        [[nodiscard]] Dg::IBuffer* GetTangentBuffer() const noexcept
+        {
+            return m_TangentBuffer;
+        }
+        [[nodiscard]] Dg::IBuffer* GetTexCoordBuffer() const noexcept
+        {
+            return m_TexCoordBuffer;
+        }
+
+        [[nodiscard]] Dg::IBuffer* GetIndexBuffer() const noexcept
+        {
+            return m_IndexBuffer;
+        }
+        [[nodiscard]] Dg::VALUE_TYPE GetIndexType() const noexcept
+        {
+            return m_SmallIndexBuffer ? Dg::VT_UINT16 : Dg::VT_UINT32;
+        }
+
+        [[nodiscard]] const MeshNodeList& GetMeshNodes() const noexcept
+        {
+            return m_MeshNodes;
+        }
+        [[nodiscard]] const SubMeshDataList& GetSubMeshes() const noexcept
+        {
+            return m_SubMeshes;
+        }
+
     private:
         MeshNodeList    m_MeshNodes;
         SubMeshDataList m_SubMeshes;

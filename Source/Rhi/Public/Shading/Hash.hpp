@@ -138,8 +138,7 @@ namespace std
                             state.Sample,
                             std::to_underlying(state.ShadingRateFlags),
                             std::to_underlying(state.DepthStencil),
-                            state.ReadOnlyDSV,
-                            state.Topology);
+                            state.ReadOnlyDSV);
 
             return hash;
         }
