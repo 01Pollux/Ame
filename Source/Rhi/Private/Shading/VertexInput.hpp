@@ -55,7 +55,7 @@ namespace Ame::Rhi
         void Fill(
             MaterialVertexInputFlags flags)
         {
-            for (uint32_t i = 0; i < std::to_underlying(MaterialVertexInputFlags::Count); i++)
+            for (uint32_t i = 0; i < std::to_underlying(MaterialVertexInputTypes::Count); i++)
             {
                 const auto& attribute = c_InputVertexAttributes[i];
 
