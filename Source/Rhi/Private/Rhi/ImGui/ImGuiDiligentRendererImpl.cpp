@@ -64,44 +64,51 @@ namespace Ame::Rhi
     static constexpr char c_GammaToLinear[] = "((g) < 0.04045 ? (g) / 12.92 : pow(max((g) + 0.055, 0.0) / 1.055, 2.4))";
     static constexpr char c_SrgbaToLinear[] = "c.r = GAMMA_TO_LINEAR(c.r); c.g = GAMMA_TO_LINEAR(c.g); c.b = GAMMA_TO_LINEAR(c.b); c.a = 1.0 - GAMMA_TO_LINEAR(1.0 - c.a);";
 
-    static constexpr char c_Shaders[] = R"(
+    static constexpr char s_VertexShaderSourceCode[] = R"(
 cbuffer Constants
 {
     float4x4 ProjectionMatrix;
-}
-
-struct VSInput
+};
+struct vs_input
 {
     float2 pos : ATTRIB0;
     float2 uv  : ATTRIB1;
     float4 col : ATTRIB2;
 };
-
-struct PSInput
+struct vs_output
 {
     float4 pos : SV_POSITION;
-    float4 col : COLOR;
-    float2 uv  : TEXCOORD;
+    float4 col : COLOR0;
+    float2 uv  : TEX_COORD;
 };
-
-#if defined(VERTEX_SHADER)
-void main(in VSInput VSIn, out PSInput PSIn)
+void main(in vs_input vsIn, out vs_output vsOut)
 {
-    PSIn.pos = mul(ProjectionMatrix, float4(VSIn.pos.xy, 0.0, 1.0));
-    PSIn.col = VSIn.col;
-    PSIn.uv  = VSIn.uv;
+    vsOut.pos = mul(ProjectionMatrix, float4(vsIn.pos.xy, 0.0, 1.0));
+    vsOut.col = vsIn.col;
+    vsOut.uv  = vsIn.uv;
 }
-#elif defined(PIXEL_SHADER)
+)";
+
+    static constexpr char s_PixelShaderSourceCode[] = R"(
+#ifndef SRGBA_TO_LINEAR
+#define SRGBA_TO_LINEAR(x)
+#endif
 Texture2D    Texture;
 SamplerState Texture_sampler;
-float4 main(in PSInput PSIn) : SV_Target
+struct ps_input
 {
-	float4 col = Texture.Sample(Texture_sampler, PSIn.uv) * PSIn.col;
+    float4 pos : SV_POSITION;
+    float4 col : COLOR0;
+    float2 uv  : TEX_COORD;
+};
+float4 main(in ps_input psIn) : SV_Target
+{
+	float4 col = Texture.Sample(Texture_sampler, psIn.uv) * psIn.col;
 	col.rgb *= col.a;
 	SRGBA_TO_LINEAR(col)
 	return col;
 }
-#endif)";
+)";
 
     //
 
@@ -425,13 +432,22 @@ float4 main(in PSInput PSIn) : SV_Target
 
         Dg::ShaderCreateInfo shaderCreateInfo;
 
-        shaderCreateInfo.Source         = c_Shaders;
-        shaderCreateInfo.SourceLength   = std::size(c_Shaders);
-        shaderCreateInfo.SourceLanguage = Dg::SHADER_SOURCE_LANGUAGE_DEFAULT;
+        shaderCreateInfo.SourceLanguage = Dg::SHADER_SOURCE_LANGUAGE_HLSL;
 
         const auto srgbFramebuffer = Dg::GetTextureFormatAttribs(m_BackBufferFormat).ComponentType == Dg::COMPONENT_TYPE_UNORM_SRGB;
         const auto manualSrgb      = (m_ConversionMode == ImGuiColorConversionMode::Auto && srgbFramebuffer) ||
                                 (m_ConversionMode == ImGuiColorConversionMode::SrgbToLinear);
+
+        const auto DeviceType = m_RenderDevice->GetDeviceInfo().Type;
+
+        Ptr<Dg::IShader> vertexShader;
+        {
+            shaderCreateInfo.Source       = s_VertexShaderSourceCode;
+            shaderCreateInfo.SourceLength = sizeof(s_VertexShaderSourceCode) - 1;
+            shaderCreateInfo.Desc         = { "ImGui VS", Dg::SHADER_TYPE_VERTEX, true };
+            m_RenderDevice->CreateShader(shaderCreateInfo, &vertexShader);
+        }
+
         if (manualSrgb)
         {
             static constexpr Dg::ShaderMacro macros[] = {
@@ -440,25 +456,12 @@ float4 main(in PSInput PSIn) : SV_Target
             };
             shaderCreateInfo.Macros = { macros, Rhi::Count32(macros) };
         }
-        else
-        {
-            static constexpr Dg::ShaderMacro macros[] = {
-                { "SRGBA_TO_LINEAR(c)", "" },
-            };
-            shaderCreateInfo.Macros = { macros, Rhi::Count32(macros) };
-        }
-
-        const auto DeviceType = m_RenderDevice->GetDeviceInfo().Type;
-
-        Ptr<Dg::IShader> vertexShader;
-        {
-            shaderCreateInfo.Desc = { "ImGui VS", Dg::SHADER_TYPE_VERTEX, true };
-            m_RenderDevice->CreateShader(shaderCreateInfo, &vertexShader);
-        }
 
         Ptr<Dg::IShader> pixelShader;
         {
-            shaderCreateInfo.Desc = { "ImGui PS", Dg::SHADER_TYPE_PIXEL, true };
+            shaderCreateInfo.Source       = s_PixelShaderSourceCode;
+            shaderCreateInfo.SourceLength = sizeof(s_PixelShaderSourceCode) - 1;
+            shaderCreateInfo.Desc         = { "ImGui PS", Dg::SHADER_TYPE_PIXEL, true };
             m_RenderDevice->CreateShader(shaderCreateInfo, &pixelShader);
         }
 
