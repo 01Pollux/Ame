@@ -12,6 +12,11 @@ namespace Ame::Rhi
         const MaterialCommonState& commonState)
     {
         auto resourceSignature = commonState.GetSignature();
+        if (!resourceSignature)
+        {
+            return;
+        }
+
         resourceSignature->CreateShaderResourceBinding(&Bindings);
 
         auto& materialDesc = commonState.GetMaterialDesc();

@@ -80,12 +80,12 @@ namespace Ame::Log
         };
 
         // first sink is the file sink
-        Sinks[0]->set_pattern("[%c] [%l] %n :: %v.");
+        Sinks[0]->set_pattern("[%c] [%l] %n :: %v");
 
 #ifndef AME_DIST
         for (auto& Sink : Sinks | std::views::drop(1))
         {
-            Sink->set_pattern("%^[%T] [%l] %n :: %v%$.");
+            Sink->set_pattern("%^[%T] [%l] %n :: %v%$");
         }
 #endif
 

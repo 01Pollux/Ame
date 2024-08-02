@@ -7,35 +7,36 @@ namespace Ame::Rhi
     /// The format of material shader source code is:
     ///
     /// Prologue:
-    /// void pre_main(inout vs_input input)
+    /// void pre_main(inout vs_input __input)
     /// {
     ///     // User code
     /// }
     ///
     /// Epilogue:
-    /// void post_main(in vs_input input, inout vs_output output)
+    /// void post_main(in vs_input __input, inout vs_output __output)
     /// {
     ///     // User code
     /// }
     ///
     /// Main:
-    /// void do_main(in vs_input input, out vs_output output)
+    /// void do_main(in vs_input __input, out vs_output __output)
     /// {
     ///     // User code
     /// }
     ///
-    /// void main(in vs_input input, out vs_output output)
+    /// void main(in vs_input __input, out vs_output __output)
     /// {
-    ///     pre_main(input);
-    ///     do_main(input, output);
-    ///     post_main(input, output);
+    ///     pre_main(__input);
+    ///     do_main(__input, __output);
+    ///     post_main(__input, __output);
     /// }
     ///
     /// </summary>
 
     //
 
-    static constexpr const char s_DefineInputString[]  = "#define VS_INPUT_LAYOUT ";
+    // MUST match the order of VertexInputConstants
+    static constexpr const char s_DefineInputString[]  = "#define VS_INPUT_LAYOUT uint vertex_id:SV_VertexID;uint instance_id:SV_InstanceID;";
     static constexpr const char s_DefineOutputString[] = "#define VS_OUTPUT_LAYOUT ";
     static constexpr const char s_StructElementCode[]  = "{} {}:{};";
 
@@ -50,12 +51,12 @@ namespace Ame::Rhi
         m_SourceCode.reserve(
             sizeof(s_DefineInputString) +
             sizeof(s_DefineOutputString) +
-            sizeof(s_StructElementCode) * std::size(c_InputVertexAttributes) * 4 +
+            sizeof(s_StructElementCode) * std::size(c_OutputVertexAttributes) * 2 +
             sourceCode.size() +
             prologue.size() +
             epilogue.size());
 
-        WriteHeader(s_DefineInputString, c_InputVertexAttributes);
+        WriteShader(s_DefineInputString);
         WriteHeader(s_DefineOutputString, c_OutputVertexAttributes);
 
         WriteShader(sourceCode);

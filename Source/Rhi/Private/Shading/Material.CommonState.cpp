@@ -40,7 +40,11 @@ namespace Ame::Rhi
         const Dg::PipelineResourceSignatureDesc& resourcesDesc)
     {
         Ptr<Dg::IPipelineResourceSignature> resourceSignature;
-        renderDevice->CreatePipelineResourceSignature(resourcesDesc, &resourceSignature);
+        if (resourcesDesc.NumResources != 0 ||
+            resourcesDesc.NumImmutableSamplers != 0)
+        {
+            renderDevice->CreatePipelineResourceSignature(resourcesDesc, &resourceSignature);
+        }
         return resourceSignature;
     }
 

@@ -254,7 +254,11 @@ namespace Ame::Ecs
         Dg::BufferDesc bufferDesc;
         bufferDesc.Usage = Dg::USAGE_IMMUTABLE;
 
-        auto createBuffer = [&bufferDesc, renderDevice, scene](const auto& buffer, const char* name, Dg::BIND_FLAGS bindFlags)
+        auto createBuffer = [&bufferDesc, renderDevice, scene](
+                                const auto&     buffer,
+                                const char*     name,
+                                Dg::BIND_FLAGS  bindFlags,
+                                Dg::BUFFER_MODE bufferMode = Dg::BUFFER_MODE_STRUCTURED)
         {
             Dg::IBuffer* result = nullptr;
             if (!buffer.Empty())
@@ -266,6 +270,7 @@ namespace Ame::Ecs
 
                 bufferDesc.Size              = buffer.ByteSize();
                 bufferDesc.BindFlags         = bindFlags;
+                bufferDesc.Mode              = bufferMode;
                 bufferDesc.ElementByteStride = buffer.ElementSize();
 
                 Dg::BufferData initData(buffer.Data(), buffer.ByteSize());
@@ -276,19 +281,19 @@ namespace Ame::Ecs
 
         //
 
-        createDesc.PositionBuffer = createBuffer(positions, "VI3_Position", Dg::BIND_VERTEX_BUFFER);
-        createDesc.NormalBuffer   = createBuffer(normals, "VI3_Normal", Dg::BIND_VERTEX_BUFFER);
-        createDesc.TangentBuffer  = createBuffer(tangents, "VI3_Tangent", Dg::BIND_VERTEX_BUFFER);
-        createDesc.TexCoordBuffer = createBuffer(texCoords, "VI_TexCoord", Dg::BIND_VERTEX_BUFFER);
+        createDesc.PositionBuffer = createBuffer(positions, "VI3_Position", Dg::BIND_SHADER_RESOURCE);
+        createDesc.NormalBuffer   = createBuffer(normals, "VI3_Normal", Dg::BIND_SHADER_RESOURCE);
+        createDesc.TangentBuffer  = createBuffer(tangents, "VI3_Tangent", Dg::BIND_SHADER_RESOURCE);
+        createDesc.TexCoordBuffer = createBuffer(texCoords, "VI_TexCoord", Dg::BIND_SHADER_RESOURCE);
 
         createDesc.SmallIndexBuffer = use16BitIndices;
         if (use16BitIndices) [[likely]]
         {
-            createDesc.IndexBuffer = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER);
+            createDesc.IndexBuffer = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER, Dg::BUFFER_MODE_UNDEFINED);
         }
         else
         {
-            createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER);
+            createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER, Dg::BUFFER_MODE_UNDEFINED);
         }
     }
 } // namespace Ame::Ecs

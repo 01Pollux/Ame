@@ -214,7 +214,10 @@ namespace Ame::Rhi
         {
             signatures.push_back(signature);
         }
-        signatures.push_back(material->GetResourceSignature());
+        if (auto signature = material->GetResourceSignature())
+        {
+            signatures.push_back(signature);
+        }
 
         graphicsPsoDesc.ppResourceSignatures    = signatures.data();
         graphicsPsoDesc.ResourceSignaturesCount = Rhi::Count32(signatures);
@@ -234,10 +237,12 @@ namespace Ame::Rhi
         graphicsPsoDesc.GraphicsPipeline.PrimitiveTopology = topology;
         graphicsPsoDesc.GraphicsPipeline.NumRenderTargets  = Rhi::Count8(m_RenderState.RenderTargets);
         graphicsPsoDesc.GraphicsPipeline.ShadingRateFlags  = m_RenderState.ShadingRateFlags;
+
         for (size_t i = 0; i < m_RenderState.RenderTargets.size(); i++)
         {
             graphicsPsoDesc.GraphicsPipeline.RTVFormats[i] = m_RenderState.RenderTargets[i];
         }
+
         graphicsPsoDesc.GraphicsPipeline.DSVFormat   = m_RenderState.DepthStencil;
         graphicsPsoDesc.GraphicsPipeline.ReadOnlyDSV = m_RenderState.ReadOnlyDSV;
         graphicsPsoDesc.GraphicsPipeline.SmplDesc    = m_RenderState.Sample;
@@ -248,12 +253,9 @@ namespace Ame::Rhi
         Dg::PRIMITIVE_TOPOLOGY   topology,
         const Material*          material) const
     {
-        MaterialVertexDesc inputLayout(vertexInputFlags);
-
         auto& materialDesc = material->GetMaterialDesc();
 
         Dg::GraphicsPipelineStateCreateInfo psoCreateDesc;
-        psoCreateDesc.GraphicsPipeline.InputLayout = inputLayout;
 
 #ifndef AME_DIST
         String pipelineStateName   = std::format("{}_{}", materialDesc.Name, m_RenderState.Name);
