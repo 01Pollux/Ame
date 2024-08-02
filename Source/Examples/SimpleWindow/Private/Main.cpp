@@ -1,6 +1,5 @@
 #include <fstream>
 
-#include <Window/WindowFactory.hpp>
 #include <Window/DesktopWindow.hpp>
 
 namespace Ame

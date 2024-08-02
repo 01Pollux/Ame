@@ -6,6 +6,7 @@
 #include <Core/String.hpp>
 
 #include <Rhi/Core.hpp>
+#include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 
 namespace Ame::Rhi
 {
@@ -13,15 +14,6 @@ namespace Ame::Rhi
     class MaterialTechnique;
 
     static constexpr uint32_t c_MaterialBindingIndex = 0;
-
-    //
-
-    enum class MaterialMode : uint8_t
-    {
-        Opaque,
-        Transparent,
-        Overlay
-    };
 
     //
 
@@ -51,16 +43,14 @@ namespace Ame::Rhi
         size_t UserDataSize = 0;
 
         Dg::BlendStateDesc        Blend;
-        Dg::RasterizerStateDesc   Rasterizer;
-        Dg::DepthStencilStateDesc DepthStencil;
+        Dg::RasterizerStateDesc   Rasterizer   = Dg::RS_SolidFillCullBack;
+        Dg::DepthStencilStateDesc DepthStencil = Dg::DSS_DisableDepth;
 
         /// 32-bit sample mask that determines which samples get updated
         /// in all the active render targets. A sample mask is always applied;
         /// it is independent of whether multisampling is enabled, and does not
         /// depend on whether an application uses multisample render targets.
         uint32_t SampleMask = 0xFFFF'FFFF;
-
-        MaterialMode Mode = MaterialMode::Opaque;
 
         /// <summary>
         /// All shader sources must be written in HLSL
@@ -116,18 +106,21 @@ namespace Ame::Rhi
 
     using MaterialHash = size_t;
 
-    /// <summary>
-    /// By default, we will have local space position for any given material
-    /// </summary>
+    enum class MaterialVertexInputTypes : uint16_t
+    {
+        Position, // VIX_Position
+        Normal,   // VIX_Normal
+        TexCoord, // VI_TexCoord
+        Tangent,  // VIX_Tangent
+        Count,
+    };
+
     enum class MaterialVertexInputFlags : uint16_t
     {
-        None = 0,
-
-        Position = 1 << 0, // VIX_Position
-        Normal   = 1 << 1, // VIX_Normal
-        TexCoord = 1 << 2, // VI_TexCoord
-        Tangent  = 1 << 3, // VIX_Tangent
-
-        Count = 4,
+        None     = 0,
+        Position = 1 << std::to_underlying(MaterialVertexInputTypes::Position), // VIX_Position
+        Normal   = 1 << std::to_underlying(MaterialVertexInputTypes::Normal),   // VIX_Normal
+        TexCoord = 1 << std::to_underlying(MaterialVertexInputTypes::TexCoord), // VI_TexCoord
+        Tangent  = 1 << std::to_underlying(MaterialVertexInputTypes::Tangent),  // VIX_Tangent
     };
 } // namespace Ame::Rhi

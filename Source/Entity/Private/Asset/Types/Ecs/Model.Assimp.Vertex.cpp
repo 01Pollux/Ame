@@ -145,10 +145,6 @@ namespace Ame::Ecs
         VectorAndOffset<VI3_Tangent>  tangents;
         VectorAndOffset<VI_TexCoord>  texCoords;
 
-        VectorAndOffset<uint32_t> indices32;
-        VectorAndOffset<uint32_t> indices16;
-        bool                      use16BitIndices = true;
-
         //
 
         auto reserveBuffer = [](auto& buffer, size_t count)
@@ -156,50 +152,42 @@ namespace Ame::Ecs
             buffer.reserve(buffer.size() + count);
         };
 
-        auto reserverIndexBuffer = [&](size_t count)
+        size_t   totalVertices = 0;
+        uint32_t maxIndex      = 0;
+        for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
         {
-            if (use16BitIndices)
+            totalVertices += mesh->mNumVertices;
+            std::span faces(mesh->mFaces, mesh->mNumFaces);
+            for (const aiFace& face : faces)
             {
-                // check for overflow
-                if ((indices16.Buffer.size() + count) <= std::numeric_limits<uint16_t>::max())
-                {
-                    indices16.Buffer.reserve(indices16.Buffer.size() + count);
-                    return;
-                }
-
-                use16BitIndices = false;
-                // transfer the data to 32 bit buffer
-                indices32.Buffer.insert(indices32.Buffer.end(), indices16.Buffer.begin(), indices16.Buffer.end());
-                indices32.Offset = indices16.Offset;
-
-                indices16.Buffer.clear();
-                indices16.Buffer.shrink_to_fit();
+                std::span indices(face.mIndices, face.mNumIndices);
+                maxIndex = std::max(maxIndex, *std::ranges::max_element(indices));
             }
-            indices32.Buffer.reserve(indices16.Buffer.size() + count);
-        };
+        }
+
+        VectorAndOffset<uint32_t> indices32;
+        VectorAndOffset<uint16_t> indices16;
+        bool                      use16BitIndices = maxIndex <= std::numeric_limits<uint16_t>::max();
+
+        reserveBuffer(positions.Buffer, totalVertices);
+        reserveBuffer(normals.Buffer, totalVertices);
+        reserveBuffer(tangents.Buffer, totalVertices);
+        reserveBuffer(texCoords.Buffer, totalVertices);
+
+        if (use16BitIndices)
+        {
+            indices16.Buffer.reserve(totalVertices * 3);
+        }
+        else
+        {
+            indices32.Buffer.reserve(totalVertices * 3);
+        }
 
         //
 
-        for (uint32_t i = 0; i < scene->mNumMeshes; i++)
+        for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
         {
-            aiMesh* mesh = scene->mMeshes[i];
-
-            reserveBuffer(positions.Buffer, mesh->mNumVertices);
-            reserveBuffer(normals.Buffer, mesh->mNumVertices);
-            if (mesh->HasTangentsAndBitangents())
-            {
-                reserveBuffer(tangents.Buffer, mesh->mNumVertices);
-            }
-            if (mesh->HasTextureCoords(0))
-            {
-                reserveBuffer(texCoords.Buffer, mesh->mNumVertices);
-            }
-            reserverIndexBuffer(mesh->mNumFaces * 3);
-
-            //
-
             Geometry::AABBMinMax minMax;
-
             for (uint32_t j = 0; j < mesh->mNumVertices; j++)
             {
                 Math::Vector3 position(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
@@ -220,6 +208,7 @@ namespace Ame::Ecs
                 }
             }
 
+            uint32_t indexCount = mesh->mNumFaces * 3;
             for (uint32_t j = 0; j < mesh->mNumFaces; j++)
             {
                 aiFace&                   face = mesh->mFaces[j];
@@ -235,7 +224,7 @@ namespace Ame::Ecs
                 }
             }
 
-            uint32_t indexCount = uint32_t(indices32.Size()) - indices32.Offset;
+            auto indexOffset = static_cast<uint32_t>(use16BitIndices ? indices16.Offset : indices32.Offset);
 
             createDesc.SubMeshes.emplace_back(SubMeshData{
                 .AABB           = minMax.ToAABB(),
@@ -243,7 +232,7 @@ namespace Ame::Ecs
                 .NormalOffset   = normals.Offset,
                 .TangentOffset  = mesh->HasTangentsAndBitangents() ? tangents.Offset : c_InvalidIndex,
                 .TexCoordOffset = mesh->HasTextureCoords(0) ? texCoords.Offset : c_InvalidIndex,
-                .IndexOffset    = use16BitIndices ? indices16.Offset : indices32.Offset,
+                .IndexOffset    = indexOffset,
                 .IndexCount     = indexCount,
                 .MaterialIndex  = mesh->mMaterialIndex });
 
@@ -254,7 +243,7 @@ namespace Ame::Ecs
             indices32.Sync();
             indices16.Sync();
 
-            Log::Asset().Info("Mesh {} has {} vertices and {} indices", i, mesh->mNumVertices, indexCount);
+            Log::Asset().Info("Mesh {} has {} vertices and {} indices", StringView(mesh->mName.C_Str(), mesh->mName.length), mesh->mNumVertices, indexCount);
         }
 
         createDesc.MeshNodes.reserve(scene->mNumMeshes);

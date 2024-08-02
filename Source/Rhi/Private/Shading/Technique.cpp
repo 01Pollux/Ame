@@ -256,16 +256,8 @@ namespace Ame::Rhi
         psoCreateDesc.GraphicsPipeline.InputLayout = inputLayout;
 
 #ifndef AME_DIST
-        String pipelineStateName;
-        if (m_RenderState.Name.empty())
-        {
-            psoCreateDesc.PSODesc.Name = materialDesc.Name.c_str();
-        }
-        else
-        {
-            pipelineStateName          = std::format("{}_{}", materialDesc.Name, m_RenderState.Name);
-            psoCreateDesc.PSODesc.Name = pipelineStateName.c_str();
-        }
+        String pipelineStateName   = std::format("{}_{}", materialDesc.Name, m_RenderState.Name);
+        psoCreateDesc.PSODesc.Name = pipelineStateName.c_str();
 #endif
 
         InitializePipelineState(psoCreateDesc, topology, materialDesc);
