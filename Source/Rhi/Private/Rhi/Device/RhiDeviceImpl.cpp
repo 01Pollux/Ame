@@ -62,4 +62,31 @@ namespace Ame::Rhi
             m_Wrapper.GetImmediateContext()->FinishFrame();
         }
     }
+
+    Dg::IEngineFactory* RhiDeviceImpl::GetFactory() const
+    {
+        return m_Wrapper.GetFactory();
+    }
+
+    Dg::IRenderDevice* RhiDeviceImpl::GetRenderDevice() const
+    {
+        return m_Wrapper.GetDevice();
+    }
+
+    Dg::IDeviceContext* RhiDeviceImpl::GetImmediateContext() const
+    {
+        return m_Wrapper.GetImmediateContext();
+    }
+
+    Window::IWindow* RhiDeviceImpl::GetWindow() const
+    {
+        auto windowWrapper = m_Wrapper.GetWindowWrapper();
+        return windowWrapper ? windowWrapper->GetWindow() : nullptr;
+    }
+
+    Dg::ISwapChain* RhiDeviceImpl::GetSwapchain() const
+    {
+        auto windowWrapper = m_Wrapper.GetWindowWrapper();
+        return windowWrapper ? windowWrapper->GetSwapchain() : nullptr;
+    }
 } // namespace Ame::Rhi

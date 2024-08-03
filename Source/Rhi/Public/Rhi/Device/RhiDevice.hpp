@@ -2,6 +2,11 @@
 
 #include <Rhi/Core.hpp>
 
+namespace Ame::Window
+{
+    class IWindow;
+} // namespace Ame::Window
+
 namespace Ame::Rhi
 {
     struct DeviceCreateDesc;
@@ -22,13 +27,20 @@ namespace Ame::Rhi
     class IRhiDevice : public IObject
     {
     public:
-        [[nodiscard]] virtual bool AME_METHOD(BeginFrame)() = 0;
+        [[nodiscard]] virtual bool BeginFrame() = 0;
 
         /// <summary>
         /// End the rendering device frame and present if device has window.
         /// </summary>
-        virtual void AME_METHOD(AdvanceFrame)(
+        virtual void AdvanceFrame(
             uint32_t syncInterval = 1) = 0;
+
+    public:
+        [[nodiscard]] virtual Dg::IEngineFactory* GetFactory() const          = 0;
+        [[nodiscard]] virtual Dg::IRenderDevice*  GetRenderDevice() const     = 0;
+        [[nodiscard]] virtual Dg::IDeviceContext* GetImmediateContext() const = 0;
+        [[nodiscard]] virtual Window::IWindow*    GetWindow() const           = 0;
+        [[nodiscard]] virtual Dg::ISwapChain*     GetSwapchain() const        = 0;
 
     public:
         /// <summary>

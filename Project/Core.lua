@@ -48,6 +48,11 @@ target_end()
 
 --
 
+target("Ame.RenderGraph")
+    ame_utils:add_library("Ame", "static", "Source/RenderGraph")
+    add_deps("Ame.Rhi", notshared_public_inherit)
+target_end()
+
 target("Ame.ImGuiUtils")
     ame_utils:add_library("Ame", "static", "Source/ImGuiUtils")
     add_deps("Ame.Rhi", notshared_public_inherit)
@@ -68,6 +73,7 @@ target_end()
 target("Ame.Graphics")
     ame_utils:add_library("Ame", "static", "Source/Graphics")
     add_deps("Ame.Ecs", notshared_public_inherit)
+    add_deps("Ame.RenderGraph", notshared_public_inherit)
     if not is_mode("release") then
         add_deps("Ame.ImGuiUtils", notshared_public_inherit)
     end

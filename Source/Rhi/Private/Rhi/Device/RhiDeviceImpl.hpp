@@ -26,6 +26,7 @@ namespace Ame::Rhi
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
             IID_RhiDevice, Base,
+            m_Wrapper.GetFactory(),
             m_Wrapper.GetDevice(),
             m_Wrapper.GetImmediateContext(),
             m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetWindow() : nullptr,
@@ -41,6 +42,12 @@ namespace Ame::Rhi
 
         void AdvanceFrame(
             uint32_t syncInterval) override;
+
+        Dg::IEngineFactory* GetFactory() const override;
+        Dg::IRenderDevice*  GetRenderDevice() const override;
+        Dg::IDeviceContext* GetImmediateContext() const override;
+        Window::IWindow*    GetWindow() const override;
+        Dg::ISwapChain*     GetSwapchain() const override;
 
     private:
         DeviceWrapper m_Wrapper;
