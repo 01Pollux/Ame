@@ -121,10 +121,10 @@ float4 main(in ps_input psIn) : SV_Target
         m_IndexBufferSize(desc.InitialIndexBufferSize),
         m_ConversionMode(desc.ConversionMode)
     {
-        desc.RhiDevice->QueryInterface(Dg::IID_RenderDevice, m_RenderDevice.DblPtr<IObject>());
-        desc.RhiDevice->QueryInterface(Dg::IID_DeviceContext, m_DeviceContext.DblPtr<IObject>());
+        m_RenderDevice  = desc.RhiDevice->GetRenderDevice();
+        m_DeviceContext = desc.RhiDevice->GetImmediateContext();
+        m_Swapchain     = desc.RhiDevice->GetSwapchain();
         desc.RhiDevice->QueryInterface(Window::IID_ImGuiWindow, m_ImGuiWindow.DblPtr<IObject>());
-        desc.RhiDevice->QueryInterface(Dg::IID_SwapChain, m_Swapchain.DblPtr<IObject>());
 
         auto& swapchainDesc = m_Swapchain->GetDesc();
 
