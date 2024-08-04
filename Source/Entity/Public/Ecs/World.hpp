@@ -166,6 +166,23 @@ namespace Ame::Ecs
         }
 
     public:
+        [[nodiscard]] auto operator->() const noexcept 
+        {
+            return &m_World;
+        }
+
+        [[nodiscard]] auto& operator*() const noexcept
+        {
+            return m_World;
+        }
+
+        [[nodiscard]] auto& Get() const noexcept
+        {
+            return m_World;
+        }
+        
+
+    public:
         [[nodiscard]] auto operator->()
         {
             return &m_World;

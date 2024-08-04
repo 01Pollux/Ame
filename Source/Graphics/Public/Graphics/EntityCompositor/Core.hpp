@@ -7,7 +7,7 @@
 #include <EcsComponent/Renderables/BaseRenderable.hpp>
 
 #include <Math/Camera.hpp>
-#include <Ecs/Entity.hpp>
+#include <Ecs/World.hpp>
 #include <RG/Graph.hpp>
 
 #include <Graphics/EntityCompositor/FrameConstants.hpp>
@@ -60,8 +60,8 @@ namespace Ame::Gfx
     struct EntityDrawCommand
     {
         Ecs::IBaseRenderable* Renderable = nullptr;
-        EntityDrawInstance    DrawInstance;
-        float                 Distance = std::numeric_limits<float>::quiet_NaN();
+        uint32_t              InstanceId = std::numeric_limits<uint32_t>::max();
+        float                 Distance   = std::numeric_limits<float>::quiet_NaN();
 
         void SetDistance(
             const Math::Vector3& cameraPosition)
@@ -87,8 +87,6 @@ namespace Ame::Gfx
 
     //
 
-    using EntityDrawCommandList            = std::vector<EntityDrawCommand>;
-    using EntityDrawCommandsCategory       = std::array<EntityDrawCommandList, static_cast<size_t>(DrawInstanceType::Count)>;
-    using SortedEntityDrawCommandList      = std::vector<uint32_t>;
-    using SortedEntityDrawCommandsCategory = std::array<SortedEntityDrawCommandList, static_cast<size_t>(DrawInstanceType::Count)>;
+    using EntityDrawCommandList      = std::vector<EntityDrawCommand>;
+    using EntityDrawCommandsCategory = std::array<EntityDrawCommandList, static_cast<size_t>(DrawInstanceType::Count)>;
 } // namespace Ame::Gfx

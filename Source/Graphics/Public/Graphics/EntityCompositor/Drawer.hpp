@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Graphics/EntityCompositor/Core.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/DrawInstance.hpp>
 #include <Ecs/Query.hpp>
 
 namespace Ame::Gfx
@@ -9,7 +10,8 @@ namespace Ame::Gfx
     {
     private:
         using RenderableQuery = Ecs::UniqueQuery<
-            const Ecs::RenderableComponent>;
+            const Ecs::RenderableComponent,
+            const EntityDrawInstance_EcsId>;
 
     public:
         EntityDrawer(

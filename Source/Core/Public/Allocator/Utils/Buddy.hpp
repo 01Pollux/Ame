@@ -22,16 +22,16 @@ namespace Ame::Allocator
         using size_type  = size_t;
 
         using offset_map_type = std::map<index_type, size_type>;
-        using size_map_type   = std::map<size_t, offset_map_type::const_iterator>;
+        using size_map_type   = std::map<size_type, offset_map_type::const_iterator>;
     };
 
     struct BuddyTraits_U32
     {
-        using index_type = size_t;
-        using size_type  = size_t;
+        using index_type = uint32_t;
+        using size_type  = uint32_t;
 
         using offset_map_type = std::map<index_type, size_type>;
-        using size_map_type   = std::map<size_t, offset_map_type::const_iterator>;
+        using size_map_type   = std::map<size_type, offset_map_type::const_iterator>;
     };
 
     template<BuddyTraits Ty = BuddyTraits_U64>

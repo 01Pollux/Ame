@@ -13,27 +13,14 @@ namespace Ame::Gfx
                 while (iter.next())
                 {
                     auto renderables = iter.field<const Ecs::RenderableComponent>(0);
+                    auto instanceIds = iter.field<const EntityDrawInstance_EcsId>(1);
+
                     for (size_t i : iter)
                     {
-                        Ecs::IBaseRenderable* renderable     = renderables[i].Object;
-                        auto&                 renderableDesc = renderable->GetRenderableDesc();
-
-                        EntityDrawInstance instance{
-                            .PositionOffset = renderableDesc.Vertices.Position.Offset,
-                            .NormalOffset   = renderableDesc.Vertices.Normal.Offset,
-                            .TexCoordOffset = renderableDesc.Vertices.TexCoord.Offset,
-                            .TangentOffset  = renderableDesc.Vertices.Tangent.Offset,
-                        };
-
-                        // TODO: Add bounding box/sphere optional
-                        // TODO: Add instance code
-                        // TODO: Add instance transform
-                        // TODO: draw type
-                        m_Collector.get().AddEntity(DrawInstanceType::Opaque, renderable, std::move(instance));
+                        m_Collector.get().AddEntity(DrawInstanceType::Opaque, renderables[i].Object, instanceIds[i].Id);
                     }
                 }
             });
-        m_Collector.get().Finalize();
     }
 
     void EntityDrawer::Draw(
