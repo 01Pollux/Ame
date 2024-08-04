@@ -174,6 +174,67 @@ void main(in ps_input psIn, out ps_output psOut) {
         Ptr<RendererSubmodule> rendererSubmodule;
         GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(IID_RendererSubmodule, rendererSubmodule.DblPtr<IObject>());
 
+        /*
+        m_World.CreateEntity()
+            .AddComponent<StaticMesh>(mdl)
+            .AddComponent<Transform>();
+
+        --
+
+        Gfx::EntityStorage entityStorage(m_World);
+
+        DrawInstance instance;
+        instance.TransformOffset = entityStorage.m_TransformBuffer.Add(...);
+        entityStorage.m_DrawInstanceBuffer.Add(instance);
+
+        --
+
+        camera = m_World.CreateEntity()
+            .AddComponent<Camera>()
+
+        --
+
+        EntityDrawer drawer(m_World);
+
+        drawer.drawAll();
+            update()
+            forEach camera
+                drawer.Draw(camera)
+
+        drawer.update()
+            foreach entity in world with IRenderable
+                category = entity.category
+                Collector(storage).add(entity.material, entity.vertexBuffersDesc, entity.indexBufferDesc, entity.transformId, entity.boundingId, entity.code)
+
+        drawer.Draw(camera)
+            auto rg = camera.RenderGraph
+            cameraFrame = {
+                frameData,
+                camera
+            }
+            commands.sort(camera)
+
+            entityStorage.upload(rg, cameraFrame, commands);
+
+                m_DrawInstanceBuffer.flatten(commands);
+
+                m_DrawCounterBuffer.reserve(commands.size());
+                m_DrawCommandBuffer.reserve(commands.size());
+
+                rg.upload("FrameDataBuffer", m_FrameDataBuffer);
+
+                rg.upload("TransformBuffer", m_TransformBuffer);
+                rg.upload("AABBBuffer", m_AABBBuffer);
+                rg.upload("SphereBuffer", m_SphereBuffer);
+                rg.upload("DrawInstanceBuffer", m_DrawInstanceBuffer);
+
+                rg.upload("DrawCounterBuffer", m_DrawCounterBuffer);
+                rg.upload("DrawCommandBuffer", m_DrawCommandBuffer);
+
+            rg.execute();
+
+        */
+
         rendererSubmodule->OnRenderUpdate(
             [mdl, deviceContext, technique, material, swapChain, entityInstanceBuffer, entityResourceBinding]
             {
@@ -220,6 +281,7 @@ void main(in ps_input psIn, out ps_output psOut) {
                 bindAllInSrb(entityResourceBinding, Dg::SHADER_TYPE_ALL_GRAPHICS, "g_Normals", mdl->GetNormalBuffer()->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
                 bindAllInSrb(entityResourceBinding, Dg::SHADER_TYPE_ALL_GRAPHICS, "g_TexCoords", mdl->GetTexCoordBuffer()->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
                 bindAllInSrb(entityResourceBinding, Dg::SHADER_TYPE_ALL_GRAPHICS, "g_Tangents", mdl->GetTangentBuffer()->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+                deviceContext->SetIndexBuffer(mdl->GetIndexBuffer(), 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
                 {
                     Dg::MapHelper<EntityInstance> mappedData(deviceContext, entityInstanceBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
@@ -236,9 +298,7 @@ void main(in ps_input psIn, out ps_output psOut) {
                     }
                 }
                 bindAllInSrb(entityResourceBinding, Dg::SHADER_TYPE_ALL_GRAPHICS, "g_EntityInstances", entityInstanceBuffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-
                 deviceContext->CommitShaderResources(entityResourceBinding, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-                deviceContext->SetIndexBuffer(mdl->GetIndexBuffer(), 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
                 uint32_t i = 0;
                 for (auto& submesh : mdl->GetSubMeshes())

@@ -140,10 +140,10 @@ namespace Ame::Ecs
 
         //
 
-        VectorAndOffset<VI3_Position> positions;
-        VectorAndOffset<VI3_Normal>   normals;
-        VectorAndOffset<VI3_Tangent>  tangents;
-        VectorAndOffset<VI_TexCoord>  texCoords;
+        VectorAndOffset<Vertex_Position> positions;
+        VectorAndOffset<Vertex_Normal>   normals;
+        VectorAndOffset<Vertex_TexCoord> texCoords;
+        VectorAndOffset<Vertex_Tangent>  tangents;
 
         //
 
