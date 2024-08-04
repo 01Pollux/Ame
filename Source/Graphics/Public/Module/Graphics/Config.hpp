@@ -15,6 +15,5 @@ namespace Ame
 
     struct GraphicsModuleConfig
     {
-        uint32_t SyncInterval = 0; // 0 = no vsync
     };
 } // namespace Ame

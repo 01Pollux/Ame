@@ -171,8 +171,8 @@ void main(in ps_input psIn, out ps_output psOut) {
 
         //
 
-        Ptr<RendererSubmodule> rendererSubmodule;
-        GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(IID_RendererSubmodule, rendererSubmodule.DblPtr<IObject>());
+        Ptr<Graphics::Renderer> rendererSubmodule;
+        GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(Graphics::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
 
         /*
         m_World.CreateEntity()
@@ -247,12 +247,7 @@ void main(in ps_input psIn, out ps_output psOut) {
 
                 using namespace EnumBitOperators;
 
-                Rhi::MaterialVertexInputFlags vertexInputFlags =
-                    Rhi::MaterialVertexInputFlags::Position |
-                    Rhi::MaterialVertexInputFlags::Normal |
-                    Rhi::MaterialVertexInputFlags::TexCoord |
-                    Rhi::MaterialVertexInputFlags::Tangent;
-                auto pso = technique->GetPipelineState(vertexInputFlags, Dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, material);
+                auto pso = technique->GetPipelineState(Dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, material);
 
                 deviceContext->SetPipelineState(pso);
 

@@ -31,19 +31,17 @@ namespace Ame::Rhi
     //
 
     Dg::IPipelineState* MaterialTechnique::GetPipelineState(
-        MaterialVertexInputFlags vertexInputFlags,
-        Dg::PRIMITIVE_TOPOLOGY   topology,
-        const Material*          material) const
+        Dg::PRIMITIVE_TOPOLOGY topology,
+        const Material*        material) const
     {
         auto hash = Dg::ComputeHash(
             material->GetMaterialHash(),
-            vertexInputFlags,
             topology);
 
         auto& pipelineState = m_PipelineStates[hash];
         if (!pipelineState)
         {
-            pipelineState = CreatePipelineState(vertexInputFlags, topology, material);
+            pipelineState = CreatePipelineState(topology, material);
         }
         return pipelineState;
     }
@@ -52,7 +50,6 @@ namespace Ame::Rhi
 
     auto MaterialTechnique::CombineShaders(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        MaterialVertexInputFlags             vertexInputFlags,
         const MaterialDesc&                  materialDesc) const -> ShadersToKeepAliveList
     {
         using namespace EnumBitOperators;
@@ -249,9 +246,8 @@ namespace Ame::Rhi
     }
 
     Ptr<Dg::IPipelineState> MaterialTechnique::CreatePipelineState(
-        MaterialVertexInputFlags vertexInputFlags,
-        Dg::PRIMITIVE_TOPOLOGY   topology,
-        const Material*          material) const
+        Dg::PRIMITIVE_TOPOLOGY topology,
+        const Material*        material) const
     {
         auto& materialDesc = material->GetMaterialDesc();
 
@@ -264,7 +260,7 @@ namespace Ame::Rhi
 
         InitializePipelineState(psoCreateDesc, topology, materialDesc);
         auto signatures = CombineSignatures(psoCreateDesc, material);
-        auto shaders    = CombineShaders(psoCreateDesc, vertexInputFlags, materialDesc);
+        auto shaders    = CombineShaders(psoCreateDesc, materialDesc);
 
         Ptr<Dg::IPipelineState> pipelineState;
         m_RenderDevice->CreateGraphicsPipelineState(psoCreateDesc, &pipelineState);

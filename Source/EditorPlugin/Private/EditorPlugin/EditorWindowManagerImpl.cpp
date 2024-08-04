@@ -34,8 +34,8 @@ namespace Ame::Editor
         const EditorWindowManagerCreateDesc& createDesc) :
         Base(counters)
     {
-        Ptr<RendererSubmodule> rendererSubmodule;
-        graphicsModule->QueryInterface(IID_RendererSubmodule, rendererSubmodule.DblPtr<IObject>());
+        Ptr<Graphics::Renderer> rendererSubmodule;
+        graphicsModule->QueryInterface(Graphics::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
         rhiModule->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
 
         m_OnImGuiRender = rendererSubmodule->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));

@@ -31,9 +31,8 @@ namespace Ame::Rhi
         /// Get the pipeline state for the given material and vertex input flags
         /// </summary>
         [[nodiscard]] Dg::IPipelineState* GetPipelineState(
-            MaterialVertexInputFlags vertexInputFlags,
-            Dg::PRIMITIVE_TOPOLOGY   topology,
-            const Material*          material) const;
+            Dg::PRIMITIVE_TOPOLOGY topology,
+            const Material*        material) const;
 
     private:
         using ShadersToKeepAliveList = std::vector<Ptr<Dg::IShader>>;
@@ -45,7 +44,6 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] ShadersToKeepAliveList CombineShaders(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-            MaterialVertexInputFlags             vertexInputFlags,
             const MaterialDesc&                  materialDesc) const;
 
         /// <summary>
@@ -67,9 +65,8 @@ namespace Ame::Rhi
         /// Create pipeline state for the material
         /// </summary>
         [[nodiscard]] Ptr<Dg::IPipelineState> CreatePipelineState(
-            MaterialVertexInputFlags vertexInputFlags,
-            Dg::PRIMITIVE_TOPOLOGY   topology,
-            const Material*          material) const;
+            Dg::PRIMITIVE_TOPOLOGY topology,
+            const Material*        material) const;
 
     private:
         template<typename, typename>

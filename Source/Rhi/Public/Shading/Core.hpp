@@ -105,22 +105,4 @@ namespace Ame::Rhi
     //
 
     using MaterialHash = size_t;
-
-    enum class MaterialVertexInputTypes : uint16_t
-    {
-        Position, // VIX_Position
-        Normal,   // VIX_Normal
-        TexCoord, // VI_TexCoord
-        Tangent,  // VIX_Tangent
-        Count,
-    };
-
-    enum class MaterialVertexInputFlags : uint16_t
-    {
-        None     = 0,
-        Position = 1 << std::to_underlying(MaterialVertexInputTypes::Position), // VIX_Position
-        Normal   = 1 << std::to_underlying(MaterialVertexInputTypes::Normal),   // VIX_Normal
-        TexCoord = 1 << std::to_underlying(MaterialVertexInputTypes::TexCoord), // VI_TexCoord
-        Tangent  = 1 << std::to_underlying(MaterialVertexInputTypes::Tangent),  // VIX_Tangent
-    };
 } // namespace Ame::Rhi
