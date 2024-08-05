@@ -171,8 +171,8 @@ void main(in ps_input psIn, out ps_output psOut) {
 
         //
 
-        Ptr<Graphics::Renderer> rendererSubmodule;
-        GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(Graphics::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
+        Ptr<Gfx::Renderer> rendererSubmodule;
+        GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
 
         /*
         m_World.CreateEntity()

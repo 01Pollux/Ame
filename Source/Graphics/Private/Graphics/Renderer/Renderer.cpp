@@ -3,7 +3,7 @@
 #include <Rhi/ImGui/ImGuiFrameContext.hpp>
 #include <imgui.h>
 
-namespace Ame::Graphics
+namespace Ame::Gfx
 {
     bool Renderer::Tick()
     {
@@ -13,6 +13,9 @@ namespace Ame::Graphics
 
             Invoke_OnRenderBegin();
             Invoke_OnRenderUpdate();
+
+            RunRenderGraph();
+
             Invoke_OnRenderPostUpdate();
             Invoke_OnRenderEnd();
 
@@ -47,4 +50,4 @@ namespace Ame::Graphics
             immediateContext->ClearDepthStencil(depthStencil, Dg::CLEAR_DEPTH_FLAG | Dg::CLEAR_STENCIL_FLAG, 1.0f, 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
     }
-} // namespace Ame::Graphics
+} // namespace Ame::Gfx

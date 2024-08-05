@@ -47,4 +47,11 @@ namespace Ame::Gfx
         m_Storage.get().WriteInstanceIndices(m_DrawCommands);
         m_Storage.get().UploadToRenderGraph(cameraGraph, frameData);
     }
+
+    //
+
+    Rhi::IRhiDevice* EntityCollector::GetRenderDevice()
+    {
+        return m_Storage.get().GetRenderDevice();
+    }
 } // namespace Ame::Gfx

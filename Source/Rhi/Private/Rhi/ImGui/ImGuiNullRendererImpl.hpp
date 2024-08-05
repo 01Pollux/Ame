@@ -43,5 +43,10 @@ namespace Ame::Rhi
         {
             return nullptr;
         }
+
+        bool RenderBackbufferToTexture() const override
+        {
+            return false;
+        }
     };
 } // namespace Ame::Rhi

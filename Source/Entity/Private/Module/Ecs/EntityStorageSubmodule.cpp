@@ -9,9 +9,9 @@ namespace Ame
         IReferenceCounters*    counters,
         const EcsModuleConfig& config) :
         Base(counters, IID_EntityModule),
-        m_World(ObjectAllocator<Ecs::WorldObject>()())
+        m_World(ObjectAllocator<Ecs::World>()())
     {
-        auto& world = m_World->Get();
+        auto& world = *m_World;
 
 #ifndef AME_DIST
         if (config.EnableMonitors)

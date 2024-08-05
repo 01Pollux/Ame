@@ -24,7 +24,6 @@ namespace Ame::Gfx
     }
 
     void EntityDrawer::Draw(
-        Rhi::IRhiDevice*             rhiDevice,
         RG::Graph&                   cameraGraph,
         const Ecs::Entity&           cameraEntity,
         const Math::Camera&          camera,
@@ -50,6 +49,6 @@ namespace Ame::Gfx
 
         //
 
-        cameraGraph.Execute(rhiDevice);
+        cameraGraph.Execute(m_Collector.get().GetRenderDevice());
     }
 } // namespace Ame::Gfx

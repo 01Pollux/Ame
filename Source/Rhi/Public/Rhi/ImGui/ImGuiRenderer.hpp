@@ -19,14 +19,15 @@ namespace Ame::Rhi
     class IImGuiRenderer : public IObject
     {
     public:
-        virtual void AME_METHOD(BeginFrame)(
-            Dg::SURFACE_TRANSFORM transform = Dg::SURFACE_TRANSFORM_IDENTITY) = 0;
-        virtual void AME_METHOD(EndFrame)()                                   = 0;
-        virtual void AME_METHOD(Reset)()                                      = 0;
+        virtual void BeginFrame(Dg::SURFACE_TRANSFORM transform = Dg::SURFACE_TRANSFORM_IDENTITY) = 0;
+        virtual void EndFrame()                                                                   = 0;
+        virtual void Reset()                                                                      = 0;
 
-        [[nodiscard]] virtual ImFont* AME_METHOD(FindFont)(const String& fontName) const                                   = 0;
-        [[nodiscard]] virtual ImFont* AME_METHOD(LoadFont)(const String& fontName, const ImFontConfig& fontConfig)         = 0;
-        [[nodiscard]] virtual ImFont* AME_METHOD(LoadCompressedFont)(const char* fontName, const ImFontConfig& fontConfig) = 0;
+        [[nodiscard]] virtual ImFont* FindFont(const String& fontName) const                                   = 0;
+        [[nodiscard]] virtual ImFont* LoadFont(const String& fontName, const ImFontConfig& fontConfig)         = 0;
+        [[nodiscard]] virtual ImFont* LoadCompressedFont(const char* fontName, const ImFontConfig& fontConfig) = 0;
+
+        [[nodiscard]] virtual bool RenderBackbufferToTexture() const = 0; // Used to determine if we should render directly to backbuffer or let imgui render to a texture.
     };
 
     /// <summary>

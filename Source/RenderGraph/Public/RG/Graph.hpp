@@ -5,8 +5,20 @@
 
 namespace Ame::RG
 {
-    class Graph
+    class Graph : public BaseObject<IObject>
     {
+    public:
+        using Base = BaseObject<IObject>;
+
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
+            IID_RenderGraph, Base);
+
+        Graph(
+            IReferenceCounters* counter) :
+            Base(counter)
+        {
+        }
+
     public:
         /// <summary>
         /// Execute the render graph with the immediate context

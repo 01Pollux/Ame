@@ -10,14 +10,14 @@ namespace Ame::Gfx
         static constexpr uint32_t c_DrawCommandsChunkSize = 1024;
 
     private:
-        friend class EntityDrawer;
+        friend class EntityCollector;
 
     public:
         EntityStorage(
-            Ecs::World&      world,
-            Rhi::IRhiDevice* rhiDevice);
+            Rhi::IRhiDevice* rhiDevice,
+            Ecs::World*      world);
 
-    public:
+    private:
         void WriteInstanceIndices(
             const EntityDrawCommandsCategory& sortedInstances);
 
@@ -40,8 +40,11 @@ namespace Ame::Gfx
             RG::Graph& cameraGraph);
 
     private:
+        [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();
+
+    private:
         Rhi::IRhiDevice* m_RhiDevice;
-        Ref<Ecs::World>  m_World;
+        Ecs::World*      m_World;
 
         Ptr<Dg::IBuffer> m_FrameDataBuffer; // FrameData
 

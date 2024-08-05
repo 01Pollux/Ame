@@ -282,6 +282,11 @@ float4 main(in ps_input psIn) : SV_Target
         return font;
     }
 
+    bool ImGuiDiligentRendererImpl::RenderBackbufferToTexture() const
+    {
+        return true;
+    }
+
     //
 
     void ImGuiDiligentRendererImpl::SetDefaultTheme()

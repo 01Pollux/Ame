@@ -4,13 +4,6 @@
 
 namespace Ame::Ecs
 {
-    /// <summary>
-    /// Defines:
-    /// TransformComponent
-    /// GlobalTransformComponent
-    /// AABBComponent
-    /// AABBTransformedComponent
-    /// </summary>
     class MathEcsModule
     {
     public:

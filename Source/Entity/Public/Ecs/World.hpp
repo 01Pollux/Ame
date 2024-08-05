@@ -10,18 +10,21 @@
 
 namespace Ame::Ecs
 {
-    class World
+    static constexpr UId IID_EntityWorld{ 0x4132fa8f, 0x6567, 0x45bb, { 0x83, 0xb0, 0xf1, 0xb2, 0x64, 0xff, 0xd5, 0xc7 } };
+
+    class World : public BaseObject<IObject>
     {
     public:
-        World();
+        using Base = BaseObject<IObject>;
 
-        World(const World&) = delete;
-        World(World&&) noexcept;
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
+            IID_EntityWorld, Base);
 
-        World& operator=(const World&) = delete;
-        World& operator=(World&&) noexcept;
+    public:
+        World(
+            IReferenceCounters* counter);
 
-        ~World();
+        ~World() override;
 
     public:
         /// <summary>
@@ -100,9 +103,6 @@ namespace Ame::Ecs
         UniquePtr<flecs::world> m_World;
     };
 
-    static constexpr UId IID_EntityWorld{ 0x4132fa8f, 0x6567, 0x45bb, { 0x83, 0xb0, 0xf1, 0xb2, 0x64, 0xff, 0xd5, 0xc7 } };
-    using WorldObject = WrappedObject<World, IID_EntityWorld>;
-
     //
 
     class WorldRef
@@ -166,7 +166,7 @@ namespace Ame::Ecs
         }
 
     public:
-        [[nodiscard]] auto operator->() const noexcept 
+        [[nodiscard]] auto operator->() const noexcept
         {
             return &m_World;
         }
@@ -180,7 +180,6 @@ namespace Ame::Ecs
         {
             return m_World;
         }
-        
 
     public:
         [[nodiscard]] auto operator->()

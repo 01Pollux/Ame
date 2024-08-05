@@ -64,7 +64,7 @@ target_end()
 target("Ame.Ecs")
     ame_utils:add_library("Ame", "static", "Source/Entity")
     add_deps("Ame.Geometry", notshared_public_inherit)
-    add_deps("Ame.Rhi", notshared_public_inherit)
+    add_deps("Ame.RenderGraph", notshared_public_inherit)
     add_packages("assimp")
 target_end()
 
@@ -73,7 +73,6 @@ target_end()
 target("Ame.Graphics")
     ame_utils:add_library("Ame", "static", "Source/Graphics")
     add_deps("Ame.Ecs", notshared_public_inherit)
-    add_deps("Ame.RenderGraph", notshared_public_inherit)
     if not is_mode("release") then
         add_deps("Ame.ImGuiUtils", notshared_public_inherit)
     end

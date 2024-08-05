@@ -16,7 +16,7 @@ namespace Ame
             m_ImGuiRenderer);
 
     public:
-        explicit ImGuiSubmodule(
+        ImGuiSubmodule(
             IReferenceCounters*      counters,
             Ptr<Rhi::IImGuiRenderer> imguiRenderer) :
             Base(counters, IID_ImGuiSubmodule),

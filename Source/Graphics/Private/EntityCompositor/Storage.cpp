@@ -6,11 +6,11 @@
 namespace Ame::Gfx
 {
     EntityStorage::EntityStorage(
-        Ecs::World&      world,
-        Rhi::IRhiDevice* rhiDevice) :
+        Rhi::IRhiDevice* rhiDevice,
+        Ecs::World*      world) :
         m_World(world),
         m_RhiDevice(rhiDevice),
-        m_DrawInstanceStorage(world)
+        m_DrawInstanceStorage(*world)
     {
         Dg::BufferDesc bufferDesc{
             "FrameDataBuffer",
@@ -143,5 +143,12 @@ namespace Ame::Gfx
         resourceStorage.ImportBuffer(RG_FrameDataResource, m_FrameDataBuffer);
         resourceStorage.ImportBuffer(RG_DrawCommandResource, m_DrawCommandBuffer);
         resourceStorage.ImportBuffer(RG_DrawCounterResource, m_DrawCounterBuffer);
+    }
+
+    //
+
+    Rhi::IRhiDevice* EntityStorage::GetRenderDevice()
+    {
+        return m_RhiDevice;
     }
 } // namespace Ame::Gfx

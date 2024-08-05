@@ -37,6 +37,6 @@ namespace Ame
         [[nodiscard]] bool Tick();
 
     private:
-        Ptr<Graphics::Renderer> m_Renderer;
+        Ptr<Gfx::Renderer> m_Renderer;
     };
 } // namespace Ame

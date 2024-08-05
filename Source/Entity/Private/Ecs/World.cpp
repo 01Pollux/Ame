@@ -12,34 +12,15 @@ namespace Ame::Ecs
     /// </summary>
     static std::mutex g_FlecsMutex;
 
-    World::World()
+    World::World(
+        IReferenceCounters* counter) :
+        Base(counter)
     {
         {
             std::lock_guard initLock(g_FlecsMutex);
             m_World = std::make_unique<flecs::world>();
             ImportModule<CoreEcsModule>();
         }
-    }
-
-    World::World(
-        World&& other) noexcept :
-        m_World(std::move(other.m_World))
-    {
-    }
-
-    World& World::operator=(
-        World&& other) noexcept
-    {
-        if (this != &other)
-        {
-            if (m_World)
-            {
-                std::lock_guard initLock(g_FlecsMutex);
-                m_World.reset();
-            }
-            m_World = std::move(other.m_World);
-        }
-        return *this;
     }
 
     World::~World()

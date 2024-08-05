@@ -21,6 +21,6 @@ namespace Ame
             const EcsModuleConfig& config);
 
     private:
-        Ptr<Ecs::WorldObject> m_World;
+        Ptr<Ecs::World> m_World;
     };
 } // namespace Ame

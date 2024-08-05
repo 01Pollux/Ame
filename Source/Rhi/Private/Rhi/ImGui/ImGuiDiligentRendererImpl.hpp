@@ -34,9 +34,11 @@ namespace Ame::Rhi
         void Reset() override;
 
     public:
-        ImFont* AME_METHOD(FindFont)(const String& fontName) const override;
-        ImFont* AME_METHOD(LoadFont)(const String& fontName, const ImFontConfig& fontConfig) override;
-        ImFont* AME_METHOD(LoadCompressedFont)(const char* fontName, const ImFontConfig& fontConfig) override;
+        ImFont* FindFont(const String& fontName) const override;
+        ImFont* LoadFont(const String& fontName, const ImFontConfig& fontConfig) override;
+        ImFont* LoadCompressedFont(const char* fontName, const ImFontConfig& fontConfig) override;
+
+        bool RenderBackbufferToTexture() const override;
 
     private:
         void SetDefaultTheme();

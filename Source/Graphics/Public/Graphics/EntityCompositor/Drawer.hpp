@@ -20,10 +20,8 @@ namespace Ame::Gfx
         {
         }
 
-    private:
         void Update();
         void Draw(
-            Rhi::IRhiDevice*             rhiDevice,
             RG::Graph&                   cameraGraph,
             const Ecs::Entity&           cameraEntity,
             const Math::Camera&          camera,

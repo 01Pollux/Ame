@@ -30,7 +30,7 @@ namespace Ame
         RhiModule*                  rhiModule,
         const GraphicsModuleConfig& config) :
         Base(counters, IID_RendererSubmodule),
-        m_Renderer(ObjectAllocator<Graphics::Renderer>()(GetRhiDevice(rhiModule), GetImGuiRenderer(rhiModule)))
+        m_Renderer(ObjectAllocator<Gfx::Renderer>()(GetRhiDevice(rhiModule), GetImGuiRenderer(rhiModule)))
     {
     }
 
