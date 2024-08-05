@@ -17,19 +17,21 @@ namespace Ame
         m_ModuleRegistery.RegisterModule<CoreModule>(engineConfig.CoreConfig);
         if (engineConfig.RhiConfig)
         {
-            auto rhiModule = m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
-            if (engineConfig.GraphicsConfig)
-            {
-                GraphicsModule::Dependencies deps{
-                    rhiModule
-                };
-                m_ModuleRegistery.RegisterModule<GraphicsModule>(deps, *engineConfig.GraphicsConfig);
-            }
+            m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
         }
 
         if (engineConfig.EcsConfig)
         {
             m_ModuleRegistery.RegisterModule<EntityModule>(*engineConfig.EcsConfig);
+        }
+
+        if (engineConfig.GraphicsConfig)
+        {
+            GraphicsModule::Dependencies deps{
+                m_ModuleRegistery.GetModule<RhiModule>(IID_RhiModule),
+                m_ModuleRegistery.GetModule<EntityModule>(IID_EntityModule)
+            };
+            m_ModuleRegistery.RegisterModule<GraphicsModule>(deps, *engineConfig.GraphicsConfig);
         }
 
         RefreshSubmoduleCache();

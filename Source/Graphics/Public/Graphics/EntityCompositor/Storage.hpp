@@ -41,6 +41,7 @@ namespace Ame::Gfx
 
     private:
         [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();
+        [[nodiscard]] Ecs::World*      GetWorld();
 
     private:
         Rhi::IRhiDevice* m_RhiDevice;

@@ -83,16 +83,6 @@ namespace Ame::Math
 
         [[nodiscard]] CameraType GetType() const;
 
-        /// <summary>
-        /// The culling mask of the camera.
-        /// </summary>
-        uint32_t ViewMask = 0xFFFFFFFF;
-
-        /// <summary>
-        /// The render order of the camera.
-        /// </summary>
-        int Priority = 0;
-
     public:
         /// <summary>
         /// Get the projection matrix of the viewport.

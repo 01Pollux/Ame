@@ -15,10 +15,7 @@ namespace Ame::Gfx
 
     public:
         EntityDrawer(
-            EntityCollector& collector) :
-            m_Collector(collector)
-        {
-        }
+            EntityCollector& collector);
 
         void Update();
         void Draw(

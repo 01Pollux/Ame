@@ -151,4 +151,9 @@ namespace Ame::Gfx
     {
         return m_RhiDevice;
     }
+
+    Ecs::World* EntityStorage::GetWorld()
+    {
+        return m_World;
+    }
 } // namespace Ame::Gfx

@@ -40,17 +40,8 @@ namespace Ame::Gfx
         Renderer(
             IReferenceCounters*  counters,
             Rhi::IRhiDevice*     rhiDevice,
-            Ecs::WorldObject*    world,
-            Rhi::IImGuiRenderer* imguiRenderer) :
-            Base(counters),
-            m_RhiDevice(rhiDevice),
-            m_World(world)
-#ifndef AME_NO_IMGUI
-            ,
-            m_ImGuiRenderer(imguiRenderer)
-#endif
-        {
-        }
+            Ecs::World*          world,
+            Rhi::IImGuiRenderer* imguiRenderer);
 
     public:
         /// <summary>
@@ -93,17 +84,18 @@ namespace Ame::Gfx
 #endif
 
     private:
+        void CreateCameraQuery();
         void RunRenderGraph();
 
         void ClearRenderTarget();
 
     private:
-        Ptr<Rhi::IRhiDevice>  m_RhiDevice;
-        Ptr<Ecs::WorldObject> m_World;
+        Ptr<Rhi::IRhiDevice>       m_RhiDevice;
+        Ptr<Rhi::CommonRenderPass> m_CommonRenderPass;
+        Ptr<Ecs::World>            m_World;
 #ifndef AME_NO_IMGUI
         Ptr<Rhi::IImGuiRenderer> m_ImGuiRenderer;
 #endif
-        Ptr<Rhi::CommonRenderPass> m_CommonRenderPass;
 
         Math::Color4 m_ClearColor   = Colors::c_DimGray;
         uint32_t     m_SyncInterval = 0;

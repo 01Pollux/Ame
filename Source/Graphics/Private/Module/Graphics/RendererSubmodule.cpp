@@ -2,11 +2,13 @@
 
 #include <Module/Rhi/RhiModule.hpp>
 #include <Rhi/ImGui/ImGuiRenderer.hpp>
+#include <Module/Ecs/EntityModule.hpp>
 
 #include <imgui.h>
 
 namespace Ame
 {
+    [[nodiscard]]
     static Ptr<Rhi::IRhiDevice> GetRhiDevice(
         RhiModule* rhiModule)
     {
@@ -15,6 +17,7 @@ namespace Ame
         return rhiDevice;
     }
 
+    [[nodiscard]]
     static Ptr<Rhi::IImGuiRenderer> GetImGuiRenderer(
         RhiModule* rhiModule)
     {
@@ -25,12 +28,21 @@ namespace Ame
         return imguiRenderer;
     }
 
+    [[nodiscard]] static Ptr<Ecs::World> GetWorld(
+        EntityModule* entityModule)
+    {
+        Ptr<Ecs::World> world;
+        entityModule->QueryInterface(Ecs::IID_EntityWorld, world.DblPtr<IObject>());
+        return world;
+    }
+
     RendererSubmodule::RendererSubmodule(
         IReferenceCounters*         counters,
         RhiModule*                  rhiModule,
+        EntityModule*               entityModule,
         const GraphicsModuleConfig& config) :
         Base(counters, IID_RendererSubmodule),
-        m_Renderer(ObjectAllocator<Gfx::Renderer>()(GetRhiDevice(rhiModule), GetImGuiRenderer(rhiModule)))
+        m_Renderer(ObjectAllocator<Gfx::Renderer>()(GetRhiDevice(rhiModule), GetWorld(entityModule), GetImGuiRenderer(rhiModule)))
     {
     }
 

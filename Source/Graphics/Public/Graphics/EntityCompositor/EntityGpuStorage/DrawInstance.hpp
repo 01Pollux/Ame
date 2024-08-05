@@ -35,8 +35,10 @@ namespace Ame::Gfx
         static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
         {
             return world
-                ->observer()
-                .with<Ecs::RenderableComponent>();
+                ->observer<>()
+                .with<Ecs::RenderableComponent>()
+                .event(flecs::OnRemove)
+                .event(flecs::OnSet);
         }
     };
 

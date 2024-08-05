@@ -54,4 +54,9 @@ namespace Ame::Gfx
     {
         return m_Storage.get().GetRenderDevice();
     }
+
+    Ecs::World* EntityCollector::GetWorld()
+    {
+        return m_Storage.get().GetWorld();
+    }
 } // namespace Ame::Gfx

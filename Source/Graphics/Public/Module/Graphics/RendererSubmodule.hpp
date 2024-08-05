@@ -14,6 +14,7 @@ namespace Ame::Rhi
 namespace Ame
 {
     class RhiModule;
+    class EntityModule;
 
     class RendererSubmodule final : public BaseObject<ISubmodule>
     {
@@ -28,6 +29,7 @@ namespace Ame
         RendererSubmodule(
             IReferenceCounters*         counters,
             RhiModule*                  rhiModule,
+            EntityModule*               entityModule,
             const GraphicsModuleConfig& config);
 
     public:

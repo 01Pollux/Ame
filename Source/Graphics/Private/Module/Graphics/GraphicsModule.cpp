@@ -7,7 +7,7 @@ namespace Ame
         Dependencies                dependencies,
         const GraphicsModuleConfig& config) :
         Base(counters, IID_GraphicsModule),
-        m_RendererSubmodule(ObjectAllocator<RendererSubmodule>()(dependencies.RhiMod, config))
+        m_RendererSubmodule(ObjectAllocator<RendererSubmodule>()(dependencies.RhiMod, dependencies.EntMod, config))
     {
     }
 } // namespace Ame

@@ -30,6 +30,7 @@ namespace Ame::Gfx
 
     private:
         [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();
+        [[nodiscard]] Ecs::World*      GetWorld();
 
     private:
         Ref<EntityStorage> m_Storage;

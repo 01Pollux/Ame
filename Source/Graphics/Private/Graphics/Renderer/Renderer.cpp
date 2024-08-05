@@ -5,6 +5,22 @@
 
 namespace Ame::Gfx
 {
+    Renderer::Renderer(
+        IReferenceCounters*  counters,
+        Rhi::IRhiDevice*     rhiDevice,
+        Ecs::World*          world,
+        Rhi::IImGuiRenderer* imguiRenderer) :
+        Base(counters),
+        m_RhiDevice(rhiDevice),
+        m_World(world),
+#ifndef AME_NO_IMGUI
+        m_ImGuiRenderer(imguiRenderer),
+#endif
+        m_EntityCompositor(rhiDevice, world)
+    {
+        CreateCameraQuery();
+    }
+
     bool Renderer::Tick()
     {
         if (m_RhiDevice->BeginFrame()) [[likely]]

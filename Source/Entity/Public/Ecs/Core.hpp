@@ -106,7 +106,19 @@ namespace Ame::Ecs
             {
                 if constexpr (requires { m_Entity.destruct(); })
                 {
-                    m_Entity.destruct();
+                    bool shouldDelete = true;
+                    if constexpr (requires { m_Entity.entity(); })
+                    {
+                        // assert: query_->entity != 0 destruct() should only be called on queries associated with entities
+                        if (!m_Entity.entity())
+                        {
+                            shouldDelete = false;
+                        }
+                    }
+                    if (shouldDelete)
+                    {
+                        m_Entity.destruct();
+                    }
                 }
                 else if constexpr (requires { m_Entity.Reset(); })
                 {

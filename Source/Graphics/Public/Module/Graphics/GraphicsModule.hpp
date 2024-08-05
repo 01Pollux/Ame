@@ -18,7 +18,8 @@ namespace Ame
 
         struct Dependencies
         {
-            RhiModule* RhiMod;
+            RhiModule*    RhiMod;
+            EntityModule* EntMod;
         };
 
     public:

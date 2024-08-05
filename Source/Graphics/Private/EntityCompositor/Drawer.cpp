@@ -4,6 +4,18 @@
 
 namespace Ame::Gfx
 {
+    EntityDrawer::EntityDrawer(
+        EntityCollector& collector) :
+        m_Collector(collector)
+    {
+        auto world = collector.GetWorld();
+        m_RenderableQuery =
+            world->CreateQuery<
+                     const Ecs::RenderableComponent,
+                     const EntityDrawInstance_EcsId>()
+                .build();
+    }
+
     void EntityDrawer::Update()
     {
         m_Collector.get().Reset();

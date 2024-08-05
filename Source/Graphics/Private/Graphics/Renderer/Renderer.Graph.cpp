@@ -61,6 +61,22 @@ namespace Ame::Gfx
         }
     }
 
+    //
+
+    void Renderer::CreateCameraQuery()
+    {
+        m_CameraQuery =
+            m_World->CreateQuery<
+                     const Ecs::TransformComponent,
+                     const Ecs::CameraComponent,
+                     const Ecs::CameraOutputComponent>()
+                .order_by<const Ecs::CameraComponent>(
+                    [](Ecs::EntityId, auto a,
+                       Ecs::EntityId, auto b) -> int
+                    { return a->Priority - b->Priority; })
+                .build();
+    }
+
     void Renderer::RunRenderGraph()
     {
         const Ecs::CameraOutputComponent* lastOutput = nullptr;
