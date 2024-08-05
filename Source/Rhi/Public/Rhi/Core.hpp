@@ -12,6 +12,11 @@
 #include <DiligentCore/Graphics/GraphicsEngine/interface/DeviceContext.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/SwapChain.h>
 
+namespace Diligent
+{
+    class IRenderStateCache;
+}
+
 namespace Ame::Window
 {
     class IWindow;
@@ -20,6 +25,7 @@ namespace Ame::Window
 namespace Ame::Rhi
 {
     class IRhiDevice;
+    class CommonRenderPass;
 
     //
 

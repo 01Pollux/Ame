@@ -3,6 +3,9 @@
 #include <Rhi/Wrapper/DeviceWrapper.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
 
+#include <CommonStates/CommonRenderPasses.hpp>
+#include <DiligentCore/Graphics/GraphicsTools/interface/RenderStateCache.h>
+
 namespace Ame::Rhi
 {
     struct DeviceCreateDesc;
@@ -43,16 +46,18 @@ namespace Ame::Rhi
         void AdvanceFrame(
             uint32_t syncInterval) override;
 
-        Dg::IEngineFactory* GetFactory() const override;
-        Dg::IRenderDevice*  GetRenderDevice() const override;
-        Dg::IDeviceContext* GetImmediateContext() const override;
-        Window::IWindow*    GetWindow() const override;
-        Dg::ISwapChain*     GetSwapchain() const override;
+        Dg::IEngineFactory*    GetFactory() const override;
+        Dg::IRenderDevice*     GetRenderDevice() const override;
+        Dg::IDeviceContext*    GetImmediateContext() const override;
+        Window::IWindow*       GetWindow() const override;
+        Dg::ISwapChain*        GetSwapchain() const override;
+        CommonRenderPass*      GetCommonRenderPass() const override;
+        Dg::IRenderStateCache* GetRenderStateCache() const override;
 
     private:
         DeviceWrapper m_Wrapper;
 
-        uint32_t m_ConcurrentLoopCount;
-        uint32_t m_ConcurrentLoopChunkSize;
+        Ptr<CommonRenderPass>      m_CommonRenderPass;
+        Ptr<Dg::IRenderStateCache> m_RenderStateCache;
     };
 } // namespace Ame::Rhi

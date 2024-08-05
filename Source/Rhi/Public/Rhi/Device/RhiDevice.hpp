@@ -23,6 +23,8 @@ namespace Ame::Rhi
     /// - IID_EngineFactory
     /// - IID_RenderDevice
     /// - IID_Swapchain
+    /// - IID_CommonRenderPass
+    /// - IID_RenderStateCache
     /// </summary>
     class IRhiDevice : public IObject
     {
@@ -36,11 +38,13 @@ namespace Ame::Rhi
             uint32_t syncInterval = 1) = 0;
 
     public:
-        [[nodiscard]] virtual Dg::IEngineFactory* GetFactory() const          = 0;
-        [[nodiscard]] virtual Dg::IRenderDevice*  GetRenderDevice() const     = 0;
-        [[nodiscard]] virtual Dg::IDeviceContext* GetImmediateContext() const = 0;
-        [[nodiscard]] virtual Window::IWindow*    GetWindow() const           = 0;
-        [[nodiscard]] virtual Dg::ISwapChain*     GetSwapchain() const        = 0;
+        [[nodiscard]] virtual Dg::IEngineFactory*    GetFactory() const          = 0;
+        [[nodiscard]] virtual Dg::IRenderDevice*     GetRenderDevice() const     = 0;
+        [[nodiscard]] virtual Dg::IDeviceContext*    GetImmediateContext() const = 0;
+        [[nodiscard]] virtual Window::IWindow*       GetWindow() const           = 0; // may be null if there is no window
+        [[nodiscard]] virtual Dg::ISwapChain*        GetSwapchain() const        = 0; // may be null if there is no window
+        [[nodiscard]] virtual CommonRenderPass*      GetCommonRenderPass() const = 0;
+        [[nodiscard]] virtual Dg::IRenderStateCache* GetRenderStateCache() const = 0; // may be null if the device was not created with a render state cache
 
     public:
         /// <summary>

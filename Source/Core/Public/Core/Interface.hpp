@@ -59,6 +59,8 @@ namespace Ame
         }
     };
 
+    //
+
     /// Template class implementing base functionality for an object
     template<typename BaseInterface>
     class BaseObject : public RefCountedObject<BaseInterface>

@@ -33,7 +33,8 @@ namespace Ame::Rhi
         IReferenceCounters*     counters,
         const DeviceCreateDesc& createDesc) :
         Base(counters),
-        m_Wrapper(*DeviceWrapper::Create(createDesc))
+        m_Wrapper(*DeviceWrapper::Create(createDesc)),
+        m_CommonRenderPass(ObjectAllocator<CommonRenderPass>()(this))
     {
     }
 
@@ -88,5 +89,15 @@ namespace Ame::Rhi
     {
         auto windowWrapper = m_Wrapper.GetWindowWrapper();
         return windowWrapper ? windowWrapper->GetSwapchain() : nullptr;
+    }
+
+    CommonRenderPass* RhiDeviceImpl::GetCommonRenderPass() const
+    {
+        return m_CommonRenderPass;
+    }
+
+    Dg::IRenderStateCache* RhiDeviceImpl::GetRenderStateCache() const
+    {
+        return m_RenderStateCache;
     }
 } // namespace Ame::Rhi

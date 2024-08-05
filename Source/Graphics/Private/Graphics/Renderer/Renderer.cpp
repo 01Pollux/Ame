@@ -12,6 +12,7 @@ namespace Ame::Gfx
         Rhi::IImGuiRenderer* imguiRenderer) :
         Base(counters),
         m_RhiDevice(rhiDevice),
+        m_CommonRenderPass(rhiDevice->GetCommonRenderPass()),
         m_World(world),
 #ifndef AME_NO_IMGUI
         m_ImGuiRenderer(imguiRenderer),
