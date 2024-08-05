@@ -67,9 +67,9 @@ namespace Ame::Gfx
     {
         m_CameraQuery =
             m_World->CreateQuery<
-                     const Ecs::TransformComponent,
-                     const Ecs::CameraComponent,
-                     const Ecs::CameraOutputComponent>()
+                       const Ecs::GlobalTransformComponent,
+                       const Ecs::CameraComponent,
+                       const Ecs::CameraOutputComponent>()
                 .order_by<const Ecs::CameraComponent>(
                     [](Ecs::EntityId, auto a,
                        Ecs::EntityId, auto b) -> int
@@ -87,7 +87,7 @@ namespace Ame::Gfx
         {
             while (iter.next())
             {
-                auto transforms = iter.field<const Ecs::TransformComponent>(0);
+                auto transforms = iter.field<const Ecs::GlobalTransformComponent>(0);
                 auto cameras    = iter.field<const Ecs::CameraComponent>(1);
                 auto outputs    = iter.field<const Ecs::CameraOutputComponent>(2);
 

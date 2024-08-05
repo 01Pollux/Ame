@@ -77,7 +77,7 @@ namespace Ame::Gfx
             auto      immediateContext = m_RhiDevice->GetImmediateContext();
             Dg::PVoid mappedData       = nullptr;
 
-            immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NONE, mappedData);
+            immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NO_OVERWRITE, mappedData);
             std::memcpy(mappedData, indices.data(), indices.size_bytes());
             immediateContext->UnmapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE);
         }
@@ -86,7 +86,8 @@ namespace Ame::Gfx
     void EntityStorage::UpdateDrawCommands(
         std::span<const uint32_t> indices)
     {
-        auto indicesCount = Math::AlignUp(static_cast<uint32_t>(indices.size()), c_DrawCommandsChunkSize);
+        uint32_t indicesCount = std::max(static_cast<uint32_t>(indices.size()), 1u);
+        indicesCount          = Math::AlignUp(indicesCount, c_DrawCommandsChunkSize);
         if (!m_DrawCounterBuffer || m_DrawCounterBuffer->GetDesc().Size < (indicesCount * sizeof(uint32_t)))
         {
             Dg::BufferDesc bufferDesc{
@@ -96,7 +97,11 @@ namespace Ame::Gfx
                 nullptr,
 #endif
                 indicesCount * sizeof(uint32_t),
-                Dg::BIND_INDIRECT_DRAW_ARGS | Dg::BIND_UNORDERED_ACCESS
+                Dg::BIND_INDIRECT_DRAW_ARGS | Dg::BIND_UNORDERED_ACCESS,
+                Dg::USAGE_DEFAULT,
+                Dg::CPU_ACCESS_NONE,
+                Dg::BUFFER_MODE_STRUCTURED,
+                sizeof(uint32_t)
             };
 
             auto renderDevice = m_RhiDevice->GetRenderDevice();
@@ -115,7 +120,7 @@ namespace Ame::Gfx
     {
         auto renderContext = m_RhiDevice->GetImmediateContext();
 
-        Dg::MapHelper<CameraFrameData> frameDataMap(renderContext, m_FrameDataBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NONE);
+        Dg::MapHelper<CameraFrameData> frameDataMap(renderContext, m_FrameDataBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NO_OVERWRITE);
         frameDataMap->World      = frameData.WorldTransposed;
         frameDataMap->View       = frameData.ViewTransposed;
         frameDataMap->Projection = frameData.ProjectionTransposed;

@@ -21,12 +21,4 @@ namespace Ame::Ecs
 
         Ptr<RG::Graph> RenderGraph;
     };
-
-    /// <summary>
-    /// Component automatically set- and updated when the camera has a transform component.
-    /// </summary>
-    struct CameraFrustum
-    {
-        Geometry::Frustum Frustum;
-    };
 } // namespace Ame::Ecs

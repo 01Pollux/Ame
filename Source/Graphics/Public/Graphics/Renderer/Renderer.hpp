@@ -12,7 +12,7 @@
 
 namespace Ame::Ecs
 {
-    struct TransformComponent;
+    struct GlobalTransformComponent;
     struct CameraComponent;
     struct CameraOutputComponent;
 } // namespace Ame::Ecs
@@ -26,7 +26,7 @@ namespace Ame::Gfx
     {
     private:
         using CameraRenderQuery = Ecs::UniqueQuery<
-            const Ecs::TransformComponent,
+            const Ecs::GlobalTransformComponent,
             const Ecs::CameraComponent,
             const Ecs::CameraOutputComponent>;
 

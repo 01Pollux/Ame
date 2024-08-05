@@ -12,18 +12,25 @@ namespace Ame::Ecs
     {
         while (iter.next())
         {
-            auto localTransforms  = iter.field<TransformComponent>(0);
-            auto parentTransforms = iter.field<GlobalTransformComponent>(1);
+            auto localTransforms  = iter.field<const TransformComponent>(0);
+            auto parentTransforms = iter.field<const GlobalTransformComponent>(1);
             for (auto i : iter)
             {
                 Ecs::Entity entity(iter.entity(i));
 
                 auto& localTransform  = localTransforms[i];
-                auto& parentTransform = parentTransforms[i];
+                auto  parentTransform = iter.is_set(1) ? &parentTransforms[i] : nullptr;
 
                 if (iter.event() == flecs::OnSet)
                 {
-                    entity->set<GlobalTransformComponent>({ parentTransform.ToMat4x4() * localTransform.ToMat4x4() });
+                    if (parentTransform)
+                    {
+                        entity->set<GlobalTransformComponent>({ parentTransform->ToMat4x4() * localTransform.ToMat4x4() });
+                    }
+                    else
+                    {
+                        entity->set<GlobalTransformComponent>({ localTransform.ToMat4x4() });
+                    }
                 }
                 else if (iter.event() == flecs::OnRemove)
                 {
@@ -38,8 +45,8 @@ namespace Ame::Ecs
     {
         while (iter.next())
         {
-            auto transforms = iter.field<GlobalTransformComponent>(0);
-            auto boxes      = iter.field<AABBComponent>(1);
+            auto transforms = iter.field<const GlobalTransformComponent>(0);
+            auto boxes      = iter.field<const AABBComponent>(1);
             for (auto i : iter)
             {
                 Ecs::Entity entity(iter.entity(i));

@@ -119,7 +119,7 @@ namespace Ame::Ecs
 
     void Entity::SetName(String name) const
     {
-        m_Entity.get_ref<EntityTagComponent>()->Tag = name;
+        m_Entity.get_ref<EntityTagComponent>()->Tag = std::move(name);
     }
 
     const String& Entity::GetName() const

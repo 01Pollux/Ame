@@ -39,7 +39,9 @@ namespace Ame::Ecs
         StringView    name,
         const Entity& parent)
     {
-        Entity entity(world.entity());
+        Entity entity(
+            world.entity()
+                .emplace<EntityTagComponent>());
         if (parent)
         {
             entity.SetParent(parent);
