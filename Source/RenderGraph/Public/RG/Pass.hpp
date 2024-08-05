@@ -231,6 +231,28 @@ namespace Ame::RG
     class TypedPass<void> : public Pass
     {
     public:
+        using BuildFuncType   = std::move_only_function<void(Resolver&)>;
+        using ExecuteFuncType = std::move_only_function<void(const ResourceStorage&, Dg::IDeviceContext*)>;
+
+        /// <summary>
+        /// Initializes a build callback
+        /// </summary>
+        TypedPass& Build(
+            BuildFuncType&& buildFunc)
+        {
+            Pass::Build(std::forward<BuildFuncType>(buildFunc));
+            return *this;
+        }
+
+        /// <summary>
+        /// Initializes an execute callback
+        /// </summary>
+        TypedPass& Execute(
+            ExecuteFuncType&& executeFunc)
+        {
+            Pass::Execute(std::forward<ExecuteFuncType>(executeFunc));
+            return *this;
+        }
     };
 
     using UntypedPass = TypedPass<void>;

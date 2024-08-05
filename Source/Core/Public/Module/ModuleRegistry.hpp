@@ -110,6 +110,19 @@ namespace Ame
             return GetModule(moduleId).Cast<Ty>(moduleId);
         }
 
+        template<typename Ty>
+        [[nodiscard]] Ptr<Ty> QueryInterface(
+            const UId& moduleId,
+            const UId& iid) const
+        {
+            Ptr<Ty> iface;
+            if (auto iter = m_Modules.find(moduleId); iter != m_Modules.end())
+            {
+                iter->second->QueryInterface(iid, iface.DblPtr<IObject>());
+            }
+            return iface;
+        }
+
     private:
         using ModuleMap = std::unordered_map<UId, Ptr<IModule>, UIdUtils::Hasher>;
 

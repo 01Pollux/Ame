@@ -796,6 +796,11 @@ float4 main(in ps_input psIn) : SV_Target
 
         auto setupRenderState = [&]() //
         {
+            Dg::ITextureView* renderTarget = m_Swapchain->GetCurrentBackBufferRTV();
+            Dg::ITextureView* depthStencil = m_Swapchain->GetDepthBufferDSV();
+
+            m_DeviceContext->SetRenderTargets(1, &renderTarget, depthStencil, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
             // Setup shader and vertex buffers
             Dg::IBuffer* vertices[] = { m_VertexBuffer };
             m_DeviceContext->SetVertexBuffers(0, 1, vertices, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Dg::SET_VERTEX_BUFFERS_FLAG_RESET);

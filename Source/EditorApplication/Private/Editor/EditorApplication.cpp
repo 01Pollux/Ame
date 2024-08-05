@@ -47,6 +47,31 @@ namespace Ame
 
         Ptr renderGraph{ ObjectAllocator<RG::Graph>()() };
 
+        {
+            auto& passStorage = renderGraph->GetPassStorage();
+            passStorage
+                .NewTypedPass<void>("Clear Only")
+                .Flags(RG::PassFlags::Graphics)
+                .Build([](RG::Resolver& resolver)
+                       {
+                        RG::ResourceId simpleTexture("");
+                        auto desc = resolver.GetBackbufferDesc();
+                        desc.BindFlags |= Dg::BIND_FLAGS::BIND_SHADER_RESOURCE;
+                        resolver.CreateTexture(simpleTexture, desc);
+
+                        RG::RenderTargetViewDesc rtvDesc;
+                        rtvDesc.ViewType = Dg::TEXTURE_VIEW_RENDER_TARGET;
+                        rtvDesc.ClearColor = Colors::c_DarkRed;
+                        rtvDesc.ClearType  = RG::ERTClearType::Color;
+                        rtvDesc.ForceColor = true;
+
+                        resolver.WriteTexture(
+                            simpleTexture("Backbuffer"),
+                            Dg::BIND_RENDER_TARGET,
+                            rtvDesc
+                        ); });
+        }
+
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{
             .RenderGraph = std::move(renderGraph) });
