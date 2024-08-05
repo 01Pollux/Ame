@@ -2,6 +2,8 @@
 
 #include <Core/Interface.hpp>
 #include <Core/String.hpp>
+#include <Core/Ame.hpp>
+#include <Module/ModuleRegistry.hpp>
 
 namespace Ame::Editor
 {
@@ -36,7 +38,9 @@ namespace Ame::Editor
     {
     public:
         IEditorWindow(
-            String path) :
+            ModuleRegistry& registry,
+            String          path) :
+            m_ModuleRegistry(registry),
             m_Path(std::move(path))
         {
         }
@@ -63,9 +67,20 @@ namespace Ame::Editor
         virtual void OnHide(){};
 
     public:
-        [[nodiscard]] const String& GetFullPath() const
+        [[nodiscard]] const String& GetFullPath() const noexcept
         {
             return m_Path;
+        }
+
+    protected:
+        [[nodiscard]] const ModuleRegistry& GetModuleRegistry() noexcept
+        {
+            return m_ModuleRegistry;
+        }
+
+        [[nodiscard]] ModuleRegistry& GetModuleRegistry() const noexcept
+        {
+            return m_ModuleRegistry;
         }
 
     private:
@@ -74,5 +89,7 @@ namespace Ame::Editor
         /// "Scene View##General$Scene View" <- "Scene View" is the window name, "General" is the group, "Scene View" is the name inside tool bar.
         /// </summary>
         String m_Path;
+
+        Ref<ModuleRegistry> m_ModuleRegistry;
     };
 } // namespace Ame::Editor

@@ -19,6 +19,7 @@ namespace Ame
     public:
         EditorWindowSubmodule(
             IReferenceCounters*       counters,
+            ModuleRegistry&           registry,
             RhiModule*                rhiModule,
             GraphicsModule*           graphicsModule,
             const EditorModuleConfig& config);

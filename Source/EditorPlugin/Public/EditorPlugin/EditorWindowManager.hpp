@@ -6,6 +6,7 @@ namespace Ame
 {
     class RhiModule;
     class GraphicsModule;
+    class ModuleRegistry;
 } // namespace Ame
 
 namespace Ame::Editor
@@ -20,6 +21,8 @@ namespace Ame::Editor
     class IEditorWindowManager : public IObject
     {
     public:
+        virtual ModuleRegistry& GetRegistry() = 0;
+
         virtual void ResetDefaultWindows() = 0;
 
         virtual void AddWindow(
@@ -36,6 +39,7 @@ namespace Ame::Editor
     };
 
     [[nodiscard]] Ptr<IEditorWindowManager> CreateEditorWindowManager(
+        ModuleRegistry&                      registry,
         RhiModule*                           rhiModule,
         GraphicsModule*                      graphicsModule,
         const EditorWindowManagerCreateDesc& desc);

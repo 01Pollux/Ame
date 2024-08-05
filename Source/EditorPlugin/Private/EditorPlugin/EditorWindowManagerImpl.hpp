@@ -25,11 +25,14 @@ namespace Ame::Editor
     public:
         EditorWindowManagerImpl(
             IReferenceCounters*                  counters,
+            ModuleRegistry&                      registry,
             RhiModule*                           rhiModule,
             GraphicsModule*                      graphicsModule,
             const EditorWindowManagerCreateDesc& createDesc);
 
     public:
+        ModuleRegistry& GetRegistry() override;
+
         void ResetDefaultWindows() override;
 
         void AddWindow(
@@ -58,6 +61,7 @@ namespace Ame::Editor
         [[nodiscard]] bool IsWindowOpen(IEditorWindow* window) const;
 
     private:
+        Ref<ModuleRegistry>         m_Registry;
         Ptr<Window::IDesktopWindow> m_DesktopWindow;
 
         std::map<String, Ptr<IEditorWindow>> m_Windows;

@@ -7,7 +7,8 @@ namespace Ame::Editor
     class ConsoleEditorWindow : public BaseObject<IEditorWindow>
     {
     public:
-        static Ptr<IEditorWindow> Create();
+        static Ptr<IEditorWindow> Create(
+            ModuleRegistry& registry);
 
         using Base = BaseObject<IEditorWindow>;
 
@@ -16,8 +17,9 @@ namespace Ame::Editor
 
     public:
         ConsoleEditorWindow(
-            IReferenceCounters* counter) :
-            Base(counter, c_ConsoleEditorWindowPath)
+            IReferenceCounters* counter,
+            ModuleRegistry&     registry) :
+            Base(counter, registry, c_ConsoleEditorWindowPath)
         {
         }
 

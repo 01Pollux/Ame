@@ -4,9 +4,10 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> GameViewEditorWindow::Create()
+    Ptr<IEditorWindow> GameViewEditorWindow::Create(
+        ModuleRegistry& registry)
     {
-        return { ObjectAllocator<GameViewEditorWindow>()(), IID_BaseEditorWindow };
+        return { ObjectAllocator<GameViewEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
     void GameViewEditorWindow::OnDrawVisible()

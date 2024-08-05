@@ -21,6 +21,7 @@ namespace Ame
 
         struct Dependencies
         {
+            ModuleRegistry* Registry;
             RhiModule*      RhiMod;
             GraphicsModule* GfxMod;
         };

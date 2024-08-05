@@ -91,18 +91,19 @@ namespace Ame::Gfx
         if (!m_DrawCounterBuffer || m_DrawCounterBuffer->GetDesc().Size < (indicesCount * sizeof(uint32_t)))
         {
             Dg::BufferDesc bufferDesc{
-#ifndef AME_DIST
-                "DrawCounterBuffer",
-#else
                 nullptr,
-#endif
-                indicesCount * sizeof(uint32_t),
+                0,
                 Dg::BIND_INDIRECT_DRAW_ARGS | Dg::BIND_UNORDERED_ACCESS,
                 Dg::USAGE_DEFAULT,
                 Dg::CPU_ACCESS_NONE,
-                Dg::BUFFER_MODE_STRUCTURED,
-                sizeof(uint32_t)
+                Dg::BUFFER_MODE_STRUCTURED
             };
+
+#ifndef AME_DIST
+            bufferDesc.Name = "DrawCounterBuffer";
+#endif
+            bufferDesc.Size              = indicesCount * sizeof(uint32_t);
+            bufferDesc.ElementByteStride = sizeof(uint32_t);
 
             auto renderDevice = m_RhiDevice->GetRenderDevice();
             renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCounterBuffer);
@@ -110,7 +111,9 @@ namespace Ame::Gfx
 #ifndef AME_DIST
             bufferDesc.Name = "DrawCommandBuffer";
 #endif
-            bufferDesc.Size = indicesCount * sizeof(Rhi::DrawIndexedIndirectCommand);
+            bufferDesc.Size              = indicesCount * sizeof(Rhi::DrawIndexedIndirectCommand);
+            bufferDesc.ElementByteStride = sizeof(Rhi::DrawIndexedIndirectCommand);
+
             renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCommandBuffer);
         }
     }

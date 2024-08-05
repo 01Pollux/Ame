@@ -4,9 +4,10 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> HierarchyEditorWindow::Create()
+    Ptr<IEditorWindow> HierarchyEditorWindow::Create(
+        ModuleRegistry& registry)
     {
-        return { ObjectAllocator<HierarchyEditorWindow>()(), IID_BaseEditorWindow };
+        return { ObjectAllocator<HierarchyEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
     void HierarchyEditorWindow::OnDrawVisible()

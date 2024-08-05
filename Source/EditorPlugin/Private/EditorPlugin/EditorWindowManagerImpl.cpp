@@ -18,21 +18,24 @@
 namespace Ame::Editor
 {
     Ptr<IEditorWindowManager> CreateEditorWindowManager(
+        ModuleRegistry&                      registry,
         RhiModule*                           rhiModule,
         GraphicsModule*                      graphicsModule,
         const EditorWindowManagerCreateDesc& desc)
     {
-        return { ObjectAllocator<EditorWindowManagerImpl>()(rhiModule, graphicsModule, desc), IID_EditorWindowManager };
+        return { ObjectAllocator<EditorWindowManagerImpl>()(registry, rhiModule, graphicsModule, desc), IID_EditorWindowManager };
     }
 
     //
 
     EditorWindowManagerImpl::EditorWindowManagerImpl(
         IReferenceCounters*                  counters,
+        ModuleRegistry&                      registry,
         RhiModule*                           rhiModule,
         GraphicsModule*                      graphicsModule,
         const EditorWindowManagerCreateDesc& createDesc) :
-        Base(counters)
+        Base(counters),
+        m_Registry(registry)
     {
         Ptr<Gfx::Renderer> rendererSubmodule;
         graphicsModule->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
@@ -54,6 +57,11 @@ namespace Ame::Editor
 
     //
 
+    ModuleRegistry& EditorWindowManagerImpl::GetRegistry()
+    {
+        return m_Registry;
+    }
+
     void EditorWindowManagerImpl::ResetDefaultWindows()
     {
         m_OpenWindows.clear();
@@ -62,12 +70,12 @@ namespace Ame::Editor
         EditorWindowCreateDesc windowDesc;
         // clang-format off
         for (auto& window : {
-                 ConsoleEditorWindow::Create() ,
-                 ContentBrowserEditorWindow::Create() ,
-                 GameViewEditorWindow::Create(),
-                 HierarchyEditorWindow::Create(),
-                 InspectorEditorWindow::Create(),
-                 SceneViewEditorWindow::Create() })
+                 ConsoleEditorWindow::Create(m_Registry) ,
+                 ContentBrowserEditorWindow::Create(m_Registry) ,
+                 GameViewEditorWindow::Create(m_Registry),
+                 HierarchyEditorWindow::Create(m_Registry),
+                 InspectorEditorWindow::Create(m_Registry),
+                 SceneViewEditorWindow::Create(m_Registry) })
         // clang-format on
         {
             windowDesc.Window = window;

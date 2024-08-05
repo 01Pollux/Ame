@@ -4,9 +4,10 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> ConsoleEditorWindow::Create()
+    Ptr<IEditorWindow> ConsoleEditorWindow::Create(
+        ModuleRegistry& registry)
     {
-        return { ObjectAllocator<ConsoleEditorWindow>()(), IID_BaseEditorWindow };
+        return { ObjectAllocator<ConsoleEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
     void ConsoleEditorWindow::OnDrawVisible()

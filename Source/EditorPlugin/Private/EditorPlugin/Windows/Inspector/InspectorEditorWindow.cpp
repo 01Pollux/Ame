@@ -4,9 +4,10 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> InspectorEditorWindow::Create()
+    Ptr<IEditorWindow> InspectorEditorWindow::Create(
+        ModuleRegistry& registry)
     {
-        return { ObjectAllocator<InspectorEditorWindow>()(), IID_BaseEditorWindow };
+        return { ObjectAllocator<InspectorEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
     void InspectorEditorWindow::OnDrawVisible()

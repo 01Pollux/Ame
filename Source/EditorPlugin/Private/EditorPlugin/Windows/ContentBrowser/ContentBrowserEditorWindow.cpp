@@ -4,9 +4,10 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> ContentBrowserEditorWindow::Create()
+    Ptr<IEditorWindow> ContentBrowserEditorWindow::Create(
+        ModuleRegistry& registry)
     {
-        return { ObjectAllocator<ContentBrowserEditorWindow>()(), IID_BaseEditorWindow };
+        return { ObjectAllocator<ContentBrowserEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
     void ContentBrowserEditorWindow::OnDrawVisible()

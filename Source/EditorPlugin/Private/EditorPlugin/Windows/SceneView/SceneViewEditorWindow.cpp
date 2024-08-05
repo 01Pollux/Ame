@@ -4,9 +4,10 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> SceneViewEditorWindow::Create()
+    Ptr<IEditorWindow> SceneViewEditorWindow::Create(
+        ModuleRegistry& registry)
     {
-        return { ObjectAllocator<SceneViewEditorWindow>()(), IID_BaseEditorWindow };
+        return { ObjectAllocator<SceneViewEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
     void SceneViewEditorWindow::OnDrawVisible()

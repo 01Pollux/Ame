@@ -7,7 +7,8 @@ namespace Ame::Editor
     class ContentBrowserEditorWindow : public BaseObject<IEditorWindow>
     {
     public:
-        static Ptr<IEditorWindow> Create();
+        static Ptr<IEditorWindow> Create(
+            ModuleRegistry& registry);
 
         using Base = BaseObject<IEditorWindow>;
 
@@ -16,8 +17,9 @@ namespace Ame::Editor
 
     public:
         ContentBrowserEditorWindow(
-            IReferenceCounters* counter) :
-            Base(counter, c_ContentBrowserEditorWindowPath)
+            IReferenceCounters* counter,
+            ModuleRegistry&     registry) :
+            Base(counter, registry, c_ContentBrowserEditorWindowPath)
         {
         }
 

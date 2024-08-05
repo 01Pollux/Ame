@@ -27,6 +27,7 @@ namespace Ame
         auto& moduleRegistry = GetEngine().GetRegistry();
 
         EditorModule::Dependencies deps{
+            &moduleRegistry,
             moduleRegistry.GetModule<RhiModule>(IID_RhiModule),
             moduleRegistry.GetModule<GraphicsModule>(IID_GraphicsModule)
         };
