@@ -9,10 +9,6 @@ namespace Ame::Asset
     class IAsset : public ISerializable
     {
     public:
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_BaseAsset, ISerializable);
-
-    public:
         void Serialize(
             BinaryOArchiver& ar) const override
         {

@@ -31,7 +31,6 @@ namespace Ame::Gfx
         {
             for (auto& entity : entities)
             {
-                printf("Entity: %p\n", entity.Renderable);
             }
         }
     }

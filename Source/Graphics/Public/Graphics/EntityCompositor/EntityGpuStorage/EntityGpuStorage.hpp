@@ -66,11 +66,11 @@ namespace Ame::Gfx
         void UpdateEntity(
             const Ecs::Entity& entity)
         {
-            auto instanceId = entity->get_mut<typename Traits::id_container_type>();
-            auto newId      = UpdateEntity(entity.GetId(), instanceId->Id);
-            if (instanceId->Id != newId)
+            auto instanceId = entity->ensure<typename Traits::id_container_type>();
+            auto newId      = UpdateEntity(entity.GetId(), instanceId.Id);
+            if (instanceId.Id != newId)
             {
-                instanceId->Id = newId;
+                instanceId.Id = newId;
                 entity->modified<typename Traits::id_container_type>();
             }
         }

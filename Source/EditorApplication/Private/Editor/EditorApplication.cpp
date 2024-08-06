@@ -9,9 +9,10 @@
 
 #include <EcsComponent/Viewport/Camera.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
+#include <EcsComponent/Renderables/3D/ModelLoader.hpp>
+#include <EcsComponent/Renderables/3D/StaticMesh.hpp>
 
 #include <Module/Graphics/RendererSubmodule.hpp>
-#include <EcsComponent/Renderables/3D/ModelLoader.hpp>
 #include <Shading/Technique.hpp>
 #include <Shading/Material.hpp>
 #include <Core/Enum.hpp>
@@ -55,6 +56,28 @@ namespace Ame
             .RenderGraph = std::move(renderGraph) });
         cameraEntity->set(Ecs::TransformComponent{});
         cameraEntity->set(Ecs::CameraOutputComponent{});
+
+        ////
+
+        Ptr<Dg::IRenderDevice> renderDevice;
+        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
+
+        Rhi::MaterialCreateDesc materialDesc;
+
+        Ptr material(Rhi::Material::Create(renderDevice, materialDesc));
+        Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .ModelPath = "Shared/Assets/Models/Sponza/sponza.obj" }));
+
+        ////
+
+        Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, 0u));
+
+        Ecs::TransformComponent x;
+        x.SetPosition({ 1, 2, 2 });
+
+        auto meshEntity = world->CreateEntity("Mesh");
+        meshEntity->set(Ecs::TransformComponent{x});
+        auto p          = meshEntity->ensure<Ecs::TransformComponent>();
+        meshEntity->set(Ecs::StaticMeshComponent{ submesh });
     }
 
     void EditorApplication::OnInitialize()

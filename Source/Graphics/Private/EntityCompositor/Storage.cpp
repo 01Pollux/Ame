@@ -67,20 +67,17 @@ namespace Ame::Gfx
                 Dg::BUFFER_MODE_STRUCTURED,
                 sizeof(uint32_t)
             };
-            Dg::BufferData bufferData(indices.data(), indices.size_bytes());
 
             m_DrawInstanceIndexBuffer.Release();
-            renderDevice->CreateBuffer(bufferDesc, &bufferData, &m_DrawInstanceIndexBuffer);
+            renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawInstanceIndexBuffer);
         }
-        else
-        {
-            auto      immediateContext = m_RhiDevice->GetImmediateContext();
-            Dg::PVoid mappedData       = nullptr;
 
-            immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NO_OVERWRITE, mappedData);
-            std::memcpy(mappedData, indices.data(), indices.size_bytes());
-            immediateContext->UnmapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE);
-        }
+        auto      immediateContext = m_RhiDevice->GetImmediateContext();
+        Dg::PVoid mappedData       = nullptr;
+
+        immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NO_OVERWRITE, mappedData);
+        std::memcpy(mappedData, indices.data(), indices.size_bytes());
+        immediateContext->UnmapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE);
     }
 
     void EntityStorage::UpdateDrawCommands(
