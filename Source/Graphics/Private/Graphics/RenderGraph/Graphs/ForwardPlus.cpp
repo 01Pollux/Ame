@@ -9,11 +9,12 @@
 namespace Ame::Gfx
 {
     void RegisterForwardPlus(
-        RG::Graph& graph)
+        RG::Graph&  graph,
+        Ecs::World* world)
     {
         auto& passStorage = graph.GetPassStorage();
         passStorage.NewPass<InitializeForwardPlusPass>("Forward+::Initialize");
-        passStorage.NewPass<RecordIndirectCommandsPass>("Forward+::RecordIndirectCommands");
+        passStorage.NewPass<RecordIndirectCommandsPass>("Forward+::RecordIndirectCommands", world);
         passStorage.NewPass<RenderIndirectCommandsPass>("Forward+::RenderIndirectCommands");
     }
 } // namespace Ame::Gfx

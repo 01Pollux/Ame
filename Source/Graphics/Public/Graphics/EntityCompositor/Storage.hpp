@@ -39,7 +39,7 @@ namespace Ame::Gfx
         void UploadAllResource(
             RG::Graph& cameraGraph);
 
-    private:
+    public:
         [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();
         [[nodiscard]] Ecs::World*      GetWorld();
 

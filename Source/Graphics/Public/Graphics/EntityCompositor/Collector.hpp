@@ -9,13 +9,11 @@ namespace Ame::Gfx
         friend class EntityDrawer;
 
     public:
-        EntityCollector(EntityStorage& storage) :
-            m_Storage(storage)
-        {
-        }
+        EntityCollector(
+            EntityStorage& storage);
 
     private:
-        void Reset();
+        void ResetCommands();
         void AddEntity(
             DrawInstanceType      type,
             Ecs::IBaseRenderable* renderable,
@@ -27,6 +25,7 @@ namespace Ame::Gfx
         void Upload(
             RG::Graph&                       cameraGraph,
             const CameraFrameDataUpdateDesc& frameData);
+        void Reset();
 
     private:
         [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();

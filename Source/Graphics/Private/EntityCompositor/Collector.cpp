@@ -1,11 +1,19 @@
-#include <numeric>
-
 #include <Graphics/EntityCompositor/Collector.hpp>
 #include <Graphics/EntityCompositor/Storage.hpp>
 
+#include <Graphics/RenderGraph/Common/EntityIterator.hpp>
+
 namespace Ame::Gfx
 {
-    void EntityCollector::Reset()
+    EntityCollector::EntityCollector(
+        EntityStorage& storage) :
+        m_Storage(storage)
+    {
+        auto& world = *m_Storage.get().GetWorld();
+        world->component<EntityDrawCommandGroup>();
+    }
+
+    void EntityCollector::ResetCommands()
     {
         for (auto& commands : m_DrawCommands)
         {
@@ -46,6 +54,15 @@ namespace Ame::Gfx
     {
         m_Storage.get().WriteInstanceIndices(m_DrawCommands);
         m_Storage.get().UploadToRenderGraph(cameraGraph, frameData);
+
+        auto& world = *m_Storage.get().GetWorld();
+        world->emplace<EntityDrawCommandGroup>(m_DrawCommands);
+    }
+
+    void EntityCollector::Reset()
+    {
+        auto& world = *m_Storage.get().GetWorld();
+        world->remove<EntityDrawCommandGroup>();
     }
 
     //

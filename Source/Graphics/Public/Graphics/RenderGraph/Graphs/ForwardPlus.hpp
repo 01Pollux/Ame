@@ -1,9 +1,16 @@
 #pragma once
 
-namespace Ame::RG
+namespace Ame
 {
-    class Graph;
-} // namespace Ame::RG
+    namespace RG
+    {
+        class Graph;
+    } // namespace RG
+    namespace Ecs
+    {
+        class World;
+    } // namespace Ecs
+} // namespace Ame
 
 namespace Ame::Gfx
 {
@@ -11,5 +18,6 @@ namespace Ame::Gfx
     /// Registers the Forward+ rendering pass to the graph.
     /// </summary>
     void RegisterForwardPlus(
-        RG::Graph& graph);
-}
+        RG::Graph&  graph,
+        Ecs::World* world);
+} // namespace Ame::Gfx
