@@ -380,5 +380,4 @@ FodyWeavers.xsd
 /.vscode
 /.xmake
 /cmake-build-debug
-
-/Assets
+/Assets/*
