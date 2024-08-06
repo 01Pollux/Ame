@@ -37,12 +37,7 @@ namespace Ame::Editor
         Base(counters),
         m_Registry(registry)
     {
-        Ptr<Gfx::Renderer> rendererSubmodule;
-        graphicsModule->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
         rhiModule->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
-
-        m_OnImGuiRender = rendererSubmodule->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));
-
         if (m_DesktopWindow)
         {
             m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest(
@@ -51,6 +46,10 @@ namespace Ame::Editor
                     return m_IsTitlebarHovered;
                 });
         }
+
+        Ptr<Gfx::Renderer> rendererSubmodule;
+        graphicsModule->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
+        m_OnImGuiRender = rendererSubmodule->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));
 
         ResetDefaultWindows();
     }

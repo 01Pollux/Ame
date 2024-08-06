@@ -32,8 +32,9 @@ namespace Ame::Editor
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
+        ImVec2 paddedSize(std::ceilf(viewport->WorkSize.x), std::ceilf(viewport->WorkSize.y));
         ImGui::SetNextWindowPos(viewport->WorkPos);
-        ImGui::SetNextWindowSize(viewport->WorkSize);
+        ImGui::SetNextWindowSize(paddedSize);
         ImGui::SetNextWindowViewport(viewport->ID);
 
         // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
@@ -43,23 +44,13 @@ namespace Ame::Editor
         // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
 
         bool editorOpen;
-        bool isMaximized = m_DesktopWindow ? m_DesktopWindow->IsMaximized() : false;
         {
             imcxx::shared_style overrideStyle(
-                ImGuiStyleVar_WindowPadding, isMaximized ? ImVec2{ 6.0f, 6.0f } : ImVec2{ 1.0f, 1.0f },
-                ImGuiStyleVar_WindowBorderSize, 3.0f);
+                ImGuiStyleVar_WindowPadding, ImVec2{},
+                ImGuiStyleVar_WindowBorderSize, 0.0f);
             imcxx::shared_color overrideBg(ImGuiCol_MenuBarBg, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
             editorOpen = ImGui::Begin("Neon Editor", nullptr, c_EditorWindowFlags);
-        }
-
-        {
-            imcxx::shared_color borderColor(ImGuiCol_Border, IM_COL32(50, 50, 50, 255));
-            // Draw window border if the window is not maximized
-            if (!isMaximized)
-            {
-                ImGuiUtils::RenderWindowOuterBorders(ImGui::GetCurrentWindow());
-            }
         }
 
         // Submit the DockSpace
