@@ -62,6 +62,6 @@ namespace Ame::Rhi
     /// <summary>
     /// Create a rendering device.
     /// </summary>
-    [[nodiscard]] Ptr<IRhiDevice> AME_METHOD(CreateRhiDevice)(
+    [[nodiscard]] Ptr<IRhiDevice> CreateRhiDevice(
         const DeviceCreateDesc& desc);
 } // namespace Ame::Rhi

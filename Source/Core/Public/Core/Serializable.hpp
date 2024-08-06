@@ -14,21 +14,12 @@ namespace Ame
     class ISerializable : public IObject
     {
     public:
-        void QueryInterface(
-            const UId& uid,
-            IObject**  object) override
-        {
-            if (uid == IID_BaseSerializable)
-            {
-                *object = static_cast<ISerializable*>(this);
-                return;
-            }
-            ISerializable::QueryInterface(uid, object);
-        }
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
+            IID_BaseSerializable, IObject);
 
     public:
-        virtual void AME_METHOD(Serialize)(BinaryOArchiver& ar) const = 0;
-        virtual void AME_METHOD(Deserialize)(BinaryIArchiver& ar)     = 0;
+        virtual void Serialize(BinaryOArchiver& ar) const = 0;
+        virtual void Deserialize(BinaryIArchiver& ar)     = 0;
     };
 } // namespace Ame
 

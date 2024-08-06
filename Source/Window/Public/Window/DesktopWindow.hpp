@@ -12,28 +12,28 @@ namespace Ame::Window
     class IDesktopWindow : public IWindow
     {
     public:
-        [[nodiscard]] virtual GLFWwindow* AME_METHOD(GetGlfwHandle)() const = 0;
+        [[nodiscard]] virtual GLFWwindow* GetGlfwHandle() const = 0;
 
-        virtual void AME_METHOD(SetFullscreen)(bool state) = 0;
+        virtual void SetFullscreen(bool state) = 0;
 
-        [[nodiscard]] virtual bool AME_METHOD(IsMinimized)() const = 0;
-        [[nodiscard]] virtual bool AME_METHOD(IsMaximized)() const = 0;
+        [[nodiscard]] virtual bool IsMinimized() const = 0;
+        [[nodiscard]] virtual bool IsMaximized() const = 0;
 
-        virtual void AME_METHOD(Maximize)() = 0;
-        virtual void AME_METHOD(Minimize)() = 0;
+        virtual void Maximize() = 0;
+        virtual void Minimize() = 0;
 
-        [[nodiscard]] virtual bool AME_METHOD(IsFullScreen)() const = 0;
-        [[nodiscard]] virtual bool AME_METHOD(IsVisible)() const    = 0;
+        [[nodiscard]] virtual bool IsFullScreen() const = 0;
+        [[nodiscard]] virtual bool IsVisible() const    = 0;
 
-        [[nodiscard]] virtual bool AME_METHOD(HasFocus)() const      = 0;
-        virtual void               AME_METHOD(RequestFocus)()        = 0;
-        virtual void               AME_METHOD(SetVisible)(bool show) = 0;
+        [[nodiscard]] virtual bool HasFocus() const      = 0;
+        virtual void               RequestFocus()        = 0;
+        virtual void               SetVisible(bool show) = 0;
 
         /// <summary>
         /// This function restores the specified window if it was previously iconified
         ///  (minimized) or maximized.  If the window is already restored, this function
         ///  does nothing.
         /// </summary>
-        virtual void AME_METHOD(Restore)() = 0;
+        virtual void Restore() = 0;
     };
 } // namespace Ame::Window

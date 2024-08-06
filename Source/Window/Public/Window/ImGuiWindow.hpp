@@ -19,31 +19,31 @@ namespace Ame::Window
         /// <summary>
         /// Initialize ImGui for this window.
         /// </summary>
-        virtual void AME_METHOD(InitializeImGui)(
+        virtual void InitializeImGui(
             void* imguiContext) = 0;
 
         /// <summary>
         /// Install ImGui callbacks for this window.
         /// </summary>
-        virtual void AME_METHOD(InstallImGuiCallbacks)(
+        virtual void InstallImGuiCallbacks(
             void* imguiContext) = 0;
 
         /// <summary>
         /// Initialize the new frame for ImGui for this window.
         /// </summary>
-        virtual void AME_METHOD(NewFrameImGui)(
+        virtual void NewFrameImGui(
             void* imguiContext) = 0;
 
         /// <summary>
         /// Shutdown ImGui for this window.
         /// </summary>
-        virtual void AME_METHOD(UninstallImGuiCallbacks)(
+        virtual void UninstallImGuiCallbacks(
             void* imguiContext) = 0;
 
         /// <summary>
         /// Shutdown ImGui for this window.
         /// </summary>
-        virtual void AME_METHOD(ShutdownImGui)(
+        virtual void ShutdownImGui(
             void* imguiContext) = 0;
     };
 } // namespace Ame::Window

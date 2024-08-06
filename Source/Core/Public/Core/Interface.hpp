@@ -6,9 +6,6 @@
 
 namespace Dg = Diligent;
 
-#define AME_CALL_TYPE DILIGENT_CALL_TYPE
-#define AME_METHOD(x) AME_CALL_TYPE x
-
 namespace Ame
 {
     using IObject = Dg::IObject;
@@ -77,7 +74,7 @@ namespace Ame
         {
         }
 
-        void AME_METHOD(QueryInterface)(
+        void DILIGENT_CALL_TYPE QueryInterface(
             const INTERFACE_ID& iid,
             IObject**           outObject) override
         {
@@ -132,7 +129,7 @@ namespace Ame
 //
 
 #define IMPLEMENT_QUERY_INTERFACE_DECL() \
-    void AME_METHOD(QueryInterface)(     \
+    void DILIGENT_CALL_TYPE QueryInterface(     \
         const INTERFACE_ID& iid,         \
         IObject**           outObject) override
 

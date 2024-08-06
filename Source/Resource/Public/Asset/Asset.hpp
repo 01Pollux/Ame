@@ -9,17 +9,8 @@ namespace Ame::Asset
     class IAsset : public ISerializable
     {
     public:
-        void QueryInterface(
-            const UId& uid,
-            IObject**  object) override
-        {
-            if (uid == IID_BaseAsset)
-            {
-                *object = static_cast<IAsset*>(this);
-                return;
-            }
-            ISerializable::QueryInterface(uid, object);
-        }
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
+            IID_BaseAsset, ISerializable);
 
     public:
         void Serialize(

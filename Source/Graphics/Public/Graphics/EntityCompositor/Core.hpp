@@ -10,7 +10,7 @@
 #include <Ecs/World.hpp>
 #include <RG/Graph.hpp>
 
-#include <Graphics/EntityCompositor/FrameConstants.hpp>
+#include <Graphics/RenderGraph/Common/FrameConstants.hpp>
 
 namespace Ame::Rhi
 {

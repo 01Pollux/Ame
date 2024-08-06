@@ -15,22 +15,22 @@ namespace Ame::Window
     class IWindow : public IObject
     {
     public:
-        virtual void               AME_METHOD(ProcessEvents)()   = 0;
-        [[nodiscard]] virtual bool AME_METHOD(IsRunning)() const = 0;
-        virtual void               AME_METHOD(Close)()           = 0;
+        virtual void               ProcessEvents()   = 0;
+        [[nodiscard]] virtual bool IsRunning() const = 0;
+        virtual void               Close()           = 0;
 
-        virtual void AME_METHOD(SetTitle)(const String& title)               = 0;
-        virtual void AME_METHOD(SetSize)(const Math::Size2I& size)           = 0;
-        virtual void AME_METHOD(SetPosition)(const Math::Vector2I& position) = 0;
+        virtual void SetTitle(const String& title)               = 0;
+        virtual void SetSize(const Math::Size2I& size)           = 0;
+        virtual void SetPosition(const Math::Vector2I& position) = 0;
 
-        [[nodiscard]] virtual const String&       AME_METHOD(GetTitle)() const    = 0;
-        [[nodiscard]] virtual const Math::Size2I& AME_METHOD(GetSize)() const     = 0;
-        [[nodiscard]] virtual Math::Vector2I      AME_METHOD(GetPosition)() const = 0;
+        [[nodiscard]] virtual const String&       GetTitle() const    = 0;
+        [[nodiscard]] virtual const Math::Size2I& GetSize() const     = 0;
+        [[nodiscard]] virtual Math::Vector2I      GetPosition() const = 0;
 
-        [[nodiscard]] virtual WindowEventListener& AME_METHOD(GetEventListener)() = 0;
+        [[nodiscard]] virtual WindowEventListener& GetEventListener() = 0;
     };
 
-    [[nodiscard]] Ptr<IWindow> AME_METHOD(CreateWindow)(
+    [[nodiscard]] Ptr<IWindow> CreateWindow(
         const WindowType&       windowType,
         const WindowCreateDesc& createDesc);
 } // namespace Ame::Window
