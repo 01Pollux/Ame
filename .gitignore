@@ -374,10 +374,11 @@ FodyWeavers.xsd
 /.idea/
 
 # External dependencies
-/Deps/Externals/DxC/*
 /.vscode
 /vsxmake2022
 /install
 /.vscode
 /.xmake
 /cmake-build-debug
+
+/Assets
