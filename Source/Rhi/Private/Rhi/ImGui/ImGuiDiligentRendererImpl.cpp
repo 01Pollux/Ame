@@ -13,6 +13,8 @@
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/MapHelper.hpp>
 
+#include <Shaders/ImGuiRenderShader.hpp>
+
 #include <Rhi/Device/RhiDevice.hpp>
 #include <Math/Matrix.hpp>
 
@@ -63,52 +65,6 @@ namespace Ame::Rhi
     // Note that approximate gamma-to-linear conversion pow(gamma, 2.2) produces considerably different colors.
     static constexpr char c_GammaToLinear[] = "((g) < 0.04045 ? (g) / 12.92 : pow(max((g) + 0.055, 0.0) / 1.055, 2.4))";
     static constexpr char c_SrgbaToLinear[] = "c.r = GAMMA_TO_LINEAR(c.r); c.g = GAMMA_TO_LINEAR(c.g); c.b = GAMMA_TO_LINEAR(c.b); c.a = 1.0 - GAMMA_TO_LINEAR(1.0 - c.a);";
-
-    static constexpr char s_VertexShaderSourceCode[] = R"(
-cbuffer Constants
-{
-    float4x4 ProjectionMatrix;
-};
-struct vs_input
-{
-    float2 pos : ATTRIB0;
-    float2 uv  : ATTRIB1;
-    float4 col : ATTRIB2;
-};
-struct vs_output
-{
-    float4 pos : SV_POSITION;
-    float4 col : COLOR0;
-    float2 uv  : TEX_COORD;
-};
-void main(in vs_input vsIn, out vs_output vsOut)
-{
-    vsOut.pos = mul(ProjectionMatrix, float4(vsIn.pos.xy, 0.0, 1.0));
-    vsOut.col = vsIn.col;
-    vsOut.uv  = vsIn.uv;
-}
-)";
-
-    static constexpr char s_PixelShaderSourceCode[] = R"(
-#ifndef SRGBA_TO_LINEAR
-#define SRGBA_TO_LINEAR(x)
-#endif
-Texture2D    Texture;
-SamplerState Texture_sampler;
-struct ps_input
-{
-    float4 pos : SV_POSITION;
-    float4 col : COLOR0;
-    float2 uv  : TEX_COORD;
-};
-float4 main(in ps_input psIn) : SV_Target
-{
-	float4 col = Texture.Sample(Texture_sampler, psIn.uv) * psIn.col;
-	col.rgb *= col.a;
-	SRGBA_TO_LINEAR(col)
-	return col;
-}
-)";
 
     //
 
@@ -435,10 +391,6 @@ float4 main(in ps_input psIn) : SV_Target
     {
         InvalidateDeviceObjects();
 
-        Dg::ShaderCreateInfo shaderCreateInfo;
-
-        shaderCreateInfo.SourceLanguage = Dg::SHADER_SOURCE_LANGUAGE_HLSL;
-
         const auto srgbFramebuffer = Dg::GetTextureFormatAttribs(m_BackBufferFormat).ComponentType == Dg::COMPONENT_TYPE_UNORM_SRGB;
         const auto manualSrgb      = (m_ConversionMode == ImGuiColorConversionMode::Auto && srgbFramebuffer) ||
                                 (m_ConversionMode == ImGuiColorConversionMode::SrgbToLinear);
@@ -447,27 +399,19 @@ float4 main(in ps_input psIn) : SV_Target
 
         Ptr<Dg::IShader> vertexShader;
         {
-            shaderCreateInfo.Source       = s_VertexShaderSourceCode;
-            shaderCreateInfo.SourceLength = sizeof(s_VertexShaderSourceCode) - 1;
-            shaderCreateInfo.Desc         = { "ImGui VS", Dg::SHADER_TYPE_VERTEX, true };
-            m_RenderDevice->CreateShader(shaderCreateInfo, &vertexShader);
-        }
-
-        if (manualSrgb)
-        {
-            static constexpr Dg::ShaderMacro macros[] = {
-                { "GAMMA_TO_LINEAR(g)", c_GammaToLinear },
-                { "SRGBA_TO_LINEAR(c)", c_SrgbaToLinear },
-            };
-            shaderCreateInfo.Macros = { macros, Rhi::Count32(macros) };
+            ImGuiRenderVertexShader shaderDesc;
+            m_RenderDevice->CreateShader(shaderDesc, &vertexShader);
         }
 
         Ptr<Dg::IShader> pixelShader;
         {
-            shaderCreateInfo.Source       = s_PixelShaderSourceCode;
-            shaderCreateInfo.SourceLength = sizeof(s_PixelShaderSourceCode) - 1;
-            shaderCreateInfo.Desc         = { "ImGui PS", Dg::SHADER_TYPE_PIXEL, true };
-            m_RenderDevice->CreateShader(shaderCreateInfo, &pixelShader);
+            ImGuiRenderPixelShader shaderDesc;
+            if (manualSrgb)
+            {
+                shaderDesc.AddMacro("GAMMA_TO_LINEAR(g)", c_GammaToLinear);
+                shaderDesc.AddMacro("SRGBA_TO_LINEAR(c)", c_SrgbaToLinear);
+            }
+            m_RenderDevice->CreateShader(shaderDesc, &pixelShader);
         }
 
         Dg::GraphicsPipelineStateCreateInfo psoCreateInfo;

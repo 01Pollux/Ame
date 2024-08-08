@@ -20,8 +20,8 @@ namespace Ame::Gfx
             RG::Resolver& resolver);
 
         void Execute(
-            const RG::ResourceStorage&,
-            Dg::IDeviceContext*);
+            const RG::ResourceStorage& storage,
+            Dg::IDeviceContext*        deviceContext);
 
     private:
         Ptr<Ecs::World> m_World;

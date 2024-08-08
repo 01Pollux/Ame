@@ -75,8 +75,8 @@ namespace Ame
         x.SetPosition({ 1, 2, 2 });
 
         auto meshEntity = world->CreateEntity("Mesh");
-        meshEntity->set(Ecs::TransformComponent{x});
-        auto p          = meshEntity->ensure<Ecs::TransformComponent>();
+        meshEntity->set(Ecs::TransformComponent{ x });
+        auto p = meshEntity->ensure<Ecs::TransformComponent>();
         meshEntity->set(Ecs::StaticMeshComponent{ submesh });
     }
 

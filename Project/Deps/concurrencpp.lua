@@ -2,7 +2,6 @@ package("ame.concurrencpp")
     set_homepage("https://github.com/David-Haim/concurrencpp")
     set_description("Modern concurrency for C++. Tasks, executors, timers and C++20 coroutines to rule them all")
     set_license("MIT")
-    add_rpathdirs("$ORIGIN")
 
     add_urls("https://github.com/David-Haim/concurrencpp/archive/refs/tags/$(version).tar.gz", {version = function (version)
         return "v." .. version
@@ -24,7 +23,11 @@ package("ame.concurrencpp")
         package:add("includedirs", "include/concurrencpp-" .. package:version_str())
     end)
 
-    on_install(function (package)
+    on_install("macosx", "windows", function (package)
+        -- fix missing std::string include
+        io.replace("include/concurrencpp/threads/thread.h", "#include <string_view>", "#include <string>\n#include <string_view>", {plain = true})
+
+        assert(package:has_tool("cxx", "clang", "cl"), "compiler not supported!")
         local configs = {}
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
@@ -44,4 +47,3 @@ package("ame.concurrencpp")
             }
         ]]}, {configs = {languages = "c++20"}}))
     end)
-package_end()

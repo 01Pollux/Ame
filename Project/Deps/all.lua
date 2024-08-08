@@ -5,8 +5,12 @@ includes("concurrencpp.lua")
 includes("kangaru.lua")
 includes("mimalloc.lua")
 
-add_requires("boost", {system = false, debug = _debug_packages, configs = {
+add_requires("boost",                       {system = false, debug = _debug_packages, configs = {
     vs_runtime = vs_runtime,
+    iostreams = true,
+    lzma = true,
+    zlib = true,
+    bzip2 = true,
     filesystem = true,
     system = true,
     program_options = true,

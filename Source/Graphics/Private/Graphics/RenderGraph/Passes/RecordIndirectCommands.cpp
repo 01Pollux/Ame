@@ -21,8 +21,8 @@ namespace Ame::Gfx
     }
 
     void RecordIndirectCommandsPass::Execute(
-        const RG::ResourceStorage&,
-        Dg::IDeviceContext*)
+        const RG::ResourceStorage& storage,
+        Dg::IDeviceContext*        deviceContext)
     {
         auto& world       = *m_World;
         auto& entityGroup = world->get<Gfx::EntityDrawCommandGroup>()->get();
