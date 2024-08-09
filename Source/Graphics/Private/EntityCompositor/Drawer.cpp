@@ -18,7 +18,7 @@ namespace Ame::Gfx
 
     void EntityDrawer::Update()
     {
-        m_Collector.get().Reset();
+        m_Collector.get().ResetCommands();
         m_RenderableQuery->run(
             [this](Ecs::Iterator& iter)
             {
