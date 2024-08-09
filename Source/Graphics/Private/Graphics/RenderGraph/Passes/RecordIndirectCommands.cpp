@@ -10,7 +10,7 @@
 namespace Ame::Gfx
 {
     RecordIndirectCommandsPass::RecordIndirectCommandsPass(
-        Ecs::World*        world) :
+        Ecs::World* world) :
         m_World(world)
     {
         Name("Record Indirect Commands Pass")
@@ -114,8 +114,9 @@ namespace Ame::Gfx
 
                 deviceContext->SetPipelineState(m_PipelineState);
 
-                dispatchConstants->FirstInstance = row.GetCounterOffset(); // TODO: grouped instance in command
+                dispatchConstants->FirstInstance = row.Offset; // TODO: grouped instance in command
                 dispatchConstants->InstanceCount = 1;
+                dispatchConstants->DrawOffset    = row.GetDrawArgOffset();
                 dispatchConstants->CounterOffset = row.GetCounterOffset();
 
                 deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);

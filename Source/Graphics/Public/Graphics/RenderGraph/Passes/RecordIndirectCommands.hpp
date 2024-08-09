@@ -16,6 +16,7 @@ namespace Ame::Gfx
         {
             uint32_t FirstInstance;
             uint32_t InstanceCount;
+            uint32_t DrawOffset;
             uint32_t CounterOffset;
         };
 
@@ -27,7 +28,7 @@ namespace Ame::Gfx
 
     public:
         RecordIndirectCommandsPass(
-            Ecs::World*        world);
+            Ecs::World* world);
 
     private:
         void CreateResources(

@@ -13,7 +13,7 @@ namespace Ame::Gfx
 
         [[nodiscard]] uint32_t GetCounterOffset() const noexcept
         {
-            return Offset;
+            return Offset * sizeof(uint32_t);
         }
 
         [[nodiscard]] uint32_t GetDrawArgOffset() const noexcept

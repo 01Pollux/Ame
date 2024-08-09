@@ -54,10 +54,13 @@ namespace Ame
         Ptr renderGraph{ ObjectAllocator<RG::Graph>()() };
         Gfx::RegisterForwardPlus(*renderGraph, world);
 
+        Ecs::TransformComponent camTr;
+        camTr.SetPosition({ 0.f, 0.f, -10.f });
+
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{
             .RenderGraph = std::move(renderGraph) });
-        cameraEntity->set(Ecs::TransformComponent{});
+        cameraEntity->set(camTr);
         cameraEntity->set(Ecs::CameraOutputComponent{});
 
         ////
@@ -69,15 +72,16 @@ namespace Ame
 
         ////
 
-        Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, 0u));
+        for (auto idx : std::views::iota(0u, static_cast<uint32_t>(mdl->GetSubMeshes().size() - 1)))
+        {
+            Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, idx));
 
-        Ecs::TransformComponent x;
-        x.SetPosition({ 5, 5, 2 });
-
-        auto meshEntity = world->CreateEntity("Mesh");
-        meshEntity->set(Ecs::TransformComponent{ x });
-        auto p = meshEntity->ensure<Ecs::TransformComponent>();
-        meshEntity->set(Ecs::StaticMeshComponent{ submesh });
+            auto meshEntity = world->CreateEntity("Mesh");
+            meshEntity->set(Ecs::TransformComponent{});
+            auto p = meshEntity->ensure<Ecs::TransformComponent>();
+            meshEntity->set(Ecs::StaticMeshComponent{ submesh });
+            break;
+        }
     }
 
     void EditorApplication::OnInitialize()
