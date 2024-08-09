@@ -86,6 +86,7 @@ namespace Ame::Gfx
 
         m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, "DrawCommands")->Set(drawCommands.get().View);
         m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, "DrawCommandCounts")->Set(drawCommandCounts.get().View);
+        deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         //
 
@@ -108,7 +109,7 @@ namespace Ame::Gfx
                 dispatchConstants->InstanceCount = 1;
                 dispatchConstants->CounterOffset = command.CounterOffset;
 
-                deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
                 deviceContext->DispatchCompute({ 1, 1, 1 }); // TODO: [command.size() / BLOCK, 1, 1]
             }
         }
