@@ -132,7 +132,8 @@ namespace Ame::Gfx
     {
         auto renderContext = m_RhiDevice->GetImmediateContext();
 
-        Dg::MapHelper<CameraFrameData> frameDataMap(renderContext, m_FrameDataBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NO_OVERWRITE);
+        Dg::MapHelper<CameraFrameData> frameDataMap(renderContext, m_FrameDataBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+
         frameDataMap->World      = frameData.WorldTransposed;
         frameDataMap->View       = frameData.ViewTransposed;
         frameDataMap->Projection = frameData.ProjectionTransposed;

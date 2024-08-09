@@ -61,6 +61,8 @@ namespace Ame::Gfx
         const RG::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
+        auto frameData = storage.GetResource(c_RGFrameData)->AsBuffer();
+
         CRef renderInstances       = std::get<RG::RhiBufferViewRef>(storage.GetResourceView(RGRenderInstances));
         CRef sortedRenderInstances = std::get<RG::RhiBufferViewRef>(storage.GetResourceView(RGSortedRenderInstances));
 
@@ -84,6 +86,8 @@ namespace Ame::Gfx
                 // TODO: Configure topoly
                 auto pso = m_Technique->GetPipelineState(Dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, renderableDesc.Material, &srb);
                 deviceContext->SetPipelineState(pso);
+
+                Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "FrameDataBuffer", frameData->Resource);
 
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "RenderInstances", renderInstances.get().View);
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "SortedRenderInstances", sortedRenderInstances.get().View);

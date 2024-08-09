@@ -40,7 +40,7 @@ namespace Ame::Rhi
 
         StructDrawIndexedIndirectCommandShader()
         {
-            SetupCompressed({ "Struct DrawIndexedIndirectCommand", Dg::SHADER_TYPE_VERTEX }, c_SourceCode);
+            SetupCompressed({ "Struct DrawIndexedIndirectCommand", Dg::SHADER_TYPE_UNKNOWN }, c_SourceCode);
         }
     };
 } // namespace Ame::Rhi

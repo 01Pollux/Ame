@@ -72,7 +72,7 @@ namespace Ame
         Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, 0u));
 
         Ecs::TransformComponent x;
-        x.SetPosition({ 1, 2, 2 });
+        x.SetPosition({ 5, 5, 2 });
 
         auto meshEntity = world->CreateEntity("Mesh");
         meshEntity->set(Ecs::TransformComponent{ x });
