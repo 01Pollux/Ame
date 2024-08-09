@@ -1,14 +1,25 @@
 #pragma once
 
-#include <Graphics/EntityCompositor/Core.hpp>
 #include <Core/Coroutine.hpp>
+#include <Graphics/EntityCompositor/Core.hpp>
+#include <Rhi/Utils/IndirectCommandStructs.hpp>
 
 namespace Ame::Gfx
 {
-    struct EntityDrawCommandIterator
+    struct EntityDrawRowIterator
     {
         CRef<EntityDrawCommand> Command;
-        uint32_t                CounterOffset;
+        uint32_t                Offset;
+
+        [[nodiscard]] uint32_t GetCounterOffset() const noexcept
+        {
+            return Offset;
+        }
+
+        [[nodiscard]] uint32_t GetDrawArgOffset() const noexcept
+        {
+            return Offset * sizeof(Rhi::DrawIndexedIndirectCommand);
+        }
     };
 
     class EntityDrawCommandListIterator
@@ -22,12 +33,13 @@ namespace Ame::Gfx
         {
         }
 
-        [[nodiscard]] Co::generator<EntityDrawCommandIterator> GetCommands() const
+        [[nodiscard]] Co::generator<EntityDrawRowIterator> GetRows() const
         {
             uint32_t offset = m_CommandOffset;
             for (auto& command : m_DrawCommandList.get())
             {
-                co_yield EntityDrawCommandIterator(command, offset++);
+                co_yield EntityDrawRowIterator(command, offset);
+                offset++;
             }
         }
 

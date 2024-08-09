@@ -52,7 +52,7 @@ namespace Ame
         //
 
         Ptr renderGraph{ ObjectAllocator<RG::Graph>()() };
-        Gfx::RegisterForwardPlus(renderDevice, *renderGraph, world);
+        Gfx::RegisterForwardPlus(*renderGraph, world);
 
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{

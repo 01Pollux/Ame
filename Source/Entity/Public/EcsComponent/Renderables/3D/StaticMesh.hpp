@@ -39,6 +39,7 @@ namespace Ame::Ecs
         void UpdateRenderableDesc()
         {
             auto& submesh             = m_Model->GetSubMeshes()[m_SubMeshIndex];
+            m_RenderableDesc.Material = m_Model->GetMaterials()[m_MaterialIndex];
             m_RenderableDesc.Vertices = {
                 .Position{
                     m_Model->GetPositionBuffer(),

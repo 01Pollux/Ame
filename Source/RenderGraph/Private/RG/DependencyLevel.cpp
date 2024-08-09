@@ -65,63 +65,69 @@ namespace Ame::RG
         {
             auto  resource = resourceStorage.GetResource(viewId.GetResource());
             auto& viewDesc = *resource->GetTextureView(viewId);
-            auto& rtv      = std::get<RenderTargetViewDesc>(viewDesc.Desc);
 
-            if (rtv.ClearType != ERTClearType::Ignore)
+            auto rtv = std::get_if<RenderTargetViewDesc>(&viewDesc.Desc);
+            if (rtv)
             {
-                auto texture = resource->AsTexture();
-                if (rtv.ForceColor)
+                if (rtv->ClearType != ERTClearType::Ignore)
                 {
-                    clearColors.emplace_back(rtv.ClearColor);
+                    auto texture = resource->AsTexture();
+                    if (rtv->ForceColor)
+                    {
+                        clearColors.emplace_back(rtv->ClearColor);
+                    }
+                    else
+                    {
+                        auto& clearColor = texture->Desc.ClearValue.Color;
+                        clearColors.emplace_back(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                    }
                 }
-                else
-                {
-                    auto& clearColor = texture->Desc.ClearValue.Color;
-                    clearColors.emplace_back(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-                }
-                renderTargetsViews.emplace_back(viewDesc.View);
             }
+            renderTargetsViews.emplace_back(viewDesc.View);
         }
 
         if (depthStencil)
         {
             auto  resource = resourceStorage.GetResource(depthStencil.GetResource());
             auto& viewDesc = *resource->GetTextureView(depthStencil);
-            auto& dsv      = std::get<DepthStencilViewDesc>(viewDesc.Desc);
 
-            if (dsv.ClearType != EDSClearType::Ignore)
+            auto dsv = std::get_if<DepthStencilViewDesc>(&viewDesc.Desc);
+            depthStencilView = viewDesc.View;
+            if (dsv)
             {
-                auto& handle            = *resourceStorage.GetResource(depthStencil.GetResource());
-                auto& textureClearValue = handle.AsTexture()->Desc.ClearValue.DepthStencil;
-                depthStencilView        = viewDesc.View;
-
-                switch (dsv.ClearType)
+                if (dsv->ClearType != EDSClearType::Ignore)
                 {
-                case EDSClearType::Depth:
-                {
-                    depthClearFlags = Dg::CLEAR_DEPTH_FLAG;
-                    depthClearValue = dsv.ForceDepth ? dsv.Depth : textureClearValue.Depth;
+                    auto& handle            = *resourceStorage.GetResource(depthStencil.GetResource());
+                    auto& textureClearValue = handle.AsTexture()->Desc.ClearValue.DepthStencil;
 
-                    break;
-                }
-                case EDSClearType::Stencil:
-                {
-                    depthClearFlags   = Dg::CLEAR_STENCIL_FLAG;
-                    stencilClearValue = dsv.ForceStencil ? dsv.Stencil : textureClearValue.Stencil;
+                    switch (dsv->ClearType)
+                    {
+                    case EDSClearType::Depth:
+                    {
+                        depthClearFlags = Dg::CLEAR_DEPTH_FLAG;
+                        depthClearValue = dsv->ForceDepth ? dsv->Depth : textureClearValue.Depth;
 
-                    break;
-                }
-                case EDSClearType::DepthStencil:
-                {
-                    depthClearFlags   = Dg::CLEAR_DEPTH_FLAG | Dg::CLEAR_STENCIL_FLAG;
-                    depthClearValue   = dsv.ForceDepth ? dsv.Depth : textureClearValue.Depth;
-                    stencilClearValue = dsv.ForceStencil ? dsv.Stencil : textureClearValue.Depth;
+                        break;
+                    }
+                    case EDSClearType::Stencil:
+                    {
+                        depthClearFlags   = Dg::CLEAR_STENCIL_FLAG;
+                        stencilClearValue = dsv->ForceStencil ? dsv->Stencil : textureClearValue.Stencil;
 
-                    break;
-                }
+                        break;
+                    }
+                    case EDSClearType::DepthStencil:
+                    {
+                        depthClearFlags   = Dg::CLEAR_DEPTH_FLAG | Dg::CLEAR_STENCIL_FLAG;
+                        depthClearValue   = dsv->ForceDepth ? dsv->Depth : textureClearValue.Depth;
+                        stencilClearValue = dsv->ForceStencil ? dsv->Stencil : textureClearValue.Stencil;
 
-                default:
-                    std::unreachable();
+                        break;
+                    }
+
+                    default:
+                        std::unreachable();
+                    }
                 }
             }
         }

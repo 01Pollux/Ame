@@ -23,7 +23,6 @@ namespace Ame::Gfx
     /// Registers the Forward+ rendering pass to the graph.
     /// </summary>
     void RegisterForwardPlus(
-        Diligent::IRenderDevice* renderDevice,
-        RG::Graph&               graph,
-        Ecs::World*              world);
+        RG::Graph&  graph,
+        Ecs::World* world);
 } // namespace Ame::Gfx

@@ -160,7 +160,7 @@ void main(uint threadId : SV_DispatchThreadId)
     public:
         RecordIndirectCommandsShader()
         {
-            SetupCompressed({ "Record Indirect Commands", Dg::SHADER_TYPE_COMPUTE }, c_SourceCode);
+            SetupCompressed({ "Record Indirect Commands CS", Dg::SHADER_TYPE_COMPUTE }, c_SourceCode);
             LinkShaders();
         }
 

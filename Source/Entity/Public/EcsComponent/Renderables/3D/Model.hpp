@@ -41,11 +41,13 @@ namespace Ame::Ecs
     public:
         using MeshNodeList    = std::vector<MeshNode>;
         using SubMeshDataList = std::vector<SubMeshData>;
+        using MaterialList    = std::vector<Ptr<Rhi::Material>>;
 
         struct CreateDesc
         {
-            MeshModel::MeshNodeList    MeshNodes;
-            MeshModel::SubMeshDataList SubMeshes;
+            MeshNodeList    MeshNodes;
+            SubMeshDataList SubMeshes;
+            MaterialList    Materials;
 
             Ptr<Dg::IBuffer> PositionBuffer;
             Ptr<Dg::IBuffer> NormalBuffer;
@@ -66,6 +68,7 @@ namespace Ame::Ecs
             Base(counters),
             m_MeshNodes(std::move(desc.MeshNodes)),
             m_SubMeshes(std::move(desc.SubMeshes)),
+            m_Materials(std::move(desc.Materials)),
             m_PositionBuffer(std::move(desc.PositionBuffer)),
             m_NormalBuffer(std::move(desc.NormalBuffer)),
             m_TangentBuffer(std::move(desc.TangentBuffer)),
@@ -119,10 +122,15 @@ namespace Ame::Ecs
         {
             return m_SubMeshes;
         }
+        [[nodiscard]] const MaterialList& GetMaterials() const noexcept
+        {
+            return m_Materials;
+        }
 
     private:
         MeshNodeList    m_MeshNodes;
         SubMeshDataList m_SubMeshes;
+        MaterialList    m_Materials;
 
         Ptr<Dg::IBuffer> m_PositionBuffer; // VI3_Position
         Ptr<Dg::IBuffer> m_NormalBuffer;   // VI3_Normal

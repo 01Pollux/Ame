@@ -15,6 +15,7 @@ namespace Ame::Rhi
     {
     private:
         using PipelineStateMap = std::map<MaterialHash, Ptr<Dg::IPipelineState>>;
+        using SRBMap           = std::map<MaterialHash, Ptr<Dg::IShaderResourceBinding>>;
 
     public:
         using Base = BaseObject<IObject>;
@@ -31,8 +32,9 @@ namespace Ame::Rhi
         /// Get the pipeline state for the given material and vertex input flags
         /// </summary>
         [[nodiscard]] Dg::IPipelineState* GetPipelineState(
-            Dg::PRIMITIVE_TOPOLOGY topology,
-            const Material*        material) const;
+            Dg::PRIMITIVE_TOPOLOGY       topology,
+            const Material*              material,
+            Dg::IShaderResourceBinding** srb = nullptr) const;
 
     private:
         using ShadersToKeepAliveList = std::vector<Ptr<Dg::IShader>>;
@@ -82,5 +84,6 @@ namespace Ame::Rhi
 
         MaterialRenderState      m_RenderState;
         mutable PipelineStateMap m_PipelineStates;
+        mutable SRBMap           m_SRBs;
     };
 } // namespace Ame::Rhi

@@ -19,7 +19,7 @@ namespace Ame::Gfx
             uint32_t CounterOffset;
         };
 
-    private:
+    public:
         static inline const RG::ResourceViewId RGRenderInstances       = c_RGRenderInstances("Record Indirect Commands");
         static inline const RG::ResourceViewId RGSortedRenderInstances = c_RGSortedRenderInstances("Record Indirect Commands");
         static inline const RG::ResourceViewId RGDrawCommands          = c_RGDrawCommands("Record Indirect Commands");
@@ -27,10 +27,12 @@ namespace Ame::Gfx
 
     public:
         RecordIndirectCommandsPass(
-            Dg::IRenderDevice* renderDevice,
             Ecs::World*        world);
 
     private:
+        void CreateResources(
+            Dg::IRenderDevice* renderDevice);
+
         void Build(
             RG::Resolver& resolver);
 

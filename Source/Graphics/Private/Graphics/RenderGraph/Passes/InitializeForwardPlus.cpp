@@ -14,20 +14,17 @@ namespace Ame::Gfx
     void InitializeForwardPlusPass::Build(
         RG::Resolver& resolver)
     {
-        RG::RenderTargetViewDesc rtViewDesc{
-            Dg::TextureViewDesc{
-                "Forward+ RT",
-                Dg::TEXTURE_VIEW_RENDER_TARGET,
-                Dg::RESOURCE_DIM_TEX_2D },
+        RG::RenderTargetViewDesc rtv{
+            {},
             RG::RtvCustomDesc{
                 .ClearColor = Colors::c_Snow,
                 .ClearType  = RG::ERTClearType::Color,
                 .ForceColor = true }
         };
 
-        auto textureDesc = resolver.GetBackbufferDesc();
+        auto textureDesc      = resolver.GetBackbufferDesc();
         textureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_RENDER_TARGET;
         resolver.CreateTexture(c_RGFinalImage, textureDesc);
-        resolver.WriteTexture(c_RGFinalImage("Initialize"), Dg::BIND_RENDER_TARGET, rtViewDesc);
+        resolver.WriteTexture(c_RGFinalImage("Initialize"), Dg::BIND_RENDER_TARGET, rtv);
     }
 } // namespace Ame::Gfx

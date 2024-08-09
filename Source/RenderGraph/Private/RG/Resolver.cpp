@@ -116,17 +116,24 @@ namespace Ame::RG
 
         if (bindFlags & Dg::BIND_FLAGS::BIND_RENDER_TARGET)
         {
-#ifndef AME_DIST
+#ifdef AME_DEBUG
             AME_LOG_ASSERT(Log::Gfx(), m_RenderTargets.size() <= 8, "Too many render targets");
-            AME_LOG_ASSERT(Log::Gfx(), std::holds_alternative<RenderTargetViewDesc>(viewDesc), "View '{}' is not of a render target", viewId.GetResource().GetName());
+            AME_LOG_ASSERT(Log::Gfx(),
+                           std::holds_alternative<RenderTargetViewDesc>(viewDesc) ||
+                               (std::holds_alternative<Dg::TEXTURE_VIEW_TYPE>(viewDesc) && std::get<Dg::TEXTURE_VIEW_TYPE>(viewDesc) == Dg::TEXTURE_VIEW_RENDER_TARGET),
+                           "View '{}' is not of a render target", viewId.GetResource().GetName());
 #endif
             m_RenderTargets.emplace_back(viewId);
         }
         else if (bindFlags & Dg::BIND_FLAGS::BIND_DEPTH_STENCIL)
         {
-#ifndef AME_DIST
+#ifdef AME_DEBUG
             AME_LOG_ASSERT(Log::Gfx(), !m_DepthStencil, "Depth stencil was already set");
-            AME_LOG_ASSERT(Log::Gfx(), std::holds_alternative<DepthStencilViewDesc>(viewDesc), "View '{}' is not of a depth stencil", viewId.GetResource().GetName());
+
+            AME_LOG_ASSERT(Log::Gfx(),
+                           std::holds_alternative<DepthStencilViewDesc>(viewDesc) ||
+                               (std::holds_alternative<Dg::TEXTURE_VIEW_TYPE>(viewDesc) && std::get<Dg::TEXTURE_VIEW_TYPE>(viewDesc) == Dg::TEXTURE_VIEW_DEPTH_STENCIL),
+                           "View '{}' is not of a depth stencil", viewId.GetResource().GetName());
 #endif
             m_DepthStencil = viewId;
         }

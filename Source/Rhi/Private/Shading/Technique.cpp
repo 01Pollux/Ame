@@ -1,3 +1,4 @@
+#include <boost/range/join.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
 
 #include <Shading/Technique.hpp>
@@ -5,6 +6,8 @@
 #include <Shading/VertexInput.hpp>
 #include <Shading/ShaderComposer.hpp>
 #include <Shading/Hash.hpp>
+
+#include <DiligentCore/Graphics/GraphicsTools/interface/ShaderSourceFactoryUtils.h>
 
 #include <Core/Enum.hpp>
 #include <Log/Wrapper.hpp>
@@ -31,8 +34,9 @@ namespace Ame::Rhi
     //
 
     Dg::IPipelineState* MaterialTechnique::GetPipelineState(
-        Dg::PRIMITIVE_TOPOLOGY topology,
-        const Material*        material) const
+        Dg::PRIMITIVE_TOPOLOGY       topology,
+        const Material*              material,
+        Dg::IShaderResourceBinding** srb) const
     {
         auto hash = Dg::ComputeHash(
             material->GetMaterialHash(),
@@ -42,6 +46,15 @@ namespace Ame::Rhi
         if (!pipelineState)
         {
             pipelineState = CreatePipelineState(topology, material);
+        }
+        if (srb)
+        {
+            auto& srbState = m_SRBs[hash];
+            if (!srbState)
+            {
+                pipelineState->CreateShaderResourceBinding(&srbState);
+            }
+            *srb = srbState;
         }
         return pipelineState;
     }
@@ -116,6 +129,37 @@ namespace Ame::Rhi
             }
         };
 
+        auto initializeStreamFactory = [](auto lhs, auto lhsEnd, auto rhs, auto rhsEnd)
+        {
+            std::span<const Ptr<Dg::IShaderSourceInputStreamFactory>> lhsStream, rhsStream;
+            if (lhs != lhsEnd)
+            {
+                lhsStream = lhs->second.StreamFactories;
+            }
+            if (rhs != rhsEnd)
+            {
+                rhsStream = rhs->second.StreamFactories;
+            }
+
+            auto streams = boost::range::join(lhsStream, rhsStream) |
+                           std::views::transform([](auto& factory) -> Dg::IShaderSourceInputStreamFactory*
+                                                 { return factory; });
+
+            Ptr<Dg::IShaderSourceInputStreamFactory> factory;
+            if (streams.size() > 1)
+            {
+                auto streamsList = streams |
+                                   std::ranges::to<std::vector>();
+
+                Dg::CreateCompoundShaderSourceFactory({ streamsList.data(), static_cast<uint32_t>(streamsList.size()) }, &factory);
+            }
+            else if (!streams.empty())
+            {
+                factory = streams.front();
+            }
+            return factory;
+        };
+
         //
 
         auto& renderStateShaders = m_RenderState.Links;
@@ -173,9 +217,12 @@ namespace Ame::Rhi
                 createDesc.Desc.ShaderType = shaderType;
 
                 auto sourceCode = shaderComposer.Write(prologueSource, bodySource, epilogueSource);
+                auto factory    = initializeStreamFactory(materialIter, materialDesc.ShaderSources.end(), bodyIter, renderStateShaders.ShaderSources.end());
 
                 createDesc.Source       = sourceCode.data();
                 createDesc.SourceLength = sourceCode.size();
+
+                createDesc.pShaderSourceStreamFactory = factory;
 
                 m_RenderDevice->CreateShader(createDesc, &shader);
 
@@ -216,9 +263,7 @@ namespace Ame::Rhi
             signatures.push_back(signature);
         }
 
-        graphicsPsoDesc.ppResourceSignatures    = signatures.data();
         graphicsPsoDesc.ResourceSignaturesCount = Rhi::Count32(signatures);
-
         return signatures;
     }
 
@@ -227,6 +272,9 @@ namespace Ame::Rhi
         Dg::PRIMITIVE_TOPOLOGY               topology,
         const MaterialDesc&                  materialDesc) const
     {
+        graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableType        = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+        graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableMergeStages = Dg::SHADER_TYPE_ALL_GRAPHICS;
+
         graphicsPsoDesc.GraphicsPipeline.BlendDesc         = materialDesc.Blend;
         graphicsPsoDesc.GraphicsPipeline.SampleMask        = materialDesc.SampleMask;
         graphicsPsoDesc.GraphicsPipeline.RasterizerDesc    = materialDesc.Rasterizer;
@@ -252,15 +300,20 @@ namespace Ame::Rhi
         auto& materialDesc = material->GetMaterialDesc();
 
         Dg::GraphicsPipelineStateCreateInfo psoCreateDesc;
+        InitializePipelineState(psoCreateDesc, topology, materialDesc);
 
 #ifndef AME_DIST
         String pipelineStateName   = std::format("{}_{}", materialDesc.Name, m_RenderState.Name);
         psoCreateDesc.PSODesc.Name = pipelineStateName.c_str();
 #endif
 
-        InitializePipelineState(psoCreateDesc, topology, materialDesc);
         auto signatures = CombineSignatures(psoCreateDesc, material);
-        auto shaders    = CombineShaders(psoCreateDesc, materialDesc);
+        if (!signatures.empty())
+        {
+            psoCreateDesc.ppResourceSignatures = signatures.data();
+        }
+
+        auto shaders = CombineShaders(psoCreateDesc, materialDesc);
 
         Ptr<Dg::IPipelineState> pipelineState;
         m_RenderDevice->CreateGraphicsPipelineState(psoCreateDesc, &pipelineState);

@@ -215,5 +215,11 @@ namespace Ame::Ecs
                 }
             }
         }
+
+        //
+
+        // TODO: Proper material
+        Rhi::MaterialCreateDesc materialDesc;
+        createDesc.Materials.emplace_back(Rhi::Material::Create(renderDevice, materialDesc));
     }
 } // namespace Ame::Ecs

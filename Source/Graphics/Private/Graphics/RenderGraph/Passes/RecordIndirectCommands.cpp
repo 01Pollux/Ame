@@ -10,7 +10,6 @@
 namespace Ame::Gfx
 {
     RecordIndirectCommandsPass::RecordIndirectCommandsPass(
-        Dg::IRenderDevice* renderDevice,
         Ecs::World*        world) :
         m_World(world)
     {
@@ -18,9 +17,13 @@ namespace Ame::Gfx
             .Flags(RG::PassFlags::Graphics)
             .Build(std::bind_front(&RecordIndirectCommandsPass::Build, this))
             .Execute(std::bind_front(&RecordIndirectCommandsPass::Execute, this));
+    }
 
-        //
+    //
 
+    void RecordIndirectCommandsPass::CreateResources(
+        Dg::IRenderDevice* renderDevice)
+    {
         Rhi::RenderDeviceWithCache<> renderDeviceWithCache(renderDevice);
 
         Ptr<Dg::IShader> computeShader;
@@ -32,13 +35,12 @@ namespace Ame::Gfx
         Dg::ComputePipelineStateCreateInfo pipelineStateInfo{ "RecordIndirectCommandsPSO" };
         pipelineStateInfo.pCS = computeShader;
 
-        pipelineStateInfo.PSODesc.ResourceLayout.DefaultVariableType = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
-
         Dg::ShaderResourceVariableDesc variables[]{
             { Dg::SHADER_TYPE_COMPUTE, "DispatchConstants", Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC }
         };
-        pipelineStateInfo.PSODesc.ResourceLayout.Variables    = variables;
-        pipelineStateInfo.PSODesc.ResourceLayout.NumVariables = Rhi::Count32(variables);
+        pipelineStateInfo.PSODesc.ResourceLayout.DefaultVariableType = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
+        pipelineStateInfo.PSODesc.ResourceLayout.Variables           = variables;
+        pipelineStateInfo.PSODesc.ResourceLayout.NumVariables        = Rhi::Count32(variables);
 
         m_PipelineState = renderDeviceWithCache.CreateComputePipelineState(pipelineStateInfo);
 
@@ -59,6 +61,8 @@ namespace Ame::Gfx
         m_PipelineState->CreateShaderResourceBinding(&m_Srb, true);
     }
 
+    //
+
     void RecordIndirectCommandsPass::Build(
         RG::Resolver& resolver)
     {
@@ -67,6 +71,11 @@ namespace Ame::Gfx
 
         resolver.WriteBuffer(RGDrawCommands, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
         resolver.WriteBuffer(RGDrawCommandCounts, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
+
+        //
+
+        auto renderDevice = resolver.GetDevice()->GetRenderDevice();
+        CreateResources(renderDevice);
     }
 
     void RecordIndirectCommandsPass::Execute(
@@ -96,7 +105,7 @@ namespace Ame::Gfx
         Dg::MapHelper<DispatchConstants> dispatchConstants;
         for (auto& group : commandsIterator->GetGroups())
         {
-            for (auto& command : group.GetCommands())
+            for (auto& row : group.GetRows())
             {
                 if (!dispatchConstants) [[unlikely]]
                 {
@@ -105,9 +114,9 @@ namespace Ame::Gfx
 
                 deviceContext->SetPipelineState(m_PipelineState);
 
-                dispatchConstants->FirstInstance = command.CounterOffset; // TODO: grouped instance in command
+                dispatchConstants->FirstInstance = row.GetCounterOffset(); // TODO: grouped instance in command
                 dispatchConstants->InstanceCount = 1;
-                dispatchConstants->CounterOffset = command.CounterOffset;
+                dispatchConstants->CounterOffset = row.GetCounterOffset();
 
                 deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
                 deviceContext->DispatchCompute({ 1, 1, 1 }); // TODO: [command.size() / BLOCK, 1, 1]

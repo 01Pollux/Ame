@@ -17,17 +17,71 @@ namespace Ame::Rhi
 
     //
 
-    struct MaterialShaderDesc
+    struct MaterialBaseShaderDesc
     {
-        String                                 PreShaderCode;
-        String                                 PostShaderCode;
-        std::vector<std::pair<String, String>> Macros;
+        std::vector<std::pair<String, String>>                Macros;
+        std::vector<Ptr<Dg::IShaderSourceInputStreamFactory>> StreamFactories;
+
+        MaterialBaseShaderDesc() = default;
+
+        MaterialBaseShaderDesc(
+            const Dg::ShaderCreateInfo& createInfo) :
+            StreamFactories({ Ptr{ createInfo.pShaderSourceStreamFactory } })
+        {
+            Macros.reserve(createInfo.Macros.Count);
+            for (auto& element : std::span{ createInfo.Macros.Elements, createInfo.Macros.Count })
+            {
+                Macros.emplace_back(element.Name, element.Definition);
+            }
+        }
     };
 
-    struct MaterialLinkShaderDesc
+    struct MaterialShaderDesc : MaterialBaseShaderDesc
     {
-        String                                 ShaderCode;
-        std::vector<std::pair<String, String>> Macros;
+        String PreShaderCode;
+        String PostShaderCode;
+
+        MaterialShaderDesc() = default;
+
+        MaterialShaderDesc(
+            const Dg::ShaderCreateInfo& createInfo) :
+            MaterialBaseShaderDesc(createInfo),
+            PreShaderCode{ createInfo.Source, createInfo.SourceLength }
+        {
+        }
+
+        MaterialShaderDesc(
+            const Dg::ShaderCreateInfo& createInfo,
+            const String&               postShaderCode) :
+            MaterialBaseShaderDesc(createInfo),
+            PreShaderCode{ createInfo.Source, createInfo.SourceLength },
+            PostShaderCode{ postShaderCode }
+        {
+        }
+
+        MaterialShaderDesc(
+            const Dg::ShaderCreateInfo& createInfo,
+            const String&               preShaderCode,
+            const String&               postShaderCode) :
+            MaterialBaseShaderDesc(createInfo),
+            PreShaderCode{ preShaderCode },
+            PostShaderCode{ postShaderCode }
+        {
+        }
+    };
+
+    struct MaterialLinkShaderDesc : MaterialBaseShaderDesc
+    {
+        String ShaderCode;
+
+        MaterialLinkShaderDesc() = default;
+
+        MaterialLinkShaderDesc(
+            const Dg::ShaderCreateInfo& createInfo) :
+            MaterialBaseShaderDesc(createInfo),
+            ShaderCode{ createInfo.Source, createInfo.SourceLength }
+        {
+        }
     };
 
     using MaterialShaderSourceStorage     = std::map<Dg::SHADER_TYPE, MaterialShaderDesc>;

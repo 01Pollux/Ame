@@ -299,12 +299,23 @@ namespace Ame::RG
                             view.Hash = type;
                         }
                     },
-                    [&](const auto& desc)
+                    [&](auto& desc)
                     {
                         size_t hash = computeViewHash(desc);
                         if (view.Hash != hash)
                         {
                             view.View.Release();
+                            if (desc.ViewType == Dg::TEXTURE_VIEW_UNDEFINED)
+                            {
+                                if constexpr (std::is_same_v<std::decay_t<decltype(desc)>, RenderTargetViewDesc>)
+                                {
+                                    desc.ViewType = Dg::TEXTURE_VIEW_RENDER_TARGET;
+                                }
+                                else if constexpr (std::is_same_v<std::decay_t<decltype(desc)>, DepthStencilViewDesc>)
+                                {
+                                    desc.ViewType = Dg::TEXTURE_VIEW_DEPTH_STENCIL;
+                                }
+                            }
                             textureResource.Resource->CreateView(desc, &view.View);
                             view.Hash = hash;
                         }
