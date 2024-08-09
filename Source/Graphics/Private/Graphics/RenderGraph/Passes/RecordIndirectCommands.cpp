@@ -89,6 +89,8 @@ namespace Ame::Gfx
 
         //
 
+        return;
+
         auto& world            = *m_World;
         auto  commandsIterator = world->get<EntityDrawCommandsCategoryIterator>();
 

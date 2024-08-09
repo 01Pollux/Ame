@@ -826,7 +826,7 @@ namespace Ame::Rhi
 
                     // Bind texture
                     auto textureView = static_cast<Dg::ITextureView*>(cmd->TextureId);
-                    textureView      = textureView ? textureView : m_FontTextureView;
+                    Log::Rhi().Assert(textureView, "Texture view is null");
                     if (textureView != lastTextureView)
                     {
                         lastTextureView = textureView;

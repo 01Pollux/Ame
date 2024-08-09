@@ -25,7 +25,9 @@ namespace Ame::Gfx
                 .ForceColor = true }
         };
 
-        resolver.CreateTexture(c_RGFinalImage, resolver.GetBackbufferDesc());
+        auto textureDesc = resolver.GetBackbufferDesc();
+        textureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_RENDER_TARGET;
+        resolver.CreateTexture(c_RGFinalImage, textureDesc);
         resolver.WriteTexture(c_RGFinalImage("Initialize"), Dg::BIND_RENDER_TARGET, rtViewDesc);
     }
 } // namespace Ame::Gfx
