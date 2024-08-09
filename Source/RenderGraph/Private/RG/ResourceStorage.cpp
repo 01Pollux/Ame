@@ -79,7 +79,7 @@ namespace Ame::RG
         CheckLockState(false);
 
         auto& resource = m_Resources[id];
-        resource.Import(BufferResource{ .Resource = std::move(buffer) });
+        resource.Import(id, BufferResource{ .Resource = std::move(buffer) });
     }
 
     void ResourceStorage::ImportTexture(
@@ -89,7 +89,7 @@ namespace Ame::RG
         CheckLockState(false);
 
         auto& resource = m_Resources[id];
-        resource.Import(TextureResource{ .Resource = std::move(texture) });
+        resource.Import(id, TextureResource{ .Resource = std::move(texture) });
     }
 
     void ResourceStorage::DiscardResource(

@@ -31,6 +31,11 @@ namespace Ame::Rhi
             m_CreateInfo.pShaderSourceStreamFactory = factory;
         }
 
+        [[nodiscard]] const Dg::ShaderCreateInfo& GetCreateInfo() const
+        {
+            return m_CreateInfo;
+        }
+
     protected:
         void Setup(
             const Dg::ShaderDesc&      desc,

@@ -198,7 +198,8 @@ namespace Ame::RG
         /// Import resource
         /// </summary>
         void Import(
-            RhiResource&& resource);
+            const ResourceId& id,
+            RhiResource&&     resource);
 
         /// <summary>
         /// Set resource desc and change resource to be dynamic (not imported)

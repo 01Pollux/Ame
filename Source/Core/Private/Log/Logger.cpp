@@ -70,7 +70,7 @@ namespace Ame::Log
         EnsureLogsDirectory();
 
         SinkList Sinks{
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(std::format("Logs/{}", Strings::To<std::string_view>(FileName))),
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(String(FileName)),
 #ifndef AME_DIST
             std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
 #ifdef AME_PLATFORM_WINDOWS

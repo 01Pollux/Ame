@@ -1,6 +1,7 @@
 #pragma once
 
 #include <RG/Pass.hpp>
+#include <Graphics/RenderGraph/Common/Names.hpp>
 
 namespace Ame::Ecs
 {
@@ -11,9 +12,23 @@ namespace Ame::Gfx
 {
     class RecordIndirectCommandsPass : public RG::Pass
     {
+        struct DispatchConstants
+        {
+            uint32_t FirstInstance;
+            uint32_t InstanceCount;
+            uint32_t CounterOffset;
+        };
+
+    private:
+        static inline const RG::ResourceViewId RGRenderInstances       = c_RGRenderInstances("Record Indirect Commands");
+        static inline const RG::ResourceViewId RGSortedRenderInstances = c_RGSortedRenderInstances("Record Indirect Commands");
+        static inline const RG::ResourceViewId RGDrawCommands          = c_RGDrawCommands("Record Indirect Commands");
+        static inline const RG::ResourceViewId RGDrawCommandCounts     = c_RGDrawCommandCounts("Record Indirect Commands");
+
     public:
         RecordIndirectCommandsPass(
-            Ecs::World* world);
+            Dg::IRenderDevice* renderDevice,
+            Ecs::World*        world);
 
     private:
         void Build(
@@ -25,5 +40,9 @@ namespace Ame::Gfx
 
     private:
         Ptr<Ecs::World> m_World;
+
+        Ptr<Dg::IPipelineState>         m_PipelineState;
+        Ptr<Dg::IShaderResourceBinding> m_Srb;
+        Ptr<Dg::IBuffer>                m_DispatchConstants;
     };
 } // namespace Ame::Gfx

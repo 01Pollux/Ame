@@ -46,10 +46,13 @@ namespace Ame
         Ptr<Ecs::World> world;
         GetEngine().GetRegistry().GetModule<EditorModule>(IID_EntityModule)->QueryInterface(Ecs::IID_EntityWorld, world.DblPtr<IObject>());
 
+        Ptr<Dg::IRenderDevice> renderDevice;
+        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
+
         //
 
         Ptr renderGraph{ ObjectAllocator<RG::Graph>()() };
-        Gfx::RegisterForwardPlus(*renderGraph, world);
+        Gfx::RegisterForwardPlus(renderDevice, *renderGraph, world);
 
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{
@@ -58,9 +61,6 @@ namespace Ame
         cameraEntity->set(Ecs::CameraOutputComponent{});
 
         ////
-
-        Ptr<Dg::IRenderDevice> renderDevice;
-        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
 
         Rhi::MaterialCreateDesc materialDesc;
 

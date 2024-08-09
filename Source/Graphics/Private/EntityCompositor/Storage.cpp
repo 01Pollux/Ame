@@ -1,6 +1,6 @@
 #include <Graphics/EntityCompositor/Storage.hpp>
 
-#include <Graphics/EntityCompositor/RenderGraphResources.hpp>
+#include <Graphics/RenderGraph/Common/Names.hpp>
 #include <Rhi/Utils/IndirectCommandStructs.hpp>
 
 namespace Ame::Gfx
@@ -34,6 +34,7 @@ namespace Ame::Gfx
                                   { return instance.InstanceId; }) |
             std::ranges::to<std::vector>();
 
+        UpdateInstances();
         UpdateInstanceIndices(flatIndices);
         UpdateDrawCommands(flatIndices);
     }
@@ -50,6 +51,14 @@ namespace Ame::Gfx
 
     //
 
+    void EntityStorage::UpdateInstances()
+    {
+        m_DrawInstanceStorage.Upload(
+            *m_World,
+            m_RhiDevice->GetRenderDevice(),
+            m_RhiDevice->GetImmediateContext());
+    }
+
     void EntityStorage::UpdateInstanceIndices(
         std::span<const uint32_t> indices)
     {
@@ -63,7 +72,7 @@ namespace Ame::Gfx
                 requiredSize,
                 Dg::BIND_SHADER_RESOURCE,
                 Dg::USAGE_DYNAMIC,
-                Dg::CPU_ACCESS_FLAGS::CPU_ACCESS_WRITE,
+                Dg::CPU_ACCESS_WRITE,
                 Dg::BUFFER_MODE_STRUCTURED,
                 sizeof(uint32_t)
             };
@@ -75,7 +84,7 @@ namespace Ame::Gfx
         auto      immediateContext = m_RhiDevice->GetImmediateContext();
         Dg::PVoid mappedData       = nullptr;
 
-        immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_NO_OVERWRITE, mappedData);
+        immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD, mappedData);
         std::memcpy(mappedData, indices.data(), indices.size_bytes());
         immediateContext->UnmapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE);
     }
@@ -96,22 +105,25 @@ namespace Ame::Gfx
                 Dg::BUFFER_MODE_STRUCTURED
             };
 
-#ifndef AME_DIST
-            bufferDesc.Name = "DrawCounterBuffer";
-#endif
-            bufferDesc.Size              = indicesCount * sizeof(uint32_t);
-            bufferDesc.ElementByteStride = sizeof(uint32_t);
-
             auto renderDevice = m_RhiDevice->GetRenderDevice();
-            renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCounterBuffer);
-
+            {
 #ifndef AME_DIST
-            bufferDesc.Name = "DrawCommandBuffer";
+                bufferDesc.Name = "DrawCommandBuffer";
 #endif
-            bufferDesc.Size              = indicesCount * sizeof(Rhi::DrawIndexedIndirectCommand);
-            bufferDesc.ElementByteStride = sizeof(Rhi::DrawIndexedIndirectCommand);
+                bufferDesc.Size              = indicesCount * sizeof(Rhi::DrawIndexedIndirectCommand);
+                bufferDesc.ElementByteStride = sizeof(Rhi::DrawIndexedIndirectCommand);
 
-            renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCommandBuffer);
+                renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCommandBuffer);
+            }
+            {
+#ifndef AME_DIST
+                bufferDesc.Name = "DrawCounterBuffer";
+#endif
+                bufferDesc.Size              = indicesCount * sizeof(uint32_t);
+                bufferDesc.ElementByteStride = sizeof(uint32_t);
+
+                renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCounterBuffer);
+            }
         }
     }
 
@@ -145,9 +157,13 @@ namespace Ame::Gfx
     {
         auto& resourceStorage = cameraGraph.GetResourceStorage();
 
-        resourceStorage.ImportBuffer(RG_FrameDataResource, m_FrameDataBuffer);
-        resourceStorage.ImportBuffer(RG_DrawCommandResource, m_DrawCommandBuffer);
-        resourceStorage.ImportBuffer(RG_DrawCounterResource, m_DrawCounterBuffer);
+        resourceStorage.ImportBuffer(c_RGFrameData, m_FrameDataBuffer);
+
+        resourceStorage.ImportBuffer(c_RGRenderInstances, m_DrawInstanceStorage.GetBuffer());
+        resourceStorage.ImportBuffer(c_RGSortedRenderInstances, m_DrawInstanceIndexBuffer);
+
+        resourceStorage.ImportBuffer(c_RGDrawCommands, m_DrawCommandBuffer);
+        resourceStorage.ImportBuffer(c_RGDrawCommandCounts, m_DrawCounterBuffer);
     }
 
     //

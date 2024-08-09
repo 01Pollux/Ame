@@ -27,6 +27,8 @@ namespace Ame::Gfx
     public:
         using BuddyAllocator = Allocator::Buddy<Allocator::BuddyTraits_U32>;
 
+        using traits_type = Traits;
+
         static constexpr uint32_t c_InvalidId = std::numeric_limits<uint32_t>::max();
         static constexpr uint32_t c_ChunkSize = 1024;
 
@@ -66,8 +68,8 @@ namespace Ame::Gfx
         void UpdateEntity(
             const Ecs::Entity& entity)
         {
-            auto instanceId = entity->ensure<typename Traits::id_container_type>();
-            auto newId      = UpdateEntity(entity.GetId(), instanceId.Id);
+            auto& instanceId = entity->ensure<typename Traits::id_container_type>();
+            auto  newId      = UpdateEntity(entity.GetId(), instanceId.Id);
             if (instanceId.Id != newId)
             {
                 instanceId.Id = newId;
@@ -103,15 +105,16 @@ namespace Ame::Gfx
             Dg::IRenderDevice*   renderDevice,
             Dg::IDeviceContext*  renderContext)
         {
-            size_t requiredSize = sizeof(typename Traits::instance_type) * m_Allocator.GetMaxSize();
+            // At least 1 instance must be available
+            size_t requiredSize = sizeof(typename Traits::instance_type) * GetMaxCount();
             TryGrowBuffer(renderDevice, renderContext, requiredSize);
+
+            Dg::MapHelper<typename Traits::instance_type> bufferData(renderContext, m_Buffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
 
             if (m_DirtyInstances.empty())
             {
                 return;
             }
-
-            Dg::MapHelper<typename Traits::instance_type> bufferData(renderContext, m_Buffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
             for (auto id : m_DirtyInstances)
             {
                 auto entity = world.GetEntityById(id);
@@ -129,10 +132,10 @@ namespace Ame::Gfx
     public:
         [[nodiscard]] size_t GetMaxCount() const noexcept
         {
-            return m_Allocator.GetMaxSize();
+            return std::max(m_Allocator.GetMaxSize(), 1u);
         }
 
-        [[nodiscard]] Dg::IBuffer* GetBuffer() const noexcept
+        [[nodiscard]] Ptr<Dg::IBuffer> GetBuffer() const noexcept
         {
             return m_Buffer;
         }
@@ -183,9 +186,11 @@ namespace Ame::Gfx
                 nullptr,
 #endif
                 newSize,
-                Dg::BIND_UNIFORM_BUFFER,
+                Dg::BIND_SHADER_RESOURCE,
                 Dg::USAGE_DYNAMIC,
-                Dg::CPU_ACCESS_WRITE
+                Dg::CPU_ACCESS_WRITE,
+                Dg::BUFFER_MODE_STRUCTURED,
+                sizeof(typename Traits::instance_type)
             };
 
             auto oldBuffer = std::move(m_Buffer);

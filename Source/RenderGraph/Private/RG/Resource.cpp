@@ -14,7 +14,8 @@ namespace Ame::RG
     //
 
     void ResourceHandle::Import(
-        RhiResource&& resource)
+        const ResourceId& id,
+        RhiResource&&     resource)
     {
         m_Resource = std::move(resource);
         InitializeViewMap();
@@ -34,7 +35,7 @@ namespace Ame::RG
         m_IsImported = true;
 
 #ifndef AME_DIST
-        m_Name.clear();
+        m_Name = id.GetName();
 #endif
     }
 

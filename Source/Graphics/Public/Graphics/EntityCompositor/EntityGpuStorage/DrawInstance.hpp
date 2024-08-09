@@ -30,6 +30,9 @@ namespace Ame::Gfx
             instance.NormalOffset   = renderableDesc.Vertices.Normal.Offset;
             instance.TexCoordOffset = renderableDesc.Vertices.TexCoord.Offset;
             instance.TangentOffset  = renderableDesc.Vertices.Tangent.Offset;
+
+            instance.IndexOffset = renderableDesc.Indices.Offset;
+            instance.IndexCount  = renderableDesc.Indices.Count;
         }
 
         static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)

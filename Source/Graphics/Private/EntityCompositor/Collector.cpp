@@ -10,7 +10,7 @@ namespace Ame::Gfx
         m_Storage(storage)
     {
         auto& world = *m_Storage.get().GetWorld();
-        world->component<EntityDrawCommandGroup>();
+        world->component<EntityDrawCommandsCategoryIterator>();
     }
 
     void EntityCollector::ResetCommands()
@@ -56,13 +56,13 @@ namespace Ame::Gfx
         m_Storage.get().UploadToRenderGraph(cameraGraph, frameData);
 
         auto& world = *m_Storage.get().GetWorld();
-        world->emplace<EntityDrawCommandGroup>(m_DrawCommands);
+        world->emplace<EntityDrawCommandsCategoryIterator>(m_DrawCommands);
     }
 
     void EntityCollector::Reset()
     {
         auto& world = *m_Storage.get().GetWorld();
-        world->remove<EntityDrawCommandGroup>();
+        world->remove<EntityDrawCommandsCategoryIterator>();
     }
 
     //

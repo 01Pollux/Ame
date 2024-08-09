@@ -12,12 +12,18 @@ namespace Ame
     } // namespace Ecs
 } // namespace Ame
 
+namespace Diligent
+{
+    class IRenderDevice;
+} // namespace Diligent
+
 namespace Ame::Gfx
 {
     /// <summary>
     /// Registers the Forward+ rendering pass to the graph.
     /// </summary>
     void RegisterForwardPlus(
-        RG::Graph&  graph,
-        Ecs::World* world);
+        Diligent::IRenderDevice* renderDevice,
+        RG::Graph&               graph,
+        Ecs::World*              world);
 } // namespace Ame::Gfx

@@ -31,7 +31,7 @@ namespace Ame::Gfx
         Sphere
     };
 
-    struct EntityInstanceCode
+    struct alignas(4) EntityInstanceCode
     {
         EntityBoundingType BoundingType : 2 = EntityBoundingType::None;
     };
@@ -45,6 +45,9 @@ namespace Ame::Gfx
         uint32_t NormalOffset   = std::numeric_limits<uint32_t>::max();
         uint32_t TexCoordOffset = std::numeric_limits<uint32_t>::max();
         uint32_t TangentOffset  = std::numeric_limits<uint32_t>::max();
+
+        uint32_t IndexOffset = std::numeric_limits<uint32_t>::max();
+        uint32_t IndexCount  = std::numeric_limits<uint32_t>::max();
 
         EntityInstanceCode Code;
     };
@@ -66,6 +69,7 @@ namespace Ame::Gfx
         void SetDistance(
             const Math::Vector3& cameraPosition)
         {
+            // if distance was not calculated yet
             if (Distance == Distance)
             {
                 return;

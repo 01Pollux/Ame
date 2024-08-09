@@ -63,8 +63,8 @@ namespace Ame::Ecs
 
         auto operator<=>(const RenderableDesc& other) const noexcept
         {
-            return std::tie(Material, Vertices, Indices) <=>
-                   std::tie(other.Material, other.Vertices, other.Indices);
+            return std::tie(Material, Indices, Vertices) <=>
+                   std::tie(other.Material, other.Indices, other.Vertices);
         }
     };
 

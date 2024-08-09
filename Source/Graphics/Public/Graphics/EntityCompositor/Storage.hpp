@@ -26,6 +26,8 @@ namespace Ame::Gfx
             const CameraFrameDataUpdateDesc& frameData);
 
     private:
+        void UpdateInstances();
+
         void UpdateInstanceIndices(
             std::span<const uint32_t> indices);
 

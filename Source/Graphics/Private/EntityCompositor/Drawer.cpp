@@ -57,6 +57,7 @@ namespace Ame::Gfx
         //
 
         m_Collector.get().Sort(cameraTransform);
+        // TODO: m_Collector.get().Collapse(); // Group all draw instances with same index and vertex
         m_Collector.get().Upload(cameraGraph, frameData);
 
         //
