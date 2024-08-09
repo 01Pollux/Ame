@@ -826,7 +826,7 @@ namespace Ame::Rhi
 
                     // Bind texture
                     auto textureView = static_cast<Dg::ITextureView*>(cmd->TextureId);
-                    VERIFY_EXPR(textureView);
+                    textureView      = textureView ? textureView : m_FontTextureView;
                     if (textureView != lastTextureView)
                     {
                         lastTextureView = textureView;

@@ -102,7 +102,7 @@ namespace Ame::Gfx
                 Dg::BIND_INDIRECT_DRAW_ARGS | Dg::BIND_UNORDERED_ACCESS,
                 Dg::USAGE_DEFAULT,
                 Dg::CPU_ACCESS_NONE,
-                Dg::BUFFER_MODE_STRUCTURED
+                Dg::BUFFER_MODE_RAW
             };
 
             auto renderDevice = m_RhiDevice->GetRenderDevice();
