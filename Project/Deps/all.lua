@@ -4,6 +4,7 @@ includes("imgui.lua")
 includes("concurrencpp.lua")
 includes("kangaru.lua")
 includes("mimalloc.lua")
+includes("octree.lua")
 
 add_requires("boost",                       {system = false, debug = _debug_packages, configs = {
     vs_runtime = vs_runtime,
@@ -34,3 +35,4 @@ add_requires("ame.glfw",                    {system = false, debug = _debug_pack
 add_requires("ame.diligent_core",           {system = false, debug = _debug_packages, configs = {symbols = _with_symbols, exceptions = _use_exception}})
 add_requires("directxshadercompiler",       {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
 add_requires("ame.imgui v1.90.9-docking",   {system = false, debug = _debug_packages, configs = {symbols = _width_symbols, freetype = true}})
+add_requires("ame.octree",                  {system = false, debug = _debug_packages})
