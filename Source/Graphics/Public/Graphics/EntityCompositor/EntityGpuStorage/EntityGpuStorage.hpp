@@ -25,9 +25,9 @@ namespace Ame::Gfx
     class EntityGpuStorage
     {
     public:
-        using BuddyAllocator = Allocator::Buddy<Allocator::BuddyTraits_U32>;
-
-        using traits_type = Traits;
+        using traits_type            = Traits;
+        using buddy_allocator_type   = Allocator::Buddy<Allocator::BuddyTraits_U32>;
+        using instance_observer_type = Ecs::UniqueQuery<const typename traits_type::id_container_type>;
 
         static constexpr uint32_t c_InvalidId = std::numeric_limits<uint32_t>::max();
         static constexpr uint32_t c_ChunkSize = 1024;
@@ -36,9 +36,9 @@ namespace Ame::Gfx
         EntityGpuStorage(
             Ecs::WorldRef world)
         {
-            world->component<typename Traits::id_container_type>();
+            world->component<typename traits_type::id_container_type>();
             m_Observer =
-                Traits::observer_create(world)
+                traits_type::observer_create(world)
                     .run(
                         [this](Ecs::Iterator& iter)
                         {
@@ -58,6 +58,10 @@ namespace Ame::Gfx
                                 }
                             }
                         });
+            m_InstanceObserver =
+                world->query_builder<const typename traits_type::id_container_type>()
+                    .cached()
+                    .build();
         }
 
     private:
@@ -68,32 +72,24 @@ namespace Ame::Gfx
         void UpdateEntity(
             const Ecs::Entity& entity)
         {
-            auto& instanceId = entity->ensure<typename Traits::id_container_type>();
+            auto& instanceId = entity->ensure<typename traits_type::id_container_type>();
             auto  newId      = UpdateEntity(entity.GetId(), instanceId.Id);
             if (instanceId.Id != newId)
             {
                 instanceId.Id = newId;
-                entity->modified<typename Traits::id_container_type>();
+                entity->modified<typename traits_type::id_container_type>();
             }
         }
 
         void RemoveEntity(
             const Ecs::Entity& entity)
         {
-            auto instanceId = entity->get<typename Traits::id_container_type>();
+            auto instanceId = entity->get<typename traits_type::id_container_type>();
             if (instanceId)
             {
-                RemoveEntity(instanceId->Id);
+                m_Allocator.Free(buddy_allocator_type::Handle{ instanceId->Id, 1 });
+                entity->remove<typename traits_type::id_container_type>();
             }
-        }
-
-        /// <summary>
-        /// Function is not thread safe.
-        /// </summary>
-        void RemoveEntity(
-            uint32_t id)
-        {
-            m_Allocator.Free(BuddyAllocator::Handle{ id, 1 });
         }
 
     public:
@@ -106,27 +102,41 @@ namespace Ame::Gfx
             Dg::IDeviceContext*  renderContext)
         {
             // At least 1 instance must be available
-            size_t requiredSize = sizeof(typename Traits::instance_type) * GetMaxCount();
-            TryGrowBuffer(renderDevice, renderContext, requiredSize);
+            size_t requiredSize      = sizeof(typename traits_type::instance_type) * GetMaxCount();
+            bool   wholeBufferUpdate = TryGrowBuffer(renderDevice, renderContext, requiredSize);
 
-            Dg::MapHelper<typename Traits::instance_type> bufferData(renderContext, m_Buffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
-
-            if (m_DirtyInstances.empty())
+            if (!wholeBufferUpdate && !m_InstanceObserver->changed())
             {
                 return;
             }
-            for (auto id : m_DirtyInstances)
-            {
-                auto entity = world.GetEntityById(id);
-                if (!entity)
-                {
-                    continue;
-                }
 
-                auto renderDataId = entity->get<typename Traits::id_container_type>();
-                Traits::update(*entity, bufferData[renderDataId->Id]);
-            }
-            m_DirtyInstances.clear();
+            m_InstanceObserver->run(
+                [&](Ecs::Iterator& iter)
+                {
+                    while (iter.next())
+                    {
+                        if (!wholeBufferUpdate && !iter.changed())
+                        {
+                            continue;
+                        }
+
+                        auto ids = iter.field<const typename traits_type::id_container_type>(0);
+
+                        std::vector<typename traits_type::instance_type> bufferData(iter.count());
+                        for (size_t i : iter)
+                        {
+                            uint32_t id = ids[i].Id;
+                            traits_type::update(iter.entity(i), bufferData[id]);
+                        }
+
+                        renderContext->UpdateBuffer(
+                            m_Buffer,
+                            ids->Id * sizeof(typename traits_type::instance_type),
+                            bufferData.size() * sizeof(typename traits_type::instance_type),
+                            bufferData.data(),
+                            Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                    }
+                });
         }
 
     public:
@@ -159,12 +169,14 @@ namespace Ame::Gfx
                 }
                 curId = allocation.Offset;
             }
-
-            m_DirtyInstances.push_back(entityId);
             return curId;
         }
 
-        void TryGrowBuffer(
+        /// <summary>
+        /// Try to grow the buffer to the new size.
+        /// Returns true if the buffer was grown, this is used to avoid whole buffer update.
+        /// </summary>
+        [[nodiscard]] bool TryGrowBuffer(
             Dg::IRenderDevice*  renderDevice,
             Dg::IDeviceContext* renderContext,
             size_t              newSize)
@@ -175,49 +187,35 @@ namespace Ame::Gfx
                 oldBufferDesc = &m_Buffer->GetDesc();
                 if (oldBufferDesc->Size <= newSize)
                 {
-                    return;
+                    return false;
                 }
             }
 
             Dg::BufferDesc bufferDesc{
 #ifndef AME_DIST
-                Traits::name,
+                traits_type::name,
 #else
                 nullptr,
 #endif
                 newSize,
                 Dg::BIND_SHADER_RESOURCE,
-                Dg::USAGE_DYNAMIC,
-                Dg::CPU_ACCESS_WRITE,
+                Dg::USAGE_DEFAULT,
+                Dg::CPU_ACCESS_NONE,
                 Dg::BUFFER_MODE_STRUCTURED,
-                sizeof(typename Traits::instance_type)
+                sizeof(typename traits_type::instance_type)
             };
 
-            auto oldBuffer = std::move(m_Buffer);
+            bool isGrowing = m_Buffer != nullptr;
+            renderDevice->CreateBuffer(bufferDesc, nullptr, &m_Buffer);
 
-            Dg::BufferData bufferData;
-            if (oldBuffer)
-            {
-                Dg::PVoid mappedData = nullptr;
-                renderContext->MapBuffer(oldBuffer, Dg::MAP_READ, Dg::MAP_FLAG_NONE, mappedData);
-                bufferData.pData    = mappedData;
-                bufferData.DataSize = oldBufferDesc->Size;
-                bufferData.pContext = renderContext;
-            }
-
-            renderDevice->CreateBuffer(bufferDesc, oldBuffer ? &bufferData : nullptr, &m_Buffer);
-
-            if (oldBuffer)
-            {
-                renderContext->UnmapBuffer(m_Buffer, Dg::MAP_READ);
-            }
+            return true;
         }
 
     private:
-        Ptr<Dg::IBuffer> m_Buffer;
-        BuddyAllocator   m_Allocator{ c_ChunkSize };
+        Ptr<Dg::IBuffer>     m_Buffer;
+        buddy_allocator_type m_Allocator{ c_ChunkSize };
 
-        Ecs::UniqueObserver        m_Observer;
-        std::vector<Ecs::EntityId> m_DirtyInstances;
+        Ecs::UniqueObserver    m_Observer;
+        instance_observer_type m_InstanceObserver;
     };
 } // namespace Ame::Gfx

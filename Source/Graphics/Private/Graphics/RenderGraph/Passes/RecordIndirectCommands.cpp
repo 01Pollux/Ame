@@ -102,22 +102,19 @@ namespace Ame::Gfx
         auto& world            = *m_World;
         auto  commandsIterator = world->get<EntityDrawCommandsCategoryIterator>();
 
-        Dg::MapHelper<DispatchConstants> dispatchConstants;
         for (auto& group : commandsIterator->GetGroups())
         {
             for (auto& row : group.GetRows())
             {
-                if (!dispatchConstants) [[unlikely]]
                 {
-                    dispatchConstants.Map(deviceContext, m_DispatchConstants, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+                    Dg::MapHelper<DispatchConstants> dispatchConstants(deviceContext, m_DispatchConstants, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+                    dispatchConstants->FirstInstance = row.Offset; // TODO: grouped instance in command
+                    dispatchConstants->InstanceCount = 1;
+                    dispatchConstants->DrawOffset    = row.GetDrawArgOffset();
+                    dispatchConstants->CounterOffset = row.GetCounterOffset();
                 }
 
                 deviceContext->SetPipelineState(m_PipelineState);
-
-                dispatchConstants->FirstInstance = row.Offset; // TODO: grouped instance in command
-                dispatchConstants->InstanceCount = 1;
-                dispatchConstants->DrawOffset    = row.GetDrawArgOffset();
-                dispatchConstants->CounterOffset = row.GetCounterOffset();
 
                 deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
                 deviceContext->DispatchCompute({ 1, 1, 1 }); // TODO: [command.size() / BLOCK, 1, 1]

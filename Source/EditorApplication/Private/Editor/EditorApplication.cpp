@@ -55,7 +55,7 @@ namespace Ame
         Gfx::RegisterForwardPlus(*renderGraph, world);
 
         Ecs::TransformComponent camTr;
-        camTr.SetPosition({ 0.f, 0.f, -10.f });
+        camTr.SetPosition({ 0.f, 3.f, -50.f });
 
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{
@@ -78,9 +78,7 @@ namespace Ame
 
             auto meshEntity = world->CreateEntity("Mesh");
             meshEntity->set(Ecs::TransformComponent{});
-            auto p = meshEntity->ensure<Ecs::TransformComponent>();
             meshEntity->set(Ecs::StaticMeshComponent{ submesh });
-            break;
         }
     }
 

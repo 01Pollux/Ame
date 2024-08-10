@@ -16,8 +16,8 @@ namespace Ame::Gfx
             "FrameDataBuffer",
             sizeof(CameraFrameData),
             Dg::BIND_UNIFORM_BUFFER,
-            Dg::USAGE_DYNAMIC,
-            Dg::CPU_ACCESS_WRITE
+            Dg::USAGE_DEFAULT,
+            Dg::CPU_ACCESS_NONE
         };
 
         auto renderDevice = m_RhiDevice->GetRenderDevice();
@@ -71,8 +71,8 @@ namespace Ame::Gfx
                 "DrawInstanceIndexBuffer",
                 requiredSize,
                 Dg::BIND_SHADER_RESOURCE,
-                Dg::USAGE_DYNAMIC,
-                Dg::CPU_ACCESS_WRITE,
+                Dg::USAGE_DEFAULT,
+                Dg::CPU_ACCESS_NONE,
                 Dg::BUFFER_MODE_STRUCTURED,
                 sizeof(uint32_t)
             };
@@ -81,12 +81,8 @@ namespace Ame::Gfx
             renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawInstanceIndexBuffer);
         }
 
-        auto      immediateContext = m_RhiDevice->GetImmediateContext();
-        Dg::PVoid mappedData       = nullptr;
-
-        immediateContext->MapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD, mappedData);
-        std::memcpy(mappedData, indices.data(), indices.size_bytes());
-        immediateContext->UnmapBuffer(m_DrawInstanceIndexBuffer, Dg::MAP_WRITE);
+        auto immediateContext = m_RhiDevice->GetImmediateContext();
+        immediateContext->UpdateBuffer(m_DrawInstanceIndexBuffer, 0, indices.size_bytes(), indices.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 
     void EntityStorage::UpdateDrawCommands(
@@ -128,27 +124,28 @@ namespace Ame::Gfx
     }
 
     void EntityStorage::UpdateFrameData(
-        const CameraFrameDataUpdateDesc& frameData)
+        const CameraFrameDataUpdateDesc& updateDesc)
     {
         auto renderContext = m_RhiDevice->GetImmediateContext();
 
-        Dg::MapHelper<CameraFrameData> frameDataMap(renderContext, m_FrameDataBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
+        CameraFrameData frameData{
+            .World = updateDesc.WorldTransposed,
 
-        frameDataMap->World      = frameData.WorldTransposed;
-        frameDataMap->View       = frameData.ViewTransposed;
-        frameDataMap->Projection = frameData.ProjectionTransposed;
+            .View           = updateDesc.ViewTransposed,
+            .Projection     = updateDesc.ProjectionTransposed,
+            .ViewProjection = updateDesc.ProjectionTransposed * updateDesc.ViewTransposed,
 
-        frameDataMap->Viewport = frameData.Viewport;
+            .ViewInverse           = updateDesc.ViewTransposed.GetInverse(),
+            .ProjectionInverse     = updateDesc.ProjectionTransposed.GetInverse(),
+            .ViewProjectionInverse = frameData.ViewProjection.GetInverse(),
 
-        frameDataMap->EngineTime = frameData.EngineTime;
-        frameDataMap->GameTime   = frameData.GameTime;
-        frameDataMap->DeltaTime  = frameData.DeltaTime;
+            .Viewport = updateDesc.Viewport,
 
-        auto viewProjection                 = frameData.ProjectionTransposed * frameData.ViewTransposed;
-        frameDataMap->ViewProjection        = viewProjection;
-        frameDataMap->ViewInverse           = frameData.ViewTransposed.GetInverse();
-        frameDataMap->ProjectionInverse     = frameData.ProjectionTransposed.GetInverse();
-        frameDataMap->ViewProjectionInverse = viewProjection.GetInverse();
+            .EngineTime = updateDesc.EngineTime,
+            .GameTime   = updateDesc.GameTime,
+            .DeltaTime  = updateDesc.DeltaTime
+        };
+        renderContext->UpdateBuffer(m_FrameDataBuffer, 0, sizeof(frameData), &frameData, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 
     //

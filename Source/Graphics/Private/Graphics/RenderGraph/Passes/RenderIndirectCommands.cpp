@@ -102,7 +102,7 @@ namespace Ame::Gfx
                 Dg::DrawIndexedIndirectAttribs drawAttribs{
                     renderableDesc.Indices.Type,
                     drawCommands->Resource,
-                    Dg::DRAW_FLAG_VERIFY_ALL,
+                    Dg::DRAW_FLAG_VERIFY_ALL | Dg::DRAW_FLAG_DYNAMIC_RESOURCE_BUFFERS_INTACT,
                     25, // TODO: Better count
                     row.GetDrawArgOffset(),
                     sizeof(Rhi::DrawIndexedIndirectCommand),
