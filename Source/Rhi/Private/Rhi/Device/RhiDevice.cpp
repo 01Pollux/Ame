@@ -5,6 +5,6 @@ namespace Ame::Rhi
     Ptr<IRhiDevice> CreateRhiDevice(
         const DeviceCreateDesc& createDesc)
     {
-        return { ObjectAllocator<RhiDeviceImpl>()(createDesc), IID_RhiDevice };
+        return Ptr(ObjectAllocator<RhiDeviceImpl>()(createDesc));
     }
 } // namespace Ame::Rhi

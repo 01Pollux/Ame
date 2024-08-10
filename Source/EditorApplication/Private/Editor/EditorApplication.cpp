@@ -63,23 +63,23 @@ namespace Ame
         cameraEntity->set(camTr);
         cameraEntity->set(Ecs::CameraOutputComponent{});
 
-        ////
+        //
 
         Rhi::MaterialCreateDesc materialDesc;
 
         Ptr material(Rhi::Material::Create(renderDevice, materialDesc));
         Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .ModelPath = "Shared/Assets/Models/Sponza/sponza.obj" }));
 
-        ////
+        //
 
-        //for (auto idx : std::views::iota(0u, static_cast<uint32_t>(mdl->GetSubMeshes().size() - 1)))
-        //{
-        //    Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, idx));
+        for (auto idx : std::views::iota(0u, static_cast<uint32_t>(mdl->GetSubMeshes().size() - 1)))
+        {
+            Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, idx));
 
-        //    auto meshEntity = world->CreateEntity("Mesh");
-        //    meshEntity->set(Ecs::TransformComponent{});
-        //    meshEntity->set(Ecs::StaticMeshComponent{ submesh });
-        //}
+            auto meshEntity = world->CreateEntity("Mesh");
+            meshEntity->set(Ecs::TransformComponent{});
+            meshEntity->set(Ecs::StaticMeshComponent{ submesh });
+        }
     }
 
     void EditorApplication::OnInitialize()

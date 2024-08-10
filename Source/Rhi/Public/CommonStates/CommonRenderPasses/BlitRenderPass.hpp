@@ -108,7 +108,7 @@ namespace Ame::Rhi
             const Dg::ShaderCreateInfo& desc);
 
     private:
-        Ptr<Rhi::IRhiDevice> m_RhiDevice;
-        PsoCache             m_PsoCache;
+        Rhi::IRhiDevice* m_RhiDevice;
+        PsoCache         m_PsoCache;
     };
 } // namespace Ame::Rhi

@@ -16,11 +16,9 @@ namespace Ame::Ecs
         IReferenceCounters* counter) :
         Base(counter)
     {
-        {
-            std::lock_guard initLock(g_FlecsMutex);
-            m_World = std::make_unique<flecs::world>();
-            ImportModule<CoreEcsModule>();
-        }
+        std::lock_guard initLock(g_FlecsMutex);
+        m_World = std::make_unique<flecs::world>();
+        ImportModule<CoreEcsModule>();
     }
 
     World::~World()

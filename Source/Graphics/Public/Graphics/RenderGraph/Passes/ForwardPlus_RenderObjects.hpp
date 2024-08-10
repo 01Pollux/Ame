@@ -14,10 +14,10 @@ namespace Ame::Gfx
     class ForwardPlus_RenderObjects : public RG::Pass
     {
     public:
-        static inline const RG::ResourceViewId RGRenderInstances       = c_RGRenderInstances("Render Indirect Commands");
-        static inline const RG::ResourceViewId RGSortedRenderInstances = c_RGSortedRenderInstances("Render Indirect Commands");
+        static inline const RG::ResourceViewId RGRenderInstances       = c_RGRenderInstances("Render Objects");
+        static inline const RG::ResourceViewId RGSortedRenderInstances = c_RGSortedRenderInstances("Render Objects");
 
-        static inline const RG::ResourceViewId RGRenderTarget = c_RGFinalImage("Render Indirect Commands");
+        static inline const RG::ResourceViewId RGRenderTarget = c_RGFinalImage("Render Objects");
 
     public:
         ForwardPlus_RenderObjects(
@@ -36,7 +36,7 @@ namespace Ame::Gfx
             Dg::IDeviceContext*        deviceContext);
 
     private:
-        Ptr<Ecs::World> m_World;
+        Ecs::World* m_World;
 
         Ptr<Rhi::MaterialTechnique> m_Technique;
     };

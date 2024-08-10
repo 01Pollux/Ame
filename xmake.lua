@@ -36,6 +36,7 @@ add_defines("NOMINMAX")
 --
 
 if is_mode("debug") then
+    add_defines("_DEBUG")
     add_defines("DEBUG")
     add_defines("AME_DEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
@@ -48,6 +49,7 @@ if is_mode("debug") then
 end
 
 if is_mode("debug_sanitize") then 
+    add_defines("_DEBUG")
     add_defines("DEBUG")
     add_defines("AME_DEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")

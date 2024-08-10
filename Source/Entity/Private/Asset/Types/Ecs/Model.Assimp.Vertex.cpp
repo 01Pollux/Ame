@@ -260,7 +260,7 @@ namespace Ame::Ecs
                                 Dg::BIND_FLAGS  bindFlags,
                                 Dg::BUFFER_MODE bufferMode = Dg::BUFFER_MODE_STRUCTURED)
         {
-            Dg::IBuffer* result = nullptr;
+            Ptr<Dg::IBuffer> result;
             if (!buffer.Empty())
             {
 #ifndef AME_DIST

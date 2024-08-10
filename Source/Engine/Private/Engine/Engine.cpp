@@ -43,17 +43,16 @@ namespace Ame
 
     void AmeEngine::RefreshSubmoduleCache()
     {
-        auto coreModule = m_ModuleRegistery.GetModule(IID_CoreModule);
-        Log::Engine().Assert(coreModule, "Core module is not registered.");
+        auto& coreModule = m_ModuleRegistery.GetModule(IID_CoreModule);
 
         coreModule->QueryInterface(IID_TimeSubmodule, m_TimeSubmodule.DblPtr<IObject>());
         coreModule->QueryInterface(IID_FrameEventSubmodule, m_FrameEventSubmodule.DblPtr<IObject>());
 
         //
 
-        auto graphicsModule = m_ModuleRegistery.GetModule(IID_GraphicsModule);
-        if (graphicsModule)
+        if (m_ModuleRegistery.ContainsModule(IID_GraphicsModule))
         {
+            auto& graphicsModule = m_ModuleRegistery.GetModule(IID_GraphicsModule);
             graphicsModule->QueryInterface(IID_RendererSubmodule, m_RendererSubmodule.DblPtr<IObject>());
         }
     }

@@ -13,7 +13,7 @@ namespace Ame::Gfx
         Ecs::World* world) :
         m_World(world)
     {
-        Name("Render Indirect Commands Pass")
+        Name("Render Objects")
             .Flags(RG::PassFlags::Graphics)
             .Build(std::bind_front(&ForwardPlus_RenderObjects::Build, this))
             .Execute(std::bind_front(&ForwardPlus_RenderObjects::Execute, this));
