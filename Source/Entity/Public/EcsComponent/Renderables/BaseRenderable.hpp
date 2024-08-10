@@ -44,7 +44,7 @@ namespace Ame::Ecs
     struct RenderableIndices
     {
         Dg::IBuffer*   Buffer = nullptr;
-        uint64_t       Offset = std::numeric_limits<uint32_t>::max();
+        uint32_t       Offset = std::numeric_limits<uint32_t>::max();
         uint32_t       Count  = std::numeric_limits<uint32_t>::max();
         Dg::VALUE_TYPE Type   = Dg::VT_UNDEFINED;
 

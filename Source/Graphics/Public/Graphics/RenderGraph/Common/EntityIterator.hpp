@@ -9,17 +9,7 @@ namespace Ame::Gfx
     struct EntityDrawRowIterator
     {
         CRef<EntityDrawCommand> Command;
-        uint32_t                Offset;
-
-        [[nodiscard]] uint32_t GetCounterOffset() const noexcept
-        {
-            return Offset * sizeof(uint32_t);
-        }
-
-        [[nodiscard]] uint32_t GetDrawArgOffset() const noexcept
-        {
-            return Offset * sizeof(Rhi::DrawIndexedIndirectCommand);
-        }
+        uint32_t                InstanceOffset;
     };
 
     class EntityDrawCommandListIterator

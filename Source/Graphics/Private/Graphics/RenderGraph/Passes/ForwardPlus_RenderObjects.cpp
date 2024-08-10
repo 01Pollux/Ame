@@ -1,4 +1,4 @@
-#include <Graphics/RenderGraph/Passes/RenderIndirectCommands.hpp>
+#include <Graphics/RenderGraph/Passes/ForwardPlus_RenderObjects.hpp>
 
 #include <Shaders/RenderIndirectCommandsShader.hpp>
 #include <Rhi/Utils/DeviceWithCache.hpp>
@@ -9,19 +9,19 @@
 
 namespace Ame::Gfx
 {
-    RenderIndirectCommandsPass::RenderIndirectCommandsPass(
+    ForwardPlus_RenderObjects::ForwardPlus_RenderObjects(
         Ecs::World* world) :
         m_World(world)
     {
         Name("Render Indirect Commands Pass")
             .Flags(RG::PassFlags::Graphics)
-            .Build(std::bind_front(&RenderIndirectCommandsPass::Build, this))
-            .Execute(std::bind_front(&RenderIndirectCommandsPass::Execute, this));
+            .Build(std::bind_front(&ForwardPlus_RenderObjects::Build, this))
+            .Execute(std::bind_front(&ForwardPlus_RenderObjects::Execute, this));
     }
 
     //
 
-    void RenderIndirectCommandsPass::CreateResources(
+    void ForwardPlus_RenderObjects::CreateResources(
         Dg::IRenderDevice* renderDevice,
         Dg::TEXTURE_FORMAT rtvFormat)
     {
@@ -39,14 +39,11 @@ namespace Ame::Gfx
 
     //
 
-    void RenderIndirectCommandsPass::Build(
+    void ForwardPlus_RenderObjects::Build(
         RG::Resolver& resolver)
     {
         resolver.ReadBuffer(RGRenderInstances, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
         resolver.ReadBuffer(RGSortedRenderInstances, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
-
-        resolver.ReadBuffer(RGDrawCommands, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
-        resolver.ReadBuffer(RGDrawCommandCounts, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
 
         resolver.WriteTexture(RGRenderTarget, Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
         auto rtvFormat = resolver.GetTextureDesc(RGRenderTarget.GetResource())->Format;
@@ -57,7 +54,7 @@ namespace Ame::Gfx
         CreateResources(renderDevice, rtvFormat);
     }
 
-    void RenderIndirectCommandsPass::Execute(
+    void ForwardPlus_RenderObjects::Execute(
         const RG::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
@@ -65,9 +62,6 @@ namespace Ame::Gfx
 
         CRef renderInstances       = std::get<RG::RhiBufferViewRef>(storage.GetResourceView(RGRenderInstances));
         CRef sortedRenderInstances = std::get<RG::RhiBufferViewRef>(storage.GetResourceView(RGSortedRenderInstances));
-
-        auto drawCommands      = storage.GetResource(c_RGDrawCommands)->AsBuffer();
-        auto drawCommandCounts = storage.GetResource(c_RGDrawCommandCounts)->AsBuffer();
 
         //
 
@@ -88,9 +82,7 @@ namespace Ame::Gfx
                 deviceContext->SetPipelineState(pso);
 
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "FrameDataBuffer", frameData->Resource);
-
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "RenderInstances", renderInstances.get().View);
-                Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "SortedRenderInstances", sortedRenderInstances.get().View);
 
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "PositionBuffer", renderableVertices.Position.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "NormalBuffer", renderableVertices.Normal.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
@@ -99,20 +91,17 @@ namespace Ame::Gfx
 
                 deviceContext->CommitShaderResources(srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-                Dg::DrawIndexedIndirectAttribs drawAttribs{
+                Dg::DrawIndexedAttribs drawAttribs{
+                    renderableDesc.Indices.Count,
                     renderableDesc.Indices.Type,
-                    drawCommands->Resource,
                     Dg::DRAW_FLAG_VERIFY_ALL | Dg::DRAW_FLAG_DYNAMIC_RESOURCE_BUFFERS_INTACT,
-                    25, // TODO: Better count
-                    row.GetDrawArgOffset(),
-                    sizeof(Rhi::DrawIndexedIndirectCommand),
-                    Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
-                    drawCommandCounts->Resource,
-                    row.GetCounterOffset(),
-                    Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION
+                    1,
+                    renderableDesc.Indices.Offset,
+                    0,
+                    row.InstanceOffset
                 };
                 deviceContext->SetIndexBuffer(renderableDesc.Indices.Buffer, 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-                deviceContext->DrawIndexedIndirect(drawAttribs);
+                deviceContext->DrawIndexed(drawAttribs);
             }
         }
     }

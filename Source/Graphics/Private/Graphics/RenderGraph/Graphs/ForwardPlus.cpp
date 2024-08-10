@@ -1,20 +1,18 @@
 #include <Graphics/RenderGraph/Graphs/ForwardPlus.hpp>
 
-#include <Graphics/RenderGraph/Passes/InitializeForwardPlus.hpp>
-#include <Graphics/RenderGraph/Passes/RecordIndirectCommands.hpp>
-#include <Graphics/RenderGraph/Passes/RenderIndirectCommands.hpp>
+#include <Graphics/RenderGraph/Passes/ForwardPlus_Initialize.hpp>
+#include <Graphics/RenderGraph/Passes/ForwardPlus_RenderObjects.hpp>
 
 #include <RG/Graph.hpp>
 
 namespace Ame::Gfx
 {
     void RegisterForwardPlus(
-        RG::Graph&         graph,
-        Ecs::World*        world)
+        RG::Graph&  graph,
+        Ecs::World* world)
     {
         auto& passStorage = graph.GetPassStorage();
-        passStorage.NewPass<InitializeForwardPlusPass>("Forward+::Initialize");
-        passStorage.NewPass<RecordIndirectCommandsPass>("Forward+::RecordIndirectCommands", world);
-        passStorage.NewPass<RenderIndirectCommandsPass>("Forward+::RenderIndirectCommands", world);
+        passStorage.NewPass<ForwardPlus_InitializePass>("Forward+::Initialize");
+        passStorage.NewPass<ForwardPlus_RenderObjects>("Forward+::Render Objects", world);
     }
 } // namespace Ame::Gfx

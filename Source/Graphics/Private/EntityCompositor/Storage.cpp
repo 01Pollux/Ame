@@ -36,7 +36,6 @@ namespace Ame::Gfx
 
         UpdateInstances();
         UpdateInstanceIndices(flatIndices);
-        UpdateDrawCommands(flatIndices);
     }
 
     //
@@ -81,45 +80,10 @@ namespace Ame::Gfx
             renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawInstanceIndexBuffer);
         }
 
-        auto immediateContext = m_RhiDevice->GetImmediateContext();
-        immediateContext->UpdateBuffer(m_DrawInstanceIndexBuffer, 0, indices.size_bytes(), indices.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    }
-
-    void EntityStorage::UpdateDrawCommands(
-        std::span<const uint32_t> indices)
-    {
-        uint32_t indicesCount = std::max(static_cast<uint32_t>(indices.size()), 1u);
-        indicesCount          = Math::AlignUp(indicesCount, c_DrawCommandsChunkSize);
-        if (!m_DrawCounterBuffer || m_DrawCounterBuffer->GetDesc().Size < (indicesCount * sizeof(uint32_t)))
+        if (!indices.empty())
         {
-            Dg::BufferDesc bufferDesc{
-                nullptr,
-                0,
-                Dg::BIND_INDIRECT_DRAW_ARGS | Dg::BIND_UNORDERED_ACCESS,
-                Dg::USAGE_DEFAULT,
-                Dg::CPU_ACCESS_NONE,
-                Dg::BUFFER_MODE_RAW
-            };
-
-            auto renderDevice = m_RhiDevice->GetRenderDevice();
-            {
-#ifndef AME_DIST
-                bufferDesc.Name = "DrawCommandBuffer";
-#endif
-                bufferDesc.Size              = indicesCount * sizeof(Rhi::DrawIndexedIndirectCommand);
-                bufferDesc.ElementByteStride = sizeof(Rhi::DrawIndexedIndirectCommand);
-
-                renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCommandBuffer);
-            }
-            {
-#ifndef AME_DIST
-                bufferDesc.Name = "DrawCounterBuffer";
-#endif
-                bufferDesc.Size              = indicesCount * sizeof(uint32_t);
-                bufferDesc.ElementByteStride = sizeof(uint32_t);
-
-                renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawCounterBuffer);
-            }
+            auto immediateContext = m_RhiDevice->GetImmediateContext();
+            immediateContext->UpdateBuffer(m_DrawInstanceIndexBuffer, 0, indices.size_bytes(), indices.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
     }
 
@@ -159,9 +123,6 @@ namespace Ame::Gfx
 
         resourceStorage.ImportBuffer(c_RGRenderInstances, m_DrawInstanceStorage.GetBuffer());
         resourceStorage.ImportBuffer(c_RGSortedRenderInstances, m_DrawInstanceIndexBuffer);
-
-        resourceStorage.ImportBuffer(c_RGDrawCommands, m_DrawCommandBuffer);
-        resourceStorage.ImportBuffer(c_RGDrawCommandCounts, m_DrawCounterBuffer);
     }
 
     //

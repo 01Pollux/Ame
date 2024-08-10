@@ -31,9 +31,6 @@ namespace Ame::Gfx
         void UpdateInstanceIndices(
             std::span<const uint32_t> indices);
 
-        void UpdateDrawCommands(
-            std::span<const uint32_t> indices);
-
         void UpdateFrameData(
             const CameraFrameDataUpdateDesc& frameData);
 
@@ -56,8 +53,5 @@ namespace Ame::Gfx
         // Ptr<Dg::IBuffer>             m_SphereBuffer;            // Geometry::Sphere[]
         EntityDrawInstanceGpuStorage m_DrawInstanceStorage;     // EntityDrawInstance[]
         Ptr<Dg::IBuffer>             m_DrawInstanceIndexBuffer; // uint32_t[]
-
-        Ptr<Dg::IBuffer> m_DrawCounterBuffer; // uint32_t[]
-        Ptr<Dg::IBuffer> m_DrawCommandBuffer; // DrawIndexedIndirectCommand[]
     };
 } // namespace Ame::Gfx

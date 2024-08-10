@@ -49,7 +49,13 @@ namespace Ame::Gfx
 
         auto sourceTexture = sourceResource ? sourceResource->AsTexture() : nullptr;
 
-        if (sourceTexture && sourceTexture->Resource)
+        if (!sourceTexture || !sourceTexture->Resource)
+        {
+            return;
+        }
+
+        auto srv = sourceTexture->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
+        if (srv)
         {
             Rhi::BlitDrawParameters parameters{
                 sourceTexture->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE),

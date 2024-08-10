@@ -19,7 +19,7 @@ namespace Ame::Gfx
         uint32_t CameraMask;
     };
 
-    struct CameraFrameData
+    struct alignas(16) CameraFrameData
     {
         Math::Matrix4x4 World;
 

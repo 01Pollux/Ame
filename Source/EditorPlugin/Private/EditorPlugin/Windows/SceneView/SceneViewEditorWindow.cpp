@@ -106,9 +106,13 @@ namespace Ame::Editor
             return;
         }
 
-        ImGui::Image(
-            ImTextureID(textureOutputView->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE)),
-            ImGui::GetContentRegionAvail());
+        auto srv = textureOutputView->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
+        if (srv)
+        {
+            ImGui::Image(
+                ImTextureID(srv),
+                ImGui::GetContentRegionAvail());
+        }
     }
 
     //
