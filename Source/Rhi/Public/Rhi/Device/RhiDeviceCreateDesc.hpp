@@ -6,7 +6,7 @@
 namespace Ame::Window
 {
     class IWindow;
-} // namespace Ame::Windowing
+} // namespace Ame::Window
 
 namespace Ame::Rhi
 {
@@ -483,8 +483,11 @@ namespace Ame::Rhi
         /// </summary>
         GraphicsAdapterInfoFinder AdapterCallback = nullptr;
 
-#ifdef AME_DEBUG
+#ifdef AME_DEBUG_SANITIZE
         DeviceValidationType ValidationLayer = DeviceValidationType::All;
+#elif defined(AME_DEBUG)
+        DeviceValidationType ValidationLayer = static_cast<DeviceValidationType>(std::to_underlying(DeviceValidationType::BreakOnError) |
+                                                                                 std::to_underlying(DeviceValidationType::BreakOnCorruption));
 #else
         DeviceValidationType ValidationLayer = DeviceValidationType::None;
 #endif

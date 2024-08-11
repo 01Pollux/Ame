@@ -3,7 +3,6 @@
 #include <Shaders/EngineShader.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/ShaderSourceFactoryUtils.hpp>
 
-#include <Shaders/Structs/DrawIndexedIndirectCommand.hpp>
 #include <Shaders/Structs/Transform.hpp>
 #include <Shaders/Structs/RenderInstance.hpp>
 #include <Shaders/Structs/CameraFrameData.hpp>
@@ -62,7 +61,6 @@ namespace Ame::Rhi
     class RenderIndirectCommandsVertexShader : public EngineShader
     {
         static constexpr const char c_SourceCode[] = R"(
- #include "Structs/DrawIndexedIndirectCommand.hlsli"
     #include "Structs/Transform.hlsli"
     #include "Structs/RenderInstance.hlsli"
     #include "Structs/CameraFrameData.hlsli"
@@ -111,14 +109,12 @@ namespace Ame::Rhi
     private:
         void LinkShaders()
         {
-            StructDrawIndexedIndirectCommandShader drawIndexedStruct;
-            StructTransformShader                  transformStruct;
-            StructRenderInstanceShader             renderInstanceStruct;
-            StructCameraFrameDataShader            cameraFrameDataStruct;
+            StructTransformShader       transformStruct;
+            StructRenderInstanceShader  renderInstanceStruct;
+            StructCameraFrameDataShader cameraFrameDataStruct;
 
             m_LinkedShaders = Dg::CreateMemoryShaderSourceFactory(
-                { { drawIndexedStruct.Name, drawIndexedStruct.GetCreateInfo().Source, static_cast<uint32_t>(drawIndexedStruct.GetCreateInfo().SourceLength) },
-                  { transformStruct.Name, transformStruct.GetCreateInfo().Source, static_cast<uint32_t>(transformStruct.GetCreateInfo().SourceLength) },
+                { { transformStruct.Name, transformStruct.GetCreateInfo().Source, static_cast<uint32_t>(transformStruct.GetCreateInfo().SourceLength) },
                   { renderInstanceStruct.Name, renderInstanceStruct.GetCreateInfo().Source, static_cast<uint32_t>(renderInstanceStruct.GetCreateInfo().SourceLength) },
                   { cameraFrameDataStruct.Name, cameraFrameDataStruct.GetCreateInfo().Source, static_cast<uint32_t>(cameraFrameDataStruct.GetCreateInfo().SourceLength) } },
                 true);

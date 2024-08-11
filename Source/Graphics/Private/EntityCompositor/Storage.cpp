@@ -16,8 +16,7 @@ namespace Ame::Gfx
             "FrameDataBuffer",
             sizeof(CameraFrameData),
             Dg::BIND_UNIFORM_BUFFER,
-            Dg::USAGE_DYNAMIC,
-            Dg::CPU_ACCESS_WRITE
+            Dg::USAGE_DEFAULT
         };
 
         auto renderDevice = m_RhiDevice->GetRenderDevice();
@@ -70,8 +69,8 @@ namespace Ame::Gfx
                 "DrawInstanceIndexBuffer",
                 requiredSize,
                 Dg::BIND_SHADER_RESOURCE,
-                Dg::USAGE_DYNAMIC,
-                Dg::CPU_ACCESS_WRITE,
+                Dg::USAGE_DEFAULT,
+                Dg::CPU_ACCESS_NONE,
                 Dg::BUFFER_MODE_STRUCTURED,
                 sizeof(uint32_t)
             };
@@ -83,9 +82,7 @@ namespace Ame::Gfx
         if (!indices.empty())
         {
             auto immediateContext = m_RhiDevice->GetImmediateContext();
-            // immediateContext->UpdateBuffer(m_DrawInstanceIndexBuffer, 0, indices.size_bytes(), indices.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-            Dg::MapHelper<uint32_t> mappedData(immediateContext, m_DrawInstanceIndexBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
-            std::copy(indices.begin(), indices.end(), static_cast<uint32_t*>(mappedData));
+            immediateContext->UpdateBuffer(m_DrawInstanceIndexBuffer, 0, indices.size_bytes(), indices.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         }
     }
 
@@ -99,7 +96,7 @@ namespace Ame::Gfx
 
             .View           = updateDesc.ViewTransposed,
             .Projection     = updateDesc.ProjectionTransposed,
-            .ViewProjection = updateDesc.ProjectionTransposed * updateDesc.ViewTransposed,
+            .ViewProjection = updateDesc.ViewTransposed * updateDesc.ProjectionTransposed,
 
             .ViewInverse           = updateDesc.ViewTransposed.GetInverse(),
             .ProjectionInverse     = updateDesc.ProjectionTransposed.GetInverse(),
@@ -111,10 +108,7 @@ namespace Ame::Gfx
             .GameTime   = updateDesc.GameTime,
             .DeltaTime  = updateDesc.DeltaTime
         };
-        // renderContext->UpdateBuffer(m_FrameDataBuffer, 0, sizeof(frameData), &frameData, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-        Dg::MapHelper<CameraFrameData> mappedData(renderContext, m_FrameDataBuffer, Dg::MAP_WRITE, Dg::MAP_FLAG_DISCARD);
-        *mappedData = frameData;
+        renderContext->UpdateBuffer(m_FrameDataBuffer, 0, sizeof(frameData), &frameData, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 
     //

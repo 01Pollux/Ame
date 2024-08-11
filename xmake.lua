@@ -52,6 +52,7 @@ if is_mode("debug_sanitize") then
     add_defines("_DEBUG")
     add_defines("DEBUG")
     add_defines("AME_DEBUG")
+    add_defines("AME_DEBUG_SANITIZE")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
 
     set_policy("build.sanitizer.address", true)
