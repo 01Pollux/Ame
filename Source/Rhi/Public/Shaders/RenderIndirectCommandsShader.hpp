@@ -93,7 +93,7 @@ namespace Ame::Rhi
         vsOut.tex_coord = tex_coord;
         #endif
 
-        vsOut.screen_position = mul(float4(vsIn.position, 1.0), FrameData.ViewProjection);
+        vsOut.screen_position = mul(FrameData.ViewProjection, float4(vsIn.position, 1.0));
         vsOut.world_position  = vsIn.position;
         vsOut.world_normal    = vsIn.normal;
         vsOut.world_tangent   = vsIn.tangent;

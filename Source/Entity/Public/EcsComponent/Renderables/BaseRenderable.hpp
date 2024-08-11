@@ -20,12 +20,11 @@ namespace Ame::Ecs
     struct RenderableVertex
     {
         Dg::IBuffer*              Buffer = nullptr;
-        uint32_t                  Offset = std::numeric_limits<uint32_t>::max();
         static constexpr uint64_t Stride = sizeof(Ty);
 
         auto operator<=>(const RenderableVertex& other) const noexcept
         {
-            return std::tie(Buffer, Offset) <=> std::tie(other.Buffer, other.Offset);
+            return Buffer <=> other.Buffer;
         }
     };
 
@@ -35,6 +34,7 @@ namespace Ame::Ecs
         RenderableVertex<Vertex_Normal>   Normal;   // Vertex_Normal
         RenderableVertex<Vertex_TexCoord> TexCoord; // Vertex_TexCoord
         RenderableVertex<Vertex_Tangent>  Tangent;  // Vertex_Tangent
+        uint32_t                          Offset = std::numeric_limits<uint32_t>::max();
         Rhi::MaterialVertexDesc           Desc;
 
         auto operator<=>(const RenderableVertices& other) const noexcept
@@ -55,6 +55,11 @@ namespace Ame::Ecs
         {
             return std::tie(Buffer, Offset, Count, Type) <=>
                    std::tie(other.Buffer, other.Offset, other.Count, other.Type);
+        }
+
+        [[nodiscard]] uint32_t AbsoluteOffset() const noexcept
+        {
+            return (Type == Dg::VT_UINT16 ? sizeof(uint16_t) : sizeof(uint32_t)) * Offset;
         }
     };
 

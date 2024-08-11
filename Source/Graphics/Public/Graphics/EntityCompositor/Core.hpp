@@ -41,13 +41,9 @@ namespace Ame::Gfx
         uint32_t TransformId = std::numeric_limits<uint32_t>::max();
         uint32_t BoundingId  = std::numeric_limits<uint32_t>::max();
 
-        uint32_t PositionOffset = std::numeric_limits<uint32_t>::max();
-        uint32_t NormalOffset   = std::numeric_limits<uint32_t>::max();
-        uint32_t TexCoordOffset = std::numeric_limits<uint32_t>::max();
-        uint32_t TangentOffset  = std::numeric_limits<uint32_t>::max();
-
-        uint32_t IndexOffset = std::numeric_limits<uint32_t>::max();
-        uint32_t IndexCount  = std::numeric_limits<uint32_t>::max();
+        uint32_t VertexOffset = std::numeric_limits<uint32_t>::max();
+        uint32_t IndexOffset  = std::numeric_limits<uint32_t>::max();
+        uint32_t IndexCount   = std::numeric_limits<uint32_t>::max();
 
         EntityInstanceCode Code;
     };

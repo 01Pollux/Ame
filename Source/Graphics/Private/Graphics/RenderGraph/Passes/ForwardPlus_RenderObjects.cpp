@@ -83,28 +83,6 @@ namespace Ame::Gfx
 
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "FrameDataBuffer", frameData->Resource);
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "RenderInstances", renderInstances.get().View);
-
-                Dg::IBuffer* vertexBuffers[]{
-                    renderableVertices.Position.Buffer,
-                    renderableVertices.Normal.Buffer,
-                    renderableVertices.TexCoord.Buffer,
-                    renderableVertices.Tangent.Buffer
-                };
-
-                const uint64_t vertexOffsets[]{
-                    renderableVertices.Position.Offset * renderableVertices.Position.Stride,
-                    renderableVertices.Normal.Offset * renderableVertices.Normal.Stride,
-                    renderableVertices.TexCoord.Offset * renderableVertices.TexCoord.Stride,
-                    renderableVertices.Tangent.Offset * renderableVertices.Tangent.Stride
-                };
-
-                deviceContext->SetVertexBuffers(0, Rhi::Count32(vertexBuffers), vertexBuffers, vertexOffsets, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Dg::SET_VERTEX_BUFFERS_FLAG_RESET);
-
-                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "PositionBuffer", renderableVertices.Position.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "NormalBuffer", renderableVertices.Normal.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "TexCoordBuffer", renderableVertices.TexCoord.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "TangentBuffer", renderableVertices.Tangent.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-
                 deviceContext->CommitShaderResources(srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
                 Dg::DrawIndexedAttribs drawAttribs{
@@ -113,9 +91,18 @@ namespace Ame::Gfx
                     Dg::DRAW_FLAG_VERIFY_ALL | Dg::DRAW_FLAG_DYNAMIC_RESOURCE_BUFFERS_INTACT,
                     1,
                     renderableDesc.Indices.Offset,
-                    0,
+                    renderableDesc.Vertices.Offset,
                     row.InstanceOffset
                 };
+
+                Dg::IBuffer* vertexBuffers[]{
+                    renderableVertices.Position.Buffer,
+                    renderableVertices.Normal.Buffer,
+                    renderableVertices.TexCoord.Buffer,
+                    renderableVertices.Tangent.Buffer
+                };
+
+                deviceContext->SetVertexBuffers(0, Rhi::Count32(vertexBuffers), vertexBuffers, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Dg::SET_VERTEX_BUFFERS_FLAG_RESET);
                 deviceContext->SetIndexBuffer(renderableDesc.Indices.Buffer, 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                 deviceContext->DrawIndexed(drawAttribs);
             }

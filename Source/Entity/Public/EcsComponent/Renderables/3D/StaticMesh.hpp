@@ -41,22 +41,11 @@ namespace Ame::Ecs
             auto& submesh             = m_Model->GetSubMeshes()[m_SubMeshIndex];
             m_RenderableDesc.Material = m_Model->GetMaterials()[m_MaterialIndex];
             m_RenderableDesc.Vertices = {
-                .Position{
-                    m_Model->GetPositionBuffer(),
-                    submesh.PositionOffset,
-                },
-                .Normal{
-                    m_Model->GetNormalBuffer(),
-                    submesh.NormalOffset,
-                },
-                .TexCoord{
-                    m_Model->GetTexCoordBuffer(),
-                    submesh.TexCoordOffset,
-                },
-                .Tangent{
-                    m_Model->GetTangentBuffer(),
-                    submesh.TangentOffset,
-                },
+                .Position{m_Model->GetPositionBuffer() },
+                .Normal{m_Model->GetNormalBuffer() },
+                .TexCoord{m_Model->GetTexCoordBuffer() },
+                .Tangent{m_Model->GetTangentBuffer() },
+                .Offset{ submesh.VertexOffset },
                 .Desc{ m_Model->GetVertexInputDesc() }
             };
             m_RenderableDesc.Indices = {

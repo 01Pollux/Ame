@@ -82,18 +82,19 @@ namespace Ame::Ecs
     //
 
     static const uint32_t s_MeshImportFlags =
-        aiProcess_CalcTangentSpace |    // Create binormals/tangents just in case
-        aiProcess_ConvertToLeftHanded | // Make sure we're left handed
-        aiProcess_Triangulate |         // Make sure we're triangles
-        aiProcess_SortByPType |         // Split meshes by primitive type
-        aiProcess_GenNormals |          // Make sure we have legit normals
-        aiProcess_GenUVCoords |         // Convert UVs if required
+        aiProcess_CalcTangentSpace |
         // aiProcess_OptimizeGraph |
-        aiProcess_OptimizeMeshes | // Batch draws where possible
+        aiProcess_GenNormals |
+        aiProcess_Triangulate |
+        aiProcess_SortByPType |
+        aiProcess_MakeLeftHanded |
+        aiProcess_FlipUVs |
+        aiProcess_FlipWindingOrder |
         aiProcess_JoinIdenticalVertices |
-        aiProcess_LimitBoneWeights |      // If more than N (=4) bone weights, discard least influencing bones and renormalise sum to 1
-        aiProcess_ValidateDataStructure | // Validation
-        aiProcess_GlobalScale;            // e.g. convert cm to m for fbx import (and other formats where cm is native)
+        // aiProcess_ValidateDataStructure |
+        // aiProcess_GlobalScale |
+        aiProcess_OptimizeMeshes |
+        aiProcess_RemoveRedundantMaterials;
 
     //
 
@@ -102,12 +103,12 @@ namespace Ame::Ecs
     {
         AssimpLogStream::InitializeOnce();
 
-        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
-        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_LIGHTS, false);
-        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_CAMERAS, false);
-        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS, false);
-        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_MATERIALS, true);
-        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
+        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
+        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_LIGHTS, false);
+        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_CAMERAS, false);
+        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS, false);
+        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_MATERIALS, true);
+        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
 
         m_Importer.ReadFile(path, s_MeshImportFlags);
     }

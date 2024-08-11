@@ -23,14 +23,9 @@ namespace Ame::Ecs
         Math::Matrix4x4 Transform = Math::Matrix4x4::Constants::Identity;
         Geometry::AABB  AABB;
 
-        uint32_t PositionOffset = c_InvalidIndex;
-        uint32_t NormalOffset   = c_InvalidIndex;
-        uint32_t TangentOffset  = c_InvalidIndex;
-        uint32_t TexCoordOffset = c_InvalidIndex;
-
-        uint32_t IndexOffset = c_InvalidIndex;
-        uint32_t IndexCount  = c_InvalidIndex;
-
+        uint32_t IndexOffset   = c_InvalidIndex;
+        uint32_t IndexCount    = c_InvalidIndex;
+        uint32_t VertexOffset  = c_InvalidIndex;
         uint32_t MaterialIndex = c_InvalidIndex;
     };
 

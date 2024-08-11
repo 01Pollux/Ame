@@ -71,10 +71,10 @@ namespace Ame::Ecs
             Buffer.emplace_back(data);
         }
 
-        template<typename OTy>
-        void Append(std::span<const OTy> data)
+        template<typename Ty>
+        void AppendRange(Ty&& data)
         {
-            Buffer.insert(Buffer.end(), data.begin(), data.end());
+            Buffer.append_range(std::forward<Ty>(data));
         }
 
         [[nodiscard]] const void* Data() const
@@ -189,53 +189,52 @@ namespace Ame::Ecs
         for (aiMesh* mesh : std::span{ scene->mMeshes, scene->mNumMeshes })
         {
             Geometry::AABBMinMax minMax;
-            for (uint32_t j = 0; j < mesh->mNumVertices; j++)
+            for (uint32_t i = 0; i < mesh->mNumVertices; i++)
             {
-                Math::Vector3 position(mesh->mVertices[j].x, mesh->mVertices[j].y, mesh->mVertices[j].z);
+                Math::Vector3 position(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
                 minMax.Accumulate(position);
 
                 positions.Append(position);
-                normals.Append({ mesh->mNormals[j].x, mesh->mNormals[j].y, mesh->mNormals[j].z });
+                normals.Append({ mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z });
 
                 if (mesh->HasTangentsAndBitangents())
                 {
-                    tangents.Append({ mesh->mTangents[j].x, mesh->mTangents[j].y, mesh->mTangents[j].z });
+                    tangents.Append({ mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z });
                 }
 
                 if (mesh->HasTextureCoords(0))
                 {
-                    texCoords.Append({ mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y });
+                    texCoords.Append({ mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y });
                 }
             }
 
             uint32_t indexCount = mesh->mNumFaces * 3;
-            for (uint32_t j = 0; j < mesh->mNumFaces; j++)
+            for (uint32_t i = 0; i < mesh->mNumFaces; i++)
             {
-                aiFace&                   face = mesh->mFaces[j];
-                std::span<const uint32_t> indices{ face.mIndices, face.mNumIndices };
+                aiFace& face = mesh->mFaces[i];
 
                 if (use16BitIndices)
                 {
-                    indices16.Append(indices);
+                    auto indices = std::span<const uint32_t>{ face.mIndices, face.mNumIndices } |
+                                   std::views::transform([](auto idx)
+                                                         { return static_cast<uint16_t>(idx); });
+                    indices16.AppendRange(std::move(indices));
                 }
                 else
                 {
-                    indices32.Append(indices);
+                    indices32.AppendRange(std::span{ face.mIndices, face.mNumIndices });
                 }
             }
 
             auto indexOffset = static_cast<uint32_t>(use16BitIndices ? indices16.Offset : indices32.Offset);
 
             createDesc.SubMeshes.emplace_back(SubMeshData{
-                .AABB           = minMax.ToAABB(),
-                .PositionOffset = positions.Offset,
-                .NormalOffset   = normals.Offset,
-                .TangentOffset  = mesh->HasTangentsAndBitangents() ? tangents.Offset : c_InvalidIndex,
-                .TexCoordOffset = mesh->HasTextureCoords(0) ? texCoords.Offset : c_InvalidIndex,
-                .IndexOffset    = indexOffset,
-                .IndexCount     = indexCount,
-                .MaterialIndex  = mesh->mMaterialIndex });
+                .AABB          = minMax.ToAABB(),
+                .IndexOffset   = indexOffset,
+                .IndexCount    = indexCount,
+                .VertexOffset  = positions.Offset,
+                .MaterialIndex = mesh->mMaterialIndex });
 
             positions.Sync();
             normals.Sync();
@@ -256,10 +255,9 @@ namespace Ame::Ecs
         bufferDesc.Usage = Dg::USAGE_IMMUTABLE;
 
         auto createBuffer = [&bufferDesc, renderDevice, scene](
-                                const auto&     buffer,
-                                const char*     name,
-                                Dg::BIND_FLAGS  bindFlags,
-                                Dg::BUFFER_MODE bufferMode = Dg::BUFFER_MODE_STRUCTURED)
+                                const auto&    buffer,
+                                const char*    name,
+                                Dg::BIND_FLAGS bindFlags)
         {
             Ptr<Dg::IBuffer> result;
             if (!buffer.Empty())
@@ -271,7 +269,6 @@ namespace Ame::Ecs
 
                 bufferDesc.Size              = buffer.ByteSize();
                 bufferDesc.BindFlags         = bindFlags;
-                bufferDesc.Mode              = bufferMode;
                 bufferDesc.ElementByteStride = buffer.ElementSize();
 
                 Dg::BufferData initData(buffer.Data(), buffer.ByteSize());
@@ -289,11 +286,11 @@ namespace Ame::Ecs
 
         if (use16BitIndices) [[likely]]
         {
-            createDesc.IndexBuffer = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER, Dg::BUFFER_MODE_UNDEFINED);
+            createDesc.IndexBuffer = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER);
         }
         else
         {
-            createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER, Dg::BUFFER_MODE_UNDEFINED);
+            createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER);
         }
 
         for (auto flag : {

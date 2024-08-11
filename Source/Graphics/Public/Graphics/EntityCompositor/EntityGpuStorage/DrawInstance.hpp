@@ -26,13 +26,9 @@ namespace Ame::Gfx
             // TODO: Add instance transform
             // TODO: draw type
 
-            instance.PositionOffset = renderableDesc.Vertices.Position.Offset;
-            instance.NormalOffset   = renderableDesc.Vertices.Normal.Offset;
-            instance.TexCoordOffset = renderableDesc.Vertices.TexCoord.Offset;
-            instance.TangentOffset  = renderableDesc.Vertices.Tangent.Offset;
-
-            instance.IndexOffset = renderableDesc.Indices.Offset;
-            instance.IndexCount  = renderableDesc.Indices.Count;
+            instance.VertexOffset = renderableDesc.Vertices.Offset;
+            instance.IndexOffset  = renderableDesc.Indices.Offset;
+            instance.IndexCount   = renderableDesc.Indices.Count;
         }
 
         static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
