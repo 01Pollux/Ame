@@ -3,7 +3,6 @@
 
 #include <Shading/Technique.hpp>
 #include <Shading/Material.hpp>
-#include <Shading/VertexInput.hpp>
 #include <Shading/ShaderComposer.hpp>
 #include <Shading/Hash.hpp>
 
@@ -34,18 +33,18 @@ namespace Ame::Rhi
     //
 
     Dg::IPipelineState* MaterialTechnique::GetPipelineState(
-        Dg::PRIMITIVE_TOPOLOGY       topology,
+        const MaterialVertexDesc&    vertexDesc,
         const Material*              material,
         Dg::IShaderResourceBinding** srb) const
     {
         auto hash = Dg::ComputeHash(
             material->GetMaterialHash(),
-            topology);
+            vertexDesc);
 
         auto& pipelineState = m_PipelineStates[hash];
         if (!pipelineState)
         {
-            pipelineState = CreatePipelineState(topology, material);
+            pipelineState = CreatePipelineState(vertexDesc, material);
         }
         if (srb)
         {
@@ -269,7 +268,7 @@ namespace Ame::Rhi
 
     void MaterialTechnique::InitializePipelineState(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        Dg::PRIMITIVE_TOPOLOGY               topology,
+        const MaterialVertexDesc&            vertexDesc,
         const MaterialDesc&                  materialDesc) const
     {
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableType        = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
@@ -279,7 +278,7 @@ namespace Ame::Rhi
         graphicsPsoDesc.GraphicsPipeline.SampleMask        = materialDesc.SampleMask;
         graphicsPsoDesc.GraphicsPipeline.RasterizerDesc    = materialDesc.Rasterizer;
         graphicsPsoDesc.GraphicsPipeline.DepthStencilDesc  = materialDesc.DepthStencil;
-        graphicsPsoDesc.GraphicsPipeline.PrimitiveTopology = topology;
+        graphicsPsoDesc.GraphicsPipeline.PrimitiveTopology = vertexDesc.Topology;
         graphicsPsoDesc.GraphicsPipeline.NumRenderTargets  = Rhi::Count8(m_RenderState.RenderTargets);
         graphicsPsoDesc.GraphicsPipeline.ShadingRateFlags  = m_RenderState.ShadingRateFlags;
 
@@ -294,13 +293,16 @@ namespace Ame::Rhi
     }
 
     Ptr<Dg::IPipelineState> MaterialTechnique::CreatePipelineState(
-        Dg::PRIMITIVE_TOPOLOGY topology,
-        const Material*        material) const
+        const MaterialVertexDesc& vertexDesc,
+        const Material*           material) const
     {
         auto& materialDesc = material->GetMaterialDesc();
 
+        MaterialVertexInputLayout vertexInputLayout(vertexDesc.Flags);
+
         Dg::GraphicsPipelineStateCreateInfo psoCreateDesc;
-        InitializePipelineState(psoCreateDesc, topology, materialDesc);
+        InitializePipelineState(psoCreateDesc, vertexDesc, materialDesc);
+        psoCreateDesc.GraphicsPipeline.InputLayout = vertexInputLayout;
 
 #ifndef AME_DIST
         String pipelineStateName   = std::format("{}_{}", materialDesc.Name, m_RenderState.Name);

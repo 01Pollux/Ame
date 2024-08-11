@@ -2,8 +2,6 @@
 
 #include <EcsComponent/Renderables/BaseRenderable3D.hpp>
 
-#include <Rhi/Core.hpp>
-
 namespace Ame::Ecs
 {
     // {E1E74357-EB73-4AF0-BA9D-4D17F7B89CF6}
@@ -54,7 +52,9 @@ namespace Ame::Ecs
             Ptr<Dg::IBuffer> TangentBuffer;
             Ptr<Dg::IBuffer> TexCoordBuffer;
             Ptr<Dg::IBuffer> IndexBuffer;
-            bool             SmallIndexBuffer = false;
+
+            Rhi::MaterialVertexDesc VertexDesc;
+            bool                    SmallIndexBuffer = false;
         };
 
     public:
@@ -74,6 +74,7 @@ namespace Ame::Ecs
             m_TangentBuffer(std::move(desc.TangentBuffer)),
             m_TexCoordBuffer(std::move(desc.TexCoordBuffer)),
             m_IndexBuffer(std::move(desc.IndexBuffer)),
+            m_VertexDesc(desc.VertexDesc),
             m_SmallIndexBuffer(desc.SmallIndexBuffer)
         {
         }
@@ -127,6 +128,11 @@ namespace Ame::Ecs
             return m_Materials;
         }
 
+        [[nodiscard]] const Rhi::MaterialVertexDesc& GetVertexInputDesc() const noexcept
+        {
+            return m_VertexDesc;
+        }
+
     private:
         MeshNodeList    m_MeshNodes;
         SubMeshDataList m_SubMeshes;
@@ -137,6 +143,8 @@ namespace Ame::Ecs
         Ptr<Dg::IBuffer> m_TangentBuffer;  // VI3_Tangent
         Ptr<Dg::IBuffer> m_TexCoordBuffer; // VI_TexCoord
         Ptr<Dg::IBuffer> m_IndexBuffer;    // uint32_t | uint16_t=
-        bool             m_SmallIndexBuffer = false;
+
+        Rhi::MaterialVertexDesc m_VertexDesc;
+        bool                    m_SmallIndexBuffer = false;
     };
 } // namespace Ame::Ecs

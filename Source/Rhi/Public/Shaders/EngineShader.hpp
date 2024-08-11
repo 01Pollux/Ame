@@ -39,13 +39,13 @@ namespace Ame::Rhi
     protected:
         void Setup(
             const Dg::ShaderDesc&      desc,
-            std::span<const char>      sourceCode,
+            StringView                 sourceCode,
             Dg::SHADER_SOURCE_LANGUAGE lang = Dg::SHADER_SOURCE_LANGUAGE_HLSL)
         {
             m_CreateInfo.SourceLanguage = lang;
             m_CreateInfo.Desc           = desc;
             m_CreateInfo.Source         = sourceCode.data();
-            m_CreateInfo.SourceLength   = sourceCode.size();
+            m_CreateInfo.SourceLength   = sourceCode.size() - 1;
         }
 
         void SetupCompressed(
@@ -60,7 +60,10 @@ namespace Ame::Rhi
             stream.push(bio::array_source(std::bit_cast<const char*>(compressedCode.data()), compressedCode.size()));
             bio::copy(stream, std::back_inserter(m_DecompressedCode));
 
-            Setup(desc, m_DecompressedCode, lang);
+            m_CreateInfo.SourceLanguage = lang;
+            m_CreateInfo.Desc           = desc;
+            m_CreateInfo.Source         = m_DecompressedCode.data();
+            m_CreateInfo.SourceLength   = m_DecompressedCode.size();
         }
 
     protected:

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <span>
-#include <Shading/Core.hpp>
+#include <Rhi/Core.hpp>
 
 namespace Ame::Rhi
 {
@@ -24,15 +24,24 @@ namespace Ame::Rhi
         uint8_t NumComponents = 0;
     };
 
-    struct VertexInputConstants
+    enum class VertexInputFlags : uint8_t
     {
-        uint32_t PositionOffset = std::numeric_limits<uint32_t>::max();
-        uint32_t NormalOffset   = std::numeric_limits<uint32_t>::max();
-        uint32_t TexCoordOffset = std::numeric_limits<uint32_t>::max();
-        uint32_t TangentOffset  = std::numeric_limits<uint32_t>::max();
+        None     = 0,
+        Position = 1 << 0,
+        Normal   = 1 << 1,
+        TexCoord = 1 << 2,
+        Tangent  = 1 << 3,
+        Count    = 4
     };
 
     // clang-format off
+    static constexpr VertexAttributeDesc c_InputVertexAttributes[] = {
+        { "float3", "position",   "ATTRIB0",    Dg::VT_FLOAT32, 0, 3 },
+        { "float3", "normal",     "ATTRIB1",    Dg::VT_FLOAT32, 1, 3 },
+        { "float2", "tex_coord",  "ATTRIB2",    Dg::VT_FLOAT32, 2, 2 },
+        { "float3", "tangent",    "ATTRIB3",    Dg::VT_FLOAT32, 3, 3 },
+    };
+
     static constexpr VertexAttributeDesc c_OutputVertexAttributes[] = {
         { "float4", "screen_position",  "SV_POSITION",      Dg::VT_FLOAT32, 0xFF, 4 },
         { "float3", "world_position",   "WORLD_POSITION",   Dg::VT_FLOAT32, 0xFF, 3 },

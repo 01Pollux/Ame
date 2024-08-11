@@ -78,16 +78,32 @@ namespace Ame::Gfx
                 auto& renderableVertices = renderableDesc.Vertices;
 
                 // TODO: Configure topoly
-                auto pso = m_Technique->GetPipelineState(Dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST, renderableDesc.Material, &srb);
+                auto pso = m_Technique->GetPipelineState(renderableDesc.Vertices.Desc, renderableDesc.Material, &srb);
                 deviceContext->SetPipelineState(pso);
 
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "FrameDataBuffer", frameData->Resource);
                 Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "RenderInstances", renderInstances.get().View);
 
-                Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "PositionBuffer", renderableVertices.Position.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-                Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "NormalBuffer", renderableVertices.Normal.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-                Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "TexCoordBuffer", renderableVertices.TexCoord.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-                Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "TangentBuffer", renderableVertices.Tangent.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+                Dg::IBuffer* vertexBuffers[]{
+                    renderableVertices.Position.Buffer,
+                    renderableVertices.Normal.Buffer,
+                    renderableVertices.TexCoord.Buffer,
+                    renderableVertices.Tangent.Buffer
+                };
+
+                const uint64_t vertexOffsets[]{
+                    renderableVertices.Position.Offset * renderableVertices.Position.Stride,
+                    renderableVertices.Normal.Offset * renderableVertices.Normal.Stride,
+                    renderableVertices.TexCoord.Offset * renderableVertices.TexCoord.Stride,
+                    renderableVertices.Tangent.Offset * renderableVertices.Tangent.Stride
+                };
+
+                deviceContext->SetVertexBuffers(0, Rhi::Count32(vertexBuffers), vertexBuffers, vertexOffsets, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION, Dg::SET_VERTEX_BUFFERS_FLAG_RESET);
+
+                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "PositionBuffer", renderableVertices.Position.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "NormalBuffer", renderableVertices.Normal.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "TexCoordBuffer", renderableVertices.TexCoord.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+                //Rhi::BindAllInSrb(srb, Dg::SHADER_TYPE_ALL_GRAPHICS, "TangentBuffer", renderableVertices.Tangent.Buffer->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
 
                 deviceContext->CommitShaderResources(srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 

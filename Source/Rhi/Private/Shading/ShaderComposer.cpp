@@ -1,5 +1,4 @@
 #include <Shading/ShaderComposer.hpp>
-#include <Shading/VertexInput.hpp>
 
 namespace Ame::Rhi
 {
@@ -36,7 +35,7 @@ namespace Ame::Rhi
     //
 
     // MUST match the order of VertexInputConstants
-    static constexpr const char s_DefineInputString[]  = "#define VS_INPUT_LAYOUT uint vertex_id:SV_VertexID;uint instance_id:SV_InstanceID;";
+    static constexpr const char s_DefineInputString[]  = "#define VS_INPUT_LAYOUT uint vertex_id:SV_VertexID;uint instance_id:SV_InstanceID; ";
     static constexpr const char s_DefineOutputString[] = "#define VS_OUTPUT_LAYOUT ";
     static constexpr const char s_StructElementCode[]  = "{} {}:{};";
 
@@ -51,12 +50,13 @@ namespace Ame::Rhi
         m_SourceCode.reserve(
             sizeof(s_DefineInputString) +
             sizeof(s_DefineOutputString) +
+            sizeof(s_StructElementCode) * std::size(c_InputVertexAttributes) * 2 +
             sizeof(s_StructElementCode) * std::size(c_OutputVertexAttributes) * 2 +
             sourceCode.size() +
             prologue.size() +
             epilogue.size());
 
-        WriteShader(s_DefineInputString);
+        WriteHeader(s_DefineInputString, c_InputVertexAttributes);
         WriteHeader(s_DefineOutputString, c_OutputVertexAttributes);
 
         WriteShader(sourceCode);

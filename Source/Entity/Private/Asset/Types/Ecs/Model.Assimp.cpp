@@ -88,7 +88,7 @@ namespace Ame::Ecs
         aiProcess_SortByPType |         // Split meshes by primitive type
         aiProcess_GenNormals |          // Make sure we have legit normals
         aiProcess_GenUVCoords |         // Convert UVs if required
-        aiProcess_OptimizeGraph |
+        // aiProcess_OptimizeGraph |
         aiProcess_OptimizeMeshes | // Batch draws where possible
         aiProcess_JoinIdenticalVertices |
         aiProcess_LimitBoneWeights |      // If more than N (=4) bone weights, discard least influencing bones and renormalise sum to 1

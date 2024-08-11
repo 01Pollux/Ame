@@ -16,10 +16,12 @@ namespace Ame::Ecs
 
     //
 
+    template<typename Ty>
     struct RenderableVertex
     {
-        Dg::IBuffer* Buffer = nullptr;
-        uint32_t     Offset = std::numeric_limits<uint32_t>::max();
+        Dg::IBuffer*              Buffer = nullptr;
+        uint32_t                  Offset = std::numeric_limits<uint32_t>::max();
+        static constexpr uint64_t Stride = sizeof(Ty);
 
         auto operator<=>(const RenderableVertex& other) const noexcept
         {
@@ -29,10 +31,11 @@ namespace Ame::Ecs
 
     struct RenderableVertices
     {
-        RenderableVertex Position; // Vertex_Position
-        RenderableVertex Normal;   // Vertex_Normal
-        RenderableVertex TexCoord; // Vertex_TexCoord
-        RenderableVertex Tangent;  // Vertex_Tangent
+        RenderableVertex<Vertex_Position> Position; // Vertex_Position
+        RenderableVertex<Vertex_Normal>   Normal;   // Vertex_Normal
+        RenderableVertex<Vertex_TexCoord> TexCoord; // Vertex_TexCoord
+        RenderableVertex<Vertex_Tangent>  Tangent;  // Vertex_Tangent
+        Rhi::MaterialVertexDesc           Desc;
 
         auto operator<=>(const RenderableVertices& other) const noexcept
         {

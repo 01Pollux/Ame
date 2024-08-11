@@ -32,7 +32,7 @@ namespace Ame::Rhi
         /// Get the pipeline state for the given material and vertex input flags
         /// </summary>
         [[nodiscard]] Dg::IPipelineState* GetPipelineState(
-            Dg::PRIMITIVE_TOPOLOGY       topology,
+            const MaterialVertexDesc&    vertexDesc,
             const Material*              material,
             Dg::IShaderResourceBinding** srb = nullptr) const;
 
@@ -60,15 +60,15 @@ namespace Ame::Rhi
         /// </summary>
         void InitializePipelineState(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-            Dg::PRIMITIVE_TOPOLOGY               topology,
+            const MaterialVertexDesc&            vertexDesc,
             const MaterialDesc&                  materialDesc) const;
 
         /// <summary>
         /// Create pipeline state for the material
         /// </summary>
         [[nodiscard]] Ptr<Dg::IPipelineState> CreatePipelineState(
-            Dg::PRIMITIVE_TOPOLOGY topology,
-            const Material*        material) const;
+            const MaterialVertexDesc& vertexDesc,
+            const Material*           material) const;
 
     private:
         template<typename, typename>

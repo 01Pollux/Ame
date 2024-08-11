@@ -2,6 +2,7 @@
 #include <Asset/Types/Ecs/Model.Assimp.hpp>
 #include <assimp/scene.h>
 
+#include <Core/Enum.hpp>
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Ecs
@@ -281,12 +282,11 @@ namespace Ame::Ecs
 
         //
 
-        createDesc.PositionBuffer = createBuffer(positions, "VI3_Position", Dg::BIND_SHADER_RESOURCE);
-        createDesc.NormalBuffer   = createBuffer(normals, "VI3_Normal", Dg::BIND_SHADER_RESOURCE);
-        createDesc.TangentBuffer  = createBuffer(tangents, "VI3_Tangent", Dg::BIND_SHADER_RESOURCE);
-        createDesc.TexCoordBuffer = createBuffer(texCoords, "VI_TexCoord", Dg::BIND_SHADER_RESOURCE);
+        createDesc.PositionBuffer = createBuffer(positions, "VI3_Position", Dg::BIND_VERTEX_BUFFER);
+        createDesc.NormalBuffer   = createBuffer(normals, "VI3_Normal", Dg::BIND_VERTEX_BUFFER);
+        createDesc.TangentBuffer  = createBuffer(tangents, "VI3_Tangent", Dg::BIND_VERTEX_BUFFER);
+        createDesc.TexCoordBuffer = createBuffer(texCoords, "VI_TexCoord", Dg::BIND_VERTEX_BUFFER);
 
-        createDesc.SmallIndexBuffer = use16BitIndices;
         if (use16BitIndices) [[likely]]
         {
             createDesc.IndexBuffer = createBuffer(indices16, "VI_Index", Dg::BIND_INDEX_BUFFER, Dg::BUFFER_MODE_UNDEFINED);
@@ -295,5 +295,17 @@ namespace Ame::Ecs
         {
             createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER, Dg::BUFFER_MODE_UNDEFINED);
         }
+
+        for (auto flag : {
+                 createDesc.PositionBuffer ? Rhi::VertexInputFlags::Position : Rhi::VertexInputFlags::None,
+                 createDesc.NormalBuffer ? Rhi::VertexInputFlags::Normal : Rhi::VertexInputFlags::None,
+                 createDesc.TexCoordBuffer ? Rhi::VertexInputFlags::TexCoord : Rhi::VertexInputFlags::None,
+                 createDesc.TangentBuffer ? Rhi::VertexInputFlags::Tangent : Rhi::VertexInputFlags::None })
+        {
+            using namespace EnumBitOperators;
+            createDesc.VertexDesc.Flags |= flag;
+        }
+        createDesc.VertexDesc.Topology = Dg::PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; // TODO: More topologies support
+        createDesc.SmallIndexBuffer    = use16BitIndices;
     }
 } // namespace Ame::Ecs

@@ -57,6 +57,7 @@ namespace Ame::Ecs
                     m_Model->GetTangentBuffer(),
                     submesh.TangentOffset,
                 },
+                .Desc{ m_Model->GetVertexInputDesc() }
             };
             m_RenderableDesc.Indices = {
                 m_Model->GetIndexBuffer(),

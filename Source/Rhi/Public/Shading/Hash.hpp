@@ -143,4 +143,15 @@ namespace std
             return hash;
         }
     };
+
+    template<>
+    struct hash<Ame::Rhi::MaterialVertexDesc>
+    {
+        size_t operator()(const Ame::Rhi::MaterialVertexDesc& state) const
+        {
+            size_t hash = 0;
+            Dg::HashCombine(hash, state.Topology, state.Flags);
+            return hash;
+        }
+    };
 } // namespace std

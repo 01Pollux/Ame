@@ -18,19 +18,8 @@
 
 #ifdef AME_DEBUG
 
-#ifdef AME_PLATFORM_WINDOWS
-#include <malloc.h>
-#include <crtdbg.h>
-#endif
-
 static void EnableDebugInfo()
 {
-#ifdef AME_PLATFORM_WINDOWS
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-    _CrtSetBreakAlloc(9554);
-    _CrtSetBreakAlloc(9553);
-    _CrtSetBreakAlloc(9552);
-#endif
 }
 
 #define AME_MAIN_ENTRY_POINT          \

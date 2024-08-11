@@ -7,6 +7,7 @@
 
 #include <Rhi/Core.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
+#include <Shading/VertexInput.hpp>
 
 namespace Ame::Rhi
 {
@@ -154,6 +155,46 @@ namespace Ame::Rhi
 
         Dg::TEXTURE_FORMAT DepthStencil = Dg::TEX_FORMAT_UNKNOWN;
         bool               ReadOnlyDSV  = false;
+    };
+
+    //
+
+    struct MaterialVertexDesc
+    {
+        Dg::PRIMITIVE_TOPOLOGY Topology = Dg::PRIMITIVE_TOPOLOGY_UNDEFINED;
+        VertexInputFlags       Flags    = VertexInputFlags::None;
+    };
+
+    struct MaterialVertexInputLayout
+    {
+    public:
+        MaterialVertexInputLayout() noexcept = default;
+        MaterialVertexInputLayout(
+            VertexInputFlags flags) noexcept
+        {
+            for (uint32_t i = 0; i < Rhi::Count32(c_InputVertexAttributes); i++)
+            {
+                bool hasAttribute           = (std::to_underlying(flags) & (1 << i)) != 0;
+                m_Elements[i].InputIndex    = i;
+                m_Elements[i].BufferSlot    = c_InputVertexAttributes[i].BufferId;
+                m_Elements[i].NumComponents = c_InputVertexAttributes[i].NumComponents;
+                m_Elements[i].ValueType     = c_InputVertexAttributes[i].Type;
+                m_Elements[i].IsNormalized  = (m_Elements[i].ValueType == Dg::VT_UINT8 ||
+                                              m_Elements[i].ValueType == Dg::VT_INT8);
+                if (!hasAttribute)
+                {
+                    m_Elements[i].Stride = 0;
+                }
+            }
+        }
+
+        [[nodiscard]] operator Dg::InputLayoutDesc() const noexcept
+        {
+            return { m_Elements, Rhi::Count32(m_Elements) };
+        }
+
+    private:
+        Dg::LayoutElement m_Elements[std::to_underlying(VertexInputFlags::Count)];
     };
 
     //
