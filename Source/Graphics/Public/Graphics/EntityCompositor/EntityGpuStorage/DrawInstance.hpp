@@ -25,10 +25,6 @@ namespace Ame::Gfx
             // TODO: Add instance code
             // TODO: Add instance transform
             // TODO: draw type
-
-            instance.VertexOffset = renderableDesc.Vertices.Offset;
-            instance.IndexOffset  = renderableDesc.Indices.Offset;
-            instance.IndexCount   = renderableDesc.Indices.Count;
         }
 
         static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
