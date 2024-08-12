@@ -43,7 +43,7 @@ namespace Ame::Rhi
     {
         Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
         auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
-        return FreeImage_GetPitch(bitmap);
+        return FreeImage_GetLine(bitmap);
     }
 
     uint32_t Image::GetPitch() const
@@ -355,6 +355,11 @@ namespace Ame::Rhi
     }
 
     const Image& ImageMemory::GetImage() const noexcept
+    {
+        return m_Image;
+    }
+
+    Image& ImageMemory::GetImage() noexcept
     {
         return m_Image;
     }

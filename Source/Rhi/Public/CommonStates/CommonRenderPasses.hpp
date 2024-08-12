@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CommonStates/CommonRenderPasses/BlitRenderPass.hpp>
+#include <CommonStates/CommonRenderPasses/CommonTextures.hpp>
 
 namespace Ame::Rhi
 {
@@ -10,7 +11,9 @@ namespace Ame::Rhi
     /// <summary>
     /// All common render passes can use cached render pass.
     /// </summary>s
-    class CommonRenderPass : public BaseObject<IObject>, public BlitRenderPass
+    class CommonRenderPass : public BaseObject<IObject>,
+                             public BlitRenderPass,
+                             public CommonTextures
     {
     public:
         using Base = BaseObject<IObject>;
@@ -23,7 +26,8 @@ namespace Ame::Rhi
             IReferenceCounters* counters,
             Rhi::IRhiDevice*    rhiDevice) :
             Base(counters),
-            BlitRenderPass(rhiDevice)
+            BlitRenderPass(rhiDevice),
+            CommonTextures(rhiDevice)
         {
         }
     };

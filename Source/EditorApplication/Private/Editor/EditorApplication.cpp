@@ -52,6 +52,9 @@ namespace Ame
         Ptr<Dg::IRenderDevice> renderDevice;
         GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
 
+        Ptr<Rhi::CommonRenderPass> crp;
+        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Rhi::IID_CommandRenderPass, crp.DblPtr<IObject>());
+
         Ptr<Gfx::Renderer> rendererSubmodule;
         GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
 
@@ -310,7 +313,6 @@ namespace Ame
 
                     if (Changed)
                     {
-                        printf("%.3f, %.3f, %.3f\n", Transform->GetPosition().x(), Transform->GetPosition().y(), Transform->GetPosition().z());
                         cameraEntity->modified<Ecs::TransformComponent>();
                     }
                 }

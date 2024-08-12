@@ -24,4 +24,13 @@ namespace Ame
             HashCombine(seed, *first);
         }
     }
+
+    template<typename... Args>
+    inline std::size_t HashCompute(
+        const Args&... args)
+    {
+        std::size_t seed = 0;
+        (HashCombine(seed, args), ...);
+        return seed;
+    }
 } // namespace Ame

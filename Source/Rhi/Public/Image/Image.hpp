@@ -163,6 +163,7 @@ namespace Ame::Rhi
 
         [[nodiscard]] const Image& GetMemory() const noexcept;
         [[nodiscard]] const Image& GetImage() const noexcept;
+        [[nodiscard]] Image&       GetImage() noexcept;
 
     private:
         ImageMemory(void* memory, void* bitmap, ImageFormat format);
