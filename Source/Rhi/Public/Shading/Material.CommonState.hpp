@@ -22,6 +22,11 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
+        /// Get the user data descriptor for the material
+        /// </summary>
+        [[nodiscard]] const MaterialPropertyDescriptor& GetUserDataDesc() const noexcept;
+
+        /// <summary>
         /// Get the base material desc for the material
         /// </summary>
         [[nodiscard]] const MaterialDesc& GetMaterialDesc() const noexcept;
@@ -52,6 +57,7 @@ namespace Ame::Rhi
 
     private:
         Ptr<Dg::IPipelineResourceSignature> m_ResourceSignature;
+        MaterialPropertyDescriptor          m_UserDataDesc;
 
         MaterialDesc m_MaterialDesc;
         MaterialHash m_MaterialHash;

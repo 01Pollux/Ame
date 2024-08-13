@@ -59,8 +59,7 @@ namespace Ame::Rhi
             Dg::BIND_SHADER_RESOURCE
         };
 
-        Dg::TextureData initData{ subresourceData.data(), Rhi::Count32(subresourceData) };
-
+        Dg::TextureData   initData{ subresourceData.data(), Rhi::Count32(subresourceData) };
         Ptr<Dg::ITexture> texture;
         renderDevice->CreateTexture(textureDesc, &initData, &texture);
         return texture;
@@ -117,6 +116,18 @@ namespace Ame::Rhi
                 COMMON_TEXTURES_111(White);
                 COMMON_TEXTURES_111(Black);
                 COMMON_TEXTURES_111(Grey);
+
+            case CommonTexture::Checkboard:
+            {
+                m_DefaultTextures[index] = GetCheckboardTexture();
+                break;
+            }
+
+            case CommonTexture::DevTexture:
+            {
+                m_DefaultTextures[index] = GetDevTexture();
+                break;
+            }
 
             default:
                 std::unreachable();

@@ -8,8 +8,8 @@ namespace Ame::Ecs
     {
         struct ImportDesc
         {
-            Dg::IRenderDevice* RenderDevice = nullptr;
-            String             ModelPath;
+            Rhi::IRhiDevice* RhiDevice = nullptr;
+            String           ModelPath;
         };
 
         using CreateDesc = MeshModel::CreateDesc;

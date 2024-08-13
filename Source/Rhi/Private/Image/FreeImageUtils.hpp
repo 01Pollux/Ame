@@ -7,9 +7,16 @@ namespace Ame::Rhi
 {
     struct FreeImageUtils
     {
+        struct IOStream
+        {
+            std::streampos Offset = 0;
+            std::istream*  istream;
+            std::ostream*  ostream;
+        };
+
         static void Initialize();
 
-        [[nodiscard]] static FreeImageIO GetIO() noexcept;
+        [[nodiscard]] static std::pair<FreeImageIO, IOStream> GetIO(std::istream* istream, std::ostream* ostream);
 
         [[nodiscard]] static FREE_IMAGE_FORMAT ConvertFormat(ImageFormat format);
         [[nodiscard]] static ImageFormat       ConvertFormat(FREE_IMAGE_FORMAT format);

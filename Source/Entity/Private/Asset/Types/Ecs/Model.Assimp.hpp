@@ -14,18 +14,19 @@ namespace Ame::Ecs
 
     public:
         [[nodiscard]] MeshModel::CreateDesc CreateModelDesc(
-            Dg::IRenderDevice* renderDevice) const;
+            Rhi::IRhiDevice* rhiDevice) const;
 
     private:
         void CreateBufferResources(
             MeshModel::CreateDesc& createDesc,
-            Dg::IRenderDevice* renderDevice) const;
+            Rhi::IRhiDevice*       rhiDevice) const;
 
         void CreateMaterials(
             MeshModel::CreateDesc& createDesc,
-            Dg::IRenderDevice*     renderDevice) const;
+            Rhi::IRhiDevice*       rhiDevice) const;
 
     private:
         Assimp::Importer m_Importer;
+        String           m_ModelRootPath;
     };
 } // namespace Ame::Ecs

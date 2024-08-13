@@ -2,6 +2,7 @@
 #include <mutex>
 
 #include <Core/Enum.hpp>
+#include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi
 {
@@ -21,10 +22,10 @@ namespace Ame::Rhi
         unsigned  count,
         fi_handle handle)
     {
-        auto& stream = *std::bit_cast<std::istream*>(handle);
-        auto  pos    = stream.tellg();
-        stream.read(std::bit_cast<char*>(buffer), size * count);
-        return static_cast<unsigned>(stream.tellg() - pos);
+        auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
+        Log::Rhi().Assert(io.istream != nullptr, "Stream is null");
+        io.istream->read(static_cast<char*>(buffer), std::streamsize(size) * count);
+        return static_cast<unsigned>(io.istream->gcount()) / size;
     }
 
     static unsigned FIWriteProc(
@@ -33,10 +34,10 @@ namespace Ame::Rhi
         unsigned  count,
         fi_handle handle)
     {
-        auto& stream = *std::bit_cast<std::iostream*>(handle);
-        auto  pos    = stream.tellp();
-        stream.write(std::bit_cast<char*>(buffer), size * count);
-        return static_cast<unsigned>(stream.tellp() - pos);
+        auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
+        Log::Rhi().Assert(io.ostream != nullptr, "Stream is null");
+        io.ostream->write(static_cast<const char*>(buffer), std::streamsize(size) * count);
+        return count;
     }
 
     static int FISetProc(
@@ -44,49 +45,63 @@ namespace Ame::Rhi
         long      offset,
         int       pos)
     {
-        auto& stream = *std::bit_cast<std::iostream*>(handle);
+        auto& io     = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
+        int   stdPos = 0;
         switch (pos)
         {
         case SEEK_SET:
         {
-            stream.seekp(offset, std::ios::beg);
-            stream.seekg(offset, std::ios::beg);
+            stdPos = std::ios::beg;
             break;
         }
         case SEEK_CUR:
         {
-            stream.seekp(offset, std::ios::cur);
-            stream.seekg(offset, std::ios::cur);
+            stdPos = std::ios::cur;
             break;
         }
         case SEEK_END:
         {
-            stream.seekp(offset, std::ios::end);
-            stream.seekg(offset, std::ios::end);
+            stdPos = std::ios::end;
             break;
         }
         default:
             return 1;
         }
-        return 0;
+
+        bool seekDone = false;
+        if (io.istream)
+        {
+            seekDone |= static_cast<bool>(io.istream->seekg(offset, stdPos));
+        }
+        else
+        {
+            seekDone |= static_cast<bool>(io.ostream->seekp(offset, stdPos));
+        }
+        return seekDone ? 0 : -1;
     }
 
     static long FIGetProc(
         fi_handle handle)
     {
-        auto& stream = *std::bit_cast<std::iostream*>(handle);
-        return static_cast<long>(stream.tellg());
+        auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
+        return (io.istream ? static_cast<long>(io.istream->tellg()) : static_cast<long>(io.ostream->tellp())) - io.Offset;
     }
 
     //
 
-    FreeImageIO FreeImageUtils::GetIO() noexcept
+    auto FreeImageUtils::GetIO(
+        std::istream* istream,
+        std::ostream* ostream) -> std::pair<FreeImageIO, IOStream>
     {
-        return FreeImageIO{
-            .read_proc  = FIReadPorc,
-            .write_proc = FIWriteProc,
-            .seek_proc  = FISetProc,
-            .tell_proc  = FIGetProc
+        Log::Rhi().Assert((istream != nullptr) ^ (ostream != nullptr), "Either istream or ostream must be set");
+        auto offset = istream ? istream->tellg() : ostream->tellp();
+        return {
+            FreeImageIO{
+                .read_proc  = FIReadPorc,
+                .write_proc = FIWriteProc,
+                .seek_proc  = FISetProc,
+                .tell_proc  = FIGetProc },
+            { offset, istream, ostream }
         };
     }
 

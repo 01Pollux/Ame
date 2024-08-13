@@ -7,14 +7,14 @@
 
 #include <Rhi/Core.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
+
 #include <Shading/VertexInput.hpp>
+#include <Shading/PropertyDescriptor.hpp>
 
 namespace Ame::Rhi
 {
     class Material;
     class MaterialTechnique;
-
-    static constexpr uint32_t c_MaterialBindingIndex = 0;
 
     //
 
@@ -93,10 +93,6 @@ namespace Ame::Rhi
 
     struct MaterialDesc
     {
-        String Name;
-
-        size_t UserDataSize = 0;
-
         Dg::BlendStateDesc        Blend;
         Dg::RasterizerStateDesc   Rasterizer   = Dg::RS_SolidFillCullBack;
         Dg::DepthStencilStateDesc DepthStencil = Dg::DSS_DisableDepth;
@@ -116,9 +112,8 @@ namespace Ame::Rhi
     struct MaterialCreateDesc
     {
         MaterialDesc                      Desc;
-        Dg::PipelineResourceSignatureDesc Properties{
-            .BindingIndex = c_MaterialBindingIndex // must be c_MaterialBindingIndex
-        };
+        MaterialPropertyDescriptor        UserData;
+        Dg::PipelineResourceSignatureDesc ResourceSignature;
     };
 
     //

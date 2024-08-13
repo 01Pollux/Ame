@@ -1,4 +1,5 @@
 #include <map>
+#include <filesystem>
 
 #include <EcsComponent/Renderables/3D/Model.hpp>
 #include <Asset/Types/Ecs/Model.Assimp.hpp>
@@ -91,25 +92,41 @@ namespace Ame::Ecs
         aiProcess_FlipUVs |
         aiProcess_FlipWindingOrder |
         aiProcess_JoinIdenticalVertices |
-        // aiProcess_ValidateDataStructure |
-        // aiProcess_GlobalScale |
+        aiProcess_ValidateDataStructure |
+        aiProcess_GlobalScale |
         aiProcess_OptimizeMeshes |
         aiProcess_RemoveRedundantMaterials;
 
     //
 
     AssImpModelImporter::AssImpModelImporter(
-        const String& path)
+        const String& path) :
+        m_ModelRootPath(std::filesystem::path(path).parent_path().string())
     {
         AssimpLogStream::InitializeOnce();
 
-        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
-        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_LIGHTS, false);
-        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_CAMERAS, false);
-        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS, false);
-        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_MATERIALS, true);
-        //m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
+        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, true);
+        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_LIGHTS, false);
+        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_CAMERAS, false);
+        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_ANIMATIONS, false);
+        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_MATERIALS, true);
+        m_Importer.SetPropertyBool(AI_CONFIG_IMPORT_FBX_READ_TEXTURES, true);
 
         m_Importer.ReadFile(path, s_MeshImportFlags);
+    }
+
+    //
+
+    MeshModel::CreateDesc AssImpModelImporter::CreateModelDesc(
+        Rhi::IRhiDevice* rhiDevice) const
+    {
+        Log::Asset().Assert(HasMeshes(), "No meshes found in scene when importing model");
+
+        MeshModel::CreateDesc createDesc;
+
+        CreateBufferResources(createDesc, rhiDevice);
+        CreateMaterials(createDesc, rhiDevice);
+
+        return createDesc;
     }
 } // namespace Ame::Ecs

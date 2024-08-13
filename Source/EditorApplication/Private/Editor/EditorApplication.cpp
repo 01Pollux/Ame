@@ -49,8 +49,8 @@ namespace Ame
         Ptr<Ecs::World> world;
         GetEngine().GetRegistry().GetModule<EditorModule>(IID_EntityModule)->QueryInterface(Ecs::IID_EntityWorld, world.DblPtr<IObject>());
 
-        Ptr<Dg::IRenderDevice> renderDevice;
-        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Dg::IID_RenderDevice, renderDevice.DblPtr<IObject>());
+        Ptr<Rhi::IRhiDevice> rhiDevice;
+        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Rhi::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
 
         Ptr<Rhi::CommonRenderPass> crp;
         GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Rhi::IID_CommandRenderPass, crp.DblPtr<IObject>());
@@ -79,8 +79,7 @@ namespace Ame
 
         Rhi::MaterialCreateDesc materialDesc;
 
-        Ptr material(Rhi::Material::Create(renderDevice, materialDesc));
-        Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RenderDevice = renderDevice, .ModelPath = "Shared/Assets/Models/Sponza/sponza.obj" }));
+        Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/Sponza/sponza.obj" }));
 
         //
 

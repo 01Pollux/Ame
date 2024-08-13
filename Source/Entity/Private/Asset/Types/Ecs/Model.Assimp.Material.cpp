@@ -1,11 +1,16 @@
 #include <map>
 #include <fstream>
+#include <filesystem>
+#include <FreeImage.h>
 
 #include <EcsComponent/Renderables/3D/Model.hpp>
 #include <Asset/Types/Ecs/Model.Assimp.hpp>
 #include <Image/ImageStorage.hpp>
-
 #include <assimp/scene.h>
+
+#include <Shading/Types/StandardMaterial3D.hpp>
+#include <CommonStates/CommonRenderPasses.hpp>
+#include <Rhi/Utils/SRBBinder.hpp>
 
 #include <Log/Wrapper.hpp>
 
@@ -24,42 +29,6 @@ namespace Ame::Ecs
     }
 
     //
-
-    [[nodiscard]] Ptr<Dg::ITexture> LoadDummyTexture(
-        Dg::IRenderDevice* renderDevice,
-        const char*        textureName)
-    {
-#ifndef AME_DIST
-        auto name = std::format("Invalid Texture: {}", textureName);
-#endif
-        Dg::TextureDesc desc{
-#ifndef AME_DIST
-            name.c_str(),
-#else
-            nullptr,
-#endif
-            Dg::RESOURCE_DIM_TEX_2D,
-            1,
-            1,
-            1,
-            Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM
-        };
-
-        constexpr std::array<uint8_t, 4> whitePixel{
-            254, 254, 254, 255
-        };
-
-        Dg::TextureSubResData subresource{
-            whitePixel.data(),
-            sizeof(whitePixel)
-        };
-        Dg::TextureData textureData{ &subresource, 1 };
-
-        Ptr<Dg::ITexture> texture;
-        renderDevice->CreateTexture(desc, &textureData, &texture);
-
-        return texture;
-    }
 
     [[nodiscard]] static Ptr<Dg::ITexture> LoadStandardTexture(
         Dg::IRenderDevice* renderDevice,
@@ -89,11 +58,17 @@ namespace Ame::Ecs
     [[nodiscard]] static Ptr<Dg::ITexture> LoadTextureFromImage(
         Dg::IRenderDevice* renderDevice,
         const aiTexture*   aitexture,
-        const Rhi::Image&  image)
+        const Rhi::Image&  image,
+        const StringView   textureName)
     {
-        auto            size = image.GetSize();
+        auto size = image.GetSize();
+
         Dg::TextureDesc desc{
-            aitexture->mFilename.C_Str(),
+#ifndef AME_DIST
+            textureName.data(),
+#else
+            nullptr,
+#endif
             Dg::RESOURCE_DIM_TEX_2D,
             size.x(),
             size.y(),
@@ -101,8 +76,8 @@ namespace Ame::Ecs
             Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM
         };
 
-        auto            subresource = image.GetSubresource();
-        Dg::TextureData textureData{ &subresource, 1 };
+        Dg::TextureSubResData subresource[]{ image.GetSubresource() };
+        Dg::TextureData       textureData{ subresource, 1 };
 
         Ptr<Dg::ITexture> texture;
         renderDevice->CreateTexture(desc, &textureData, &texture);
@@ -112,49 +87,151 @@ namespace Ame::Ecs
 
     //
 
+    unsigned _ReadProc(void* buffer, unsigned size, unsigned count, fi_handle handle)
+    {
+        return (unsigned)fread(buffer, size, count, (FILE*)handle);
+    }
+
+
+
+    unsigned 
+    _WriteProc(void* buffer, unsigned size, unsigned count, fi_handle handle)
+    {
+        return (unsigned)fwrite(buffer, size, count, (FILE*)handle);
+    }
+
+    int 
+    _SeekProc(fi_handle handle, long offset, int origin)
+    {
+        return fseek((FILE*)handle, offset, origin);
+    }
+
+    long 
+    _TellProc(fi_handle handle)
+    {
+        return ftell((FILE*)handle);
+    }
+
+    FREE_IMAGE_FORMAT FreeImage_GetFileTypeXX(const char* filename, int size)
+    {
+        FreeImageIO io;
+        io.read_proc  = _ReadProc;
+        io.seek_proc  = _SeekProc;
+        io.tell_proc  = _TellProc;
+        io.write_proc = _WriteProc;
+          
+        FILE* handle = fopen(filename, "rb");
+
+        if (handle != NULL)
+        {
+            FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromHandle(&io, (fi_handle)handle, size);
+
+            fclose(handle);
+
+            return format;
+        }
+
+        return FIF_UNKNOWN;
+    }
+
+
+
     [[nodiscard]] static Ptr<Dg::ITexture> LoadTexture(
-        Dg::IRenderDevice* renderDevice,
+        Rhi::IRhiDevice*   rhiDevice,
         const aiScene*     scene,
         aiMaterial*        material,
-        const aiString&    texturePath)
+        const String&      modelPath,
+        const aiString&    texturePath,
+        Rhi::CommonTexture placeholderType)
     {
-        const aiTexture* aitexture = scene->GetEmbeddedTexture(texturePath.C_Str());
-        if (aitexture)
+        Ptr<Dg::ITexture> texture;
+        if (texturePath.length)
         {
-            // first, check if the texture is not compressed
-            if (aitexture->mHeight != 0)
+            const aiTexture* aitexture = scene->GetEmbeddedTexture(texturePath.C_Str());
+            if (aitexture)
             {
-                bool isSupported = std::strncmp(aitexture->achFormatHint, "rgba8888", sizeof(aiTexture::achFormatHint)) == 0;
-                return isSupported ? LoadStandardTexture(renderDevice, aitexture)
-                                   : LoadDummyTexture(renderDevice, aitexture->mFilename.C_Str());
+                // first, check if the texture is not compressed
+                if (aitexture->mHeight != 0)
+                {
+                    bool isSupported = std::strncmp(aitexture->achFormatHint, "rgba8888", sizeof(aiTexture::achFormatHint)) == 0;
+                    texture          = LoadStandardTexture(rhiDevice->GetRenderDevice(), aitexture);
+                }
+                else
+                {
+                    auto  imageMemory = Rhi::ImageStorage::Load(std::bit_cast<std::byte*>(aitexture->pcData), aitexture->mWidth);
+                    auto& image       = imageMemory.GetImage();
+                    texture           = LoadTextureFromImage(rhiDevice->GetRenderDevice(), aitexture, image, { aitexture->mFilename.C_Str(), aitexture->mFilename.length });
+                }
             }
             else
             {
-                auto  imageMemory = Rhi::ImageStorage::Load(std::bit_cast<std::byte*>(aitexture->pcData), aitexture->mWidth);
-                auto& image       = imageMemory.GetImage();
-                return LoadTextureFromImage(renderDevice, aitexture, image);
+                Rhi::Image image;
+
+                auto          filePath = std::filesystem::path(modelPath) / texturePath.C_Str();
+
+                auto          xxx = FreeImage_GetFileTypeXX(filePath.string().c_str(), 0);
+                std::ifstream file(filePath, std::ios::binary);
+                if (file)
+                {
+                    auto format = Rhi::ImageStorage::GetFormat(file);
+                    image       = Rhi::ImageStorage::Decode(format, file);
+                    texture     = LoadTextureFromImage(rhiDevice->GetRenderDevice(), aitexture, image.ConvertTo32Bits(), filePath.filename().string());
+                }
             }
+        }
+
+        if (!texture)
+        {
+            auto commonRenderPass = rhiDevice->GetCommonRenderPass();
+            texture               = commonRenderPass->GetDefaultTexture(placeholderType);
+        }
+
+        return texture;
+    }
+
+    //
+
+    struct TextureNameAndAiType
+    {
+        const char*        Name = nullptr;
+        aiTextureType      Type = aiTextureType_NONE;
+        Rhi::CommonTexture Placeholder;
+    };
+
+    struct TextureNameAndResource
+    {
+        const char*   Name    = nullptr;
+        Dg::ITexture* Texture = nullptr;
+    };
+
+    //
+
+    template<typename Ty, typename PlTy>
+    void ApplyMaterialConstant(
+        aiMaterial*    srcMaterial,
+        Rhi::Material* dstMaterial,
+        const char*    key,
+        int            type,
+        int            index,
+        const char*    name,
+        const PlTy&    placeholder)
+    {
+        Ty val;
+        if (srcMaterial->Get(key, type, index, val) == aiReturn_SUCCESS)
+        {
+            dstMaterial->WriteUserData(name, std::bit_cast<const std::byte*>(std::addressof(val)), sizeof(val));
         }
         else
         {
-            Rhi::Image image;
-
-            // load from file
-            std::ifstream file(texturePath.C_Str(), std::ios::binary);
-            if (file)
-            {
-                auto format = Rhi::ImageStorage::GetFormat(file);
-                image       = Rhi::ImageStorage::Decode(format, file);
-            }
-
-            return image ? LoadTextureFromImage(renderDevice, aitexture, image)
-                         : LoadDummyTexture(renderDevice, texturePath.C_Str());
+            dstMaterial->WriteUserData(name, std::bit_cast<const std::byte*>(std::addressof(placeholder)), sizeof(placeholder));
         }
     }
 
+    //
+
     void AssImpModelImporter::CreateMaterials(
         MeshModel::CreateDesc& createDesc,
-        Dg::IRenderDevice*     renderDevice) const
+        Rhi::IRhiDevice*       rhiDevice) const
     {
         const aiScene* scene = m_Importer.GetScene();
 
@@ -163,28 +240,32 @@ namespace Ame::Ecs
             return;
         }
 
+        using StdMat3DNames = Rhi::StandardMaterial3D::Names;
         constexpr std::array c_TextureTypes{
-            std::pair{ "Diffuse", aiTextureType_DIFFUSE },
-            std::pair{ "Specular", aiTextureType_SPECULAR },
-            std::pair{ "Ambient", aiTextureType_AMBIENT },
-            std::pair{ "Emissive", aiTextureType_EMISSIVE },
-            std::pair{ "Height", aiTextureType_HEIGHT },
-            std::pair{ "Normals", aiTextureType_NORMALS },
-            std::pair{ "Shininess", aiTextureType_SHININESS },
-            std::pair{ "Opacity", aiTextureType_OPACITY },
-            std::pair{ "Displacement", aiTextureType_DISPLACEMENT },
-            std::pair{ "Lightmap", aiTextureType_LIGHTMAP },
-            std::pair{ "Reflection", aiTextureType_REFLECTION },
-            std::pair{ "Diffuse", aiTextureType_BASE_COLOR },
-            std::pair{ "Emissive", aiTextureType_EMISSION_COLOR },
-            std::pair{ "Metallic", aiTextureType_METALNESS },
-            std::pair{ "Roughness", aiTextureType_DIFFUSE_ROUGHNESS },
-            std::pair{ "AmbientOcclusion", aiTextureType_AMBIENT_OCCLUSION }
+            TextureNameAndAiType{ StdMat3DNames::BaseColorMap, aiTextureType_DIFFUSE, Rhi::CommonTexture::DevTexture },
+            TextureNameAndAiType{ StdMat3DNames::NormalMap, aiTextureType_NORMALS, Rhi::CommonTexture::White2D },
+            TextureNameAndAiType{ StdMat3DNames::SpecularMap, aiTextureType_SPECULAR, Rhi::CommonTexture::White2D },
+            TextureNameAndAiType{ StdMat3DNames::RoughnessMap, aiTextureType_DIFFUSE_ROUGHNESS, Rhi::CommonTexture::White2D },
+            TextureNameAndAiType{ StdMat3DNames::AmbientMap, aiTextureType_AMBIENT, Rhi::CommonTexture::White2D },
+            TextureNameAndAiType{ StdMat3DNames::EmissiveMap, aiTextureType_EMISSIVE, Rhi::CommonTexture::Black2D },
+            TextureNameAndAiType{ StdMat3DNames::HeightMap, aiTextureType_HEIGHT, Rhi::CommonTexture::Black2D },
+            TextureNameAndAiType{ StdMat3DNames::ShininessMap, aiTextureType_SHININESS, Rhi::CommonTexture::Black2D },
+            TextureNameAndAiType{ StdMat3DNames::OpacityMap, aiTextureType_OPACITY, Rhi::CommonTexture::White2D },
+            TextureNameAndAiType{ StdMat3DNames::DisplacementMap, aiTextureType_DISPLACEMENT, Rhi::CommonTexture::Black2D },
+            TextureNameAndAiType{ StdMat3DNames::LightMap, aiTextureType_LIGHTMAP, Rhi::CommonTexture::Black2D },
+            TextureNameAndAiType{ StdMat3DNames::MetallicMap, aiTextureType_METALNESS, Rhi::CommonTexture::Black2D },
         };
+        static_assert(Rhi::StandardMaterial3D::CreateDesc::StdResources.size() == c_TextureTypes.size(), "Texture types mismatch for StandardMaterial3D");
 
-        std::map<String, Ptr<Dg::ITexture>> textureCache;
+        //
 
-        auto getOrCreateTexture = [renderDevice, scene, &textureCache](aiMaterial* material, const aiString& texturePath)
+        auto getOrCreateTexture = [this,
+                                   rhiDevice,
+                                   scene,
+                                   textureCache = std::map<String, Ptr<Dg::ITexture>>()](
+                                      aiMaterial*        material,
+                                      const aiString&    texturePath,
+                                      Rhi::CommonTexture placeholder) mutable -> Dg::ITexture*
         {
             auto iter = textureCache.find(texturePath.C_Str());
             if (iter != textureCache.end())
@@ -192,34 +273,67 @@ namespace Ame::Ecs
                 return iter->second;
             }
 
-            auto texture = LoadTexture(renderDevice, scene, material, texturePath);
+            auto texture = LoadTexture(rhiDevice, scene, material, m_ModelRootPath, texturePath, placeholder);
             return textureCache.emplace(texturePath.C_Str(), texture).first->second;
         };
 
         //
 
-        aiString texturePath;
-        for (uint32_t i = 0; i < scene->mNumMaterials; i++)
+        auto transformAiTexture = [rhiDevice,
+                                   texturePath = aiString(),
+                                   &getOrCreateTexture](
+                                      aiMaterial*          aimaterial,
+                                      TextureNameAndAiType desc) mutable -> TextureNameAndResource
         {
-            aiMaterial* aimaterial = scene->mMaterials[i];
-
-            aiString name;
-            aimaterial->Get(AI_MATKEY_NAME, name);
-
-            for (auto& [textureName, textureType] : c_TextureTypes)
-            {
-                if (aimaterial->GetTextureCount(textureType) > 0)
-                {
-                    aimaterial->GetTexture(textureType, 0, &texturePath);
-                    auto texture = getOrCreateTexture(aimaterial, texturePath);
-                }
-            }
-        }
+            aimaterial->GetTexture(desc.Type, 0, &texturePath);
+            auto texture = getOrCreateTexture(aimaterial, texturePath, desc.Placeholder);
+            return TextureNameAndResource{ desc.Name, texture };
+        };
 
         //
 
-        // TODO: Proper material
-        Rhi::MaterialCreateDesc materialDesc;
-        createDesc.Materials.emplace_back(Rhi::Material::Create(renderDevice, materialDesc));
+        //
+
+        createDesc.Materials.reserve(scene->mNumMaterials);
+        createDesc.Materials.emplace_back(Rhi::Material::Create(rhiDevice->GetRenderDevice(), Rhi::StandardMaterial3D::CreateDesc()));
+
+        auto tryAppendMaterial = [&](uint32_t index) -> Ptr<Rhi::Material>&
+        {
+            if (index)
+            {
+                createDesc.Materials.emplace_back(createDesc.Materials[0]->Instantiate());
+            }
+            return createDesc.Materials.back();
+        };
+
+        //
+
+        for (uint32_t i = 0; i < scene->mNumMaterials; i++)
+        {
+            auto& material    = tryAppendMaterial(i);
+            auto  materialSrb = material->GetBindings();
+
+            aiMaterial* aimaterial = scene->mMaterials[i];
+
+            aiString name;
+            if (aimaterial->Get(AI_MATKEY_NAME, name) == aiReturn_SUCCESS)
+            {
+                material->SetName(StringView(name.C_Str(), name.length));
+            }
+
+            auto allTextures = c_TextureTypes |
+                               std::views::transform([&](auto& desc)
+                                                     { return transformAiTexture(aimaterial, desc); });
+            for (auto desc : allTextures)
+            {
+                Rhi::BindAllInSrb(materialSrb, Dg::SHADER_TYPE_ALL_GRAPHICS, desc.Name, desc.Texture->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE));
+            }
+
+            ApplyMaterialConstant<aiColor4D>(aimaterial, material, AI_MATKEY_COLOR_DIFFUSE, StdMat3DNames::BaseColorCst, Colors::c_White);
+            ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_AMBIENT, StdMat3DNames::AmbientCst, Colors::c_Black);
+            ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_SPECULAR, StdMat3DNames::SpecularCst, Colors::c_Black);
+            ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_EMISSIVE, StdMat3DNames::EmissiveCst, Colors::c_Black);
+            ApplyMaterialConstant<float>(aimaterial, material, AI_MATKEY_OPACITY, StdMat3DNames::TransparencyCst, 1.0f);
+        }
     }
 } // namespace Ame::Ecs

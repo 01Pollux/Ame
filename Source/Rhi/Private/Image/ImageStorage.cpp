@@ -22,8 +22,8 @@ namespace Ame::Rhi
     {
         FreeImageUtils::Initialize();
 
-        auto io  = FreeImageUtils::GetIO();
-        auto fif = FreeImage_GetFileTypeFromHandle(&io, &stream, 0);
+        auto [io, handle] = FreeImageUtils::GetIO(&stream, nullptr);
+        auto fif          = FreeImage_GetFileTypeFromHandle(&io, &handle, 0);
 
         return FreeImageUtils::ConvertFormat(fif);
     }
@@ -37,21 +37,21 @@ namespace Ame::Rhi
     {
         FreeImageUtils::Initialize();
 
-        auto fiFormat = FreeImageUtils::ConvertFormat(image.GetFormat());
-        auto fiFlags  = FreeImageUtils::ConvertFlags(flags);
-        auto io       = FreeImageUtils::GetIO();
+        auto fiFormat     = FreeImageUtils::ConvertFormat(image.GetFormat());
+        auto fiFlags      = FreeImageUtils::ConvertFlags(flags);
+        auto [io, handle] = FreeImageUtils::GetIO(nullptr, &stream);
 
         switch (image.GetType())
         {
         case ImageReferenceType::Local:
         {
             auto bitmap = FreeImageUtils::GetBitmap(image.GetBitmap());
-            return FreeImage_SaveToHandle(fiFormat, bitmap, &io, &stream, fiFlags);
+            return FreeImage_SaveToHandle(fiFormat, bitmap, &io, &handle, fiFlags);
         }
         case ImageReferenceType::MultiBitmap:
         {
             auto bitmap = FreeImageUtils::GetBitmapArray(image.GetBitmap());
-            return FreeImage_SaveMultiBitmapToHandle(fiFormat, bitmap, &io, &stream, fiFlags);
+            return FreeImage_SaveMultiBitmapToHandle(fiFormat, bitmap, &io, &handle, fiFlags);
         }
         default:
         {
@@ -71,7 +71,6 @@ namespace Ame::Rhi
         auto fiFormat = FreeImageUtils::ConvertFormat(format);
         auto fiFlags  = FreeImageUtils::ConvertFlags(flags);
 
-        auto io     = FreeImageUtils::GetIO();
         auto mem    = FreeImage_OpenMemory(std::bit_cast<BYTE*>(data), static_cast<DWORD>(size));
         auto bitmap = FreeImage_LoadFromMemory(fiFormat, mem, fiFlags);
 
@@ -91,7 +90,6 @@ namespace Ame::Rhi
         auto format  = FreeImageUtils::ConvertFormat(fif);
         auto fiFlags = FreeImageUtils::ConvertFlags(flags);
 
-        auto io     = FreeImageUtils::GetIO();
         auto bitmap = FreeImage_LoadFromMemory(fif, mem, fiFlags);
 
         return ImageMemory::Wrap(mem, bitmap, format);
@@ -107,8 +105,8 @@ namespace Ame::Rhi
         auto fiFormat = FreeImageUtils::ConvertFormat(format);
         auto fiFlags  = FreeImageUtils::ConvertFlags(flags);
 
-        auto io     = FreeImageUtils::GetIO();
-        auto bitmap = FreeImage_LoadFromHandle(fiFormat, &io, &stream, fiFlags);
+        auto [io, handle] = FreeImageUtils::GetIO(&stream, nullptr);
+        auto bitmap       = FreeImage_LoadFromHandle(fiFormat, &io, &handle, fiFlags);
 
         return Image::Wrap(bitmap, format, ImageReferenceType::Local, true);
     }
@@ -123,8 +121,8 @@ namespace Ame::Rhi
         auto fiFormat = FreeImageUtils::ConvertFormat(format);
         auto fiFlags  = FreeImageUtils::ConvertFlags(flags);
 
-        auto io     = FreeImageUtils::GetIO();
-        auto bitmap = FreeImage_OpenMultiBitmapFromHandle(fiFormat, &io, &stream, fiFlags);
+        auto [io, handle] = FreeImageUtils::GetIO(&stream, nullptr);
+        auto bitmap       = FreeImage_OpenMultiBitmapFromHandle(fiFormat, &io, &handle, fiFlags);
 
         return Image::Wrap(bitmap, format, ImageReferenceType::MultiBitmap, true);
     }

@@ -23,6 +23,9 @@ namespace Ame::Rhi
         Grey3D,
         GreyCube,
 
+        Checkboard,
+        DevTexture,
+
         Count
     };
 

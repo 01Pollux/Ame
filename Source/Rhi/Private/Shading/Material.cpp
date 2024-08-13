@@ -1,6 +1,7 @@
 #include <Shading/Material.hpp>
 
 #include <Rhi/Device/RhiDevice.hpp>
+#include <Rhi/Utils/SRBBinder.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 
 #include <Log/Wrapper.hpp>
@@ -9,51 +10,28 @@ namespace Ame::Rhi
 {
     Material::LocalData::LocalData(
         Dg::IRenderDevice*         renderDevice,
-        const MaterialCommonState& commonState)
+        const MaterialCommonState& commonState,
+        const LocalData*           copyFrom) :
+        Name(copyFrom ? copyFrom->Name : "")
     {
-        auto resourceSignature = commonState.GetSignature();
-        if (!resourceSignature)
+        auto& userDataDesc = commonState.GetUserDataDesc();
+        if (auto userDataSize = userDataDesc.GetStructSize())
         {
-            return;
+            UserDataBuffer = std::make_unique<std::byte[]>(userDataSize);
+            if (copyFrom)
+            {
+                std::memcpy(UserDataBuffer.get(), copyFrom->UserDataBuffer.get(), userDataSize);
+            }
         }
 
-        resourceSignature->CreateShaderResourceBinding(&Bindings);
-
-        auto& materialDesc = commonState.GetMaterialDesc();
-        if (materialDesc.UserDataSize > 0)
+        if (auto resourceSignature = commonState.GetSignature())
         {
-#ifndef AME_DIST
-            String      bufferName    = std::format("UD_{}", materialDesc.Name);
-            const char* bufferNamePtr = bufferName.c_str();
-#else
-            const char* bufferNamePtr = nullptr;
-#endif
-            Dg::CreateUniformBuffer(
-                renderDevice,
-                materialDesc.UserDataSize,
-                bufferNamePtr,
-                &UserDataBuffer,
-                Dg::USAGE_DYNAMIC,
-                Dg::BIND_UNIFORM_BUFFER,
-                Dg::CPU_ACCESS_WRITE);
-
-            bool userDataFound = false;
-            for (auto shaderType : MaterialCommonState::c_AllSupportedShaders)
+            resourceSignature->CreateShaderResourceBinding(&Bindings);
+            if (copyFrom)
             {
-                auto variable = Bindings->GetVariableByName(shaderType, UserDataPropertyTag);
-                if (variable)
-                {
-                    variable->Set(UserDataBuffer, Dg::SET_SHADER_RESOURCE_FLAG_ALLOW_OVERWRITE);
-                    userDataFound = true;
-                }
+                auto& signatureDesc = resourceSignature->GetDesc();
+                CopyAllResourcesSrb(copyFrom->Bindings, Bindings);
             }
-
-#ifndef AME_DIST
-            if (!userDataFound)
-            {
-                Log::Gfx().Warning("User data property not found in material '{}'", materialDesc.Name);
-            }
-#endif
         }
     }
 
@@ -105,24 +83,56 @@ namespace Ame::Rhi
 
     //
 
+    void Material::WriteUserData(
+        const String&    propertyName,
+        const std::byte* data,
+        size_t           size)
+    {
+        auto&    userDataDesc = m_SharedData->CommonState.GetUserDataDesc();
+        uint32_t offset       = userDataDesc.GetOffset(propertyName);
+
+#ifdef AME_DEBUG
+        Log::Rhi().Assert(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
+#endif
+
+        std::memcpy(m_LocalData.UserDataBuffer.get() + offset, data, size);
+    }
+
+    void Material::ReadUserData(
+        const String& propertyName,
+        std::byte*    data,
+        size_t        size) const
+    {
+        auto&    userDataDesc = m_SharedData->CommonState.GetUserDataDesc();
+        uint32_t offset       = userDataDesc.GetOffset(propertyName);
+
+#ifdef AME_DEBUG
+        Log::Rhi().Assert(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
+#endif
+
+        std::memcpy(data, m_LocalData.UserDataBuffer.get() + offset, size);
+    }
+
+    const std::byte* Material::GetUserData() const
+    {
+        return m_LocalData.UserDataBuffer.get();
+    }
+
     uint32_t Material::GetSizeOfUserData() const
     {
-        return m_SharedData->CommonState.GetMaterialDesc().UserDataSize;
+        auto& userDataDesc = m_SharedData->CommonState.GetUserDataDesc();
+        return userDataDesc.GetStructSize();
     }
 
-    std::byte* Material::MapUserData(
-        Dg::IDeviceContext* deviceContext,
-        Dg::MAP_FLAGS       mapFlags)
+    const String& Material::GetName() const
     {
-        Dg::PVoid userData = nullptr;
-        deviceContext->MapBuffer(m_LocalData.UserDataBuffer, Dg::MAP_WRITE, mapFlags, userData);
-        return std::bit_cast<std::byte*>(userData);
+        return m_LocalData.Name;
     }
 
-    void Material::UnmapUserData(
-        Dg::IDeviceContext* deviceContext)
+    void Material::SetName(
+        const StringView& name)
     {
-        deviceContext->UnmapBuffer(m_LocalData.UserDataBuffer, Dg::MAP_WRITE);
+        m_LocalData.Name = name;
     }
 
     //
@@ -133,7 +143,7 @@ namespace Ame::Rhi
         const MaterialCreateDesc& materialDesc) :
         Base(counters),
         m_SharedData(std::make_shared<SharedData>(renderDevice, materialDesc)),
-        m_LocalData(renderDevice, m_SharedData->CommonState)
+        m_LocalData(renderDevice, m_SharedData->CommonState, nullptr)
     {
     }
 
@@ -142,7 +152,7 @@ namespace Ame::Rhi
         const Material*     material) :
         Base(counters),
         m_SharedData(material->m_SharedData),
-        m_LocalData(material->m_SharedData->RenderDevice, material->m_SharedData->CommonState)
+        m_LocalData(m_SharedData->RenderDevice, m_SharedData->CommonState, &material->m_LocalData)
     {
     }
 } // namespace Ame::Rhi

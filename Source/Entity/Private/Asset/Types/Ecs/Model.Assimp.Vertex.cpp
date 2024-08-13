@@ -2,6 +2,8 @@
 #include <Asset/Types/Ecs/Model.Assimp.hpp>
 #include <assimp/scene.h>
 
+#include <Rhi/Device/RhiDevice.hpp>
+
 #include <Core/Enum.hpp>
 #include <Log/Wrapper.hpp>
 
@@ -110,21 +112,6 @@ namespace Ame::Ecs
 
     //
 
-    MeshModel::CreateDesc AssImpModelImporter::CreateModelDesc(
-        Dg::IRenderDevice* renderDevice) const
-    {
-        Log::Asset().Assert(HasMeshes(), "No meshes found in scene when importing model");
-
-        MeshModel::CreateDesc createDesc;
-
-        CreateBufferResources(createDesc, renderDevice);
-        CreateMaterials(createDesc, renderDevice);
-
-        return createDesc;
-    }
-
-    //
-
     bool AssImpModelImporter::HasMeshes() const
     {
         return m_Importer.GetScene() && m_Importer.GetScene()->HasMeshes();
@@ -132,7 +119,7 @@ namespace Ame::Ecs
 
     void AssImpModelImporter::CreateBufferResources(
         MeshModel::CreateDesc& createDesc,
-        Dg::IRenderDevice*     renderDevice) const
+        Rhi::IRhiDevice*       rhiDevice) const
     {
         const aiScene* scene = m_Importer.GetScene();
 
@@ -254,7 +241,7 @@ namespace Ame::Ecs
         Dg::BufferDesc bufferDesc;
         bufferDesc.Usage = Dg::USAGE_IMMUTABLE;
 
-        auto createBuffer = [&bufferDesc, renderDevice, scene](
+        auto createBuffer = [&bufferDesc, rhiDevice, scene](
                                 const auto&    buffer,
                                 const char*    name,
                                 Dg::BIND_FLAGS bindFlags)
@@ -272,6 +259,8 @@ namespace Ame::Ecs
                 bufferDesc.ElementByteStride = buffer.ElementSize();
 
                 Dg::BufferData initData(buffer.Data(), buffer.ByteSize());
+
+                auto renderDevice = rhiDevice->GetRenderDevice();
                 renderDevice->CreateBuffer(bufferDesc, &initData, &result);
             }
             return result;

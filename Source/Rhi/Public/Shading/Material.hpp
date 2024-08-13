@@ -17,9 +17,6 @@ namespace Ame::Rhi
             IID_Material, Base);
 
     public:
-        static constexpr const char* UserDataPropertyTag = "UserDataBuffer";
-
-    public:
         [[nodiscard]] static Ptr<Material> Create(
             Dg::IRenderDevice*        renderDevice,
             const MaterialCreateDesc& materialDesc);
@@ -52,34 +49,42 @@ namespace Ame::Rhi
         [[nodiscard]] Dg::IPipelineResourceSignature* GetResourceSignature() const;
 
     public:
-        /// <summary>
-        /// Get the size of the user data of this material, 0 if there is no user data
-        /// </summary>
-        [[nodiscard]] uint32_t GetSizeOfUserData() const;
+        void WriteUserData(
+            const String&    propertyName,
+            const std::byte* data,
+            size_t           size);
 
-        /// <summary>
-        /// Beging mapping of user data
-        /// </summary>
-        [[nodiscard]] std::byte* MapUserData(
-            Dg::IDeviceContext* deviceContext,
-            Dg::MAP_FLAGS       mapFlags = Dg::MAP_FLAG_NO_OVERWRITE);
-
-        /// <summary>
-        /// Beging mapping of user data
-        /// </summary>
         template<typename Ty>
-        [[nodiscard]] Ty* MapUserData(
-            Dg::IDeviceContext* deviceContext,
-            Dg::MAP_FLAGS       mapFlags = Dg::MAP_FLAG_NO_OVERWRITE)
+            requires MaterialDataMappable<Ty>::Enabled
+        void WriteUserData(
+            const String& propertyName,
+            const Ty&     data)
         {
-            return std::bit_cast<Ty*>(MapUserData(deviceContext, mapFlags));
+            WriteUserData(propertyName, std::bit_cast<const std::byte*>(std::addressof(data)), sizeof(Ty));
         }
 
-        /// <summary>
-        /// End mapping of user data
-        /// </summary>
-        void UnmapUserData(
-            Dg::IDeviceContext* deviceContext);
+        void ReadUserData(
+            const String& propertyName,
+            std::byte*    data,
+            size_t        size) const;
+
+        template<typename Ty>
+            requires MaterialDataMappable<Ty>::Enabled
+        [[nodiscard]] Ty ReadUserData(
+            const String& propertyName) const
+        {
+            Ty data;
+            ReadUserData(propertyName, std::bit_cast<std::byte*>(std::addressof(data)), sizeof(Ty));
+            return data;
+        }
+
+    public:
+        [[nodiscard]] const std::byte* GetUserData() const;
+        [[nodiscard]] uint32_t         GetSizeOfUserData() const;
+
+    public:
+        [[nodiscard]] const String& GetName() const;
+        void                        SetName(const StringView& name);
 
     private:
         template<typename, typename>
@@ -97,12 +102,14 @@ namespace Ame::Rhi
     private:
         struct LocalData
         {
-            Ptr<Dg::IBuffer>                UserDataBuffer;
-            Ptr<Dg::IShaderResourceBinding> Bindings;
+            String                      Name;
+            UniquePtr<std::byte[]>      UserDataBuffer;
+            Dg::IShaderResourceBinding* Bindings = nullptr;
 
             LocalData(
                 Dg::IRenderDevice*         renderDevice,
-                const MaterialCommonState& commonState);
+                const MaterialCommonState& commonState,
+                const LocalData*           copyFrom = nullptr);
 
             LocalData(const LocalData&) = delete;
             LocalData(LocalData&&)      = delete;

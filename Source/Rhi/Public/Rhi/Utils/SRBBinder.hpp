@@ -3,6 +3,9 @@
 #include <Rhi/Device/RhiDevice.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/RenderStateCache.hpp>
 
+#include <Math/Common.hpp>
+#include <Log/Wrapper.hpp>
+
 namespace Ame::Rhi
 {
     /// <summary>
@@ -16,21 +19,47 @@ namespace Ame::Rhi
         Dg::IDeviceObject*            object,
         Dg::SET_SHADER_RESOURCE_FLAGS setFlags = Dg::SET_SHADER_RESOURCE_FLAG_NONE)
     {
-        uint32_t typeFlag = static_cast<uint32_t>(typeFlags);
-        uint32_t i        = 0;
-        while (typeFlag != 0)
+        while (typeFlags)
         {
-            if (typeFlag & 1)
+            Dg::SHADER_TYPE i   = Math::ExtractLSB(typeFlags);
+            auto            var = srb->GetVariableByName(i, name);
+            if (var)
             {
-                auto var = srb->GetVariableByName(static_cast<Dg::SHADER_TYPE>(1 << i), name);
-                if (var)
+                var->Set(object, setFlags);
+            }
+        }
+    }
+
+    static void CopyAllResourcesSrb(
+        Dg::IShaderResourceBinding* src,
+        Dg::IShaderResourceBinding* dst)
+    {
+        auto signature = src->GetPipelineResourceSignature();
+        Log::Rhi().Assert(signature->IsCompatibleWith(dst->GetPipelineResourceSignature()), "Incompatible resource signatures");
+        auto& signatureDesc = signature->GetDesc();
+
+        std::vector<Dg::IDeviceObject*> objects;
+        for (auto& resource : std::span{ signatureDesc.Resources, signatureDesc.NumResources })
+        {
+            Dg::SHADER_TYPE typeFlags = resource.ShaderStages;
+            while (typeFlags)
+            {
+                Dg::SHADER_TYPE i = Math::ExtractLSB(typeFlags);
+
+                auto srcVar = src->GetVariableByName(i, resource.Name);
+                auto dstVar = dst->GetVariableByName(i, resource.Name);
+
+                if (dstVar && srcVar)
                 {
-                    var->Set(object, setFlags);
+                    objects.reserve(resource.ArraySize);
+                    objects.clear();
+                    for (uint32_t i = 0; i < resource.ArraySize; i++)
+                    {
+                        objects.emplace_back(srcVar->Get(i));
+                    }
+                    dstVar->SetArray(objects.data(), 0, resource.ArraySize);
                 }
             }
-            typeFlag >>= 1;
-            ++i;
         }
-        srb->GetPipelineResourceSignature();
     }
 } // namespace Ame::Rhi
