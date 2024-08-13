@@ -45,18 +45,18 @@ namespace Ame::Rhi
             CreateDesc();
 
             static constexpr std::array<Dg::PipelineResourceDesc, 12> StdResources{
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::BaseColorMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::NormalMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::SpecularMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::RoughnessMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::AmbientMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::EmissiveMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::HeightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::ShininessMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::OpacityMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::DisplacementMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::LightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::MetallicMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::BaseColorMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::NormalMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::SpecularMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::RoughnessMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::AmbientMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::EmissiveMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::HeightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::ShininessMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::OpacityMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::DisplacementMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::LightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::MetallicMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
         };
     };

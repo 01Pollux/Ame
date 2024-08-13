@@ -305,7 +305,7 @@ namespace Ame::Rhi
         psoCreateDesc.GraphicsPipeline.InputLayout = vertexInputLayout;
 
 #ifndef AME_DIST
-        String pipelineStateName   = std::format("{}_{}", material->GetName(), m_RenderState.Name);
+        String pipelineStateName   = std::format("{}_{}", m_RenderState.Name, material->GetName());
         psoCreateDesc.PSODesc.Name = pipelineStateName.c_str();
 #endif
 

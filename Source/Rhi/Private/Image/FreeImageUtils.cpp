@@ -68,13 +68,16 @@ namespace Ame::Rhi
             return 1;
         }
 
+        offset += static_cast<long>(io.Offset);
         bool seekDone = false;
         if (io.istream)
         {
+            io.istream->clear();
             seekDone |= static_cast<bool>(io.istream->seekg(offset, stdPos));
         }
-        else
+        if (io.ostream)
         {
+            io.istream->clear();
             seekDone |= static_cast<bool>(io.ostream->seekp(offset, stdPos));
         }
         return seekDone ? 0 : -1;

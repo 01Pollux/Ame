@@ -25,8 +25,10 @@ namespace Ame::Gfx
         Dg::IRenderDevice* renderDevice,
         Dg::TEXTURE_FORMAT rtvFormat)
     {
-        Rhi::MaterialRenderState renderState;
-        renderState.RenderTargets = { rtvFormat };
+        Rhi::MaterialRenderState renderState{
+            .Name          = "Forward+::RenderObjects",
+            .RenderTargets = { rtvFormat }
+        };
 
         Rhi::RenderIndirectCommandsVertexShader vertexShader;
         Rhi::RenderIndirectCommandsPixelShader  pixelShader;

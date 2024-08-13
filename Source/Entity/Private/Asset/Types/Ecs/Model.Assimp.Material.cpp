@@ -1,7 +1,6 @@
 #include <map>
 #include <fstream>
 #include <filesystem>
-#include <FreeImage.h>
 
 #include <EcsComponent/Renderables/3D/Model.hpp>
 #include <Asset/Types/Ecs/Model.Assimp.hpp>
@@ -87,55 +86,6 @@ namespace Ame::Ecs
 
     //
 
-    unsigned _ReadProc(void* buffer, unsigned size, unsigned count, fi_handle handle)
-    {
-        return (unsigned)fread(buffer, size, count, (FILE*)handle);
-    }
-
-
-
-    unsigned 
-    _WriteProc(void* buffer, unsigned size, unsigned count, fi_handle handle)
-    {
-        return (unsigned)fwrite(buffer, size, count, (FILE*)handle);
-    }
-
-    int 
-    _SeekProc(fi_handle handle, long offset, int origin)
-    {
-        return fseek((FILE*)handle, offset, origin);
-    }
-
-    long 
-    _TellProc(fi_handle handle)
-    {
-        return ftell((FILE*)handle);
-    }
-
-    FREE_IMAGE_FORMAT FreeImage_GetFileTypeXX(const char* filename, int size)
-    {
-        FreeImageIO io;
-        io.read_proc  = _ReadProc;
-        io.seek_proc  = _SeekProc;
-        io.tell_proc  = _TellProc;
-        io.write_proc = _WriteProc;
-          
-        FILE* handle = fopen(filename, "rb");
-
-        if (handle != NULL)
-        {
-            FREE_IMAGE_FORMAT format = FreeImage_GetFileTypeFromHandle(&io, (fi_handle)handle, size);
-
-            fclose(handle);
-
-            return format;
-        }
-
-        return FIF_UNKNOWN;
-    }
-
-
-
     [[nodiscard]] static Ptr<Dg::ITexture> LoadTexture(
         Rhi::IRhiDevice*   rhiDevice,
         const aiScene*     scene,
@@ -168,14 +118,15 @@ namespace Ame::Ecs
                 Rhi::Image image;
 
                 auto          filePath = std::filesystem::path(modelPath) / texturePath.C_Str();
-
-                auto          xxx = FreeImage_GetFileTypeXX(filePath.string().c_str(), 0);
                 std::ifstream file(filePath, std::ios::binary);
                 if (file)
                 {
                     auto format = Rhi::ImageStorage::GetFormat(file);
-                    image       = Rhi::ImageStorage::Decode(format, file);
-                    texture     = LoadTextureFromImage(rhiDevice->GetRenderDevice(), aitexture, image.ConvertTo32Bits(), filePath.filename().string());
+                    if (format != Rhi::ImageFormat::Unknown)
+                    {
+                        image   = Rhi::ImageStorage::Decode(format, file);
+                        texture = LoadTextureFromImage(rhiDevice->GetRenderDevice(), aitexture, image.ConvertTo32Bits(), filePath.filename().string());
+                    }
                 }
             }
         }
