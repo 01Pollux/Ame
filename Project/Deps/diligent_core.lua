@@ -12,13 +12,16 @@ package("ame.diligent_core")
     add_configs("gl",                   {description = "Build support for GL", default = true, type = "boolean"})
     add_configs("gles",                 {description = "Build support for GLES", default = true, type = "boolean"})
     add_configs("vk",                   {description = "Build support for Vulkan", default = true, type = "boolean"})
-    add_configs("webgpu",               {description = "Build support for WebGPU", default = false, type = "boolean"})
+    add_configs("wgpu",                 {description = "Build support for WebGPU", default = false, type = "boolean"})
+    add_configs("mtl",                  {description = "Build support for Metal", default = false, type = "boolean"})
+
+    add_configs("hlsl",                 {description = "Enable HLSL support in non-Direct3D backends", default = true, type = "boolean"})
     add_configs("archiver",             {description = "Build support for Archiver", default = true, type = "boolean"})
+    add_configs("format_validation",    {description = "Enable source code format validation", default = true, type = "boolean"})
 
     add_configs("x11",      {description = "Build support for X11", default = true, type = "boolean"})
     add_configs("wayland",  {description = "Build support for Wayland", default = false, type = "boolean"})
     
-    add_configs("format_validation",    {description = "Enable source code format validation", default = true, type = "boolean"})
     add_configs("shared",               {description = "Build shared library.", default = true, type = "boolean"})
     add_configs("exceptions",           {description = "Enable exceptions", default = false, type = "boolean"})
     add_configs("symbols",              {description = "Enable debug symbols in release", default = false, type = "boolean"})
@@ -65,6 +68,7 @@ package("ame.diligent_core")
             { key = "gles",     macro = "GLES_SUPPORTED"     },
             { key = "vk",       macro = "VULKAN_SUPPORTED"   },
             { key = "webgpu",   macro = "WEBGPU_SUPPORTED"   },
+            { key = "metal",    macro = "METAL_SUPPORTED"    },
             { key = "archiver", macro = "ARCHIVER_SUPPORTED" },
         }
 
@@ -79,54 +83,64 @@ package("ame.diligent_core")
             "PLATFORM_EMSCRIPTEN"
         }
 
+        -- used to append to CMakelists.txts
         local footer = [[
 
             add_executable(DummyExecutable dummymain.cpp)
             target_compile_options(DummyExecutable PRIVATE -DUNICODE -DENGINE_DLL)
             copy_required_dlls(DummyExecutable)
 
-            set(AME_MACROS_TO_EXPORT "")
+            set(XMAKE_MACROS_TO_EXPORT "")
         ]]
 
+        -- add macros to export to XMAKE_MACROS_TO_EXPORT
+        -- DiligentCore exports D3D11_SUPPORTED, ... etc
         for _, cfg in ipairs(libraries) do
             if package:config(cfg.key) then
                 footer = footer .. [[
                     if (]] .. cfg.macro .. [[)  
-                        set(AME_MACROS_TO_EXPORT "${AME_MACROS_TO_EXPORT} ]] .. cfg.macro .. [[")
+                        set(XMAKE_MACROS_TO_EXPORT "${XMAKE_MACROS_TO_EXPORT} ]] .. cfg.macro .. [[")
                     endif()
                 ]]
             end
         end
 
+        -- add macros to export to XMAKE_MACROS_TO_EXPORT
+        -- DiligentCore exports PLATFORM_WIN32, ... etc
         for _, platform in ipairs(platforms) do
             footer = footer .. [[
                 if (]] .. platform .. [[)  
-                    set(AME_MACROS_TO_EXPORT "${AME_MACROS_TO_EXPORT} ]] .. platform .. [[")
+                    set(XMAKE_MACROS_TO_EXPORT "${XMAKE_MACROS_TO_EXPORT} ]] .. platform .. [[")
                 endif()
             ]]
         end
 
+        -- save original CMakeLists.txt
         if not os.isfile("CMakeLists.txt.dummy") then
             os.cp("CMakeLists.txt", "CMakeLists.txt.dummy")
         end
 
+        -- read original CMakeLists.txt
         local file = io.open("CMakeLists.txt.dummy", "r")
         local content = file:read("*a")
         file:close()
 
         -- replace /WX with /WX- to avoid treating warnings as errors
         content = content:gsub('"/WX"', '"/WX-"')
+        -- add /EHsc to enable exceptions if needed
         if package:config("exceptions") then
             content = content:gsub("/wd26812", "/wd26812 /EHsc")
         end
 
+        -- temporary files to store macros to export after cmake build
         local macros_export = path.join(package:installdir(), "macros_export.tmp")
         macros_export = macros_export:gsub("\\", "/")
 
+        -- append the footer and export function to CMakeLists.txt
         content = content .. footer .. [[
 
-            #write all AME_MACROS_TO_EXPORT to a file, AME_MACROS_TO_EXPORT is cmakelists variable list
-            file(WRITE "]] .. macros_export .. [[" "${AME_MACROS_TO_EXPORT}")
+            #write all XMAKE_MACROS_TO_EXPORT to a file, XMAKE_MACROS_TO_EXPORT is cmakelists variable list
+            file(WRITE "]] .. macros_export .. [[" "${XMAKE_MACROS_TO_EXPORT}")
         ]]
 
         file = io.open("CMakeLists.txt", "w")
@@ -145,6 +159,7 @@ package("ame.diligent_core")
             build_mode = "Debug"
             table.insert(configs, "-DDILIGENT_INSTALL_PDB=ON")
             table.insert(configs, "-DCMAKE_BUILD_TYPE=Debug")
+            table.insert(configs, "-DDILIGENT_DEVELOPMENT=ON")
         else
             build_mode = "Release"
             table.insert(configs, "-DCMAKE_BUILD_TYPE=Release")
@@ -154,7 +169,10 @@ package("ame.diligent_core")
         table.insert(configs, "-DDILIGENT_NO_DIRECT3D12=" .. (package:config("d3d12") and "OFF" or "ON"))
         table.insert(configs, "-DDILIGENT_NO_OPENGL=" .. ((package:config("gl") or package:config("gles")) and "OFF" or "ON"))
         table.insert(configs, "-DDILIGENT_NO_VULKAN=" .. (package:config("vk") and "OFF" or "ON"))
-        table.insert(configs, "-DDILIGENT_NO_WEBGPU=" .. (package:config("webgpu") and "OFF" or "ON"))
+        table.insert(configs, "-DDILIGENT_NO_WEBGPU=" .. (package:config("wgpu") and "OFF" or "ON"))
+        table.insert(configs, "-DDILIGENT_NO_METAL=" .. (package:config("mtl") and "OFF" or "ON"))
+
+        table.insert(configs, "-DDILIGENT_NO_HLSL=" .. (package:config("hlsl") and "OFF" or "ON"))
         table.insert(configs, "-DDILIGENT_NO_ARCHIVER=" .. (package:config("archiver") and "OFF" or "ON"))
         table.insert(configs, "-DDILIGENT_NO_FORMAT_VALIDATION=" .. (package:config("format_validation") and "OFF" or "ON"))
 
@@ -191,6 +209,7 @@ package("ame.diligent_core")
         local has_winpix = false
         local has_winpix_uwp = false
 
+        -- check if winpix dlls if available
         for _, file in ipairs(extra_files) do
             local src_dir = path.join(package:buildir(), build_mode, file)
             if os.isfile(src_dir) then
@@ -203,6 +222,7 @@ package("ame.diligent_core")
             end
         end
 
+        -- copy winpix libs
         if has_winpix or has_winpix_uwp then
             local pix_runtime = path.join(package:buildir(), "WinPixEventRuntime", "bin", package_arch)
             if os.isdir(pix_runtime) then
@@ -219,15 +239,16 @@ package("ame.diligent_core")
         local src_distrib_lib_dir = path.join(package:installdir("lib"), build_mode)
         local src_distrib_bin_dir = path.join(package:installdir("bin"), build_mode)
 
+        -- move files to correct directories
         os.mv(path.join(src_distrib_lib_dir, "*.lib"),      package:installdir("lib"))
         os.mv(path.join(src_distrib_lib_dir, "*.so"),       package:installdir("lib"))
         os.mv(path.join(src_distrib_lib_dir, "*.a"),        package:installdir("lib"))
         os.mv(path.join(src_distrib_lib_dir, "*.dylib"),    package:installdir("lib"))
-        -- os.rm(src_distrib_lib_dir)
+        os.rm(src_distrib_lib_dir)
 
         os.mv(path.join(src_distrib_bin_dir, "*.dll"),  package:installdir("bin"))
         os.mv(path.join(src_distrib_bin_dir, "*.pdb"),  package:installdir("bin"))
-        -- os.rm(src_distrib_bin_dir)
+        os.rm(src_distrib_bin_dir)
 
         -- copy include files
         local src_inc_dir = package:installdir("include")
@@ -253,5 +274,111 @@ package("ame.diligent_core")
         link_libs(package:installdir("lib"), "*.a")
         link_libs(package:installdir("lib"), "*.dylib")
         link_libs(package:installdir("bin"), "*.dll")
+    end)
+
+    on_test(function (package)
+        if package:config("vk") then
+            assert(package:check_cxxsnippets({test = [[
+            #if VULKAN_SUPPORTED
+                #include <DiligentCore/Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h>
+            #endif
+                void test() {
+                #if VULKAN_SUPPORTED
+                    Diligent::EngineVkCreateInfo create_info;
+                    Diligent::IEngineFactoryVk* factory = nullptr;
+                    if (factory) {
+                        factory->CreateDeviceAndContextsVk(create_info, nullptr, nullptr);
+                    }
+                #endif
+                }
+            ]]}, {configs = {languages = "c++17"}}))
+        end
+
+        if package:config("gl") or package:config("gles") then
+            assert(package:check_cxxsnippets({test = [[
+            #if GL_SUPPORTED || GLES_SUPPORTED
+                #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
+            #endif
+                void test() {
+            #if GL_SUPPORTED || GLES_SUPPORTED
+                    Diligent::EngineGLCreateInfo create_info;
+                    Diligent::IEngineFactoryOpenGL* factory = nullptr;
+                    Diligent::SwapChainDesc scd;
+                    if (factory) {
+                        factory->CreateDeviceAndSwapChainGL(create_info, nullptr, nullptr, scd, nullptr);
+                    }
+            #endif
+                }
+            ]]}, {configs = {languages = "c++17"}}))
+        end
+
+        if package:config("d3d11") then
+            assert(package:check_cxxsnippets({test = [[
+            #if D3D11_SUPPORTED
+                #include <DiligentCore/Graphics/GraphicsEngineD3D11/interface/EngineFactoryD3D11.h>
+            #endif
+                void test() {
+            #if D3D11_SUPPORTED
+                Diligent::EngineD3D11CreateInfo create_info;
+                Diligent::IEngineFactoryD3D11* factory = nullptr;
+                if (factory) {
+                    factory->CreateDeviceAndContextsD3D11(create_info, nullptr, nullptr);
+                }
+            #endif
+                }
+            ]]}, {configs = {languages = "c++17"}}))
+        end
+
+        if package:config("d3d12") then
+            assert(package:check_cxxsnippets({test = [[
+            #if D3D12_SUPPORTED
+                #include <DiligentCore/Graphics/GraphicsEngineD3D12/interface/EngineFactoryD3D12.h>
+            #endif
+                void test() {
+            #if D3D12_SUPPORTED
+                Diligent::EngineD3D12CreateInfo create_info;
+                Diligent::IEngineFactoryD3D12* factory = nullptr;
+                if (factory) {
+                    factory->CreateDeviceAndContextsD3D12(create_info, nullptr, nullptr);
+                }
+            #endif
+                }
+            ]]}, {configs = {languages = "c++17"}}))
+        end
+
+        if package:config("mtl") then
+            assert(package:check_cxxsnippets({test = [[
+            #if METAL_SUPPORTED
+                #include <DiligentCore/Graphics/GraphicsEngineMetal/interface/EngineFactoryMetal.h>
+            #endif
+                void test() {
+            #if METAL_SUPPORTED
+                Diligent::EngineMetalCreateInfo create_info;
+                Diligent::IEngineFactoryMtl* factory = nullptr;
+                if (factory) {
+                    factory->CreateDeviceAndContextsMtl(create_info, nullptr, nullptr);
+                }
+            #endif
+                }
+            ]]}, {configs = {languages = "c++17"}}))
+        end
+
+        if package:config("wgpu") then
+            assert(package:check_cxxsnippets({test = [[
+            #if WEBGPU_SUPPORTED
+                #include <DiligentCore/Graphics/GraphicsEngineWebGPU/interface/EngineFactoryWebGPU.h>
+            #endif
+                void test() {
+            #if WEBGPU_SUPPORTED
+                Diligent::EngineWebGPUCreateInfo create_info;
+                Diligent::IEngineFactoryWebGPU* factory = nullptr;
+                if (factory) {
+                    factory->CreateDeviceAndContextsWebGPU(create_info, nullptr, nullptr);
+                }
+            #endif
+                }
+            ]]}, {configs = {languages = "c++17"}}))
+        end
+        
     end)
 package_end()
