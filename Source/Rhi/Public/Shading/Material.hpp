@@ -102,9 +102,9 @@ namespace Ame::Rhi
     private:
         struct LocalData
         {
-            String                      Name;
-            UniquePtr<std::byte[]>      UserDataBuffer;
-            Dg::IShaderResourceBinding* Bindings = nullptr;
+            String                          Name;
+            UniquePtr<std::byte[]>          UserDataBuffer;
+            Ptr<Dg::IShaderResourceBinding> Bindings;
 
             LocalData(
                 Dg::IRenderDevice*         renderDevice,
