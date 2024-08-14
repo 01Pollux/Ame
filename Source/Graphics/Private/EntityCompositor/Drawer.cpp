@@ -62,7 +62,7 @@ namespace Ame::Gfx
 
         //
 
-        cameraGraph.Execute(m_Collector.get().GetRenderDevice());
+        cameraGraph.Execute();
 
         //
 

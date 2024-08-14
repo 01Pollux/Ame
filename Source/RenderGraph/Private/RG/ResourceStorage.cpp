@@ -1,9 +1,29 @@
 #include <RG/ResourceStorage.hpp>
+#include <Rhi/Device/RhiDevice.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::RG
 {
+    Rhi::IRhiDevice* ResourceStorage::GetDevice() const noexcept
+    {
+        return m_RhiDevice;
+    }
+
+    Dg::TEXTURE_FORMAT ResourceStorage::GetBackbufferFormat() const
+    {
+        auto swapchain = GetDevice()->GetSwapchain();
+        return swapchain->GetDesc().ColorBufferFormat;
+    }
+
+    const Dg::TextureDesc& ResourceStorage::GetBackbufferDesc() const
+    {
+        auto swapchain = GetDevice()->GetSwapchain();
+        return swapchain->GetCurrentBackBufferRTV()->GetTexture()->GetDesc();
+    }
+
+    //
+
     bool ResourceStorage::ContainsResource(
         const ResourceId& id) const
     {
@@ -61,6 +81,23 @@ namespace Ame::RG
 
     //
 
+    void ResourceStorage::SetUserData(
+        const ResourceId& id,
+        IObject*          userData)
+    {
+        CheckLockState(false);
+        m_UserDatas[id] = userData;
+    }
+
+    IObject* ResourceStorage::GetUserData(
+        const ResourceId& id) const
+    {
+        auto iter = m_UserDatas.find(id);
+        return iter != m_UserDatas.end() ? iter->second : nullptr;
+    }
+
+    //
+
     void ResourceStorage::DeclareResource(
         const ResourceId& id,
         RhiResource       resource)
@@ -106,9 +143,9 @@ namespace Ame::RG
 
     //
 
-    void ResourceStorage::UpdateResources(
-        Dg::IRenderDevice* renderDevice)
+    void ResourceStorage::UpdateResources()
     {
+        auto renderDevice = m_RhiDevice->GetRenderDevice();
         CheckLockState(false);
         for (auto& handle : m_Resources | std::views::values)
         {

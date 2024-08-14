@@ -51,8 +51,7 @@ namespace Ame::RG
     //
 
     void PassStorage::Build(
-        Rhi::IRhiDevice* rhiDevice,
-        Context&         context)
+        Context& context)
     {
         SetRebuildState(false);
 
@@ -67,7 +66,7 @@ namespace Ame::RG
 
         for (auto& pass : m_Passes)
         {
-            auto& passStorage = builders.emplace_back(rhiDevice, context.GetStorage());
+            auto& passStorage = builders.emplace_back(context.GetStorage());
             pass->second->DoBuild(passStorage.GraphResolver);
         }
 

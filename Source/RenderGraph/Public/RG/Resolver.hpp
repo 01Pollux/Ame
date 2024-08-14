@@ -11,7 +11,6 @@ namespace Ame::RG
 
     public:
         Resolver(
-            Rhi::IRhiDevice* rhiDevice,
             ResourceStorage& resourceStorage);
 
     public:
@@ -113,8 +112,21 @@ namespace Ame::RG
         void ReadResourceEmpty(
             const ResourceId& id);
 
+    public:
+        /// <summary>
+        /// Write user data to resource storage
+        /// </summary>
+        void WriteUserData(
+            const ResourceId& id,
+            IObject*          userData);
+
+        /// <summary>
+        /// Read user data from resource storage
+        /// </summary>
+        void ReadUserData(
+            const ResourceId& id);
+
     private:
-        Rhi::IRhiDevice*     m_RhiDevice;
         Ref<ResourceStorage> m_Storage;
 
         std::vector<ResourceViewId> m_RenderTargets;

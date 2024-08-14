@@ -3,27 +3,25 @@
 
 namespace Ame::RG
 {
-    void Graph::Execute(
-        Rhi::IRhiDevice* rhiDevice)
+    void Graph::Execute()
     {
-        auto context = rhiDevice->GetImmediateContext();
-        Execute(rhiDevice, { &context, 1 });
+        auto rhiDevice = m_Context.GetStorage().GetDevice();
+        auto context   = rhiDevice->GetImmediateContext();
+        Execute({ &context, 1 });
     }
 
     void Graph::Execute(
-        Rhi::IRhiDevice*               rhiDevice,
         std::span<Dg::IDeviceContext*> contexts)
     {
-        auto  renderDevice    = rhiDevice->GetRenderDevice();
         auto& resourceStorage = GetResourceStorage();
 
         if (resourceStorage.NeedsRebuild() ||
             m_Passes.NeedsRebuild())
         {
             resourceStorage.SetRebuildState(false);
-            m_Passes.Build(rhiDevice, m_Context);
+            m_Passes.Build(m_Context);
         }
-        m_Context.Execute(renderDevice, contexts);
+        m_Context.Execute(contexts);
     }
 
     //

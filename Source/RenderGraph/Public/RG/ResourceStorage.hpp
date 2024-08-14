@@ -12,6 +12,30 @@ namespace Ame::RG
         friend class DependencyLevel;
 
         using ResourceMapType = std::map<ResourceId, ResourceHandle>;
+        using UserDataMapType = std::map<ResourceId, Ptr<IObject>>;
+
+    public:
+        ResourceStorage(
+            Rhi::IRhiDevice* rhiDevice) :
+            m_RhiDevice(rhiDevice)
+        {
+        }
+
+    public:
+        /// <summary>
+        /// Helper function to get device of the engine
+        /// </summary>
+        [[nodiscard]] Rhi::IRhiDevice* GetDevice() const noexcept;
+
+        /// <summary>
+        /// Get backbuffer texture format
+        /// </summary>
+        [[nodiscard]] Dg::TEXTURE_FORMAT GetBackbufferFormat() const;
+
+        /// <summary>
+        /// Get backbuffer texture desc
+        /// </summary>
+        [[nodiscard]] const Dg::TextureDesc& GetBackbufferDesc() const;
 
     public:
         /// <summary>
@@ -71,6 +95,31 @@ namespace Ame::RG
             return view.Cast<Dg::ITextureView>(Dg::IID_TextureView);
         }
 
+    public:
+        /// <summary>
+        /// Set user data to be used later when dispatching passes
+        /// </summary>
+        [[nodiscard]] void SetUserData(
+            const ResourceId& id,
+            IObject*          object);
+
+        /// <summary>
+        /// Get user data from id
+        /// </summary>
+        [[nodiscard]] IObject* GetUserData(
+            const ResourceId& id) const;
+
+        /// <summary>
+        /// Get user data from id
+        /// </summary>
+        template<typename Ty>
+        [[nodiscard]] Ptr<Ty> GetUserData(
+            const ResourceId& id,
+            const UId&        iid) const
+        {
+            return { GetUserData(id), iid };
+        }
+
     private:
         /// <summary>
         /// Declare buffer to be created later when dispatching passes
@@ -106,8 +155,7 @@ namespace Ame::RG
         /// <summary>
         /// Update and recreate resources if needed
         /// </summary>
-        void UpdateResources(
-            Dg::IRenderDevice* renderDevice);
+        void UpdateResources();
 
         /// <summary>
         /// Declare resource view to be bound later when dispatching passes
@@ -156,7 +204,9 @@ namespace Ame::RG
             bool state) noexcept;
 
     private:
-        ResourceMapType m_Resources;
+        Rhi::IRhiDevice* m_RhiDevice;
+        ResourceMapType  m_Resources;
+        UserDataMapType  m_UserDatas;
 
         bool m_NeedRebuild : 1 = false;
 #ifndef AME_DIST

@@ -6,10 +6,10 @@ namespace Ame::Gfx
     {
         Name("Initialize Forward+ Pass")
             .Flags(RG::PassFlags::Graphics)
-            .Build(std::bind_front(&ForwardPlus_InitializePass::Build, this));
+            .Build(std::bind_front(&ForwardPlus_InitializePass::OnBuild, this));
     }
 
-    void ForwardPlus_InitializePass::Build(
+    void ForwardPlus_InitializePass::OnBuild(
         RG::Resolver& resolver)
     {
         RG::RenderTargetViewDesc rtv{

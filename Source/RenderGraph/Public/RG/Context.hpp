@@ -13,6 +13,13 @@ namespace Ame::RG
         using DependencyLevelListType = std::vector<DependencyLevel>;
 
     public:
+        Context(
+            Rhi::IRhiDevice* rhiDevice) :
+            m_Resources(rhiDevice)
+        {
+        }
+
+    public:
         /// <summary>
         /// Get the render graph storage
         /// </summary>
@@ -28,7 +35,6 @@ namespace Ame::RG
         /// Execute the render graph with the specified execution context
         /// </summary>
         void Execute(
-            Dg::IRenderDevice*             renderDevice,
             std::span<Dg::IDeviceContext*> contexts);
 
         /// <summary>

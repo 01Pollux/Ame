@@ -15,10 +15,9 @@ namespace Ame::RG
     //
 
     void Context::Execute(
-        Dg::IRenderDevice*             renderDevice,
         std::span<Dg::IDeviceContext*> contexts)
     {
-        GetStorage().UpdateResources(renderDevice);
+        GetStorage().UpdateResources();
         for (auto& level : m_Levels)
         {
             level.Execute(*this, contexts);

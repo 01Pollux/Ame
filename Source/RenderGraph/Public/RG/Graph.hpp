@@ -14,8 +14,10 @@ namespace Ame::RG
             IID_RenderGraph, Base);
 
         Graph(
-            IReferenceCounters* counter) :
-            Base(counter)
+            IReferenceCounters* counter,
+            Rhi::IRhiDevice*    rhiDevice) :
+            Base(counter),
+            m_Context(rhiDevice)
         {
         }
 
@@ -23,14 +25,12 @@ namespace Ame::RG
         /// <summary>
         /// Execute the render graph with the immediate context
         /// </summary>
-        void Execute(
-            Rhi::IRhiDevice* rhiDevice);
+        void Execute();
 
         /// <summary>
         /// Execute the render graph with the specified execution context
         /// </summary>
         void Execute(
-            Rhi::IRhiDevice*               rhiDevice,
             std::span<Dg::IDeviceContext*> contexts);
 
     public:

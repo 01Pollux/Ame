@@ -14,9 +14,6 @@ namespace Ame::Gfx
     class ForwardPlus_RenderObjects : public RG::Pass
     {
     public:
-        static inline const RG::ResourceViewId RGRenderInstances       = c_RGRenderInstances("Render Objects");
-        static inline const RG::ResourceViewId RGSortedRenderInstances = c_RGSortedRenderInstances("Render Objects");
-
         static inline const RG::ResourceViewId RGRenderTarget = c_RGFinalImage("Render Objects");
 
     public:
@@ -24,14 +21,14 @@ namespace Ame::Gfx
             Ecs::World* world);
 
     private:
-        void CreateResources(
-            Dg::IRenderDevice* renderDevice,
-            Dg::TEXTURE_FORMAT rtvFormat);
+        void TryCreateResources(
+            const RG::ResourceStorage&  storage,
+            Dg::IShaderResourceBinding* srb);
 
-        void Build(
+        void OnBuild(
             RG::Resolver& resolver);
 
-        void Execute(
+        void OnExecute(
             const RG::ResourceStorage& storage,
             Dg::IDeviceContext*        deviceContext);
 

@@ -14,7 +14,7 @@ namespace Ame::Gfx
         ForwardPlus_InitializePass();
 
     private:
-        void Build(
+        void OnBuild(
             RG::Resolver& resolver);
     };
 } // namespace Ame::Gfx

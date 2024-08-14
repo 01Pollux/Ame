@@ -1,15 +1,12 @@
 #include <RG/Resolver.hpp>
 #include <RG/ResourceStorage.hpp>
-#include <Rhi/Device/RhiDevice.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::RG
 {
     Resolver::Resolver(
-        Rhi::IRhiDevice* rhiDevice,
         ResourceStorage& resourceStorage) :
-        m_RhiDevice(rhiDevice),
         m_Storage(resourceStorage)
     {
     }
@@ -18,19 +15,17 @@ namespace Ame::RG
 
     Rhi::IRhiDevice* Resolver::GetDevice() const noexcept
     {
-        return m_RhiDevice;
+        return m_Storage.get().GetDevice();
     }
 
     Dg::TEXTURE_FORMAT Resolver::GetBackbufferFormat() const
     {
-        auto swapchain = m_RhiDevice->GetSwapchain();
-        return swapchain->GetDesc().ColorBufferFormat;
+        return m_Storage.get().GetBackbufferFormat();
     }
 
     const Dg::TextureDesc& Resolver::GetBackbufferDesc() const
     {
-        auto swapchain = m_RhiDevice->GetSwapchain();
-        return swapchain->GetCurrentBackBufferRTV()->GetTexture()->GetDesc();
+        return m_Storage.get().GetBackbufferDesc();
     }
 
     //
@@ -173,6 +168,22 @@ namespace Ame::RG
         const ResourceId& id)
     {
         AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
+        m_ResourcesRead.emplace(id);
+    }
+
+    //
+
+    void Resolver::WriteUserData(
+        const ResourceId& id,
+        IObject*          userData)
+    {
+        m_ResourcesWritten.emplace(id);
+        m_Storage.get().SetUserData(id, userData);
+    }
+
+    void Resolver::ReadUserData(
+        const ResourceId& id)
+    {
         m_ResourcesRead.emplace(id);
     }
 } // namespace Ame::RG

@@ -14,9 +14,8 @@ namespace Ame::RG
         {
             Resolver GraphResolver;
             BuilderInfo(
-                Rhi::IRhiDevice* rhiDevice,
                 ResourceStorage& storage) :
-                GraphResolver(rhiDevice, storage)
+                GraphResolver(storage)
             {
             }
         };
@@ -81,8 +80,7 @@ namespace Ame::RG
         /// Build render graph from graph builder
         /// </summary>
         void Build(
-            Rhi::IRhiDevice* rhiDevice,
-            Context&         context);
+            Context& context);
 
         /// <summary>
         /// Check if passes were changed and needs to be rebuilt

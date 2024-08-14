@@ -12,6 +12,43 @@ namespace Ame::Rhi
     /// Bind all set flags in a shader resource binding
     /// this is used for ALL_GRAPHICS flags etc.
     /// </summary>
+    static void BindAllStaticInSignature(
+        Dg::IPipelineResourceSignature* signature,
+        Dg::SHADER_TYPE                 typeFlags,
+        const char*                     name,
+        Dg::IDeviceObject*              object,
+        Dg::SET_SHADER_RESOURCE_FLAGS   setFlags = Dg::SET_SHADER_RESOURCE_FLAG_NONE)
+    {
+        while (typeFlags)
+        {
+            Dg::SHADER_TYPE i   = Math::ExtractLSB(typeFlags);
+            auto            var = signature->GetStaticVariableByName(i, name);
+            if (var)
+            {
+                var->Set(object, setFlags);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Bind all set flags in a shader resource binding
+    /// this is used for ALL_GRAPHICS flags etc.
+    /// </summary>
+    static void BindAllStaticInSrb(
+        Dg::IShaderResourceBinding*   srb,
+        Dg::SHADER_TYPE               typeFlags,
+        const char*                   name,
+        Dg::IDeviceObject*            object,
+        Dg::SET_SHADER_RESOURCE_FLAGS setFlags = Dg::SET_SHADER_RESOURCE_FLAG_NONE)
+    {
+        auto signature = srb->GetPipelineResourceSignature();
+        BindAllStaticInSignature(signature, typeFlags, name, object, setFlags);
+    }
+
+    /// <summary>
+    /// Bind all set flags in a shader resource binding
+    /// this is used for ALL_GRAPHICS flags etc.
+    /// </summary>
     static void BindAllInSrb(
         Dg::IShaderResourceBinding*   srb,
         Dg::SHADER_TYPE               typeFlags,
