@@ -1,12 +1,13 @@
 #pragma once
 
 #include <RG/Pass.hpp>
-#include <Graphics/RenderGraph/Common/Names.hpp>
 #include <Rhi/Utils/SRBBinder.hpp>
+#include <Graphics/RenderGraph/Common/Names.hpp>
+#include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 
 namespace Ame::Gfx
 {
-    template<typename Ty, Dg::SHADER_TYPE ShaderFlags>
+    template<typename Ty, Dg::SHADER_TYPE ShaderFlags, bool WithSamplers = true>
     class Initialize_EntityResourceSignature : public RG::Pass
     {
     public:
@@ -52,9 +53,26 @@ namespace Ame::Gfx
         [[nodiscard]] static Ptr<Dg::IPipelineResourceSignature> CreateResourceSignature(
             Dg::IRenderDevice* renderDevice)
         {
-            Dg::PipelineResourceDesc resources[]{
+            constexpr Dg::PipelineResourceDesc resources[]{
                 Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "RenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+            };
+
+            constexpr std::array c_SamplersTemplate{
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearClamp", Dg::Sam_LinearClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_PointClamp", Dg::Sam_PointClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearMirror", Dg::Sam_LinearMirror },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_PointWrap", Dg::Sam_PointWrap },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearWrap", Dg::Sam_LinearWrap },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_ComparisonLinearClamp", Dg::Sam_ComparisonLinearClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso2xClamp", Dg::Sam_Aniso2xClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xClamp", Dg::Sam_Aniso4xClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso8xClamp", Dg::Sam_Aniso8xClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso16xClamp", Dg::Sam_Aniso16xClamp },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso2xWrap", Dg::Sam_Aniso2xWrap },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xWrap", Dg::Sam_Aniso4xWrap },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso8xWrap", Dg::Sam_Aniso8xWrap },
+                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso16xWrap", Dg::Sam_Aniso16xWrap },
             };
 
             Dg::PipelineResourceSignatureDesc desc{
@@ -62,6 +80,12 @@ namespace Ame::Gfx
                 .NumResources = Rhi::Count32(resources),
                 .BindingIndex = 1
             };
+
+            if constexpr (WithSamplers)
+            {
+                desc.ImmutableSamplers    = c_SamplersTemplate.data();
+                desc.NumImmutableSamplers = Rhi::Count32(c_SamplersTemplate);
+            }
 
             Ptr<Dg::IPipelineResourceSignature> signature;
             renderDevice->CreatePipelineResourceSignature(desc, &signature);

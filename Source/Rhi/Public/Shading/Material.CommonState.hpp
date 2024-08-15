@@ -17,8 +17,8 @@ namespace Ame::Rhi
 
     public:
         MaterialCommonState(
-            Dg::IRenderDevice*        renderDevice,
-            const MaterialCreateDesc& createDesc);
+            Dg::IRenderDevice* renderDevice,
+            MaterialCreateDesc createDesc);
 
     public:
         /// <summary>

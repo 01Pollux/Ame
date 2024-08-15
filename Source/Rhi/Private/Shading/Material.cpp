@@ -36,18 +36,18 @@ namespace Ame::Rhi
     }
 
     Material::SharedData::SharedData(
-        Dg::IRenderDevice*        renderDevice,
-        const MaterialCreateDesc& createDesc) :
+        Dg::IRenderDevice* renderDevice,
+        MaterialCreateDesc createDesc) :
         RenderDevice(renderDevice),
-        CommonState(renderDevice, createDesc)
+        CommonState(renderDevice, std::move(createDesc))
     {
     }
 
     //
 
     Ptr<Material> Material::Create(
-        Dg::IRenderDevice*        renderDevice,
-        const MaterialCreateDesc& materialDesc)
+        Dg::IRenderDevice* renderDevice,
+        MaterialCreateDesc materialDesc)
     {
         return Ptr{ ObjectAllocator<Material>()(renderDevice, materialDesc) };
     }

@@ -1,7 +1,7 @@
 #include <Graphics/RenderGraph/Passes/ForwardPlus_RenderObjects.hpp>
 #include <Graphics/RenderGraph/Passes/Initialize_EntityResourceSignature.hpp>
 
-#include <Shaders/RenderIndirectCommandsShader.hpp>
+#include <Shaders/Rendering/ForwardPlus_RenderObjects.hpp>
 #include <Rhi/Utils/DeviceWithCache.hpp>
 
 #include <Ecs/World.hpp>
@@ -38,11 +38,11 @@ namespace Ame::Gfx
             .RenderTargets = { rtvFormat }
         };
 
-        Rhi::RenderIndirectCommandsVertexShader vertexShader;
-        Rhi::RenderIndirectCommandsPixelShader  pixelShader;
+        Rhi::ForwardPlus_RenderObjects_VertexShader vertexShader;
+        Rhi::ForwardPlus_RenderObjects_PixelShader  pixelShader;
 
-        renderState.Links.ShaderSources.emplace(Dg::SHADER_TYPE_VERTEX, vertexShader.GetCreateInfo());
-        renderState.Links.ShaderSources.emplace(Dg::SHADER_TYPE_PIXEL, pixelShader.GetCreateInfo());
+        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, vertexShader.GetCreateInfo());
+        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_PIXEL, pixelShader.GetCreateInfo());
 
         renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
 

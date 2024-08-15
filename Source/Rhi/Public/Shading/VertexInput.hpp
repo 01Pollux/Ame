@@ -41,6 +41,11 @@ namespace Ame::Rhi
         { "float2", "tex_coord",  "ATTRIB2",    Dg::VT_FLOAT32, 2, 2 },
         { "float3", "tangent",    "ATTRIB3",    Dg::VT_FLOAT32, 3, 3 },
     };
+    static constexpr const char s_DefineVertexInputString[] = "#define VS_INPUT_LAYOUT uint vertex_id:SV_VertexID;uint instance_id:SV_InstanceID; "
+        "float3 position:ATTRIB0; "
+        "float3 normal:ATTRIB1; "
+        "float2 tex_coord:ATTRIB2; "
+        "float3 tangent:ATTRIB3; ";
 
     static constexpr VertexAttributeDesc c_OutputVertexAttributes[] = {
         { "float4", "screen_position",  "SV_POSITION",      Dg::VT_FLOAT32, 0xFF, 4 },

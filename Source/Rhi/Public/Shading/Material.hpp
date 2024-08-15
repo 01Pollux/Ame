@@ -18,8 +18,8 @@ namespace Ame::Rhi
 
     public:
         [[nodiscard]] static Ptr<Material> Create(
-            Dg::IRenderDevice*        renderDevice,
-            const MaterialCreateDesc& materialDesc);
+            Dg::IRenderDevice* renderDevice,
+            MaterialCreateDesc materialDesc);
 
     public:
         /// <summary>
@@ -126,8 +126,8 @@ namespace Ame::Rhi
             MaterialCommonState CommonState;
 
             SharedData(
-                Dg::IRenderDevice*        renderDevice,
-                const MaterialCreateDesc& createDesc);
+                Dg::IRenderDevice* renderDevice,
+                MaterialCreateDesc createDesc);
         };
 
         SharedPtr<SharedData> m_SharedData;

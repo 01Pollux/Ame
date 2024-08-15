@@ -6,31 +6,47 @@
 namespace std
 {
     template<>
-    struct hash<Ame::Rhi::MaterialShaderDesc>
+    struct hash<Ame::Rhi::ShaderCreateInfoX>
     {
-        size_t operator()(const Ame::Rhi::MaterialShaderDesc& storage) const
+        size_t operator()(const Ame::Rhi::ShaderCreateInfoX& createInfo) const
         {
             size_t hash = 0;
-            Dg::HashCombine(hash, storage.PreShaderCode);
-            Dg::HashCombine(hash, storage.PostShaderCode);
-            for (auto& [key, value] : storage.Macros)
+            if (createInfo.FilePath())
             {
-                Dg::HashCombine(hash, key, value);
+                Dg::HashCombine(hash, createInfo.FilePath());
             }
-            return hash;
-        }
-    };
-
-    template<>
-    struct hash<Ame::Rhi::MaterialLinkShaderDesc>
-    {
-        size_t operator()(const Ame::Rhi::MaterialLinkShaderDesc& storage) const
-        {
-            size_t hash = 0;
-            Dg::HashCombine(hash, storage.ShaderCode);
-            for (auto& [key, value] : storage.Macros)
+            if (createInfo.SourceCode())
             {
-                Dg::HashCombine(hash, key, value);
+                Dg::HashCombine(hash, Dg::ComputeHashRaw(createInfo.SourceCode(), createInfo.SourceCodeLength()));
+            }
+            else if (createInfo.ByteCodeSize())
+            {
+                Dg::HashCombine(hash, Dg::ComputeHashRaw(createInfo.ByteCode(), createInfo.ByteCodeSize()));
+            }
+            Dg::HashCombine(hash, createInfo.EntryPoint());
+            for (const auto& [name, value] : createInfo.Macros())
+            {
+                Dg::HashCombine(hash, name, value);
+            }
+            Dg::HashCombine(hash, createInfo.ShaderType());
+            Dg::HashCombine(hash, createInfo.SourceLanguage());
+            Dg::HashCombine(hash, createInfo.CombinedTextureSamplers());
+            Dg::HashCombine(hash, createInfo.CombinedSamplerSuffix());
+            Dg::HashCombine(hash, createInfo.SourceLanguage());
+            Dg::HashCombine(hash, createInfo.ShaderCompiler());
+            Dg::HashCombine(hash, createInfo.HLSLVersion());
+            Dg::HashCombine(hash, createInfo.GLSLVersion());
+            Dg::HashCombine(hash, createInfo.GLESSLVersion());
+            Dg::HashCombine(hash, createInfo.MSLVersion());
+            Dg::HashCombine(hash, createInfo.CompileFlags());
+            Dg::HashCombine(hash, createInfo.LoadConstantBufferReflection());
+            if (createInfo.GLSLExtensions())
+            {
+                Dg::HashCombine(hash, createInfo.GLSLExtensions());
+            }
+            if (createInfo.WebGPUEmulatedArrayIndexSuffix())
+            {
+                Dg::HashCombine(hash, createInfo.WebGPUEmulatedArrayIndexSuffix());
             }
             return hash;
         }
@@ -42,20 +58,6 @@ namespace std
     struct hash<Ame::Rhi::MaterialShaderSourceStorage>
     {
         size_t operator()(const Ame::Rhi::MaterialShaderSourceStorage& storageMap) const
-        {
-            size_t hash = 0;
-            for (auto& [type, storage] : storageMap)
-            {
-                Dg::HashCombine(hash, std::to_underlying(type), storage);
-            }
-            return hash;
-        }
-    };
-
-    template<>
-    struct hash<Ame::Rhi::MaterialLinkShaderSourceStorage>
-    {
-        size_t operator()(const Ame::Rhi::MaterialLinkShaderSourceStorage& storageMap) const
         {
             size_t hash = 0;
             for (auto& [type, storage] : storageMap)
@@ -96,7 +98,8 @@ namespace std
                             materialDesc.SampleMask,
                             materialDesc.Rasterizer,
                             materialDesc.DepthStencil,
-                            materialDesc.ShaderSources);
+                            materialDesc.PreShaders,
+                            materialDesc.PostShaders);
             return hash;
         }
     };
@@ -108,7 +111,7 @@ namespace std
         {
             size_t hash = 0;
 
-            for (const auto& [type, shader] : state.Links.ShaderSources)
+            for (const auto& [type, shader] : state.Links.Sources)
             {
                 Dg::HashCombine(
                     hash,

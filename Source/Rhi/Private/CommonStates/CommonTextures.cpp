@@ -86,28 +86,28 @@ namespace Ame::Rhi
 #define COMMON_TEXTURES_111(Name)                                                                         \
     case CommonTexture::Name##1D:                                                                         \
     {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, 1 } };                              \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
         m_DefaultTextures[index] =                                                                        \
             CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_1D, #Name "1D", { 1, 1, 1 }, subresources);   \
         break;                                                                                            \
     }                                                                                                     \
     case CommonTexture::Name##2D:                                                                         \
     {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, 1 } };                              \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
         m_DefaultTextures[index] =                                                                        \
             CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, #Name "2D", { 1, 1, 1 }, subresources);   \
         break;                                                                                            \
     }                                                                                                     \
     case CommonTexture::Name##3D:                                                                         \
     {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, 1 } };                              \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
         m_DefaultTextures[index] =                                                                        \
             CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_3D, #Name "3D", { 1, 1, 1 }, subresources);   \
         break;                                                                                            \
     }                                                                                                     \
     case CommonTexture::Name##Cube:                                                                       \
     {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, 1 } };                              \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
         m_DefaultTextures[index] =                                                                        \
             CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_3D, #Name "Cube", { 1, 1, 1 }, subresources); \
         break;                                                                                            \

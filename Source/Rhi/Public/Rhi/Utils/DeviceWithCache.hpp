@@ -15,17 +15,8 @@ namespace Ame::Rhi
 
         RenderDeviceWithCache(
             IRhiDevice* renderDevice) :
-            Base(renderDevice->GetRenderDevice(), GetRenderStateCache(renderDevice))
+            Base(renderDevice->GetRenderDevice(), renderDevice->GetRenderStateCache())
         {
-        }
-
-    private:
-        [[nodiscard]] Ptr<Dg::IRenderStateCache> GetRenderStateCache(
-            IRhiDevice* renderDevice)
-        {
-            Ptr<Dg::IRenderStateCache> renderStateCache;
-            renderDevice->QueryInterface(Dg::IID_RenderStateCache, renderStateCache.DblPtr<Dg::IObject>());
-            return renderStateCache;
         }
     };
 } // namespace Ame::Rhi

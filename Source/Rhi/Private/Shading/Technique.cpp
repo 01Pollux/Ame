@@ -3,10 +3,10 @@
 
 #include <Shading/Technique.hpp>
 #include <Shading/Material.hpp>
-#include <Shading/ShaderComposer.hpp>
 #include <Shading/Hash.hpp>
 
-#include <DiligentCore/Graphics/GraphicsTools/interface/ShaderSourceFactoryUtils.h>
+#include <Rhi/Utils/DeviceWithCache.hpp>
+#include <Rhi/Utils/PartialShader.hpp>
 
 #include <Core/Enum.hpp>
 #include <Log/Wrapper.hpp>
@@ -62,9 +62,18 @@ namespace Ame::Rhi
 
     auto MaterialTechnique::CombineShaders(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        const MaterialDesc&                  materialDesc) const -> ShadersToKeepAliveList
+        const Material*                      material) const -> ShadersToKeepAliveList
     {
         using namespace EnumBitOperators;
+        auto& renderStateShaders = m_RenderState.Links;
+        auto& materialDesc       = material->GetMaterialDesc();
+
+        ShadersToKeepAliveList shadersToKeepAlive;
+        CombinedShader         shaderComposer;
+        PartialShaderDesc      partialShaders[3]; // Prologue, Body, Epilogue
+        uint32_t               partialShaderCount = 0;
+
+        //
 
         auto setShader = [&graphicsPsoDesc](Dg::SHADER_TYPE type, Dg::IShader* shader)
         {
@@ -96,134 +105,55 @@ namespace Ame::Rhi
             }
         };
 
-        //
-
-        std::vector<Dg::ShaderMacro> macros;
-
-        auto initializeShaderSource = [](auto iter, auto end, auto getter)
-        {
-            StringView sourceCode = "";
-            if (iter != end)
-            {
-                auto& desc = iter->second;
-                sourceCode = getter(desc);
-            }
-            return sourceCode;
-        };
-
-        auto initializeShaderMacros = [&macros](auto iter, auto end)
-        {
-            if (iter == end)
-            {
-                return;
-            }
-
-            auto& desc = iter->second;
-            macros.reserve(macros.size() + desc.Macros.size());
-            for (auto& [name, value] : desc.Macros)
-            {
-                StringView nameView(name);
-                StringView valueView(value);
-                macros.emplace_back(nameView.data(), valueView.data());
-            }
-        };
-
-        auto initializeStreamFactory = [](auto lhs, auto lhsEnd, auto rhs, auto rhsEnd)
-        {
-            std::span<const Ptr<Dg::IShaderSourceInputStreamFactory>> lhsStream, rhsStream;
-            if (lhs != lhsEnd)
-            {
-                lhsStream = lhs->second.StreamFactories;
-            }
-            if (rhs != rhsEnd)
-            {
-                rhsStream = rhs->second.StreamFactories;
-            }
-
-            auto streams = boost::range::join(lhsStream, rhsStream) |
-                           std::views::transform([](auto& factory) -> Dg::IShaderSourceInputStreamFactory*
-                                                 { return factory; });
-
-            Ptr<Dg::IShaderSourceInputStreamFactory> factory;
-            if (streams.size() > 1)
-            {
-                auto streamsList = streams |
-                                   std::ranges::to<std::vector>();
-
-                Dg::CreateCompoundShaderSourceFactory({ streamsList.data(), static_cast<uint32_t>(streamsList.size()) }, &factory);
-            }
-            else if (!streams.empty())
-            {
-                factory = streams.front();
-            }
-            return factory;
-        };
-
-        //
-
-        auto& renderStateShaders = m_RenderState.Links;
-
-        MaterialShaderComposer shaderComposer;
-        Dg::ShaderCreateInfo   createDesc{ nullptr, nullptr, Dg::SHADER_SOURCE_LANGUAGE_HLSL };
-
-        ShadersToKeepAliveList shadersToKeepAlive;
-
+        RenderDeviceWithCache<false> renderDevice(m_RenderDevice);
         for (auto shaderType : MaterialCommonState::c_AllSupportedShaders)
         {
-            macros.clear();
             Ptr<Dg::IShader> shader;
 
             auto iter = renderStateShaders.Shaders.find(shaderType);
             // No linked shader was set, so compile them from the source code
             if (iter == renderStateShaders.Shaders.end())
             {
-                auto materialIter = materialDesc.ShaderSources.find(shaderType);
-                auto bodyIter     = renderStateShaders.ShaderSources.find(shaderType);
-
-                // fetch source code
-                StringView prologueSource = initializeShaderSource(
-                    materialIter,
-                    materialDesc.ShaderSources.end(),
-                    [](auto& desc) -> StringView
-                    { return desc.PreShaderCode; });
-
-                StringView epilogueSource = initializeShaderSource(
-                    materialIter,
-                    materialDesc.ShaderSources.end(),
-                    [](auto& desc) -> StringView
-                    { return desc.PostShaderCode; });
-
-                StringView bodySource = initializeShaderSource(
-                    bodyIter,
-                    renderStateShaders.ShaderSources.end(),
-                    [](auto& desc) -> StringView
-                    { return desc.ShaderCode; });
-
-                // No shader was found, so skip it
-                if (prologueSource.empty() &&
-                    epilogueSource.empty() &&
-                    bodySource.empty())
+                auto mainIter = renderStateShaders.Sources.find(shaderType);
+                if (mainIter == renderStateShaders.Sources.end())
                 {
                     continue;
                 }
 
-                initializeShaderMacros(materialIter, materialDesc.ShaderSources.end());
-                initializeShaderMacros(bodyIter, renderStateShaders.ShaderSources.end());
+                partialShaderCount = 0;
+                auto  preIter      = materialDesc.PreShaders.find(shaderType);
+                auto  postIter     = materialDesc.PostShaders.find(shaderType);
+                auto& mainShader   = mainIter->second;
 
-                // Initialize macros
-                createDesc.Macros.Elements = macros.data();
-                createDesc.Macros.Count    = macros.size();
-                createDesc.Desc.ShaderType = shaderType;
+                if (preIter != materialDesc.PreShaders.end())
+                {
+                    partialShaders[partialShaderCount++] = { &preIter->second.GetCreateInfo() };
+                }
+                if (postIter != materialDesc.PostShaders.end())
+                {
+                    partialShaders[partialShaderCount++] = { &postIter->second.GetCreateInfo() };
+                }
+                partialShaders[partialShaderCount++] = { &mainIter->second.GetCreateInfo() };
 
-                auto sourceCode = shaderComposer.Write(prologueSource, bodySource, epilogueSource);
-                auto factory    = initializeStreamFactory(materialIter, materialDesc.ShaderSources.end(), bodyIter, renderStateShaders.ShaderSources.end());
+                CombinedShaderCreateDesc combinedDesc{ { partialShaders, partialShaderCount } };
+                shaderComposer.Initialize(combinedDesc);
 
-                createDesc.Source       = sourceCode.data();
-                createDesc.SourceLength = sourceCode.size();
+                shaderComposer
+                    .ShaderType(shaderType)
+                    .ShaderType(mainShader.ShaderType())
+                    .SourceLanguage(mainShader.SourceLanguage())
+                    .ShaderCompiler(mainShader.ShaderCompiler())
+                    .HLSLVersion(mainShader.HLSLVersion())
+                    .GLSLVersion(mainShader.GLSLVersion())
+                    .GLESSLVersion(mainShader.GLESSLVersion())
+                    .MSLVersion(mainShader.MSLVersion())
+                    .WebGPUEmulatedArrayIndexSuffixCStr(mainShader.WebGPUEmulatedArrayIndexSuffix());
 
-                createDesc.pShaderSourceStreamFactory = factory;
+#ifndef AME_DIST
+                shaderComposer.Name(std::format("{}_{:X}_{}", m_RenderState.Name, material->GetMaterialHash(), Dg::GetShaderTypeLiteralName(shaderType)));
+#endif
 
-                m_RenderDevice->CreateShader(createDesc, &shader);
+                shader = renderDevice.CreateShader(shaderComposer.GetCreateInfo());
 
 #ifndef AME_DIST
                 if (!shader)
@@ -233,7 +163,6 @@ namespace Ame::Rhi
 #endif
 
                 shadersToKeepAlive.emplace_back(shader);
-                macros.clear();
             }
             else
             {
@@ -269,8 +198,10 @@ namespace Ame::Rhi
     void MaterialTechnique::InitializePipelineState(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
         const MaterialVertexDesc&            vertexDesc,
-        const MaterialDesc&                  materialDesc) const
+        const Material*                      material) const
     {
+        auto& materialDesc = material->GetMaterialDesc();
+
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableType        = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableMergeStages = Dg::SHADER_TYPE_ALL_GRAPHICS;
 
@@ -296,12 +227,10 @@ namespace Ame::Rhi
         const MaterialVertexDesc& vertexDesc,
         const Material*           material) const
     {
-        auto& materialDesc = material->GetMaterialDesc();
-
         MaterialVertexInputLayout vertexInputLayout(vertexDesc.Flags);
 
         Dg::GraphicsPipelineStateCreateInfo psoCreateDesc;
-        InitializePipelineState(psoCreateDesc, vertexDesc, materialDesc);
+        InitializePipelineState(psoCreateDesc, vertexDesc, material);
         psoCreateDesc.GraphicsPipeline.InputLayout = vertexInputLayout;
 
 #ifndef AME_DIST
@@ -315,11 +244,9 @@ namespace Ame::Rhi
             psoCreateDesc.ppResourceSignatures = signatures.data();
         }
 
-        auto shaders = CombineShaders(psoCreateDesc, materialDesc);
+        auto shaders = CombineShaders(psoCreateDesc, material);
 
-        Ptr<Dg::IPipelineState> pipelineState;
-        m_RenderDevice->CreateGraphicsPipelineState(psoCreateDesc, &pipelineState);
-
-        return pipelineState;
+        RenderDeviceWithCache<false> renderDevice(m_RenderDevice);
+        return renderDevice.CreateGraphicsPipelineState(psoCreateDesc);
     }
 } // namespace Ame::Rhi

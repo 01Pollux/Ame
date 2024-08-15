@@ -5,7 +5,7 @@
 #include <Core/Ame.hpp>
 #include <Core/String.hpp>
 
-#include <Rhi/Core.hpp>
+#include <Rhi/Utils/ShaderCreateInfoX.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 
 #include <Shading/VertexInput.hpp>
@@ -37,57 +37,8 @@ namespace Ame::Rhi
         }
     };
 
-    struct MaterialShaderDesc : MaterialBaseShaderDesc
-    {
-        String PreShaderCode;
-        String PostShaderCode;
-
-        MaterialShaderDesc() = default;
-
-        MaterialShaderDesc(
-            const Dg::ShaderCreateInfo& createInfo) :
-            MaterialBaseShaderDesc(createInfo),
-            PreShaderCode{ createInfo.Source, createInfo.SourceLength }
-        {
-        }
-
-        MaterialShaderDesc(
-            const Dg::ShaderCreateInfo& createInfo,
-            const String&               postShaderCode) :
-            MaterialBaseShaderDesc(createInfo),
-            PreShaderCode{ createInfo.Source, createInfo.SourceLength },
-            PostShaderCode{ postShaderCode }
-        {
-        }
-
-        MaterialShaderDesc(
-            const Dg::ShaderCreateInfo& createInfo,
-            const String&               preShaderCode,
-            const String&               postShaderCode) :
-            MaterialBaseShaderDesc(createInfo),
-            PreShaderCode{ preShaderCode },
-            PostShaderCode{ postShaderCode }
-        {
-        }
-    };
-
-    struct MaterialLinkShaderDesc : MaterialBaseShaderDesc
-    {
-        String ShaderCode;
-
-        MaterialLinkShaderDesc() = default;
-
-        MaterialLinkShaderDesc(
-            const Dg::ShaderCreateInfo& createInfo) :
-            MaterialBaseShaderDesc(createInfo),
-            ShaderCode{ createInfo.Source, createInfo.SourceLength }
-        {
-        }
-    };
-
-    using MaterialShaderSourceStorage     = std::map<Dg::SHADER_TYPE, MaterialShaderDesc>;
-    using MaterialLinkShaderSourceStorage = std::map<Dg::SHADER_TYPE, MaterialLinkShaderDesc>;
-    using MaterialShaderStorage           = std::map<Dg::SHADER_TYPE, Ptr<Dg::IShader>>;
+    using MaterialShaderSourceStorage = std::map<Dg::SHADER_TYPE, ShaderCreateInfoX>;
+    using MaterialShaderStorage       = std::map<Dg::SHADER_TYPE, Ptr<Dg::IShader>>;
 
     //
 
@@ -104,9 +55,14 @@ namespace Ame::Rhi
         uint32_t SampleMask = 0xFFFF'FFFF;
 
         /// <summary>
-        /// All shader sources must be written in HLSL
+        /// all shaders here must contain void pre_main(...)
         /// </summary>
-        MaterialShaderSourceStorage ShaderSources;
+        MaterialShaderSourceStorage PreShaders;
+
+        /// <summary>
+        /// all shaders here must contain void post_main(...)
+        /// </summary>
+        MaterialShaderSourceStorage PostShaders;
     };
 
     struct MaterialCreateDesc
@@ -124,8 +80,11 @@ namespace Ame::Rhi
     /// </summary>
     struct MaterialShaderLinks
     {
-        MaterialLinkShaderSourceStorage ShaderSources;
-        MaterialShaderStorage           Shaders;
+        /// <summary>
+        /// All shaders here must contain void main(...)
+        /// </summary>
+        MaterialShaderSourceStorage Sources;
+        MaterialShaderStorage       Shaders;
     };
 
     struct MaterialRenderState
@@ -167,7 +126,7 @@ namespace Ame::Rhi
         MaterialVertexInputLayout(
             VertexInputFlags flags) noexcept
         {
-            for (uint32_t i = 0; i < Rhi::Count32(c_InputVertexAttributes); i++)
+            for (uint32_t i = 0; i < Count32(c_InputVertexAttributes); i++)
             {
                 bool hasAttribute           = (std::to_underlying(flags) & (1 << i)) != 0;
                 m_Elements[i].InputIndex    = i;
@@ -185,7 +144,7 @@ namespace Ame::Rhi
 
         [[nodiscard]] operator Dg::InputLayoutDesc() const noexcept
         {
-            return { m_Elements, Rhi::Count32(m_Elements) };
+            return { m_Elements, Count32(m_Elements) };
         }
 
     private:

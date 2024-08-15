@@ -1,11 +1,14 @@
 #pragma once
 
 #include <vector>
+
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/device/array.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/copy.hpp>
+
 #include <Rhi/Core.hpp>
+#include <DiligentCore/Graphics/GraphicsTools/interface/ShaderSourceFactoryUtils.hpp>
 
 namespace Ame::Rhi
 {
@@ -34,6 +37,12 @@ namespace Ame::Rhi
         [[nodiscard]] const Dg::ShaderCreateInfo& GetCreateInfo() const
         {
             return m_CreateInfo;
+        }
+
+        [[nodiscard]] Dg::MemoryShaderSourceFileInfo GetMemoryShaderSourceFileInfo(
+            const char* name) const
+        {
+            return { name, m_CreateInfo.Source, static_cast<uint32_t>(m_CreateInfo.SourceLength) };
         }
 
     protected:

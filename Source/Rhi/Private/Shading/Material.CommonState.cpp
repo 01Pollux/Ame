@@ -8,12 +8,12 @@
 namespace Ame::Rhi
 {
     MaterialCommonState::MaterialCommonState(
-        Dg::IRenderDevice*        renderDevice,
-        const MaterialCreateDesc& createDesc) :
-        m_ResourceSignature(CreatePipelineResourceSignature(renderDevice, createDesc.ResourceSignature)),
-        m_UserDataDesc(createDesc.UserData),
-        m_MaterialDesc(createDesc.Desc),
-        m_MaterialHash(CreateBaseMaterialHash(createDesc.Desc))
+        Dg::IRenderDevice* renderDevice,
+        MaterialCreateDesc createDesc) :
+        m_ResourceSignature(CreatePipelineResourceSignature(renderDevice, std::move(createDesc.ResourceSignature))),
+        m_UserDataDesc(std::move(createDesc.UserData)),
+        m_MaterialDesc(std::move(createDesc.Desc)),
+        m_MaterialHash(CreateBaseMaterialHash(m_MaterialDesc))
     {
     }
 

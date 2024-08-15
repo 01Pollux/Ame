@@ -46,7 +46,7 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] ShadersToKeepAliveList CombineShaders(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-            const MaterialDesc&                  materialDesc) const;
+            const Material*                      material) const;
 
         /// <summary>
         /// Get combined signatures for pipeline state
@@ -61,7 +61,7 @@ namespace Ame::Rhi
         void InitializePipelineState(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
             const MaterialVertexDesc&            vertexDesc,
-            const MaterialDesc&                  materialDesc) const;
+            const Material*                      material) const;
 
         /// <summary>
         /// Create pipeline state for the material
