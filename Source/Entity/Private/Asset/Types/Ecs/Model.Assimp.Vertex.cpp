@@ -128,10 +128,10 @@ namespace Ame::Ecs
 
         //
 
-        VectorAndOffset<Vertex_Position> positions;
-        VectorAndOffset<Vertex_Normal>   normals;
-        VectorAndOffset<Vertex_TexCoord> texCoords;
-        VectorAndOffset<Vertex_Tangent>  tangents;
+        VectorAndOffset<Rhi::Vertex_Position> positions;
+        VectorAndOffset<Rhi::Vertex_Normal>   normals;
+        VectorAndOffset<Rhi::Vertex_TexCoord> texCoords;
+        VectorAndOffset<Rhi::Vertex_Tangent>  tangents;
 
         //
 

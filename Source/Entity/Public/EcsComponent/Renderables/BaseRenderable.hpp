@@ -9,13 +9,6 @@
 
 namespace Ame::Ecs
 {
-    using Vertex_Position = Math::Vector3;
-    using Vertex_Normal   = Math::Vector3;
-    using Vertex_TexCoord = Math::Vector2;
-    using Vertex_Tangent  = Math::Vector3;
-
-    //
-
     template<typename Ty>
     struct RenderableVertex
     {
@@ -30,12 +23,12 @@ namespace Ame::Ecs
 
     struct RenderableVertices
     {
-        RenderableVertex<Vertex_Position> Position; // Vertex_Position
-        RenderableVertex<Vertex_Normal>   Normal;   // Vertex_Normal
-        RenderableVertex<Vertex_TexCoord> TexCoord; // Vertex_TexCoord
-        RenderableVertex<Vertex_Tangent>  Tangent;  // Vertex_Tangent
-        uint32_t                          Offset = std::numeric_limits<uint32_t>::max();
-        Rhi::MaterialVertexDesc           Desc;
+        RenderableVertex<Rhi::Vertex_Position> Position; // Vertex_Position
+        RenderableVertex<Rhi::Vertex_Normal>   Normal;   // Vertex_Normal
+        RenderableVertex<Rhi::Vertex_TexCoord> TexCoord; // Vertex_TexCoord
+        RenderableVertex<Rhi::Vertex_Tangent>  Tangent;  // Vertex_Tangent
+        uint32_t                               Offset = std::numeric_limits<uint32_t>::max();
+        Rhi::MaterialVertexDesc                Desc;
 
         auto operator<=>(const RenderableVertices& other) const noexcept
         {

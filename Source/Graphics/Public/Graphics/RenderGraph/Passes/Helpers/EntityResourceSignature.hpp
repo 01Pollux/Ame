@@ -2,19 +2,18 @@
 
 #include <RG/Pass.hpp>
 #include <Rhi/Utils/SRBBinder.hpp>
-#include <Graphics/RenderGraph/Common/Names.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 
 namespace Ame::Gfx
 {
     template<typename Ty, Dg::SHADER_TYPE ShaderFlags, bool WithSamplers = true>
-    class Initialize_EntityResourceSignature : public RG::Pass
+    class EntityResourceSignaturePass : public RG::Pass
     {
     public:
-        Initialize_EntityResourceSignature()
+        EntityResourceSignaturePass()
         {
-            Build(std::bind_front(&Initialize_EntityResourceSignature::OnBuild, this));
-            Execute(std::bind_front(&Initialize_EntityResourceSignature::OnExecute, this));
+            Build(std::bind_front(&EntityResourceSignaturePass::OnBuild, this));
+            Execute(std::bind_front(&EntityResourceSignaturePass::OnExecute, this));
         }
 
     private:
@@ -95,14 +94,14 @@ namespace Ame::Gfx
 
     //
 
-    class Initialize_EntityResourceSignature_Graphics final
-        : public Initialize_EntityResourceSignature<Initialize_EntityResourceSignature_Graphics, Dg::SHADER_TYPE_ALL_GRAPHICS>
+    class EntityResourceSignature_GraphicsPass final
+        : public EntityResourceSignaturePass<EntityResourceSignature_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
         static inline const RG::ResourceId RGEntityResourceSignature{ "_ERS_Graphics" };
 
     public:
-        Initialize_EntityResourceSignature_Graphics()
+        EntityResourceSignature_GraphicsPass()
         {
             Name("Initialize Entity Resource Signature (Graphics)");
         }

@@ -121,11 +121,11 @@ namespace Ame::Rhi
         MaterialVertexInputLayout(
             VertexInputFlags flags) noexcept
         {
-            for (uint32_t i = 0; i < Count32(c_InputVertexAttributes); i++)
+            for (uint8_t i = 0; i < std::to_underlying(VertexInputFlags::Count); i++)
             {
                 bool hasAttribute           = (std::to_underlying(flags) & (1 << i)) != 0;
                 m_Elements[i].InputIndex    = i;
-                m_Elements[i].BufferSlot    = c_InputVertexAttributes[i].BufferId;
+                m_Elements[i].BufferSlot    = i;
                 m_Elements[i].NumComponents = c_InputVertexAttributes[i].NumComponents;
                 m_Elements[i].ValueType     = c_InputVertexAttributes[i].Type;
                 m_Elements[i].IsNormalized  = (m_Elements[i].ValueType == Dg::VT_UINT8 ||

@@ -44,6 +44,22 @@ namespace Ame::RG
             const ResourceId&      id,
             const Dg::TextureDesc& desc);
 
+        /// <summary>
+        /// Create texture
+        /// </summary>
+        Dg::ITexture* CreateImmediateTexture(
+            const ResourceId&      id,
+            const Dg::TextureData* data,
+            const Dg::TextureDesc& desc);
+
+        /// <summary>
+        /// Creates buffer immediately
+        /// </summary>
+        Dg::IBuffer* CreateImmediateBuffer(
+            const ResourceId&     id,
+            const Dg::BufferData* data,
+            const Dg::BufferDesc& desc);
+
     public:
         [[nodiscard]] const Dg::BufferDesc* GetBufferDesc(
             const ResourceId& id) const;
@@ -125,6 +141,23 @@ namespace Ame::RG
         /// </summary>
         void ReadUserData(
             const ResourceId& id);
+
+        /// <summary>
+        /// Get user data from id
+        /// </summary>
+        [[nodiscard]] IObject* GetUserData(
+            const ResourceId& id) const;
+
+        /// <summary>
+        /// Get user data from id
+        /// </summary>
+        template<typename Ty>
+        [[nodiscard]] Ptr<Ty> GetUserData(
+            const ResourceId& id,
+            const UId&        iid) const
+        {
+            return GetUserData<Ty>(id, iid);
+        }
 
     private:
         Ref<ResourceStorage> m_Storage;

@@ -1,5 +1,6 @@
-#include <Graphics/RenderGraph/Passes/ForwardPlus_RenderObjects.hpp>
-#include <Graphics/RenderGraph/Passes/Initialize_EntityResourceSignature.hpp>
+#include <Graphics/RenderGraph/Passes/Rendering/ForwardPlus_RenderObjects.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/EntityResourceSignature.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/EntityEmptyVertexBuffers.hpp>
 
 #include <Shaders/Rendering/ForwardPlus_RenderObjects.hpp>
 #include <Rhi/Utils/DeviceWithCache.hpp>
@@ -43,7 +44,6 @@ namespace Ame::Gfx
 
         renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
 
-
         m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
     }
 
@@ -52,7 +52,8 @@ namespace Ame::Gfx
     void ForwardPlus_RenderObjects::OnBuild(
         RG::Resolver& resolver)
     {
-        resolver.ReadUserData(Initialize_EntityResourceSignature_Graphics::RGEntityResourceSignature);
+        resolver.ReadUserData(EntityResourceSignature_GraphicsPass::RGEntityResourceSignature);
+        resolver.ReadUserData(EntityEmptyVertexBuffersPass::EGEntityEmptyVertexBuffers);
         resolver.WriteTexture(RGRenderTarget, Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
     }
 
@@ -60,7 +61,7 @@ namespace Ame::Gfx
         const RG::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
-        auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(Initialize_EntityResourceSignature_Graphics::RGEntityResourceSignature, Dg::IID_ShaderResourceBinding);
+        auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(EntityResourceSignature_GraphicsPass::RGEntityResourceSignature, Dg::IID_ShaderResourceBinding);
 
         auto& world            = *m_World;
         auto  commandsIterator = world->get<EntityDrawCommandsCategoryIterator>();

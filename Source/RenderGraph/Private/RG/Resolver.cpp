@@ -46,6 +46,40 @@ namespace Ame::RG
         m_ResourcesCreated.emplace(id);
     }
 
+    Dg::IBuffer* Resolver::CreateImmediateBuffer(
+        const ResourceId&     id,
+        const Dg::BufferData* data,
+        const Dg::BufferDesc& desc)
+    {
+        auto rhiDevice    = m_Storage.get().GetDevice();
+        auto renderDevice = rhiDevice->GetRenderDevice();
+
+        Ptr<Dg::IBuffer> buffer;
+        renderDevice->CreateBuffer(desc, data, &buffer);
+
+        m_Storage.get().DeclareResource(id, BufferResource{ .Resource = std::move(buffer), .Desc = desc });
+        m_ResourcesCreated.emplace(id);
+
+        return buffer;
+    }
+
+    Dg::ITexture* Resolver::CreateImmediateTexture(
+        const ResourceId& id,
+        const Dg::TextureData* data,
+        const Dg::TextureDesc& desc)
+    {
+        auto rhiDevice    = m_Storage.get().GetDevice();
+        auto renderDevice = rhiDevice->GetRenderDevice();
+
+        Ptr<Dg::ITexture> texture;
+        renderDevice->CreateTexture(desc, data, &texture);
+
+        m_Storage.get().DeclareResource(id, TextureResource{ .Resource = std::move(texture), .Desc = desc });
+        m_ResourcesCreated.emplace(id);
+
+        return texture;
+    }
+
     //
 
     const Dg::BufferDesc* Resolver::GetBufferDesc(
@@ -185,5 +219,11 @@ namespace Ame::RG
         const ResourceId& id)
     {
         m_ResourcesRead.emplace(id);
+    }
+
+    IObject* Resolver::GetUserData(
+        const ResourceId& id) const
+    {
+        return m_Storage.get().GetUserData(id);
     }
 } // namespace Ame::RG

@@ -1,4 +1,4 @@
-#include <Graphics/RenderGraph/Passes/ForwardPlus_Initialize.hpp>
+#include <Graphics/RenderGraph/Passes/Initializers/ForwardPlus_Initialize.hpp>
 
 namespace Ame::Gfx
 {

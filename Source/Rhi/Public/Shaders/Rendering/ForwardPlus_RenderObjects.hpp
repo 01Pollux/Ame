@@ -31,7 +31,7 @@ namespace Ame::Rhi
         CameraFrameData FrameData;
     };
 
-    //StructuredBuffer<Transform> Transforms;
+    StructuredBuffer<Transform> Transforms;
     StructuredBuffer<RenderInstance> RenderInstances;
 
     //
@@ -47,20 +47,14 @@ namespace Ame::Rhi
 
         RenderInstance instance = RenderInstances[vsIn.instance_id];
 
-        #if 0
         float4x4 world = Transforms[instance.TransformId].World;
-        vsOut.screen_position = mul(float4(position, 1.0), world);
-        vsOut.world_position = vsOut.screen_position.xyz;
-        vsOut.world_normal = mul(float4(normal, 0.0), world).xyz;
-        vsOut.world_tangent = mul(float4(tangent, 0.0), world).xyz;
-        vsOut.tex_coord = tex_coord;
-        #endif
+        float4 position = mul(float4(vsIn.position, 1.0), world);
 
-        vsOut.screen_position = mul(FrameData.ViewProjection, float4(vsIn.position, 1.0));
-        vsOut.world_position  = vsIn.position;
-        vsOut.world_normal    = vsIn.normal;
-        vsOut.world_tangent   = vsIn.tangent;
-        vsOut.tex_coord       = vsIn.tex_coord;
+        vsOut.screen_position   = mul(FrameData.ViewProjection, position);
+        vsOut.world_position    = position.xyz;
+        vsOut.world_normal      = mul(float4(vsIn.normal, 0.0), world).xyz;
+        vsOut.world_tangent     = mul(float4(vsIn.tangent, 0.0), world).xyz;
+        vsOut.tex_coord         = vsIn.tex_coord;
 
 #ifdef _HAS_POSTMAIN
 		post_main(vsIn, vsOut);

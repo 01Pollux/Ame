@@ -1,8 +1,9 @@
 #include <Graphics/RenderGraph/Graphs/ForwardPlus.hpp>
 
-#include <Graphics/RenderGraph/Passes/ForwardPlus_Initialize.hpp>
-#include <Graphics/RenderGraph/Passes/Initialize_EntityResourceSignature.hpp>
-#include <Graphics/RenderGraph/Passes/ForwardPlus_RenderObjects.hpp>
+#include <Graphics/RenderGraph/Passes/Initializers/ForwardPlus_Initialize.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/EntityEmptyVertexBuffers.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/EntityResourceSignature.hpp>
+#include <Graphics/RenderGraph/Passes/Rendering/ForwardPlus_RenderObjects.hpp>
 
 #include <RG/Graph.hpp>
 
@@ -14,7 +15,8 @@ namespace Ame::Gfx
     {
         auto& passStorage = graph.GetPassStorage();
         passStorage.NewPass<ForwardPlus_InitializePass>("Forward+::Initialize");
-        passStorage.NewPass<Initialize_EntityResourceSignature_Graphics>("Forward+::InitializeERS");
+        passStorage.NewPass<EntityResourceSignature_GraphicsPass>("Forward+::Initialize_ERS");
+        passStorage.NewPass<EntityEmptyVertexBuffersPass>("Forward+::Initialize_EEVB");
         passStorage.NewPass<ForwardPlus_RenderObjects>("Forward+::Render Objects", world);
     }
 } // namespace Ame::Gfx
