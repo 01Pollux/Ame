@@ -121,7 +121,7 @@ namespace Ame::Rhi
                 }
 
                 partialShaderCount = 0;
-                auto  materialIter     = materialDesc.Shaders.find(shaderType);
+                auto  materialIter = materialDesc.Shaders.find(shaderType);
                 auto& mainShader   = mainIter->second;
 
                 if (materialIter != materialDesc.Shaders.end())

@@ -64,15 +64,10 @@ namespace Ame::Gfx
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearMirror", Dg::Sam_LinearMirror },
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_PointWrap", Dg::Sam_PointWrap },
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearWrap", Dg::Sam_LinearWrap },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_ComparisonLinearClamp", Dg::Sam_ComparisonLinearClamp },
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso2xClamp", Dg::Sam_Aniso2xClamp },
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xClamp", Dg::Sam_Aniso4xClamp },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso8xClamp", Dg::Sam_Aniso8xClamp },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso16xClamp", Dg::Sam_Aniso16xClamp },
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso2xWrap", Dg::Sam_Aniso2xWrap },
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xWrap", Dg::Sam_Aniso4xWrap },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso8xWrap", Dg::Sam_Aniso8xWrap },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso16xWrap", Dg::Sam_Aniso16xWrap },
             };
 
             Dg::PipelineResourceSignatureDesc desc{

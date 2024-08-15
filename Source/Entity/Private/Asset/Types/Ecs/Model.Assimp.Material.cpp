@@ -74,6 +74,7 @@ namespace Ame::Ecs
             1,
             Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM
         };
+        desc.BindFlags = Dg::BIND_SHADER_RESOURCE;
 
         Dg::TextureSubResData subresource[]{ image.GetSubresource() };
         Dg::TextureData       textureData{ subresource, 1 };

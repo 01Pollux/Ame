@@ -43,6 +43,7 @@ namespace Ame::Gfx
 
         renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
 
+
         m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
     }
 
@@ -101,7 +102,6 @@ namespace Ame::Gfx
 
                 //
 
-                // TODO: Configure topology
                 auto pso = m_Technique->GetPipelineState(renderableDesc.Vertices.Desc, renderableDesc.Material);
                 if (cachePso != pso)
                 {

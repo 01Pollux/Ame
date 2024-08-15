@@ -56,7 +56,7 @@ namespace Ame::Rhi
                 Validate(curDesc);
                 auto& [shader] = curDesc;
 
-                auto& path = paths.emplace_back( std::format("__Composer/{}.hlsli", static_cast<const void*>(shader)));
+                auto& path = paths.emplace_back( std::format("__Composer/{}.aps", static_cast<const void*>(shader)));
                 sourceCode.append(std::format("#include \"{}\"\n", path));
 
                 AppendMacros({ shader->Macros.Elements, shader->Macros.Count });

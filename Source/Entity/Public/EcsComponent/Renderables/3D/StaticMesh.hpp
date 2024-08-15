@@ -17,8 +17,7 @@ namespace Ame::Ecs
         StaticMesh(
             IReferenceCounters* counters,
             MeshModel*          model,
-            uint32_t            subMeshIndex,
-            uint32_t            materialIndex = 0) :
+            uint32_t            subMeshIndex) :
             Base(counters),
             m_Model(model),
             m_SubMeshIndex(subMeshIndex)
@@ -35,32 +34,73 @@ namespace Ame::Ecs
         {
         }
 
+    public:
+        [[nodiscard]] MeshModel* GetModel() const
+        {
+            return m_Model;
+        }
+
+        uint32_t GetSubMeshIndex() const
+        {
+            return m_SubMeshIndex;
+        }
+
+    public:
+        void SetMaterialOverride(
+            Ptr<Rhi::Material> material)
+        {
+            m_OverrideMaterial = std::move(material);
+            UpdateRenderableDesc();
+        }
+
+        [[nodiscard]] Rhi::Material* GetMaterialOverride() const noexcept
+        {
+            return m_OverrideMaterial;
+        }
+
+    public:
+        [[nodiscard]] Rhi::Material* GetMaterial() const noexcept
+        {
+            if (m_OverrideMaterial)
+            {
+                return m_OverrideMaterial;
+            }
+            else
+            {
+                auto& submeshData = m_Model->GetSubMeshes()[m_SubMeshIndex];
+                return m_Model->GetMaterials()[submeshData.MaterialIndex];
+            }
+        }
+
     private:
         void UpdateRenderableDesc()
         {
-            auto& submesh             = m_Model->GetSubMeshes()[m_SubMeshIndex];
-            m_RenderableDesc.Material = m_Model->GetMaterials()[m_MaterialIndex];
+            auto& submeshData = m_Model->GetSubMeshes()[m_SubMeshIndex];
+
+            m_RenderableDesc.Material = GetMaterial();
             m_RenderableDesc.Vertices = {
-                .Position{m_Model->GetPositionBuffer() },
-                .Normal{m_Model->GetNormalBuffer() },
-                .TexCoord{m_Model->GetTexCoordBuffer() },
-                .Tangent{m_Model->GetTangentBuffer() },
-                .Offset{ submesh.VertexOffset },
+                .Position{ m_Model->GetPositionBuffer() },
+                .Normal{ m_Model->GetNormalBuffer() },
+                .TexCoord{ m_Model->GetTexCoordBuffer() },
+                .Tangent{ m_Model->GetTangentBuffer() },
+                .Offset{ submeshData.VertexOffset },
                 .Desc{ m_Model->GetVertexInputDesc() }
             };
             m_RenderableDesc.Indices = {
                 m_Model->GetIndexBuffer(),
-                submesh.IndexOffset,
-                submesh.IndexCount,
+                submeshData.IndexOffset,
+                submeshData.IndexCount,
                 m_Model->GetIndexType()
             };
         }
 
     private:
-        Ptr<MeshModel> m_Model;
-        uint32_t       m_SubMeshIndex  = 0;
-        uint32_t       m_MaterialIndex = 0;
+        Ptr<MeshModel>     m_Model;
+        Ptr<Rhi::Material> m_OverrideMaterial;
+        uint32_t           m_SubMeshIndex = 0;
     };
+
+    //
 
     struct StaticMeshComponent
     {

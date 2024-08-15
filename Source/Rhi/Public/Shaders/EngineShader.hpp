@@ -24,7 +24,7 @@ namespace Ame::Rhi
 
         operator const Dg::ShaderCreateInfo&() const
         {
-            m_CreateInfo.Macros = { m_Macros.data(), static_cast<uint32_t>(m_Macros.size()) };
+            m_CreateInfo.Macros = { m_Macros.data(), Count32(m_Macros) };
             return m_CreateInfo;
         }
 
@@ -54,7 +54,7 @@ namespace Ame::Rhi
             m_CreateInfo.SourceLanguage = lang;
             m_CreateInfo.Desc           = desc;
             m_CreateInfo.Source         = sourceCode.data();
-            m_CreateInfo.SourceLength   = sourceCode.size() - 1;
+            m_CreateInfo.SourceLength   = !sourceCode.empty() ? sourceCode.size() - 1 : 0;
         }
 
         void SetupCompressed(
