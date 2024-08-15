@@ -1,4 +1,5 @@
 #include <Shading/Types/StandardMaterial3D.hpp>
+#include <Shaders/Rendering/Materials/StandardMaterial3D.hpp>
 
 namespace Ame::Rhi
 {
@@ -13,5 +14,7 @@ namespace Ame::Rhi
 
         ResourceSignature.Resources    = StdResources.data();
         ResourceSignature.NumResources = Rhi::Count32(StdResources);
+
+        Desc.Shaders.emplace(Dg::SHADER_TYPE_PIXEL, StandardMaterial3D_PixelShader().GetCreateInfo());
     }
 } // namespace Ame::Rhi

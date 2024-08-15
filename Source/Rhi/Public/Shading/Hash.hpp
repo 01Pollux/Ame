@@ -98,8 +98,7 @@ namespace std
                             materialDesc.SampleMask,
                             materialDesc.Rasterizer,
                             materialDesc.DepthStencil,
-                            materialDesc.PreShaders,
-                            materialDesc.PostShaders);
+                            materialDesc.Shaders);
             return hash;
         }
     };

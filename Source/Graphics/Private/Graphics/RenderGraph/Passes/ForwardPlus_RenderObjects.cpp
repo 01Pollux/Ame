@@ -38,11 +38,8 @@ namespace Ame::Gfx
             .RenderTargets = { rtvFormat }
         };
 
-        Rhi::ForwardPlus_RenderObjects_VertexShader vertexShader;
-        Rhi::ForwardPlus_RenderObjects_PixelShader  pixelShader;
-
-        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, vertexShader.GetCreateInfo());
-        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_PIXEL, pixelShader.GetCreateInfo());
+        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, Rhi::ForwardPlus_RenderObjects_VertexShader().GetCreateInfo());
+        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_PIXEL, Rhi::ForwardPlus_RenderObjects_PixelShader().GetCreateInfo());
 
         renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
 

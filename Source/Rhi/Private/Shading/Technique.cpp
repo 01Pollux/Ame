@@ -70,7 +70,7 @@ namespace Ame::Rhi
 
         ShadersToKeepAliveList shadersToKeepAlive;
         CombinedShader         shaderComposer;
-        PartialShaderDesc      partialShaders[3]; // Prologue, Body, Epilogue
+        PartialShaderDesc      partialShaders[2]; // Prologue, Body, Epilogue
         uint32_t               partialShaderCount = 0;
 
         //
@@ -121,17 +121,12 @@ namespace Ame::Rhi
                 }
 
                 partialShaderCount = 0;
-                auto  preIter      = materialDesc.PreShaders.find(shaderType);
-                auto  postIter     = materialDesc.PostShaders.find(shaderType);
+                auto  materialIter     = materialDesc.Shaders.find(shaderType);
                 auto& mainShader   = mainIter->second;
 
-                if (preIter != materialDesc.PreShaders.end())
+                if (materialIter != materialDesc.Shaders.end())
                 {
-                    partialShaders[partialShaderCount++] = { &preIter->second.GetCreateInfo() };
-                }
-                if (postIter != materialDesc.PostShaders.end())
-                {
-                    partialShaders[partialShaderCount++] = { &postIter->second.GetCreateInfo() };
+                    partialShaders[partialShaderCount++] = { &materialIter->second.GetCreateInfo() };
                 }
                 partialShaders[partialShaderCount++] = { &mainIter->second.GetCreateInfo() };
 

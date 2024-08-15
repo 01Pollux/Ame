@@ -55,14 +55,9 @@ namespace Ame::Rhi
         uint32_t SampleMask = 0xFFFF'FFFF;
 
         /// <summary>
-        /// all shaders here must contain void pre_main(...)
-        /// </summary>
-        MaterialShaderSourceStorage PreShaders;
-
-        /// <summary>
         /// all shaders here must contain void post_main(...)
         /// </summary>
-        MaterialShaderSourceStorage PostShaders;
+        MaterialShaderSourceStorage Shaders;
     };
 
     struct MaterialCreateDesc
