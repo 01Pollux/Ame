@@ -36,6 +36,7 @@ namespace Ame::Gfx
             Dg::IDeviceContext*)
         {
             auto frameData       = storage.GetResource(c_RGFrameData)->AsBuffer();
+            auto transforms      = storage.GetResource(c_RGTransforms)->AsBuffer();
             auto renderInstances = storage.GetResource(c_RGRenderInstances)->AsBuffer();
 
             if (!m_StaticInitialized)
@@ -45,6 +46,7 @@ namespace Ame::Gfx
                 Rhi::BindAllStaticInSignature(signature, ShaderFlags, "FrameDataBuffer", frameData->Resource);
                 signature->InitializeStaticSRBResources(m_Srb);
             }
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "Transforms", transforms->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
             Rhi::BindAllInSrb(m_Srb, ShaderFlags, "RenderInstances", renderInstances->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
         }
 
@@ -54,6 +56,7 @@ namespace Ame::Gfx
         {
             constexpr Dg::PipelineResourceDesc resources[]{
                 Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "Transforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "RenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
 

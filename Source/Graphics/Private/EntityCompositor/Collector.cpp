@@ -52,7 +52,6 @@ namespace Ame::Gfx
         RG::Graph&                       cameraGraph,
         const CameraFrameDataUpdateDesc& frameData)
     {
-        m_Storage.get().WriteInstanceIndices(m_DrawCommands);
         m_Storage.get().UploadToRenderGraph(cameraGraph, frameData);
 
         auto& world = *m_Storage.get().GetWorld();

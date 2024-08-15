@@ -10,6 +10,7 @@ namespace Ame::Gfx
         Ecs::World*      world) :
         m_World(world),
         m_RhiDevice(rhiDevice),
+        m_TransformStorage(*world),
         m_DrawInstanceStorage(*world)
     {
         Dg::BufferDesc bufferDesc{
@@ -23,26 +24,13 @@ namespace Ame::Gfx
         renderDevice->CreateBuffer(bufferDesc, nullptr, &m_FrameDataBuffer);
     }
 
-    void EntityStorage::WriteInstanceIndices(
-        const EntityDrawCommandsCategory& sortedInstances)
-    {
-        auto flatIndices =
-            sortedInstances |
-            std::views::join |
-            std::views::transform([](auto& instance)
-                                  { return instance.InstanceId; }) |
-            std::ranges::to<std::vector>();
-
-        UpdateInstances();
-        UpdateInstanceIndices(flatIndices);
-    }
-
     //
 
     void EntityStorage::UploadToRenderGraph(
         RG::Graph&                       cameraGraph,
         const CameraFrameDataUpdateDesc& frameData)
     {
+        UpdateInstances();
         UpdateFrameData(frameData);
         UploadAllResource(cameraGraph);
     }
@@ -51,39 +39,11 @@ namespace Ame::Gfx
 
     void EntityStorage::UpdateInstances()
     {
-        m_DrawInstanceStorage.Upload(
-            *m_World,
-            m_RhiDevice->GetRenderDevice(),
-            m_RhiDevice->GetImmediateContext());
-    }
+        auto renderDevice     = m_RhiDevice->GetRenderDevice();
+        auto immediateContext = m_RhiDevice->GetImmediateContext();
 
-    void EntityStorage::UpdateInstanceIndices(
-        std::span<const uint32_t> indices)
-    {
-        size_t requiredSize = m_DrawInstanceStorage.GetMaxCount() * sizeof(uint32_t);
-        if (!m_DrawInstanceIndexBuffer || m_DrawInstanceIndexBuffer->GetDesc().Size < requiredSize)
-        {
-            auto renderDevice = m_RhiDevice->GetRenderDevice();
-
-            Dg::BufferDesc bufferDesc{
-                "DrawInstanceIndexBuffer",
-                requiredSize,
-                Dg::BIND_SHADER_RESOURCE,
-                Dg::USAGE_DEFAULT,
-                Dg::CPU_ACCESS_NONE,
-                Dg::BUFFER_MODE_STRUCTURED,
-                sizeof(uint32_t)
-            };
-
-            m_DrawInstanceIndexBuffer.Release();
-            renderDevice->CreateBuffer(bufferDesc, nullptr, &m_DrawInstanceIndexBuffer);
-        }
-
-        if (!indices.empty())
-        {
-            auto immediateContext = m_RhiDevice->GetImmediateContext();
-            immediateContext->UpdateBuffer(m_DrawInstanceIndexBuffer, 0, indices.size_bytes(), indices.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        }
+        m_TransformStorage.Upload(*m_World, renderDevice, immediateContext);
+        m_DrawInstanceStorage.Upload(*m_World, renderDevice, immediateContext);
     }
 
     void EntityStorage::UpdateFrameData(
@@ -119,9 +79,8 @@ namespace Ame::Gfx
         auto& resourceStorage = cameraGraph.GetResourceStorage();
 
         resourceStorage.ImportBuffer(c_RGFrameData, m_FrameDataBuffer);
-
+        resourceStorage.ImportBuffer(c_RGTransforms, m_TransformStorage.GetBuffer());
         resourceStorage.ImportBuffer(c_RGRenderInstances, m_DrawInstanceStorage.GetBuffer());
-        resourceStorage.ImportBuffer(c_RGSortedRenderInstances, m_DrawInstanceIndexBuffer);
     }
 
     //

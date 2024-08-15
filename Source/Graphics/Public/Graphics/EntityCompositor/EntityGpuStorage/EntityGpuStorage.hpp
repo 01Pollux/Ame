@@ -32,6 +32,20 @@ namespace Ame::Gfx
         static constexpr uint32_t c_InvalidId = std::numeric_limits<uint32_t>::max();
         static constexpr uint32_t c_ChunkSize = 1024;
 
+    private:
+        struct SortedIdRange
+        {
+            uint32_t FirstId;
+            uint32_t Count;
+        };
+
+        struct SortedIdRangeResult
+        {
+            std::vector<typename traits_type::instance_type> Instances;
+            std::vector<SortedIdRange>                       Ranges;
+            uint32_t                                         LargestCount = 0;
+        };
+
     public:
         EntityGpuStorage(
             Ecs::WorldRef world)
@@ -120,21 +134,20 @@ namespace Ame::Gfx
                             continue;
                         }
 
-                        auto ids = iter.field<const typename traits_type::id_container_type>(0);
+                        auto ids    = iter.field<const typename traits_type::id_container_type>(0);
+                        auto result = GroupAndSortIds(iter, { &ids[0], iter.count() });
 
-                        std::vector<typename traits_type::instance_type> bufferData(iter.count());
-                        for (size_t i : iter)
+                        uint32_t bufferOffset = 0;
+                        for (auto& [start, count] : result.Ranges)
                         {
-                            uint32_t id = ids[i].Id;
-                            traits_type::update(iter.entity(i), bufferData[id]);
+                            renderContext->UpdateBuffer(
+                                m_Buffer,
+                                start * sizeof(typename traits_type::instance_type),
+                                count * sizeof(typename traits_type::instance_type),
+                                result.Instances.data() + bufferOffset,
+                                Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                            bufferOffset += count;
                         }
-
-                        renderContext->UpdateBuffer(
-                            m_Buffer,
-                            ids->Id * sizeof(typename traits_type::instance_type),
-                            bufferData.size() * sizeof(typename traits_type::instance_type),
-                            bufferData.data(),
-                            Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     }
                 });
         }
@@ -148,6 +161,56 @@ namespace Ame::Gfx
         [[nodiscard]] Ptr<Dg::IBuffer> GetBuffer() const noexcept
         {
             return m_Buffer;
+        }
+
+    private:
+        /// <summary>
+        /// Give a list of ids, those ids may or may not be sorted, and their values may or may not be contigious.
+        /// We will transform them into a list of contigious sorted ids.
+        /// [5, 1, 2, 6, 9, 0, 3]
+        /// 1: [0, 3] (0, 1, 2, 3)
+        /// 2: [5, 2] (5, 6)
+        /// 3: [9, 1] (9)
+        /// </summary>
+        [[nodiscard]] SortedIdRangeResult GroupAndSortIds(
+            Ecs::Iterator&                                           iter,
+            std::span<const typename traits_type::id_container_type> ids)
+        {
+            SortedIdRangeResult result;
+
+            auto sortedIds = ids |
+                             std::views::transform([](auto id)
+                                                   { return id.Id; }) |
+                             std::ranges::to<std::vector>();
+            std::ranges::sort(sortedIds);
+            result.Instances.resize(sortedIds.size());
+
+            auto     start  = sortedIds[0];
+            auto     prevId = start;
+            uint32_t count  = 1;
+
+            for (size_t i = 1; i < sortedIds.size(); i++)
+            {
+                auto currentId = sortedIds[i];
+
+                traits_type::update(iter.entity(i), result.Instances[i]);
+                if (currentId - prevId > 1)
+                {
+                    result.Ranges.emplace_back(start, count);
+                    result.LargestCount = std::max(result.LargestCount, count);
+
+                    start = currentId;
+                    count = 0;
+                }
+
+                prevId = currentId;
+                count++;
+            }
+
+            result.Ranges.emplace_back(start, count);
+            result.LargestCount = std::max(result.LargestCount, count);
+
+            return result;
         }
 
     private:

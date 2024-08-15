@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/EntityGpuStorage.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/Transforms.hpp>
 
 namespace Ame::Gfx
 {
@@ -11,20 +12,17 @@ namespace Ame::Gfx
 
     struct EntityGpuStorageTraits_DrawInstance
     {
-        static constexpr const char* name = "DrawInstance";
+        static constexpr const char* name = "DrawInstanceTable";
 
         using id_container_type = EntityDrawInstance_EcsId;
         using instance_type     = EntityDrawInstance;
 
         static void update(const Ecs::Entity& entity, instance_type& instance)
         {
-            auto  renderable     = entity->get<Ecs::RenderableComponent>()->Object;
-            auto& renderableDesc = renderable->GetRenderableDesc();
-
+            auto transformId     = entity->get<EntityTransform_EcsId>()->Id;
+            instance.TransformId = transformId;
             // TODO: Add bounding box/sphere optional
             // TODO: Add instance code
-            // TODO: Add instance transform
-            // TODO: draw type
         }
 
         static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
@@ -32,6 +30,10 @@ namespace Ame::Gfx
             return world
                 ->observer<>()
                 .with<Ecs::RenderableComponent>()
+                .in()
+                .and_()
+                .with<EntityTransform_EcsId>()
+                .in()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

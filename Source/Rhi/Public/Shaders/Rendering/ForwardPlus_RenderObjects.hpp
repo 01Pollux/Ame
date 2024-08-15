@@ -45,9 +45,11 @@ namespace Ame::Rhi
 		}
 #endif
 
-        RenderInstance instance = RenderInstances[vsIn.instance_id];
+        RenderInstance instance = RenderInstances[0];
+        //RenderInstance instance = RenderInstances[vsIn.instance_id];
 
-        float4x4 world = Transforms[instance.TransformId].World;
+        float4x4 world = Transforms[0].World;
+        //float4x4 world = Transforms[instance.TransformId].World;
         float4 position = mul(float4(vsIn.position, 1.0), world);
 
         vsOut.screen_position   = mul(FrameData.ViewProjection, position);
