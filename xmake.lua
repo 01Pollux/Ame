@@ -32,6 +32,7 @@ end
 
 set_runtimes(_vc_runtime)
 add_defines("NOMINMAX")
+set_warnings("allextra", "error")
 
 --
 

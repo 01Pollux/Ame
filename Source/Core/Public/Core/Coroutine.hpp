@@ -47,8 +47,8 @@ namespace concurrencpp
     /// </summary>
     inline void manual_executor_loop_distribute(
         std::span<const std::shared_ptr<manual_executor>> executors,
-        uint32_t                                          maxLoopCount,
-        uint32_t                                          chunkCount = 1)
+        size_t                                            maxLoopCount,
+        size_t                                            chunkCount = 1)
     {
         while (true)
         {
@@ -60,7 +60,7 @@ namespace concurrencpp
                     break;
                 }
 
-                uint32_t loopedCount = executor->loop(chunkCount);
+                size_t loopedCount = executor->loop(chunkCount);
                 maxLoopCount -= loopedCount;
                 dontBreak |= loopedCount != 0;
             }
@@ -76,7 +76,7 @@ namespace concurrencpp
     /// </summary>
     inline void manual_executor_loop_distribute_until_empty(
         std::span<const std::shared_ptr<manual_executor>> executors,
-        uint32_t                                          chunkCount = 1)
+        size_t                                            chunkCount = 1)
     {
         while (true)
         {

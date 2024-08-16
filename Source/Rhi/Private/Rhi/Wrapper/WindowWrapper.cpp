@@ -12,7 +12,7 @@ namespace Ame::Rhi
         m_Swapchain(std::move(swapchain)),
         m_WindowSizeChangedConnection(
             m_Window->GetEventListener().OnWindowSizeChanged(
-                [this](const Math::Size2I& newSize)
+                [this](const Math::Size2I&)
                 {
                     m_DirtySwapChain = true;
                 }))

@@ -101,8 +101,7 @@ namespace Ame::Gfx
                 {
                     if (cameras[i].RenderGraph)
                     {
-                        Ecs::Entity entity(iter.entity(i));
-                        m_EntityCompositor.RenderGraph(*cameras[i].RenderGraph, entity, cameras[i], transforms[i]);
+                        m_EntityCompositor.RenderGraph(*cameras[i].RenderGraph, cameras[i], transforms[i]);
                         TryOutputToTexture(m_CommonRenderPass, *cameras[i].RenderGraph, outputs[i]);
 
                         lastGraph  = cameras[i].RenderGraph;

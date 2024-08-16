@@ -94,7 +94,7 @@ namespace Ame::Rhi
         MaterialDataType     dataType,
         uint8_t              dims)
     {
-        size_t size = 0;
+        uint32_t size = 0;
         if (type == MaterialResourceType::Scalar)
         {
             switch (dataType)

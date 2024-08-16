@@ -21,7 +21,7 @@ namespace Ame::Rhi
         }
 
         static diligent_create_info GetCreateInfo(
-            const DeviceCreateDesc&   createDesc,
+            const DeviceCreateDesc&,
             const create_struct_type& createDescDev)
         {
             static VkAllocationCallbacks allocation{

@@ -107,7 +107,6 @@ namespace Ame::Rhi
             Ptr<Dg::IShaderResourceBinding> Bindings;
 
             LocalData(
-                Dg::IRenderDevice*         renderDevice,
                 const MaterialCommonState& commonState,
                 const LocalData*           copyFrom = nullptr);
 

@@ -42,8 +42,8 @@ namespace Ame::Gfx
         auto renderDevice     = m_RhiDevice->GetRenderDevice();
         auto immediateContext = m_RhiDevice->GetImmediateContext();
 
-        m_TransformStorage.Upload(*m_World, renderDevice, immediateContext);
-        m_DrawInstanceStorage.Upload(*m_World, renderDevice, immediateContext);
+        m_TransformStorage.Upload(renderDevice, immediateContext);
+        m_DrawInstanceStorage.Upload(renderDevice, immediateContext);
     }
 
     void EntityStorage::UpdateFrameData(

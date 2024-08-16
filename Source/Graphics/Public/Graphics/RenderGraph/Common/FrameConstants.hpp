@@ -19,7 +19,7 @@ namespace Ame::Gfx
         uint32_t CameraMask;
     };
 
-    struct alignas(16) CameraFrameData
+    struct CameraFrameData
     {
         Math::Matrix4x4 World;
 
@@ -38,5 +38,7 @@ namespace Ame::Gfx
         float DeltaTime;
 
         uint32_t CameraMask;
+        uint32_t _padding[2];
     };
+    static_assert(sizeof(CameraFrameData) == Math::AlignUp(sizeof(CameraFrameData), 16), "CameraFrameData is not 16-byte aligned");
 } // namespace Ame::Gfx

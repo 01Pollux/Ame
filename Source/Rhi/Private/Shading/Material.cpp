@@ -9,7 +9,6 @@
 namespace Ame::Rhi
 {
     Material::LocalData::LocalData(
-        Dg::IRenderDevice*         renderDevice,
         const MaterialCommonState& commonState,
         const LocalData*           copyFrom) :
         Name(copyFrom ? copyFrom->Name : "")
@@ -29,7 +28,6 @@ namespace Ame::Rhi
             resourceSignature->CreateShaderResourceBinding(&Bindings);
             if (copyFrom)
             {
-                auto& signatureDesc = resourceSignature->GetDesc();
                 CopyAllResourcesSrb(copyFrom->Bindings, Bindings);
             }
         }
@@ -143,7 +141,7 @@ namespace Ame::Rhi
         const MaterialCreateDesc& materialDesc) :
         Base(counters),
         m_SharedData(std::make_shared<SharedData>(renderDevice, materialDesc)),
-        m_LocalData(renderDevice, m_SharedData->CommonState, nullptr)
+        m_LocalData(m_SharedData->CommonState, nullptr)
     {
     }
 
@@ -152,7 +150,7 @@ namespace Ame::Rhi
         const Material*     material) :
         Base(counters),
         m_SharedData(material->m_SharedData),
-        m_LocalData(m_SharedData->RenderDevice, m_SharedData->CommonState, &material->m_LocalData)
+        m_LocalData(m_SharedData->CommonState, &material->m_LocalData)
     {
     }
 } // namespace Ame::Rhi

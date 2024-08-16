@@ -18,10 +18,9 @@ namespace Ame::Gfx
 
     void EntityCompositor::RenderGraph(
         RG::Graph&                   renderGraph,
-        const Ecs::Entity&           entity,
         const Math::Camera&          camera,
         const Math::TransformMatrix& transform)
     {
-        m_Drawer.Draw(renderGraph, entity, camera, transform);
+        m_Drawer.Draw(renderGraph, camera, transform);
     }
 } // namespace Ame::Gfx

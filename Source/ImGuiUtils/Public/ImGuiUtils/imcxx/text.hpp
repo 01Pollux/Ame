@@ -139,8 +139,7 @@ namespace imcxx
         /// </summary>
         text(wrapped, no_format, const char* begin, const char* end = nullptr)
         {
-            ImGuiContext& g           = *GImGui;
-            bool          need_backup = (ImGui::GetCurrentWindow()->DC.TextWrapPos < 0.0f); // Keep existing wrap position if one is already set
+            bool need_backup = (ImGui::GetCurrentWindow()->DC.TextWrapPos < 0.0f); // Keep existing wrap position if one is already set
             if (need_backup)
                 ImGui::PushTextWrapPos(0.f);
             ImGui::TextUnformatted(begin, end);

@@ -99,7 +99,7 @@ namespace Ame::Rhi
     }
 
     Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(
-        Window::IDesktopWindow*   desktopWindow,
+        Window::IDesktopWindow*,
         const FullscreenModeDesc& fullscreenDesc)
     {
         return {
@@ -113,7 +113,7 @@ namespace Ame::Rhi
 
     Dg::NativeWindow GetDiligentNativeWindow(
         Window::IDesktopWindow* desktopWindow,
-        bool                    isGL)
+        [[maybe_unused]] bool   isGL)
     {
         auto glfwWindow = desktopWindow->GetGlfwHandle();
 
@@ -141,7 +141,7 @@ namespace Ame::Rhi
         const Dg::Char*            file,
         int                        line)
     {
-        Log::LogLevel level;
+        Log::LogLevel level = Log::LogLevel::Disabled;
         switch (severity)
         {
         case Dg::DEBUG_MESSAGE_SEVERITY::DEBUG_MESSAGE_SEVERITY_INFO:
@@ -188,7 +188,7 @@ namespace Ame::Rhi
     }
 
     void SetMessageCallback(
-        Dg::IEngineFactory* factory)
+        Dg::IEngineFactory*)
     {
         Dg::SetDebugMessageCallback(&OnDiligentMessageCallback);
         // factory->SetMessageCallback(&OnDiligentMessageCallback);

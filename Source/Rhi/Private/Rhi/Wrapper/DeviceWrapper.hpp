@@ -7,7 +7,7 @@
 
 namespace Ame::Rhi
 {
-    class DeviceCreateDesc;
+    struct DeviceCreateDesc;
 
     class DeviceWrapper
     {

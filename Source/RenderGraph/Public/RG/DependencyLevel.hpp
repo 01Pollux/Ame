@@ -21,7 +21,6 @@ namespace Ame::RG
         /// Append render pass
         /// </summary>
         void AddPass(
-            Context&                    context,
             Pass*                       pass,
             std::vector<ResourceViewId> renderTargets,
             ResourceViewId              depthStencil,

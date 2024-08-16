@@ -12,11 +12,6 @@ namespace Ame
     } // namespace Ecs
 } // namespace Ame
 
-namespace Diligent
-{
-    class IRenderDevice;
-} // namespace Diligent
-
 namespace Ame::Gfx
 {
     /// <summary>

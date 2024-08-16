@@ -48,15 +48,15 @@ namespace Ame::Math
         return Width / Height;
     }
 
-    Math::Matrix4x4 Camera::Viewport::ProjectionMatrix(
+    Matrix4x4 Camera::Viewport::ProjectionMatrix(
         CameraType type) const
     {
         switch (type)
         {
         case CameraType::Perspective:
         {
-            return Math::Matrix4x4::PerspectiveFov(
-                Math::Util::DegToRad(FieldOfView),
+            return Matrix4x4::PerspectiveFov(
+                Util::DegToRad(FieldOfView),
                 AspectRatio(),
                 NearPlane,
                 FarPlane);
@@ -72,9 +72,9 @@ namespace Ame::Math
             }
 
             float halfSize = OrthographicSize / 2.f;
-            return Math::Matrix4x4::Orthographic(
-                Width * xAxisMultiplier,
-                Height * yAxisMultiplier,
+            return Matrix4x4::Orthographic(
+                Width * xAxisMultiplier * halfSize,
+                Height * yAxisMultiplier * halfSize,
                 NearPlane,
                 FarPlane);
         }
@@ -83,7 +83,7 @@ namespace Ame::Math
         }
     }
 
-    const Math::Matrix4x4& Camera::GetProjectionMatrix() const
+    const Matrix4x4& Camera::GetProjectionMatrix() const
     {
         if (!m_ProjectionMatrixCache)
         {
@@ -92,7 +92,7 @@ namespace Ame::Math
         return *m_ProjectionMatrixCache;
     }
 
-    Math::Vector2 Camera::GetViewporSize() const
+    Vector2 Camera::GetViewporSize() const
     {
         return { m_Viewport.Width, m_Viewport.Height };
     }

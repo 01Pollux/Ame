@@ -40,13 +40,6 @@ namespace Ame
         }
     }
 
-    [[nodiscard]] static Rhi::ImGuiRendererCreateDesc GetImGuiCreateDesc(
-        RhiGraphicsSubmodule* graphicsSubmodule)
-    {
-        Ptr<Rhi::IRhiDevice> rhiDevice;
-        graphicsSubmodule->QueryInterface(Rhi::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
-    }
-
     RhiModule::RhiModule(
         IReferenceCounters*    counters,
         const RhiModuleConfig& config) :

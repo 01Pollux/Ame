@@ -31,7 +31,7 @@ namespace Ame::Gfx
         Sphere
     };
 
-    struct alignas(4) EntityInstanceCode
+    struct EntityInstanceCode
     {
         EntityBoundingType BoundingType : 2 = EntityBoundingType::None;
     };
@@ -42,6 +42,7 @@ namespace Ame::Gfx
         uint32_t           BoundingId  = std::numeric_limits<uint32_t>::max();
         EntityInstanceCode Code;
     };
+    static_assert(sizeof(EntityDrawInstance) == Math::AlignUp(sizeof(EntityDrawInstance), 4), "EntityDrawInstance size is not aligned to 4 bytes");
 
     enum class DrawInstanceType : uint8_t
     {

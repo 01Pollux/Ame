@@ -8,8 +8,7 @@
 
 namespace Ame
 {
-    [[nodiscard]]
-    static Ptr<Rhi::IRhiDevice> GetRhiDevice(
+    [[nodiscard]] static Ptr<Rhi::IRhiDevice> GetRhiDevice(
         RhiModule* rhiModule)
     {
         Ptr<Rhi::IRhiDevice> rhiDevice;
@@ -17,8 +16,7 @@ namespace Ame
         return rhiDevice;
     }
 
-    [[nodiscard]]
-    static Ptr<Rhi::IImGuiRenderer> GetImGuiRenderer(
+    [[nodiscard]] static Ptr<Rhi::IImGuiRenderer> GetImGuiRenderer(
         RhiModule* rhiModule)
     {
         Ptr<Rhi::IImGuiRenderer> imguiRenderer;
@@ -37,10 +35,10 @@ namespace Ame
     }
 
     RendererSubmodule::RendererSubmodule(
-        IReferenceCounters*         counters,
-        RhiModule*                  rhiModule,
-        EntityModule*               entityModule,
-        const GraphicsModuleConfig& config) :
+        IReferenceCounters* counters,
+        RhiModule*          rhiModule,
+        EntityModule*       entityModule,
+        const GraphicsModuleConfig&) :
         Base(counters, IID_RendererSubmodule),
         m_Renderer(ObjectAllocator<Gfx::Renderer>()(GetRhiDevice(rhiModule), GetWorld(entityModule), GetImGuiRenderer(rhiModule)))
     {

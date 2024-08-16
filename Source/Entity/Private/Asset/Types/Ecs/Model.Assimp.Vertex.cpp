@@ -94,9 +94,9 @@ namespace Ame::Ecs
             return Buffer.size();
         }
 
-        [[nodiscard]] size_t ElementSize() const
+        [[nodiscard]] uint32_t ElementSize() const
         {
-            return sizeof(Ty);
+            return static_cast<uint32_t>(sizeof(Ty));
         }
 
         [[nodiscard]] size_t ByteSize() const

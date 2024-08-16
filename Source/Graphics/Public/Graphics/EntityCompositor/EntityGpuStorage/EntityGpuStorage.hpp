@@ -93,7 +93,7 @@ namespace Ame::Gfx
             const Ecs::Entity& entity)
         {
             auto& instanceId = entity->ensure<typename traits_type::id_container_type>();
-            auto  newId      = UpdateEntity(entity.GetId(), instanceId.Id);
+            auto  newId      = TryAllocateId(instanceId.Id);
             if (instanceId.Id != newId)
             {
                 instanceId.Id = newId;
@@ -117,13 +117,12 @@ namespace Ame::Gfx
         /// Updates the buffer with the dirty instances.
         /// </summary>
         void Upload(
-            const Ecs::WorldRef& world,
-            Dg::IRenderDevice*   renderDevice,
-            Dg::IDeviceContext*  renderContext)
+            Dg::IRenderDevice*  renderDevice,
+            Dg::IDeviceContext* renderContext)
         {
             // At least 1 instance must be available
             size_t requiredSize      = sizeof(typename traits_type::instance_type) * GetMaxCount();
-            bool   wholeBufferUpdate = TryGrowBuffer(renderDevice, renderContext, requiredSize);
+            bool   wholeBufferUpdate = TryGrowBuffer(renderDevice, requiredSize);
 
             if (!wholeBufferUpdate && !m_InstanceObserver->changed())
             {
@@ -234,9 +233,8 @@ namespace Ame::Gfx
         /// Add or Update entity state.
         /// Function is not thread safe.
         /// </summary>
-        [[nodiscard]] uint32_t UpdateEntity(
-            Ecs::EntityId entityId,
-            uint32_t      curId)
+        [[nodiscard]] uint32_t TryAllocateId(
+            uint32_t curId)
         {
             if (curId == c_InvalidId)
             {
@@ -256,9 +254,8 @@ namespace Ame::Gfx
         /// Returns true if the buffer was grown, this is used to avoid whole buffer update.
         /// </summary>
         [[nodiscard]] bool TryGrowBuffer(
-            Dg::IRenderDevice*  renderDevice,
-            Dg::IDeviceContext* renderContext,
-            size_t              newSize)
+            Dg::IRenderDevice* renderDevice,
+            size_t             newSize)
         {
             const Dg::BufferDesc* oldBufferDesc = nullptr;
             if (m_Buffer)
@@ -284,9 +281,7 @@ namespace Ame::Gfx
                 sizeof(typename traits_type::instance_type)
             };
 
-            bool isGrowing = m_Buffer != nullptr;
             renderDevice->CreateBuffer(bufferDesc, nullptr, &m_Buffer);
-
             return true;
         }
 

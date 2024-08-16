@@ -12,7 +12,7 @@ namespace Ame::Rhi
     /// Bind all set flags in a shader resource binding
     /// this is used for ALL_GRAPHICS flags etc.
     /// </summary>
-    static void BindAllStaticInSignature(
+    inline void BindAllStaticInSignature(
         Dg::IPipelineResourceSignature* signature,
         Dg::SHADER_TYPE                 typeFlags,
         const char*                     name,
@@ -21,8 +21,8 @@ namespace Ame::Rhi
     {
         while (typeFlags)
         {
-            Dg::SHADER_TYPE i   = Math::ExtractLSB(typeFlags);
-            auto            var = signature->GetStaticVariableByName(i, name);
+            Dg::SHADER_TYPE curType = Math::ExtractLSB(typeFlags);
+            auto            var     = signature->GetStaticVariableByName(curType, name);
             if (var)
             {
                 var->Set(object, setFlags);
@@ -34,7 +34,7 @@ namespace Ame::Rhi
     /// Bind all set flags in a shader resource binding
     /// this is used for ALL_GRAPHICS flags etc.
     /// </summary>
-    static void BindAllStaticInSrb(
+    inline void BindAllStaticInSrb(
         Dg::IShaderResourceBinding*   srb,
         Dg::SHADER_TYPE               typeFlags,
         const char*                   name,
@@ -49,7 +49,7 @@ namespace Ame::Rhi
     /// Bind all set flags in a shader resource binding
     /// this is used for ALL_GRAPHICS flags etc.
     /// </summary>
-    static void BindAllInSrb(
+    inline void BindAllInSrb(
         Dg::IShaderResourceBinding*   srb,
         Dg::SHADER_TYPE               typeFlags,
         const char*                   name,
@@ -58,8 +58,8 @@ namespace Ame::Rhi
     {
         while (typeFlags)
         {
-            Dg::SHADER_TYPE i   = Math::ExtractLSB(typeFlags);
-            auto            var = srb->GetVariableByName(i, name);
+            Dg::SHADER_TYPE curType = Math::ExtractLSB(typeFlags);
+            auto            var     = srb->GetVariableByName(curType, name);
             if (var)
             {
                 var->Set(object, setFlags);
@@ -67,7 +67,10 @@ namespace Ame::Rhi
         }
     }
 
-    static void CopyAllResourcesSrb(
+    /// <summary>
+    /// Copy all resources from one SRB to another
+    /// </summary>
+    inline void CopyAllResourcesSrb(
         Dg::IShaderResourceBinding* src,
         Dg::IShaderResourceBinding* dst)
     {
@@ -81,10 +84,10 @@ namespace Ame::Rhi
             Dg::SHADER_TYPE typeFlags = resource.ShaderStages;
             while (typeFlags)
             {
-                Dg::SHADER_TYPE i = Math::ExtractLSB(typeFlags);
+                Dg::SHADER_TYPE curType = Math::ExtractLSB(typeFlags);
 
-                auto srcVar = src->GetVariableByName(i, resource.Name);
-                auto dstVar = dst->GetVariableByName(i, resource.Name);
+                auto srcVar = src->GetVariableByName(curType, resource.Name);
+                auto dstVar = dst->GetVariableByName(curType, resource.Name);
 
                 if (dstVar && srcVar)
                 {

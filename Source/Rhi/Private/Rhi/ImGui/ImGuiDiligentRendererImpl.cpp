@@ -395,8 +395,6 @@ namespace Ame::Rhi
         const auto manualSrgb      = (m_ConversionMode == ImGuiColorConversionMode::Auto && srgbFramebuffer) ||
                                 (m_ConversionMode == ImGuiColorConversionMode::SrgbToLinear);
 
-        const auto DeviceType = m_RenderDevice->GetDeviceInfo().Type;
-
         Ptr<Dg::IShader> vertexShader;
         {
             ImGuiRenderVertexShader shaderDesc;
@@ -767,7 +765,7 @@ namespace Ame::Rhi
         // Render command lists
         // (Because we merged all buffers into a single one, we maintain our own offset into them)
         uint32_t globalIdxOffset = 0;
-        uint64_t globalVtxOffset = 0;
+        uint32_t globalVtxOffset = 0;
 
         Dg::ITextureView* lastTextureView = nullptr;
         for (int id : std::views::iota(0, drawData->CmdListsCount))

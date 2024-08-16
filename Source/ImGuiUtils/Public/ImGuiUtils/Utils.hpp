@@ -156,7 +156,7 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Begins a component header with the given label and togglable state.
     /// </summary>
-    [[nodiscard]] static ComponentHeaderInfo BeginComponentHeader(
+    [[nodiscard]] inline ComponentHeaderInfo BeginComponentHeader(
         const char* label,
         bool*       togglable = nullptr)
     {
@@ -210,7 +210,7 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Ends a component header.
     /// </summary>
-    static void EndComponentHeader()
+    inline void EndComponentHeader()
     {
         ImGui::TreePop();
     }
@@ -218,7 +218,7 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Insert a dummy spacing for next property
     /// </summary>
-    static void PropertySpacing()
+    inline void PropertySpacing()
     {
         ImGui::Dummy({ 0.f, 5.f });
     }

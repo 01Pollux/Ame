@@ -65,11 +65,11 @@ namespace Ame::Editor
         {
             if (ImGui::Selectable(s_NoneCamera.Name.c_str(), m_CurrentCameraIndex == m_CameraList.size()))
             {
-                m_CurrentCameraIndex = m_CameraList.size();
+                m_CurrentCameraIndex = static_cast<uint32_t>(m_CameraList.size());
             }
 
             ImGui::Separator();
-            for (size_t i = 0; i < m_CameraList.size(); i++)
+            for (uint32_t i = 0; i < static_cast<uint32_t>(m_CameraList.size()); i++)
             {
                 if (ImGui::Selectable(m_CameraList[i].Name.c_str(), m_CurrentCameraIndex == i))
                 {

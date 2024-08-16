@@ -29,11 +29,11 @@ namespace Ame::Editor
     //
 
     EditorWindowManagerImpl::EditorWindowManagerImpl(
-        IReferenceCounters*                  counters,
-        ModuleRegistry&                      registry,
-        RhiModule*                           rhiModule,
-        GraphicsModule*                      graphicsModule,
-        const EditorWindowManagerCreateDesc& createDesc) :
+        IReferenceCounters* counters,
+        ModuleRegistry&     registry,
+        RhiModule*          rhiModule,
+        GraphicsModule*     graphicsModule,
+        const EditorWindowManagerCreateDesc&) :
         Base(counters),
         m_Registry(registry)
     {

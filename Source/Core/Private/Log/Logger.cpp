@@ -26,12 +26,12 @@ namespace Ame::Log
     }
 
     Logger::Logger(
-        StringView TagName,
-        StringView FileName,
-        SinkList   Sinks) :
-        m_Name(TagName)
+        StringView tagName,
+        StringView fileName,
+        SinkList   sinks) :
+        m_Name(tagName)
     {
-        m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(m_Name), Sinks.begin(), Sinks.end());
+        m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(fileName), sinks.begin(), sinks.end());
         m_Logger->flush_on(spdlog::level::err);
 
 #if defined AME_DEBUG
@@ -46,23 +46,23 @@ namespace Ame::Log
     //
 
     void Logger::Register(
-        const String& TagName,
-        StringView    FileName,
-        SinkList      Sinks)
+        const String& tagName,
+        StringView    fileName,
+        SinkList      sinks)
     {
-        if (s_Loggers.contains(TagName))
+        if (s_Loggers.contains(tagName))
         {
             return;
         }
 
-        s_Loggers.emplace(TagName, UniquePtr<Logger>(new Logger(TagName, FileName, std::move(Sinks))));
+        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, fileName, std::move(sinks))));
     }
 
     void Logger::Register(
-        const String& TagName,
-        StringView    FileName)
+        const String& tagName,
+        StringView    fileName)
     {
-        if (s_Loggers.contains(TagName))
+        if (s_Loggers.contains(tagName))
         {
             return;
         }
@@ -70,7 +70,7 @@ namespace Ame::Log
         EnsureLogsDirectory();
 
         SinkList Sinks{
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(String(FileName)),
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(String(fileName)),
 #ifndef AME_DIST
             std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
 #ifdef AME_PLATFORM_WINDOWS
@@ -89,29 +89,29 @@ namespace Ame::Log
         }
 #endif
 
-        s_Loggers.emplace(TagName, UniquePtr<Logger>(new Logger(TagName, FileName, std::move(Sinks))));
+        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, fileName, std::move(Sinks))));
     }
 
     void Logger::RegisterNull(
-        const String& TagName)
+        const String& tagName)
     {
-        s_Loggers.emplace(TagName, UniquePtr<Logger>(new Logger));
+        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger));
     }
 
     void Logger::Unregister(
-        const String& TagName)
+        const String& tagName)
     {
-        spdlog::drop(Strings::To<std::string>(TagName));
-        s_Loggers.erase(TagName);
+        spdlog::drop(Strings::To<std::string>(tagName));
+        s_Loggers.erase(tagName);
     }
 
     //
 
     Logger& Logger::GetLogger(
-        const String& Name)
+        const String& name)
     {
         static Logger s_NullLogger;
-        auto          Iter = s_Loggers.find(Name);
+        auto          Iter = s_Loggers.find(name);
         if (Iter != s_Loggers.end())
         {
             return *Iter->second;

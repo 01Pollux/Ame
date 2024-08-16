@@ -49,9 +49,7 @@ namespace Ame
         bool error = false;
         if (str.size() == c_UIdStringLength)
         {
-            // use from_chars by reading hex of each part
-            uint32_t offset = 0;
-            bool     error  = std::from_chars(str.data(), str.data() + 8, uid.Data1, 16).ec != std::errc();
+            error = std::from_chars(str.data(), str.data() + 8, uid.Data1, 16).ec != std::errc();
             error |= std::from_chars(str.data() + 9, str.data() + 13, uid.Data2, 16).ec != std::errc();
             error |= std::from_chars(str.data() + 14, str.data() + 18, uid.Data3, 16).ec != std::errc();
             for (size_t i = 0; i < UIdData4Count(); ++i)

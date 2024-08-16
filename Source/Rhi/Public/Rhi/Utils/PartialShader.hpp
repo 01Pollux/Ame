@@ -65,7 +65,7 @@ namespace Ame::Rhi
                     factories.push_back(shader->pShaderSourceStreamFactory);
                 }
 
-                memorySources.emplace_back(path.c_str(), shader->Source, shader->SourceLength);
+                memorySources.emplace_back(path.c_str(), shader->Source, static_cast<uint32_t>(shader->SourceLength));
 
                 CompileFlags(CompileFlags() | shader->CompileFlags);
                 LoadConstantBufferReflection(LoadConstantBufferReflection() || shader->LoadConstantBufferReflection);

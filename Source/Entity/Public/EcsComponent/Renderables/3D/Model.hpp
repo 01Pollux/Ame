@@ -75,11 +75,11 @@ namespace Ame::Ecs
         }
 
     public:
-        void Serialize(BinaryOArchiver& ar) const override
+        void Serialize(BinaryOArchiver&) const override
         {
         }
 
-        void Deserialize(BinaryIArchiver& ar) override
+        void Deserialize(BinaryIArchiver&) override
         {
         }
 

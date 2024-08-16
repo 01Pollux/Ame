@@ -83,7 +83,7 @@ namespace Ame::Ecs
     void World::Progress(
         double deltaTime)
     {
-        m_World->progress(deltaTime);
+        m_World->progress(static_cast<float>(deltaTime));
     }
 
 } // namespace Ame::Ecs

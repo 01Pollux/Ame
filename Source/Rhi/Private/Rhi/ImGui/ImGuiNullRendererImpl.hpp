@@ -21,7 +21,7 @@ namespace Ame::Rhi
 
     public:
         void BeginFrame(
-            Dg::SURFACE_TRANSFORM transform) override
+            Dg::SURFACE_TRANSFORM) override
         {
         }
         void EndFrame() override

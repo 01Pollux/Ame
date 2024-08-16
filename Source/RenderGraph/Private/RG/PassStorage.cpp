@@ -70,7 +70,7 @@ namespace Ame::RG
             pass->second->DoBuild(passStorage.GraphResolver);
         }
 
-        auto passes = BuildPasses(context, builders);
+        auto passes = BuildPasses(builders);
         context.Build(std::move(passes));
     }
 
@@ -88,12 +88,11 @@ namespace Ame::RG
     //
 
     auto PassStorage::BuildPasses(
-        Context&          context,
         BuildersListType& builders) -> DepepndencyLevelListType
     {
         auto adjacencyList         = BuildAdjacencyLists(builders);
         auto topologicalSortedList = TopologicalSort(adjacencyList);
-        return BuildDependencyLevels(context, topologicalSortedList, adjacencyList, builders);
+        return BuildDependencyLevels(topologicalSortedList, adjacencyList, builders);
     }
 
     //
@@ -175,7 +174,6 @@ namespace Ame::RG
     //
 
     auto PassStorage::BuildDependencyLevels(
-        Context&                       context,
         const TopologicalSortListType& topologicallySortedList,
         const AdjacencyListType&       adjacencyList,
         BuildersListType&              builders) -> DepepndencyLevelListType
@@ -199,11 +197,9 @@ namespace Ame::RG
         for (size_t i = 0; i < m_Passes.size(); ++i)
         {
             size_t level    = distances[i];
-            auto&  builder  = builders[i];
             auto&  resolver = builders[i].GraphResolver;
 
             Dependencies[level].AddPass(
-                context,
                 m_Passes[i]->second.get(),
                 std::move(resolver.m_RenderTargets),
                 std::move(resolver.m_DepthStencil),

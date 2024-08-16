@@ -9,7 +9,6 @@
 namespace Ame::RG
 {
     void DependencyLevel::AddPass(
-        Context&                    context,
         Pass*                       pass,
         std::vector<ResourceViewId> renderTargets,
         ResourceViewId              depthStencil,
@@ -56,7 +55,7 @@ namespace Ame::RG
         Dg::ITextureView*             depthStencilView  = nullptr;
         float                         depthClearValue   = 0.0f;
         uint8_t                       stencilClearValue = 0;
-        Dg::CLEAR_DEPTH_STENCIL_FLAGS depthClearFlags = Dg::CLEAR_DEPTH_FLAG_NONE;
+        Dg::CLEAR_DEPTH_STENCIL_FLAGS depthClearFlags   = Dg::CLEAR_DEPTH_FLAG_NONE;
 
         clearColors.reserve(renderTargets.size());
         renderTargetsViews.reserve(renderTargets.size());
@@ -91,7 +90,7 @@ namespace Ame::RG
             auto  resource = resourceStorage.GetResource(depthStencil.GetResource());
             auto& viewDesc = *resource->GetTextureView(depthStencil);
 
-            auto dsv = std::get_if<DepthStencilViewDesc>(&viewDesc.Desc);
+            auto dsv         = std::get_if<DepthStencilViewDesc>(&viewDesc.Desc);
             depthStencilView = viewDesc.View;
             if (dsv)
             {
@@ -132,7 +131,7 @@ namespace Ame::RG
             }
         }
 
-        deviceContext->SetRenderTargets(renderTargetsViews.size(), renderTargetsViews.data(), depthStencilView, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->SetRenderTargets(Rhi::Count32(renderTargetsViews), renderTargetsViews.data(), depthStencilView, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
         for (auto [view, clearColor] : std::views::zip(renderTargetsViews, clearColors))
         {
             deviceContext->ClearRenderTarget(view, clearColor.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);

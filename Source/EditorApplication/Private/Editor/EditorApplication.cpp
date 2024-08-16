@@ -64,10 +64,10 @@ namespace Ame
         Gfx::RegisterForwardPlus(*renderGraph, world);
 
         Ecs::TransformComponent camTr;
-        camTr.SetBasis({ { -0.0231232084, 0.00000000, -0.999730587 },
-                         { -0.139856368, 0.990168571, 0.00323479460 },
-                         { 0.989904404, 0.139892802, -0.0228955243 } });
-        camTr.SetPosition({ -49.2009239, 92.5598831, 5.80854464 });
+        camTr.SetBasis({ { -0.0231232084f, 0.00000000f, -0.999730587f },
+                         { -0.139856368f, 0.990168571f, 0.00323479460f },
+                         { 0.989904404f, 0.139892802f, -0.0228955243f } });
+        camTr.SetPosition({ -49.2009239f, 92.5598831f, 5.80854464f });
 
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{
@@ -190,9 +190,9 @@ namespace Ame
                     /// Process the camera keyboard inputs.
                     /// </summary>
                     auto ProcessCameraKeyboard = [&](
-                                                     float                       DeltaTime,
-                                                     Ecs::TransformComponent*    Transform,
-                                                     const Ecs::CameraComponent& Camera) -> bool
+                                                     float                    DeltaTime,
+                                                     Ecs::TransformComponent* Transform,
+                                                     const Ecs::CameraComponent&) -> bool
                     {
                         float Speed = GetCameraKeyboardSpeed();
 

@@ -87,7 +87,7 @@ namespace Ame::Rhi
         fi_handle handle)
     {
         auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
-        return (io.istream ? static_cast<long>(io.istream->tellg()) : static_cast<long>(io.ostream->tellp())) - io.Offset;
+        return (io.istream ? static_cast<long>(io.istream->tellg()) : static_cast<long>(io.ostream->tellp() - io.Offset));
     }
 
     //

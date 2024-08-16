@@ -4,8 +4,8 @@
 #include <Log/Wrapper.hpp>
 
 static Ame::EditorApplicationConfig ParseEditorConfig(
-    int    argc,
-    char** argv)
+    int,
+    char**)
 {
     using namespace Ame;
 
@@ -20,7 +20,7 @@ static Ame::EditorApplicationConfig ParseEditorConfig(
 
     Rhi::DeviceCreateDesc rhiDeviceDesc{
         .Types{
-            Rhi::DeviceCreateDescD3D12{},
+            // Rhi::DeviceCreateDescD3D12{},
             Rhi::DeviceCreateDescVulkan{},
             Rhi::DeviceCreateDescD3D11{} }, // OpenGL is not supported as structured buffer and combined texture is too much hassle
         .Surface = Rhi::RenderSurfaceDesc{

@@ -15,20 +15,6 @@
 
 namespace Ame::Ecs
 {
-    // Check aiTexture::achFormatHint
-    [[nodiscard]] static Dg::TEXTURE_FORMAT AIDiscoverTextureFormat(
-        const char* format)
-    {
-        constexpr std::array c_Types{
-            std::pair{ "rgba8888", Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM },
-            std::pair{ "argb8888", Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM },
-            std::pair{ "rgba5650", Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM },
-            std::pair{ "rgba0010", Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM },
-        };
-    }
-
-    //
-
     [[nodiscard]] static Ptr<Dg::ITexture> LoadStandardTexture(
         Dg::IRenderDevice* renderDevice,
         const aiTexture*   aitexture)
@@ -56,7 +42,6 @@ namespace Ame::Ecs
 
     [[nodiscard]] static Ptr<Dg::ITexture> LoadTextureFromImage(
         Dg::IRenderDevice* renderDevice,
-        const aiTexture*   aitexture,
         const Rhi::Image&  image,
         const StringView   textureName)
     {
@@ -90,7 +75,6 @@ namespace Ame::Ecs
     [[nodiscard]] static Ptr<Dg::ITexture> LoadTexture(
         Rhi::IRhiDevice*   rhiDevice,
         const aiScene*     scene,
-        aiMaterial*        material,
         const String&      modelPath,
         const aiString&    texturePath,
         Rhi::CommonTexture placeholderType)
@@ -105,13 +89,16 @@ namespace Ame::Ecs
                 if (aitexture->mHeight != 0)
                 {
                     bool isSupported = std::strncmp(aitexture->achFormatHint, "rgba8888", sizeof(aiTexture::achFormatHint)) == 0;
-                    texture          = LoadStandardTexture(rhiDevice->GetRenderDevice(), aitexture);
+                    if (isSupported)
+                    {
+                        texture = LoadStandardTexture(rhiDevice->GetRenderDevice(), aitexture);
+                    }
                 }
                 else
                 {
                     auto  imageMemory = Rhi::ImageStorage::Load(std::bit_cast<std::byte*>(aitexture->pcData), aitexture->mWidth);
                     auto& image       = imageMemory.GetImage();
-                    texture           = LoadTextureFromImage(rhiDevice->GetRenderDevice(), aitexture, image, { aitexture->mFilename.C_Str(), aitexture->mFilename.length });
+                    texture           = LoadTextureFromImage(rhiDevice->GetRenderDevice(), image, { aitexture->mFilename.C_Str(), aitexture->mFilename.length });
                 }
             }
             else
@@ -126,7 +113,7 @@ namespace Ame::Ecs
                     if (format != Rhi::ImageFormat::Unknown)
                     {
                         image   = Rhi::ImageStorage::Decode(format, file);
-                        texture = LoadTextureFromImage(rhiDevice->GetRenderDevice(), aitexture, image.ConvertTo32Bits(), filePath.filename().string());
+                        texture = LoadTextureFromImage(rhiDevice->GetRenderDevice(), image.ConvertTo32Bits(), filePath.filename().string());
                     }
                 }
             }
@@ -215,7 +202,6 @@ namespace Ame::Ecs
                                    rhiDevice,
                                    scene,
                                    textureCache = std::map<String, Ptr<Dg::ITexture>>()](
-                                      aiMaterial*        material,
                                       const aiString&    texturePath,
                                       Rhi::CommonTexture placeholder) mutable -> Dg::ITexture*
         {
@@ -225,7 +211,7 @@ namespace Ame::Ecs
                 return iter->second;
             }
 
-            auto texture = LoadTexture(rhiDevice, scene, material, m_ModelRootPath, texturePath, placeholder);
+            auto texture = LoadTexture(rhiDevice, scene, m_ModelRootPath, texturePath, placeholder);
             return textureCache.emplace(texturePath.C_Str(), texture).first->second;
         };
 
@@ -238,7 +224,7 @@ namespace Ame::Ecs
                                       TextureNameAndAiType desc) mutable -> TextureNameAndResource
         {
             aimaterial->GetTexture(desc.Type, 0, &texturePath);
-            auto texture = getOrCreateTexture(aimaterial, texturePath, desc.Placeholder);
+            auto texture = getOrCreateTexture(texturePath, desc.Placeholder);
             return TextureNameAndResource{ desc.Name, texture };
         };
 

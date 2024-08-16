@@ -533,7 +533,7 @@ static void ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(GLFWwindow* window)
     io.AddKeyEvent(ImGuiMod_Super, (glfwGetKey(window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS));
 }
 
-bool ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+bool ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
     ImGuiContextOverride contextGuard(bd->Context);
@@ -609,7 +609,7 @@ static int ImGui_ImplGlfw_TranslateUntranslatedKey(int key, int scancode)
     return key;
 }
 
-bool ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, int action, int mods)
+bool ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, int action, int)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
 
@@ -735,7 +735,7 @@ static EM_BOOL ImGui_ImplEmscripten_WheelCallback(int, const EmscriptenWheelEven
 }
 #endif
 
-void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext* context, GLFWwindow* window)
+void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext*, GLFWwindow* window)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
     IM_ASSERT(bd->InstalledCallbacks == false && "Callbacks already installed!");
@@ -754,12 +754,12 @@ void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext* context, GLFWwindow* window)
     bd->InstalledCallbacks        = true;
 
     // Windows: register a WndProc hook so we can intercept some messages.
-//#ifdef _WIN32
-//    auto viewport   = context->Viewports[0];
-//    bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC);
-//    IM_ASSERT(bd->PrevWndProc != nullptr);
-//    ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
-//#endif
+    // #ifdef _WIN32
+    //     auto viewport   = context->Viewports[0];
+    //     bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC);
+    //     IM_ASSERT(bd->PrevWndProc != nullptr);
+    //     ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+    // #endif
 }
 
 void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWwindow* window)
@@ -905,9 +905,9 @@ void ImGui_ImplGlfw_Shutdown(ImGuiContext* context, GLFWwindow* window)
     ImGui_ImplGlfw_DeleteBackendData(window, viewport->PlatformHandleRaw);
 }
 
-static void ImGui_ImplGlfw_UpdateMouseData_NoLock(GLFWwindow* window)
+static void ImGui_ImplGlfw_UpdateMouseData_NoLock(GLFWwindow* mainWindow)
 {
-    auto bd = ImGui_ImplGlfw_GetBackendData(window);
+    auto bd = ImGui_ImplGlfw_GetBackendData(mainWindow);
     IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
 
     ImGuiIO&         io          = ImGui::GetIO();
@@ -918,7 +918,7 @@ static void ImGui_ImplGlfw_UpdateMouseData_NoLock(GLFWwindow* window)
     for (int n = 0; n < platform_io.Viewports.Size; n++)
     {
         ImGuiViewport* viewport = platform_io.Viewports[n];
-        GLFWwindow*    window   = (GLFWwindow*)viewport->PlatformHandle;
+        GLFWwindow*    window   = static_cast<GLFWwindow*>(viewport->PlatformHandle);
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
         const bool is_window_focused = true;
 #else
@@ -977,9 +977,9 @@ static void ImGui_ImplGlfw_UpdateMouseData_NoLock(GLFWwindow* window)
         io.AddMouseViewportEvent(mouse_viewport_id);
 }
 
-static void ImGui_ImplGlfw_UpdateMouseCursor_NoLock(GLFWwindow* window)
+static void ImGui_ImplGlfw_UpdateMouseCursor_NoLock(GLFWwindow* mainWindow)
 {
-    auto bd = ImGui_ImplGlfw_GetBackendData(window);
+    auto bd = ImGui_ImplGlfw_GetBackendData(mainWindow);
     IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
 
     ImGuiIO& io = ImGui::GetIO();
@@ -1125,7 +1125,7 @@ static void ImGui_ImplGlfw_UpdateMonitors(GLFWwindow* window)
     }
 }
 
-void ImGui_ImplGlfw_NewFrame(ImGuiContext* context, GLFWwindow* window)
+void ImGui_ImplGlfw_NewFrame(ImGuiContext*, GLFWwindow* window)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
 
@@ -1308,8 +1308,6 @@ static bool ImGui_ImplGlfw_WindowSizeCallback(GLFWwindow* window, int, int)
 
 static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
 {
-    GLFWwindow*                  window = (GLFWwindow*)viewport->PlatformHandle;
-    ImGui_ImplGlfw_Data*         bd     = ImGui_ImplGlfw_GetBackendData(window);
     ImGui_ImplGlfw_ViewportData* vd     = IM_NEW(ImGui_ImplGlfw_ViewportData)();
     viewport->PlatformUserData          = vd;
 
@@ -1561,7 +1559,7 @@ static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo()
         return ImGuiMouseSource_TouchScreen;
     return ImGuiMouseSource_Mouse;
 }
-static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+[[maybe_unused]] static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData_Platform(hWnd);
 

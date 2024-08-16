@@ -98,7 +98,6 @@ namespace Ame::RG
         /// Build passes from builders
         /// </summary>
         [[nodiscard]] DepepndencyLevelListType BuildPasses(
-            Context&          context,
             BuildersListType& builders);
 
         /// <summary>
@@ -126,7 +125,6 @@ namespace Ame::RG
         /// Build dependency levels
         /// </summary>
         [[nodiscard]] DepepndencyLevelListType BuildDependencyLevels(
-            Context&                       context,
             const TopologicalSortListType& topologicallySortedList,
             const AdjacencyListType&       adjacencyList,
             BuildersListType&              builders);

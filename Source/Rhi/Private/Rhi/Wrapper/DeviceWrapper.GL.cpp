@@ -21,8 +21,8 @@ namespace Ame::Rhi
         }
 
         static diligent_create_info GetCreateInfo(
-            const DeviceCreateDesc&   createDesc,
-            const create_struct_type& createDescDev)
+            const DeviceCreateDesc& createDesc,
+            const create_struct_type&)
         {
             auto& surfaceDesc = *createDesc.Surface;
 
