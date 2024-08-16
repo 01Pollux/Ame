@@ -12,8 +12,8 @@ namespace Ame::Rhi
         MaterialCreateDesc createDesc) :
         m_ResourceSignature(CreatePipelineResourceSignature(renderDevice, std::move(createDesc.ResourceSignature))),
         m_UserDataDesc(std::move(createDesc.UserData)),
-        m_MaterialDesc(std::move(createDesc.Desc)),
-        m_MaterialHash(CreateBaseMaterialHash(m_MaterialDesc))
+        m_MaterialShaders(std::move(createDesc.Shaders)),
+        m_MaterialHash(CreateBaseMaterialHash(m_MaterialShaders))
     {
     }
 
@@ -24,9 +24,9 @@ namespace Ame::Rhi
         return m_UserDataDesc;
     }
 
-    const MaterialDesc& MaterialCommonState::GetMaterialDesc() const noexcept
+    const MaterialShaderSourceStorage& MaterialCommonState::GetMaterialShaders() const noexcept
     {
-        return m_MaterialDesc;
+        return m_MaterialShaders;
     }
 
     auto MaterialCommonState::GetMaterialHash() const noexcept -> MaterialHash
@@ -55,8 +55,8 @@ namespace Ame::Rhi
     }
 
     auto MaterialCommonState::CreateBaseMaterialHash(
-        const MaterialDesc& materialDesc) -> MaterialHash
+        const MaterialShaderSourceStorage& shaders) -> MaterialHash
     {
-        return Dg::ComputeHash(materialDesc);
+        return Dg::ComputeHash(shaders);
     }
 } // namespace Ame::Rhi

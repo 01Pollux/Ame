@@ -60,8 +60,7 @@ namespace Ame::Rhi
         /// </summary>
         void InitializePipelineState(
             Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-            const MaterialVertexDesc&            vertexDesc,
-            const Material*                      material) const;
+            const MaterialVertexDesc&            vertexDesc) const;
 
         /// <summary>
         /// Create pipeline state for the material

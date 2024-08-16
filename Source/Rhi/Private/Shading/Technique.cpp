@@ -68,7 +68,7 @@ namespace Ame::Rhi
     {
         using namespace EnumBitOperators;
         auto& renderStateShaders = m_RenderState.Links;
-        auto& materialDesc       = material->GetMaterialDesc();
+        auto& materialShaders    = material->GetMaterialShaders();
 
         ShadersToKeepAliveList shadersToKeepAlive;
         CombinedShader         shaderComposer;
@@ -129,10 +129,10 @@ namespace Ame::Rhi
             }
 
             partialShaderCount = 0;
-            auto  materialIter = materialDesc.Shaders.find(shaderType);
+            auto  materialIter = materialShaders.find(shaderType);
             auto& mainShader   = mainIter->second;
 
-            if (materialIter != materialDesc.Shaders.end())
+            if (materialIter != materialShaders.end())
             {
                 partialShaders[partialShaderCount++] = { &materialIter->second.GetCreateInfo() };
             }
@@ -194,28 +194,20 @@ namespace Ame::Rhi
 
     void MaterialTechnique::InitializePipelineState(
         Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        const MaterialVertexDesc&            vertexDesc,
-        const Material*                      material) const
+        const MaterialVertexDesc&            vertexDesc) const
     {
-        auto& materialDesc = material->GetMaterialDesc();
-
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableType        = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableMergeStages = Dg::SHADER_TYPE_ALL_GRAPHICS;
 
-        graphicsPsoDesc.GraphicsPipeline.BlendDesc         = materialDesc.Blend;
-        graphicsPsoDesc.GraphicsPipeline.SampleMask        = materialDesc.SampleMask;
-        graphicsPsoDesc.GraphicsPipeline.RasterizerDesc    = materialDesc.Rasterizer;
-        graphicsPsoDesc.GraphicsPipeline.DepthStencilDesc  = materialDesc.DepthStencil;
+        graphicsPsoDesc.GraphicsPipeline.BlendDesc         = m_RenderState.Blend;
+        graphicsPsoDesc.GraphicsPipeline.SampleMask        = m_RenderState.SampleMask;
+        graphicsPsoDesc.GraphicsPipeline.RasterizerDesc    = m_RenderState.Rasterizer;
+        graphicsPsoDesc.GraphicsPipeline.DepthStencilDesc  = m_RenderState.DepthStencil;
         graphicsPsoDesc.GraphicsPipeline.PrimitiveTopology = vertexDesc.Topology;
         graphicsPsoDesc.GraphicsPipeline.NumRenderTargets  = Rhi::Count8(m_RenderState.RenderTargets);
         graphicsPsoDesc.GraphicsPipeline.ShadingRateFlags  = m_RenderState.ShadingRateFlags;
-
-        for (size_t i = 0; i < m_RenderState.RenderTargets.size(); i++)
-        {
-            graphicsPsoDesc.GraphicsPipeline.RTVFormats[i] = m_RenderState.RenderTargets[i];
-        }
-
-        graphicsPsoDesc.GraphicsPipeline.DSVFormat   = m_RenderState.DepthStencil;
+        std::ranges::copy(m_RenderState.RenderTargets, graphicsPsoDesc.GraphicsPipeline.RTVFormats);
+        graphicsPsoDesc.GraphicsPipeline.DSVFormat   = m_RenderState.DSFormat;
         graphicsPsoDesc.GraphicsPipeline.ReadOnlyDSV = m_RenderState.ReadOnlyDSV;
         graphicsPsoDesc.GraphicsPipeline.SmplDesc    = m_RenderState.Sample;
     }
@@ -227,7 +219,7 @@ namespace Ame::Rhi
         MaterialVertexInputLayout vertexInputLayout(vertexDesc.Flags);
 
         Dg::GraphicsPipelineStateCreateInfo psoCreateDesc;
-        InitializePipelineState(psoCreateDesc, vertexDesc, material);
+        InitializePipelineState(psoCreateDesc, vertexDesc);
         psoCreateDesc.GraphicsPipeline.InputLayout = vertexInputLayout;
 
 #ifndef AME_DIST

@@ -32,12 +32,12 @@ namespace Ame::Gfx
         auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->Desc.Format;
 
         Rhi::MaterialRenderState renderState{
-            .Name         = "Forward+::DepthPrePass",
-            .DepthStencil = dsvFormat
+            .Name     = "Forward+::DepthPrePass",
+            .DSFormat = dsvFormat,
         };
 
         renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, Rhi::DepthPrepass_VertexShader().GetCreateInfo());
-        renderState.Links.ActiveShaders = Dg::SHADER_TYPE_VERTEX;
+        renderState.Links.ActiveShaders = Dg::SHADER_TYPE_ALL_GRAPHICS & ~Dg::SHADER_TYPE_PIXEL;
 
         renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
 

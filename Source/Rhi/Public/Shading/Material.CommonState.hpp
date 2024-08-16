@@ -18,9 +18,9 @@ namespace Ame::Rhi
         [[nodiscard]] const MaterialPropertyDescriptor& GetUserDataDesc() const noexcept;
 
         /// <summary>
-        /// Get the base material desc for the material
+        /// Get the shader sources for the material
         /// </summary>
-        [[nodiscard]] const MaterialDesc& GetMaterialDesc() const noexcept;
+        [[nodiscard]] const MaterialShaderSourceStorage& GetMaterialShaders() const noexcept;
 
         /// <summary>
         /// Get the material hash for the base material desc
@@ -44,13 +44,13 @@ namespace Ame::Rhi
         /// Create material's hash
         /// </summary>
         [[nodiscard]] static MaterialHash CreateBaseMaterialHash(
-            const MaterialDesc& materialDesc);
+            const MaterialShaderSourceStorage& materialDesc);
 
     private:
         Ptr<Dg::IPipelineResourceSignature> m_ResourceSignature;
         MaterialPropertyDescriptor          m_UserDataDesc;
 
-        MaterialDesc m_MaterialDesc;
-        MaterialHash m_MaterialHash;
+        MaterialShaderSourceStorage m_MaterialShaders;
+        MaterialHash                m_MaterialHash;
     };
 } // namespace Ame::Rhi

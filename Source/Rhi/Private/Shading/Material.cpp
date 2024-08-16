@@ -59,9 +59,9 @@ namespace Ame::Rhi
 
     //
 
-    const MaterialDesc& Material::GetMaterialDesc() const noexcept
+    const MaterialShaderSourceStorage& Material::GetMaterialShaders() const noexcept
     {
-        return m_SharedData->CommonState.GetMaterialDesc();
+        return m_SharedData->CommonState.GetMaterialShaders();
     }
 
     auto Material::GetMaterialHash() const noexcept -> MaterialHash

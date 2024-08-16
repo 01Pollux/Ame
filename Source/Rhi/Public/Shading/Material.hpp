@@ -31,7 +31,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the base material desc for the material
         /// </summary>
-        [[nodiscard]] const MaterialDesc& GetMaterialDesc() const noexcept;
+        [[nodiscard]] const MaterialShaderSourceStorage& GetMaterialShaders() const noexcept;
 
         /// <summary>
         /// Get the material hash for the base material desc

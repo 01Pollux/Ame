@@ -88,22 +88,6 @@ namespace std
     //
 
     template<>
-    struct hash<Ame::Rhi::MaterialDesc>
-    {
-        size_t operator()(const Ame::Rhi::MaterialDesc& materialDesc) const
-        {
-            size_t hash = 0;
-            Dg::HashCombine(hash,
-                            materialDesc.Blend,
-                            materialDesc.SampleMask,
-                            materialDesc.Rasterizer,
-                            materialDesc.DepthStencil,
-                            materialDesc.Shaders);
-            return hash;
-        }
-    };
-
-    template<>
     struct hash<Ame::Rhi::MaterialRenderState>
     {
         size_t operator()(const Ame::Rhi::MaterialRenderState& state) const
@@ -137,9 +121,13 @@ namespace std
             }
 
             Dg::HashCombine(hash,
+                            state.Blend,
+                            state.SampleMask,
+                            state.Rasterizer,
+                            state.DepthStencil,
                             state.Sample,
                             std::to_underlying(state.ShadingRateFlags),
-                            std::to_underlying(state.DepthStencil),
+                            std::to_underlying(state.DSFormat),
                             state.ReadOnlyDSV);
 
             return hash;

@@ -15,6 +15,6 @@ namespace Ame::Rhi
         ResourceSignature.Resources    = StdResources.data();
         ResourceSignature.NumResources = Rhi::Count32(StdResources);
 
-        Desc.Shaders.emplace(Dg::SHADER_TYPE_PIXEL, StdMaterial3D_PixelShader().GetCreateInfo());
+        Shaders.emplace(Dg::SHADER_TYPE_PIXEL, StdMaterial3D_PixelShader().GetCreateInfo());
     }
 } // namespace Ame::Rhi

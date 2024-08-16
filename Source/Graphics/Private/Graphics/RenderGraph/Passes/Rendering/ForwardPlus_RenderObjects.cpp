@@ -34,10 +34,10 @@ namespace Ame::Gfx
 
         Rhi::MaterialRenderState renderState{
             .Name          = "Forward+::RenderObjects",
+            .DepthStencil  = Dg::DSS_EnableDepthNoWrites,
             .RenderTargets = { rtvFormat },
-            .DepthStencil  = dsvFormat
+            .DSFormat      = dsvFormat
         };
-        renderState.ReadOnlyDSV = true;
 
         renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, Rhi::ForwardPlus_RenderObjects_VertexShader().GetCreateInfo());
         renderState.Links.Sources.emplace(Dg::SHADER_TYPE_PIXEL, Rhi::ForwardPlus_RenderObjects_PixelShader().GetCreateInfo());
