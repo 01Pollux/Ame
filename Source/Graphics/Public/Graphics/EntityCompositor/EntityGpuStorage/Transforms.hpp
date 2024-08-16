@@ -14,7 +14,7 @@ namespace Ame::Gfx
         static constexpr const char* name = "TransformTable";
 
         using id_container_type = EntityTransform_EcsId;
-        using instance_type     = Math::TransformMatrix;
+        using instance_type     = Math::Matrix4x4;
 
         static void update(const Ecs::Entity& entity, instance_type& instance)
         {

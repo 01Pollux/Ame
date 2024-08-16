@@ -33,6 +33,12 @@ namespace Ame::Gfx
         static constexpr uint32_t c_ChunkSize = 1024;
 
     private:
+        struct UnsortedEntityId
+        {
+            Ecs::EntityId EntityId;
+            uint32_t      InstanceId;
+        };
+
         struct SortedIdRange
         {
             uint32_t FirstId;
@@ -127,6 +133,8 @@ namespace Ame::Gfx
             m_InstanceObserver->run(
                 [&](Ecs::Iterator& iter)
                 {
+                    std::vector<UnsortedEntityId> collectedIds;
+
                     while (iter.next())
                     {
                         if (!wholeBufferUpdate && !iter.changed())
@@ -134,8 +142,18 @@ namespace Ame::Gfx
                             continue;
                         }
 
-                        auto ids    = iter.field<const typename traits_type::id_container_type>(0);
-                        auto result = GroupAndSortIds(iter, { &ids[0], iter.count() });
+                        auto ids = iter.field<const typename traits_type::id_container_type>(0);
+                        collectedIds.reserve(collectedIds.size() + iter.count());
+
+                        for (size_t i : iter)
+                        {
+                            collectedIds.emplace_back(iter.entity(i), ids[i].Id);
+                        }
+                    }
+
+                    if (!collectedIds.empty())
+                    {
+                        auto result = GroupAndSortIds(iter, collectedIds);
 
                         uint32_t bufferOffset = 0;
                         for (auto& [start, count] : result.Ranges)
@@ -173,27 +191,25 @@ namespace Ame::Gfx
         /// 3: [9, 1] (9)
         /// </summary>
         [[nodiscard]] SortedIdRangeResult GroupAndSortIds(
-            Ecs::Iterator&                                           iter,
-            std::span<const typename traits_type::id_container_type> ids)
+            Ecs::Iterator&              iter,
+            std::span<UnsortedEntityId> ids)
         {
             SortedIdRangeResult result;
 
-            auto sortedIds = ids |
-                             std::views::transform([](auto id)
-                                                   { return id.Id; }) |
-                             std::ranges::to<std::vector>();
-            std::ranges::sort(sortedIds);
-            result.Instances.resize(sortedIds.size());
+            std::sort(ids.begin(), ids.end(), [](const auto& a, const auto& b)
+                      { return a.InstanceId < b.InstanceId; });
+            result.Instances.resize(ids.size());
 
-            auto     start  = sortedIds[0];
+            auto     start  = ids[0].InstanceId;
             auto     prevId = start;
             uint32_t count  = 1;
 
-            for (size_t i = 1; i < sortedIds.size(); i++)
+            traits_type::update(flecs::entity{ iter.world(), ids[0].EntityId }, result.Instances[0]);
+            for (size_t i = 1; i < ids.size(); i++)
             {
-                auto currentId = sortedIds[i];
+                auto currentId = ids[i].InstanceId;
 
-                traits_type::update(iter.entity(i), result.Instances[i]);
+                traits_type::update(flecs::entity{ iter.world(), ids[i].EntityId }, result.Instances[i]);
                 if (currentId - prevId > 1)
                 {
                     result.Ranges.emplace_back(start, count);
