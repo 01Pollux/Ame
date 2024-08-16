@@ -56,7 +56,7 @@ namespace Ame::RG
         Dg::ITextureView*             depthStencilView  = nullptr;
         float                         depthClearValue   = 0.0f;
         uint8_t                       stencilClearValue = 0;
-        Dg::CLEAR_DEPTH_STENCIL_FLAGS depthClearFlags;
+        Dg::CLEAR_DEPTH_STENCIL_FLAGS depthClearFlags = Dg::CLEAR_DEPTH_FLAG_NONE;
 
         clearColors.reserve(renderTargets.size());
         renderTargetsViews.reserve(renderTargets.size());
@@ -137,7 +137,7 @@ namespace Ame::RG
         {
             deviceContext->ClearRenderTarget(view, clearColor.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
         }
-        if (depthStencilView)
+        if (depthClearFlags)
         {
             deviceContext->ClearDepthStencil(depthStencilView, depthClearFlags, depthClearValue, stencilClearValue, Dg::RESOURCE_STATE_TRANSITION_MODE_VERIFY);
         }

@@ -23,7 +23,7 @@ namespace Ame::Gfx
         auto textureDesc = resolver.GetBackbufferDesc();
         textureDesc.BindFlags |= Dg::BIND_SHADER_RESOURCE;
 
-        resolver.CreateTexture(RGFinalImage.GetResource(), textureDesc);
-        resolver.WriteTexture(RGFinalImage, Dg::BIND_RENDER_TARGET, rtv);
+        resolver.CreateTexture(c_RGFinalImage, textureDesc);
+        resolver.WriteTexture(c_RGFinalImage("Initialize"), Dg::BIND_RENDER_TARGET, rtv);
     }
 } // namespace Ame::Gfx

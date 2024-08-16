@@ -9,6 +9,8 @@
 #include <Rhi/Utils/PartialShader.hpp>
 
 #include <Core/Enum.hpp>
+#include <Math/Common.hpp>
+
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rhi
@@ -106,64 +108,64 @@ namespace Ame::Rhi
         };
 
         RenderDeviceWithCache<false> renderDevice(m_RenderDevice);
-        for (auto shaderType : MaterialCommonState::c_AllSupportedShaders)
+
+        auto shaderFlags = m_RenderState.Links.ActiveShaders;
+        while (shaderFlags)
         {
-            Ptr<Dg::IShader> shader;
+            auto shaderType = Math::ExtractLSB(shaderFlags);
+            auto iter       = renderStateShaders.Shaders.find(shaderType);
 
-            auto iter = renderStateShaders.Shaders.find(shaderType);
+            if (iter != renderStateShaders.Shaders.end())
+            {
+                setShader(shaderType, iter->second);
+                continue;
+            }
+
             // No linked shader was set, so compile them from the source code
-            if (iter == renderStateShaders.Shaders.end())
+            auto mainIter = renderStateShaders.Sources.find(shaderType);
+            if (mainIter == renderStateShaders.Sources.end())
             {
-                auto mainIter = renderStateShaders.Sources.find(shaderType);
-                if (mainIter == renderStateShaders.Sources.end())
-                {
-                    continue;
-                }
-
-                partialShaderCount = 0;
-                auto  materialIter = materialDesc.Shaders.find(shaderType);
-                auto& mainShader   = mainIter->second;
-
-                if (materialIter != materialDesc.Shaders.end())
-                {
-                    partialShaders[partialShaderCount++] = { &materialIter->second.GetCreateInfo() };
-                }
-                partialShaders[partialShaderCount++] = { &mainIter->second.GetCreateInfo() };
-
-                CombinedShaderCreateDesc combinedDesc{ { partialShaders, partialShaderCount } };
-                shaderComposer.Initialize(combinedDesc);
-
-                shaderComposer
-                    .ShaderType(shaderType)
-                    .ShaderType(mainShader.ShaderType())
-                    .SourceLanguage(mainShader.SourceLanguage())
-                    .ShaderCompiler(mainShader.ShaderCompiler())
-                    .HLSLVersion(mainShader.HLSLVersion())
-                    .GLSLVersion(mainShader.GLSLVersion())
-                    .GLESSLVersion(mainShader.GLESSLVersion())
-                    .MSLVersion(mainShader.MSLVersion())
-                    .WebGPUEmulatedArrayIndexSuffixCStr(mainShader.WebGPUEmulatedArrayIndexSuffix());
-
-#ifndef AME_DIST
-                shaderComposer.Name(std::format("{}_{:X}_{}", m_RenderState.Name, material->GetMaterialHash(), Dg::GetShaderTypeLiteralName(shaderType)));
-#endif
-
-                shader = renderDevice.CreateShader(shaderComposer.GetCreateInfo());
-
-#ifndef AME_DIST
-                if (!shader)
-                {
-                    Log::Gfx().Error("Failed to create shader for type: {}", Dg::GetShaderTypeLiteralName(shaderType));
-                }
-#endif
-
-                shadersToKeepAlive.emplace_back(shader);
-            }
-            else
-            {
-                shader = iter->second;
+                continue;
             }
 
+            partialShaderCount = 0;
+            auto  materialIter = materialDesc.Shaders.find(shaderType);
+            auto& mainShader   = mainIter->second;
+
+            if (materialIter != materialDesc.Shaders.end())
+            {
+                partialShaders[partialShaderCount++] = { &materialIter->second.GetCreateInfo() };
+            }
+            partialShaders[partialShaderCount++] = { &mainIter->second.GetCreateInfo() };
+
+            CombinedShaderCreateDesc combinedDesc{ { partialShaders, partialShaderCount } };
+            shaderComposer.Initialize(combinedDesc);
+
+            shaderComposer
+                .ShaderType(shaderType)
+                .ShaderType(mainShader.ShaderType())
+                .SourceLanguage(mainShader.SourceLanguage())
+                .ShaderCompiler(mainShader.ShaderCompiler())
+                .HLSLVersion(mainShader.HLSLVersion())
+                .GLSLVersion(mainShader.GLSLVersion())
+                .GLESSLVersion(mainShader.GLESSLVersion())
+                .MSLVersion(mainShader.MSLVersion())
+                .WebGPUEmulatedArrayIndexSuffixCStr(mainShader.WebGPUEmulatedArrayIndexSuffix());
+
+#ifndef AME_DIST
+            shaderComposer.Name(std::format("{}_{:X}_{}", m_RenderState.Name, material->GetMaterialHash(), Dg::GetShaderTypeLiteralName(shaderType)));
+#endif
+
+            auto shader = renderDevice.CreateShader(shaderComposer.GetCreateInfo());
+
+#ifndef AME_DIST
+            if (!shader)
+            {
+                Log::Gfx().Error("Failed to create shader for type: {}", Dg::GetShaderTypeLiteralName(shaderType));
+            }
+#endif
+
+            shadersToKeepAlive.emplace_back(shader);
             setShader(shaderType, shader);
         }
 

@@ -32,12 +32,12 @@ namespace Ame::RG
         /// <summary>
         /// Get resource name (non-dist only)
         /// </summary>
-        [[nodiscard]] StringView GetName() const noexcept
+        [[nodiscard]] const char* GetName() const noexcept
         {
 #ifndef AME_DIST
-            return m_Name;
+            return m_Name.c_str();
 #else
-            return Strings::c_Empty<String>;
+            return "";
 #endif
         }
 

@@ -9,9 +9,6 @@ namespace Ame::Gfx
     class EntityEmptyVertexBuffersPass : public RG::Pass
     {
     public:
-        static inline const RG::ResourceId EGEntityEmptyVertexBuffers{ "_EEVB" };
-
-    public:
         EntityEmptyVertexBuffersPass()
         {
             Build(std::bind_front(&EntityEmptyVertexBuffersPass::OnBuild, this));
@@ -43,7 +40,7 @@ namespace Ame::Gfx
             // clang-format on
 
             Dg::BufferData bufferData(c_Data, sizeof(c_Data));
-            resolver.CreateImmediateBuffer(EGEntityEmptyVertexBuffers, &bufferData, bufferDesc);
+            resolver.CreateImmediateBuffer(c_RGEntityEmptyVertexBuffers, &bufferData, bufferDesc);
         }
     };
 } // namespace Ame::Gfx

@@ -1,0 +1,71 @@
+#include <Graphics/RenderGraph/Passes/Rendering/ForwardPlus_RenderObjects.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/EntityResourceSignature.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/EntityEmptyVertexBuffers.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/StdRenderObjects.hpp>
+
+#include <Shaders/Rendering/ForwardPlus_RenderObjects.hpp>
+
+namespace Ame::Gfx
+{
+    ForwardPlus_RenderObjects::ForwardPlus_RenderObjects(
+        Ecs::World* world) :
+        m_World(world)
+    {
+        Name("Render Objects")
+            .Flags(RG::PassFlags::Graphics)
+            .Build(std::bind_front(&ForwardPlus_RenderObjects::OnBuild, this))
+            .Execute(std::bind_front(&ForwardPlus_RenderObjects::OnExecute, this));
+    }
+
+    //
+
+    void ForwardPlus_RenderObjects::TryCreateResources(
+        const RG::ResourceStorage&  storage,
+        Dg::IShaderResourceBinding* srb)
+    {
+        if (m_Technique)
+        {
+            return;
+        }
+
+        auto renderDevice = storage.GetDevice()->GetRenderDevice();
+        auto rtvFormat    = storage.GetResource(c_RGFinalImage)->AsTexture()->Desc.Format;
+        auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->Desc.Format;
+
+        Rhi::MaterialRenderState renderState{
+            .Name          = "Forward+::RenderObjects",
+            .RenderTargets = { rtvFormat },
+            .DepthStencil  = dsvFormat
+        };
+        renderState.ReadOnlyDSV = true;
+
+        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, Rhi::ForwardPlus_RenderObjects_VertexShader().GetCreateInfo());
+        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_PIXEL, Rhi::ForwardPlus_RenderObjects_PixelShader().GetCreateInfo());
+
+        renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
+
+        m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
+    }
+
+    //
+
+    void ForwardPlus_RenderObjects::OnBuild(
+        RG::Resolver& resolver)
+    {
+        resolver.WriteTexture(c_RGDepthImage("Depth"), Dg::BIND_DEPTH_STENCIL, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
+        resolver.WriteTexture(c_RGFinalImage("Render Objects"), Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
+
+        resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
+        resolver.ReadUserData(c_RGEntityEmptyVertexBuffers);
+    }
+
+    void ForwardPlus_RenderObjects::OnExecute(
+        const RG::ResourceStorage& storage,
+        Dg::IDeviceContext*        deviceContext)
+    {
+        auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+
+        TryCreateResources(storage, ersSrb);
+        StandardRenderObjects(*m_World, ersSrb, deviceContext, m_Technique);
+    }
+} // namespace Ame::Gfx

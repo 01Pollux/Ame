@@ -11,10 +11,10 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx
 {
-    class ForwardPlus_RenderObjects : public RG::Pass
+    class DepthPrePass : public RG::Pass
     {
     public:
-        ForwardPlus_RenderObjects(
+        DepthPrePass(
             Ecs::World* world);
 
     private:

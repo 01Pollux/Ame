@@ -7,15 +7,6 @@ namespace Ame::Rhi
     class MaterialCommonState
     {
     public:
-        static constexpr Dg::SHADER_TYPE c_AllSupportedShaders[]{
-            Dg::SHADER_TYPE_VERTEX,
-            Dg::SHADER_TYPE_PIXEL,
-            Dg::SHADER_TYPE_GEOMETRY,
-            Dg::SHADER_TYPE_HULL,
-            Dg::SHADER_TYPE_DOMAIN
-        };
-
-    public:
         MaterialCommonState(
             Dg::IRenderDevice* renderDevice,
             MaterialCreateDesc createDesc);

@@ -8,9 +8,6 @@ namespace Ame::Gfx
     class ForwardPlus_InitializePass : public RG::Pass
     {
     public:
-        static inline const auto RGFinalImage = c_RGFinalImage("Initialize");
-
-    public:
         ForwardPlus_InitializePass();
 
     private:

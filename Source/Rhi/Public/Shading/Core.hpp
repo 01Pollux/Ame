@@ -79,7 +79,12 @@ namespace Ame::Rhi
         /// All shaders here must contain void main(...)
         /// </summary>
         MaterialShaderSourceStorage Sources;
-        MaterialShaderStorage       Shaders;
+
+        // Precompiled shaders
+        MaterialShaderStorage Shaders;
+
+        // Shaders to bind to the pso
+        Dg::SHADER_TYPE ActiveShaders = Dg::SHADER_TYPE_ALL_GRAPHICS;
     };
 
     struct MaterialRenderState

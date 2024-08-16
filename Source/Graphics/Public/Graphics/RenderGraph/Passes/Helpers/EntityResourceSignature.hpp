@@ -36,8 +36,8 @@ namespace Ame::Gfx
             Dg::IDeviceContext*)
         {
             auto frameData       = storage.GetResource(c_RGFrameData)->AsBuffer();
-            auto transforms      = storage.GetResource(c_RGTransforms)->AsBuffer();
-            auto renderInstances = storage.GetResource(c_RGRenderInstances)->AsBuffer();
+            auto transforms      = storage.GetResource(c_RGTransformTable)->AsBuffer();
+            auto renderInstances = storage.GetResource(c_RGRenderInstanceTable)->AsBuffer();
 
             if (!m_StaticInitialized)
             {
@@ -101,7 +101,7 @@ namespace Ame::Gfx
         : public EntityResourceSignaturePass<EntityResourceSignature_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
-        static inline const RG::ResourceId RGEntityResourceSignature{ "_ERS_Graphics" };
+        static inline const RG::ResourceId RGEntityResourceSignature = c_RGEntityResourceSignature_Graphics;
 
     public:
         EntityResourceSignature_GraphicsPass()
