@@ -7,9 +7,9 @@ namespace Ame::Gfx
 {
     struct CameraFrameDataUpdateDesc
     {
-        Math::Matrix4x4 WorldTransposed;
-        Math::Matrix4x4 ViewTransposed;
-        Math::Matrix4x4 ProjectionTransposed;
+        Math::Matrix4x4 World;
+        Math::Matrix4x4 View;
+        Math::Matrix4x4 Projection;
         Math::Vector2   Viewport;
 
         float EngineTime;

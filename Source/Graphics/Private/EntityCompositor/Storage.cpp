@@ -52,14 +52,14 @@ namespace Ame::Gfx
         auto renderContext = m_RhiDevice->GetImmediateContext();
 
         CameraFrameData frameData{
-            .World = updateDesc.WorldTransposed,
+            .World = updateDesc.World,
 
-            .View           = updateDesc.ViewTransposed,
-            .Projection     = updateDesc.ProjectionTransposed,
-            .ViewProjection = updateDesc.ViewTransposed * updateDesc.ProjectionTransposed,
+            .View           = updateDesc.View,
+            .Projection     = updateDesc.Projection,
+            .ViewProjection = updateDesc.View * updateDesc.Projection,
 
-            .ViewInverse           = updateDesc.ViewTransposed.GetInverse(),
-            .ProjectionInverse     = updateDesc.ProjectionTransposed.GetInverse(),
+            .ViewInverse           = updateDesc.View.GetInverse(),
+            .ProjectionInverse     = updateDesc.Projection.GetInverse(),
             .ViewProjectionInverse = frameData.ViewProjection.GetInverse(),
 
             .Viewport = updateDesc.Viewport,

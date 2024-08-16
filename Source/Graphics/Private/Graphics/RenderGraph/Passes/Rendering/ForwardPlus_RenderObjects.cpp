@@ -33,16 +33,17 @@ namespace Ame::Gfx
         auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->Desc.Format;
 
         Rhi::MaterialRenderState renderState{
-            .Name          = "Forward+::RenderObjects",
-            .DepthStencil  = Dg::DSS_EnableDepthNoWrites,
+            .Name         = "Forward+::RenderObjects",
+            .DepthStencil = Dg::DSS_EnableDepthNoWrites,
+            .Links{
+                .Sources{
+                    { Dg::SHADER_TYPE_VERTEX, Rhi::ForwardPlus_RenderObjects_VertexShader().GetCreateInfo() },
+                    { Dg::SHADER_TYPE_PIXEL, Rhi::ForwardPlus_RenderObjects_PixelShader().GetCreateInfo() } } },
+            .Signatures    = { Ptr(srb->GetPipelineResourceSignature()) },
             .RenderTargets = { rtvFormat },
             .DSFormat      = dsvFormat
         };
-
-        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, Rhi::ForwardPlus_RenderObjects_VertexShader().GetCreateInfo());
-        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_PIXEL, Rhi::ForwardPlus_RenderObjects_PixelShader().GetCreateInfo());
-
-        renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
+        renderState.DepthStencil.DepthFunc = Dg::COMPARISON_FUNC_LESS_EQUAL;
 
         m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
     }

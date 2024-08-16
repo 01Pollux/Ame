@@ -32,15 +32,13 @@ namespace Ame::Gfx
         auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->Desc.Format;
 
         Rhi::MaterialRenderState renderState{
-            .Name     = "Forward+::DepthPrePass",
-            .DSFormat = dsvFormat,
+            .Name = "Forward+::DepthPrePass",
+            .Links{
+                .Sources{ { Dg::SHADER_TYPE_VERTEX, Rhi::DepthPrepass_VertexShader().GetCreateInfo() } },
+                .ActiveShaders = Dg::SHADER_TYPE_ALL_GRAPHICS & ~Dg::SHADER_TYPE_PIXEL },
+            .Signatures = { Ptr(srb->GetPipelineResourceSignature()) },
+            .DSFormat   = dsvFormat,
         };
-
-        renderState.Links.Sources.emplace(Dg::SHADER_TYPE_VERTEX, Rhi::DepthPrepass_VertexShader().GetCreateInfo());
-        renderState.Links.ActiveShaders = Dg::SHADER_TYPE_ALL_GRAPHICS & ~Dg::SHADER_TYPE_PIXEL;
-
-        renderState.Signatures.emplace_back(srb->GetPipelineResourceSignature());
-
         m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
     }
 

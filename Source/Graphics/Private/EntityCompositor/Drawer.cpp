@@ -46,11 +46,11 @@ namespace Ame::Gfx
             cameraTransform.GetUpDir());
 
         CameraFrameDataUpdateDesc frameData{
-            .WorldTransposed      = cameraTransform.ToMat4x4(),
-            .ViewTransposed       = cameraView,
-            .ProjectionTransposed = camera.GetProjectionMatrix(),
-            .Viewport             = camera.GetViewporSize(),
-            .CameraMask           = 0xFFFF'FFFF // TODO: Add camera mask
+            .World      = cameraTransform.ToMat4x4(),
+            .View       = cameraView,
+            .Projection = camera.GetProjectionMatrix(),
+            .Viewport   = camera.GetViewporSize(),
+            .CameraMask = 0xFFFF'FFFF // TODO: Add camera mask
         };
 
         //

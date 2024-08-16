@@ -194,7 +194,12 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Matrix4x4 ToMat4x4Transposed() const noexcept
         {
-            return ToMat4x4().GetTranspose();
+            return {
+                { m_Basis(0).x(), m_Basis(1).x(), m_Basis(2).x(), m_Position.x() },
+                { m_Basis(0).y(), m_Basis(1).y(), m_Basis(2).y(), m_Position.y() },
+                { m_Basis(0).z(), m_Basis(1).z(), m_Basis(2).z(), m_Position.z() },
+                { 0.f, 0.f, 0.f, 1.f }
+            };
         }
 
     public:
