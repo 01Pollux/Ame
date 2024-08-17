@@ -25,11 +25,11 @@ namespace Ame::Ecs
                 {
                     if (parentTransform)
                     {
-                        entity->set<GlobalTransformComponent>({ parentTransform->ToMat4x4() * localTransform.ToMat4x4() });
+                        entity->set(GlobalTransformComponent{ parentTransform->ToMat4x4() * localTransform.ToMat4x4() });
                     }
                     else
                     {
-                        entity->set<GlobalTransformComponent>({ localTransform.ToMat4x4() });
+                        entity->set(GlobalTransformComponent{ localTransform.ToMat4x4() });
                     }
                 }
                 else if (iter.event() == flecs::OnRemove)

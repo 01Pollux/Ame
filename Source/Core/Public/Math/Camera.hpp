@@ -30,7 +30,7 @@ namespace Ame::Math
             /// <summary>
             /// The far plane of the viewport.
             /// </summary>
-            float FarPlane = 1000.0f;
+            float FarPlane = 10000.0f;
 
             /// <summary>
             /// The field of view of the viewport.
@@ -40,12 +40,12 @@ namespace Ame::Math
             /// <summary>
             /// The width and height of the viewport.
             /// </summary>
-            float Width = 800.f;
+            float Width = 1024.f;
 
             /// <summary>
             /// The width and height of the viewport.
             /// </summary>
-            float Height = 600.f;
+            float Height = 720.f;
 
             /// <summary>
             /// The orthographic size of the viewport.
@@ -56,6 +56,16 @@ namespace Ame::Math
             /// Maintain the x field of view when resizing.
             /// </summary>
             bool MaintainXFov : 1 = true;
+
+            /// <summary>
+            /// Automatically calculate the width based on client size.
+            /// </summary>
+            bool ClientWidth : 1 = true;
+
+            /// <summary>
+            /// Automatically calculate the height based on client size.
+            /// </summary>
+            bool ClientHeight : 1 = true;
 
             /// <summary>
             /// Get the aspect ratio of the viewport.

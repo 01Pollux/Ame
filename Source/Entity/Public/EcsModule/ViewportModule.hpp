@@ -9,5 +9,9 @@ namespace Ame::Ecs
     public:
         ViewporEcstModule(
             flecs::world& flecsWorld);
+
+    private:
+        void RegisterCameraObservers(
+            flecs::world& flecsWorld);
     };
 } // namespace Ame::Ecs

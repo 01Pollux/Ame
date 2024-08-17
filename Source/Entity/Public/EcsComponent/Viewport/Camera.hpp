@@ -2,7 +2,6 @@
 
 #include <Core/Interface.hpp>
 #include <Math/Camera.hpp>
-#include <Geometry/Frustum.hpp>
 #include <RG/Graph.hpp>
 
 namespace Ame::Ecs

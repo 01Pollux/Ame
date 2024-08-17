@@ -10,11 +10,15 @@ namespace Ame::Ecs
     {
         flecsWorld.module<MathEcsModule>();
 
+        //
+
         flecsWorld.component<TransformComponent>("Ame.TransformComponent");
         flecsWorld.component<GlobalTransformComponent>("Ame.GlobalTransformComponent");
 
         flecsWorld.component<AABBComponent>("Ame.AABBComponent");
         flecsWorld.component<TransformedAABBComponent>("Ame.TransformedAABBComponent");
+
+        //
 
         RegisterTransformObservers(flecsWorld);
     }
