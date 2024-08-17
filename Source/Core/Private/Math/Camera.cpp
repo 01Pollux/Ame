@@ -4,7 +4,7 @@
 namespace Ame::Math
 {
     Camera::Camera(
-        CameraType type) :
+        CameraType type) noexcept :
         m_Type(type)
     {
         if (type == CameraType::Orthographic)
@@ -18,27 +18,37 @@ namespace Ame::Math
     //
 
     void Camera::SetViewport(
-        const Viewport& viewport)
+        const Viewport& viewport) noexcept
     {
         m_Viewport = viewport;
-        m_ProjectionMatrixCache.reset();
+        MarkChanged();
     }
 
     void Camera::SetType(
-        CameraType type)
+        CameraType type) noexcept
     {
         m_Type = type;
-        m_ProjectionMatrixCache.reset();
+        MarkChanged();
     }
 
-    auto Camera::GetViewport() const -> const Viewport&
+    auto Camera::GetViewport() const noexcept -> const Viewport&
+    {
+        return m_Viewport;
+    }
+    
+    auto Camera::GetViewport() noexcept -> Viewport&
     {
         return m_Viewport;
     }
 
-    CameraType Camera::GetType() const
+    CameraType Camera::GetType() const noexcept
     {
         return m_Type;
+    }
+
+    void Camera::MarkChanged() noexcept
+    {
+        m_ProjectionMatrixCache.reset();
     }
 
     //
@@ -92,7 +102,7 @@ namespace Ame::Math
         return *m_ProjectionMatrixCache;
     }
 
-    Vector2 Camera::GetViewporSize() const
+    Vector2 Camera::GetViewporSize() const noexcept
     {
         return { m_Viewport.Width, m_Viewport.Height };
     }

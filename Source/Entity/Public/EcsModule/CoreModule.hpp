@@ -7,7 +7,7 @@ namespace Ame::Ecs
     /// <summary>
     /// Imports:
     /// MathEcsModule
-    /// 
+    ///
     /// Defines:
     /// EntityTagComponent
     /// </summary>
@@ -15,6 +15,6 @@ namespace Ame::Ecs
     {
     public:
         CoreEcsModule(
-            flecs::world& flecsWorld);
+            WorldRef world);
     };
 } // namespace Ame::Ecs

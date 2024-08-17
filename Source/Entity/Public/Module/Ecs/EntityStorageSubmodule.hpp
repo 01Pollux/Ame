@@ -6,6 +6,8 @@
 
 namespace Ame
 {
+    class RhiModule;
+
     class EntityStorageSubmodule final : public BaseObject<ISubmodule>
     {
     public:
@@ -18,6 +20,7 @@ namespace Ame
     public:
         EntityStorageSubmodule(
             IReferenceCounters*    counters,
+            RhiModule*             rhiModule,
             const EcsModuleConfig& config);
 
     private:

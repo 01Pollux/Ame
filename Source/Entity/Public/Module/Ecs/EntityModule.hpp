@@ -1,15 +1,12 @@
 #pragma once
 
 #include <Module/Module.hpp>
-#include <Module/Ecs/EntityStorageSubmodule.hpp>
 
 #include <Module/Ecs/Config.hpp>
+#include <Module/Ecs/EntityStorageSubmodule.hpp>
 
 namespace Ame
 {
-    class RhiModule;
-    class GraphicsModule;
-
     class EntityModule final : public BaseObject<IModule>
     {
     public:
@@ -19,9 +16,15 @@ namespace Ame
             IID_EntityModule, IID_BaseModule, Base,
             m_EntityStorageSubmodule);
 
+        struct Dependencies
+        {
+            RhiModule* RhiMod;
+        };
+
     public:
         EntityModule(
             IReferenceCounters*    counters,
+            Dependencies           dependencies,
             const EcsModuleConfig& config);
 
     private:

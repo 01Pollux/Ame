@@ -8,10 +8,10 @@ namespace Ame::Ecs
     {
     public:
         MathEcsModule(
-            flecs::world& flecsWorld);
+            WorldRef world);
 
     private:
         void RegisterTransformObservers(
-            flecs::world& flecsWorld);
+            WorldRef world);
     };
 } // namespace Ame::Ecs

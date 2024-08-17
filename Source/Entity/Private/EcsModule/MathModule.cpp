@@ -6,20 +6,20 @@
 namespace Ame::Ecs
 {
     MathEcsModule::MathEcsModule(
-        flecs::world& flecsWorld)
+        WorldRef world)
     {
-        flecsWorld.module<MathEcsModule>();
+        world->module<MathEcsModule>();
 
         //
 
-        flecsWorld.component<TransformComponent>("Ame.TransformComponent");
-        flecsWorld.component<GlobalTransformComponent>("Ame.GlobalTransformComponent");
+        world->component<TransformComponent>("Ame.TransformComponent");
+        world->component<GlobalTransformComponent>("Ame.GlobalTransformComponent");
 
-        flecsWorld.component<AABBComponent>("Ame.AABBComponent");
-        flecsWorld.component<TransformedAABBComponent>("Ame.TransformedAABBComponent");
+        world->component<AABBComponent>("Ame.AABBComponent");
+        world->component<TransformedAABBComponent>("Ame.TransformedAABBComponent");
 
         //
 
-        RegisterTransformObservers(flecsWorld);
+        RegisterTransformObservers(world);
     }
 } // namespace Ame::Ecs

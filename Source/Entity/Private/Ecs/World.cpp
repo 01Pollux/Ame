@@ -1,8 +1,10 @@
 #include <mutex>
 #include <Ecs/World.hpp>
 
-#include <EcsModule/CoreModule.hpp>
 #include <EcsComponent/Core/EntityTagComponent.hpp>
+#include <EcsModule/CoreModule.hpp>
+
+#include <Rhi/Device/RhiDevice.hpp>
 
 namespace Ame::Ecs
 {
@@ -13,11 +15,15 @@ namespace Ame::Ecs
     static std::mutex g_FlecsMutex;
 
     World::World(
-        IReferenceCounters* counter) :
-        Base(counter)
+        IReferenceCounters*         counter,
+        const Ptr<Rhi::IRhiDevice>& rhiDevice) :
+        Base(counter),
+        m_RhiDevice(rhiDevice)
     {
         std::lock_guard initLock(g_FlecsMutex);
         m_World = std::make_unique<flecs::world>();
+        m_World->component<This>();
+        m_World->set(This{ this });
         ImportModule<CoreEcsModule>();
     }
 

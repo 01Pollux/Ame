@@ -8,6 +8,11 @@
 #include <Ecs/System.hpp>
 #include <Ecs/Observer.hpp>
 
+namespace Ame::Rhi
+{
+    class IRhiDevice;
+} // namespace Ame::Rhi
+
 namespace Ame::Ecs
 {
     static constexpr UId IID_EntityWorld{ 0x4132fa8f, 0x6567, 0x45bb, { 0x83, 0xb0, 0xf1, 0xb2, 0x64, 0xff, 0xd5, 0xc7 } };
@@ -15,6 +20,11 @@ namespace Ame::Ecs
     class World : public BaseObject<IObject>
     {
     public:
+        struct This
+        {
+            World* world;
+        };
+
         using Base = BaseObject<IObject>;
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
@@ -22,7 +32,8 @@ namespace Ame::Ecs
 
     public:
         World(
-            IReferenceCounters* counter);
+            IReferenceCounters*         counter,
+            const Ptr<Rhi::IRhiDevice>& rhiDevice);
 
         ~World() override;
 
@@ -94,13 +105,20 @@ namespace Ame::Ecs
         /// Register a new module in the world.
         /// </summary>
         template<typename Ty>
-        void ImportModule()
+        auto ImportModule()
         {
-            m_World->import <Ty>();
+            return m_World->import <Ty>();
+        }
+
+    public:
+        [[nodiscard]] auto& GetRhiDevice() const noexcept
+        {
+            return m_RhiDevice;
         }
 
     private:
         UniquePtr<flecs::world> m_World;
+        Ptr<Rhi::IRhiDevice>    m_RhiDevice;
     };
 
     //
@@ -118,6 +136,17 @@ namespace Ame::Ecs
             flecs::world world) :
             m_World(std::move(world))
         {
+        }
+
+    public:
+        [[nodiscard]] World* GetWorld() noexcept
+        {
+            return m_World.get_mut<World::This>()->world;
+        }
+
+        [[nodiscard]] const World* GetWorld() const noexcept
+        {
+            return m_World.get<World::This>()->world;
         }
 
     public:

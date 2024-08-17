@@ -7,13 +7,13 @@
 namespace Ame::Ecs
 {
     CoreEcsModule::CoreEcsModule(
-        flecs::world& flecsWorld)
+        WorldRef world)
     {
-        flecsWorld.module<CoreEcsModule>();
+        world->module<CoreEcsModule>();
 
-        flecsWorld.component<EntityTagComponent>("Ame.EntityTagComponent");
+        world->component<EntityTagComponent>("Ame.EntityTagComponent");
 
-        flecsWorld.import <MathEcsModule>();
-        flecsWorld.import <ViewporEcstModule>();
+        world->import <MathEcsModule>();
+        world->import <ViewporEcsModule>();
     }
 } // namespace Ame::Ecs

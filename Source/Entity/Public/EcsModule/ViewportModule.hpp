@@ -1,17 +1,24 @@
 #pragma once
 
-#include <Ecs/Iterable.hpp>
+#include <Ecs/World.hpp>
+#include <Core/Signal.hpp>
 
 namespace Ame::Ecs
 {
-    class ViewporEcstModule
+    class ViewporEcsModule
     {
     public:
-        ViewporEcstModule(
-            flecs::world& flecsWorld);
+        ViewporEcsModule(
+            WorldRef world);
 
     private:
         void RegisterCameraObservers(
-            flecs::world& flecsWorld);
+            WorldRef world);
+
+        void RegisterSignals(
+            WorldRef world);
+
+    private:
+        Signals::ScopedConnection m_WindowSizeChangedConnection;
     };
 } // namespace Ame::Ecs

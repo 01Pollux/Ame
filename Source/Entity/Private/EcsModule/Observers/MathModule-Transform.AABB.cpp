@@ -69,12 +69,10 @@ namespace Ame::Ecs
     //
 
     void MathEcsModule::RegisterTransformObservers(
-        flecs::world& flecsWorld)
+        WorldRef world)
     {
-        Ecs::WorldRef world(flecsWorld.get_world());
-
         // Register global transform observer, to update global transform when transform changes
-        world.CreateObserver<const TransformComponent, const GlobalTransformComponent*>()
+        world->observer<const TransformComponent, const GlobalTransformComponent*>()
             .term_at(1) ///
             .parent()   // GlobalTransformComponent is a parent of TransformComponent
             .cascade()  ///
@@ -84,7 +82,7 @@ namespace Ame::Ecs
             .run(OnTransformChanged_UpdateGlobal);
 
         // Register transformed AABB observer, to update AABB when transform changes
-        world.CreateObserver<const GlobalTransformComponent, const AABBComponent>()
+        world->observer<const GlobalTransformComponent, const AABBComponent>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .yield_existing()

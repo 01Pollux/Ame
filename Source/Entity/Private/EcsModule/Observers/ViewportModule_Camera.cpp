@@ -35,13 +35,11 @@ namespace Ame::Ecs
 
     //
 
-    void ViewporEcstModule::RegisterCameraObservers(
-        flecs::world& flecsWorld)
+    void ViewporEcsModule::RegisterCameraObservers(
+        WorldRef world)
     {
-        Ecs::WorldRef world(flecsWorld.get_world());
-
         // Register global transform observer, to update global transform when transform changes
-        world.CreateObserver<const GlobalTransformComponent, const CameraComponent>()
+        world->observer<const GlobalTransformComponent, const CameraComponent>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .yield_existing()

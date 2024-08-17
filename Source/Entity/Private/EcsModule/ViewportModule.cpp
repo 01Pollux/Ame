@@ -6,19 +6,23 @@
 
 namespace Ame::Ecs
 {
-    ViewporEcstModule::ViewporEcstModule(
-        flecs::world& flecsWorld)
+    ViewporEcsModule::ViewporEcsModule(
+        WorldRef world)
     {
-        flecsWorld.module<ViewporEcstModule>();
+        world->module<ViewporEcsModule>();
 
         //
 
-        flecsWorld.component<CameraComponent>("Ame.CameraComponent");
-        flecsWorld.component<CameraOutputComponent>("Ame.CameraOutputComponent");
-        flecsWorld.component<CameraFrustumComponent>("Ame.CameraFrustumComponent");
+        world->component<CameraComponent>("Ame.CameraComponent");
+        world->component<CameraOutputComponent>("Ame.CameraOutputComponent");
+        world->component<CameraFrustumComponent>("Ame.CameraFrustumComponent");
 
         //
 
-        RegisterCameraObservers(flecsWorld);
+        RegisterCameraObservers(world);
+
+        //
+
+        RegisterSignals(world);
     }
 } // namespace Ame::Ecs

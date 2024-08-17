@@ -60,12 +60,12 @@ namespace Ame::Math
             /// <summary>
             /// Automatically calculate the width based on client size.
             /// </summary>
-            bool ClientWidth : 1 = true;
+            float ClientWidth = 1.f;
 
             /// <summary>
             /// Automatically calculate the height based on client size.
             /// </summary>
-            bool ClientHeight : 1 = true;
+            float ClientHeight = 1.f;
 
             /// <summary>
             /// Get the aspect ratio of the viewport.
@@ -80,18 +80,25 @@ namespace Ame::Math
         };
 
         Camera(
-            CameraType Type = CameraType::Perspective);
+            CameraType Type = CameraType::Perspective) noexcept;
 
     public:
         void SetViewport(
-            const Viewport& viewport);
+            const Viewport& viewport) noexcept;
 
         void SetType(
-            CameraType type);
+            CameraType type) noexcept;
 
-        [[nodiscard]] const Viewport& GetViewport() const;
+        [[nodiscard]] const Viewport& GetViewport() const noexcept;
 
-        [[nodiscard]] CameraType GetType() const;
+        /// <summary>
+        /// Get viewport without marking it changed, if the viewport has changed, call MarkChanged.
+        /// </summary>
+        [[nodiscard]] Viewport& GetViewport() noexcept;
+
+        [[nodiscard]] CameraType GetType() const noexcept;
+
+        void MarkChanged() noexcept;
 
     public:
         /// <summary>
@@ -102,7 +109,7 @@ namespace Ame::Math
         /// <summary>
         /// Get viewport size.
         /// </summary>
-        [[nodiscard]] Math::Vector2 GetViewporSize() const;
+        [[nodiscard]] Math::Vector2 GetViewporSize() const noexcept;
 
     private:
         /// <summary>
@@ -117,4 +124,4 @@ namespace Ame::Math
         /// </summary>
         CameraType m_Type = CameraType::Perspective;
     };
-} // namespace Ame::Ecs::Component
+} // namespace Ame::Math

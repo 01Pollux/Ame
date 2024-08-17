@@ -15,21 +15,26 @@ namespace Ame
         const EngineConfig& engineConfig)
     {
         m_ModuleRegistery.RegisterModule<CoreModule>(engineConfig.CoreConfig);
+        RhiModule* rhiModule = nullptr;
         if (engineConfig.RhiConfig)
         {
-            m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
+            rhiModule = m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
         }
 
+        EntityModule* ecsModule = nullptr;
         if (engineConfig.EcsConfig)
         {
-            m_ModuleRegistery.RegisterModule<EntityModule>(*engineConfig.EcsConfig);
+            EntityModule::Dependencies deps{
+                rhiModule
+            };
+            ecsModule = m_ModuleRegistery.RegisterModule<EntityModule>(deps, *engineConfig.EcsConfig);
         }
 
         if (engineConfig.GraphicsConfig)
         {
             GraphicsModule::Dependencies deps{
-                m_ModuleRegistery.GetModule<RhiModule>(IID_RhiModule),
-                m_ModuleRegistery.GetModule<EntityModule>(IID_EntityModule)
+                rhiModule,
+                ecsModule
             };
             m_ModuleRegistery.RegisterModule<GraphicsModule>(deps, *engineConfig.GraphicsConfig);
         }
