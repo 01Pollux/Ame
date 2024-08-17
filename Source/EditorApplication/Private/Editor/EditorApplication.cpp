@@ -64,10 +64,12 @@ namespace Ame
         Gfx::RegisterForwardPlus(*renderGraph, world);
 
         Ecs::TransformComponent camTr;
-        camTr.SetBasis({ { -0.0231232084f, 0.00000000f, -0.999730587f },
-                         { -0.139856368f, 0.990168571f, 0.00323479460f },
-                         { 0.989904404f, 0.139892802f, -0.0228955243f } });
-        camTr.SetPosition({ -49.2009239f, 92.5598831f, 5.80854464f });
+        camTr.SetBasis({
+            { 0.999921024f, 0.f, 0.0130040040f },
+            { -0.0129953651f, 0.0340723470f, 0.999358475f },
+            { -0.000444319536f, -0.999437153f, 0.0340764970f },
+        });
+        camTr.SetPosition({ 0.251502007f, 4.27811623f, -0.114832222f });
 
         auto cameraEntity = world->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{
@@ -79,11 +81,11 @@ namespace Ame
 
         Rhi::MaterialCreateDesc materialDesc;
 
-        Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/Sponza/sponza.obj" }));
+        Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/DamagedHelmet/DamagedHelmet.gltf" }));
 
         //
 
-        for (auto idx : std::views::iota(0u, static_cast<uint32_t>(mdl->GetSubMeshes().size() - 1)))
+        for (auto idx : std::views::iota(0u, static_cast<uint32_t>(mdl->GetSubMeshes().size())))
         {
             Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, idx));
 
@@ -152,7 +154,7 @@ namespace Ame
                         constexpr float MinSpeed = 0.01f;
                         constexpr float MaxSpeed = 50.0f;
 
-                        float Speed = 20.f;
+                        float Speed = 2.5f;
                         if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
                         {
                             Speed *= 2.0f;
@@ -173,7 +175,7 @@ namespace Ame
                         constexpr float MinSpeed = 0.01f;
                         constexpr float MaxSpeed = 50.0f;
 
-                        float Speed = 0.5f;
+                        float Speed = 0.05f;
                         if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
                         {
                             Speed *= 2.0f;

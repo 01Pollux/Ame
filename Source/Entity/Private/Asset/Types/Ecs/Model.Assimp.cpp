@@ -120,13 +120,12 @@ namespace Ame::Ecs
     MeshModel::CreateDesc AssImpModelImporter::CreateModelDesc(
         Rhi::IRhiDevice* rhiDevice) const
     {
-        Log::Asset().Assert(HasMeshes(), "No meshes found in scene when importing model");
-
         MeshModel::CreateDesc createDesc;
-
-        CreateBufferResources(createDesc, rhiDevice);
-        CreateMaterials(createDesc, rhiDevice);
-
+        if (m_Importer.GetScene())
+        {
+            CreateBufferResources(createDesc, rhiDevice);
+            CreateMaterials(createDesc, rhiDevice);
+        }
         return createDesc;
     }
 } // namespace Ame::Ecs
