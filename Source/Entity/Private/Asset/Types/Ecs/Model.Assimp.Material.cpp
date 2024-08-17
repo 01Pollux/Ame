@@ -17,10 +17,11 @@ namespace Ame::Ecs
 {
     [[nodiscard]] static Ptr<Dg::ITexture> LoadStandardTexture(
         Dg::IRenderDevice* renderDevice,
-        const aiTexture*   aitexture)
+        const aiTexture*   aitexture,
+        const char*        textureName)
     {
         Dg::TextureDesc desc{
-            aitexture->mFilename.C_Str(),
+            textureName,
             Dg::RESOURCE_DIM_TEX_2D,
             aitexture->mWidth,
             aitexture->mHeight,
@@ -43,16 +44,12 @@ namespace Ame::Ecs
     [[nodiscard]] static Ptr<Dg::ITexture> LoadTextureFromImage(
         Dg::IRenderDevice* renderDevice,
         const Rhi::Image&  image,
-        const StringView   textureName)
+        const char*        textureName)
     {
         auto size = image.GetSize();
 
         Dg::TextureDesc desc{
-#ifndef AME_DIST
-            textureName.data(),
-#else
-            nullptr,
-#endif
+            textureName,
             Dg::RESOURCE_DIM_TEX_2D,
             size.x(),
             size.y(),
@@ -77,6 +74,7 @@ namespace Ame::Ecs
         const aiScene*     scene,
         const String&      modelPath,
         const aiString&    texturePath,
+        const char*        textureName,
         Rhi::CommonTexture placeholderType)
     {
         Ptr<Dg::ITexture> texture;
@@ -91,14 +89,22 @@ namespace Ame::Ecs
                     bool isSupported = std::strncmp(aitexture->achFormatHint, "rgba8888", sizeof(aiTexture::achFormatHint)) == 0;
                     if (isSupported)
                     {
-                        texture = LoadStandardTexture(rhiDevice->GetRenderDevice(), aitexture);
+                        texture = LoadStandardTexture(rhiDevice->GetRenderDevice(), aitexture, textureName);
                     }
                 }
                 else
                 {
-                    auto  imageMemory = Rhi::ImageStorage::Load(std::bit_cast<std::byte*>(aitexture->pcData), aitexture->mWidth);
-                    auto& image       = imageMemory.GetImage();
-                    texture           = LoadTextureFromImage(rhiDevice->GetRenderDevice(), image, { aitexture->mFilename.C_Str(), aitexture->mFilename.length });
+                    auto imageMemory = Rhi::ImageStorage::Load(std::bit_cast<std::byte*>(aitexture->pcData), aitexture->mWidth);
+                    auto image       = imageMemory.GetImage();
+                    if (image)
+                    {
+                        image = image.ConvertTo32Bits();
+                    }
+                    if (image)
+                    {
+                        image.FlipVertical();
+                        texture = LoadTextureFromImage(rhiDevice->GetRenderDevice(), image, textureName);
+                    }
                 }
             }
             else
@@ -112,8 +118,16 @@ namespace Ame::Ecs
                     auto format = Rhi::ImageStorage::GetFormat(file);
                     if (format != Rhi::ImageFormat::Unknown)
                     {
-                        image   = Rhi::ImageStorage::Decode(format, file);
-                        texture = LoadTextureFromImage(rhiDevice->GetRenderDevice(), image.ConvertTo32Bits(), filePath.filename().string());
+                        image = Rhi::ImageStorage::Decode(format, file);
+                        if (image)
+                        {
+                            image = image.ConvertTo32Bits();
+                        }
+                        if (image)
+                        {
+                            image.FlipVertical();
+                            texture = LoadTextureFromImage(rhiDevice->GetRenderDevice(), image, textureName);
+                        }
                     }
                 }
             }
@@ -202,6 +216,8 @@ namespace Ame::Ecs
                                    rhiDevice,
                                    scene,
                                    textureCache = std::map<String, Ptr<Dg::ITexture>>()](
+                                      Rhi::Material*     material,
+                                      const StringView   name,
                                       const aiString&    texturePath,
                                       Rhi::CommonTexture placeholder) mutable -> Dg::ITexture*
         {
@@ -211,7 +227,14 @@ namespace Ame::Ecs
                 return iter->second;
             }
 
-            auto texture = LoadTexture(rhiDevice, scene, m_ModelRootPath, texturePath, placeholder);
+#ifndef AME_DIST
+            String      textureName    = std::format("{}_{}", material->GetName(), name);
+            const char* textureNameStr = textureName.c_str();
+#else
+            const char* textureNameStr = nullptr;
+#endif
+
+            auto texture = LoadTexture(rhiDevice, scene, m_ModelRootPath, texturePath, textureNameStr, placeholder);
             return textureCache.emplace(texturePath.C_Str(), texture).first->second;
         };
 
@@ -221,10 +244,11 @@ namespace Ame::Ecs
                                    texturePath = aiString(),
                                    &getOrCreateTexture](
                                       aiMaterial*          aimaterial,
+                                      Rhi::Material*       material,
                                       TextureNameAndAiType desc) mutable -> TextureNameAndResource
         {
             aimaterial->GetTexture(desc.Type, 0, &texturePath);
-            auto texture = getOrCreateTexture(texturePath, desc.Placeholder);
+            auto texture = getOrCreateTexture(material, desc.Name, texturePath, desc.Placeholder);
             return TextureNameAndResource{ desc.Name, texture };
         };
 
@@ -261,7 +285,7 @@ namespace Ame::Ecs
 
             auto allTextures = c_TextureTypes |
                                std::views::transform([&](auto& desc)
-                                                     { return transformAiTexture(aimaterial, desc); });
+                                                     { return transformAiTexture(aimaterial, material, desc); });
             for (auto desc : allTextures)
             {
                 Rhi::BindAllInSrb(materialSrb, Dg::SHADER_TYPE_ALL_GRAPHICS, desc.Name, desc.Texture->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE));
