@@ -1,6 +1,3 @@
 [submodule "ThirdParty/DiligentCore"]
 	path = ThirdParty/DiligentCore
 	url = https://github.com/DiligentGraphics/DiligentCore.git
-[submodule "ThirdParty/FreeImage"]
-	path = ThirdParty/FreeImage
-	url = https://github.com/01Pollux/FreeImage.git

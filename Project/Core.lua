@@ -20,7 +20,7 @@ target("Ame.Core")
         "ame.glfw",
         nonshared_public_inherit)
     add_packages(
-        "ame.freeimage",
+        "freeimage",
         shared_public_inherit)
 target_end()
 
