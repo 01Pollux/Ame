@@ -11,7 +11,32 @@ public:                                    \
     }                                      \
                                            \
 private:                                   \
-    Ame::Ptr<Co::Type> m_##Name;
+    Ame::SharedPtr<Co::Type> m_##Name;
+
+namespace Ame
+{
+    class Coroutine
+    {
+    public:
+        static void Initialize()
+        {
+            s_Runtime = std::make_unique<Co::runtime>();
+        }
+
+        [[nodiscard]] static Co::runtime& Get() noexcept
+        {
+            return *s_Runtime;
+        }
+
+        static void Shutdown()
+        {
+            s_Runtime.reset();
+        }
+
+    private:
+        static inline UniquePtr<Co::runtime> s_Runtime;
+    };
+} // namespace Ame
 
 namespace concurrencpp
 {

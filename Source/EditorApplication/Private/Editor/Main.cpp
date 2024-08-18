@@ -1,8 +1,6 @@
 #include <Application/EntryPoint.hpp>
 #include <Editor/EditorApplication.hpp>
 
-#include <Log/Wrapper.hpp>
-
 static Ame::EditorApplicationConfig ParseEditorConfig(
     int,
     char**)

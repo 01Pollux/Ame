@@ -24,7 +24,6 @@ namespace Ame::Rhi
         static constexpr const char c_SourceCode[] = R"(
     #include "Structs/Inputs/StdPixelInput.hlsli"
 	#include "Structs/Outputs/StdMaterialFragment.hlsli"
-	#include "Structs/Outputs/ForwardPlus_StdPixelOutput.hlsli"
 
 	#include "Structs/Rendering/StdMaterial3D_Data.hlsli"
 	#include "Structs/Rendering/StdSamplers.hlsli"
@@ -32,8 +31,16 @@ namespace Ame::Rhi
     #define _HAS_PREMAIN
 	bool pre_main(in ps_input psIn, out material_fragment fragment)
 	{
-        fragment = (material_fragment)0;
+        float2 roughness_metallic = Roughness_MetallicMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
 		fragment.base_color = BaseColorMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+        fragment.normal = NormalMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+		fragment.ao = AOMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+		fragment.specular = SpecularMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+		fragment.emissive = EmissiveMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+        fragment.shininess = ShininessMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+		fragment.roughness = roughness_metallic.x;
+		fragment.metallic = roughness_metallic.y;
+		fragment.height = HeightMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
         return true;
 	}
 )";
@@ -48,9 +55,8 @@ namespace Ame::Rhi
     private:
         void LinkShaders()
         {
-            StructStdPixelInputShader          pixelInputStruct;
-            StructStdMaterialFragmentShader    materialOutputStruct;
-            StructForwardPlusPixelOutputShader pixelOutputStruct;
+            StructStdPixelInputShader       pixelInputStruct;
+            StructStdMaterialFragmentShader materialOutputStruct;
 
             StructStdSamplersShader        samplersStruct;
             StructStdMaterial3D_DataShader materialDataStruct;
@@ -59,7 +65,6 @@ namespace Ame::Rhi
                 {
                     { pixelInputStruct.GetMemoryShaderSourceFileInfo(pixelInputStruct.Name) },
                     { materialOutputStruct.GetMemoryShaderSourceFileInfo(materialOutputStruct.Name) },
-                    { pixelOutputStruct.GetMemoryShaderSourceFileInfo(pixelOutputStruct.Name) },
                     { samplersStruct.GetMemoryShaderSourceFileInfo(samplersStruct.Name) },
                     { materialDataStruct.GetMemoryShaderSourceFileInfo(materialDataStruct.Name) },
                 },

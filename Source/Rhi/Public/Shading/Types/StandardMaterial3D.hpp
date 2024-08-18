@@ -16,18 +16,14 @@ namespace Ame::Rhi
             static constexpr const char EmissiveCst[]     = "Emissive";
             static constexpr const char TransparencyCst[] = "Transparent";
 
-            static constexpr const char BaseColorMap[]    = "BaseColorMap";
-            static constexpr const char NormalMap[]       = "NormalMap";
-            static constexpr const char SpecularMap[]     = "SpecularMap";
-            static constexpr const char RoughnessMap[]    = "RoughnessMap";
-            static constexpr const char AmbientMap[]      = "AmbientMap";
-            static constexpr const char EmissiveMap[]     = "EmissiveMap";
-            static constexpr const char HeightMap[]       = "HeightMap";
-            static constexpr const char ShininessMap[]    = "ShininessMap";
-            static constexpr const char OpacityMap[]      = "OpacityMap";
-            static constexpr const char DisplacementMap[] = "DisplacementMap";
-            static constexpr const char LightMap[]        = "Lightmap";
-            static constexpr const char MetallicMap[]     = "MetallicMap";
+            static constexpr const char BaseColorMap[]          = "BaseColorMap";
+            static constexpr const char NormalMap[]             = "NormalMap";
+            static constexpr const char AOMap[]                 = "AOMap";
+            static constexpr const char SpecularMap[]           = "SpecularMap";
+            static constexpr const char EmissiveMap[]           = "EmissiveMap";
+            static constexpr const char ShininessMap[]          = "ShininessMap";
+            static constexpr const char Roughness_MetallicMap[] = "Roughness_MetallicMap";
+            static constexpr const char HeightMap[]             = "HeightMap";
         };
 
     public:
@@ -44,19 +40,15 @@ namespace Ame::Rhi
         {
             CreateDesc();
 
-            static constexpr std::array<Dg::PipelineResourceDesc, 12> StdResources{
+            static constexpr auto StdResources = std::array{
                 Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::BaseColorMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::NormalMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::AOMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::SpecularMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::RoughnessMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::AmbientMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::EmissiveMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::HeightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::ShininessMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::OpacityMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::DisplacementMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::LightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::MetallicMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::Roughness_MetallicMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ Dg::SHADER_TYPE_PIXEL, Names::HeightMap, Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
         };
     };

@@ -54,7 +54,7 @@ namespace Ame::Ecs
             size.x(),
             size.y(),
             1,
-            Dg::TEXTURE_FORMAT::TEX_FORMAT_RGBA8_UNORM
+            Dg::TEX_FORMAT_RGBA8_UNORM
         };
         desc.BindFlags = Dg::BIND_SHADER_RESOURCE;
 
@@ -96,6 +96,7 @@ namespace Ame::Ecs
                 {
                     auto imageMemory = Rhi::ImageStorage::Load(std::bit_cast<std::byte*>(aitexture->pcData), aitexture->mWidth);
                     auto image       = imageMemory.GetImage();
+
                     if (image)
                     {
                         image = image.ConvertTo32Bits();
@@ -144,7 +145,7 @@ namespace Ame::Ecs
 
     //
 
-    struct TextureNameAndAiType
+    struct TextureLoadDesc
     {
         const char*        Name = nullptr;
         aiTextureType      Type = aiTextureType_NONE;
@@ -195,18 +196,14 @@ namespace Ame::Ecs
 
         using StdMat3DNames = Rhi::StandardMaterial3D::Names;
         constexpr std::array c_TextureTypes{
-            TextureNameAndAiType{ StdMat3DNames::BaseColorMap, aiTextureType_DIFFUSE, Rhi::CommonTexture::DevTexture },
-            TextureNameAndAiType{ StdMat3DNames::NormalMap, aiTextureType_NORMALS, Rhi::CommonTexture::White2D },
-            TextureNameAndAiType{ StdMat3DNames::SpecularMap, aiTextureType_SPECULAR, Rhi::CommonTexture::White2D },
-            TextureNameAndAiType{ StdMat3DNames::RoughnessMap, aiTextureType_DIFFUSE_ROUGHNESS, Rhi::CommonTexture::White2D },
-            TextureNameAndAiType{ StdMat3DNames::AmbientMap, aiTextureType_AMBIENT, Rhi::CommonTexture::White2D },
-            TextureNameAndAiType{ StdMat3DNames::EmissiveMap, aiTextureType_EMISSIVE, Rhi::CommonTexture::Black2D },
-            TextureNameAndAiType{ StdMat3DNames::HeightMap, aiTextureType_HEIGHT, Rhi::CommonTexture::Black2D },
-            TextureNameAndAiType{ StdMat3DNames::ShininessMap, aiTextureType_SHININESS, Rhi::CommonTexture::Black2D },
-            TextureNameAndAiType{ StdMat3DNames::OpacityMap, aiTextureType_OPACITY, Rhi::CommonTexture::White2D },
-            TextureNameAndAiType{ StdMat3DNames::DisplacementMap, aiTextureType_DISPLACEMENT, Rhi::CommonTexture::Black2D },
-            TextureNameAndAiType{ StdMat3DNames::LightMap, aiTextureType_LIGHTMAP, Rhi::CommonTexture::Black2D },
-            TextureNameAndAiType{ StdMat3DNames::MetallicMap, aiTextureType_METALNESS, Rhi::CommonTexture::Black2D },
+            TextureLoadDesc{ StdMat3DNames::BaseColorMap, aiTextureType_BASE_COLOR, Rhi::CommonTexture::DevTexture },
+            TextureLoadDesc{ StdMat3DNames::NormalMap, aiTextureType_NORMALS, Rhi::CommonTexture::Black2D },
+            TextureLoadDesc{ StdMat3DNames::AOMap, aiTextureType_LIGHTMAP, Rhi::CommonTexture::White2D },
+            TextureLoadDesc{ StdMat3DNames::SpecularMap, aiTextureType_SPECULAR, Rhi::CommonTexture::White2D },
+            TextureLoadDesc{ StdMat3DNames::EmissiveMap, aiTextureType_EMISSIVE, Rhi::CommonTexture::Black2D },
+            TextureLoadDesc{ StdMat3DNames::ShininessMap, aiTextureType_SHININESS, Rhi::CommonTexture::Black2D },
+            TextureLoadDesc{ StdMat3DNames::Roughness_MetallicMap, aiTextureType_DIFFUSE_ROUGHNESS, Rhi::CommonTexture::Black2D },
+            TextureLoadDesc{ StdMat3DNames::HeightMap, aiTextureType_HEIGHT, Rhi::CommonTexture::Black2D },
         };
         static_assert(Rhi::StandardMaterial3D::CreateDesc::StdResources.size() == c_TextureTypes.size(), "Texture types mismatch for StandardMaterial3D");
 
@@ -243,12 +240,16 @@ namespace Ame::Ecs
         auto transformAiTexture = [rhiDevice,
                                    texturePath = aiString(),
                                    &getOrCreateTexture](
-                                      aiMaterial*          aimaterial,
-                                      Rhi::Material*       material,
-                                      TextureNameAndAiType desc) mutable -> TextureNameAndResource
+                                      aiMaterial*     aimaterial,
+                                      Rhi::Material*  material,
+                                      TextureLoadDesc desc) mutable -> TextureNameAndResource
         {
-            aimaterial->GetTexture(desc.Type, 0, &texturePath);
+            if (aimaterial->GetTextureCount(desc.Type))
+            {
+                aimaterial->GetTexture(desc.Type, 0, &texturePath);
+            }
             auto texture = getOrCreateTexture(material, desc.Name, texturePath, desc.Placeholder);
+            texturePath.Clear();
             return TextureNameAndResource{ desc.Name, texture };
         };
 

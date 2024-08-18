@@ -10,7 +10,7 @@ namespace Ame::Rhi
         return m_ReferenceType;
     }
 
-    Dg::TextureSubResData Image::GetSubresource() const noexcept
+    Dg::TextureSubResData Image::GetSubresource() const
     {
         Dg::TextureSubResData subresource;
         if (m_ReferenceType == ImageReferenceType::Local)
@@ -123,6 +123,13 @@ namespace Ame::Rhi
     }
 
     //
+
+    ImageDataType Image::GetDataType() const
+    {
+        Log::Rhi().Assert(m_ReferenceType == ImageReferenceType::Local, "Image is not a local bitmap");
+        auto bitmap = FreeImageUtils::GetBitmap(m_BitmapData);
+        return FreeImageUtils::ConvertType(FreeImage_GetImageType(bitmap));
+    }
 
     Image Image::ConvertTo(ImageDataType dataType) const
     {

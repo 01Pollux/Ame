@@ -182,6 +182,11 @@ namespace Ame::Rhi
     {
         return static_cast<FREE_IMAGE_TYPE>(type);
     }
+    
+    ImageDataType FreeImageUtils::ConvertType(FREE_IMAGE_TYPE type)
+    {
+        return static_cast<ImageDataType>(type);
+    }
 
     static_assert(std::to_underlying(ImageFilterType::Box) == FILTER_BOX);
     static_assert(std::to_underlying(ImageFilterType::Bicubic) == FILTER_BICUBIC);

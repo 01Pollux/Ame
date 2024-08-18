@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Core/Coroutine.hpp>
+#include <Log/Wrapper.hpp>
+
 #if defined(NEON_PLATFORM_WINDOWS) && defined(NEON_DIST)
 
 #define AME_MAIN_ENTRY_POINT                   \
@@ -47,13 +50,15 @@ static void EnableDebugInfo()
 #define AME_MAIN_APPLICATION_CONFIG(ApplicationType, Config) \
     AME_MAIN_ENTRY_POINT                                     \
     {                                                        \
-        ApplicationType app(Config);                         \
-        return app.Run();                                    \
+        int ret = 0;                                         \
+        Ame::Coroutine::Initialize();                        \
+        {                                                    \
+            ApplicationType app(Config);                     \
+            ret = app.Run();                                 \
+        }                                                    \
+        Ame::Coroutine::Shutdown();                          \
+        Ame::Log::Logger::CloseAllLoggers();                 \
+        return ret;                                          \
     }
 
-#define AME_MAIN_APPLICATION(ApplicationType) \
-    AME_MAIN_ENTRY_POINT                      \
-    {                                         \
-        ApplicationType app({});              \
-        return app.Run();                     \
-    }
+#define AME_MAIN_APPLICATION_DEFAULT(ApplicationType) AME_MAIN_APPLICATION_CONFIG(ApplicationType, {})

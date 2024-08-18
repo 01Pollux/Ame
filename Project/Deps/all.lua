@@ -6,7 +6,7 @@ includes("kangaru.lua")
 includes("mimalloc.lua")
 includes("octree.lua")
 
-add_requires("boost",                       {system = false, debug = _debug_packages, configs = {
+add_requires("boost 1.86.0",                {system = false, debug = _debug_packages, configs = {
     vs_runtime = vs_runtime,
     iostreams = true,
     lzma = true,

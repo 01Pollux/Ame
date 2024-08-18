@@ -32,6 +32,7 @@ namespace Ame
     }
 } // namespace Ame
 
+
 int main()
 {
     Ame::Main();

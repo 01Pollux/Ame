@@ -79,7 +79,7 @@ namespace Ame::Rhi
     public:
         [[nodiscard]] ImageReferenceType GetType() const noexcept;
 
-        [[nodiscard]] Dg::TextureSubResData GetSubresource() const noexcept;
+        [[nodiscard]] Dg::TextureSubResData GetSubresource() const;
 
     public:
         [[nodiscard]] ImageFormat      GetFormat() const;
@@ -98,16 +98,17 @@ namespace Ame::Rhi
         [[nodiscard]] Image View(const Math::RectI& rect) const;
 
     public:
-        [[nodiscard]] Image ConvertTo(ImageDataType dataType) const;
-        [[nodiscard]] Image ConvertTo4Bits() const;
-        [[nodiscard]] Image ConvertTo8Bits() const;
-        [[nodiscard]] Image ConvertToGreyscale() const;
-        [[nodiscard]] Image ConvertTo16Bits555() const;
-        [[nodiscard]] Image ConvertTo16Bits565() const;
-        [[nodiscard]] Image ConvertTo24Bits() const;
-        [[nodiscard]] Image ConvertTo32Bits() const;
-        [[nodiscard]] Image Threshold(uint8_t value) const;
-        [[nodiscard]] Image Dither(ImageDitherType algorithm) const;
+        [[nodiscard]] ImageDataType GetDataType() const;
+        [[nodiscard]] Image         ConvertTo(ImageDataType dataType) const;
+        [[nodiscard]] Image         ConvertTo4Bits() const;
+        [[nodiscard]] Image         ConvertTo8Bits() const;
+        [[nodiscard]] Image         ConvertToGreyscale() const;
+        [[nodiscard]] Image         ConvertTo16Bits555() const;
+        [[nodiscard]] Image         ConvertTo16Bits565() const;
+        [[nodiscard]] Image         ConvertTo24Bits() const;
+        [[nodiscard]] Image         ConvertTo32Bits() const;
+        [[nodiscard]] Image         Threshold(uint8_t value) const;
+        [[nodiscard]] Image         Dither(ImageDitherType algorithm) const;
 
     public:
         bool FlipHorizontal();

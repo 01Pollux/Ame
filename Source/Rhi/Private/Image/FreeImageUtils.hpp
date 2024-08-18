@@ -22,6 +22,7 @@ namespace Ame::Rhi
         [[nodiscard]] static ImageFormat       ConvertFormat(FREE_IMAGE_FORMAT format);
 
         [[nodiscard]] static FREE_IMAGE_TYPE ConvertType(ImageDataType type);
+        [[nodiscard]] static ImageDataType   ConvertType(FREE_IMAGE_TYPE type);
 
         [[nodiscard]] static FREE_IMAGE_FILTER ConvertFilter(ImageFilterType filter);
 

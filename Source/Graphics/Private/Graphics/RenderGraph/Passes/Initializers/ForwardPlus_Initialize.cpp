@@ -15,7 +15,7 @@ namespace Ame::Gfx
         RG::RenderTargetViewDesc rtv{
             {},
             RG::RtvCustomDesc{
-                .ClearColor = Colors::c_Snow,
+                .ClearColor = Colors::c_DarkGray,
                 .ClearType  = RG::ERTClearType::Color,
                 .ForceColor = true }
         };

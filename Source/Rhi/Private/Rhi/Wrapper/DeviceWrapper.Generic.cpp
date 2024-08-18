@@ -188,9 +188,9 @@ namespace Ame::Rhi
     }
 
     void SetMessageCallback(
-        Dg::IEngineFactory*)
+        Dg::IEngineFactory* factory)
     {
         Dg::SetDebugMessageCallback(&OnDiligentMessageCallback);
-        // factory->SetMessageCallback(&OnDiligentMessageCallback);
+        factory->SetMessageCallback(&OnDiligentMessageCallback);
     }
 } // namespace Ame::Rhi
