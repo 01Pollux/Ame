@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EcsComponent/Renderables/3D/Model.hpp>
+#include <Core/Coroutine.hpp>
 
 namespace Ame::Ecs
 {
@@ -14,10 +15,13 @@ namespace Ame::Ecs
 
         using CreateDesc = MeshModel::CreateDesc;
 
-        static MeshModel* LoadModel(
+        [[nodiscard]] static MeshModel* CreateModel(
+            CreateDesc desc);
+
+        [[nodiscard]] static MeshModel* LoadModel(
             const ImportDesc& desc);
 
-        static MeshModel* CreateModel(
-            CreateDesc desc);
+        [[nodiscard]] static Co::result<MeshModel*> LoadModelAsync(
+            const ImportDesc& desc);
     };
 } // namespace Ame::Ecs

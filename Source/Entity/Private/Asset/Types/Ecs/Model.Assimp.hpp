@@ -1,6 +1,7 @@
 #include <EcsComponent/Renderables/3D/Model.hpp>
 
 #include <assimp/Importer.hpp>
+#include <Core/Coroutine.hpp>
 
 namespace Ame::Ecs
 {
@@ -10,10 +11,11 @@ namespace Ame::Ecs
         AssImpModelImporter(
             const String& path);
 
-        [[nodiscard]] bool HasMeshes() const;
-
     public:
         [[nodiscard]] MeshModel::CreateDesc CreateModelDesc(
+            Rhi::IRhiDevice* rhiDevice) const;
+
+        [[nodiscard]] Co::result<MeshModel::CreateDesc> CreateModelDescAsync(
             Rhi::IRhiDevice* rhiDevice) const;
 
     private:

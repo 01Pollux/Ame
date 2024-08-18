@@ -128,4 +128,24 @@ namespace Ame::Ecs
         }
         return createDesc;
     }
+
+    Co::result<MeshModel::CreateDesc> AssImpModelImporter::CreateModelDescAsync(
+        Rhi::IRhiDevice* rhiDevice) const
+    {
+        MeshModel::CreateDesc createDesc;
+        Co::result<void>      bufferTask, materialTask;
+
+        if (m_Importer.GetScene())
+        {
+            bufferTask   = Coroutine::Get().background_executor()->submit([&]
+                                                                        { CreateBufferResources(createDesc, rhiDevice); });
+            materialTask = Coroutine::Get().background_executor()->submit([&]
+                                                                          { CreateMaterials(createDesc, rhiDevice); });
+
+            co_await bufferTask;
+            co_await materialTask;
+        }
+
+        co_return createDesc;
+    }
 } // namespace Ame::Ecs

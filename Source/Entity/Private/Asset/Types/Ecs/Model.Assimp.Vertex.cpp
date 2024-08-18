@@ -112,16 +112,15 @@ namespace Ame::Ecs
 
     //
 
-    bool AssImpModelImporter::HasMeshes() const
-    {
-        return m_Importer.GetScene() && m_Importer.GetScene()->HasMeshes();
-    }
-
     void AssImpModelImporter::CreateBufferResources(
         MeshModel::CreateDesc& createDesc,
         Rhi::IRhiDevice*       rhiDevice) const
     {
         const aiScene* scene = m_Importer.GetScene();
+        if (!scene->HasMeshes())
+        {
+            return;
+        }
 
         createDesc.MeshNodes.reserve(scene->mNumMeshes);
         createDesc.SubMeshes.reserve(scene->mNumMeshes);

@@ -81,7 +81,7 @@ namespace Ame
 
         Rhi::MaterialCreateDesc materialDesc;
 
-        Ptr mdl(Ecs::MeshModelLoader::LoadModel({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/DamagedHelmet/DamagedHelmet.gltf" }));
+        Ptr mdl(Ecs::MeshModelLoader::LoadModelAsync({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/DamagedHelmet/DamagedHelmet.gltf" }).get());
 
         //
 

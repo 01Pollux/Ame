@@ -188,7 +188,6 @@ namespace Ame::Ecs
         Rhi::IRhiDevice*       rhiDevice) const
     {
         const aiScene* scene = m_Importer.GetScene();
-
         if (!scene->HasMaterials())
         {
             return;
