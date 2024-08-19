@@ -45,7 +45,8 @@ namespace Ame::RG
         Graphics = 1 << 3 | Copy | Compute,
         TypeMask = Copy | Compute | Graphics,
 
-        NoSetups = 1 << 4
+        NoSetups      = 1 << 4,
+        DirtyOnResize = 1 << 5,
     };
 
     enum class ERTClearType : uint8_t

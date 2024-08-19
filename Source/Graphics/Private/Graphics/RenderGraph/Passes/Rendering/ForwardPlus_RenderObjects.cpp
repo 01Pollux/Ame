@@ -13,6 +13,7 @@ namespace Ame::Gfx
     {
         Name("Render Objects")
             .Flags(RG::PassFlags::Graphics)
+            .Flags(RG::PassFlags::DirtyOnResize)
             .Build(std::bind_front(&ForwardPlus_RenderObjects::OnBuild, this))
             .Execute(std::bind_front(&ForwardPlus_RenderObjects::OnExecute, this));
     }

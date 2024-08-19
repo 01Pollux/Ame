@@ -18,7 +18,7 @@ Texture2D<float3> SpecularMap;
 Texture2D<float4> EmissiveMap;
 Texture2D<float3> ShininessMap;
 Texture2D<float2> Roughness_MetallicMap;
-Texture2D HeightMap;
+Texture2D<float> HeightMap;
 
 	#endif
 )";
