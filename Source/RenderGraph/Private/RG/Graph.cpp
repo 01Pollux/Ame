@@ -26,12 +26,11 @@ namespace Ame::Rg
     void Graph::Execute()
     {
         auto rhiDevice = m_Context.GetStorage().GetDevice();
-        auto context   = rhiDevice->GetImmediateContext();
-        Execute({ &context, 1 });
+        Execute(rhiDevice->GetImmediateContext());
     }
 
     void Graph::Execute(
-        std::span<Dg::IDeviceContext*> contexts)
+        Dg::IDeviceContext* context)
     {
         if (IsDirty())
         {
@@ -40,7 +39,7 @@ namespace Ame::Rg
             passStorage.ClearResources();
             m_Passes.Build(m_Context);
         }
-        m_Context.Execute(contexts);
+        m_Context.Execute(context);
     }
 
     void Graph::MarkDirty() noexcept

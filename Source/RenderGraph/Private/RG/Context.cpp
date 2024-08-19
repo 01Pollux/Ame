@@ -15,12 +15,12 @@ namespace Ame::Rg
     //
 
     void Context::Execute(
-        std::span<Dg::IDeviceContext*> contexts)
+        Dg::IDeviceContext* context)
     {
         GetStorage().UpdateResources();
         for (auto& level : m_Levels)
         {
-            level.Execute(*this, contexts);
+            level.Execute(*this, context);
         }
     }
 

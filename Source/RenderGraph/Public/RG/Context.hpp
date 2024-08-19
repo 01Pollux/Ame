@@ -35,7 +35,7 @@ namespace Ame::Rg
         /// Execute the render graph with the specified execution context
         /// </summary>
         void Execute(
-            std::span<Dg::IDeviceContext*> contexts);
+            Dg::IDeviceContext* context);
 
         /// <summary>
         /// Build the render graph

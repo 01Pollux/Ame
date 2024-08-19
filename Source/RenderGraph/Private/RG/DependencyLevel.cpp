@@ -24,11 +24,11 @@ namespace Ame::Rg
     //
 
     void DependencyLevel::Execute(
-        Context&                       context,
-        std::span<Dg::IDeviceContext*> deviceContexts) const
+        Context&            context,
+        Dg::IDeviceContext* deviceContext) const
     {
         LockStorage(context);
-        ExecutePasses(context, deviceContexts);
+        ExecutePasses(context, deviceContext);
         UnlockStorage(context);
     }
 
@@ -143,24 +143,15 @@ namespace Ame::Rg
     }
 
     void DependencyLevel::ExecutePasses(
-        Context&                       context,
-        std::span<Dg::IDeviceContext*> deviceContexts) const
+        Context&            context,
+        Dg::IDeviceContext* deviceContext) const
     {
         using namespace EnumBitOperators;
 
         auto& resourceStorage = context.GetStorage();
 
-        auto nextDeviceContext = [i = 0, &deviceContexts]() mutable
-        {
-            auto context = deviceContexts[i++];
-            i            = i % deviceContexts.size();
-            return context;
-        };
-
         for (auto& passInfo : m_Passes)
         {
-            auto deviceContext = nextDeviceContext();
-
             Dg::ScopedDebugGroup marker(deviceContext, passInfo.NodePass->GetName().data(), passInfo.NodePass->GetColorPtr());
 
             bool noSetup = (passInfo.NodePass->GetFlags() & PassFlags::NoSetups) != PassFlags::None;

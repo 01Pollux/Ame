@@ -30,8 +30,8 @@ namespace Ame::Rg
         /// Execute render passes
         /// </summary>
         void Execute(
-            Context&                       context,
-            std::span<Dg::IDeviceContext*> deviceContexts) const;
+            Context&            context,
+            Dg::IDeviceContext* deviceContext) const;
 
     private:
         /// <summary>
@@ -44,8 +44,8 @@ namespace Ame::Rg
         /// Execute render passes
         /// </summary>
         void ExecutePasses(
-            Context&                       context,
-            std::span<Dg::IDeviceContext*> deviceContexts) const;
+            Context&            context,
+            Dg::IDeviceContext* deviceContext) const;
 
         /// <summary>
         /// </summary>
