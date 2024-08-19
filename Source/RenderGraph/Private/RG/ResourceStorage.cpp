@@ -143,6 +143,13 @@ namespace Ame::Rg
 
     //
 
+    void ResourceStorage::ClearResources()
+    {
+        CheckLockState(false);
+        std::erase_if(m_Resources, [](const auto& pair)
+                      { return !pair.second.IsImported(); });
+    }
+
     void ResourceStorage::UpdateResources()
     {
         auto renderDevice = m_RhiDevice->GetRenderDevice();

@@ -153,6 +153,11 @@ namespace Ame::Rg
 
     private:
         /// <summary>
+        /// Clear all non imported resources
+        /// </summary>
+        void ClearResources();
+
+        /// <summary>
         /// Update and recreate resources if needed
         /// </summary>
         void UpdateResources();

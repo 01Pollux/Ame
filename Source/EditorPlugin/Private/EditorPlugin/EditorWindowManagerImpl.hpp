@@ -67,8 +67,8 @@ namespace Ame::Editor
         std::map<String, Ptr<IEditorWindow>> m_Windows;
         std::unordered_set<IEditorWindow*>   m_OpenWindows;
 
-        Ame::Signals::ScopedConnection m_OnWindowTitleHitTest;
-        Ame::Signals::ScopedConnection m_OnImGuiRender;
+        Signals::ScopedConnection m_OnWindowTitleHitTest;
+        Signals::ScopedConnection m_OnImGuiRender;
 
         bool m_IsTitlebarHovered = false;
     };

@@ -3,6 +3,8 @@
 #include <Rg/PassStorage.hpp>
 #include <Rg/Context.hpp>
 
+#include <Core/Signal.hpp>
+
 namespace Ame::Rg
 {
     class Graph : public BaseObject<IObject>
@@ -15,11 +17,7 @@ namespace Ame::Rg
 
         Graph(
             IReferenceCounters* counter,
-            Rhi::IRhiDevice*    rhiDevice) :
-            Base(counter),
-            m_Context(rhiDevice)
-        {
-        }
+            Rhi::IRhiDevice*    rhiDevice);
 
     public:
         /// <summary>
@@ -32,6 +30,10 @@ namespace Ame::Rg
         /// </summary>
         void Execute(
             std::span<Dg::IDeviceContext*> contexts);
+
+    public:
+        void               MarkDirty() noexcept;
+        [[nodiscard]] bool IsDirty() const noexcept;
 
     public:
         /// <summary>
@@ -52,5 +54,7 @@ namespace Ame::Rg
     private:
         Context     m_Context;
         PassStorage m_Passes;
+
+        Signals::ScopedConnection m_OnWindowSizeChanged;
     };
 } // namespace Ame::Rg
