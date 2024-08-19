@@ -99,7 +99,7 @@ namespace Ame::Editor
         }
 
         auto& graphStorage      = cameraComponent->RenderGraph->GetResourceStorage();
-        auto  outputView        = graphStorage.GetResource(RG::ResourceId(cameraOutput->SourceView));
+        auto  outputView        = graphStorage.GetResource(Rg::ResourceId(cameraOutput->SourceView));
         auto  textureOutputView = outputView ? outputView->AsTexture() : nullptr;
         if (!textureOutputView) [[unlikely]]
         {

@@ -1,7 +1,7 @@
-#include <RG/Graph.hpp>
+#include <Rg/Graph.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     void Graph::Execute()
     {
@@ -40,4 +40,4 @@ namespace Ame::RG
     {
         return m_Context.GetStorage();
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

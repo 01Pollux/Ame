@@ -1,10 +1,10 @@
-#include <RG/Resource.hpp>
+#include <Rg/Resource.hpp>
 
 #include <DiligentCore/Common/interface/HashUtils.hpp>
 
 #include <Log/Wrapper.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     ResourceHandle::operator bool() const noexcept
     {
@@ -323,4 +323,4 @@ namespace Ame::RG
                 view.Desc);
         }
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

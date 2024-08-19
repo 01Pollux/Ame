@@ -21,7 +21,7 @@ namespace Ame::Gfx
 
     private:
         void UploadToRenderGraph(
-            RG::Graph&                       cameraGraph,
+            Rg::Graph&                       cameraGraph,
             const CameraFrameDataUpdateDesc& frameData);
 
     private:
@@ -32,7 +32,7 @@ namespace Ame::Gfx
 
     private:
         void UploadAllResource(
-            RG::Graph& cameraGraph);
+            Rg::Graph& cameraGraph);
 
     public:
         [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();

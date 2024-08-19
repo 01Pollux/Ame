@@ -1,12 +1,12 @@
-#include <RG/DependencyLevel.hpp>
-#include <RG/Context.hpp>
-#include <RG/Pass.hpp>
+#include <Rg/DependencyLevel.hpp>
+#include <Rg/Context.hpp>
+#include <Rg/Pass.hpp>
 
 #include <DiligentCore/Graphics/GraphicsTools/interface/ScopedDebugGroup.hpp>
 
 #include <Log/Wrapper.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     void DependencyLevel::AddPass(
         Pass*                       pass,
@@ -200,4 +200,4 @@ namespace Ame::RG
         auto& resourceStorage = context.GetStorage();
         resourceStorage.Unlock();
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

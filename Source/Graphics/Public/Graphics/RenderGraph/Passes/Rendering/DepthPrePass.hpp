@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RG/Pass.hpp>
+#include <Rg/Pass.hpp>
 #include <Graphics/RenderGraph/Common/Names.hpp>
 #include <Shading/Technique.hpp>
 
@@ -11,7 +11,7 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx
 {
-    class DepthPrePass : public RG::Pass
+    class DepthPrePass : public Rg::Pass
     {
     public:
         DepthPrePass(
@@ -19,14 +19,14 @@ namespace Ame::Gfx
 
     private:
         void TryCreateResources(
-            const RG::ResourceStorage&  storage,
+            const Rg::ResourceStorage&  storage,
             Dg::IShaderResourceBinding* srb);
 
         void OnBuild(
-            RG::Resolver& resolver);
+            Rg::Resolver& resolver);
 
         void OnExecute(
-            const RG::ResourceStorage& storage,
+            const Rg::ResourceStorage& storage,
             Dg::IDeviceContext*        deviceContext);
 
     private:

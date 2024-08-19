@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RG/Resource.hpp>
+#include <Rg/Resource.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class Resolver
     {
@@ -169,4 +169,4 @@ namespace Ame::RG
         std::set<ResourceId> m_ResourcesRead;
         std::set<ResourceId> m_ResourcesWritten;
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

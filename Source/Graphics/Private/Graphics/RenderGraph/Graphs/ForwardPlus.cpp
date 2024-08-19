@@ -6,12 +6,12 @@
 #include <Graphics/RenderGraph/Passes/Rendering/DepthPrePass.hpp>
 #include <Graphics/RenderGraph/Passes/Rendering/ForwardPlus_RenderObjects.hpp>
 
-#include <RG/Graph.hpp>
+#include <Rg/Graph.hpp>
 
 namespace Ame::Gfx
 {
     void RegisterForwardPlus(
-        RG::Graph&  graph,
+        Rg::Graph&  graph,
         Ecs::World* world)
     {
         auto& passStorage = graph.GetPassStorage();

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RG/Core.hpp>
+#include <Rg/Core.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class ResourceId
     {
@@ -311,4 +311,4 @@ namespace Ame::RG
 
         bool m_IsImported : 1 = false;
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

@@ -19,7 +19,7 @@ namespace Ame::Gfx
 
         void Update();
         void Draw(
-            RG::Graph&                   cameraGraph,
+            Rg::Graph&                   cameraGraph,
             const Math::Camera&          camera,
             const Math::TransformMatrix& cameraTransform);
 

@@ -12,8 +12,8 @@ namespace Ame::Gfx
         m_World(world)
     {
         Name("Depth Prepass")
-            .Flags(RG::PassFlags::Graphics)
-            .Flags(RG::PassFlags::DirtyOnResize)
+            .Flags(Rg::PassFlags::Graphics)
+            .Flags(Rg::PassFlags::DirtyOnResize)
             .Build(std::bind_front(&DepthPrePass::OnBuild, this))
             .Execute(std::bind_front(&DepthPrePass::OnExecute, this));
     }
@@ -21,7 +21,7 @@ namespace Ame::Gfx
     //
 
     void DepthPrePass::TryCreateResources(
-        const RG::ResourceStorage&  storage,
+        const Rg::ResourceStorage&  storage,
         Dg::IShaderResourceBinding* srb)
     {
         if (m_Technique)
@@ -46,13 +46,13 @@ namespace Ame::Gfx
     //
 
     void DepthPrePass::OnBuild(
-        RG::Resolver& resolver)
+        Rg::Resolver& resolver)
     {
-        RG::DepthStencilViewDesc dsv{
+        Rg::DepthStencilViewDesc dsv{
             {},
-            RG::DsvCustomDesc{
+            Rg::DsvCustomDesc{
                 .Depth      = 1.0f,
-                .ClearType  = RG::EDSClearType::Depth,
+                .ClearType  = Rg::EDSClearType::Depth,
                 .ForceDepth = true,
             }
         };
@@ -69,7 +69,7 @@ namespace Ame::Gfx
     }
 
     void DepthPrePass::OnExecute(
-        const RG::ResourceStorage& storage,
+        const Rg::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
         auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);

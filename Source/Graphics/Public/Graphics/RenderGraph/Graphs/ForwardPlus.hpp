@@ -2,10 +2,10 @@
 
 namespace Ame
 {
-    namespace RG
+    namespace Rg
     {
         class Graph;
-    } // namespace RG
+    } // namespace Rg
     namespace Ecs
     {
         class World;
@@ -18,6 +18,6 @@ namespace Ame::Gfx
     /// Registers the Forward+ rendering pass to the graph.
     /// </summary>
     void RegisterForwardPlus(
-        RG::Graph&  graph,
+        Rg::Graph&  graph,
         Ecs::World* world);
 } // namespace Ame::Gfx

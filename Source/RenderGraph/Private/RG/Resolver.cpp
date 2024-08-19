@@ -1,9 +1,9 @@
-#include <RG/Resolver.hpp>
-#include <RG/ResourceStorage.hpp>
+#include <Rg/Resolver.hpp>
+#include <Rg/ResourceStorage.hpp>
 
 #include <Log/Wrapper.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     Resolver::Resolver(
         ResourceStorage& resourceStorage) :
@@ -226,4 +226,4 @@ namespace Ame::RG
     {
         return m_Storage.get().GetUserData(id);
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

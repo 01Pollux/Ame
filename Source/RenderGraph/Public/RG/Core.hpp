@@ -18,7 +18,7 @@ namespace Ame::Rhi
     class IRhiDevice;
 } // namespace Ame::Rhi
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     // {05E09264-5C86-4B2A-8188-FE7AA4B7DEE2}
     static constexpr UId IID_RenderGraph{ 0x5e09264, 0x5c86, 0x4b2a, { 0x81, 0x88, 0xfe, 0x7a, 0xa4, 0xb7, 0xde, 0xe2 } };
@@ -109,4 +109,4 @@ namespace Ame::RG
     struct DepthStencilViewDesc : Dg::TextureViewDesc, DsvCustomDesc
     {
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

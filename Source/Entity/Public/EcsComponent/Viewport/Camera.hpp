@@ -2,7 +2,7 @@
 
 #include <Core/Interface.hpp>
 #include <Math/Camera.hpp>
-#include <RG/Graph.hpp>
+#include <Rg/Graph.hpp>
 
 namespace Ame::Ecs
 {
@@ -18,6 +18,6 @@ namespace Ame::Ecs
         /// </summary>
         int Priority = 0;
 
-        Ptr<RG::Graph> RenderGraph;
+        Ptr<Rg::Graph> RenderGraph;
     };
 } // namespace Ame::Ecs

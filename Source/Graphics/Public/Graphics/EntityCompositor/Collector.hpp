@@ -23,7 +23,7 @@ namespace Ame::Gfx
         void Sort(
             const Math::TransformMatrix& cameraTransform);
         void Upload(
-            RG::Graph&                       cameraGraph,
+            Rg::Graph&                       cameraGraph,
             const CameraFrameDataUpdateDesc& frameData);
         void Reset();
 

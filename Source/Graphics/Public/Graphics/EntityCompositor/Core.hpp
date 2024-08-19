@@ -8,7 +8,7 @@
 
 #include <Math/Camera.hpp>
 #include <Ecs/World.hpp>
-#include <RG/Graph.hpp>
+#include <Rg/Graph.hpp>
 
 #include <Graphics/RenderGraph/Common/FrameConstants.hpp>
 

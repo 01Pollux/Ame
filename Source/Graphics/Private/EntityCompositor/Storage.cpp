@@ -27,7 +27,7 @@ namespace Ame::Gfx
     //
 
     void EntityStorage::UploadToRenderGraph(
-        RG::Graph&                       cameraGraph,
+        Rg::Graph&                       cameraGraph,
         const CameraFrameDataUpdateDesc& frameData)
     {
         UpdateInstances();
@@ -74,7 +74,7 @@ namespace Ame::Gfx
     //
 
     void EntityStorage::UploadAllResource(
-        RG::Graph& cameraGraph)
+        Rg::Graph& cameraGraph)
     {
         auto& resourceStorage = cameraGraph.GetResourceStorage();
 

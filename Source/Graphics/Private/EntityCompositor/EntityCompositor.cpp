@@ -17,7 +17,7 @@ namespace Ame::Gfx
     }
 
     void EntityCompositor::RenderGraph(
-        RG::Graph&                   renderGraph,
+        Rg::Graph&                   renderGraph,
         const Math::Camera&          camera,
         const Math::TransformMatrix& transform)
     {

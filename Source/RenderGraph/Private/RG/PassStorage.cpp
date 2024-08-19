@@ -1,13 +1,13 @@
 #include <boost/range.hpp>
 #include <boost/range/join.hpp>
 
-#include <RG/PassStorage.hpp>
-#include <RG/Context.hpp>
-#include <RG/DependencyLevel.hpp>
+#include <Rg/PassStorage.hpp>
+#include <Rg/Context.hpp>
+#include <Rg/DependencyLevel.hpp>
 
 #include <Log/Wrapper.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     Pass* PassStorage::AddPass(
         const String&   name,
@@ -208,4 +208,4 @@ namespace Ame::RG
 
         return Dependencies;
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

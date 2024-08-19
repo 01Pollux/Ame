@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RG/Resource.hpp>
+#include <Rg/Resource.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class ResourceStorage
     {
@@ -213,4 +213,4 @@ namespace Ame::RG
         bool m_Locked : 1 = false;
 #endif
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

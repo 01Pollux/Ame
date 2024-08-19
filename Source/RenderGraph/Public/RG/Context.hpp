@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RG/ResourceStorage.hpp>
-#include <RG/DependencyLevel.hpp>
+#include <Rg/ResourceStorage.hpp>
+#include <Rg/DependencyLevel.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class Context
     {
@@ -47,4 +47,4 @@ namespace Ame::RG
         ResourceStorage              m_Resources;
         std::vector<DependencyLevel> m_Levels;
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

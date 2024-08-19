@@ -60,7 +60,7 @@ namespace Ame
 
         //
 
-        Ptr renderGraph{ ObjectAllocator<RG::Graph>()(rhiDevice) };
+        Ptr renderGraph{ ObjectAllocator<Rg::Graph>()(rhiDevice) };
         Gfx::RegisterForwardPlus(*renderGraph, world);
 
         Ecs::TransformComponent camTr;

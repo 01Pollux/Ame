@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RG/PassStorage.hpp>
-#include <RG/Context.hpp>
+#include <Rg/PassStorage.hpp>
+#include <Rg/Context.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class Graph : public BaseObject<IObject>
     {
@@ -53,4 +53,4 @@ namespace Ame::RG
         Context     m_Context;
         PassStorage m_Passes;
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

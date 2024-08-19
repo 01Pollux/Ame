@@ -1,6 +1,6 @@
-#include <RG/Context.hpp>
+#include <Rg/Context.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     const ResourceStorage& Context::GetStorage() const
     {
@@ -29,4 +29,4 @@ namespace Ame::RG
     {
         m_Levels = std::move(levels);
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

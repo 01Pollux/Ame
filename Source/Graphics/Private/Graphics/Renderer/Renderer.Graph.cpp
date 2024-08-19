@@ -1,7 +1,7 @@
 #include <Graphics/Renderer/Renderer.hpp>
 
 #include <CommonStates/CommonRenderPasses.hpp>
-#include <RG/Graph.hpp>
+#include <Rg/Graph.hpp>
 
 #include <EcsComponent/Math/TransformComponent.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
@@ -14,12 +14,12 @@ namespace Ame::Gfx
 {
     static void TryOutputToTexture(
         Rhi::BlitRenderPass*              blitPass,
-        const RG::Graph&                  renderGraph,
+        const Rg::Graph&                  renderGraph,
         const Ecs::CameraOutputComponent& cameraOutput)
     {
         auto& resourceStorage = renderGraph.GetResourceStorage();
 
-        auto sourceResource = resourceStorage.GetResource(RG::ResourceId(cameraOutput.SourceView));
+        auto sourceResource = resourceStorage.GetResource(Rg::ResourceId(cameraOutput.SourceView));
 
         auto  sourceTexture = sourceResource ? sourceResource->AsTexture() : nullptr;
         auto& outputTexture = cameraOutput.OutputTexture;
@@ -40,12 +40,12 @@ namespace Ame::Gfx
     static void TryOutputToBackbuffer(
         Dg::ISwapChain*                   swapChain,
         Rhi::BlitRenderPass*              blitPass,
-        const RG::Graph&                  renderGraph,
+        const Rg::Graph&                  renderGraph,
         const Ecs::CameraOutputComponent& cameraOutput)
     {
         auto& resourceStorage = renderGraph.GetResourceStorage();
 
-        auto sourceResource = resourceStorage.GetResource(RG::ResourceId(cameraOutput.SourceView));
+        auto sourceResource = resourceStorage.GetResource(Rg::ResourceId(cameraOutput.SourceView));
 
         auto sourceTexture = sourceResource ? sourceResource->AsTexture() : nullptr;
 
@@ -86,7 +86,7 @@ namespace Ame::Gfx
     void Renderer::RunRenderGraph()
     {
         const Ecs::CameraOutputComponent* lastOutput = nullptr;
-        const RG::Graph*                  lastGraph  = nullptr;
+        const Rg::Graph*                  lastGraph  = nullptr;
 
         auto renderCallback =
             [&](Ecs::Iterator& iter)

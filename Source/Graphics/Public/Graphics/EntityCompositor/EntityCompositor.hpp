@@ -15,7 +15,7 @@ namespace Ame::Gfx
 
         void Update();
         void RenderGraph(
-            RG::Graph&                   renderGraph,
+            Rg::Graph&                   renderGraph,
             const Math::Camera&          camera,
             const Math::TransformMatrix& transform);
 

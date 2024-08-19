@@ -2,13 +2,13 @@
 
 #include <functional>
 
-#include <RG/Core.hpp>
-#include <RG/Resolver.hpp>
-#include <RG/ResourceStorage.hpp>
+#include <Rg/Core.hpp>
+#include <Rg/Resolver.hpp>
+#include <Rg/ResourceStorage.hpp>
 
 #include <Math/Common.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class Pass
     {
@@ -256,4 +256,4 @@ namespace Ame::RG
     };
 
     using UntypedPass = TypedPass<void>;
-} // namespace Ame::RG
+} // namespace Ame::Rg

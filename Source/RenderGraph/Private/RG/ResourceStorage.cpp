@@ -1,9 +1,9 @@
-#include <RG/ResourceStorage.hpp>
+#include <Rg/ResourceStorage.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
 
 #include <Log/Wrapper.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     Rhi::IRhiDevice* ResourceStorage::GetDevice() const noexcept
     {
@@ -211,4 +211,4 @@ namespace Ame::RG
     {
         m_NeedRebuild = state;
     }
-} // namespace Ame::RG
+} // namespace Ame::Rg

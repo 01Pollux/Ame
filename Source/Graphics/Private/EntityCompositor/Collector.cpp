@@ -49,7 +49,7 @@ namespace Ame::Gfx
     }
 
     void EntityCollector::Upload(
-        RG::Graph&                       cameraGraph,
+        Rg::Graph&                       cameraGraph,
         const CameraFrameDataUpdateDesc& frameData)
     {
         m_Storage.get().UploadToRenderGraph(cameraGraph, frameData);

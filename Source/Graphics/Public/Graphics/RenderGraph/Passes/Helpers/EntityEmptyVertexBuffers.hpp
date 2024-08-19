@@ -1,12 +1,12 @@
 #pragma once
 
-#include <RG/Pass.hpp>
+#include <Rg/Pass.hpp>
 #include <Rhi/Utils/SRBBinder.hpp>
 #include <Shading/VertexInput.hpp>
 
 namespace Ame::Gfx
 {
-    class EntityEmptyVertexBuffersPass : public RG::Pass
+    class EntityEmptyVertexBuffersPass : public Rg::Pass
     {
     public:
         EntityEmptyVertexBuffersPass()
@@ -16,7 +16,7 @@ namespace Ame::Gfx
 
     private:
         void OnBuild(
-            RG::Resolver& resolver)
+            Rg::Resolver& resolver)
         {
             constexpr uint8_t        bufferSize = Rhi::c_InputVertexAttributes[std::to_underlying(Rhi::VertexInputFlags::Count)].Offset;
             constexpr Dg::BufferDesc bufferDesc{

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RG/Resource.hpp>
+#include <Rg/Resource.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class DependencyLevel
     {
@@ -56,4 +56,4 @@ namespace Ame::RG
         std::vector<RenderPassInfo> m_Passes;
         std::set<ResourceId>        m_ResourcesToCreate;
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg

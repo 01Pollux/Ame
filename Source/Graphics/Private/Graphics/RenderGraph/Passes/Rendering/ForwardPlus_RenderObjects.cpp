@@ -12,8 +12,8 @@ namespace Ame::Gfx
         m_World(world)
     {
         Name("Render Objects")
-            .Flags(RG::PassFlags::Graphics)
-            .Flags(RG::PassFlags::DirtyOnResize)
+            .Flags(Rg::PassFlags::Graphics)
+            .Flags(Rg::PassFlags::DirtyOnResize)
             .Build(std::bind_front(&ForwardPlus_RenderObjects::OnBuild, this))
             .Execute(std::bind_front(&ForwardPlus_RenderObjects::OnExecute, this));
     }
@@ -21,7 +21,7 @@ namespace Ame::Gfx
     //
 
     void ForwardPlus_RenderObjects::TryCreateResources(
-        const RG::ResourceStorage&  storage,
+        const Rg::ResourceStorage&  storage,
         Dg::IShaderResourceBinding* srb)
     {
         if (m_Technique)
@@ -52,7 +52,7 @@ namespace Ame::Gfx
     //
 
     void ForwardPlus_RenderObjects::OnBuild(
-        RG::Resolver& resolver)
+        Rg::Resolver& resolver)
     {
         resolver.WriteTexture(c_RGDepthImage("Depth"), Dg::BIND_DEPTH_STENCIL, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
         resolver.WriteTexture(c_RGFinalImage("Render Objects"), Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
@@ -62,7 +62,7 @@ namespace Ame::Gfx
     }
 
     void ForwardPlus_RenderObjects::OnExecute(
-        const RG::ResourceStorage& storage,
+        const Rg::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
         auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);

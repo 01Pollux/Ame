@@ -5,18 +5,18 @@ namespace Ame::Gfx
     ForwardPlus_InitializePass::ForwardPlus_InitializePass()
     {
         Name("Initialize Forward+ Pass")
-            .Flags(RG::PassFlags::Graphics)
+            .Flags(Rg::PassFlags::Graphics)
             .Build(std::bind_front(&ForwardPlus_InitializePass::OnBuild, this));
     }
 
     void ForwardPlus_InitializePass::OnBuild(
-        RG::Resolver& resolver)
+        Rg::Resolver& resolver)
     {
-        RG::RenderTargetViewDesc rtv{
+        Rg::RenderTargetViewDesc rtv{
             {},
-            RG::RtvCustomDesc{
+            Rg::RtvCustomDesc{
                 .ClearColor = Colors::c_DarkGray,
-                .ClearType  = RG::ERTClearType::Color,
+                .ClearType  = Rg::ERTClearType::Color,
                 .ForceColor = true }
         };
 

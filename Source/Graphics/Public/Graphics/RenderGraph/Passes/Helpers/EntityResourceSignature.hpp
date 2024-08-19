@@ -1,13 +1,13 @@
 #pragma once
 
-#include <RG/Pass.hpp>
+#include <Rg/Pass.hpp>
 #include <Rhi/Utils/SRBBinder.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 
 namespace Ame::Gfx
 {
     template<typename Ty, Dg::SHADER_TYPE ShaderFlags, bool WithSamplers = true>
-    class EntityResourceSignaturePass : public RG::Pass
+    class EntityResourceSignaturePass : public Rg::Pass
     {
     public:
         EntityResourceSignaturePass()
@@ -18,7 +18,7 @@ namespace Ame::Gfx
 
     private:
         void OnBuild(
-            RG::Resolver& resolver)
+            Rg::Resolver& resolver)
         {
             if (!m_Srb)
             {
@@ -32,7 +32,7 @@ namespace Ame::Gfx
         }
 
         void OnExecute(
-            const RG::ResourceStorage& storage,
+            const Rg::ResourceStorage& storage,
             Dg::IDeviceContext*)
         {
             auto frameData       = storage.GetResource(c_RGFrameData)->AsBuffer();
@@ -101,7 +101,7 @@ namespace Ame::Gfx
         : public EntityResourceSignaturePass<EntityResourceSignature_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
-        static inline const RG::ResourceId RGEntityResourceSignature = c_RGEntityResourceSignature_Graphics;
+        static inline const Rg::ResourceId RGEntityResourceSignature = c_RGEntityResourceSignature_Graphics;
 
     public:
         EntityResourceSignature_GraphicsPass()

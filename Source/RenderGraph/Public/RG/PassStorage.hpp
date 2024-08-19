@@ -2,9 +2,9 @@
 
 #include <map>
 #include <stack>
-#include <RG/Pass.hpp>
+#include <Rg/Pass.hpp>
 
-namespace Ame::RG
+namespace Ame::Rg
 {
     class PassStorage
     {
@@ -139,4 +139,4 @@ namespace Ame::RG
 
         bool m_NeedsRebuild : 1 = false;
     };
-} // namespace Ame::RG
+} // namespace Ame::Rg
