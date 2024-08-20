@@ -17,6 +17,7 @@ target("Ame.Core")
         "glm",
         "ame.concurrencpp",
         "ame.glfw",
+        "ame.octree",
         nonshared_public_inherit)
     add_packages(
         "freeimage",
