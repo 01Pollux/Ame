@@ -23,6 +23,10 @@ namespace Ame
             RhiModule*             rhiModule,
             const EcsModuleConfig& config);
 
+    public:
+        [[nodiscard]] bool Tick(
+            double deltaTime);
+
     private:
         Ptr<Ecs::World> m_World;
     };

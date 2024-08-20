@@ -55,6 +55,14 @@ namespace Ame
 
         //
 
+        if (m_ModuleRegistery.ContainsModule(IID_EntityModule))
+        {
+            auto& entityModule = m_ModuleRegistery.GetModule(IID_EntityModule);
+            entityModule->QueryInterface(IID_EntityStorageSubmodule, m_EntityStorageSubmodule.DblPtr<IObject>());
+        }
+
+        //
+
         if (m_ModuleRegistery.ContainsModule(IID_GraphicsModule))
         {
             auto& graphicsModule = m_ModuleRegistery.GetModule(IID_GraphicsModule);
@@ -72,6 +80,11 @@ namespace Ame
 
         m_FrameEventSubmodule->Invoke_OnFrameStart();
         m_FrameEventSubmodule->Invoke_OnFrameUpdate();
+
+        if (m_EntityStorageSubmodule)
+        {
+            shouldQuit |= !m_EntityStorageSubmodule->Tick(m_TimeSubmodule->GetTimer().GetDeltaTime());
+        }
 
         if (m_RendererSubmodule)
         {

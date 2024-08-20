@@ -80,10 +80,12 @@ namespace Ame
 
         //
 
+        auto parent = world->CreateEntity();
+
         // spawn random lights at Position (0, 0, 4) as center of 3x3 grid
         for (auto idx : std::views::iota(0u, 9u))
         {
-            auto lightEntity = world->CreateEntity("Light");
+            auto lightEntity = world->CreateEntity();
 
             Ecs::TransformComponent lightTr;
             lightTr.SetPosition({ 0.f, 0.f, 4.f });
@@ -97,6 +99,7 @@ namespace Ame
             Ecs::DirectionalLightComponent lightComp;
             lightComp.Color = Math::Vector3{ 1.f, 1.f, 1.f };
 
+            lightEntity->child_of(*parent);
             lightEntity->set(lightComp);
             lightEntity->set(lightTr);
         }

@@ -38,9 +38,10 @@ namespace Ame
         ModuleRegistry m_ModuleRegistery;
 
         // precaching frequently used submodules
-        Ptr<TimeSubmodule>       m_TimeSubmodule;
-        Ptr<FrameEventSubmodule> m_FrameEventSubmodule;
-        Ptr<RendererSubmodule>   m_RendererSubmodule;
+        Ptr<TimeSubmodule>          m_TimeSubmodule;
+        Ptr<FrameEventSubmodule>    m_FrameEventSubmodule;
+        Ptr<EntityStorageSubmodule> m_EntityStorageSubmodule;
+        Ptr<RendererSubmodule>      m_RendererSubmodule;
 
         Opt<int> m_ExitCode;
     };

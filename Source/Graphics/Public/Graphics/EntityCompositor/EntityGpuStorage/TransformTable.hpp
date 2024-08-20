@@ -26,16 +26,12 @@ namespace Ame::Gfx
             instance       = transform->ToMat4x4();
         }
 
-        static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
+        static auto observer_create(Ecs::WorldRef world)
         {
             return world
-                ->observer<>()
-                .with<const Ecs::GlobalTransformComponent>()
-                .and_()
+                ->observer<const Ecs::GlobalTransformComponent>()
                 .with<const Ecs::RenderableComponent>()
                 .or_()
-                .with<const Ecs::GlobalTransformComponent>()
-                .and_()
                 .with<const Ecs::BaseLightComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);

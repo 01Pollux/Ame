@@ -71,13 +71,10 @@ namespace Ame::Gfx
             instance.Direction = transformComponent->GetLookDir();
         }
 
-        static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
+        static auto observer_create(Ecs::WorldRef world)
         {
             return world
-                ->observer<>()
-                .with<const Ecs::GlobalTransformComponent>()
-                .and_()
-                .with<const Ecs::BaseLightComponent>()
+                ->observer<const Ecs::GlobalTransformComponent, const Ecs::BaseLightComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

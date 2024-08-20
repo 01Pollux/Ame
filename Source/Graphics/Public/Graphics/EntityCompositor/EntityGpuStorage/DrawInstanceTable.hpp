@@ -25,15 +25,10 @@ namespace Ame::Gfx
             // TODO: Add instance code
         }
 
-        static Ecs::ObserverBuilder<> observer_create(Ecs::WorldRef world)
+        static auto observer_create(Ecs::WorldRef world)
         {
             return world
-                ->observer<>()
-                .with<Ecs::RenderableComponent>()
-                .in()
-                .and_()
-                .with<EntityTransform_EcsId>()
-                .in()
+                ->observer<const Ecs::RenderableComponent, const EntityTransform_EcsId>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

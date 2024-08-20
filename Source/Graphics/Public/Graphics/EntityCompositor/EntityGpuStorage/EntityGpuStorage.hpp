@@ -18,7 +18,7 @@ namespace Ame::Gfx
         };
         {
             T::observer_create(std::declval<Ecs::WorldRef>())
-        } -> std::same_as<Ecs::ObserverBuilder<>>;
+        };
     };
 
     template<EntityGpuStorageTraits Traits>
@@ -59,6 +59,7 @@ namespace Ame::Gfx
             world->component<typename traits_type::id_container_type>();
             m_Observer =
                 traits_type::observer_create(world)
+                    //.yield_existing()
                     .run(
                         [this](Ecs::Iterator& iter)
                         {
@@ -93,10 +94,9 @@ namespace Ame::Gfx
             const Ecs::Entity& entity)
         {
             auto& instanceId = entity->ensure<typename traits_type::id_container_type>();
-            auto  newId      = TryAllocateId(instanceId.Id);
-            if (instanceId.Id != newId)
+            if (instanceId.Id == c_InvalidId)
             {
-                instanceId.Id = newId;
+                instanceId.Id = AllocateId();
                 entity->modified<typename traits_type::id_container_type>();
             }
         }
@@ -233,20 +233,15 @@ namespace Ame::Gfx
         /// Add or Update entity state.
         /// Function is not thread safe.
         /// </summary>
-        [[nodiscard]] uint32_t TryAllocateId(
-            uint32_t curId)
+        [[nodiscard]] uint32_t AllocateId()
         {
-            if (curId == c_InvalidId)
+            auto allocation = m_Allocator.Allocate(1);
+            if (!allocation)
             {
-                auto allocation = m_Allocator.Allocate(1);
-                if (!allocation)
-                {
-                    m_Allocator.Grow(c_ChunkSize);
-                    allocation = m_Allocator.Allocate(1);
-                }
-                curId = allocation.Offset;
+                m_Allocator.Grow(c_ChunkSize);
+                allocation = m_Allocator.Allocate(1);
             }
-            return curId;
+            return allocation.Offset;
         }
 
         /// <summary>

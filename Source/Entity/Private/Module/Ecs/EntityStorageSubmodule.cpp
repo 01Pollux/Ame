@@ -40,4 +40,13 @@ namespace Ame
             }
         }
     }
+
+    //
+
+    bool EntityStorageSubmodule::Tick(
+        double deltaTime)
+    {
+        m_World->Progress(deltaTime);
+        return !(*m_World)->should_quit();
+    }
 } // namespace Ame
