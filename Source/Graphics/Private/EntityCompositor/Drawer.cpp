@@ -8,12 +8,14 @@ namespace Ame::Gfx
         EntityCollector& collector) :
         m_Collector(collector)
     {
-        auto world = collector.GetWorld();
-        m_RenderableQuery =
-            world->CreateQuery<
-                     const Ecs::RenderableComponent,
-                     const EntityDrawInstance_EcsId>()
-                .build();
+        auto world        = collector.GetWorld();
+        m_RenderableQuery = world->CreateQuery<const Ecs::RenderableComponent, const EntityDrawInstance_EcsId>()
+                                .cached()
+                                .build();
+        m_LightQuery = world->CreateQuery<const EntityLightInstance_EcsId>()
+                           .with<const Ecs::BaseLightComponent>()
+                           .cached()
+                           .build();
     }
 
     void EntityDrawer::Update()
@@ -26,13 +28,32 @@ namespace Ame::Gfx
                 {
                     auto renderables = iter.field<const Ecs::RenderableComponent>(0);
                     auto instanceIds = iter.field<const EntityDrawInstance_EcsId>(1);
-
                     for (size_t i : iter)
                     {
                         m_Collector.get().AddEntity(DrawInstanceType::Opaque, renderables[i].Object, instanceIds[i].Id);
                     }
                 }
             });
+        if (m_LightQuery->changed())
+        {
+            std::vector<uint32_t> lightIds;
+            lightIds.push_back(0); // Light count
+            m_LightQuery->run(
+                [this, &lightIds](Ecs::Iterator& iter)
+                {
+                    while (iter.next())
+                    {
+                        auto instanceIds = iter.field<const EntityLightInstance_EcsId>(0);
+                        lightIds.reserve(lightIds.size() + iter.count());
+                        for (size_t i : iter)
+                        {
+                            lightIds.push_back(instanceIds[i].Id);
+                        }
+                    }
+                });
+            lightIds[0] = Rhi::Count32(lightIds) - 1;
+            m_Collector.get().UpdateLights(lightIds);
+        }
     }
 
     void EntityDrawer::Draw(

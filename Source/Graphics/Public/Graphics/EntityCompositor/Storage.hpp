@@ -28,8 +28,14 @@ namespace Ame::Gfx
     private:
         void UpdateInstances();
 
+        void CreateFrameDataBuffer();
         void UpdateFrameData(
             const CameraFrameDataUpdateDesc& frameData);
+
+        void CreateLightIdBuffer();
+        // First instance of light id is light count
+        void UpdateLightInstances(
+            std::span<const uint32_t> lightIds);
 
     private:
         void UploadAllResource(
@@ -44,6 +50,7 @@ namespace Ame::Gfx
         Ecs::World*      m_World;
 
         Ptr<Dg::IBuffer> m_FrameDataBuffer; // FrameData
+        Ptr<Dg::IBuffer> m_LightIdBuffer;   // uint32_t[]
 
         // Ptr<Dg::IBuffer>             m_AABBBuffer;              // Geometry::AABB[]
         // Ptr<Dg::IBuffer>             m_SphereBuffer;            // Geometry::Sphere[]

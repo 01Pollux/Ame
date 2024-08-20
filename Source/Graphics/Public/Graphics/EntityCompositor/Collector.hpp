@@ -18,6 +18,8 @@ namespace Ame::Gfx
             DrawInstanceType      type,
             Ecs::IBaseRenderable* renderable,
             uint32_t              instanceId);
+        void UpdateLights(
+            std::span<const uint32_t> lightIds);
 
     private:
         void Sort(

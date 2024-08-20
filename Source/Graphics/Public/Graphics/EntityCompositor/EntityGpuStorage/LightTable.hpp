@@ -9,12 +9,12 @@
 
 namespace Ame::Gfx
 {
-    struct EntityLightTable_EcsId
+    struct EntityLightInstance_EcsId
     {
         uint32_t Id = std::numeric_limits<uint32_t>::max();
     };
 
-    struct EntityLightTable_GpuInstance
+    struct EntityLightInstance_Data
     {
         enum class LightFlags : uint32_t
         {
@@ -35,8 +35,8 @@ namespace Ame::Gfx
     {
         static constexpr const char* name = "LightTableTable";
 
-        using id_container_type = EntityLightTable_EcsId;
-        using instance_type     = EntityLightTable_GpuInstance;
+        using id_container_type = EntityLightInstance_EcsId;
+        using instance_type     = EntityLightInstance_Data;
 
         static void update(const Ecs::Entity& entity, instance_type& instance)
         {
@@ -46,7 +46,7 @@ namespace Ame::Gfx
             if (auto directionalLight = entity->get<Ecs::DirectionalLightComponent>())
             {
                 instance.Color = directionalLight->Color;
-                typeMask       = static_cast<uint32_t>(EntityLightTable_GpuInstance::LightFlags::Directional);
+                typeMask       = static_cast<uint32_t>(instance_type::LightFlags::Directional);
             }
             else if (auto pointLight = entity->get<Ecs::PointLightComponent>())
             {
@@ -54,7 +54,7 @@ namespace Ame::Gfx
                 instance.Color                 = pointLight->Color;
                 instance.Range                 = pointLight->Range;
                 instance.Attenuation_Angle.x() = pointLight->Attenuation;
-                typeMask                       = static_cast<uint32_t>(EntityLightTable_GpuInstance::LightFlags::Point);
+                typeMask                       = static_cast<uint32_t>(instance_type::LightFlags::Point);
             }
             else if (auto spotLight = entity->get<Ecs::SpotLightComponent>())
             {
@@ -64,7 +64,7 @@ namespace Ame::Gfx
                 instance.Attenuation_Angle.x() = spotLight->Attenuation;
                 instance.Attenuation_Angle.y() = spotLight->Angle;
                 instance.Attenuation_Angle.z() = spotLight->AngleAttenuation;
-                typeMask                       = static_cast<uint32_t>(EntityLightTable_GpuInstance::LightFlags::Spot);
+                typeMask                       = static_cast<uint32_t>(instance_type::LightFlags::Spot);
             }
 
             instance.Flags     = typeMask;

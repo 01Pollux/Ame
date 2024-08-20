@@ -1,7 +1,7 @@
 #include <Graphics/EntityCompositor/Storage.hpp>
 
 #include <Graphics/RenderGraph/Common/Names.hpp>
-#include <Rhi/Utils/IndirectCommandStructs.hpp>
+#include <Graphics/RenderGraph/Common/Constants.hpp>
 
 namespace Ame::Gfx
 {
@@ -14,15 +14,8 @@ namespace Ame::Gfx
         m_DrawInstanceStorage(*world),
         m_LightStorage(*world)
     {
-        Dg::BufferDesc bufferDesc{
-            "FrameDataBuffer",
-            sizeof(CameraFrameData),
-            Dg::BIND_UNIFORM_BUFFER,
-            Dg::USAGE_DEFAULT
-        };
-
-        auto renderDevice = m_RhiDevice->GetRenderDevice();
-        renderDevice->CreateBuffer(bufferDesc, nullptr, &m_FrameDataBuffer);
+        CreateFrameDataBuffer();
+        CreateLightIdBuffer();
     }
 
     //
@@ -48,6 +41,18 @@ namespace Ame::Gfx
         m_LightStorage.Upload(renderDevice, immediateContext);
     }
 
+    void EntityStorage::CreateFrameDataBuffer()
+    {
+        Dg::BufferDesc bufferDesc{
+            "FrameDataBuffer",
+            sizeof(CameraFrameData),
+            Dg::BIND_UNIFORM_BUFFER,
+            Dg::USAGE_DEFAULT
+        };
+        auto renderDevice = m_RhiDevice->GetRenderDevice();
+        renderDevice->CreateBuffer(bufferDesc, nullptr, &m_FrameDataBuffer);
+    }
+
     void EntityStorage::UpdateFrameData(
         const CameraFrameDataUpdateDesc& updateDesc)
     {
@@ -71,6 +76,29 @@ namespace Ame::Gfx
             .DeltaTime  = updateDesc.DeltaTime
         };
         renderContext->UpdateBuffer(m_FrameDataBuffer, 0, sizeof(frameData), &frameData, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    }
+
+    void EntityStorage::CreateLightIdBuffer()
+    {
+        Dg::BufferDesc bufferDesc{
+            "LightIdBuffer",
+            sizeof(uint32_t) * c_MaxLightConstants,
+            Dg::BIND_SHADER_RESOURCE,
+            Dg::USAGE_DEFAULT,
+            Dg::CPU_ACCESS_NONE,
+            Dg::BUFFER_MODE_STRUCTURED,
+            sizeof(uint32_t)
+        };
+        auto renderDevice = m_RhiDevice->GetRenderDevice();
+        renderDevice->CreateBuffer(bufferDesc, nullptr, &m_LightIdBuffer);
+    }
+
+    void EntityStorage::UpdateLightInstances(
+        std::span<const uint32_t> lightIds)
+    {
+        size_t maxCount      = std::min(lightIds[0] + 1, c_MaxLightConstants);
+        auto   renderContext = m_RhiDevice->GetImmediateContext();
+        renderContext->UpdateBuffer(m_LightIdBuffer, 0, sizeof(uint32_t) * maxCount, lightIds.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 
     //

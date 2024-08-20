@@ -4,6 +4,7 @@
 #include <Ecs/Query.hpp>
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/DrawInstanceTable.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/LightTable.hpp>
 
 namespace Ame::Gfx
 {
@@ -13,6 +14,9 @@ namespace Ame::Gfx
         using RenderableQuery = Ecs::UniqueQuery<
             const Ecs::RenderableComponent,
             const EntityDrawInstance_EcsId>;
+
+        using LightQuery = Ecs::UniqueQuery<
+            const EntityLightInstance_EcsId>;
 
     public:
         EntityDrawer(
@@ -27,5 +31,6 @@ namespace Ame::Gfx
     private:
         Ref<EntityCollector> m_Collector;
         RenderableQuery      m_RenderableQuery;
+        LightQuery           m_LightQuery;
     };
 } // namespace Ame::Gfx

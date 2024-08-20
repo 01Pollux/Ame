@@ -30,6 +30,12 @@ namespace Ame::Gfx
         commands.emplace_back(renderable, instanceId);
     }
 
+    void EntityCollector::UpdateLights(
+        std::span<const uint32_t> lightIds)
+    {
+        m_Storage.get().UpdateLightInstances(lightIds);
+    }
+
     //
 
     void EntityCollector::Sort(
