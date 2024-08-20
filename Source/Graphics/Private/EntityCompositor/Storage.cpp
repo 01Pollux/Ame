@@ -11,7 +11,8 @@ namespace Ame::Gfx
         m_World(world),
         m_RhiDevice(rhiDevice),
         m_TransformStorage(*world),
-        m_DrawInstanceStorage(*world)
+        m_DrawInstanceStorage(*world),
+        m_LightStorage(*world)
     {
         Dg::BufferDesc bufferDesc{
             "FrameDataBuffer",
@@ -44,6 +45,7 @@ namespace Ame::Gfx
 
         m_TransformStorage.Upload(renderDevice, immediateContext);
         m_DrawInstanceStorage.Upload(renderDevice, immediateContext);
+        m_LightStorage.Upload(renderDevice, immediateContext);
     }
 
     void EntityStorage::UpdateFrameData(
@@ -81,6 +83,7 @@ namespace Ame::Gfx
         resourceStorage.ImportBuffer(c_RGFrameData, m_FrameDataBuffer);
         resourceStorage.ImportBuffer(c_RGTransformTable, m_TransformStorage.GetBuffer());
         resourceStorage.ImportBuffer(c_RGRenderInstanceTable, m_DrawInstanceStorage.GetBuffer());
+        resourceStorage.ImportBuffer(c_RGLightInstanceTable, m_LightStorage.GetBuffer());
     }
 
     //

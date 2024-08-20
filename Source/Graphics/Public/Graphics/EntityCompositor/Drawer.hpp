@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Graphics/EntityCompositor/Core.hpp>
-#include <Graphics/EntityCompositor/EntityGpuStorage/DrawInstance.hpp>
 #include <Ecs/Query.hpp>
+
+#include <Graphics/EntityCompositor/EntityGpuStorage/DrawInstanceTable.hpp>
 
 namespace Ame::Gfx
 {
@@ -25,7 +26,6 @@ namespace Ame::Gfx
 
     private:
         Ref<EntityCollector> m_Collector;
-
-        RenderableQuery m_RenderableQuery;
+        RenderableQuery      m_RenderableQuery;
     };
 } // namespace Ame::Gfx

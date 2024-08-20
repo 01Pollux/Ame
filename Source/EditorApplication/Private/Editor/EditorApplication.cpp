@@ -11,6 +11,7 @@
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Renderables/3D/ModelLoader.hpp>
 #include <EcsComponent/Renderables/3D/StaticMesh.hpp>
+#include <EcsComponent/Lighting/DirectionalLight.hpp>
 
 #include <Module/Graphics/RendererSubmodule.hpp>
 #include <Shading/Technique.hpp>
@@ -79,6 +80,30 @@ namespace Ame
 
         //
 
+        // spawn random lights at Position (0, 0, 4) as center of 3x3 grid
+        for (auto idx : std::views::iota(0u, 9u))
+        {
+            auto lightEntity = world->CreateEntity("Light");
+
+            Ecs::TransformComponent lightTr;
+            lightTr.SetPosition({ 0.f, 0.f, 4.f });
+            // offset the light by 1 unit in x and y direction
+            lightTr.SetPosition(lightTr.GetPosition() + Math::Vector3{ static_cast<float>(idx % 3), static_cast<float>(idx / 3), 0.f });
+
+            Math::Matrix3x3 basis = lightTr.GetBasis();
+            basis(2)              = Math::Vector3{ 0.f, 0.f, -1.f };
+            lightTr.SetBasis(basis);
+
+            Ecs::DirectionalLightComponent lightComp;
+            lightComp.Color = Math::Vector3{ 1.f, 1.f, 1.f };
+
+            lightEntity->set(lightComp);
+            lightEntity->set(lightTr);
+        }
+
+        //
+
+#if 0
         Rhi::MaterialCreateDesc materialDesc;
 
         Ptr mdl(Ecs::MeshModelLoader::LoadModelAsync({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/DamagedHelmet/DamagedHelmet.gltf" }).get());
@@ -318,6 +343,7 @@ namespace Ame
                     }
                 }
             });
+#endif
     }
 
     void EditorApplication::OnInitialize()

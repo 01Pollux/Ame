@@ -14,4 +14,5 @@ namespace Ame::Gfx
 
     static inline const Rg::ResourceId c_RGTransformTable{ "_Transforms" };
     static inline const Rg::ResourceId c_RGRenderInstanceTable{ "_RenderInstances" };
+    static inline const Rg::ResourceId c_RGLightInstanceTable{ "_LightInstances" };
 } // namespace Ame::Gfx

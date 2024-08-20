@@ -13,7 +13,6 @@ namespace Ame::Gfx
     {
         Name("Depth Prepass")
             .Flags(Rg::PassFlags::Graphics)
-            .Flags(Rg::PassFlags::DirtyOnResize)
             .Build(std::bind_front(&DepthPrePass::OnBuild, this))
             .Execute(std::bind_front(&DepthPrePass::OnExecute, this));
     }

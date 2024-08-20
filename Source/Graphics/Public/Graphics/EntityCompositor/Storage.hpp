@@ -2,8 +2,9 @@
 
 #include <Graphics/EntityCompositor/Core.hpp>
 
-#include <Graphics/EntityCompositor/EntityGpuStorage/Transforms.hpp>
-#include <Graphics/EntityCompositor/EntityGpuStorage/DrawInstance.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/TransformTable.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/DrawInstanceTable.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/LightTable.hpp>
 
 namespace Ame::Gfx
 {
@@ -48,5 +49,6 @@ namespace Ame::Gfx
         // Ptr<Dg::IBuffer>             m_SphereBuffer;            // Geometry::Sphere[]
         EntityTransformGpuStorage    m_TransformStorage;    // Transform[]
         EntityDrawInstanceGpuStorage m_DrawInstanceStorage; // EntityDrawInstance[]
+        EntityLightGpuStorage        m_LightStorage;        // Light[]
     };
 } // namespace Ame::Gfx

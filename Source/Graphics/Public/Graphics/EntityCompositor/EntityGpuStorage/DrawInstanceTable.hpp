@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/EntityGpuStorage.hpp>
-#include <Graphics/EntityCompositor/EntityGpuStorage/Transforms.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/TransformTable.hpp>
 
 namespace Ame::Gfx
 {

@@ -2,6 +2,10 @@
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/EntityGpuStorage.hpp>
 
+#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Renderables/BaseRenderable.hpp>
+#include <EcsComponent/Lighting/BaseLight.hpp>
+
 namespace Ame::Gfx
 {
     struct EntityTransform_EcsId
@@ -26,11 +30,13 @@ namespace Ame::Gfx
         {
             return world
                 ->observer<>()
-                .with<Ecs::RenderableComponent>()
-                .in()
+                .with<const Ecs::GlobalTransformComponent>()
                 .and_()
-                .with<Ecs::GlobalTransformComponent>()
-                .in()
+                .with<const Ecs::RenderableComponent>()
+                .or_()
+                .with<const Ecs::GlobalTransformComponent>()
+                .and_()
+                .with<const Ecs::BaseLightComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }
