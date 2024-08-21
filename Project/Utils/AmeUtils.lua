@@ -1,17 +1,21 @@
 ame_utils = {}
 
+function __ame_add_files_if_not_empty(path, opts)
+    opts = opts or {}
+    add_files(path, opts)
+end
+
+function __ame_add_headerfiles_if_not_empty(path, opts)
+    opts = opts or {}
+    add_headerfiles(path, opts)
+end
+
 function _ame_add_sources_if_not_empty(path)
-    local source_files = file_utils:path_from_root(path .. "/**.cpp")
-    if table.empty(source_files) ~= true then
-        add_files(source_files)
-    end
+    __ame_add_files_if_not_empty(file_utils:path_from_root(path .. "/**.cpp"))
 end
 
 function _ame_add_headers_if_not_empty(path)
-    local header_files = file_utils:path_from_root(path .. "/**.hpp")
-    if table.empty(header_files) ~= true then
-        add_headerfiles(header_files)
-    end
+    __ame_add_headerfiles_if_not_empty(file_utils:path_from_root(path .. "/**.hpp"))
 end
 
 function ame_utils:add_library(group, kind, path)

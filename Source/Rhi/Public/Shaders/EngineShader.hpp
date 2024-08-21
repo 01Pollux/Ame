@@ -54,7 +54,7 @@ namespace Ame::Rhi
             m_CreateInfo.SourceLanguage = lang;
             m_CreateInfo.Desc           = desc;
             m_CreateInfo.Source         = sourceCode.data();
-            m_CreateInfo.SourceLength   = !sourceCode.empty() ? sourceCode.size() - 1 : 0;
+            m_CreateInfo.SourceLength   = sourceCode.size();
         }
 
         void SetupCompressed(

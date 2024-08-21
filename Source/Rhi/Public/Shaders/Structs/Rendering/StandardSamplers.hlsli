@@ -1,0 +1,12 @@
+#ifndef STRUCT_STD_SAMPLER_DATA
+#define STRUCT_STD_SAMPLER_DATA
+SamplerState Sampler_LinearClamp;
+SamplerState Sampler_PointClamp;
+SamplerState Sampler_LinearMirror;
+SamplerState Sampler_PointWrap;
+SamplerState Sampler_LinearWrap;
+SamplerState Sampler_Aniso2xClamp;
+SamplerState Sampler_Aniso4xClamp;
+SamplerState Sampler_Aniso2xWrap;
+SamplerState Sampler_Aniso4xWrap;
+#endif

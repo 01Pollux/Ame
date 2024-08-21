@@ -7,15 +7,12 @@ namespace Ame::Rhi
     class StructForwardPlusPixelOutputShader : public EngineShader
     {
     private:
-        static constexpr const char* c_SourceCode = R"(
-	#ifndef STRUCT_STD_PIXEL_OUTPUT
-	#define STRUCT_STD_PIXEL_OUTPUT
-    struct ps_output{float4 color:SV_TARGET;};
-	#endif
-)";
+        static constexpr const char* c_SourceCode =
+#include "ForwardPlus_PixelOutput.hlsli.generated.hpp"
+            ;
 
     public:
-        static constexpr const char* Name = "Structs/Outputs/ForwardPlus_StdPixelOutput.hlsli";
+        static constexpr const char* Name = "Structs/Outputs/ForwardPlus_PixelOutput.hlsli";
 
         StructForwardPlusPixelOutputShader()
         {

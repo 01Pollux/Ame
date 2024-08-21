@@ -13,6 +13,7 @@ set_languages("cxxlatest")
 
 --
 
+_current_mode = nil
 _script_root_dir = os.scriptdir()
 _use_asan = false
 _use_exception = false
@@ -47,6 +48,7 @@ if is_mode("debug") then
     _use_exception = true
     _debug_packages = true
     _with_symbols = true
+    _current_mode = "debug"
 end
 
 if is_mode("debug_sanitize") then 
@@ -63,6 +65,7 @@ if is_mode("debug_sanitize") then
     _use_exception = true
     _debug_packages = true
     _with_symbols = true
+    _current_mode = "debug_sanitize"
 end
 
 if is_mode("releasedbg") then
@@ -71,12 +74,14 @@ if is_mode("releasedbg") then
     add_defines("AME_RELEASE")
 
     _with_symbols = true
+    _current_mode = "releasedbg"
 end
 
 if is_mode("release") then
     add_defines("NDEBUG")
     add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
     add_defines("AME_DIST")
+    _current_mode = "release"
 end
 
 --

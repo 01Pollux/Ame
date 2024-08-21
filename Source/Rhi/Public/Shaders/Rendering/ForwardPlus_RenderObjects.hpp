@@ -18,54 +18,14 @@ namespace Ame::Rhi
     class ForwardPlus_RenderObjects_VertexShader : public EngineShader
     {
     private:
-        static constexpr const char c_SourceCode[] = R"(
-    #include "Structs/Transform.hlsli"
-    #include "Structs/RenderInstance.hlsli"
-    #include "Structs/CameraFrameData.hlsli"
-
-    #include "Structs/Inputs/StdVertexInput.hlsli"
-	#include "Structs/Outputs/StdVertexOutput.hlsli"
-
-    cbuffer FrameDataBuffer
-    {
-        CameraFrameData FrameData;
-    };
-
-    StructuredBuffer<Transform> Transforms;
-    StructuredBuffer<RenderInstance> RenderInstances;
-
-    //
-
-    void main(in vs_input vsIn, out vs_output vsOut)
-    {
-#ifdef _HAS_PREMAIN
-		if (pre_main(vsIn, vsOut) == true)
-		{
-			return;
-		}
-#endif
-
-        RenderInstance instance = RenderInstances[vsIn.instance_id];
-
-        float4x4 world = Transforms[instance.TransformId].World;
-        float4 position = mul(float4(vsIn.position, 1.0), world);
-
-        vsOut.screen_position   = mul(FrameData.ViewProjection, position);
-        vsOut.world_position    = position.xyz;
-        vsOut.world_normal      = mul(float4(vsIn.normal, 0.0), world).xyz;
-        vsOut.world_tangent     = mul(float4(vsIn.tangent, 0.0), world).xyz;
-        vsOut.tex_coord         = vsIn.tex_coord;
-
-#ifdef _HAS_POSTMAIN
-		post_main(vsIn, vsOut);
-#endif
-    }
-)";
+        static constexpr const char c_SourceCode[] =
+#include "ForwardPlus_RenderObjects_VS.hlsli.generated.hpp"
+            ;
 
     public:
         ForwardPlus_RenderObjects_VertexShader()
         {
-            Setup({ "VS_Fwd+RenderObjects", Dg::SHADER_TYPE_VERTEX }, c_SourceCode);
+            Setup({ "R_Fwd+RenderObjects_VS", Dg::SHADER_TYPE_VERTEX }, c_SourceCode);
             LinkShaders();
         }
 
@@ -98,43 +58,14 @@ namespace Ame::Rhi
     class ForwardPlus_RenderObjects_PixelShader : public EngineShader
     {
     private:
-        static constexpr const char c_SourceCode[] = R"(
-    #include "Structs/Inputs/StdPixelInput.hlsli"
-	#include "Structs/Outputs/StdMaterialFragment.hlsli"
-	#include "Structs/Outputs/ForwardPlus_StdPixelOutput.hlsli"
-
-	void main(in ps_input psIn, out ps_output psOut)
-	{
-        material_fragment fragment;
-
-#ifdef _HAS_PREMAIN
-        psOut.color = (float4)0;
-		if (pre_main(psIn, fragment) == false)
-		{
-			return;
-		}
-
-        // suppose that the light is at the camera position
-		float3 light_dir = normalize(float3(0.0, 0.0, 1.0) - psIn.world_position);
-		float3 normal = normalize(fragment.normal);
-		float3 view_dir = normalize(float3(0.0, 0.0, 1.0) - psIn.world_position);
-
-		float3 ambient = fragment.base_color.rgb;
-		float3 diffuse = fragment.base_color.rgb * max(dot(normal, light_dir), 0.0);
-		float3 specular = fragment.specular.rgb * pow(max(dot(reflect(-light_dir, normal), view_dir), 0.0), fragment.shininess.r);
-
-		psOut.color = float4(ambient + diffuse + specular, 1.0) * fragment.ao;
-
-#else
-        psOut.color = float4(1.0, 1.0, 1.0, 1.0);
-#endif
-	}
-)";
+        static constexpr const char c_SourceCode[] =
+#include "ForwardPlus_RenderObjects_PS.hlsli.generated.hpp"
+            ;
 
     public:
         ForwardPlus_RenderObjects_PixelShader()
         {
-            Setup({ "PS_Fwd+RenderObjects", Dg::SHADER_TYPE_PIXEL }, c_SourceCode);
+            Setup({ "R_Fwd+RenderObjects_PS", Dg::SHADER_TYPE_PIXEL }, c_SourceCode);
             LinkShaders();
         }
 

@@ -381,3 +381,6 @@ FodyWeavers.xsd
 /.xmake
 /cmake-build-debug
 /Assets/*
+
+# Remove generated files
+*.generated.*

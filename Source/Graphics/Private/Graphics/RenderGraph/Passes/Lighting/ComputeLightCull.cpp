@@ -17,28 +17,28 @@ namespace Ame::Gfx
     //
 
     void ComputeLightCullPass::TryCreateResources(
-        Rhi::IRhiDevice* rhiDevice)
+        Rhi::IRhiDevice*)
     {
         if (m_PipelineState)
         {
             return;
         }
-
-        Rhi::RenderDeviceWithCache<> device(rhiDevice);
-
-        Dg::ComputePipelineStateCreateInfo computeDesc{
-#ifndef AME_DIST
-            "LightFrustumCullPso"
-#endif
-        };
-
-        // Ptr shader = device.CreateShader(Rhi::LightFrustumCull_ComputeShader().GetCreateInfo());
-        Ptr<Dg::IShader>   shader;
-        Ptr<Dg::IDataBlob> blob;
-        rhiDevice->GetRenderDevice()->CreateShader(Rhi::LightFrustumCull_ComputeShader().GetCreateInfo(), &shader, &blob);
-
-        computeDesc.pCS = shader;
-        m_PipelineState = device.CreatePipelineState(computeDesc);
+        //
+        //        Rhi::RenderDeviceWithCache<> device(rhiDevice);
+        //
+        //        Dg::ComputePipelineStateCreateInfo computeDesc{
+        // #ifndef AME_DIST
+        //            "LightFrustumCullPso"
+        // #endif
+        //        };
+        //
+        //        // Ptr shader = device.CreateShader(Rhi::LightFrustumCull_ComputeShader().GetCreateInfo());
+        //        Ptr<Dg::IShader>   shader;
+        //        Ptr<Dg::IDataBlob> blob;
+        //        rhiDevice->GetRenderDevice()->CreateShader(Rhi::LightFrustumCull_ComputeShader().GetCreateInfo(), &shader, &blob);
+        //
+        //        computeDesc.pCS = shader;
+        //        m_PipelineState = device.CreatePipelineState(computeDesc);
     }
 
     //

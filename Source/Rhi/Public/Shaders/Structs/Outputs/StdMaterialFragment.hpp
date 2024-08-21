@@ -7,12 +7,9 @@ namespace Ame::Rhi
     class StructStdMaterialFragmentShader : public EngineShader
     {
     private:
-        static constexpr const char* c_SourceCode = R"(
-	#ifndef STRUCT_STD_MATERIAL_FRAGMENT
-	#define STRUCT_STD_MATERIAL_FRAGMENT
-    struct material_fragment{float4 base_color;float3 normal;float ao;float3 specular;float4 emissive;float roughness;float3 shininess;float metallic;float height;};
-	#endif
-)";
+        static constexpr const char* c_SourceCode =
+#include "StdMaterialFragment.hlsli.generated.hpp"
+            ;
 
     public:
         static constexpr const char* Name = "Structs/Outputs/StdMaterialFragment.hlsli";

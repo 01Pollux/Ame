@@ -1,8 +1,8 @@
 local nonshared_public_inherit = {public = true, inherit = true, configs = {shared = false}}
 local shared_public_inherit = {public = true, inherit = true, configs = {shared = true}}
+
 target("Ame.Core")
-    ame_utils:add_library("Ame", "static", "Source/Core")
-    
+    ame_utils:add_library("Ame", "static", "Source/Core")    
     add_packages(
         "boost",
         "cereal",
