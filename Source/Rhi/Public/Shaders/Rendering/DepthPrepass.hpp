@@ -61,7 +61,7 @@ namespace Ame::Rhi
     public:
         DepthPrepass_VertexShader()
         {
-            Setup({ "VS_DepthPrepass", Dg::SHADER_TYPE_VERTEX, true }, c_SourceCode);
+            Setup({ "VS_DepthPrepass", Dg::SHADER_TYPE_VERTEX }, c_SourceCode);
             LinkShaders();
         }
 

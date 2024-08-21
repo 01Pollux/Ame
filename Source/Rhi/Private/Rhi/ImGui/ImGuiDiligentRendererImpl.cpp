@@ -13,7 +13,7 @@
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/MapHelper.hpp>
 
-#include <Shaders/Utils/ImGuiRenderShader.hpp>
+#include <Shaders/Rendering/ImGuiRenderShader.hpp>
 
 #include <Rhi/Device/RhiDevice.hpp>
 #include <Math/Matrix.hpp>

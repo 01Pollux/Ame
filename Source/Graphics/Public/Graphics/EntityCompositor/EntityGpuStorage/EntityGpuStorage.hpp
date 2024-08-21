@@ -59,7 +59,7 @@ namespace Ame::Gfx
             world->component<typename traits_type::id_container_type>();
             m_Observer =
                 traits_type::observer_create(world)
-                    //.yield_existing()
+                    .yield_existing()
                     .run(
                         [this](Ecs::Iterator& iter)
                         {

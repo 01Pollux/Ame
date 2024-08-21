@@ -7,7 +7,7 @@
 
 namespace Ame::Gfx
 {
-    static void StandardRenderObjects(
+    inline void StandardRenderObjects(
         Ecs::World&                 world,
         Dg::IShaderResourceBinding* ersSrb,
         Dg::IDeviceContext*         deviceContext,

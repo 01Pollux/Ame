@@ -11,16 +11,14 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx
 {
-    class ForwardPlus_RenderObjectsPass : public Rg::Pass
+    class ComputeLightCullPass : public Rg::Pass
     {
     public:
-        ForwardPlus_RenderObjectsPass(
-            Ecs::World* world);
+        ComputeLightCullPass();
 
     private:
         void TryCreateResources(
-            const Rg::ResourceStorage&  storage,
-            Dg::IShaderResourceBinding* srb);
+            Rhi::IRhiDevice* rhiDevice);
 
         void OnBuild(
             Rg::Resolver& resolver);
@@ -30,8 +28,6 @@ namespace Ame::Gfx
             Dg::IDeviceContext*        deviceContext);
 
     private:
-        Ecs::World* m_World;
-
-        Ptr<Rhi::MaterialTechnique> m_Technique;
+        Ptr<Dg::IPipelineState> m_PipelineState;
     };
 } // namespace Ame::Gfx

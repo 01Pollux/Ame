@@ -31,7 +31,7 @@ namespace Ame::Rhi
 
         StructRenderInstanceShader()
         {
-            SetupCompressed({ "Struct RenderInstance", Dg::SHADER_TYPE_UNKNOWN }, c_SourceCode);
+            SetupCompressed({ "S_RenderInstance", Dg::SHADER_TYPE_UNKNOWN }, c_SourceCode);
         }
     };
 } // namespace Ame::Rhi

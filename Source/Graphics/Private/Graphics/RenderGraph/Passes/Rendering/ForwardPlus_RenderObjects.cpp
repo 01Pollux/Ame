@@ -7,19 +7,19 @@
 
 namespace Ame::Gfx
 {
-    ForwardPlus_RenderObjects::ForwardPlus_RenderObjects(
+    ForwardPlus_RenderObjectsPass::ForwardPlus_RenderObjectsPass(
         Ecs::World* world) :
         m_World(world)
     {
         Name("Render Objects")
             .Flags(Rg::PassFlags::Graphics)
-            .Build(std::bind_front(&ForwardPlus_RenderObjects::OnBuild, this))
-            .Execute(std::bind_front(&ForwardPlus_RenderObjects::OnExecute, this));
+            .Build(std::bind_front(&ForwardPlus_RenderObjectsPass::OnBuild, this))
+            .Execute(std::bind_front(&ForwardPlus_RenderObjectsPass::OnExecute, this));
     }
 
     //
 
-    void ForwardPlus_RenderObjects::TryCreateResources(
+    void ForwardPlus_RenderObjectsPass::TryCreateResources(
         const Rg::ResourceStorage&  storage,
         Dg::IShaderResourceBinding* srb)
     {
@@ -50,7 +50,7 @@ namespace Ame::Gfx
 
     //
 
-    void ForwardPlus_RenderObjects::OnBuild(
+    void ForwardPlus_RenderObjectsPass::OnBuild(
         Rg::Resolver& resolver)
     {
         resolver.WriteTexture(c_RGDepthImage("Depth"), Dg::BIND_DEPTH_STENCIL, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
@@ -60,7 +60,7 @@ namespace Ame::Gfx
         resolver.ReadUserData(c_RGEntityEmptyVertexBuffers);
     }
 
-    void ForwardPlus_RenderObjects::OnExecute(
+    void ForwardPlus_RenderObjectsPass::OnExecute(
         const Rg::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {

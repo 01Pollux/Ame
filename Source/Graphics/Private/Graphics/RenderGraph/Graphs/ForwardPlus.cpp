@@ -4,6 +4,7 @@
 #include <Graphics/RenderGraph/Passes/Helpers/EntityEmptyVertexBuffers.hpp>
 #include <Graphics/RenderGraph/Passes/Helpers/EntityResourceSignature.hpp>
 #include <Graphics/RenderGraph/Passes/Rendering/DepthPrePass.hpp>
+#include <Graphics/RenderGraph/Passes/Lighting/ComputeLightCull.hpp>
 #include <Graphics/RenderGraph/Passes/Rendering/ForwardPlus_RenderObjects.hpp>
 
 #include <Rg/Graph.hpp>
@@ -19,6 +20,7 @@ namespace Ame::Gfx
         passStorage.NewPass<EntityResourceSignature_GraphicsPass>("Forward+::Initialize_ERS");
         passStorage.NewPass<EntityEmptyVertexBuffersPass>("Forward+::Initialize_EEVB");
         passStorage.NewPass<DepthPrePass>("Forward+::DepthPrepass", world);
-        passStorage.NewPass<ForwardPlus_RenderObjects>("Forward+::Render Objects", world);
+        passStorage.NewPass<ComputeLightCullPass>("Forward+::Compute Light Cull");
+        passStorage.NewPass<ForwardPlus_RenderObjectsPass>("Forward+::Render Objects", world);
     }
 } // namespace Ame::Gfx

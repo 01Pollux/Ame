@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/EntityGpuStorage.hpp>
+#include <Graphics/EntityCompositor/EntityGpuStorage/TransformTable.hpp>
 
 #include <EcsComponent/Lighting/BaseLight.hpp>
 #include <EcsComponent/Lighting/DirectionalLight.hpp>
@@ -25,10 +26,10 @@ namespace Ame::Gfx
         };
 
         Math::Vector4 Color;
-        Math::Vector3 Direction{};
-        float         Range = 0.f;         // 0 for directional light, Point light + spot light
-        Math::Vector3 Attenuation_Angle{}; // 0 for directional light, (attenuation, 0, 0) for point light, (attenuation, angle, attenuation) for spot light
-        uint32_t      Flags = 0;           // LightFlags::* flags
+        Math::Vector3 Attenuation_Angle{};                                // 0 for directional light, (attenuation, 0, 0) for point light, (attenuation, angle, attenuation) for spot light
+        float         Range       = 0.f;                                  // 0 for directional light, Point light + spot light
+        uint32_t      TransformId = std::numeric_limits<uint32_t>::max(); // Id of the transform component
+        uint32_t      Flags       = 0;                                    // LightFlags::* flags
     };
 
     struct EntityGpuStorageTraits_Light
@@ -40,7 +41,7 @@ namespace Ame::Gfx
 
         static void update(const Ecs::Entity& entity, instance_type& instance)
         {
-            auto transformComponent = entity->get<Ecs::GlobalTransformComponent>();
+            auto transformId = entity->get<EntityTransform_EcsId>()->Id;
 
             uint32_t typeMask = 0;
             if (auto directionalLight = entity->get<Ecs::DirectionalLightComponent>())
@@ -67,14 +68,14 @@ namespace Ame::Gfx
                 typeMask                       = static_cast<uint32_t>(instance_type::LightFlags::Spot);
             }
 
-            instance.Flags     = typeMask;
-            instance.Direction = transformComponent->GetLookDir();
+            instance.TransformId = transformId;
+            instance.Flags       = typeMask;
         }
 
         static auto observer_create(Ecs::WorldRef world)
         {
             return world
-                ->observer<const Ecs::GlobalTransformComponent, const Ecs::BaseLightComponent>()
+                ->observer<const EntityTransform_EcsId, const Ecs::BaseLightComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

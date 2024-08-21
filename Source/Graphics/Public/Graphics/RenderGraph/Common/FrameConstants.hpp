@@ -16,6 +16,9 @@ namespace Ame::Gfx
         float GameTime;
         float DeltaTime;
 
+        float NearPlane;
+        float FarPlane;
+
         uint32_t CameraMask;
     };
 
@@ -37,8 +40,10 @@ namespace Ame::Gfx
         float GameTime;
         float DeltaTime;
 
+        float NearPlane;
+        float FarPlane;
+
         uint32_t CameraMask;
-        uint32_t _padding[2];
     };
     static_assert(sizeof(CameraFrameData) == Math::AlignUp(sizeof(CameraFrameData), 16), "CameraFrameData is not 16-byte aligned");
 } // namespace Ame::Gfx

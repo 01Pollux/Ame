@@ -55,7 +55,7 @@ namespace Ame::Rhi
     public:
         ImGuiRenderVertexShader()
         {
-            SetupCompressed({ "ImGui VS", Dg::SHADER_TYPE_VERTEX, true }, c_SourceCode);
+            SetupCompressed({ "ImGui VS", Dg::SHADER_TYPE_VERTEX }, c_SourceCode);
         }
     };
 
@@ -105,7 +105,7 @@ namespace Ame::Rhi
     public:
         ImGuiRenderPixelShader()
         {
-            SetupCompressed({ "ImGui PS", Dg::SHADER_TYPE_PIXEL, true }, c_SourceCode);
+            SetupCompressed({ "ImGui PS", Dg::SHADER_TYPE_PIXEL}, c_SourceCode);
         }
     };
 } // namespace Ame::Rhi

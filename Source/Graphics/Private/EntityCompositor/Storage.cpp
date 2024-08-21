@@ -73,7 +73,12 @@ namespace Ame::Gfx
 
             .EngineTime = updateDesc.EngineTime,
             .GameTime   = updateDesc.GameTime,
-            .DeltaTime  = updateDesc.DeltaTime
+            .DeltaTime  = updateDesc.DeltaTime,
+
+            .NearPlane = updateDesc.NearPlane,
+            .FarPlane  = updateDesc.FarPlane,
+
+            .CameraMask = updateDesc.CameraMask
         };
         renderContext->UpdateBuffer(m_FrameDataBuffer, 0, sizeof(frameData), &frameData, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }

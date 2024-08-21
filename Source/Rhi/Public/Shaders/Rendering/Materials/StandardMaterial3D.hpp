@@ -48,7 +48,7 @@ namespace Ame::Rhi
     public:
         StdMaterial3D_PixelShader()
         {
-            Setup({ "PS_StdMaterial3D", Dg::SHADER_TYPE_PIXEL, true }, c_SourceCode);
+            Setup({ "PS_StdMaterial3D", Dg::SHADER_TYPE_PIXEL}, c_SourceCode);
             LinkShaders();
         }
 

@@ -65,7 +65,7 @@ namespace Ame::Rhi
     public:
         ForwardPlus_RenderObjects_VertexShader()
         {
-            Setup({ "VS_Fwd+RenderObjects", Dg::SHADER_TYPE_VERTEX, true }, c_SourceCode);
+            Setup({ "VS_Fwd+RenderObjects", Dg::SHADER_TYPE_VERTEX }, c_SourceCode);
             LinkShaders();
         }
 
@@ -134,7 +134,7 @@ namespace Ame::Rhi
     public:
         ForwardPlus_RenderObjects_PixelShader()
         {
-            Setup({ "PS_Fwd+RenderObjects", Dg::SHADER_TYPE_PIXEL, true }, c_SourceCode);
+            Setup({ "PS_Fwd+RenderObjects", Dg::SHADER_TYPE_PIXEL }, c_SourceCode);
             LinkShaders();
         }
 
