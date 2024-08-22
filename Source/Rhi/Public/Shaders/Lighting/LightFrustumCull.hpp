@@ -7,6 +7,7 @@
 #include <Shaders/Structs/RenderInstance.hpp>
 #include <Shaders/Structs/CameraFrameData.hpp>
 
+#include <Shaders/Structs/Geometry/Common.hpp>
 #include <Shaders/Structs/Geometry/Plane.hpp>
 #include <Shaders/Structs/Geometry/Frustum.hpp>
 #include <Shaders/Structs/Geometry/Sphere.hpp>
@@ -43,7 +44,8 @@ namespace Ame::Rhi
                 Dg::ShaderMacro{ MAX_LIGHT_CHUNK_SIZE, maxLightChunkSize }
             }
         {
-            Setup({ "CS_LightFrustumCull", Dg::SHADER_TYPE_COMPUTE }, c_SourceCode);
+            Setup({ "L_LightFrustumCull_CS", Dg::SHADER_TYPE_COMPUTE }, c_SourceCode);
+            m_CreateInfo.Macros = { m_Macros.data(), Count32(m_Macros) };
             LinkShaders();
         }
 
@@ -55,6 +57,7 @@ namespace Ame::Rhi
             StructRenderInstanceShader  renderInstanceStruct;
             StructCameraFrameDataShader cameraFrameDataStruct;
 
+            GeometryCommonShader              geometryCommonShader;
             StructGeometryPlanesShader        geometryPlanesStruct;
             StructGeometryFrustumPlanesShader geometryFrustumPlanesStruct;
             StructGeometrySphereShader        geometrySphereStruct;
@@ -69,6 +72,7 @@ namespace Ame::Rhi
                     { renderInstanceStruct.GetMemoryShaderSourceFileInfo(renderInstanceStruct.Name) },
                     { cameraFrameDataStruct.GetMemoryShaderSourceFileInfo(cameraFrameDataStruct.Name) },
 
+                    { geometryCommonShader.GetMemoryShaderSourceFileInfo(geometryCommonShader.Name) },
                     { geometryPlanesStruct.GetMemoryShaderSourceFileInfo(geometryPlanesStruct.Name) },
                     { geometryFrustumPlanesStruct.GetMemoryShaderSourceFileInfo(geometryFrustumPlanesStruct.Name) },
                     { geometrySphereStruct.GetMemoryShaderSourceFileInfo(geometrySphereStruct.Name) },

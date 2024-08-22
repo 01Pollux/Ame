@@ -8,5 +8,6 @@ if ($ShadersToCString) {
     .\Project\ConfigureShaders.ps1
 }
 
-# invoke xmake with the provided arguments
-& xmake $XMakeArgs.Split(' ')
+if ($XMakeArgs -ne "") {
+    & xmake $XMakeArgs.Split(' ')
+}

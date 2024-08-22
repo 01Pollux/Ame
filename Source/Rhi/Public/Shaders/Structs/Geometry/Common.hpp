@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class GeometryPlanesShader : public EngineShader
+    class GeometryCommonShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =
@@ -14,7 +14,7 @@ namespace Ame::Rhi
     public:
         static constexpr const char* Name = "Structs/Geometry/Common.hlsli";
 
-        GeometryPlanesShader()
+        GeometryCommonShader()
         {
             Setup({ "G_Common", Dg::SHADER_TYPE_UNKNOWN }, c_SourceCode);
         }

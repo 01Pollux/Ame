@@ -15,7 +15,7 @@ float Geometry_LengthSqr(const in float3 v);
 
 //
 
-int Geometry_FrustumIntersectsSphere(const in Sphere s, const in Frustum f);
+bool Geometry_FrustumIntersectsSphere(const in Sphere s, const in Frustum f);
 int Geometry_SphereContainsFrustum(const in Sphere s, const in Frustum f);
 
 //

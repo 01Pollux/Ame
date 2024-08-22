@@ -67,7 +67,7 @@ namespace Ame::Rhi
             auto vertexShader          = GetShader(shaderDesc);
 
             Dg::ShaderResourceVariableDesc textures[]{
-                { Dg::SHADER_TYPE_PIXEL, "_Texture", Dg::SHADER_RESOURCE_VARIABLE_TYPE_MUTABLE }
+                { Dg::SHADER_TYPE_PIXEL, "_Texture", Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC }
             };
             Dg::ImmutableSamplerDesc samplers[]{
                 { Dg::SHADER_TYPE_PIXEL, "_Sampler", Dg::Sam_LinearClamp }

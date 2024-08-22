@@ -1,20 +1,13 @@
-Texture2D LightCountHeatMap;
 RWTexture2D<float4> DebugTexture;
-void write_debug_texture(uint gid, uint light_count)
+void write_debug_texture(uint2 gid, uint light_count)
 {
-	if (gid.x == 0 || gid.y == 0)
+	GroupMemoryBarrierWithGroupSync();
+	
+	if (light_count > 0)
 	{
-		DebugTexture[gid.xy] = float4(0, 0, 0, 0.9f);
-	}
-	else if (gid.x == 1 || gid.y == 1)
-	{
-		DebugTexture[gid.xy] = float4(1, 1, 1, 0.5f);
-	}
-	else if (light_count > 0)
-	{
-		float normalized_light_count = light_count / LightCountHeatMap.GetDimensions().x;
-		float4 color = LightCountHeatMap.SampleLevel(samLinearClamp, float2(normalized_light_count, 0), 0);
-		DebugTexture[gid.xy] = color;
+		float normalized_light_count = light_count / MAX_LIGHT_CHUNK_SIZE;
+		float3 color = lerp(float3(0, 1, 0), float3(1, 0.5, 0), normalized_light_count);
+		DebugTexture[gid.xy] = float4(color, 1.f);
 	}
 	else
 	{

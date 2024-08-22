@@ -53,8 +53,8 @@ namespace Ame::Gfx
     void ForwardPlus_RenderObjectsPass::OnBuild(
         Rg::Resolver& resolver)
     {
-        resolver.WriteTexture(c_RGDepthImage("Depth"), Dg::BIND_DEPTH_STENCIL, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
-        resolver.WriteTexture(c_RGFinalImage("Render Objects"), Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
+        resolver.ReadTexture(c_RGDepthImage("ForwardPlus_Depth"), Dg::BIND_DEPTH_STENCIL, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
+        resolver.WriteTexture(c_RGFinalImage("ForwardPlus_RenderObjects"), Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
 
         resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
         resolver.ReadUserData(c_RGEntityEmptyVertexBuffers);

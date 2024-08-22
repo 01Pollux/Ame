@@ -24,7 +24,7 @@ cbuffer FrameDataBuffer
 };
 
 StructuredBuffer<Transform> Transforms;
-StructuredBuffer<LightRenderInstance> LightInstances;
+StructuredBuffer<Light> LightInstances;
 StructuredBuffer<uint> LightIndices;
 
 Texture2D<float> DepthTexture;
@@ -65,15 +65,11 @@ void append_light_opaque(uint light_index);
 void main(in cs_input csIn)
 {
 	uint light_count = LightIndices[0];
-	if (light_count <= csIn.gi)
-	{
-		return;
-	}
 
 	int2 tex_coord = csIn.dtid.xy;
 	float depth = DepthTexture.Load(int3(tex_coord, 0));
 	uint udepth = asuint(depth);
-
+	
     // initialize group shared memory
 	if (csIn.gi == 0)
 	{
@@ -100,7 +96,8 @@ void main(in cs_input csIn)
 	float near = Utils_ScreenToView(float4(0, 0, FrameData.NearPlane, 1), FrameData.Viewport, FrameData.ProjectionInverse).z;
 
 	Plane min_plane = { float3(0, 0, -1.f), -min_depth };
-	for (uint i = csIn.gi; i < light_count; i += BLOCK_SIZE * BLOCK_SIZE)
+	uint i;
+	for (i = csIn.gi; i < light_count; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
 		Light light = LightInstances[LightIndices[i + 1]];
 		switch (light_get_type(light))
@@ -161,11 +158,11 @@ void main(in cs_input csIn)
 
 	GroupMemoryBarrierWithGroupSync();
 
-	for (uint i = csIn.gi; i < _LightCount_Opaque; i += BLOCK_SIZE * BLOCK_SIZE)
+	for (i = csIn.gi; i < _LightCount_Opaque; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
 		LightIndices_Opaque[_LightIndexStartOffset_Opaque + i + 1] = _LightIndices_Opaque[i];
 	}
-	for (uint i = csIn.gi; i < _LightCount_Transparent; i += BLOCK_SIZE * BLOCK_SIZE)
+	for (i = csIn.gi; i < _LightCount_Transparent; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
 		LightIndices_Transparent[_LightIndexStartOffset_Transparent + i + 1] = _LightIndices_Transparent[i];
 	}
@@ -177,15 +174,9 @@ void main(in cs_input csIn)
 
 void compute_frustum_for_region(int2 dispatch_pos)
 {
-	const float3 eye_pos = FrameData.World[3].xyz;
-	float3 view_space[4];
-    
-	view_space[0] = Utils_ScreenToView(float4(dispatch_pos * BLOCK_SIZE, -1.0f, 1.0f), FrameData.Viewport, FrameData.ProjectionInverse).xyz;
-	view_space[1] = Utils_ScreenToView(float4(float2(dispatch_pos.x + 1, dispatch_pos.y) * BLOCK_SIZE, -1.0f, 1.0f), FrameData.Viewport, FrameData.ProjectionInverse).xyz;
-	view_space[2] = Utils_ScreenToView(float4(float2(dispatch_pos.x, dispatch_pos.y + 1) * BLOCK_SIZE, -1.0f, 1.0f), FrameData.Viewport, FrameData.ProjectionInverse).xyz;
-	view_space[3] = Utils_ScreenToView(float4(float2(dispatch_pos.x + 1, dispatch_pos.y + 1) * BLOCK_SIZE, -1.0f, 1.0f), FrameData.Viewport, FrameData.ProjectionInverse).xyz;
-
-	_Frustum = Geometry_ComputeFrustumPlanes(eye_pos, view_space);
+	float2 dispatch_size = float2(DISPATCH_CHUNK_SIZE, DISPATCH_CHUNK_SIZE);
+	_Frustum = Geometry_ComputeFrustum(FrameData.ProjectionInverse, false);
+	Geometry_ComputeFrustumSubView(_Frustum, (float2)dispatch_pos, dispatch_size);
 }
 
 void append_light_transparent(uint light_index)

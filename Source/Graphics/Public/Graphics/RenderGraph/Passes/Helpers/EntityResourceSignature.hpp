@@ -38,6 +38,7 @@ namespace Ame::Gfx
             auto frameData       = storage.GetResource(c_RGFrameData)->AsBuffer();
             auto transforms      = storage.GetResource(c_RGTransformTable)->AsBuffer();
             auto renderInstances = storage.GetResource(c_RGRenderInstanceTable)->AsBuffer();
+            auto lightInstances  = storage.GetResource(c_RGLightInstanceTable)->AsBuffer();
 
             if (!m_StaticInitialized)
             {
@@ -48,16 +49,18 @@ namespace Ame::Gfx
             }
             Rhi::BindAllInSrb(m_Srb, ShaderFlags, "Transforms", transforms->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
             Rhi::BindAllInSrb(m_Srb, ShaderFlags, "RenderInstances", renderInstances->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "LightInstances", lightInstances->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
         }
 
     private:
         [[nodiscard]] static Ptr<Dg::IPipelineResourceSignature> CreateResourceSignature(
             Dg::IRenderDevice* renderDevice)
         {
-            constexpr Dg::PipelineResourceDesc resources[]{
+            constexpr std::array resources{
                 Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "Transforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "RenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "LightInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
 
             constexpr std::array c_SamplersTemplate{
@@ -73,7 +76,7 @@ namespace Ame::Gfx
             };
 
             Dg::PipelineResourceSignatureDesc desc{
-                .Resources    = resources,
+                .Resources    = resources.data(),
                 .NumResources = Rhi::Count32(resources),
                 .BindingIndex = 1
             };
@@ -107,6 +110,19 @@ namespace Ame::Gfx
         EntityResourceSignature_GraphicsPass()
         {
             Name("Initialize Entity Resource Signature (Graphics)");
+        }
+    };
+
+    class EntityResourceSignature_ComputePass final
+        : public EntityResourceSignaturePass<EntityResourceSignature_ComputePass, Dg::SHADER_TYPE_COMPUTE>
+    {
+    public:
+        static inline const Rg::ResourceId RGEntityResourceSignature = c_RGEntityResourceSignature_Compute;
+
+    public:
+        EntityResourceSignature_ComputePass()
+        {
+            Name("Initialize Entity Resource Signature (Compute)");
         }
     };
 } // namespace Ame::Gfx

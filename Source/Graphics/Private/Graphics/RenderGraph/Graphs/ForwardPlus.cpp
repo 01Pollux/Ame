@@ -16,9 +16,12 @@ namespace Ame::Gfx
         Ecs::World* world)
     {
         auto& passStorage = graph.GetPassStorage();
+
         passStorage.NewPass<ForwardPlus_InitializePass>("Forward+::Initialize");
-        passStorage.NewPass<EntityResourceSignature_GraphicsPass>("Forward+::Initialize_ERS");
+        passStorage.NewPass<EntityResourceSignature_GraphicsPass>("Forward+::Initialize_ERS(Graphics)");
+        passStorage.NewPass<EntityResourceSignature_ComputePass>("Forward+::Initialize_ERS(Compute)");
         passStorage.NewPass<EntityEmptyVertexBuffersPass>("Forward+::Initialize_EEVB");
+
         passStorage.NewPass<DepthPrePass>("Forward+::DepthPrepass", world);
         passStorage.NewPass<ComputeLightCullPass>("Forward+::Compute Light Cull");
         passStorage.NewPass<ForwardPlus_RenderObjectsPass>("Forward+::Render Objects", world);

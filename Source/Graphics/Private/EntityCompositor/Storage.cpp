@@ -117,6 +117,7 @@ namespace Ame::Gfx
         resourceStorage.ImportBuffer(c_RGTransformTable, m_TransformStorage.GetBuffer());
         resourceStorage.ImportBuffer(c_RGRenderInstanceTable, m_DrawInstanceStorage.GetBuffer());
         resourceStorage.ImportBuffer(c_RGLightInstanceTable, m_LightStorage.GetBuffer());
+        resourceStorage.ImportBuffer(c_RGLightIdInstanceTable, m_LightIdBuffer);
     }
 
     //
