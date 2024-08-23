@@ -17,7 +17,7 @@ namespace Ame::Gfx
         ForwardPlus_InitializePass();
 
     private:
-        Co::result<void> OnBuild(
+        void OnBuild(
             Rg::Resolver& resolver);
 
         void OnExecute(

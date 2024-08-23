@@ -7,7 +7,6 @@
 #include <Core/Ame.hpp>
 #include <Core/Enum.hpp>
 #include <Core/String.hpp>
-#include <Core/Coroutine.hpp>
 #include <Math/Colors.hpp>
 
 #include <Rhi/Core.hpp>
@@ -30,7 +29,6 @@ namespace Ame::Rg
     class PassStorage;
     class CoreResources;
     class ResourceStorage;
-    class ResourceSynchronizer;
     class Graph;
 
     class ResourceId;

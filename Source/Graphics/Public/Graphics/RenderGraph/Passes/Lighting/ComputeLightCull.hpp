@@ -29,7 +29,7 @@ namespace Ame::Gfx
         void TryCreateResources(
             Rhi::IRhiDevice* rhiDevice);
 
-        Co::result<void> OnBuild(
+        void OnBuild(
             Rg::Resolver& resolver);
 
         void OnExecute(

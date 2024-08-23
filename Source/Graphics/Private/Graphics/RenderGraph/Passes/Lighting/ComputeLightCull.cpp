@@ -58,12 +58,12 @@ namespace Ame::Gfx
 
     //
 
-    Co::result<void> ComputeLightCullPass::OnBuild(
+    void ComputeLightCullPass::OnBuild(
         Rg::Resolver& resolver)
     {
-        co_await resolver.ReadUserData(c_RGEntityResourceSignature_Compute);
+        resolver.ReadUserData(c_RGEntityResourceSignature_Compute);
 
-        m_PassData.LightIds = co_await resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BUFFER_VIEW_SHADER_RESOURCE);
+        m_PassData.LightIds = resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BUFFER_VIEW_SHADER_RESOURCE);
     }
 
     void ComputeLightCullPass::OnExecute(

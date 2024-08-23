@@ -2,7 +2,6 @@
 #include <boost/range/join.hpp>
 
 #include <Rg/PassStorage.hpp>
-#include <Rg/Synchronizer.hpp>
 #include <Rg/Context.hpp>
 #include <Rg/DependencyLevel.hpp>
 
@@ -60,10 +59,7 @@ namespace Ame::Rg
         if (!m_Passes.empty())
         {
             auto resolvers = ResolvePasses(context);
-            if (!resolvers.empty())
-            {
-                levels = BuildPasses(resolvers);
-            }
+            levels         = BuildPasses(resolvers);
         }
         context.Build(std::move(levels));
     }
@@ -84,47 +80,19 @@ namespace Ame::Rg
     auto PassStorage::ResolvePasses(
         Context& context) -> ResolverListType
     {
-        ResolverListType     resolvers;
-        ResourceSynchronizer synchronizer(context.GetStorage());
+        ResolverListType resolvers;
         resolvers.reserve(m_Passes.size());
 
-        bool invalid = false;
-        auto tasks   = m_Passes |
-                     std::views::transform(
-                         [&](auto& pass) -> Co::result<void>
-                         {
-                             try
-                             {
-                                 Log::Gfx().Trace("Building pass '{}'", pass->first);
-                                 Resolver resolver(context.GetStorage(), synchronizer);
-                                 co_await pass->second->DoBuild(resolver);
-                                 resolvers.emplace_back(std::move(resolver));
-                             }
-                             catch (const std::exception& ex)
-                             {
-                                 Log::Gfx().Error("Error building pass '{}': {}", pass->first, Log::FormatException(ex));
-                                 invalid = true;
-                             }
-                         }) |
-                     std::ranges::to<std::vector>();
-
-        if (!invalid)
-        {
-            for (auto& task : Co::when_all(Coroutine::Get().inline_executor(), tasks.begin(), tasks.end()).run().get())
-            {
-                if (task.wait_for(s_GraphBuildTime) != Co::result_status::value)
-                {
-                    invalid = true;
-                    break;
-                }
-            }
-        }
-        if (invalid)
-        {
-            resolvers.clear();
-        }
-
-        return resolvers;
+        return m_Passes |
+               std::views::transform(
+                   [&](auto& pass)
+                   {
+                       Log::Gfx().Trace("Building pass '{}'", pass->first);
+                       Resolver resolver(context.GetStorage());
+                       pass->second->DoBuild(resolver);
+                       return resolver;
+                   }) |
+               std::ranges::to<std::vector>();
     }
 
     auto PassStorage::BuildPasses(

@@ -1,16 +1,13 @@
 #include <Rg/Resolver.hpp>
 #include <Rg/ResourceStorage.hpp>
-#include <Rg/Synchronizer.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rg
 {
     Resolver::Resolver(
-        ResourceStorage&      resourceStorage,
-        ResourceSynchronizer& synchronizer) :
-        m_Storage(resourceStorage),
-        m_Synchronizer(synchronizer)
+        ResourceStorage& resourceStorage) :
+        m_Storage(resourceStorage)
     {
     }
 
@@ -38,7 +35,6 @@ namespace Ame::Rg
         Dg::IBuffer*      buffer)
     {
         m_Storage.get().ImportBuffer(id, buffer);
-        m_Synchronizer.get().Signal(id);
     }
 
     void Resolver::ImportTexture(
@@ -46,7 +42,6 @@ namespace Ame::Rg
         Dg::ITexture*     texture)
     {
         m_Storage.get().ImportTexture(id, texture);
-        m_Synchronizer.get().Signal(id);
     }
 
     Dg::IBuffer* Resolver::CreateBuffer(
@@ -59,9 +54,7 @@ namespace Ame::Rg
 
         Ptr<Dg::IBuffer> buffer;
         renderDevice->CreateBuffer(desc, initData, &buffer);
-
         m_Storage.get().DeclareResource(id, buffer);
-        m_Synchronizer.get().Signal(id);
 
         return buffer;
     }
@@ -76,53 +69,47 @@ namespace Ame::Rg
 
         Ptr<Dg::ITexture> texture;
         renderDevice->CreateTexture(desc, initData, &texture);
-
         m_Storage.get().DeclareResource(id, texture);
-        m_Synchronizer.get().Signal(id);
 
         return texture;
     }
 
     //
 
-    Co::result<Dg::IBuffer*> Resolver::GetBuffer(
+    Dg::IBuffer* Resolver::GetBuffer(
         ResourceId id) const
     {
-        co_await m_Synchronizer.get().WaitFor(id);
         Dg::IBuffer* buffer = nullptr;
         if (auto resource = m_Storage.get().GetResource(id))
         {
             buffer = resource->AsBuffer();
         }
-        co_return buffer;
+        return buffer;
     }
 
-    Co::result<Dg::ITexture*> Resolver::GetTexture(
+    Dg::ITexture* Resolver::GetTexture(
         ResourceId id) const
     {
-        co_await m_Synchronizer.get().WaitFor(id);
         Dg::ITexture* texture = nullptr;
         if (auto resource = m_Storage.get().GetResource(id))
         {
             texture = resource->AsTexture();
         }
-        co_return texture;
+        return texture;
     }
 
-    Co::result<IObject*> Resolver::GetUserData(
+    IObject* Resolver::GetUserData(
         ResourceId id) const
     {
-        co_await m_Synchronizer.get().WaitFor(id);
         IObject* userData = m_Storage.get().GetUserData(id);
-        co_return userData;
+        return userData;
     }
 
     //
 
-    Co::result<void> Resolver::WriteResource(
+    void Resolver::WriteResource(
         ResourceId id)
     {
-        co_await m_Synchronizer.get().WaitFor(id);
         AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
         m_ResourcesWritten.emplace(id);
     }
@@ -133,85 +120,82 @@ namespace Ame::Rg
     {
         m_ResourcesWritten.emplace(id);
         m_Storage.get().SetUserData(id, userData);
-        m_Synchronizer.get().Signal(id);
     }
 
-    Co::result<Dg::IBuffer*> Resolver::WriteBuffer(
+    Dg::IBuffer* Resolver::WriteBuffer(
         ResourceId id)
     {
-        co_await WriteResource(id);
-        co_return m_Storage.get().GetResource(id)->AsBuffer();
+        WriteResource(id);
+        return m_Storage.get().GetResource(id)->AsBuffer();
     }
 
-    Co::result<Dg::IBufferView*> Resolver::WriteBuffer(
+    Dg::IBufferView* Resolver::WriteBuffer(
         ResourceId                    id,
         const BufferResourceViewDesc& viewDesc)
     {
-        co_await WriteResource(id);
-        co_return m_Storage.get().DeclareBufferView(id, viewDesc);
+        WriteResource(id);
+        return m_Storage.get().DeclareBufferView(id, viewDesc);
     }
 
-    Co::result<Dg::ITexture*> Resolver::WriteTexture(
+    Dg::ITexture* Resolver::WriteTexture(
         ResourceId id)
     {
-        co_await WriteResource(id);
-        co_return m_Storage.get().GetResource(id)->AsTexture();
+        WriteResource(id);
+        return m_Storage.get().GetResource(id)->AsTexture();
     }
 
-    Co::result<Dg::ITextureView*> Resolver::WriteTexture(
+    Dg::ITextureView* Resolver::WriteTexture(
         ResourceId                     id,
         const TextureResourceViewDesc& viewDesc)
     {
-        co_await WriteResource(id);
-        co_return m_Storage.get().DeclareTextureView(id, viewDesc);
+        WriteResource(id);
+        return m_Storage.get().DeclareTextureView(id, viewDesc);
     }
 
     //
 
-    Co::result<void> Resolver::ReadResource(
+    void Resolver::ReadResource(
         ResourceId id)
     {
-        co_await m_Synchronizer.get().WaitFor(id);
         AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
         m_ResourcesRead.emplace(id);
     }
 
-    Co::result<IObject*> Resolver::ReadUserData(
+    IObject* Resolver::ReadUserData(
         ResourceId id)
     {
-        co_await m_Synchronizer.get().WaitFor(id);
         AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsUserData(id), "UserData '{}' doesn't exists", id.GetName());
         m_ResourcesRead.emplace(id);
-        co_return m_Storage.get().GetUserData(id);
+        return m_Storage.get().GetUserData(id);
     }
 
-    Co::result<Dg::IBuffer*> Resolver::ReadBuffer(
+    Dg::IBuffer* Resolver::ReadBuffer(
         ResourceId id)
     {
-        co_await ReadResource(id);
-        co_return m_Storage.get().GetResource(id)->AsBuffer();
+        ReadResource(id);
+        return m_Storage.get().GetResource(id)->AsBuffer();
     }
 
-    Co::result<Dg::IBufferView*> Resolver::ReadBuffer(
+    Dg::IBufferView* Resolver::ReadBuffer(
         ResourceId                    id,
         const BufferResourceViewDesc& viewDesc)
     {
-        co_await ReadResource(id);
-        co_return m_Storage.get().DeclareBufferView(id, viewDesc);
+        ReadResource(id);
+        return m_Storage.get().DeclareBufferView(id, viewDesc);
     }
 
-    Co::result<Dg::ITexture*> Resolver::ReadTexture(
+    Dg::ITexture* Resolver::ReadTexture(
         ResourceId id)
     {
-        co_await ReadResource(id);
-        co_return m_Storage.get().GetResource(id)->AsTexture();
+        ReadResource(id);
+        return m_Storage.get().GetResource(id)->AsTexture();
     }
 
-    Co::result<Dg::ITextureView*> Resolver::ReadTexture(
+    Dg::ITextureView* Resolver::ReadTexture(
         ResourceId                     id,
         const TextureResourceViewDesc& viewDesc)
     {
-        co_await ReadResource(id);
-        co_return m_Storage.get().DeclareTextureView(id, viewDesc);
+        ReadResource(id);
+        return m_Storage.get().DeclareTextureView(id, viewDesc);
     }
 } // namespace Ame::Rg

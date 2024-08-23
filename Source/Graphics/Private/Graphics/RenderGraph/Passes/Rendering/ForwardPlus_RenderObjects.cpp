@@ -50,13 +50,13 @@ namespace Ame::Gfx
 
     //
 
-    Co::result<void> ForwardPlus_RenderObjectsPass::OnBuild(
+    void ForwardPlus_RenderObjectsPass::OnBuild(
         Rg::Resolver& resolver)
     {
-        m_PassData.DepthView    = co_await resolver.ReadTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
-        m_PassData.RenderTarget = co_await resolver.WriteTexture(c_RGFinalImage, Dg::TEXTURE_VIEW_RENDER_TARGET);
+        m_PassData.DepthView    = resolver.ReadTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
+        m_PassData.RenderTarget = resolver.WriteTexture(c_RGFinalImage, Dg::TEXTURE_VIEW_RENDER_TARGET);
 
-        co_await resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
+        resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
     }
 
     void ForwardPlus_RenderObjectsPass::OnExecute(

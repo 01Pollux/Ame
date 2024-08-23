@@ -29,7 +29,7 @@ namespace Ame::Gfx
             const Rg::ResourceStorage&  storage,
             Dg::IShaderResourceBinding* srb);
 
-        Co::result<void> OnBuild(
+        void OnBuild(
             Rg::Resolver& resolver);
 
         void OnExecute(

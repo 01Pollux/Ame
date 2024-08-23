@@ -11,8 +11,7 @@ namespace Ame::Rg
 
     public:
         Resolver(
-            ResourceStorage&      storage,
-            ResourceSynchronizer& synchronizer);
+            ResourceStorage& storage);
 
     public:
         [[nodiscard]] Rhi::IRhiDevice*       GetDevice() const noexcept;
@@ -26,36 +25,35 @@ namespace Ame::Rg
         Dg::ITexture* CreateTexture(const ResourceId& id, const Dg::TextureData* initData, const Dg::TextureDesc& desc);
 
     public:
-        [[nodiscard]] Co::result<Dg::IBuffer*>  GetBuffer(ResourceId id) const;
-        [[nodiscard]] Co::result<Dg::ITexture*> GetTexture(ResourceId id) const;
+        [[nodiscard]] Dg::IBuffer*  GetBuffer(ResourceId id) const;
+        [[nodiscard]] Dg::ITexture* GetTexture(ResourceId id) const;
 
-        [[nodiscard]] Co::result<IObject*> GetUserData(ResourceId id) const;
+        [[nodiscard]] IObject* GetUserData(ResourceId id) const;
         template<typename Ty>
-        [[nodiscard]] Co::result<Ptr<Ty>> GetUserData(ResourceId id, const UId& iid) const
+        [[nodiscard]] Ptr<Ty> GetUserData(ResourceId id, const UId& iid) const
         {
             auto userdata = co_await GetUserData(id);
             co_return { userdata, iid };
         }
 
     public:
-        [[nodiscard]] Co::result<void>              WriteResource(ResourceId id);
-        [[nodiscard]] void                          SetUserData(ResourceId id, IObject* userData);
-        [[nodiscard]] Co::result<Dg::IBuffer*>      WriteBuffer(ResourceId id);
-        [[nodiscard]] Co::result<Dg::IBufferView*>  WriteBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
-        [[nodiscard]] Co::result<Dg::ITexture*>     WriteTexture(ResourceId id);
-        [[nodiscard]] Co::result<Dg::ITextureView*> WriteTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
+        void              WriteResource(ResourceId id);
+        void              SetUserData(ResourceId id, IObject* userData);
+        Dg::IBuffer*      WriteBuffer(ResourceId id);
+        Dg::IBufferView*  WriteBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
+        Dg::ITexture*     WriteTexture(ResourceId id);
+        Dg::ITextureView* WriteTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
 
     public:
-        [[nodiscard]] Co::result<void>              ReadResource(ResourceId id);
-        [[nodiscard]] Co::result<IObject*>          ReadUserData(ResourceId id);
-        [[nodiscard]] Co::result<Dg::IBuffer*>      ReadBuffer(ResourceId id);
-        [[nodiscard]] Co::result<Dg::IBufferView*>  ReadBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
-        [[nodiscard]] Co::result<Dg::ITexture*>     ReadTexture(ResourceId id);
-        [[nodiscard]] Co::result<Dg::ITextureView*> ReadTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
+        void              ReadResource(ResourceId id);
+        IObject*          ReadUserData(ResourceId id);
+        Dg::IBuffer*      ReadBuffer(ResourceId id);
+        Dg::IBufferView*  ReadBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
+        Dg::ITexture*     ReadTexture(ResourceId id);
+        Dg::ITextureView* ReadTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
 
     private:
-        Ref<ResourceStorage>      m_Storage;
-        Ref<ResourceSynchronizer> m_Synchronizer;
+        Ref<ResourceStorage> m_Storage;
 
         std::set<ResourceId> m_ResourcesRead;
         std::set<ResourceId> m_ResourcesWritten;

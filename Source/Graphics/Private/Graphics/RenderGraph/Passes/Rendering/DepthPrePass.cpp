@@ -43,7 +43,7 @@ namespace Ame::Gfx
 
     //
 
-    Co::result<void> DepthPrePass::OnBuild(
+    void DepthPrePass::OnBuild(
         Rg::Resolver& resolver)
     {
         auto textureDesc      = resolver.GetBackbufferDesc();
@@ -51,9 +51,9 @@ namespace Ame::Gfx
         textureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_DEPTH_STENCIL;
 
         resolver.CreateTexture(c_RGDepthImage, nullptr, textureDesc);
-        m_PassData.DepthView = co_await resolver.WriteTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
+        m_PassData.DepthView = resolver.WriteTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
 
-        co_await resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
+        resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
     }
 
     void DepthPrePass::OnExecute(

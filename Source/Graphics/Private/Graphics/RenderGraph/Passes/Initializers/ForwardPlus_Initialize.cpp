@@ -10,14 +10,14 @@ namespace Ame::Gfx
             .Execute(std::bind_front(&ForwardPlus_InitializePass::OnExecute, this));
     }
 
-    Co::result<void> ForwardPlus_InitializePass::OnBuild(
+    void ForwardPlus_InitializePass::OnBuild(
         Rg::Resolver& resolver)
     {
         Rg::TextureResourceDesc textureDesc{ resolver.GetBackbufferDesc() };
         textureDesc.BindFlags |= Dg::BIND_SHADER_RESOURCE;
 
         resolver.CreateTexture(c_RGFinalImage, nullptr, textureDesc);
-        m_PassData.FinalImageView = co_await resolver.WriteTexture(c_RGFinalImage, Dg::TEXTURE_VIEW_RENDER_TARGET);
+        m_PassData.FinalImageView = resolver.WriteTexture(c_RGFinalImage, Dg::TEXTURE_VIEW_RENDER_TARGET);
     }
 
     void ForwardPlus_InitializePass::OnExecute(

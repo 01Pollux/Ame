@@ -13,7 +13,7 @@ namespace Ame::Rg
     class Pass
     {
     public:
-        using BuildFuncType   = std::move_only_function<Co::result<void>(Resolver&)>;
+        using BuildFuncType   = std::move_only_function<void(Resolver&)>;
         using ExecuteFuncType = std::move_only_function<void(const ResourceStorage&, Dg::IDeviceContext*)>;
 
         Pass() = default;
@@ -155,14 +155,13 @@ namespace Ame::Rg
         /// <summary>
         /// Build render pass
         /// </summary>
-        [[nodiscard]] Co::result<void> DoBuild(
+        [[nodiscard]] void DoBuild(
             Resolver& resolver)
         {
             if (m_BuildFunc) [[likely]]
             {
-                co_return co_await m_BuildFunc(resolver);
+                m_BuildFunc(resolver);
             }
-            co_return;
         }
 
         /// <summary>
@@ -195,7 +194,7 @@ namespace Ame::Rg
     class TypedPass : public Pass
     {
     public:
-        using BuildFuncType   = std::move_only_function<Co::result<void>(Ty&, Resolver&)>;
+        using BuildFuncType   = std::move_only_function<void(Ty&, Resolver&)>;
         using ExecuteFuncType = std::move_only_function<void(const Ty&, const ResourceStorage&, Dg::IDeviceContext*)>;
 
         /// <summary>

@@ -17,7 +17,7 @@ namespace Ame::Gfx
         }
 
     private:
-        Co::result<void> OnBuild(
+        void OnBuild(
             Rg::Resolver& resolver)
         {
             if (!m_Srb)
@@ -29,7 +29,6 @@ namespace Ame::Gfx
             }
 
             resolver.SetUserData(Ty::RGEntityResourceSignature, m_Srb);
-            co_return;
         }
 
         void OnExecute(
