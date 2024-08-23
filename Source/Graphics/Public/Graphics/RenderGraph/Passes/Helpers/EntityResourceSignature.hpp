@@ -17,7 +17,7 @@ namespace Ame::Gfx
         }
 
     private:
-        void OnBuild(
+        Co::result<void> OnBuild(
             Rg::Resolver& resolver)
         {
             if (!m_Srb)
@@ -28,7 +28,8 @@ namespace Ame::Gfx
                 resourceSignature->CreateShaderResourceBinding(&m_Srb);
             }
 
-            resolver.WriteUserData(Ty::RGEntityResourceSignature, m_Srb);
+            resolver.SetUserData(Ty::RGEntityResourceSignature, m_Srb);
+            co_return;
         }
 
         void OnExecute(
@@ -44,12 +45,12 @@ namespace Ame::Gfx
             {
                 m_StaticInitialized = true;
                 auto signature      = m_Srb->GetPipelineResourceSignature();
-                Rhi::BindAllStaticInSignature(signature, ShaderFlags, "FrameDataBuffer", frameData->Resource);
+                Rhi::BindAllStaticInSignature(signature, ShaderFlags, "FrameDataBuffer", frameData);
                 signature->InitializeStaticSRBResources(m_Srb);
             }
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "Transforms", transforms->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "RenderInstances", renderInstances->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "LightInstances", lightInstances->Resource->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "Transforms", transforms->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "RenderInstances", renderInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "LightInstances", lightInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
         }
 
     private:

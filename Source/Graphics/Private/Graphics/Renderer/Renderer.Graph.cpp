@@ -25,10 +25,10 @@ namespace Ame::Gfx
         auto& outputTexture = cameraOutput.OutputTexture;
 
         // output to texture if needed
-        if (sourceTexture && sourceTexture->Resource && outputTexture)
+        if (sourceTexture && outputTexture)
         {
             Rhi::BlitCopyParameters parameters{
-                sourceTexture->Resource,
+                sourceTexture,
                 Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
                 outputTexture,
                 Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION
@@ -49,16 +49,16 @@ namespace Ame::Gfx
 
         auto sourceTexture = sourceResource ? sourceResource->AsTexture() : nullptr;
 
-        if (!sourceTexture || !sourceTexture->Resource)
+        if (!sourceTexture)
         {
             return;
         }
 
-        auto srv = sourceTexture->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
+        auto srv = sourceTexture->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
         if (srv)
         {
             Rhi::BlitDrawParameters parameters{
-                sourceTexture->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE),
+                sourceTexture->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE),
                 Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
                 swapChain->GetCurrentBackBufferRTV(),
                 Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION

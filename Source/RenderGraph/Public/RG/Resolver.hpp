@@ -11,161 +11,52 @@ namespace Ame::Rg
 
     public:
         Resolver(
-            ResourceStorage& resourceStorage);
+            ResourceStorage&      storage,
+            ResourceSynchronizer& synchronizer);
 
     public:
-        /// <summary>
-        /// Helper function to get device of the engine
-        /// </summary>
-        [[nodiscard]] Rhi::IRhiDevice* GetDevice() const noexcept;
-
-        /// <summary>
-        /// Get backbuffer texture format
-        /// </summary>
-        [[nodiscard]] Dg::TEXTURE_FORMAT GetBackbufferFormat() const;
-
-        /// <summary>
-        /// Get backbuffer texture desc
-        /// </summary>
+        [[nodiscard]] Rhi::IRhiDevice*       GetDevice() const noexcept;
+        [[nodiscard]] Dg::TEXTURE_FORMAT     GetBackbufferFormat() const;
         [[nodiscard]] const Dg::TextureDesc& GetBackbufferDesc() const;
 
     public:
-        /// <summary>
-        /// Create buffer
-        /// </summary>
-        void CreateBuffer(
-            const ResourceId&     id,
-            const Dg::BufferDesc& desc);
-
-        /// <summary>
-        /// Create texture
-        /// </summary>
-        void CreateTexture(
-            const ResourceId&      id,
-            const Dg::TextureDesc& desc);
-
-        /// <summary>
-        /// Create texture
-        /// </summary>
-        Dg::ITexture* CreateImmediateTexture(
-            const ResourceId&      id,
-            const Dg::TextureData* data,
-            const Dg::TextureDesc& desc);
-
-        /// <summary>
-        /// Creates buffer immediately
-        /// </summary>
-        Dg::IBuffer* CreateImmediateBuffer(
-            const ResourceId&     id,
-            const Dg::BufferData* data,
-            const Dg::BufferDesc& desc);
+        void          ImportBuffer(const ResourceId& id, Dg::IBuffer* buffer);
+        void          ImportTexture(const ResourceId& id, Dg::ITexture* texture);
+        Dg::IBuffer*  CreateBuffer(const ResourceId& id, const Dg::BufferData* initData, const Dg::BufferDesc& desc);
+        Dg::ITexture* CreateTexture(const ResourceId& id, const Dg::TextureData* initData, const Dg::TextureDesc& desc);
 
     public:
-        [[nodiscard]] const Dg::BufferDesc* GetBufferDesc(
-            const ResourceId& id) const;
+        [[nodiscard]] Co::result<Dg::IBuffer*>  GetBuffer(ResourceId id) const;
+        [[nodiscard]] Co::result<Dg::ITexture*> GetTexture(ResourceId id) const;
 
-        [[nodiscard]] const Dg::TextureDesc* GetTextureDesc(
-            const ResourceId& id) const;
-
-    public:
-        /// <summary>
-        /// import buffer to be used later when dispatching passes
-        /// </summary>
-        void ImportBuffer(
-            const ResourceId& id,
-            Ptr<Dg::IBuffer>  buffer);
-
-        /// <summary>
-        /// import texture to be used later when dispatching passes
-        /// </summary>
-        void ImportTexture(
-            const ResourceId& id,
-            Ptr<Dg::ITexture> texture);
-
-    public:
-        /// <summary>
-        /// Write to buffer resource
-        /// </summary>
-        void WriteBuffer(
-            const ResourceViewId&         viewId,
-            Dg::BIND_FLAGS                bindFlags,
-            const BufferResourceViewDesc& viewDesc);
-
-        /// <summary>
-        /// Write to resource
-        /// </summary>
-        void WriteTexture(
-            const ResourceViewId&          viewId,
-            Dg::BIND_FLAGS                 bindFlags,
-            const TextureResourceViewDesc& viewDesc);
-
-        /// <summary>
-        /// Write resource view to add dependency without actually writing anything
-        /// </summary>
-        void WriteResourceEmpty(
-            const ResourceId& Id);
-
-    public:
-        /// <summary>
-        /// Read from buffer resource
-        /// </summary>
-        void ReadBuffer(
-            const ResourceViewId&         viewId,
-            Dg::BIND_FLAGS                bindFlags,
-            const BufferResourceViewDesc& viewDesc);
-
-        /// <summary>
-        /// Read from texture resource
-        /// </summary>
-        void ReadTexture(
-            const ResourceViewId&          viewId,
-            Dg::BIND_FLAGS                 bindFlags,
-            const TextureResourceViewDesc& viewDesc);
-
-        /// <summary>
-        /// Read dummy resource
-        /// </summary>
-        void ReadResourceEmpty(
-            const ResourceId& id);
-
-    public:
-        /// <summary>
-        /// Write user data to resource storage
-        /// </summary>
-        void WriteUserData(
-            const ResourceId& id,
-            IObject*          userData);
-
-        /// <summary>
-        /// Read user data from resource storage
-        /// </summary>
-        void ReadUserData(
-            const ResourceId& id);
-
-        /// <summary>
-        /// Get user data from id
-        /// </summary>
-        [[nodiscard]] IObject* GetUserData(
-            const ResourceId& id) const;
-
-        /// <summary>
-        /// Get user data from id
-        /// </summary>
+        [[nodiscard]] Co::result<IObject*> GetUserData(ResourceId id) const;
         template<typename Ty>
-        [[nodiscard]] Ptr<Ty> GetUserData(
-            const ResourceId& id,
-            const UId&        iid) const
+        [[nodiscard]] Co::result<Ptr<Ty>> GetUserData(ResourceId id, const UId& iid) const
         {
-            return GetUserData<Ty>(id, iid);
+            auto userdata = co_await GetUserData(id);
+            co_return { userdata, iid };
         }
 
+    public:
+        [[nodiscard]] Co::result<void>              WriteResource(ResourceId id);
+        [[nodiscard]] void                          SetUserData(ResourceId id, IObject* userData);
+        [[nodiscard]] Co::result<Dg::IBuffer*>      WriteBuffer(ResourceId id);
+        [[nodiscard]] Co::result<Dg::IBufferView*>  WriteBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
+        [[nodiscard]] Co::result<Dg::ITexture*>     WriteTexture(ResourceId id);
+        [[nodiscard]] Co::result<Dg::ITextureView*> WriteTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
+
+    public:
+        [[nodiscard]] Co::result<void>              ReadResource(ResourceId id);
+        [[nodiscard]] Co::result<IObject*>          ReadUserData(ResourceId id);
+        [[nodiscard]] Co::result<Dg::IBuffer*>      ReadBuffer(ResourceId id);
+        [[nodiscard]] Co::result<Dg::IBufferView*>  ReadBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
+        [[nodiscard]] Co::result<Dg::ITexture*>     ReadTexture(ResourceId id);
+        [[nodiscard]] Co::result<Dg::ITextureView*> ReadTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
+
     private:
-        Ref<ResourceStorage> m_Storage;
+        Ref<ResourceStorage>      m_Storage;
+        Ref<ResourceSynchronizer> m_Synchronizer;
 
-        std::vector<ResourceViewId> m_RenderTargets;
-        ResourceViewId              m_DepthStencil;
-
-        std::set<ResourceId> m_ResourcesCreated;
         std::set<ResourceId> m_ResourcesRead;
         std::set<ResourceId> m_ResourcesWritten;
     };

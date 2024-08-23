@@ -29,8 +29,8 @@ namespace Ame::Gfx
         }
 
         auto renderDevice = storage.GetDevice()->GetRenderDevice();
-        auto rtvFormat    = storage.GetResource(c_RGFinalImage)->AsTexture()->Desc.Format;
-        auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->Desc.Format;
+        auto rtvFormat    = storage.GetResource(c_RGFinalImage)->AsTexture()->GetDesc().Format;
+        auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->GetDesc().Format;
 
         Rhi::MaterialRenderState renderState{
             .Name         = "Forward+::RenderObjects",
@@ -41,7 +41,7 @@ namespace Ame::Gfx
                     { Dg::SHADER_TYPE_PIXEL, Rhi::ForwardPlus_RenderObjects_PixelShader().GetCreateInfo() } } },
             .Signatures    = { Ptr(srb->GetPipelineResourceSignature()) },
             .RenderTargets = { rtvFormat },
-            .DSFormat      = dsvFormat
+            .DSFormat      = dsvFormat,
         };
         renderState.DepthStencil.DepthFunc = Dg::COMPARISON_FUNC_LESS_EQUAL;
 
@@ -50,14 +50,13 @@ namespace Ame::Gfx
 
     //
 
-    void ForwardPlus_RenderObjectsPass::OnBuild(
+    Co::result<void> ForwardPlus_RenderObjectsPass::OnBuild(
         Rg::Resolver& resolver)
     {
-        resolver.ReadTexture(c_RGDepthImage("ForwardPlus_Depth"), Dg::BIND_DEPTH_STENCIL, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
-        resolver.WriteTexture(c_RGFinalImage("ForwardPlus_RenderObjects"), Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
+        m_PassData.DepthView    = co_await resolver.ReadTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
+        m_PassData.RenderTarget = co_await resolver.WriteTexture(c_RGFinalImage, Dg::TEXTURE_VIEW_RENDER_TARGET);
 
-        resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
-        resolver.ReadUserData(c_RGEntityEmptyVertexBuffers);
+        co_await resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
     }
 
     void ForwardPlus_RenderObjectsPass::OnExecute(
@@ -65,6 +64,12 @@ namespace Ame::Gfx
         Dg::IDeviceContext*        deviceContext)
     {
         auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+
+        //
+
+        deviceContext->SetRenderTargets(1, &m_PassData.RenderTarget, m_PassData.DepthView, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        //
 
         TryCreateResources(storage, ersSrb);
         StandardRenderObjects(*m_World, ersSrb, deviceContext, m_Technique);

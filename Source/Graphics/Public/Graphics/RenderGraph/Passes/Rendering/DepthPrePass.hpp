@@ -14,6 +14,14 @@ namespace Ame::Gfx
     class DepthPrePass : public Rg::Pass
     {
     public:
+        static constexpr Dg::TEXTURE_FORMAT DepthFormat = Dg::TEX_FORMAT_D32_FLOAT;
+
+        struct PassData
+        {
+            Dg::ITextureView* DepthView = nullptr;
+        };
+
+    public:
         DepthPrePass(
             Ecs::World* world);
 
@@ -22,7 +30,7 @@ namespace Ame::Gfx
             const Rg::ResourceStorage&  storage,
             Dg::IShaderResourceBinding* srb);
 
-        void OnBuild(
+        Co::result<void> OnBuild(
             Rg::Resolver& resolver);
 
         void OnExecute(
@@ -30,8 +38,8 @@ namespace Ame::Gfx
             Dg::IDeviceContext*        deviceContext);
 
     private:
-        Ecs::World* m_World;
-
+        Ecs::World*                 m_World;
+        PassData                    m_PassData;
         Ptr<Rhi::MaterialTechnique> m_Technique;
     };
 } // namespace Ame::Gfx

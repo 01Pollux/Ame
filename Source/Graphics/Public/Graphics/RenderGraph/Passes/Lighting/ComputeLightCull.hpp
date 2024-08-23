@@ -13,6 +13,15 @@ namespace Ame::Gfx
 {
     class ComputeLightCullPass : public Rg::Pass
     {
+    private:
+        struct PassData
+        {
+            Dg::IBufferView* LightIds = nullptr;
+
+#ifndef AME_DIST
+#endif
+        };
+
     public:
         ComputeLightCullPass();
 
@@ -20,7 +29,7 @@ namespace Ame::Gfx
         void TryCreateResources(
             Rhi::IRhiDevice* rhiDevice);
 
-        void OnBuild(
+        Co::result<void> OnBuild(
             Rg::Resolver& resolver);
 
         void OnExecute(
@@ -28,6 +37,8 @@ namespace Ame::Gfx
             Dg::IDeviceContext*        deviceContext);
 
     private:
+        PassData m_PassData;
+
         Ptr<Dg::IPipelineState>         m_PipelineState;
         Ptr<Dg::IShaderResourceBinding> m_Srb;
 
@@ -44,4 +55,4 @@ namespace Ame::Gfx
         Dg::IShaderResourceVariable* m_DebugTexture = nullptr;
 #endif
     };
-} // namespace Ame::Gfx
+} // namespace Ame::Gfxs

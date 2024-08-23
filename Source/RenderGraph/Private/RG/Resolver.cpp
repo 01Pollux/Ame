@@ -1,13 +1,16 @@
 #include <Rg/Resolver.hpp>
 #include <Rg/ResourceStorage.hpp>
+#include <Rg/Synchronizer.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame::Rg
 {
     Resolver::Resolver(
-        ResourceStorage& resourceStorage) :
-        m_Storage(resourceStorage)
+        ResourceStorage&      resourceStorage,
+        ResourceSynchronizer& synchronizer) :
+        m_Storage(resourceStorage),
+        m_Synchronizer(synchronizer)
     {
     }
 
@@ -30,200 +33,185 @@ namespace Ame::Rg
 
     //
 
-    void Resolver::CreateBuffer(
-        const ResourceId&     id,
-        const Dg::BufferDesc& desc)
+    void Resolver::ImportBuffer(
+        const ResourceId& id,
+        Dg::IBuffer*      buffer)
     {
-        m_Storage.get().DeclareResource(id, BufferResource{ .Desc = desc });
-        m_ResourcesCreated.emplace(id);
+        m_Storage.get().ImportBuffer(id, buffer);
+        m_Synchronizer.get().Signal(id);
     }
 
-    void Resolver::CreateTexture(
-        const ResourceId&      id,
-        const Dg::TextureDesc& desc)
+    void Resolver::ImportTexture(
+        const ResourceId& id,
+        Dg::ITexture*     texture)
     {
-        m_Storage.get().DeclareResource(id, TextureResource{ .Desc = desc });
-        m_ResourcesCreated.emplace(id);
+        m_Storage.get().ImportTexture(id, texture);
+        m_Synchronizer.get().Signal(id);
     }
 
-    Dg::IBuffer* Resolver::CreateImmediateBuffer(
+    Dg::IBuffer* Resolver::CreateBuffer(
         const ResourceId&     id,
-        const Dg::BufferData* data,
+        const Dg::BufferData* initData,
         const Dg::BufferDesc& desc)
     {
         auto rhiDevice    = m_Storage.get().GetDevice();
         auto renderDevice = rhiDevice->GetRenderDevice();
 
         Ptr<Dg::IBuffer> buffer;
-        renderDevice->CreateBuffer(desc, data, &buffer);
+        renderDevice->CreateBuffer(desc, initData, &buffer);
 
-        m_Storage.get().DeclareResource(id, BufferResource{ .Resource = std::move(buffer), .Desc = desc });
-        m_ResourcesCreated.emplace(id);
+        m_Storage.get().DeclareResource(id, buffer);
+        m_Synchronizer.get().Signal(id);
 
         return buffer;
     }
 
-    Dg::ITexture* Resolver::CreateImmediateTexture(
-        const ResourceId& id,
-        const Dg::TextureData* data,
+    Dg::ITexture* Resolver::CreateTexture(
+        const ResourceId&      id,
+        const Dg::TextureData* initData,
         const Dg::TextureDesc& desc)
     {
         auto rhiDevice    = m_Storage.get().GetDevice();
         auto renderDevice = rhiDevice->GetRenderDevice();
 
         Ptr<Dg::ITexture> texture;
-        renderDevice->CreateTexture(desc, data, &texture);
+        renderDevice->CreateTexture(desc, initData, &texture);
 
-        m_Storage.get().DeclareResource(id, TextureResource{ .Resource = std::move(texture), .Desc = desc });
-        m_ResourcesCreated.emplace(id);
+        m_Storage.get().DeclareResource(id, texture);
+        m_Synchronizer.get().Signal(id);
 
         return texture;
     }
 
     //
 
-    const Dg::BufferDesc* Resolver::GetBufferDesc(
-        const ResourceId& id) const
+    Co::result<Dg::IBuffer*> Resolver::GetBuffer(
+        ResourceId id) const
     {
-        if (auto buffer = m_Storage.get().GetResource(id)->AsBuffer())
+        co_await m_Synchronizer.get().WaitFor(id);
+        Dg::IBuffer* buffer = nullptr;
+        if (auto resource = m_Storage.get().GetResource(id))
         {
-            return &buffer->Desc;
+            buffer = resource->AsBuffer();
         }
-        return nullptr;
+        co_return buffer;
     }
 
-    const Dg::TextureDesc* Resolver::GetTextureDesc(
-        const ResourceId& id) const
+    Co::result<Dg::ITexture*> Resolver::GetTexture(
+        ResourceId id) const
     {
-        if (auto texture = m_Storage.get().GetResource(id)->AsTexture())
+        co_await m_Synchronizer.get().WaitFor(id);
+        Dg::ITexture* texture = nullptr;
+        if (auto resource = m_Storage.get().GetResource(id))
         {
-            return &texture->Desc;
+            texture = resource->AsTexture();
         }
-        return nullptr;
+        co_return texture;
+    }
+
+    Co::result<IObject*> Resolver::GetUserData(
+        ResourceId id) const
+    {
+        co_await m_Synchronizer.get().WaitFor(id);
+        IObject* userData = m_Storage.get().GetUserData(id);
+        co_return userData;
     }
 
     //
 
-    void Resolver::ImportBuffer(
-        const ResourceId& id,
-        Ptr<Dg::IBuffer>  buffer)
+    Co::result<void> Resolver::WriteResource(
+        ResourceId id)
     {
-        m_ResourcesCreated.emplace(id);
-        m_Storage.get().ImportBuffer(id, std::move(buffer));
-    }
-
-    void Resolver::ImportTexture(
-        const ResourceId& id,
-        Ptr<Dg::ITexture> texture)
-    {
-        m_ResourcesCreated.emplace(id);
-        m_Storage.get().ImportTexture(id, std::move(texture));
-    }
-
-    //
-
-    void Resolver::WriteBuffer(
-        const ResourceViewId&         viewId,
-        Dg::BIND_FLAGS                bindFlags,
-        const BufferResourceViewDesc& viewDesc)
-    {
-        WriteResourceEmpty(viewId.GetResource());
-
-        auto& buffer = m_Storage.get().DeclareBufferView(viewId, viewDesc);
-        buffer.Desc.BindFlags |= bindFlags;
-    }
-
-    void Resolver::WriteTexture(
-        const ResourceViewId&          viewId,
-        Dg::BIND_FLAGS                 bindFlags,
-        const TextureResourceViewDesc& viewDesc)
-    {
-        WriteResourceEmpty(viewId.GetResource());
-
-        auto& texture = m_Storage.get().DeclareTextureView(viewId, viewDesc);
-        texture.Desc.BindFlags |= bindFlags;
-
-        if (bindFlags & Dg::BIND_FLAGS::BIND_RENDER_TARGET)
-        {
-#ifdef AME_DEBUG
-            AME_LOG_ASSERT(Log::Gfx(), m_RenderTargets.size() <= 8, "Too many render targets");
-            AME_LOG_ASSERT(Log::Gfx(),
-                           std::holds_alternative<RenderTargetViewDesc>(viewDesc) ||
-                               (std::holds_alternative<Dg::TEXTURE_VIEW_TYPE>(viewDesc) && std::get<Dg::TEXTURE_VIEW_TYPE>(viewDesc) == Dg::TEXTURE_VIEW_RENDER_TARGET),
-                           "View '{}' is not of a render target", viewId.GetResource().GetName());
-#endif
-            m_RenderTargets.emplace_back(viewId);
-        }
-        else if (bindFlags & Dg::BIND_FLAGS::BIND_DEPTH_STENCIL)
-        {
-#ifdef AME_DEBUG
-            AME_LOG_ASSERT(Log::Gfx(), !m_DepthStencil, "Depth stencil was already set");
-
-            AME_LOG_ASSERT(Log::Gfx(),
-                           std::holds_alternative<DepthStencilViewDesc>(viewDesc) ||
-                               (std::holds_alternative<Dg::TEXTURE_VIEW_TYPE>(viewDesc) && std::get<Dg::TEXTURE_VIEW_TYPE>(viewDesc) == Dg::TEXTURE_VIEW_DEPTH_STENCIL),
-                           "View '{}' is not of a depth stencil", viewId.GetResource().GetName());
-#endif
-            m_DepthStencil = viewId;
-        }
-    }
-
-    void Resolver::WriteResourceEmpty(
-        const ResourceId& id)
-    {
+        co_await m_Synchronizer.get().WaitFor(id);
         AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
         m_ResourcesWritten.emplace(id);
     }
 
-    //
-
-    void Resolver::ReadBuffer(
-        const ResourceViewId&         viewId,
-        Dg::BIND_FLAGS                bindFlags,
-        const BufferResourceViewDesc& viewDesc)
-    {
-        ReadResourceEmpty(viewId.GetResource());
-        auto& buffer = m_Storage.get().DeclareBufferView(viewId, viewDesc);
-        buffer.Desc.BindFlags |= bindFlags;
-    }
-
-    void Resolver::ReadTexture(
-        const ResourceViewId&          viewId,
-        Dg::BIND_FLAGS                 bindFlags,
-        const TextureResourceViewDesc& viewDesc)
-    {
-        ReadResourceEmpty(viewId.GetResource());
-
-        auto& texture = m_Storage.get().DeclareTextureView(viewId, viewDesc);
-        texture.Desc.BindFlags |= bindFlags;
-    }
-
-    void Resolver::ReadResourceEmpty(
-        const ResourceId& id)
-    {
-        AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
-        m_ResourcesRead.emplace(id);
-    }
-
-    //
-
-    void Resolver::WriteUserData(
-        const ResourceId& id,
-        IObject*          userData)
+    void Resolver::SetUserData(
+        ResourceId id,
+        IObject*   userData)
     {
         m_ResourcesWritten.emplace(id);
         m_Storage.get().SetUserData(id, userData);
+        m_Synchronizer.get().Signal(id);
     }
 
-    void Resolver::ReadUserData(
-        const ResourceId& id)
+    Co::result<Dg::IBuffer*> Resolver::WriteBuffer(
+        ResourceId id)
     {
+        co_await WriteResource(id);
+        co_return m_Storage.get().GetResource(id)->AsBuffer();
+    }
+
+    Co::result<Dg::IBufferView*> Resolver::WriteBuffer(
+        ResourceId                    id,
+        const BufferResourceViewDesc& viewDesc)
+    {
+        co_await WriteResource(id);
+        co_return m_Storage.get().DeclareBufferView(id, viewDesc);
+    }
+
+    Co::result<Dg::ITexture*> Resolver::WriteTexture(
+        ResourceId id)
+    {
+        co_await WriteResource(id);
+        co_return m_Storage.get().GetResource(id)->AsTexture();
+    }
+
+    Co::result<Dg::ITextureView*> Resolver::WriteTexture(
+        ResourceId                     id,
+        const TextureResourceViewDesc& viewDesc)
+    {
+        co_await WriteResource(id);
+        co_return m_Storage.get().DeclareTextureView(id, viewDesc);
+    }
+
+    //
+
+    Co::result<void> Resolver::ReadResource(
+        ResourceId id)
+    {
+        co_await m_Synchronizer.get().WaitFor(id);
+        AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
         m_ResourcesRead.emplace(id);
     }
 
-    IObject* Resolver::GetUserData(
-        const ResourceId& id) const
+    Co::result<IObject*> Resolver::ReadUserData(
+        ResourceId id)
     {
-        return m_Storage.get().GetUserData(id);
+        co_await m_Synchronizer.get().WaitFor(id);
+        AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsUserData(id), "UserData '{}' doesn't exists", id.GetName());
+        m_ResourcesRead.emplace(id);
+        co_return m_Storage.get().GetUserData(id);
+    }
+
+    Co::result<Dg::IBuffer*> Resolver::ReadBuffer(
+        ResourceId id)
+    {
+        co_await ReadResource(id);
+        co_return m_Storage.get().GetResource(id)->AsBuffer();
+    }
+
+    Co::result<Dg::IBufferView*> Resolver::ReadBuffer(
+        ResourceId                    id,
+        const BufferResourceViewDesc& viewDesc)
+    {
+        co_await ReadResource(id);
+        co_return m_Storage.get().DeclareBufferView(id, viewDesc);
+    }
+
+    Co::result<Dg::ITexture*> Resolver::ReadTexture(
+        ResourceId id)
+    {
+        co_await ReadResource(id);
+        co_return m_Storage.get().GetResource(id)->AsTexture();
+    }
+
+    Co::result<Dg::ITextureView*> Resolver::ReadTexture(
+        ResourceId                     id,
+        const TextureResourceViewDesc& viewDesc)
+    {
+        co_await ReadResource(id);
+        co_return m_Storage.get().DeclareTextureView(id, viewDesc);
     }
 } // namespace Ame::Rg

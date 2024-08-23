@@ -6,24 +6,25 @@ namespace Ame::Gfx
     {
         Name("Initialize Forward+ Pass")
             .Flags(Rg::PassFlags::Graphics)
-            .Build(std::bind_front(&ForwardPlus_InitializePass::OnBuild, this));
+            .Build(std::bind_front(&ForwardPlus_InitializePass::OnBuild, this))
+            .Execute(std::bind_front(&ForwardPlus_InitializePass::OnExecute, this));
     }
 
-    void ForwardPlus_InitializePass::OnBuild(
+    Co::result<void> ForwardPlus_InitializePass::OnBuild(
         Rg::Resolver& resolver)
     {
-        Rg::RenderTargetViewDesc rtv{
-            {},
-            Rg::RtvCustomDesc{
-                .ClearColor = Colors::c_DarkGray,
-                .ClearType  = Rg::ERTClearType::Color,
-                .ForceColor = true }
-        };
-
-        auto textureDesc = resolver.GetBackbufferDesc();
+        Rg::TextureResourceDesc textureDesc{ resolver.GetBackbufferDesc() };
         textureDesc.BindFlags |= Dg::BIND_SHADER_RESOURCE;
 
-        resolver.CreateTexture(c_RGFinalImage, textureDesc);
-        resolver.WriteTexture(c_RGFinalImage("Initialize"), Dg::BIND_RENDER_TARGET, rtv);
+        resolver.CreateTexture(c_RGFinalImage, nullptr, textureDesc);
+        m_PassData.FinalImageView = co_await resolver.WriteTexture(c_RGFinalImage, Dg::TEXTURE_VIEW_RENDER_TARGET);
+    }
+
+    void ForwardPlus_InitializePass::OnExecute(
+        const Rg::ResourceStorage&,
+        Dg::IDeviceContext* deviceContext)
+    {
+        deviceContext->SetRenderTargets(1, &m_PassData.FinalImageView, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->ClearRenderTarget(m_PassData.FinalImageView, Colors::c_DarkGray.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 } // namespace Ame::Gfx

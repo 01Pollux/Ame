@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <stacktrace>
+#include <boost/stacktrace.hpp>
 #include <ranges>
 #include <map>
 
@@ -27,11 +28,9 @@ namespace Ame::Log
 
     Logger::Logger(
         StringView tagName,
-        StringView fileName,
-        SinkList   sinks) :
-        m_Name(tagName)
+        SinkList   sinks)
     {
-        m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(fileName), sinks.begin(), sinks.end());
+        m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(tagName), sinks.begin(), sinks.end());
         m_Logger->flush_on(spdlog::level::err);
 
 #if defined AME_DEBUG
@@ -47,7 +46,6 @@ namespace Ame::Log
 
     void Logger::Register(
         const String& tagName,
-        StringView    fileName,
         SinkList      sinks)
     {
         if (s_Loggers.contains(tagName))
@@ -55,7 +53,7 @@ namespace Ame::Log
             return;
         }
 
-        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, fileName, std::move(sinks))));
+        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, std::move(sinks))));
     }
 
     void Logger::Register(
@@ -89,7 +87,7 @@ namespace Ame::Log
         }
 #endif
 
-        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, fileName, std::move(Sinks))));
+        s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, std::move(Sinks))));
     }
 
     void Logger::RegisterNull(
@@ -269,5 +267,34 @@ namespace Ame::Log
         default:
             return LogLevel::Disabled;
         }
+    }
+
+    //
+
+    String FormatException(
+        const std::exception& ex)
+    {
+        String message = ex.what();
+#ifndef AME_DIST
+        auto stack = boost::stacktrace::stacktrace::from_current_exception();
+        if (stack)
+        {
+            auto it = stack.begin();
+            // Skip logger calls
+            for (it; it != stack.end() && it->source_file().contains("Logger"); it++)
+            {
+            }
+            if (it != stack.end())
+            {
+                message += "\nDumping Stacktrace:";
+                for (it; it != stack.end(); it++)
+                {
+                    message += "\n" + String(it->source_file().data()) + ":" + std::to_string(it->source_line());
+                }
+            }
+            return message;
+        }
+#endif
+        return message;
     }
 } // namespace Ame::Log

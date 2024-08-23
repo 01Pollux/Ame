@@ -7,6 +7,7 @@
 #include <Core/Ame.hpp>
 #include <Core/Enum.hpp>
 #include <Core/String.hpp>
+#include <Core/Coroutine.hpp>
 #include <Math/Colors.hpp>
 
 #include <Rhi/Core.hpp>
@@ -29,12 +30,14 @@ namespace Ame::Rg
     class PassStorage;
     class CoreResources;
     class ResourceStorage;
+    class ResourceSynchronizer;
     class Graph;
 
     class ResourceId;
-    class ResourceViewId;
 
     struct FrameResourceCPU;
+
+    //
 
     enum class PassFlags : uint8_t
     {
@@ -44,17 +47,15 @@ namespace Ame::Rg
         Compute  = 1 << 1,
         Graphics = 1 << 3 | Copy | Compute,
         TypeMask = Copy | Compute | Graphics,
-
-        NoSetups = 1 << 4,
     };
 
-    enum class ERTClearType : uint8_t
+    enum class RTClearType : uint8_t
     {
         Ignore,
         Color,
     };
 
-    enum class EDSClearType : uint8_t
+    enum class DSClearType : uint8_t
     {
         Ignore,
         Depth,
@@ -78,34 +79,16 @@ namespace Ame::Rg
 
     //
 
-    struct RtvCustomDesc
-    {
-        Math::Color4 ClearColor = Colors::c_Black;
+    using BufferResourceDesc  = Dg::BufferDesc;
+    using TextureResourceDesc = Dg::TextureDesc;
 
-        ERTClearType ClearType : 1 = ERTClearType::Ignore;
+    //
 
-        /// <summary>
-        /// Force clear color even if texture has no clear value
-        /// If false, will use texture clear value
-        /// </summary>
-        bool ForceColor : 1 = false;
-    };
+    using BufferResourceViewDesc = std::variant<
+        Dg::BUFFER_VIEW_TYPE,
+        Dg::BufferViewDesc>;
 
-    struct DsvCustomDesc
-    {
-        float   Depth   = 1.f;
-        uint8_t Stencil = 0;
-
-        EDSClearType ClearType    : 2 = EDSClearType::Ignore;
-        bool         ForceDepth   : 1 = false;
-        bool         ForceStencil : 1 = false;
-    };
-
-    struct RenderTargetViewDesc : Dg::TextureViewDesc, RtvCustomDesc
-    {
-    };
-
-    struct DepthStencilViewDesc : Dg::TextureViewDesc, DsvCustomDesc
-    {
-    };
+    using TextureResourceViewDesc = std::variant<
+        Dg::TEXTURE_VIEW_TYPE,
+        Dg::TextureViewDesc>;
 } // namespace Ame::Rg

@@ -4,7 +4,7 @@
 
 namespace Ame::Gfx
 {
-    static inline const Rg::ResourceId c_RGFinalImage{ "" };
+    static inline const Rg::ResourceId c_RGFinalImage{ "_Image" };
     static inline const Rg::ResourceId c_RGDepthImage{ "_Depth" };
 
     //

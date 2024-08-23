@@ -50,7 +50,6 @@ namespace Ame::Log
 
         Logger(
             StringView tagName,
-            StringView fileName,
             SinkList   sinks);
 
     public:
@@ -59,7 +58,6 @@ namespace Ame::Log
         /// </summary>
         static void Register(
             const String& tagName,
-            StringView    fileName,
             SinkList      sinks);
 
         /// <summary>
@@ -200,7 +198,11 @@ namespace Ame::Log
         [[nodiscard]] LogLevel GetLevel() const noexcept;
 
     private:
-        String                    m_Name;
         SharedPtr<spdlog::logger> m_Logger;
     };
+
+    //
+
+    [[nodiscard]] String FormatException(
+        const std::exception& ex);
 } // namespace Ame::Log

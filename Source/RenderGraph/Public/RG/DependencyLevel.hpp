@@ -9,22 +9,12 @@ namespace Ame::Rg
         friend class Graph;
         friend class Context;
 
-        struct RenderPassInfo
-        {
-            Pass*                       NodePass;
-            std::vector<ResourceViewId> RenderTargets;
-            ResourceViewId              DepthStencil;
-        };
-
     public:
         /// <summary>
         /// Append render pass
         /// </summary>
         void AddPass(
-            Pass*                       pass,
-            std::vector<ResourceViewId> renderTargets,
-            ResourceViewId              depthStencil,
-            std::set<ResourceId>        resourceToCreate);
+            Pass* pass);
 
         /// <summary>
         /// Execute render passes
@@ -53,7 +43,6 @@ namespace Ame::Rg
             Context& context) const;
 
     private:
-        std::vector<RenderPassInfo> m_Passes;
-        std::set<ResourceId>        m_ResourcesToCreate;
+        std::vector<Pass*> m_Passes;
     };
 } // namespace Ame::Rg

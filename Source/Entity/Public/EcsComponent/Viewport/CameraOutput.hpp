@@ -6,7 +6,7 @@ namespace Ame::Ecs
 {
     struct CameraOutputComponent
     {
-        String            SourceView = "";
+        String            SourceView = "_Image";
         Ptr<Dg::ITexture> OutputTexture;
     };
 } // namespace Ame::Ecs

@@ -10,20 +10,12 @@ namespace Ame::Rg
     {
         friend class Graph;
 
-        struct BuilderInfo
-        {
-            Resolver GraphResolver;
-            BuilderInfo(
-                ResourceStorage& storage) :
-                GraphResolver(storage)
-            {
-            }
-        };
+        using ResolverListType        = std::vector<Resolver>;
+        using TopologicalSortListType = std::vector<size_t>;
+        using AdjacencyListType       = std::vector<TopologicalSortListType>;
+        using DependencyLevelListType = std::vector<DependencyLevel>;
 
-        using BuildersListType         = std::vector<BuilderInfo>;
-        using TopologicalSortListType  = std::vector<size_t>;
-        using AdjacencyListType        = std::vector<TopologicalSortListType>;
-        using DepepndencyLevelListType = std::vector<DependencyLevel>;
+        static constexpr std::chrono::milliseconds s_GraphBuildTime = std::chrono::milliseconds(5'000);
 
     public:
         /// <summary>
@@ -94,40 +86,14 @@ namespace Ame::Rg
             bool state) noexcept;
 
     private:
-        /// <summary>
-        /// Build passes from builders
-        /// </summary>
-        [[nodiscard]] DepepndencyLevelListType BuildPasses(
-            BuildersListType& builders);
+        [[nodiscard]] ResolverListType        ResolvePasses(Context& context);
+        [[nodiscard]] DependencyLevelListType BuildPasses(ResolverListType& resolvers);
 
-        /// <summary>
-        /// Build adjacency lists for passes dependencies
-        /// </summary>
-        AdjacencyListType BuildAdjacencyLists(
-            const BuildersListType& builders);
-
-        /// <summary>
-        /// Topological sort of the graph
-        /// </summary>
-        TopologicalSortListType TopologicalSort(
-            const AdjacencyListType& adjacencyList);
-
-        /// <summary>
-        /// Depth first search for topological sort
-        /// </summary>
-        void DepthFirstSearch(
-            const AdjacencyListType& adjacencyList,
-            size_t                   index,
-            std::vector<bool>&       visitedList,
-            std::stack<size_t>&      dfsStack);
-
-        /// <summary>
-        /// Build dependency levels
-        /// </summary>
-        [[nodiscard]] DepepndencyLevelListType BuildDependencyLevels(
-            const TopologicalSortListType& topologicallySortedList,
-            const AdjacencyListType&       adjacencyList,
-            BuildersListType&              builders);
+    private:
+        AdjacencyListType                     BuildAdjacencyLists(const ResolverListType& resolvers);
+        TopologicalSortListType               TopologicalSort(const AdjacencyListType& adjacencyList);
+        void                                  DepthFirstSearch(const AdjacencyListType& adjacencyList, size_t index, std::vector<bool>& visitedList, std::stack<size_t>& dfsStack);
+        [[nodiscard]] DependencyLevelListType BuildDependencyLevels(const TopologicalSortListType& topologicallySortedList, const AdjacencyListType& adjacencyList);
 
     private:
         using PassMap      = std::map<String, UniquePtr<Pass>>;

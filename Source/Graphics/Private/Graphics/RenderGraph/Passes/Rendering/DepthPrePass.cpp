@@ -28,43 +28,32 @@ namespace Ame::Gfx
             return;
         }
 
-        auto renderDevice = storage.GetDevice()->GetRenderDevice();
-        auto dsvFormat    = storage.GetResource(c_RGDepthImage)->AsTexture()->Desc.Format;
-
         Rhi::MaterialRenderState renderState{
             .Name = "Forward+::DepthPrePass",
             .Links{
                 .Sources{ { Dg::SHADER_TYPE_VERTEX, Rhi::DepthPrepass_VertexShader().GetCreateInfo() } },
                 .ActiveShaders = Dg::SHADER_TYPE_ALL_GRAPHICS & ~Dg::SHADER_TYPE_PIXEL },
             .Signatures = { Ptr(srb->GetPipelineResourceSignature()) },
-            .DSFormat   = dsvFormat,
+            .DSFormat   = DepthPrePass::DepthFormat,
         };
-        m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
+
+        auto renderDevice = storage.GetDevice()->GetRenderDevice();
+        m_Technique       = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
     }
 
     //
 
-    void DepthPrePass::OnBuild(
+    Co::result<void> DepthPrePass::OnBuild(
         Rg::Resolver& resolver)
     {
-        Rg::DepthStencilViewDesc dsv{
-            {},
-            Rg::DsvCustomDesc{
-                .Depth      = 1.0f,
-                .ClearType  = Rg::EDSClearType::Depth,
-                .ForceDepth = true,
-            }
-        };
-
         auto textureDesc      = resolver.GetBackbufferDesc();
-        textureDesc.Format    = Dg::TEX_FORMAT_D32_FLOAT;
+        textureDesc.Format    = DepthPrePass::DepthFormat;
         textureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_DEPTH_STENCIL;
 
-        resolver.CreateTexture(c_RGDepthImage, textureDesc);
-        resolver.WriteTexture(c_RGDepthImage("DepthPrePass"), Dg::BIND_DEPTH_STENCIL, dsv);
+        resolver.CreateTexture(c_RGDepthImage, nullptr, textureDesc);
+        m_PassData.DepthView = co_await resolver.WriteTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_DEPTH_STENCIL);
 
-        resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
-        resolver.ReadUserData(c_RGEntityEmptyVertexBuffers);
+        co_await resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
     }
 
     void DepthPrePass::OnExecute(
@@ -72,6 +61,13 @@ namespace Ame::Gfx
         Dg::IDeviceContext*        deviceContext)
     {
         auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+
+        //
+
+        deviceContext->SetRenderTargets(0, nullptr, m_PassData.DepthView, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->ClearDepthStencil(m_PassData.DepthView, Dg::CLEAR_DEPTH_FLAG, 1.f, 0, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+        //
 
         TryCreateResources(storage, ersSrb);
         StandardRenderObjects(*m_World, ersSrb, deviceContext, m_Technique);

@@ -13,6 +13,13 @@ namespace Ame::Gfx
 {
     class ForwardPlus_RenderObjectsPass : public Rg::Pass
     {
+    private:
+        struct PassData
+        {
+            Dg::ITextureView* DepthView    = nullptr;
+            Dg::ITextureView* RenderTarget = nullptr;
+        };
+
     public:
         ForwardPlus_RenderObjectsPass(
             Ecs::World* world);
@@ -22,7 +29,7 @@ namespace Ame::Gfx
             const Rg::ResourceStorage&  storage,
             Dg::IShaderResourceBinding* srb);
 
-        void OnBuild(
+        Co::result<void> OnBuild(
             Rg::Resolver& resolver);
 
         void OnExecute(
@@ -30,8 +37,8 @@ namespace Ame::Gfx
             Dg::IDeviceContext*        deviceContext);
 
     private:
-        Ecs::World* m_World;
-
+        Ecs::World*                 m_World;
+        PassData                    m_PassData;
         Ptr<Rhi::MaterialTechnique> m_Technique;
     };
 } // namespace Ame::Gfx

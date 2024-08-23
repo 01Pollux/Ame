@@ -8,10 +8,23 @@ namespace Ame::Gfx
     class ForwardPlus_InitializePass : public Rg::Pass
     {
     public:
+        struct PassData
+        {
+            Dg::ITextureView* FinalImageView = nullptr;
+        };
+
+    public:
         ForwardPlus_InitializePass();
 
     private:
-        void OnBuild(
+        Co::result<void> OnBuild(
             Rg::Resolver& resolver);
+
+        void OnExecute(
+            const Rg::ResourceStorage& storage,
+            Dg::IDeviceContext*        deviceContext);
+
+    private:
+        PassData m_PassData;
     };
 } // namespace Ame::Gfx

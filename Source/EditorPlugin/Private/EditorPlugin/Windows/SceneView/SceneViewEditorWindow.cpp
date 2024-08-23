@@ -106,7 +106,7 @@ namespace Ame::Editor
             return;
         }
 
-        auto srv = textureOutputView->Resource->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
+        auto srv = textureOutputView->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
         if (srv)
         {
             ImGui::Image(

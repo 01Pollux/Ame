@@ -14,6 +14,7 @@ add_requires("boost 1.86.0",                {system = false, debug = _debug_pack
     bzip2 = true,
     filesystem = true,
     system = true,
+    stacktrace = true,
     program_options = true,
     serialization = true
 }})

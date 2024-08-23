@@ -2,6 +2,7 @@
 #include <boost/range/join.hpp>
 
 #include <Rg/PassStorage.hpp>
+#include <Rg/Synchronizer.hpp>
 #include <Rg/Context.hpp>
 #include <Rg/DependencyLevel.hpp>
 
@@ -55,23 +56,16 @@ namespace Ame::Rg
     {
         SetRebuildState(false);
 
-        if (m_Passes.empty()) [[unlikely]]
+        DependencyLevelListType levels;
+        if (!m_Passes.empty())
         {
-            context.Build({});
-            return;
+            auto resolvers = ResolvePasses(context);
+            if (!resolvers.empty())
+            {
+                levels = BuildPasses(resolvers);
+            }
         }
-
-        BuildersListType builders;
-        builders.reserve(m_Passes.size());
-
-        for (auto& pass : m_Passes)
-        {
-            auto& passStorage = builders.emplace_back(context.GetStorage());
-            pass->second->DoBuild(passStorage.GraphResolver);
-        }
-
-        auto passes = BuildPasses(builders);
-        context.Build(std::move(passes));
+        context.Build(std::move(levels));
     }
 
     bool PassStorage::NeedsRebuild() const noexcept
@@ -87,29 +81,75 @@ namespace Ame::Rg
 
     //
 
-    auto PassStorage::BuildPasses(
-        BuildersListType& builders) -> DepepndencyLevelListType
+    auto PassStorage::ResolvePasses(
+        Context& context) -> ResolverListType
     {
-        auto adjacencyList         = BuildAdjacencyLists(builders);
+        ResolverListType     resolvers;
+        ResourceSynchronizer synchronizer(context.GetStorage());
+        resolvers.reserve(m_Passes.size());
+
+        bool invalid = false;
+        auto tasks   = m_Passes |
+                     std::views::transform(
+                         [&](auto& pass) -> Co::result<void>
+                         {
+                             try
+                             {
+                                 Log::Gfx().Trace("Building pass '{}'", pass->first);
+                                 Resolver resolver(context.GetStorage(), synchronizer);
+                                 co_await pass->second->DoBuild(resolver);
+                                 resolvers.emplace_back(std::move(resolver));
+                             }
+                             catch (const std::exception& ex)
+                             {
+                                 Log::Gfx().Error("Error building pass '{}': {}", pass->first, Log::FormatException(ex));
+                                 invalid = true;
+                             }
+                         }) |
+                     std::ranges::to<std::vector>();
+
+        if (!invalid)
+        {
+            for (auto& task : Co::when_all(Coroutine::Get().inline_executor(), tasks.begin(), tasks.end()).run().get())
+            {
+                if (task.wait_for(s_GraphBuildTime) != Co::result_status::value)
+                {
+                    invalid = true;
+                    break;
+                }
+            }
+        }
+        if (invalid)
+        {
+            resolvers.clear();
+        }
+
+        return resolvers;
+    }
+
+    auto PassStorage::BuildPasses(
+        ResolverListType& resolvers) -> DependencyLevelListType
+    {
+        auto adjacencyList         = BuildAdjacencyLists(resolvers);
         auto topologicalSortedList = TopologicalSort(adjacencyList);
-        return BuildDependencyLevels(topologicalSortedList, adjacencyList, builders);
+        return BuildDependencyLevels(topologicalSortedList, adjacencyList);
     }
 
     //
 
     auto PassStorage::BuildAdjacencyLists(
-        const BuildersListType& builders) -> AdjacencyListType
+        const ResolverListType& resolvers) -> AdjacencyListType
     {
         AdjacencyListType adjacencyList(m_Passes.size());
 
         for (size_t i = 0; i < m_Passes.size() - 1; i++)
         {
             auto& adjacencies = adjacencyList[i];
-            auto& resolver    = builders[i].GraphResolver;
+            auto& resolver    = resolvers[i];
 
             for (size_t j = i + 1; j < m_Passes.size(); j++)
             {
-                auto& otherResolver = builders[j].GraphResolver;
+                auto& otherResolver = resolvers[j];
                 for (auto& resource : boost::range::join(otherResolver.m_ResourcesRead, otherResolver.m_ResourcesWritten))
                 {
                     if (resolver.m_ResourcesWritten.contains(resource))
@@ -175,8 +215,7 @@ namespace Ame::Rg
 
     auto PassStorage::BuildDependencyLevels(
         const TopologicalSortListType& topologicallySortedList,
-        const AdjacencyListType&       adjacencyList,
-        BuildersListType&              builders) -> DepepndencyLevelListType
+        const AdjacencyListType&       adjacencyList) -> DependencyLevelListType
     {
         std::vector<size_t> distances(topologicallySortedList.size());
         for (size_t d = 0; d < distances.size(); d++)
@@ -193,17 +232,11 @@ namespace Ame::Rg
 
         size_t size = std::ranges::max(distances) + 1;
 
-        DepepndencyLevelListType Dependencies(size);
+        DependencyLevelListType Dependencies(size);
         for (size_t i = 0; i < m_Passes.size(); ++i)
         {
-            size_t level    = distances[i];
-            auto&  resolver = builders[i].GraphResolver;
-
-            Dependencies[level].AddPass(
-                m_Passes[i]->second.get(),
-                std::move(resolver.m_RenderTargets),
-                std::move(resolver.m_DepthStencil),
-                std::move(resolver.m_ResourcesCreated));
+            size_t level = distances[i];
+            Dependencies[level].AddPass(m_Passes[i]->second.get());
         }
 
         return Dependencies;

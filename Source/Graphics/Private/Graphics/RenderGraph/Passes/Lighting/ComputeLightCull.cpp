@@ -58,27 +58,27 @@ namespace Ame::Gfx
 
     //
 
-    void ComputeLightCullPass::OnBuild(
+    Co::result<void> ComputeLightCullPass::OnBuild(
         Rg::Resolver& resolver)
     {
-        TryCreateResources(resolver.GetDevice());
+        co_await resolver.ReadUserData(c_RGEntityResourceSignature_Compute);
 
-        resolver.ReadUserData(c_RGEntityResourceSignature_Compute);
-
-        resolver.ReadBuffer(c_RGLightIdInstanceTable("LightCull"), Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
+        m_PassData.LightIds = co_await resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BUFFER_VIEW_SHADER_RESOURCE);
     }
 
     void ComputeLightCullPass::OnExecute(
         const Rg::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
-        auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Compute, Dg::IID_ShaderResourceBinding);
-
-        auto lightIndices = std::get<Rg::RhiBufferViewRef>(storage.GetResourceView(c_RGLightIdInstanceTable("LightCull")));
+        TryCreateResources(storage.GetDevice());
 
         //
 
-        m_LightIndices->Set(lightIndices.get().View);
+        auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Compute, Dg::IID_ShaderResourceBinding);
+
+        //
+
+        m_LightIndices->Set(m_PassData.LightIds);
         // m_DepthTexture->Set(storage.GetTextureView(c_RGDepthTexture).get().View);
 
         //

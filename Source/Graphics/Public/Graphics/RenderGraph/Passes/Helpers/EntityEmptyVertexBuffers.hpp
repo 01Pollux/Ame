@@ -15,7 +15,7 @@ namespace Ame::Gfx
         }
 
     private:
-        void OnBuild(
+        Co::result<void> OnBuild(
             Rg::Resolver& resolver)
         {
             constexpr uint8_t        bufferSize = Rhi::c_InputVertexAttributes[std::to_underlying(Rhi::VertexInputFlags::Count)].Offset;
@@ -40,7 +40,8 @@ namespace Ame::Gfx
             // clang-format on
 
             Dg::BufferData bufferData(c_Data, sizeof(c_Data));
-            resolver.CreateImmediateBuffer(c_RGEntityEmptyVertexBuffers, &bufferData, bufferDesc);
+            resolver.CreateBuffer(c_RGEntityEmptyVertexBuffers, &bufferData, bufferDesc);
+            co_return;
         }
     };
 } // namespace Ame::Gfx
