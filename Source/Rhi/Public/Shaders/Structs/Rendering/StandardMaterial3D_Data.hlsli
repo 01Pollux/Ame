@@ -6,7 +6,7 @@ Texture2D<float3> NormalMap;
 Texture2D<float> AOMap;
 Texture2D<float3> SpecularMap;
 Texture2D<float4> EmissiveMap;
-Texture2D<float3> ShininessMap;
+Texture2D<float> ShininessMap;
 Texture2D<float2> Roughness_MetallicMap;
 Texture2D<float> HeightMap;
 #endif

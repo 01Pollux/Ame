@@ -44,7 +44,7 @@ namespace Ame::Rhi
                 Dg::ShaderMacro{ MAX_LIGHT_CHUNK_SIZE, maxLightChunkSize }
             }
         {
-            Setup({ "L_LightFrustumCull_CS", Dg::SHADER_TYPE_COMPUTE }, c_SourceCode);
+            Setup({ "L_LightFrustumCull_CS", Dg::SHADER_TYPE_COMPUTE, true }, c_SourceCode);
             m_CreateInfo.Macros = { m_Macros.data(), Count32(m_Macros) };
             LinkShaders();
         }

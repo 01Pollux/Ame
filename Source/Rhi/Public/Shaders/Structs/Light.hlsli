@@ -12,6 +12,11 @@ struct Light
 	uint transform_id;
 	uint flags;
 };
+StructuredBuffer<Light> AllLightInstances; // All light instances
+StructuredBuffer<uint> AllLightIndices; // All light indices
+StructuredBuffer<uint> LinkedLightIndices; // [0]: grid_size for each chunk, [..]: light index
+Texture2D<uint2> LightGrid; // x: offset, y: count
+
 int light_get_type(const in Light light)
 {
 	return (light.flags & LIGHT_TYPE_MASK);

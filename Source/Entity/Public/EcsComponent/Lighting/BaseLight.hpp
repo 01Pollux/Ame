@@ -4,11 +4,16 @@
 
 namespace Ame::Ecs
 {
+    /// <summary>
+    /// Tag component for entities that are lights
+    /// Automatically added to entities with light components
+    /// </summary>
+    struct LightTagComponent
+    {
+    };
+
     struct BaseLightComponent
     {
-        /// <summary>
-        /// Color modulation
-        /// </summary>
         Math::Color4 Color = Colors::c_White;
     };
 } // namespace Ame::Ecs

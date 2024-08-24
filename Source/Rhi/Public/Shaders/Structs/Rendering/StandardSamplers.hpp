@@ -7,7 +7,7 @@ namespace Ame::Rhi
     class StructStdSamplersShader : public EngineShader
     {
     private:
-        static constexpr const char* c_SourceCode =
+        static constexpr const char c_SourceCode[] =
 #include "StandardSamplers.hlsli.generated.hpp"
             ;
 

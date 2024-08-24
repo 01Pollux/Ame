@@ -32,7 +32,7 @@ namespace Ame::Gfx
                 ->observer<const Ecs::GlobalTransformComponent>()
                 .with<const Ecs::RenderableComponent>()
                 .or_()
-                .with<const Ecs::BaseLightComponent>()
+                .with<const Ecs::LightTagComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

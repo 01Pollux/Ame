@@ -14,6 +14,7 @@ namespace Ame::Rhi
             static constexpr const char AmbientCst[]      = "Ambient";
             static constexpr const char SpecularCst[]     = "Specular";
             static constexpr const char EmissiveCst[]     = "Emissive";
+            static constexpr const char ShininessCst[]    = "Shininess";
             static constexpr const char TransparencyCst[] = "Transparent";
 
             static constexpr const char BaseColorMap[]          = "BaseColorMap";
@@ -33,6 +34,7 @@ namespace Ame::Rhi
             Math::Color4 Ambient      = Colors::c_Black;
             Math::Color4 Specular     = Colors::c_Black;
             Math::Color4 Emissive     = Colors::c_Black;
+            float        Shininess    = 0.f;
             float        Transparency = 1.0f;
         };
 

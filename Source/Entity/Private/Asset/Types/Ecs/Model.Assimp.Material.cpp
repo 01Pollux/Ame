@@ -295,6 +295,7 @@ namespace Ame::Ecs
             ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_AMBIENT, StdMat3DNames::AmbientCst, Colors::c_Black);
             ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_SPECULAR, StdMat3DNames::SpecularCst, Colors::c_Black);
             ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_EMISSIVE, StdMat3DNames::EmissiveCst, Colors::c_Black);
+            ApplyMaterialConstant<float>(aimaterial, material, AI_MATKEY_SHININESS, StdMat3DNames::SpecularCst, 0.f);
             ApplyMaterialConstant<float>(aimaterial, material, AI_MATKEY_OPACITY, StdMat3DNames::TransparencyCst, 1.0f);
         }
     }

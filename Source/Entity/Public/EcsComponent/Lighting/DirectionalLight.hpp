@@ -4,7 +4,7 @@
 
 namespace Ame::Ecs
 {
-    struct DirectionalLightComponent : public BaseLightComponent
+    struct DirectionalLightComponent : BaseLightComponent
     {
     };
 } // namespace Ame::Ecs

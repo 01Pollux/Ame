@@ -13,6 +13,6 @@ float4 main(in ps_input psIn) : SV_Target
 {
 	float4 col = Texture.Sample(Texture_sampler, psIn.uv) * psIn.col;
 	col.rgb *= col.a;
-        SRGBA_TO_LINEAR(col) 
+	SRGBA_TO_LINEAR(col) 
 	return col;
 }

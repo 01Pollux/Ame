@@ -26,10 +26,10 @@ namespace Ame::Gfx
         };
 
         Math::Vector4 Color;
-        Math::Vector3 Attenuation_Angle{};                                // 0 for directional light, (attenuation, 0, 0) for point light, (attenuation, angle, attenuation) for spot light
-        float         Range       = 0.f;                                  // 0 for directional light, Point light + spot light
-        uint32_t      TransformId = std::numeric_limits<uint32_t>::max(); // Id of the transform component
-        uint32_t      Flags       = 0;                                    // LightFlags::* flags
+        Math::Vector3 Attenuation_Angle{};                                  // 0 for directional light, (attenuation, 0, 0) for point light, (attenuation, angle, attenuation) for spot light
+        float         Range         = 0.f;                                  // 0 for directional light, Point light + spot light
+        uint32_t      TransformId   = std::numeric_limits<uint32_t>::max(); // Id of the transform component
+        uint32_t      Flags         = 0;                                    // LightFlags::* flags
     };
 
     struct EntityGpuStorageTraits_Light
@@ -43,6 +43,7 @@ namespace Ame::Gfx
         {
             auto transformId = entity->get<EntityTransform_EcsId>()->Id;
 
+            instance          = {};
             uint32_t typeMask = 0;
             if (auto directionalLight = entity->get<Ecs::DirectionalLightComponent>())
             {
@@ -52,14 +53,12 @@ namespace Ame::Gfx
             else if (auto pointLight = entity->get<Ecs::PointLightComponent>())
             {
                 instance.Color                 = pointLight->Color;
-                instance.Color                 = pointLight->Color;
                 instance.Range                 = pointLight->Range;
                 instance.Attenuation_Angle.x() = pointLight->Attenuation;
                 typeMask                       = static_cast<uint32_t>(instance_type::LightFlags::Point);
             }
             else if (auto spotLight = entity->get<Ecs::SpotLightComponent>())
             {
-                instance.Color                 = spotLight->Color;
                 instance.Color                 = spotLight->Color;
                 instance.Range                 = spotLight->Range;
                 instance.Attenuation_Angle.x() = spotLight->Attenuation;
@@ -75,7 +74,7 @@ namespace Ame::Gfx
         static auto observer_create(Ecs::WorldRef world)
         {
             return world
-                ->observer<const EntityTransform_EcsId, const Ecs::BaseLightComponent>()
+                ->observer<const EntityTransform_EcsId, const Ecs::LightTagComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

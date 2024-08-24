@@ -13,7 +13,7 @@ namespace Ame::Gfx
                                 .cached()
                                 .build();
         m_LightQuery = world->CreateQuery<const EntityLightInstance_EcsId>()
-                           .with<const Ecs::BaseLightComponent>()
+                           .with<const Ecs::LightTagComponent>()
                            .cached()
                            .build();
     }

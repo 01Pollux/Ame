@@ -97,7 +97,7 @@ namespace Ame
             lightTr.SetBasis(basis);
 
             Ecs::DirectionalLightComponent lightComp;
-            lightComp.Color = Math::Vector3{ 1.f, 1.f, 1.f };
+            lightComp.Color = Math::Color4{ 1.f, 1.f, 1.f, 1.f };
 
             lightEntity->child_of(*parent);
             lightEntity->set(lightComp);

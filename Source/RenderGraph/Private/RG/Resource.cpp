@@ -1,5 +1,4 @@
 #include <Rg/Resource.hpp>
-
 #include <DiligentCore/Common/interface/HashUtils.hpp>
 
 #include <Log/Wrapper.hpp>
@@ -10,7 +9,7 @@ namespace Ame::Rg
         const ResourceId& id)
     {
 #ifndef AME_DIST
-        AME_LOG_ASSERT(Log::Gfx(), static_cast<bool>(id) && id.GetName(), "Invalid resource id");
+        AME_LOG_ASSERT(Log::Gfx(), static_cast<bool>(id) && !id.m_Name.empty(), "Invalid resource id");
 #endif
     }
 
@@ -115,6 +114,7 @@ namespace Ame::Rg
     {
         size_t viewHash = ComputeViewHash(viewDesc);
 
+        Log::Gfx().Assert(std::holds_alternative<Ptr<Dg::IBuffer>>(m_Resource), "Resource is not a buffer");
         auto& viewMap = std::get<RhiBufferViewMap>(m_Views);
         auto& buffer  = std::get<Ptr<Dg::IBuffer>>(m_Resource);
 
@@ -141,6 +141,7 @@ namespace Ame::Rg
     {
         size_t viewHash = ComputeViewHash(viewDesc);
 
+        Log::Gfx().Assert(std::holds_alternative<Ptr<Dg::ITexture>>(m_Resource), "Resource is not a texture");
         auto& viewMap = std::get<RhiTextureViewMap>(m_Views);
         auto& texture = std::get<Ptr<Dg::ITexture>>(m_Resource);
 

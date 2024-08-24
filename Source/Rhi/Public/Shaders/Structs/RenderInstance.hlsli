@@ -2,8 +2,10 @@
 #define STRUCT_RENDERINSTANCE
 struct RenderInstance
 {
-	uint TransformId;
-	uint BoundingId;
-	uint Code;
+	uint transform_id;
+	uint bounding_id;
+	uint code;
 };
+StructuredBuffer<RenderInstance> AllRenderInstances;
+
 #endif

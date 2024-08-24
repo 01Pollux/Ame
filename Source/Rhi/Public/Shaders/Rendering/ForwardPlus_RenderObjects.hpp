@@ -4,6 +4,7 @@
 
 #include <Shaders/Structs/Transform.hpp>
 #include <Shaders/Structs/RenderInstance.hpp>
+#include <Shaders/Structs/Light.hpp>
 #include <Shaders/Structs/CameraFrameData.hpp>
 
 #include <Shaders/Structs/Inputs/StdVertexInput.hpp>
@@ -12,6 +13,9 @@
 #include <Shaders/Structs/Outputs/StdVertexOutput.hpp>
 #include <Shaders/Structs/Outputs/StdMaterialFragment.hpp>
 #include <Shaders/Structs/Outputs/ForwardPlus_PixelOutput.hpp>
+
+#include <Shaders/Structs/Lighting/LightingResult.hpp>
+#include <Shaders/Structs/Lighting/Operations.hpp>
 
 namespace Ame::Rhi
 {
@@ -72,15 +76,29 @@ namespace Ame::Rhi
     private:
         void LinkShaders()
         {
+            StructTransformShader       transformStruct;
+            StructLightShader           lightStruct;
+            StructCameraFrameDataShader cameraFrameDataStruct;
+
             StructStdPixelInputShader          pixelInputStruct;
             StructStdMaterialFragmentShader    materialOutputStruct;
             StructForwardPlusPixelOutputShader pixelOutputStruct;
 
+            StructLightingResultShader     lightingResultStruct;
+            StructLightingOperationsShader lightingOperationsStruct;
+
             m_LinkedShaders = Dg::CreateMemoryShaderSourceFactory(
                 {
+                    { transformStruct.GetMemoryShaderSourceFileInfo(transformStruct.Name) },
+                    { lightStruct.GetMemoryShaderSourceFileInfo(lightStruct.Name) },
+                    { cameraFrameDataStruct.GetMemoryShaderSourceFileInfo(cameraFrameDataStruct.Name) },
+
                     { pixelInputStruct.GetMemoryShaderSourceFileInfo(pixelInputStruct.Name) },
                     { materialOutputStruct.GetMemoryShaderSourceFileInfo(materialOutputStruct.Name) },
                     { pixelOutputStruct.GetMemoryShaderSourceFileInfo(pixelOutputStruct.Name) },
+
+                    { lightingResultStruct.GetMemoryShaderSourceFileInfo(lightingResultStruct.Name) },
+                    { lightingOperationsStruct.GetMemoryShaderSourceFileInfo(lightingOperationsStruct.Name) },
                 },
                 true);
             m_CreateInfo.pShaderSourceStreamFactory = m_LinkedShaders;

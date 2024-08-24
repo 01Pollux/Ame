@@ -10,6 +10,7 @@ namespace Ame::Rhi
             .Float4(Names::AmbientCst)
             .Float4(Names::SpecularCst)
             .Float4(Names::EmissiveCst)
+            .Float(Names::ShininessCst)
             .Float(Names::TransparencyCst);
 
         ResourceSignature.Resources    = StdResources.data();

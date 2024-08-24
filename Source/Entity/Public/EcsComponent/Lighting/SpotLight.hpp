@@ -4,7 +4,7 @@
 
 namespace Ame::Ecs
 {
-    struct SpotLightComponent : public BaseLightComponent
+    struct SpotLightComponent : BaseLightComponent
     {
         /// <summary>
         /// Max range of light.

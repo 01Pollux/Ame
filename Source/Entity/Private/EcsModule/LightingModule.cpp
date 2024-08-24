@@ -7,6 +7,15 @@
 
 namespace Ame::Ecs
 {
+    template<typename Ty>
+    static void BaseLight(flecs::component<Ty> component)
+    {
+        component.on_set([](const Entity& entity, Ty&)
+                         { entity->add<LightTagComponent>(); });
+        component.on_remove([](const Entity& entity, Ty&)
+                            { entity->remove<LightTagComponent>(); });
+    }
+
     LightingEcsModule::LightingEcsModule(
         WorldRef world)
     {
@@ -14,12 +23,9 @@ namespace Ame::Ecs
 
         //
 
-        world->component<BaseLightComponent>("Ame.BaseLightComponent");
-        world->component<DirectionalLightComponent>("Ame.DirectionalLightComponent")
-            .is_a<BaseLightComponent>();
-        world->component<PointLightComponent>("Ame.PointLightComponent")
-            .is_a<BaseLightComponent>();
-        world->component<SpotLightComponent>("Ame.SpotLightComponent")
-            .is_a<BaseLightComponent>();
+        world->component<LightTagComponent>("Ame.LightTagComponent");
+        BaseLight(world->component<DirectionalLightComponent>("Ame.DirectionalLightComponent"));
+        BaseLight(world->component<PointLightComponent>("Ame.PointLightComponent"));
+        BaseLight(world->component<SpotLightComponent>("Ame.SpotLightComponent"));
     }
 } // namespace Ame::Ecs

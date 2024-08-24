@@ -25,32 +25,32 @@ namespace Ame::Rg
         Dg::ITexture* CreateTexture(const ResourceId& id, const Dg::TextureData* initData, const Dg::TextureDesc& desc);
 
     public:
-        [[nodiscard]] Dg::IBuffer*  GetBuffer(ResourceId id) const;
-        [[nodiscard]] Dg::ITexture* GetTexture(ResourceId id) const;
+        [[nodiscard]] Dg::IBuffer*  GetBuffer(const ResourceId& id) const;
+        [[nodiscard]] Dg::ITexture* GetTexture(const ResourceId& id) const;
 
-        [[nodiscard]] IObject* GetUserData(ResourceId id) const;
+        [[nodiscard]] IObject* GetUserData(const ResourceId& id) const;
         template<typename Ty>
-        [[nodiscard]] Ptr<Ty> GetUserData(ResourceId id, const UId& iid) const
+        [[nodiscard]] Ptr<Ty> GetUserData(const ResourceId& id, const UId& iid) const
         {
             auto userdata = co_await GetUserData(id);
             co_return { userdata, iid };
         }
 
     public:
-        void              WriteResource(ResourceId id);
-        void              SetUserData(ResourceId id, IObject* userData);
-        Dg::IBuffer*      WriteBuffer(ResourceId id);
-        Dg::IBufferView*  WriteBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
-        Dg::ITexture*     WriteTexture(ResourceId id);
-        Dg::ITextureView* WriteTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
+        void              WriteResource(const ResourceId& id);
+        void              SetUserData(const ResourceId& id, IObject* userData);
+        Dg::IBuffer*      WriteBuffer(const ResourceId& id);
+        Dg::IBufferView*  WriteBuffer(const ResourceId& id, const BufferResourceViewDesc& viewDesc);
+        Dg::ITexture*     WriteTexture(const ResourceId& id);
+        Dg::ITextureView* WriteTexture(const ResourceId& id, const TextureResourceViewDesc& viewDesc);
 
     public:
-        void              ReadResource(ResourceId id);
-        IObject*          ReadUserData(ResourceId id);
-        Dg::IBuffer*      ReadBuffer(ResourceId id);
-        Dg::IBufferView*  ReadBuffer(ResourceId id, const BufferResourceViewDesc& viewDesc);
-        Dg::ITexture*     ReadTexture(ResourceId id);
-        Dg::ITextureView* ReadTexture(ResourceId id, const TextureResourceViewDesc& viewDesc);
+        void              ReadResource(const ResourceId& id);
+        IObject*          ReadUserData(const ResourceId& id);
+        Dg::IBuffer*      ReadBuffer(const ResourceId& id);
+        Dg::IBufferView*  ReadBuffer(const ResourceId& id, const BufferResourceViewDesc& viewDesc);
+        Dg::ITexture*     ReadTexture(const ResourceId& id);
+        Dg::ITextureView* ReadTexture(const ResourceId& id, const TextureResourceViewDesc& viewDesc);
 
     private:
         Ref<ResourceStorage> m_Storage;

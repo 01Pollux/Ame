@@ -47,9 +47,9 @@ namespace Ame::Gfx
                 Rhi::BindAllStaticInSignature(signature, ShaderFlags, "FrameDataBuffer", frameData);
                 signature->InitializeStaticSRBResources(m_Srb);
             }
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "Transforms", transforms->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "RenderInstances", renderInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "LightInstances", lightInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllTransforms", transforms->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllRenderInstances", renderInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllLightInstances", lightInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
         }
 
     private:
@@ -58,9 +58,9 @@ namespace Ame::Gfx
         {
             constexpr std::array resources{
                 Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
-                Dg::PipelineResourceDesc{ ShaderFlags, "Transforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ ShaderFlags, "RenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ ShaderFlags, "LightInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "AllTransforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "AllRenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "AllLightInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
 
             constexpr std::array c_SamplersTemplate{

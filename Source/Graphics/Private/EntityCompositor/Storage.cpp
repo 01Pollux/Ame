@@ -44,7 +44,11 @@ namespace Ame::Gfx
     void EntityStorage::CreateFrameDataBuffer()
     {
         Dg::BufferDesc bufferDesc{
+#ifndef AME_DIST
             "FrameDataBuffer",
+#else
+            nullptr,
+#endif
             sizeof(CameraFrameData),
             Dg::BIND_UNIFORM_BUFFER,
             Dg::USAGE_DEFAULT
@@ -86,7 +90,11 @@ namespace Ame::Gfx
     void EntityStorage::CreateLightIdBuffer()
     {
         Dg::BufferDesc bufferDesc{
+#ifndef AME_DIST
             "LightIdBuffer",
+#else
+            nullptr,
+#endif
             sizeof(uint32_t) * c_MaxLightConstants,
             Dg::BIND_SHADER_RESOURCE,
             Dg::USAGE_DEFAULT,

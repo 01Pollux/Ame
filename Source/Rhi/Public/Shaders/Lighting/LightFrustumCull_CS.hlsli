@@ -17,24 +17,13 @@ struct cs_input
 	uint3 dtid : SV_DispatchThreadID;
 	uint gi : SV_GroupIndex;
 };
+Texture2D<float> DepthView;
 
-cbuffer FrameDataBuffer
-{
-	CameraFrameData FrameData;
-};
-
-StructuredBuffer<Transform> Transforms;
-StructuredBuffer<Light> LightInstances;
-StructuredBuffer<uint> LightIndices;
-
-Texture2D<float> DepthTexture;
-
-// index 0 is the count of lights
 RWStructuredBuffer<uint> LightIndices_Transparent;
 RWStructuredBuffer<uint> LightIndices_Opaque;
 
-RWTexture2D<uint2> LightTexture_Transparent;
-RWTexture2D<uint2> LightTexture_Opaque;
+RWTexture2D<uint2> LightHeads_Transparent;
+RWTexture2D<uint2> LightHeads_Opaque;
 
 //
 
@@ -64,10 +53,10 @@ void append_light_opaque(uint light_index);
 [numthreads(DISPATCH_CHUNK_SIZE, DISPATCH_CHUNK_SIZE, 1)]
 void main(in cs_input csIn)
 {
-	uint light_count = LightIndices[0];
+	uint light_count = AllLightIndices[0];
 
 	int2 tex_coord = csIn.dtid.xy;
-	float depth = DepthTexture.Load(int3(tex_coord, 0));
+	float depth = DepthView.Load(int3(tex_coord, 0));
 	uint udepth = asuint(depth);
 	
     // initialize group shared memory
@@ -75,8 +64,12 @@ void main(in cs_input csIn)
 	{
 		_uMinDepth = 0xffffffff;
 		_uMaxDepth = 0;
+		
 		_LightCount_Transparent = 0;
 		_LightCount_Opaque = 0;
+		
+		_LightIndices_Transparent[0] = 0;
+		_LightIndices_Opaque[0] = 0;
 		compute_frustum_for_region(csIn.dtid.xy);
 	}
 
@@ -91,15 +84,16 @@ void main(in cs_input csIn)
 	float max_depth_f = asfloat(_uMaxDepth);
 	float min_depth_f = asfloat(_uMinDepth);
 
-	float max_depth = Utils_ScreenToView(float4(0, 0, max_depth_f, 1), FrameData.Viewport, FrameData.ProjectionInverse).z;
-	float min_depth = Utils_ScreenToView(float4(0, 0, min_depth_f, 1), FrameData.Viewport, FrameData.ProjectionInverse).z;
-	float near = Utils_ScreenToView(float4(0, 0, FrameData.NearPlane, 1), FrameData.Viewport, FrameData.ProjectionInverse).z;
+	float max_depth = Utils_ScreenToView(float4(0, 0, max_depth_f, 1), FrameData.viewport, FrameData.projection_inverse).z;
+	float min_depth = Utils_ScreenToView(float4(0, 0, min_depth_f, 1), FrameData.viewport, FrameData.projection_inverse).z;
+	float near = Utils_ScreenToView(float4(0, 0, FrameData.near_plane, 1), FrameData.viewport, FrameData.projection_inverse).z;
 
 	Plane min_plane = { float3(0, 0, -1.f), -min_depth };
-	uint i;
+	uint i, li;
 	for (i = csIn.gi; i < light_count; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
-		Light light = LightInstances[LightIndices[i + 1]];
+		li = AllLightIndices[i + 1];
+		Light light = AllLightInstances[li];
 		switch (light_get_type(light))
 		{
         /*case LIGHT_TYPE_POINT:
@@ -110,10 +104,10 @@ void main(in cs_input csIn)
             Sphere sphere = { light_position, light.Radius };
 			if (Geometry_SphereContainsFrustum(sphere, _Frustum) == CONTAINMENT_TYPE_CONTAINS)
 			{
-			    append_light_transparent(LightIndices[i]);
+			    append_light_transparent(li);
 				if (Geometry_SphereContainsPlane(sphere, min_plane) != CONTAINMENT_TYPE_CONTAINS)
 				{
-					append_light_opaque(LightIndices[i]);
+					append_light_opaque(li);
 				}
 			}
 			break;
@@ -128,20 +122,20 @@ void main(in cs_input csIn)
             Cone cone = Geometry_ComputeCone(light_position, radius);
 			if (Geometry_ConeContainsFrustum(cone, _Frustum) == CONTAINMENT_TYPE_CONTAINS)
 			{
-			    append_light_transparent(LightIndices[i]);
+			    append_light_transparent(li);
 				if (Geometry_ConeContainsPlane(cone, min_plane) != CONTAINMENT_TYPE_CONTAINS)
 				{
-					append_light_opaque(LightIndices[i]);
+					append_light_opaque(li);
 				}
 			}
 			break;
 		}*/
-			case LIGHT_TYPE_DIRECTIONAL:
+		case LIGHT_TYPE_DIRECTIONAL:
         {
-					append_light_transparent(LightIndices[i]);
-					append_light_opaque(LightIndices[i]);
-					break;
-				}
+			append_light_transparent(li);
+			append_light_opaque(li);
+			break;
+		}
 		}
 	}
 
@@ -149,22 +143,24 @@ void main(in cs_input csIn)
 
 	if (csIn.gi == 0)
 	{
-		InterlockedAdd(LightIndices_Opaque[0].x, _LightCount_Opaque, _LightIndexStartOffset_Opaque);
+		InterlockedAdd(LightIndices_Opaque[0], _LightCount_Opaque, _LightIndexStartOffset_Opaque);
 		InterlockedAdd(LightIndices_Transparent[0], _LightCount_Transparent, _LightIndexStartOffset_Transparent);
 
-		LightTexture_Opaque[csIn.gid.xy] = int2(_LightCount_Opaque, _LightIndexStartOffset_Opaque);
-		LightTexture_Transparent[csIn.gid.xy] = int2(_LightCount_Transparent, _LightIndexStartOffset_Transparent);
+		LightHeads_Opaque[csIn.gid.xy] = int2(_LightCount_Opaque, _LightIndexStartOffset_Opaque);
+		LightHeads_Transparent[csIn.gid.xy] = int2(_LightCount_Transparent, _LightIndexStartOffset_Transparent);
 	}
 
 	GroupMemoryBarrierWithGroupSync();
 
 	for (i = csIn.gi; i < _LightCount_Opaque; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
-		LightIndices_Opaque[_LightIndexStartOffset_Opaque + i + 1] = _LightIndices_Opaque[i];
+		li = _LightIndexStartOffset_Opaque + i;
+		LightIndices_Opaque[li] = _LightIndices_Opaque[i];
 	}
 	for (i = csIn.gi; i < _LightCount_Transparent; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
-		LightIndices_Transparent[_LightIndexStartOffset_Transparent + i + 1] = _LightIndices_Transparent[i];
+		li = _LightIndexStartOffset_Transparent + i;
+		LightIndices_Transparent[li] = _LightIndices_Transparent[i];
 	}
 
 	write_debug_texture(csIn.gid.xy, _LightCount_Opaque);
@@ -175,7 +171,7 @@ void main(in cs_input csIn)
 void compute_frustum_for_region(int2 dispatch_pos)
 {
 	float2 dispatch_size = float2(DISPATCH_CHUNK_SIZE, DISPATCH_CHUNK_SIZE);
-	_Frustum = Geometry_ComputeFrustum(FrameData.ProjectionInverse, false);
+	_Frustum = Geometry_ComputeFrustum(FrameData.projection_inverse, false);
 	Geometry_ComputeFrustumSubView(_Frustum, (float2)dispatch_pos, dispatch_size);
 }
 

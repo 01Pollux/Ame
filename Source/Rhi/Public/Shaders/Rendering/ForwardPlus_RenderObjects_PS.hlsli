@@ -1,6 +1,13 @@
+#include "Structs/Transform.hlsli"
+#include "Structs/Light.hlsli"
+#include "Structs/CameraFrameData.hlsli"
+
 #include "Structs/Inputs/StdPixelInput.hlsli"
 #include "Structs/Outputs/StdMaterialFragment.hlsli"
 #include "Structs/Outputs/ForwardPlus_PixelOutput.hlsli"
+
+#include "Structs/Lighting/LightingResult.hlsli"
+#include "Structs/Lighting/Operations.hlsli"
 
 void main(in ps_input psIn, out ps_output psOut)
 {
@@ -12,17 +19,21 @@ void main(in ps_input psIn, out ps_output psOut)
 	{
 		return;
 	}
+	
+	float4 screen_pos = psIn.screen_position;
+	float2 uv = screen_pos.xy / screen_pos.w;
+	
+	LightingSurface light_surface;
+	light_surface.position = psIn.world_position;
+	light_surface.normal = fragment.normal;
+	light_surface.specular_power = fragment.specular;
+	light_surface.view_dir = normalize(FrameData_GetPosition(FrameData) - psIn.world_position);
 
-	// suppose that the light is at the camera position
-	float3 light_dir = normalize(float3(0.0, 0.0, 1.0) - psIn.world_position);
-	float3 normal = normalize(fragment.normal);
-	float3 view_dir = normalize(float3(0.0, 0.0, 1.0) - psIn.world_position);
+	LightingResult lighting = (LightingResult) 0;
+	LightingResult_ComputeFromLinkedList(lighting, uv, light_surface);
 
-	float3 ambient = fragment.base_color.rgb;
-	float3 diffuse = fragment.base_color.rgb * max(dot(normal, light_dir), 0.0);
-	float3 specular = fragment.specular.rgb * pow(max(dot(reflect(-light_dir, normal), view_dir), 0.0), fragment.shininess.r);
-
-	psOut.color = float4(ambient + diffuse + specular, 1.0) * fragment.ao;
+	float3 color = lighting.diffuse.rgb + lighting.specular.rgb;
+	psOut.color = float4(color, 1.0) * fragment.ao;
 
 #else
 	psOut.color = float4(1.0, 1.0, 1.0, 1.0);
