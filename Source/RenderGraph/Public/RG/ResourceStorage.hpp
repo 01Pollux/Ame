@@ -11,8 +11,8 @@ namespace Ame::Rg
         friend class Graph;
         friend class DependencyLevel;
 
-        using ResourceMapType = std::map<ResourceId, ResourceHandle>;
-        using UserDataMapType = std::map<ResourceId, Ptr<IObject>>;
+        using ResourceMapType = std::map<size_t, ResourceHandle>;
+        using UserDataMapType = std::map<size_t, Ptr<IObject>>;
 
     public:
         ResourceStorage(
@@ -32,6 +32,10 @@ namespace Ame::Rg
         [[nodiscard]] ResourceHandle*       GetResourceMut(const ResourceId& id);
 
     public:
+        [[nodiscard]] Dg::IBufferView*  GetBufferView(ResourceViewId viewId) const;
+        [[nodiscard]] Dg::ITextureView* GetTextureView(ResourceViewId viewId) const;
+
+    public:
         [[nodiscard]] bool     ContainsUserData(const ResourceId& id) const;
         [[nodiscard]] void     SetUserData(const ResourceId& id, IObject* object);
         [[nodiscard]] IObject* GetUserData(const ResourceId& id) const;
@@ -44,7 +48,8 @@ namespace Ame::Rg
         }
 
     private:
-        void DeclareResource(const ResourceId& id, RhiResource resource);
+        void DeclareResource(const ResourceId& id, Rhi::BufferInitData* initData, const Dg::BufferDesc& desc);
+        void DeclareResource(const ResourceId& id, Rhi::TextureInitData* initData, const Dg::TextureDesc& desc);
 
     public:
         void ImportBuffer(const ResourceId& id, Dg::IBuffer* buffer);
@@ -52,10 +57,11 @@ namespace Ame::Rg
         void DiscardResource(const ResourceId& id);
 
     private:
+        void UpdateResources();
         void ClearResources();
 
-        [[nodiscard]] Dg::IBufferView*  DeclareBufferView(const ResourceId& viewId, const BufferResourceViewDesc& desc);
-        [[nodiscard]] Dg::ITextureView* DeclareTextureView(const ResourceId& viewId, const TextureResourceViewDesc& desc);
+        [[nodiscard]] ResourceViewId DeclareBufferView(const ResourceId& viewId, const BufferResourceViewDesc& desc);
+        [[nodiscard]] ResourceViewId DeclareTextureView(const ResourceId& viewId, const TextureResourceViewDesc& desc);
 
     private:
         /// <summary>

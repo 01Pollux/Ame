@@ -44,59 +44,23 @@ namespace Ame::Rg
         m_Storage.get().ImportTexture(id, texture);
     }
 
-    Dg::IBuffer* Resolver::CreateBuffer(
+    void Resolver::CreateBuffer(
         const ResourceId&     id,
-        const Dg::BufferData* initData,
+        Rhi::BufferInitData*  initData,
         const Dg::BufferDesc& desc)
     {
-        auto rhiDevice    = m_Storage.get().GetDevice();
-        auto renderDevice = rhiDevice->GetRenderDevice();
-
-        Ptr<Dg::IBuffer> buffer;
-        renderDevice->CreateBuffer(desc, initData, &buffer);
-        m_Storage.get().DeclareResource(id, buffer);
-
-        return buffer;
+        m_Storage.get().DeclareResource(id, initData, desc);
     }
 
-    Dg::ITexture* Resolver::CreateTexture(
+    void Resolver::CreateTexture(
         const ResourceId&      id,
-        const Dg::TextureData* initData,
+        Rhi::TextureInitData*  initData,
         const Dg::TextureDesc& desc)
     {
-        auto rhiDevice    = m_Storage.get().GetDevice();
-        auto renderDevice = rhiDevice->GetRenderDevice();
-
-        Ptr<Dg::ITexture> texture;
-        renderDevice->CreateTexture(desc, initData, &texture);
-        m_Storage.get().DeclareResource(id, texture);
-
-        return texture;
+        m_Storage.get().DeclareResource(id, initData, desc);
     }
 
     //
-
-    Dg::IBuffer* Resolver::GetBuffer(
-        const ResourceId& id) const
-    {
-        Dg::IBuffer* buffer = nullptr;
-        if (auto resource = m_Storage.get().GetResource(id))
-        {
-            buffer = resource->AsBuffer();
-        }
-        return buffer;
-    }
-
-    Dg::ITexture* Resolver::GetTexture(
-        const ResourceId& id) const
-    {
-        Dg::ITexture* texture = nullptr;
-        if (auto resource = m_Storage.get().GetResource(id))
-        {
-            texture = resource->AsTexture();
-        }
-        return texture;
-    }
 
     IObject* Resolver::GetUserData(
         const ResourceId& id) const
@@ -122,34 +86,22 @@ namespace Ame::Rg
         m_Storage.get().SetUserData(id, userData);
     }
 
-    Dg::IBuffer* Resolver::WriteBuffer(
-        const ResourceId& id)
-    {
-        WriteResource(id);
-        return m_Storage.get().GetResource(id)->AsBuffer();
-    }
-
-    Dg::IBufferView* Resolver::WriteBuffer(
+    ResourceViewId Resolver::WriteBuffer(
         const ResourceId&             id,
+        Dg::BIND_FLAGS                bindFlags,
         const BufferResourceViewDesc& viewDesc)
     {
         WriteResource(id);
-        return m_Storage.get().DeclareBufferView(id, viewDesc);
+        return DeclareView(id, bindFlags, viewDesc);
     }
 
-    Dg::ITexture* Resolver::WriteTexture(
-        const ResourceId& id)
-    {
-        WriteResource(id);
-        return m_Storage.get().GetResource(id)->AsTexture();
-    }
-
-    Dg::ITextureView* Resolver::WriteTexture(
+    ResourceViewId Resolver::WriteTexture(
         const ResourceId&              id,
+        Dg::BIND_FLAGS                 bindFlags,
         const TextureResourceViewDesc& viewDesc)
     {
         WriteResource(id);
-        return m_Storage.get().DeclareTextureView(id, viewDesc);
+        return DeclareView(id, bindFlags, viewDesc);
     }
 
     //
@@ -161,41 +113,60 @@ namespace Ame::Rg
         m_ResourcesRead.emplace(id);
     }
 
-    IObject* Resolver::ReadUserData(
+    void Resolver::ReadUserData(
         const ResourceId& id)
     {
         AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsUserData(id), "UserData '{}' doesn't exists", id.GetName());
         m_ResourcesRead.emplace(id);
-        return m_Storage.get().GetUserData(id);
     }
 
-    Dg::IBuffer* Resolver::ReadBuffer(
-        const ResourceId& id)
-    {
-        ReadResource(id);
-        return m_Storage.get().GetResource(id)->AsBuffer();
-    }
-
-    Dg::IBufferView* Resolver::ReadBuffer(
+    ResourceViewId Resolver::ReadBuffer(
         const ResourceId&             id,
+        Dg::BIND_FLAGS                bindFlags,
         const BufferResourceViewDesc& viewDesc)
     {
         ReadResource(id);
-        return m_Storage.get().DeclareBufferView(id, viewDesc);
+        return DeclareView(id, bindFlags, viewDesc);
     }
 
-    Dg::ITexture* Resolver::ReadTexture(
-        const ResourceId& id)
-    {
-        ReadResource(id);
-        return m_Storage.get().GetResource(id)->AsTexture();
-    }
-
-    Dg::ITextureView* Resolver::ReadTexture(
+    ResourceViewId Resolver::ReadTexture(
         const ResourceId&              id,
+        Dg::BIND_FLAGS                 bindFlags,
         const TextureResourceViewDesc& viewDesc)
     {
         ReadResource(id);
-        return m_Storage.get().DeclareTextureView(id, viewDesc);
+        return DeclareView(id, bindFlags, viewDesc);
+    }
+
+    //
+
+    ResourceViewId Resolver::DeclareView(
+        const ResourceId&             id,
+        Dg::BIND_FLAGS                bindFlags,
+        const BufferResourceViewDesc& viewDesc)
+    {
+        auto viewId = m_Storage.get().DeclareBufferView(id, viewDesc);
+        auto handle = m_Storage.get().GetResourceMut(id);
+        if (!handle->IsImported())
+        {
+            auto& bufferDesc = m_Storage.get().GetResourceMut(id)->GetBufferDesc();
+            bufferDesc.BindFlags |= bindFlags;
+        }
+        return viewId;
+    }
+
+    ResourceViewId Resolver::DeclareView(
+        const ResourceId&              id,
+        Dg::BIND_FLAGS                 bindFlags,
+        const TextureResourceViewDesc& viewDesc)
+    {
+        auto viewId = m_Storage.get().DeclareTextureView(id, viewDesc);
+        auto handle = m_Storage.get().GetResourceMut(id);
+        if (!handle->IsImported())
+        {
+            auto& textureDesc = m_Storage.get().GetResourceMut(id)->GetTextureDesc();
+            textureDesc.BindFlags |= bindFlags;
+        }
+        return viewId;
     }
 } // namespace Ame::Rg

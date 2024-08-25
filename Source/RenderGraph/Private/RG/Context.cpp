@@ -17,6 +17,7 @@ namespace Ame::Rg
     void Context::Execute(
         Dg::IDeviceContext* context)
     {
+        GetStorage().UpdateResources();
         for (auto& level : m_Levels)
         {
             level.Execute(*this, context);

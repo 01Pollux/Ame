@@ -9,7 +9,7 @@
 #include <Core/String.hpp>
 #include <Math/Colors.hpp>
 
-#include <Rhi/Core.hpp>
+#include <Rhi/Utils/InitData.hpp>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/TextureView.h>
 #include <DiligentCore/Graphics/GraphicsEngine/interface/BufferView.h>
 

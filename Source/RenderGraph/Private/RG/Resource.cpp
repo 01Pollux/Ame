@@ -5,69 +5,41 @@
 
 namespace Ame::Rg
 {
-    void ResourceId::Validate(
-        const ResourceId& id)
+    bool ResourceHandle::IsImported() const noexcept
     {
-#ifndef AME_DIST
-        AME_LOG_ASSERT(Log::Gfx(), static_cast<bool>(id) && !id.m_Name.empty(), "Invalid resource id");
-#endif
+        return m_IsImported;
     }
 
     //
 
     void ResourceHandle::Import(
-        const ResourceId& id,
-        RhiResource       resource)
+        Dg::IBuffer* resource)
     {
-        m_Resource   = std::move(resource);
-        m_IsImported = true;
+        m_Handle     = BufferHandle{ { Ptr{ resource }, {}, resource->GetDesc() } };
+        m_IsImported = false;
+    }
 
-        InitializeViewMap();
-
-#ifndef AME_DIST
-        m_Name = id.GetName();
-#endif
+    void ResourceHandle::Import(
+        Dg::ITexture* resource)
+    {
+        m_Handle     = TextureHandle{ Ptr{ resource }, {}, resource->GetDesc() };
+        m_IsImported = false;
     }
 
     void ResourceHandle::SetLocal(
-        const ResourceId& id,
-        RhiResource       resource)
+        Rhi::BufferInitData*  initData,
+        const Dg::BufferDesc& desc)
     {
-        m_Resource   = std::move(resource);
+        m_Handle     = BufferHandle{ { {}, Ptr{ initData }, desc } };
         m_IsImported = false;
-
-        InitializeViewMap();
-
-#ifndef AME_DIST
-        m_Name = id.GetName();
-#endif
     }
 
-    //
-
-    const RhiResource& ResourceHandle::Get() const noexcept
+    void ResourceHandle::SetLocal(
+        Rhi::TextureInitData*  initData,
+        const Dg::TextureDesc& desc)
     {
-        return m_Resource;
-    }
-
-    Dg::ITexture* ResourceHandle::AsTexture() const noexcept
-    {
-        Dg::ITexture* texture = nullptr;
-        if (auto resource = std::get_if<Ptr<Dg::ITexture>>(&m_Resource))
-        {
-            texture = *resource;
-        }
-        return texture;
-    }
-
-    Dg::IBuffer* ResourceHandle::AsBuffer() const noexcept
-    {
-        Dg::IBuffer* buffer = nullptr;
-        if (auto resource = std::get_if<Ptr<Dg::IBuffer>>(&m_Resource))
-        {
-            buffer = *resource;
-        }
-        return buffer;
+        m_Handle     = TextureHandle{ { {}, Ptr{ initData }, desc } };
+        m_IsImported = false;
     }
 
     //
@@ -77,11 +49,11 @@ namespace Ame::Rg
     {
         return std::visit(
             VariantVisitor{
-                [](Dg::BUFFER_VIEW_TYPE type)
+                [](Dg::BUFFER_VIEW_TYPE type) -> size_t
                 {
                     return static_cast<size_t>(type);
                 },
-                [](const Dg::BufferViewDesc& desc)
+                [](const Dg::BufferViewDesc& desc) -> size_t
                 {
                     return Dg::ComputeHash(
                         desc.ViewType,
@@ -97,11 +69,11 @@ namespace Ame::Rg
     {
         return std::visit(
             VariantVisitor{
-                [](Dg::TEXTURE_VIEW_TYPE type)
+                [](Dg::TEXTURE_VIEW_TYPE type) -> size_t
                 {
                     return static_cast<size_t>(type);
                 },
-                [](const auto& desc)
+                [](const auto& desc) -> size_t
                 {
                     using viewType = std::decay_t<decltype(desc)>;
                     return Dg::ComputeHash(static_cast<const Dg::TextureViewDesc&>(desc));
@@ -109,86 +81,131 @@ namespace Ame::Rg
             viewDesc);
     }
 
-    Dg::IBufferView* ResourceHandle::LoadView(
+    //
+
+    size_t ResourceHandle::CreateView(
         const BufferResourceViewDesc& viewDesc)
     {
-        size_t viewHash = ComputeViewHash(viewDesc);
+        size_t viewId = ComputeViewHash(viewDesc);
 
-        Log::Gfx().Assert(std::holds_alternative<Ptr<Dg::IBuffer>>(m_Resource), "Resource is not a buffer");
-        auto& viewMap = std::get<RhiBufferViewMap>(m_Views);
-        auto& buffer  = std::get<Ptr<Dg::IBuffer>>(m_Resource);
-
-        auto& view = viewMap[viewHash];
-        if (!view)
+        Log::Gfx().Assert(std::holds_alternative<BufferHandle>(m_Handle), "Resource is not a buffer");
+        auto& bufferHandle = std::get<BufferHandle>(m_Handle);
+        if (!bufferHandle.Views.contains(viewId))
         {
-            std::visit(
-                VariantVisitor{
-                    [&](Dg::BUFFER_VIEW_TYPE type)
-                    {
-                        view = buffer->GetDefaultView(type);
-                    },
-                    [&](const Dg::BufferViewDesc& desc)
-                    {
-                        buffer->CreateView(desc, &view);
-                    } },
-                viewDesc);
+            bufferHandle.Views.emplace(viewId, BufferResourceView{ {}, viewDesc });
         }
-        return view;
+
+        return viewId;
     }
 
-    Dg::ITextureView* ResourceHandle::LoadView(
+    size_t ResourceHandle::CreateView(
         const TextureResourceViewDesc& viewDesc)
     {
-        size_t viewHash = ComputeViewHash(viewDesc);
+        size_t viewId = ComputeViewHash(viewDesc);
 
-        Log::Gfx().Assert(std::holds_alternative<Ptr<Dg::ITexture>>(m_Resource), "Resource is not a texture");
-        auto& viewMap = std::get<RhiTextureViewMap>(m_Views);
-        auto& texture = std::get<Ptr<Dg::ITexture>>(m_Resource);
-
-        auto& view = viewMap[viewHash];
-        if (!view)
+        Log::Gfx().Assert(std::holds_alternative<TextureHandle>(m_Handle), "Resource is not a texture");
+        auto& textureHandle = std::get<TextureHandle>(m_Handle);
+        if (!textureHandle.Views.contains(viewId))
         {
-            std::visit(
-                VariantVisitor{
-                    [&](Dg::TEXTURE_VIEW_TYPE type)
-                    {
-                        view = texture->GetDefaultView(type);
-                    },
-                    [&](const auto& desc)
-                    {
-                        Dg::TextureViewDesc viewDesc = desc;
-                        viewDesc.Name                = m_Name.c_str();
-                        texture->CreateView(viewDesc, &view);
-                    } },
-                viewDesc);
+            textureHandle.Views.emplace(viewId, TextureResourceView{ {}, viewDesc });
         }
-        return view;
+
+        return viewId;
     }
 
     //
 
-    bool ResourceHandle::IsImported() const noexcept
+    void ResourceHandle::Reallocate(
+        Dg::IRenderDevice* renderDevice)
     {
-        return m_IsImported;
+        std::visit(
+            VariantVisitor{
+                [&](auto& handle)
+                {
+                    if (!IsImported())
+                    {
+                        using descType = std::decay_t<decltype(handle.Desc)>;
+                        if (!handle.Resource || handle.Resource->GetDesc() != handle.Desc)
+                        {
+#ifndef AME_DIST
+                            handle.Desc.Name = m_Name.c_str();
+#endif
+                            handle.Resource.Release();
+                            if constexpr (std::is_same_v<descType, Dg::TextureDesc>)
+                            {
+                                if (handle.InitData)
+                                {
+                                    auto initData = handle.InitData->GetInitData();
+                                    renderDevice->CreateTexture(handle.Desc, &initData, &handle.Resource);
+                                }
+                                else
+                                {
+                                    renderDevice->CreateTexture(handle.Desc, nullptr, &handle.Resource);
+                                }
+                            }
+                            else
+                            {
+                                if (handle.InitData)
+                                {
+                                    auto initData = handle.InitData->GetInitData();
+                                    renderDevice->CreateBuffer(handle.Desc, &initData, &handle.Resource);
+                                }
+                                else
+                                {
+                                    renderDevice->CreateBuffer(handle.Desc, nullptr, &handle.Resource);
+                                }
+                            }
+                        }
+                    }
+
+                    RecreateViewsIfNeeded(handle);
+                } },
+            m_Handle);
     }
 
     //
 
-    void ResourceHandle::InitializeViewMap()
+    void ResourceHandle::RecreateViewsIfNeeded(
+        BufferHandle& handle)
     {
-        if (m_Views.index() != m_Resource.index())
+        for (auto& viewHandle : handle.Views | std::views::values)
         {
-            std::visit(
-                VariantVisitor{
-                    [&](const Ptr<Dg::IBuffer>&)
-                    {
-                        m_Views = RhiBufferViewMap{};
-                    },
-                    [&](const Ptr<Dg::ITexture>&)
-                    {
-                        m_Views = RhiTextureViewMap{};
-                    } },
-                m_Resource);
+            if (!viewHandle.View) [[unlikely]]
+            {
+                std::visit(
+                    VariantVisitor{
+                        [&](Dg::BUFFER_VIEW_TYPE type)
+                        {
+                            viewHandle.View = handle.Resource->GetDefaultView(type);
+                        },
+                        [&](const Dg::BufferViewDesc& desc)
+                        {
+                            handle.Resource->CreateView(desc, &viewHandle.View);
+                        } },
+                    viewHandle.Desc);
+            }
+        }
+    }
+
+    void ResourceHandle::RecreateViewsIfNeeded(
+        TextureHandle& handle)
+    {
+        for (auto& viewHandle : handle.Views | std::views::values)
+        {
+            if (!viewHandle.View) [[unlikely]]
+            {
+                std::visit(
+                    VariantVisitor{
+                        [&](Dg::TEXTURE_VIEW_TYPE type)
+                        {
+                            viewHandle.View = handle.Resource->GetDefaultView(type);
+                        },
+                        [&](const auto& desc)
+                        {
+                            handle.Resource->CreateView(static_cast<const Dg::TextureViewDesc&>(desc), &viewHandle.View);
+                        } },
+                    viewHandle.Desc);
+            }
         }
     }
 } // namespace Ame::Rg

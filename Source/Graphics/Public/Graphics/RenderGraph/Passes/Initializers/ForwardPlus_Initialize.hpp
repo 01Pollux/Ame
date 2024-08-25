@@ -10,7 +10,7 @@ namespace Ame::Gfx
     public:
         struct PassData
         {
-            Dg::ITextureView* FinalImageView = nullptr;
+            Rg::ResourceViewId FinalImageViewId;
         };
 
     public:

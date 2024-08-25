@@ -19,15 +19,12 @@ namespace Ame::Rg
         [[nodiscard]] const Dg::TextureDesc& GetBackbufferDesc() const;
 
     public:
-        void          ImportBuffer(const ResourceId& id, Dg::IBuffer* buffer);
-        void          ImportTexture(const ResourceId& id, Dg::ITexture* texture);
-        Dg::IBuffer*  CreateBuffer(const ResourceId& id, const Dg::BufferData* initData, const Dg::BufferDesc& desc);
-        Dg::ITexture* CreateTexture(const ResourceId& id, const Dg::TextureData* initData, const Dg::TextureDesc& desc);
+        void ImportBuffer(const ResourceId& id, Dg::IBuffer* buffer);
+        void ImportTexture(const ResourceId& id, Dg::ITexture* texture);
+        void CreateBuffer(const ResourceId& id, Rhi::BufferInitData* initData, const Dg::BufferDesc& desc);
+        void CreateTexture(const ResourceId& id, Rhi::TextureInitData* initData, const Dg::TextureDesc& desc);
 
     public:
-        [[nodiscard]] Dg::IBuffer*  GetBuffer(const ResourceId& id) const;
-        [[nodiscard]] Dg::ITexture* GetTexture(const ResourceId& id) const;
-
         [[nodiscard]] IObject* GetUserData(const ResourceId& id) const;
         template<typename Ty>
         [[nodiscard]] Ptr<Ty> GetUserData(const ResourceId& id, const UId& iid) const
@@ -37,26 +34,20 @@ namespace Ame::Rg
         }
 
     public:
-        void              WriteResource(const ResourceId& id);
-        void              SetUserData(const ResourceId& id, IObject* userData);
-        Dg::IBuffer*      WriteBuffer(const ResourceId& id);
-        Dg::IBufferView*  WriteBuffer(const ResourceId& id, const BufferResourceViewDesc& viewDesc);
-        Dg::ITexture*     WriteTexture(const ResourceId& id);
-        Dg::ITextureView* WriteTexture(const ResourceId& id, const TextureResourceViewDesc& viewDesc);
+        void           WriteResource(const ResourceId& id);
+        void           SetUserData(const ResourceId& id, IObject* userData);
+        ResourceViewId WriteBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);
+        ResourceViewId WriteTexture(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const TextureResourceViewDesc& viewDesc);
 
     public:
-        void              ReadResource(const ResourceId& id);
-        IObject*          ReadUserData(const ResourceId& id);
-        Dg::IBuffer*      ReadBuffer(const ResourceId& id);
-        Dg::IBufferView*  ReadBuffer(const ResourceId& id, const BufferResourceViewDesc& viewDesc);
-        Dg::ITexture*     ReadTexture(const ResourceId& id);
-        Dg::ITextureView* ReadTexture(const ResourceId& id, const TextureResourceViewDesc& viewDesc);
+        void           ReadResource(const ResourceId& id);
+        void           ReadUserData(const ResourceId& id);
+        ResourceViewId ReadBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);
+        ResourceViewId ReadTexture(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const TextureResourceViewDesc& viewDesc);
 
-        template<typename Ty>
-        [[nodiscard]] Ptr<Ty> ReadUserData(const ResourceId& id, const UId& iid)
-        {
-            return { ReadUserData(id), iid };
-        }
+    private:
+        ResourceViewId DeclareView(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);
+        ResourceViewId DeclareView(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const TextureResourceViewDesc& viewDesc);
 
     private:
         Ref<ResourceStorage> m_Storage;
