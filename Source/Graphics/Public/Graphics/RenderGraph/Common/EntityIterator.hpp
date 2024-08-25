@@ -17,9 +17,11 @@ namespace Ame::Gfx
     public:
         EntityDrawCommandListIterator(
             const EntityDrawCommandList& list,
+            DrawInstanceType             instancesType,
             uint32_t                     commandOffset) :
             m_DrawCommandList(list),
-            m_CommandOffset(commandOffset)
+            m_CommandOffset(commandOffset),
+            m_InstancesType(instancesType)
         {
         }
 
@@ -33,9 +35,15 @@ namespace Ame::Gfx
             }
         }
 
+        [[nodiscard]] DrawInstanceType GetType() const noexcept
+        {
+            return m_InstancesType;
+        }
+
     private:
         CRef<EntityDrawCommandList> m_DrawCommandList;
         uint32_t                    m_CommandOffset;
+        DrawInstanceType            m_InstancesType;
     };
 
     class EntityDrawCommandsCategoryIterator
@@ -50,9 +58,11 @@ namespace Ame::Gfx
         [[nodiscard]] Co::generator<EntityDrawCommandListIterator> GetGroups() const
         {
             uint32_t commandOffset = 0;
+
+            int i = 0;
             for (auto& list : m_DrawCategories.get())
             {
-                co_yield EntityDrawCommandListIterator(list, commandOffset);
+                co_yield EntityDrawCommandListIterator(list, static_cast<DrawInstanceType>(i), commandOffset);
                 commandOffset += static_cast<uint32_t>(list.size());
             }
         }

@@ -3,6 +3,7 @@
 #include <Rg/Pass.hpp>
 #include <Graphics/RenderGraph/Common/Names.hpp>
 #include <Shading/Technique.hpp>
+#include <Graphics/RenderGraph/Passes/Helpers/StdRenderObjects.hpp>
 
 namespace Ame::Ecs
 {
@@ -18,7 +19,10 @@ namespace Ame::Gfx
 
         struct PassData
         {
-            Dg::ITextureView* DepthView = nullptr;
+            Dg::ITextureView*           DepthView = nullptr;
+            Dg::IShaderResourceBinding* Srbs[2]{};          // _FRS_Graphics, _ERS_Graphics
+            Dg::IShaderResourceBinding* LightSrb = nullptr; // _LRS_Graphics
+            StdLightDrawPropCategories  LightDrawProps;
         };
 
     public:
@@ -27,8 +31,7 @@ namespace Ame::Gfx
 
     private:
         void TryCreateResources(
-            const Rg::ResourceStorage&  storage,
-            Dg::IShaderResourceBinding* srb);
+            const Rg::ResourceStorage& storage);
 
         void OnBuild(
             Rg::Resolver& resolver);

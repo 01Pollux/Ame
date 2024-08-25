@@ -117,6 +117,9 @@ namespace Ame::Gfx
         m_PassData.LightHeads_Transparent = resolver.WriteTexture(c_RGLightHeads_Transparent, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
         m_PassData.LightHeads_Opaque      = resolver.WriteTexture(c_RGLightHeads_Opaque, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
 
+        m_PassData.Srbs[0] = resolver.ReadUserData<Dg::IShaderResourceBinding>(c_RGFrameDataResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+        m_PassData.Srbs[1] = resolver.ReadUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+
         //
 
         TryCreateResources(resolver.GetDevice());
@@ -138,13 +141,14 @@ namespace Ame::Gfx
     }
 
     void ComputeLightCullPass::OnExecute(
-        const Rg::ResourceStorage& storage,
-        Dg::IDeviceContext*        deviceContext)
+        const Rg::ResourceStorage&,
+        Dg::IDeviceContext* deviceContext)
     {
-        auto ersSrb = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Compute, Dg::IID_ShaderResourceBinding);
-
         deviceContext->SetPipelineState(m_PipelineState);
-        deviceContext->CommitShaderResources(ersSrb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        for (auto srb : m_PassData.Srbs)
+        {
+            deviceContext->CommitShaderResources(srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        }
         deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         Dg::DispatchComputeAttribs attrib{

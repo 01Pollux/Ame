@@ -41,6 +41,8 @@ namespace Ame::Gfx
 #ifndef AME_DIST
             Dg::ITextureView* DebugTexture = nullptr;
 #endif
+
+            Dg::IShaderResourceBinding* Srbs[2]{}; // _FRS_Graphics, _ERS_Graphics
         };
 
         struct ShaderData

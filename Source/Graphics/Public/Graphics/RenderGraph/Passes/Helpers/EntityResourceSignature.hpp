@@ -2,11 +2,12 @@
 
 #include <Rg/Pass.hpp>
 #include <Rhi/Utils/SRBBinder.hpp>
+#include <Graphics/RenderGraph/Common/Names.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 
 namespace Ame::Gfx
 {
-    template<typename Ty, Dg::SHADER_TYPE ShaderFlags, bool WithSamplers = true>
+    template<typename Ty, Dg::SHADER_TYPE ShaderFlags>
     class EntityResourceSignaturePass : public Rg::Pass
     {
     public:
@@ -35,18 +36,10 @@ namespace Ame::Gfx
             const Rg::ResourceStorage& storage,
             Dg::IDeviceContext*)
         {
-            auto frameData       = storage.GetResource(c_RGFrameData)->AsBuffer();
             auto transforms      = storage.GetResource(c_RGTransformTable)->AsBuffer();
             auto renderInstances = storage.GetResource(c_RGRenderInstanceTable)->AsBuffer();
             auto lightInstances  = storage.GetResource(c_RGLightInstanceTable)->AsBuffer();
 
-            if (!m_StaticInitialized)
-            {
-                m_StaticInitialized = true;
-                auto signature      = m_Srb->GetPipelineResourceSignature();
-                Rhi::BindAllStaticInSignature(signature, ShaderFlags, "FrameDataBuffer", frameData);
-                signature->InitializeStaticSRBResources(m_Srb);
-            }
             Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllTransforms", transforms->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
             Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllRenderInstances", renderInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
             Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllLightInstances", lightInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
@@ -57,22 +50,9 @@ namespace Ame::Gfx
             Dg::IRenderDevice* renderDevice)
         {
             constexpr std::array resources{
-                Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "AllTransforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "AllRenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
                 Dg::PipelineResourceDesc{ ShaderFlags, "AllLightInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-            };
-
-            constexpr std::array c_SamplersTemplate{
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearClamp", Dg::Sam_LinearClamp },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_PointClamp", Dg::Sam_PointClamp },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearMirror", Dg::Sam_LinearMirror },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_PointWrap", Dg::Sam_PointWrap },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_LinearWrap", Dg::Sam_LinearWrap },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso2xClamp", Dg::Sam_Aniso2xClamp },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xClamp", Dg::Sam_Aniso4xClamp },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso2xWrap", Dg::Sam_Aniso2xWrap },
-                Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xWrap", Dg::Sam_Aniso4xWrap },
             };
 
             Dg::PipelineResourceSignatureDesc desc{
@@ -80,12 +60,6 @@ namespace Ame::Gfx
                 .NumResources = Rhi::Count32(resources),
                 .BindingIndex = 1
             };
-
-            if constexpr (WithSamplers)
-            {
-                desc.ImmutableSamplers    = c_SamplersTemplate.data();
-                desc.NumImmutableSamplers = Rhi::Count32(c_SamplersTemplate);
-            }
 
             Ptr<Dg::IPipelineResourceSignature> signature;
             renderDevice->CreatePipelineResourceSignature(desc, &signature);

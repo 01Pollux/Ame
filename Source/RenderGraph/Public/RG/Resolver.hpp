@@ -32,8 +32,8 @@ namespace Ame::Rg
         template<typename Ty>
         [[nodiscard]] Ptr<Ty> GetUserData(const ResourceId& id, const UId& iid) const
         {
-            auto userdata = co_await GetUserData(id);
-            co_return { userdata, iid };
+            auto userdata = GetUserData(id);
+            return { userdata, iid };
         }
 
     public:
@@ -51,6 +51,12 @@ namespace Ame::Rg
         Dg::IBufferView*  ReadBuffer(const ResourceId& id, const BufferResourceViewDesc& viewDesc);
         Dg::ITexture*     ReadTexture(const ResourceId& id);
         Dg::ITextureView* ReadTexture(const ResourceId& id, const TextureResourceViewDesc& viewDesc);
+
+        template<typename Ty>
+        [[nodiscard]] Ptr<Ty> ReadUserData(const ResourceId& id, const UId& iid)
+        {
+            return { ReadUserData(id), iid };
+        }
 
     private:
         Ref<ResourceStorage> m_Storage;
