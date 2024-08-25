@@ -16,15 +16,49 @@ namespace Ame::Gfx
 
     //
 
-    void ComputeLightCullPass::TryCreateResources(
-        Rhi::IRhiDevice* rhiDevice)
+    void ComputeLightCullPass::BindResourcesOnce(
+        const Rg::ResourceStorage& storage)
+    {
+        if (m_PassData)
+        {
+            return;
+        }
+
+        auto lightId = storage.GetBufferView(m_PassData.LightIds);
+
+        auto lightIndices_Transparent = storage.GetBufferView(m_PassData.LightIndices_Transparent);
+        auto lightIndices_Opaque      = storage.GetBufferView(m_PassData.LightIndices_Opaque);
+
+        auto lightHeads_Transparent = storage.GetTextureView(m_PassData.LightHeads_Transparent);
+        auto lightHeads_Opaque      = storage.GetTextureView(m_PassData.LightHeads_Opaque);
+
+        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightIndices)->Set(lightId);
+        // m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_DepthView)->Set(m_PassData.DepthView);
+
+        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightIndices_Transparent)->Set(lightIndices_Transparent);
+        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightIndices_Opaque)->Set(lightIndices_Opaque);
+
+        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightHeads_Transparent)->Set(lightHeads_Transparent);
+        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightHeads_Opaque)->Set(lightHeads_Opaque);
+
+#ifndef AME_DIST
+        auto debugTexture = storage.GetTextureView(m_PassData.DebugTexture);
+        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightDebugTexture)->Set(debugTexture);
+#endif
+
+        m_PassData.Srbs[0] = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGFrameDataResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+        m_PassData.Srbs[1] = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+    }
+
+    void ComputeLightCullPass::CreateResourcesOnce(
+        const Rg::ResourceStorage& storage)
     {
         if (m_PipelineState)
         {
             return;
         }
 
-        Rhi::RenderDeviceWithCache<> device(rhiDevice);
+        Rhi::RenderDeviceWithCache<> device(storage.GetDevice());
 
         Dg::ComputePipelineStateCreateInfo computeDesc{
 #ifndef AME_DIST
@@ -101,49 +135,39 @@ namespace Ame::Gfx
         debugTextureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_UNORDERED_ACCESS;
 
         resolver.CreateTexture(c_RGLightDebugTextures, nullptr, debugTextureDesc);
-        m_PassData.DebugTexture = resolver.WriteTexture(c_RGLightDebugTextures, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
+        m_PassData.DebugTexture = resolver.WriteTexture(c_RGLightDebugTextures, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
 #endif
 
         //
 
         resolver.ReadUserData(c_RGEntityResourceSignature_Compute);
 
-        m_PassData.LightIds  = resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BUFFER_VIEW_SHADER_RESOURCE);
-        m_PassData.DepthView = resolver.ReadTexture(c_RGDepthImage, Dg::TEXTURE_VIEW_READ_ONLY_DEPTH_STENCIL);
+        m_PassData.LightIds  = resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
+        m_PassData.DepthView = resolver.ReadTexture(c_RGDepthImage, Dg::BIND_SHADER_RESOURCE, Dg::TEXTURE_VIEW_READ_ONLY_DEPTH_STENCIL);
 
-        m_PassData.LightIndices_Transparent = resolver.WriteBuffer(c_RGLightIndices_Transparent, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
-        m_PassData.LightIndices_Opaque      = resolver.WriteBuffer(c_RGLightIndices_Opaque, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightIndices_Transparent = resolver.WriteBuffer(c_RGLightIndices_Transparent, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightIndices_Opaque      = resolver.WriteBuffer(c_RGLightIndices_Opaque, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
 
-        m_PassData.LightHeads_Transparent = resolver.WriteTexture(c_RGLightHeads_Transparent, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
-        m_PassData.LightHeads_Opaque      = resolver.WriteTexture(c_RGLightHeads_Opaque, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightHeads_Transparent = resolver.WriteTexture(c_RGLightHeads_Transparent, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightHeads_Opaque      = resolver.WriteTexture(c_RGLightHeads_Opaque, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
 
-        m_PassData.Srbs[0] = resolver.ReadUserData<Dg::IShaderResourceBinding>(c_RGFrameDataResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
-        m_PassData.Srbs[1] = resolver.ReadUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
-
-        //
-
-        TryCreateResources(resolver.GetDevice());
+        resolver.ReadUserData(c_RGFrameDataResourceSignature_Graphics);
+        resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
 
         //
 
-        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightIndices)->Set(m_PassData.LightIds);
-        // m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_DepthView)->Set(m_PassData.DepthView);
-
-        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightIndices_Transparent)->Set(m_PassData.LightIndices_Transparent);
-        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightIndices_Opaque)->Set(m_PassData.LightIndices_Opaque);
-
-        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightHeads_Transparent)->Set(m_PassData.LightHeads_Transparent);
-        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightHeads_Opaque)->Set(m_PassData.LightHeads_Opaque);
-
-#ifndef AME_DIST
-        m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightDebugTexture)->Set(m_PassData.DebugTexture);
-#endif
+        m_PassData.Reset();
     }
 
     void ComputeLightCullPass::OnExecute(
-        const Rg::ResourceStorage&,
-        Dg::IDeviceContext* deviceContext)
+        const Rg::ResourceStorage& storage,
+        Dg::IDeviceContext*        deviceContext)
     {
+        CreateResourcesOnce(storage);
+        BindResourcesOnce(storage);
+
+        //
+
         deviceContext->SetPipelineState(m_PipelineState);
         for (auto srb : m_PassData.Srbs)
         {

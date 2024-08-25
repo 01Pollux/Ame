@@ -24,9 +24,9 @@ namespace Ame::Gfx
         const Rg::ResourceStorage& storage,
         Dg::IDeviceContext*        deviceContext)
     {
-        auto rtv = storage.GetResource(m_PassData.FinalImageViewId);
+        auto rtv = storage.GetTextureView(m_PassData.FinalImageViewId);
 
-        deviceContext->SetRenderTargets(1, &m_PassData.FinalImageView, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        deviceContext->ClearRenderTarget(m_PassData.FinalImageView, Colors::c_DarkGray.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->SetRenderTargets(1, &rtv, nullptr, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->ClearRenderTarget(rtv, Colors::c_DarkGray.data(), Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     }
 } // namespace Ame::Gfx

@@ -11,9 +11,8 @@ bool pre_main(in ps_input psIn, out material_fragment fragment)
 	fragment.base_color = BaseColorMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
 	fragment.normal = NormalMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
 	fragment.ao = AOMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
-	fragment.specular = SpecularMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
 	fragment.emissive = EmissiveMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
-	fragment.shininess = ShininessMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
+	fragment.specular = SpecularMap.Sample(Sampler_LinearWrap, psIn.tex_coord);
 	fragment.roughness = roughness_metallic.x;
 	fragment.metallic = roughness_metallic.y;
 	fragment.height = HeightMap.Sample(Sampler_LinearWrap, psIn.tex_coord);

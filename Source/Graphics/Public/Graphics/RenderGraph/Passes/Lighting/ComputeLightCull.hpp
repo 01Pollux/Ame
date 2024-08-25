@@ -29,24 +29,30 @@ namespace Ame::Gfx
 
         struct PassData
         {
-            Dg::IBufferView*  LightIds  = nullptr;
-            Dg::ITextureView* DepthView = nullptr;
+            Rg::ResourceViewId LightIds;
+            Rg::ResourceViewId DepthView;
 
-            Dg::IBufferView* LightIndices_Transparent = nullptr;
-            Dg::IBufferView* LightIndices_Opaque      = nullptr;
+            Rg::ResourceViewId LightIndices_Transparent;
+            Rg::ResourceViewId LightIndices_Opaque;
 
-            Dg::ITextureView* LightHeads_Transparent = nullptr;
-            Dg::ITextureView* LightHeads_Opaque      = nullptr;
+            Rg::ResourceViewId LightHeads_Transparent;
+            Rg::ResourceViewId LightHeads_Opaque;
 
 #ifndef AME_DIST
-            Dg::ITextureView* DebugTexture = nullptr;
+            Rg::ResourceViewId DebugTexture;
 #endif
 
             Dg::IShaderResourceBinding* Srbs[2]{}; // _FRS_Graphics, _ERS_Graphics
-        };
 
-        struct ShaderData
-        {
+            void Reset()
+            {
+                Srbs[0] = nullptr;
+            }
+
+            operator bool() const
+            {
+                return Srbs[0] != nullptr;
+            }
         };
 
     public:
@@ -64,9 +70,10 @@ namespace Ame::Gfx
         }
 
     private:
-        void TryCreateResources(
-            Rhi::IRhiDevice* rhiDevice);
+        void BindResourcesOnce(const Rg::ResourceStorage& storage);
+        void CreateResourcesOnce(const Rg::ResourceStorage& storage);
 
+    private:
         void OnBuild(
             Rg::Resolver& resolver);
 

@@ -198,9 +198,8 @@ namespace Ame::Ecs
             TextureLoadDesc{ StdMat3DNames::BaseColorMap, aiTextureType_BASE_COLOR, Rhi::CommonTexture::DevTexture },
             TextureLoadDesc{ StdMat3DNames::NormalMap, aiTextureType_NORMALS, Rhi::CommonTexture::Black2D },
             TextureLoadDesc{ StdMat3DNames::AOMap, aiTextureType_LIGHTMAP, Rhi::CommonTexture::White2D },
-            TextureLoadDesc{ StdMat3DNames::SpecularMap, aiTextureType_SPECULAR, Rhi::CommonTexture::White2D },
             TextureLoadDesc{ StdMat3DNames::EmissiveMap, aiTextureType_EMISSIVE, Rhi::CommonTexture::Black2D },
-            TextureLoadDesc{ StdMat3DNames::ShininessMap, aiTextureType_SHININESS, Rhi::CommonTexture::Black2D },
+            TextureLoadDesc{ StdMat3DNames::SpecularMap, aiTextureType_SHININESS, Rhi::CommonTexture::Black2D },
             TextureLoadDesc{ StdMat3DNames::Roughness_MetallicMap, aiTextureType_DIFFUSE_ROUGHNESS, Rhi::CommonTexture::Black2D },
             TextureLoadDesc{ StdMat3DNames::HeightMap, aiTextureType_HEIGHT, Rhi::CommonTexture::Black2D },
         };
@@ -293,7 +292,6 @@ namespace Ame::Ecs
 
             ApplyMaterialConstant<aiColor4D>(aimaterial, material, AI_MATKEY_COLOR_DIFFUSE, StdMat3DNames::BaseColorCst, Colors::c_White);
             ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_AMBIENT, StdMat3DNames::AmbientCst, Colors::c_Black);
-            ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_SPECULAR, StdMat3DNames::SpecularCst, Colors::c_Black);
             ApplyMaterialConstant<aiColor3D>(aimaterial, material, AI_MATKEY_COLOR_EMISSIVE, StdMat3DNames::EmissiveCst, Colors::c_Black);
             ApplyMaterialConstant<float>(aimaterial, material, AI_MATKEY_SHININESS, StdMat3DNames::SpecularCst, 0.f);
             ApplyMaterialConstant<float>(aimaterial, material, AI_MATKEY_OPACITY, StdMat3DNames::TransparencyCst, 1.0f);

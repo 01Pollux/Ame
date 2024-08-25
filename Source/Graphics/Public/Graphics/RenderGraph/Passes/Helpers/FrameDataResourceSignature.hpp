@@ -14,6 +14,7 @@ namespace Ame::Gfx
         FrameDataResourceSignature()
         {
             Build(std::bind_front(&FrameDataResourceSignature::OnBuild, this));
+            Execute(std::bind_front(&FrameDataResourceSignature::OnExecute, this));
         }
 
     private:
@@ -26,12 +27,22 @@ namespace Ame::Gfx
 
                 Ptr resourceSignature = CreateResourceSignature(renderDevice);
                 resourceSignature->CreateShaderResourceBinding(&m_Srb);
-
-                Rhi::BindAllStaticInSignature(resourceSignature, ShaderFlags, "FrameDataBuffer", resolver.GetBuffer(c_RGFrameData));
-                resourceSignature->InitializeStaticSRBResources(m_Srb);
             }
 
             resolver.SetUserData(Ty::RGEntityResourceSignature, m_Srb);
+        }
+
+        void OnExecute(
+            const Rg::ResourceStorage& storage,
+            Dg::IDeviceContext*)
+        {
+            auto buffer            = storage.GetResource(c_RGFrameData)->AsBuffer();
+            auto resourceSignature = m_Srb->GetPipelineResourceSignature();
+
+            Rhi::BindAllStaticInSignature(resourceSignature, ShaderFlags, "FrameDataBuffer", buffer);
+            resourceSignature->InitializeStaticSRBResources(m_Srb);
+
+            Execute(nullptr);
         }
 
     private:

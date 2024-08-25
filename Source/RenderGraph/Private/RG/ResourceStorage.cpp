@@ -27,13 +27,13 @@ namespace Ame::Rg
     bool ResourceStorage::ContainsResource(
         const ResourceId& id) const
     {
-        return m_Resources.contains(id.GetId());
+        return m_Resources.contains(id);
     }
 
     const ResourceHandle* ResourceStorage::GetResource(
         const ResourceId& id) const
     {
-        auto iter = m_Resources.find(id.GetId());
+        auto iter = m_Resources.find(id);
         return iter != m_Resources.end() ? &iter->second : nullptr;
     }
 
@@ -41,7 +41,7 @@ namespace Ame::Rg
         const ResourceId& id)
     {
         CheckLockState(false);
-        auto iter = m_Resources.find(id.GetId());
+        auto iter = m_Resources.find(id);
         return iter != m_Resources.end() ? &iter->second : nullptr;
     }
 
@@ -51,7 +51,7 @@ namespace Ame::Rg
         ResourceViewId viewId) const
     {
         auto iter = m_Resources.find(viewId.GetResourceId());
-        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource of id '{}' doesn't exists", viewId.GetResourceId().GetId());
         return iter->second.GetBufferView(viewId.GetId());
     }
 
@@ -59,7 +59,7 @@ namespace Ame::Rg
         ResourceViewId viewId) const
     {
         auto iter = m_Resources.find(viewId.GetResourceId());
-        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource of id '{}' doesn't exists", viewId.GetResourceId().GetId());
         return iter->second.GetTextureView(viewId.GetId());
     }
 
@@ -68,7 +68,7 @@ namespace Ame::Rg
     bool ResourceStorage::ContainsUserData(
         const ResourceId& id) const
     {
-        return m_UserDatas.contains(id.GetId());
+        return m_UserDatas.contains(id);
     }
 
     void ResourceStorage::SetUserData(
@@ -76,13 +76,13 @@ namespace Ame::Rg
         IObject*          userData)
     {
         CheckLockState(false);
-        m_UserDatas[id.GetId()] = userData;
+        m_UserDatas[id] = userData;
     }
 
     IObject* ResourceStorage::GetUserData(
         const ResourceId& id) const
     {
-        auto iter = m_UserDatas.find(id.GetId());
+        auto iter = m_UserDatas.find(id);
         return iter != m_UserDatas.end() ? iter->second : nullptr;
     }
 
@@ -94,8 +94,8 @@ namespace Ame::Rg
         const Dg::BufferDesc& desc)
     {
         CheckLockState(false);
-        AME_LOG_ASSERT(Log::Gfx(), !m_Resources.contains(id.GetId()), "Resource already exists");
-        m_Resources[id.GetId()].SetLocal(initData, desc);
+        AME_LOG_ASSERT(Log::Gfx(), !m_Resources.contains(id), "Resource '{}' already exists", id.GetName());
+        m_Resources[id].SetLocal(initData, desc);
     }
 
     void ResourceStorage::DeclareResource(
@@ -104,8 +104,8 @@ namespace Ame::Rg
         const Dg::TextureDesc& desc)
     {
         CheckLockState(false);
-        AME_LOG_ASSERT(Log::Gfx(), !m_Resources.contains(id.GetId()), "Resource already exists");
-        m_Resources[id.GetId()].SetLocal(initData, desc);
+        AME_LOG_ASSERT(Log::Gfx(), !m_Resources.contains(id), "Resource '{}' already exists", id.GetName());
+        m_Resources[id].SetLocal(initData, desc);
     }
 
     //
@@ -116,7 +116,7 @@ namespace Ame::Rg
     {
         CheckLockState(false);
 
-        m_Resources[id.GetId()].Import(buffer);
+        m_Resources[id].Import(buffer);
     }
 
     void ResourceStorage::ImportTexture(
@@ -124,7 +124,7 @@ namespace Ame::Rg
         Dg::ITexture*     texture)
     {
         CheckLockState(false);
-        m_Resources[id.GetId()].Import(texture);
+        m_Resources[id].Import(texture);
     }
 
     void ResourceStorage::DiscardResource(
@@ -132,9 +132,9 @@ namespace Ame::Rg
     {
         CheckLockState(false);
 
-        auto& resource = m_Resources.at(id.GetId());
-        AME_LOG_ASSERT(Log::Gfx(), resource.IsImported(), "Resource is not imported");
-        m_Resources.erase(id.GetId());
+        auto& resource = m_Resources.at(id);
+        AME_LOG_ASSERT(Log::Gfx(), resource.IsImported(), "Resource '{}' is not imported", id.GetName());
+        m_Resources.erase(id);
 
         SetRebuildState(true);
     }
@@ -164,8 +164,8 @@ namespace Ame::Rg
     {
         CheckLockState(false);
 
-        auto iter = m_Resources.find(id.GetId());
-        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        auto iter = m_Resources.find(id);
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource '{}' doesn't exists", id.GetName());
         return ResourceViewId(id, iter->second.CreateView(desc));
     }
 
@@ -175,8 +175,8 @@ namespace Ame::Rg
     {
         CheckLockState(false);
 
-        auto iter = m_Resources.find(id.GetId());
-        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource doesn't exists");
+        auto iter = m_Resources.find(id);
+        AME_LOG_ASSERT(Log::Gfx(), iter != m_Resources.end(), "Resource '{}' doesn't exists", id.GetName());
         return ResourceViewId(id, iter->second.CreateView(desc));
     }
 

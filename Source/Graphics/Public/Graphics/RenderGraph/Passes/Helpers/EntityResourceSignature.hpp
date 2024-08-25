@@ -58,7 +58,7 @@ namespace Ame::Gfx
             Dg::PipelineResourceSignatureDesc desc{
                 .Resources    = resources.data(),
                 .NumResources = Rhi::Count32(resources),
-                .BindingIndex = 1
+                .BindingIndex = 2
             };
 
             Ptr<Dg::IPipelineResourceSignature> signature;

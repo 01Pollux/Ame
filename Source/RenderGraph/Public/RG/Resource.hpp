@@ -50,7 +50,7 @@ namespace Ame::Rg
         auto operator<=>(
             const ResourceId& other) const noexcept
         {
-            return m_Id <=> other.m_Id;
+            return GetId() <=> other.GetId();
         }
 
         explicit operator bool() const noexcept
@@ -69,6 +69,8 @@ namespace Ame::Rg
 
     struct ResourceViewId
     {
+        static constexpr size_t c_InvalidId = std::numeric_limits<size_t>::max();
+
     public:
         ResourceViewId() = default;
 
@@ -83,9 +85,9 @@ namespace Ame::Rg
         /// <summary>
         /// Get resource id
         /// </summary>
-        [[nodiscard]] size_t GetResourceId() const noexcept
+        [[nodiscard]] ResourceId GetResourceId() const noexcept
         {
-            return m_ResourceId;
+            return ResourceId(m_ResourceId);
         }
 
         /// <summary>
@@ -96,9 +98,14 @@ namespace Ame::Rg
             return m_ViewId;
         }
 
+        explicit operator bool() const noexcept
+        {
+            return m_ResourceId != c_InvalidId && GetId() != c_InvalidId;
+        }
+
     private:
-        size_t m_ResourceId;
-        size_t m_ViewId;
+        size_t m_ResourceId = c_InvalidId;
+        size_t m_ViewId     = c_InvalidId;
     };
 
     //
@@ -138,20 +145,22 @@ namespace Ame::Rg
 
     //
 
+    struct BufferHandle : BufferResource
+    {
+        BufferViewMap Views;
+    };
+
+    struct TextureHandle : TextureResource
+    {
+        TextureViewMap Views;
+    };
+
+    //
+
     class ResourceHandle
     {
         friend class DependencyLevel;
         friend class ResourceStorage;
-
-        struct BufferHandle : BufferResource
-        {
-            BufferViewMap Views;
-        };
-
-        struct TextureHandle : TextureResource
-        {
-            TextureViewMap Views;
-        };
 
     public:
         ResourceHandle() = default;

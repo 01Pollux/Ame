@@ -16,14 +16,14 @@ namespace Ame::Rg
         Dg::IBuffer* resource)
     {
         m_Handle     = BufferHandle{ { Ptr{ resource }, {}, resource->GetDesc() } };
-        m_IsImported = false;
+        m_IsImported = true;
     }
 
     void ResourceHandle::Import(
         Dg::ITexture* resource)
     {
         m_Handle     = TextureHandle{ Ptr{ resource }, {}, resource->GetDesc() };
-        m_IsImported = false;
+        m_IsImported = true;
     }
 
     void ResourceHandle::SetLocal(
@@ -137,6 +137,7 @@ namespace Ame::Rg
                                 {
                                     auto initData = handle.InitData->GetInitData();
                                     renderDevice->CreateTexture(handle.Desc, &initData, &handle.Resource);
+                                    handle.InitData = {};
                                 }
                                 else
                                 {
@@ -149,6 +150,7 @@ namespace Ame::Rg
                                 {
                                     auto initData = handle.InitData->GetInitData();
                                     renderDevice->CreateBuffer(handle.Desc, &initData, &handle.Resource);
+                                    handle.InitData = {};
                                 }
                                 else
                                 {

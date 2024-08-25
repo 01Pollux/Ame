@@ -19,10 +19,18 @@ namespace Ame::Gfx
 
         struct PassData
         {
-            Dg::ITextureView*           DepthView = nullptr;
-            Dg::IShaderResourceBinding* Srbs[2]{};          // _FRS_Graphics, _ERS_Graphics
-            Dg::IShaderResourceBinding* LightSrb = nullptr; // _LRS_Graphics
-            StdLightDrawPropCategories  LightDrawProps;
+            Rg::ResourceViewId          DepthView;
+            Dg::IShaderResourceBinding* Srbs[2]{}; // _FRS_Graphics, _ERS_Graphics
+
+            void Reset()
+            {
+                Srbs[0] = nullptr;
+            }
+
+            operator bool() const
+            {
+                return Srbs[0] != nullptr;
+            }
         };
 
     public:
@@ -30,9 +38,10 @@ namespace Ame::Gfx
             Ecs::World* world);
 
     private:
-        void TryCreateResources(
-            const Rg::ResourceStorage& storage);
+        void BindResourcesOnce(const Rg::ResourceStorage& storage);
+        void CreateResourcesOnce(const Rg::ResourceStorage& storage);
 
+    private:
         void OnBuild(
             Rg::Resolver& resolver);
 

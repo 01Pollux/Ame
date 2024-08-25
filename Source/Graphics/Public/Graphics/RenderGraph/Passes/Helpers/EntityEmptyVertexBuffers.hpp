@@ -39,8 +39,8 @@ namespace Ame::Gfx
             };
             // clang-format on
 
-            Dg::BufferData bufferData(c_Data, sizeof(c_Data));
-            resolver.CreateBuffer(c_RGEntityEmptyVertexBuffers, &bufferData, bufferDesc);
+            Ptr initData(Rhi::BufferInitData::Create(c_Data, sizeof(c_Data)));
+            resolver.CreateBuffer(c_RGEntityEmptyVertexBuffers, initData, bufferDesc);
         }
     };
 } // namespace Ame::Gfx

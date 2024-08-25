@@ -8,9 +8,8 @@ namespace Ame::Rhi
         UserData
             .Float4(Names::BaseColorCst)
             .Float4(Names::AmbientCst)
-            .Float4(Names::SpecularCst)
             .Float4(Names::EmissiveCst)
-            .Float(Names::ShininessCst)
+            .Float4(Names::SpecularCst)
             .Float(Names::TransparencyCst);
 
         ResourceSignature.Resources    = StdResources.data();

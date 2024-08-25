@@ -24,16 +24,25 @@ namespace Ame::Rhi
             return Ptr<BufferInitData>{ ObjectAllocator<BufferInitData>()() };
         }
 
+        static Ptr<BufferInitData> Create(
+            const void* data,
+            size_t      size)
+        {
+            auto initData  = Create();
+            initData->Data = { static_cast<const std::byte*>(data), static_cast<const std::byte*>(data) + size };
+            return initData;
+        }
+
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_BufferInitData, BaseObject)
 
-        std::vector<uint8_t> Data;
+        std::vector<std::byte> Data;
 
     public:
         [[nodiscard]] Dg::BufferData GetInitData(
             Dg::IDeviceContext* deviceContext = nullptr) const
         {
             return {
-                Data.empty() ? nullptr : Data.data(),
+                Data.empty() ? nullptr : static_cast<const void*>(Data.data()),
                 static_cast<uint32_t>(Data.size()),
                 deviceContext
             };
@@ -52,7 +61,7 @@ namespace Ame::Rhi
 
         struct LevelData
         {
-            std::vector<unsigned char> Data;
+            std::vector<std::byte> Data;
 
             Dg::TextureSubResData SubResData;
 

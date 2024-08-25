@@ -34,6 +34,10 @@ namespace Ame::Rg
         }
 
     public:
+        [[nodiscard]] const Dg::BufferDesc&  GetBufferDesc(const ResourceId& id) const;
+        [[nodiscard]] const Dg::TextureDesc& GetTextureDesc(const ResourceId& id) const;
+
+    public:
         void           WriteResource(const ResourceId& id);
         void           SetUserData(const ResourceId& id, IObject* userData);
         ResourceViewId WriteBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);

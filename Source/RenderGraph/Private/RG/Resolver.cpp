@@ -71,10 +71,23 @@ namespace Ame::Rg
 
     //
 
+    const Dg::BufferDesc& Resolver::GetBufferDesc(
+        const ResourceId& id) const
+    {
+        return m_Storage.get().GetResource(id)->GetBufferDesc();
+    }
+
+    const Dg::TextureDesc& Resolver::GetTextureDesc(
+        const ResourceId& id) const
+    {
+        return m_Storage.get().GetResource(id)->GetTextureDesc();
+    }
+
+    //
+
     void Resolver::WriteResource(
         const ResourceId& id)
     {
-        AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
         m_ResourcesWritten.emplace(id);
     }
 
@@ -109,14 +122,12 @@ namespace Ame::Rg
     void Resolver::ReadResource(
         const ResourceId& id)
     {
-        AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsResource(id), "Resource '{}' doesn't exists", id.GetName());
         m_ResourcesRead.emplace(id);
     }
 
     void Resolver::ReadUserData(
         const ResourceId& id)
     {
-        AME_LOG_ASSERT(Log::Gfx(), m_Storage.get().ContainsUserData(id), "UserData '{}' doesn't exists", id.GetName());
         m_ResourcesRead.emplace(id);
     }
 

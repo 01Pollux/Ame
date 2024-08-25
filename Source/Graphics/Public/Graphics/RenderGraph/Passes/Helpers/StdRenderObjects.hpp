@@ -16,7 +16,7 @@ namespace Ame::Gfx
         Dg::IShaderResourceBinding*            LightSrb = nullptr;
         Dg::IDeviceContext*                    DeviceContext;
         Rhi::MaterialTechnique*                Technique;
-        CRef<StdLightDrawPropCategories>       LightDrawProps;
+        StdLightDrawPropCategories             LightDrawProps;
     };
 
     inline void StandardRenderObjects(
@@ -72,7 +72,7 @@ namespace Ame::Gfx
                     }
                     if (desc.LightSrb)
                     {
-                        LightingResourceSignaturePass_GraphicsPass::Bind(desc.LightSrb, desc.LightDrawProps.get()[std::to_underlying(group.GetType())]);
+                        LightingResourceSignaturePass_GraphicsPass::Bind(desc.LightSrb, desc.LightDrawProps[std::to_underlying(group.GetType())]);
                         desc.DeviceContext->CommitShaderResources(desc.LightSrb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                     }
                     desc.DeviceContext->CommitShaderResources(matSrb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);

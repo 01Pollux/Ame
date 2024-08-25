@@ -5,10 +5,9 @@ struct material_fragment
 	float4 base_color;
 	float3 normal;
 	float ao;
-	float3 specular;
 	float4 emissive;
 	float roughness;
-	float3 shininess;
+	float specular;
 	float metallic;
 	float height;
 };

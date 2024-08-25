@@ -11,8 +11,8 @@ namespace Ame::Rg
         friend class Graph;
         friend class DependencyLevel;
 
-        using ResourceMapType = std::map<size_t, ResourceHandle>;
-        using UserDataMapType = std::map<size_t, Ptr<IObject>>;
+        using ResourceMapType = std::map<ResourceId, ResourceHandle>;
+        using UserDataMapType = std::map<ResourceId, Ptr<IObject>>;
 
     public:
         ResourceStorage(
