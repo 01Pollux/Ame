@@ -68,8 +68,6 @@ void main(in cs_input csIn)
 		_LightCount_Transparent = 0;
 		_LightCount_Opaque = 0;
 		
-		_LightIndices_Transparent[0] = 0;
-		_LightIndices_Opaque[0] = 0;
 		compute_frustum_for_region(csIn.dtid.xy);
 	}
 
@@ -130,12 +128,12 @@ void main(in cs_input csIn)
 			}
 			break;
 		}*/
-		case LIGHT_TYPE_DIRECTIONAL:
+			case LIGHT_TYPE_DIRECTIONAL:
         {
-			append_light_transparent(li);
-			append_light_opaque(li);
-			break;
-		}
+					append_light_transparent(li);
+					append_light_opaque(li);
+					break;
+				}
 		}
 	}
 
@@ -143,8 +141,8 @@ void main(in cs_input csIn)
 
 	if (csIn.gi == 0)
 	{
-		InterlockedAdd(LightIndices_Opaque[0], _LightCount_Opaque, _LightIndexStartOffset_Opaque);
-		InterlockedAdd(LightIndices_Transparent[0], _LightCount_Transparent, _LightIndexStartOffset_Transparent);
+		InterlockedAdd(LightIndices_Opaque[LIGHT_COUNT_OFFSET], _LightCount_Opaque, _LightIndexStartOffset_Opaque);
+		InterlockedAdd(LightIndices_Transparent[LIGHT_COUNT_OFFSET], _LightCount_Transparent, _LightIndexStartOffset_Transparent);
 
 		LightHeads_Opaque[csIn.gid.xy] = int2(_LightCount_Opaque, _LightIndexStartOffset_Opaque);
 		LightHeads_Transparent[csIn.gid.xy] = int2(_LightCount_Transparent, _LightIndexStartOffset_Transparent);
@@ -154,15 +152,15 @@ void main(in cs_input csIn)
 
 	for (i = csIn.gi; i < _LightCount_Opaque; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
-		li = _LightIndexStartOffset_Opaque + i;
+		li = LIGHT_INDEX_OFFSET(_LightIndexStartOffset_Opaque + i);
 		LightIndices_Opaque[li] = _LightIndices_Opaque[i];
 	}
 	for (i = csIn.gi; i < _LightCount_Transparent; i += DISPATCH_CHUNK_SIZE * DISPATCH_CHUNK_SIZE)
 	{
-		li = _LightIndexStartOffset_Transparent + i;
+		li = LIGHT_INDEX_OFFSET(_LightIndexStartOffset_Transparent + i);
 		LightIndices_Transparent[li] = _LightIndices_Transparent[i];
 	}
-
+	
 	write_debug_texture(csIn.gid.xy, _LightCount_Opaque);
 }
 
@@ -172,7 +170,7 @@ void compute_frustum_for_region(int2 dispatch_pos)
 {
 	float2 dispatch_size = float2(DISPATCH_CHUNK_SIZE, DISPATCH_CHUNK_SIZE);
 	_Frustum = Geometry_ComputeFrustum(FrameData.projection_inverse, false);
-	Geometry_ComputeFrustumSubView(_Frustum, (float2)dispatch_pos, dispatch_size);
+	Geometry_ComputeFrustumSubView(_Frustum, (float2) dispatch_pos, dispatch_size);
 }
 
 void append_light_transparent(uint light_index)

@@ -56,16 +56,16 @@ void LightingResult_ComputeFromLinkedList(
 	inout LightingResult result,
 	const in float2 uv, const in LightingSurface surface)
 {
-	uint block_size = LinkedLightIndices[0];
+	uint block_size = LinkedLightIndices[LIGHT_BLOCK_SIZE_OFFSET];
 	uint2 tile_index = uint2(floor(uv / block_size));
-	uint2 offset_count = LightGrid[tile_index];
-	uint offset = offset_count.x;
-	uint count = offset_count.y;
+	uint2 count_offset = LightGrid[tile_index];
+	uint count = count_offset.x;
+	uint offset = count_offset.y;
 
 	LightingResult tmp;
 	for (uint i = 0; i < count; i++)
 	{
-		uint li = LinkedLightIndices[offset + i + 1];
+		uint li = LinkedLightIndices[LIGHT_INDEX_OFFSET(offset + i)];
 		Light light = AllLightInstances[li];
 		Transform light_transform = AllTransforms[light.transform_id];
 		

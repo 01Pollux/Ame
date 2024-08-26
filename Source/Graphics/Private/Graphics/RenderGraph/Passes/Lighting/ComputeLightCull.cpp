@@ -6,7 +6,11 @@
 
 namespace Ame::Gfx
 {
-    ComputeLightCullPass::ComputeLightCullPass()
+    ComputeLightCullPass::ComputeLightCullPass(
+        uint8_t  blockSize,
+        uint16_t maxLightChunkSize) :
+        m_BlockSize(blockSize),
+        m_MaxLightChunkSize(maxLightChunkSize)
     {
         Name("Light Frustum Cull")
             .Flags(Rg::PassFlags::Compute)
@@ -16,18 +20,23 @@ namespace Ame::Gfx
 
     //
 
-    void ComputeLightCullPass::BindResourcesOnce(
-        const Rg::ResourceStorage& storage)
+    void ComputeLightCullPass::UpdateAndBindResourcesOnce(
+        const Rg::ResourceStorage& storage,
+        Dg::IDeviceContext*        deviceContext)
     {
+        auto lightIndices_Transparent = storage.GetBufferView(m_PassData.LightIndices_Transparent);
+        auto lightIndices_Opaque      = storage.GetBufferView(m_PassData.LightIndices_Opaque);
+
+        const uint32_t initParams[]{ m_BlockSize, 0 };
+        deviceContext->UpdateBuffer(lightIndices_Transparent->GetBuffer(), 0, sizeof(initParams), initParams, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->UpdateBuffer(lightIndices_Opaque->GetBuffer(), 0, sizeof(initParams), initParams, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
         if (m_PassData)
         {
             return;
         }
 
         auto lightId = storage.GetBufferView(m_PassData.LightIds);
-
-        auto lightIndices_Transparent = storage.GetBufferView(m_PassData.LightIndices_Transparent);
-        auto lightIndices_Opaque      = storage.GetBufferView(m_PassData.LightIndices_Opaque);
 
         auto lightHeads_Transparent = storage.GetTextureView(m_PassData.LightHeads_Transparent);
         auto lightHeads_Opaque      = storage.GetTextureView(m_PassData.LightHeads_Opaque);
@@ -67,7 +76,7 @@ namespace Ame::Gfx
         };
         computeDesc.PSODesc.ResourceLayout.DefaultVariableType = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
 
-        Ptr shader = device.CreateShader(Rhi::LightFrustumCull_ComputeShader().GetCreateInfo());
+        Ptr shader = device.CreateShader(Rhi::LightFrustumCull_ComputeShader(m_BlockSize, m_MaxLightChunkSize).GetCreateInfo());
 
         computeDesc.pCS = shader;
         m_PipelineState = device.CreatePipelineState(computeDesc);
@@ -85,7 +94,7 @@ namespace Ame::Gfx
             static_cast<uint32_t>(std::ceil(static_cast<float>(textureDesc.Width) / m_BlockSize)),
             static_cast<uint32_t>(std::ceil(static_cast<float>(textureDesc.Height) / m_BlockSize))
         };
-        uint32_t bufferSize = (m_DispatchSize.x() * m_DispatchSize.y() * c_AverageOverlappingLightsPerTile) * sizeof(uint32_t);
+        uint32_t bufferSize = (m_DispatchSize.x() * m_DispatchSize.y() * c_AverageOverlappingLightsPerTile + 1) * sizeof(uint32_t);
 
         //
 
@@ -164,7 +173,7 @@ namespace Ame::Gfx
         Dg::IDeviceContext*        deviceContext)
     {
         CreateResourcesOnce(storage);
-        BindResourcesOnce(storage);
+        UpdateAndBindResourcesOnce(storage, deviceContext);
 
         //
 

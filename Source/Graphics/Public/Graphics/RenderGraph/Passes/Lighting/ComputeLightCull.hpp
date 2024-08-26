@@ -56,30 +56,17 @@ namespace Ame::Gfx
         };
 
     public:
-        ComputeLightCullPass();
-
-        void SetGridSize(
-            uint8_t blockSize)
-        {
-            m_BlockSize = blockSize;
-        }
-
-        [[nodiscard]] uint8_t GetBlockSize() const
-        {
-            return m_BlockSize;
-        }
+        ComputeLightCullPass(
+            uint8_t  blockSize         = 16,
+            uint16_t maxLightChunkSize = 1024);
 
     private:
-        void BindResourcesOnce(const Rg::ResourceStorage& storage);
+        void UpdateAndBindResourcesOnce(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext);
         void CreateResourcesOnce(const Rg::ResourceStorage& storage);
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver);
-
-        void OnExecute(
-            const Rg::ResourceStorage& storage,
-            Dg::IDeviceContext*        deviceContext);
+        void OnBuild(Rg::Resolver& resolver);
+        void OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext);
 
     private:
         PassData m_PassData;
@@ -88,6 +75,7 @@ namespace Ame::Gfx
         Ptr<Dg::IShaderResourceBinding> m_Srb;
 
         Math::Vector2U m_DispatchSize;
-        uint8_t        m_BlockSize = 16;
+        uint8_t        m_BlockSize         = 16;
+        uint16_t       m_MaxLightChunkSize = 1024;
     };
 } // namespace Ame::Gfx

@@ -1,8 +1,6 @@
 RWTexture2D<float4> DebugTexture;
 void write_debug_texture(uint2 gid, uint light_count)
 {
-	GroupMemoryBarrierWithGroupSync();
-	
 	if (light_count > 0)
 	{
 		float normalized_light_count = light_count / MAX_LIGHT_CHUNK_SIZE;

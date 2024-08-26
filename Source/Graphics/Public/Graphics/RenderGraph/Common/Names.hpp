@@ -31,11 +31,11 @@ namespace Ame::Gfx
     //
 
     inline const Rg::ResourceId c_RGFrameDataResourceSignature_Graphics{ "_FRS_Graphics" }; // Srb: [FrameDataBuffer, Samplers]
-    inline const Rg::ResourceId c_RGEntityResourceSignature_Graphics{ "_ERS_Graphics" };    // Srb: [Transforms, RenderInstances, LightInstances
+    inline const Rg::ResourceId c_RGEntityResourceSignature_Graphics{ "_ERS_Graphics" };    // Srb: [AllTransforms, RenderInstances, AllLightInstances]
     inline const Rg::ResourceId c_RGLightingResourceSignature_Graphics{ "_LRS_Graphics" };  // Srb: [FrameDataBuffer]
 
     inline const Rg::ResourceId c_RGFrameDataResourceSignature_Compute{ "_FRS_Compute" }; // Srb: [FrameDataBuffer, Samplers]
-    inline const Rg::ResourceId c_RGEntityResourceSignature_Compute{ "_ERS_Compute" };    // Srb: [Transforms, RenderInstances, LightInstances
+    inline const Rg::ResourceId c_RGEntityResourceSignature_Compute{ "_ERS_Compute" };    // Srb: [AllTransforms, RenderInstances, AllLightInstances]
     inline const Rg::ResourceId c_RGLightingResourceSignature_Compute{ "_LRS_Compute" };  // Srb: [LinkedLightIndices, LightGrid]
 
     inline const Rg::ResourceId c_RGEntityEmptyVertexBuffers{ "_EEVB" };
