@@ -5,7 +5,7 @@ void LightingResult_Combine(inout LightingResult result, const in LightingResult
 	result.diffuse += other.diffuse;
 	result.specular += other.specular;
 }
-void LightingResult_Compute(inout LightingResult result, const in float4 diffuse, const in float4 specular)
+void LightingResult_Compute(inout LightingResult result, const in float diffuse, const in float specular)
 {
 	result.diffuse = diffuse;
 	result.specular = specular;
@@ -15,15 +15,15 @@ void LightingResult_Compute(inout LightingResult result, const in float4 diffuse
 
 float Lighting_DiffuseLambert(const in float3 normal, const in float3 light_dir)
 {
-	return saturate(dot(normal, light_dir));
+	return max(dot(light_dir, normal), 0.f);
 }
 
 float Lighting_SpecularBlinnPhong(
 	const in float3 normal, const in float3 light_dir,
 	const in float3 view_dir, const in float specular_power)
 {
-	float3 half_dir = normalize(light_dir + view_dir);
-	return pow(saturate(dot(normal, half_dir)), specular_power);
+	float3 reflect_dir = normalize(reflect(-light_dir, normal));
+	return pow(max(dot(reflect_dir, view_dir), 0.f), specular_power);
 }
 
 //
@@ -33,8 +33,12 @@ void _LightingResult_Compute_Directional(
 	const in Light light, const in LightingSurface surface)
 {
 	float3 light_dir = normalize(-transform_get_forward(light_transform));
-	float4 diffuse = Lighting_DiffuseLambert(surface.normal, light_dir) * light.color;
-	float4 specular = Lighting_SpecularBlinnPhong(surface.normal, light_dir, surface.view_dir, surface.specular_power) * light.color;
+	float3 diffuse = Lighting_DiffuseLambert(surface.normal, light_dir) * light.color;
+	float3 specular = (float3) 0.f;
+	if (surface.specular_power > 0.f)
+	{
+		specular = Lighting_SpecularBlinnPhong(surface.normal, light_dir, surface.view_dir, surface.specular_power) * light.color;
+	}
 	LightingResult_Compute(result, diffuse, specular);
 }
 

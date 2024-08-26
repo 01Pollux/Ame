@@ -32,8 +32,15 @@ void main(in ps_input psIn, out ps_output psOut)
 	LightingResult lighting = (LightingResult) 0;
 	LightingResult_ComputeFromLinkedList(lighting, uv, light_surface);
 
-	float3 color = lighting.diffuse.rgb + lighting.specular.rgb;
-	psOut.color = float4(color, 1.0) * fragment.ao;
+#ifdef _HAS_LIGHTMAIN
+	if (light_main(psIn, fragment, lighting) == false)
+	{
+		return;   
+	}
+#endif
+
+	float3 color = lighting.diffuse + lighting.specular;
+	psOut.color = float4(color, 1.0) * fragment.base_color * fragment.ao;
 
 #else
 	psOut.color = float4(1.0, 1.0, 1.0, 1.0);

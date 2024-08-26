@@ -13,6 +13,11 @@ namespace Ame::Math
     class TransformMatrix
     {
     public:
+        static constexpr uint32_t RightDirIndex = 0;
+        static constexpr uint32_t UpDirIndex    = 1;
+        static constexpr uint32_t LookDirIndex  = 2;
+
+    public:
         TransformMatrix(
             const Matrix3x3& basis    = Matrix3x3::Constants::Identity,
             const Vector3&   position = Vector3::Constants::Zero) :
@@ -74,7 +79,7 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Vector3 GetRightDir() const noexcept
         {
-            auto right = GetBasis()(0);
+            auto right = GetBasis()(RightDirIndex);
             right.Normalize();
             return right;
         }
@@ -84,7 +89,7 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Vector3 GetUpDir() const noexcept
         {
-            auto up = GetBasis()(1);
+            auto up = GetBasis()(UpDirIndex);
             up.Normalize();
             return up;
         }
@@ -94,7 +99,7 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Vector3 GetLookDir() const noexcept
         {
-            auto look = GetBasis()(2);
+            auto look = GetBasis()(LookDirIndex);
             look.Normalize();
             return look;
         }

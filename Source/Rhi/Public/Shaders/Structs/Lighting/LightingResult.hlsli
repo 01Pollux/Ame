@@ -2,8 +2,8 @@
 #define AME_LIGHTING_RESULT
 struct LightingResult
 {
-	float4 diffuse;
-	float4 specular;
+	float3 diffuse;
+	float3 specular;
 };
 struct LightingSurface
 {
