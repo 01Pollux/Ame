@@ -7,6 +7,8 @@ namespace Ame
     class IPluginHost
     {
     public:
+        virtual ~IPluginHost() = default;
+
         /// <summary>
         /// Expose interface by name.
         /// </summary>
@@ -22,7 +24,7 @@ namespace Ame
         /// <summary>
         /// find plugin by either it's file name
         /// </summary>
-        [[nodiscard]] virtual IPlugin* FindPlugin(const String& name) = 0;
+        virtual IPlugin* FindPlugin(const String& name) = 0;
 
         /// <summary>
         /// find and add plugin to caller's dependencies
@@ -45,7 +47,7 @@ namespace Ame
         /// Load and init a plugin outside of its host.
         /// </summary>
         /// <returns>true if the plugin was successfully loaded, false otherwise</returns>
-        [[nodiscard]] virtual IPlugin* LoadPlugin(const String& name) = 0;
+        virtual IPlugin* LoadPlugin(const String& name) = 0;
 
         /// <summary>
         /// force unload the plugin.

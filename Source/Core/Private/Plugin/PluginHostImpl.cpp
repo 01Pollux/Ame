@@ -4,6 +4,11 @@
 
 namespace Ame
 {
+    PluginHostImpl::~PluginHostImpl()
+    {
+        ReleaseAllPlugins();
+    }
+
     bool PluginHostImpl::ExposeInterface(const UId& iid, IObject* object, IPlugin* owner)
     {
         auto iter = m_Interfaces.find(iid);
@@ -57,18 +62,7 @@ namespace Ame
 
     void PluginHostImpl::Shutdown()
     {
-        for (auto& iface : m_Interfaces | std::views::values)
-        {
-            iface.Owner->OnDropInterface(iface.Object);
-        }
-
-        for (auto& ctx : m_Plugins | std::views::values)
-        {
-            ctx->GetPlugin()->OnPluginUnload();
-        }
-
-        m_Interfaces.clear();
-        m_Plugins.clear();
+        ReleaseAllPlugins();
     }
 
     TVersion PluginHostImpl::GetHostVersion()
@@ -86,13 +80,21 @@ namespace Ame
 
         try
         {
-            return m_Plugins.emplace(name, std::make_unique<PluginContext>(name)).first->second->GetPlugin();
+            auto ctx    = std::make_unique<PluginContext>(name);
+            auto plugin = ctx->GetPlugin();
+
+            plugin->OnPluginPreLoad(this);
+            if (plugin->OnPluginLoad(this))
+            {
+                m_Plugins.emplace(name, std::move(ctx));
+                return plugin;
+            }
         }
         catch (const std::exception& e)
         {
             Log::Engine().Warning("Failed to load plugin: '{}' (error: '{}')", name, e.what());
-            return nullptr;
         }
+        return nullptr;
     }
 
     bool PluginHostImpl::UnloadPlugin(const String& name)
@@ -108,6 +110,17 @@ namespace Ame
     }
 
     //
+
+    void PluginHostImpl::ReleaseAllPlugins()
+    {
+        for (auto& iface : m_Interfaces | std::views::values)
+        {
+            iface.Owner->OnDropInterface(iface.Object);
+        }
+
+        m_Plugins.clear();
+        m_Interfaces.clear();
+    }
 
     void PluginHostImpl::UnloadPlugin_Internal(PluginContext& context)
     {
@@ -141,7 +154,5 @@ namespace Ame
                           }
                           return false;
                       });
-
-        plugin->OnPluginUnload();
     }
 } // namespace Ame

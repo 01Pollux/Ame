@@ -11,16 +11,24 @@ namespace Ame
 
     struct PluginInfo
     {
-        const char* Name;
-        const char* Author;
-        const char* Description;
-        const char* Date;
-        TVersion    Version;
+        const char* Name        = "";
+        const char* Author      = "";
+        const char* Description = "";
+        const char* Date        = "";
+        TVersion    Version     = { 1, 0, 0, 0 };
     };
 
     class IPlugin
     {
         friend class PluginContext;
+
+    public:
+        template<typename Ty>
+            requires std::derived_from<Ty, IPlugin>
+        [[nodiscard]] static IPlugin* Create()
+        {
+            return new Ty();
+        }
 
     public:
         IPlugin(const PluginInfo& info) noexcept :
@@ -121,5 +129,6 @@ namespace Ame
     };
 } // namespace Ame
 
-#define AME_PLUGIN_EXPORT_NAME  "Ame_GetPlugin"
-#define AME_PLUGIN_EXPORT(Type) BOOST_DLL_ALIAS([]() -> Ame::IPlugin* { return new Type(); }, AME_PLUGIN_EXPORT_NAME)
+#define AME_PLUGIN_EXPORT_FUNCTION Ame_GetPlugin
+#define AME_PLUGIN_EXPORT_NAME     "Ame_GetPlugin"
+#define AME_PLUGIN_EXPORT(Type)    BOOST_DLL_ALIAS(IPlugin::Create<Type>, AME_PLUGIN_EXPORT_FUNCTION)

@@ -18,6 +18,8 @@ namespace Ame
         {
         }
 
+        virtual ~IModule() = default;
+
         /// <summary>
         /// Initialize the module
         /// </summary>

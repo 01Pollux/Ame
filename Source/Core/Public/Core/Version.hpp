@@ -36,8 +36,7 @@ namespace Ame
         {
         }
 
-        constexpr explicit TVersion(
-            const std::array<value_type, 4>& arr) noexcept :
+        constexpr explicit TVersion(const std::array<value_type, 4>& arr) noexcept :
             m_Major(arr[0]),
             m_Minor(arr[1]),
             m_Build(arr[2]),
@@ -46,14 +45,12 @@ namespace Ame
         }
 
         template<StringType StrTy>
-        constexpr explicit TVersion(
-            const StrTy& str) noexcept :
+        constexpr explicit TVersion(const StrTy& str) noexcept :
             TVersion(FromString(str))
         {
         }
 
-        [[nodiscard]] constexpr value_type operator[](
-            Type type) const noexcept
+        [[nodiscard]] constexpr value_type operator[](Type type) const noexcept
         {
             switch (type)
             {
@@ -69,8 +66,7 @@ namespace Ame
             }
         }
 
-        [[nodiscard]] constexpr value_type& operator[](
-            Type type) noexcept
+        [[nodiscard]] constexpr value_type& operator[](Type type) noexcept
         {
             switch (type)
             {
@@ -147,8 +143,7 @@ namespace Ame
         /// Convert from string to version
         /// </summary>
         template<StringType StrTy>
-        [[nodiscard]] static constexpr TVersion FromString(
-            const StrTy& str)
+        [[nodiscard]] static constexpr TVersion FromString(const StrTy& str)
         {
             int      iter   = 0;
             Type     curVer = Type::Major;
@@ -179,8 +174,7 @@ namespace Ame
             return version;
         }
 
-        constexpr auto operator<=>(
-            const TVersion&) const noexcept = default;
+        constexpr auto operator<=>(const TVersion&) const noexcept = default;
 
     private:
         value_type

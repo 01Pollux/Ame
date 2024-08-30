@@ -17,7 +17,8 @@ namespace Ame
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(
             IID_CoreModule, IID_BaseModule, Base,
             m_TimeSubmodule,
-            m_FrameEventSubmodule);
+            m_FrameEventSubmodule,
+            m_PluginHostSubmodule);
 
     public:
         CoreModule(

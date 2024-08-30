@@ -88,3 +88,18 @@ function ame_utils:install_assets()
         os.cp("Assets/*", targetdir)
     end)
 end
+
+function ame_utils:copy_to_plugins()
+    local callback = function(target)
+        local dll_path = target:targetfile()
+        local plugins_dir = path.join(target:targetdir(), "Plugins")
+        if not os.isdir(plugins_dir) then
+            os.mkdir(plugins_dir)
+        end
+        os.cp(dll_path, plugins_dir)
+        print("DLL copied to " .. plugins_dir)
+    end
+
+    after_build(callback)
+    after_install(callback)
+end

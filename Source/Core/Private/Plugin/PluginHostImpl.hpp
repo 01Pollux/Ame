@@ -18,6 +18,7 @@ namespace Ame
         using PluginMap    = std::map<String, UniquePtr<PluginContext>>;
 
     public:
+        ~PluginHostImpl() override;
         bool     ExposeInterface(const UId& iid, IObject* object, IPlugin* owner) override;
         bool     RequestInterface(const UId& iid, IObject** iface) override;
         IPlugin* FindPlugin(const String& name) override;
@@ -40,6 +41,7 @@ namespace Ame
         }
 
     private:
+        void ReleaseAllPlugins();
         void UnloadPlugin_Internal(PluginContext& context);
 
     private:

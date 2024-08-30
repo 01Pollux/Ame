@@ -42,7 +42,9 @@ namespace Ame
         RefreshSubmoduleCache();
     }
 
-    AmeEngine::~AmeEngine() = default;
+    AmeEngine::~AmeEngine()
+    {
+    }
 
     //
 
