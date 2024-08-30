@@ -29,7 +29,7 @@ namespace Ame::Gfx
                 resourceSignature->CreateShaderResourceBinding(&m_Srb);
             }
 
-            resolver.SetUserData(Ty::RGEntityResourceSignature, m_Srb);
+            resolver.SetUserData(Ty::RGSignature(), m_Srb);
         }
 
         void OnExecute(
@@ -93,12 +93,14 @@ namespace Ame::Gfx
         : public FrameDataResourceSignature<FrameDataResourceSignature_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
-        static inline const Rg::ResourceId RGEntityResourceSignature = c_RGFrameDataResourceSignature_Graphics;
-
-    public:
         FrameDataResourceSignature_GraphicsPass()
         {
             Name("Initialize FrameData Resource Signature (Graphics)");
+        }
+
+        [[nodiscard]] static const auto& RGSignature() noexcept
+        {
+            return c_RGFrameDataResourceSignature_Graphics;
         }
     };
 
@@ -106,12 +108,14 @@ namespace Ame::Gfx
         : public FrameDataResourceSignature<FrameDataResourceSignature_ComputePass, Dg::SHADER_TYPE_COMPUTE>
     {
     public:
-        static inline const Rg::ResourceId RGEntityResourceSignature = c_RGFrameDataResourceSignature_Compute;
-
-    public:
         FrameDataResourceSignature_ComputePass()
         {
             Name("Initialize FrameData Resource Signature (Compute)");
+        }
+
+        [[nodiscard]] static const auto& RGSignature() noexcept
+        {
+            return c_RGFrameDataResourceSignature_Compute;
         }
     };
 } // namespace Ame::Gfx

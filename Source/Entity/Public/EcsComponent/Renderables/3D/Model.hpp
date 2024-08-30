@@ -5,13 +5,11 @@
 namespace Ame::Ecs
 {
     // {E1E74357-EB73-4AF0-BA9D-4D17F7B89CF6}
-    static constexpr UId IID_Model{ 0xe1e74357, 0xeb73, 0x4af0, { 0xba, 0x9d, 0x4d, 0x17, 0xf7, 0xb8, 0x9c, 0xf6 } };
-
-    static constexpr uint32_t c_InvalidIndex = std::numeric_limits<uint32_t>::max();
+    inline constexpr UId IID_Model{ 0xe1e74357, 0xeb73, 0x4af0, { 0xba, 0x9d, 0x4d, 0x17, 0xf7, 0xb8, 0x9c, 0xf6 } };
 
     struct MeshNode
     {
-        uint32_t              Parent    = c_InvalidIndex;
+        uint32_t              Parent    = std::numeric_limits<uint32_t>::max();
         Math::Matrix4x4       Transform = Math::Matrix4x4::Constants::Identity;
         String                Name;
         std::vector<uint32_t> Children;
@@ -23,10 +21,10 @@ namespace Ame::Ecs
         Math::Matrix4x4 Transform = Math::Matrix4x4::Constants::Identity;
         Geometry::AABB  AABB;
 
-        uint32_t IndexOffset   = c_InvalidIndex;
-        uint32_t IndexCount    = c_InvalidIndex;
-        uint32_t VertexOffset  = c_InvalidIndex;
-        uint32_t MaterialIndex = c_InvalidIndex;
+        uint32_t IndexOffset   = std::numeric_limits<uint32_t>::max();
+        uint32_t IndexCount    = std::numeric_limits<uint32_t>::max();
+        uint32_t VertexOffset  = std::numeric_limits<uint32_t>::max();
+        uint32_t MaterialIndex = std::numeric_limits<uint32_t>::max();
     };
 
     class MeshModel : public BaseObject<IBaseRenderable3D>

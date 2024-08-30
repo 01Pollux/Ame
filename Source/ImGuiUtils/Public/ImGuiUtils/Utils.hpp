@@ -238,7 +238,7 @@ namespace Ame::ImGuiUtils
         Slider
     };
 
-    static constexpr const char* c_DrawVectorPositionNames[] = {
+    inline constexpr const char* DrawVectorPositionNames[] = {
         "X",
         "Y",
         "Z",
@@ -261,7 +261,7 @@ namespace Ame::ImGuiUtils
         /// <summary>
         /// Names must be an array of _Ty::length strings.
         /// </summary>
-        std::span<const char* const> Names         = c_DrawVectorPositionNames;
+        std::span<const char* const> Names         = DrawVectorPositionNames;
         std::optional<ImVec4>        PropertyColor = ImVec4{ 0.47f, 0.19f, 0.19f, 1.f };
     };
 

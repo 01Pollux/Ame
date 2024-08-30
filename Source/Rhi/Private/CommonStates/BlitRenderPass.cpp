@@ -8,7 +8,7 @@
 
 namespace Ame::Rhi
 {
-    static constexpr const char c_BlitShader[] = R"(
+    inline constexpr const char c_BlitShader[] = R"(
 		Texture2D<float4> _Texture;
 		SamplerState      _Sampler;
 

@@ -21,7 +21,7 @@ namespace Ame
     template<typename Ty>
     using WPtr = Dg::RefCntWeakPtr<Ty>;
 
-    static constexpr UId IID_Unknown = Dg::IID_Unknown;
+    inline constexpr UId IID_Unknown = Dg::IID_Unknown;
 
     //
 

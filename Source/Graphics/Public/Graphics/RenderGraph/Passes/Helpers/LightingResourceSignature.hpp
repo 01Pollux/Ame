@@ -42,7 +42,7 @@ namespace Ame::Gfx
                 resourceSignature->CreateShaderResourceBinding(&m_Srb);
             }
 
-            resolver.SetUserData(Ty::RGEntityResourceSignature, m_Srb);
+            resolver.SetUserData(Ty::RGSignature(), m_Srb);
         }
 
     private:
@@ -76,12 +76,14 @@ namespace Ame::Gfx
         : public LightingResourceSignaturePass<LightingResourceSignaturePass_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
-        static inline const Rg::ResourceId RGEntityResourceSignature = c_RGLightingResourceSignature_Graphics;
-
-    public:
         LightingResourceSignaturePass_GraphicsPass()
         {
             Name("Initialize Lighting Resource Signature (Graphics)");
+        }
+
+        [[nodiscard]] static const auto& RGSignature() noexcept
+        {
+            return c_RGLightingResourceSignature_Graphics;
         }
     };
 
@@ -89,12 +91,14 @@ namespace Ame::Gfx
         : public LightingResourceSignaturePass<LightingResourceSignaturePass_ComputePass, Dg::SHADER_TYPE_COMPUTE>
     {
     public:
-        static inline const Rg::ResourceId RGEntityResourceSignature = c_RGLightingResourceSignature_Compute;
-
-    public:
         LightingResourceSignaturePass_ComputePass()
         {
             Name("Initialize Lighting Resource Signature (Compute)");
+        }
+
+        [[nodiscard]] static const auto& RGSignature() noexcept
+        {
+            return c_RGLightingResourceSignature_Compute;
         }
     };
 } // namespace Ame::Gfx

@@ -6,7 +6,7 @@
 namespace Ame::Rhi
 {
     // {2A8E47FC-F038-4C7A-B090-1117A595C68A}
-    static constexpr UId IID_MaterialTechnique = { 0x2a8e47fc, 0xf038, 0x4c7a, { 0xb0, 0x90, 0x11, 0x17, 0xa5, 0x95, 0xc6, 0x8a } };
+    inline constexpr UId IID_MaterialTechnique = { 0x2a8e47fc, 0xf038, 0x4c7a, { 0xb0, 0x90, 0x11, 0x17, 0xa5, 0x95, 0xc6, 0x8a } };
 
     /// <summary>
     /// Class that defines material's pipeline state and shaders
