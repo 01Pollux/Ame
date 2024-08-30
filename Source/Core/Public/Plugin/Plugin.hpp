@@ -11,7 +11,6 @@ namespace Ame
 
     struct PluginInfo
     {
-        const UId   Id;
         const char* Name;
         const char* Author;
         const char* Description;
@@ -21,6 +20,8 @@ namespace Ame
 
     class IPlugin
     {
+        friend class PluginContext;
+
     public:
         IPlugin(const PluginInfo& info) noexcept :
             m_PluginInfo(info)
@@ -105,7 +106,16 @@ namespace Ame
             m_IsPaused = pause;
         }
 
+        /// <summary>
+        /// Get plugin name
+        /// </summary>
+        [[nodiscard]] const String& GetPluginName() const noexcept
+        {
+            return m_PluginName;
+        }
+
     private:
+        String           m_PluginName;
         const PluginInfo m_PluginInfo;
         bool             m_IsPaused = false;
     };

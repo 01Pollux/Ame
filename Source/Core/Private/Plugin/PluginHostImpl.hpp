@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <boost/property_tree/ptree.hpp>
 #include <Plugin/PluginHost.hpp>
 #include <Plugin/PluginContext.hpp>
 
@@ -15,41 +14,36 @@ namespace Ame
 
     class PluginHostImpl : public IPluginHost
     {
-        using PluginConfigDesc = boost::property_tree::ptree;
-        using InterfaceMap     = std::map<UId, InterfaceDesc, UIdUtils::Comparer>;
-        using PluginMap        = std::map<UId, UniquePtr<PluginContext>, UIdUtils::Comparer>;
-
-    public:
-        PluginHostImpl();
+        using InterfaceMap = std::map<UId, InterfaceDesc, UIdUtils::Comparer>;
+        using PluginMap    = std::map<String, UniquePtr<PluginContext>>;
 
     public:
         bool     ExposeInterface(const UId& iid, IObject* object, IPlugin* owner) override;
         bool     RequestInterface(const UId& iid, IObject** iface) override;
-        IPlugin* FindPlugin(const UId& iid) override;
-        IPlugin* BindPlugin(IPlugin* caller, const UId& iid, bool isRequired) override;
+        IPlugin* FindPlugin(const String& name) override;
+        IPlugin* BindPlugin(IPlugin* caller, const String& name, bool isRequired) override;
         void     Shutdown() override;
         TVersion GetHostVersion() override;
-        IPlugin* LoadPlugin(const UId& iid) override;
-        bool     UnloadPlugin(const UId& iid) override;
+        IPlugin* LoadPlugin(const String& name) override;
+        bool     UnloadPlugin(const String& name) override;
 
     private:
-        [[nodiscard]] auto FindContext(const UId& iid) noexcept
+        [[nodiscard]] auto FindContext(const String& name) noexcept
         {
-            auto iter = m_Plugins.find(iid);
+            auto iter = m_Plugins.find(name);
             return iter != m_Plugins.end() ? iter->second.get() : nullptr;
         }
 
         [[nodiscard]] auto FindContext(const IPlugin* plugin) noexcept
         {
-            return FindContext(plugin->GetPluginInfo().Id);
+            return FindContext(plugin->GetPluginName());
         }
 
     private:
         void UnloadPlugin_Internal(PluginContext& context);
 
     private:
-        PluginConfigDesc m_PluginConfig;
-        InterfaceMap     m_Interfaces;
-        PluginMap        m_Plugins;
+        InterfaceMap m_Interfaces;
+        PluginMap    m_Plugins;
     };
 } // namespace Ame

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Module/Submodule.hpp>
+#include <Module/Core/Config.hpp>
 #include <Core/FrameTimer.hpp>
 
 namespace Ame

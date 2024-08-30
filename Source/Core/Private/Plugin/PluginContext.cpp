@@ -4,16 +4,15 @@ namespace Ame
 {
     namespace bdll = boost::dll;
 
-    PluginContext::PluginContext(const String& pluginPath, const UId& iid)
+    PluginContext::PluginContext(const String& pluginPath)
     {
-        if (pluginPath.empty())
+        // sanitize plugin path
+        if (pluginPath.contains(".."))
         {
-            m_Library = LibraryDLL(bdll::program_location());
+            throw std::runtime_error("Invalid plugin path");
         }
-        else
-        {
-            m_Library = LibraryDLL(pluginPath, bdll::load_mode::append_decorations);
-        }
+
+        m_Library = LibraryDLL(boost::filesystem::path(PluginsPath) / pluginPath, bdll::load_mode::append_decorations);
 
         using PluginCreateFunc = IPlugin* (*)();
 
@@ -24,9 +23,6 @@ namespace Ame
         }
 
         m_Plugin.reset(createPlugin());
-        if (m_Plugin->GetPluginInfo().Id != iid)
-        {
-            throw std::runtime_error("Plugin ID mismatch");
-        }
+        m_Plugin->m_PluginName = pluginPath;
     }
 } // namespace Ame

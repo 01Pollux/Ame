@@ -5,6 +5,7 @@
 #include <Module/Core/Config.hpp>
 #include <Module/Core/TimeSubmodule.hpp>
 #include <Module/Core/FrameEventSubmodule.hpp>
+#include <Module/Core/PluginHostSubmodule.hpp>
 
 namespace Ame
 {
@@ -24,12 +25,14 @@ namespace Ame
             CoreModuleConfig    config) :
             Base(counters, IID_CoreModule),
             m_TimeSubmodule(config.EnableTimeSubmodule ? ObjectAllocator<TimeSubmodule>(this)() : nullptr),
-            m_FrameEventSubmodule(config.EnableFrameEventSubmodule ? ObjectAllocator<FrameEventSubmodule>(this)() : nullptr)
+            m_FrameEventSubmodule(config.EnableFrameEventSubmodule ? ObjectAllocator<FrameEventSubmodule>(this)() : nullptr),
+            m_PluginHostSubmodule(config.EnablePluginHostSubmodule ? ObjectAllocator<PluginHostSubmodule>(this)() : nullptr)
         {
         }
 
     private:
         Ptr<TimeSubmodule>       m_TimeSubmodule;
         Ptr<FrameEventSubmodule> m_FrameEventSubmodule;
+        Ptr<PluginHostSubmodule> m_PluginHostSubmodule;
     }; // namespace Ame
 } // namespace Ame

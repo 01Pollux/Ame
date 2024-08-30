@@ -10,9 +10,10 @@ namespace Ame
     class PluginContext
     {
         using LibraryDLL = boost::dll::shared_library;
+        static constexpr const StringView PluginsPath = "Plugins";
 
     public:
-        PluginContext(const String& pluginPath, const UId& iid);
+        PluginContext(const String& pluginPath);
         ~PluginContext()
         {
             if (m_Plugin)

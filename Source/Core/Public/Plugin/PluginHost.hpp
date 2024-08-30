@@ -22,14 +22,14 @@ namespace Ame
         /// <summary>
         /// find plugin by either it's file name
         /// </summary>
-        [[nodiscard]] virtual IPlugin* FindPlugin(const UId& iid) = 0;
+        [[nodiscard]] virtual IPlugin* FindPlugin(const String& name) = 0;
 
         /// <summary>
         /// find and add plugin to caller's dependencies
         /// </summary>
         /// <param name="bool isRequired">true to immediatly load the plugin if it's not loaded</param>
         /// <returns>true if the plugin, false otherwise</returns>
-        virtual IPlugin* BindPlugin(IPlugin* caller, const UId& iid, bool isRequired) = 0;
+        virtual IPlugin* BindPlugin(IPlugin* caller, const String& name, bool isRequired) = 0;
 
         /// <summary>
         /// Unload main plugin and all of its subplugins.
@@ -45,19 +45,19 @@ namespace Ame
         /// Load and init a plugin outside of its host.
         /// </summary>
         /// <returns>true if the plugin was successfully loaded, false otherwise</returns>
-        [[nodiscard]] virtual IPlugin* LoadPlugin(const UId& iid) = 0;
+        [[nodiscard]] virtual IPlugin* LoadPlugin(const String& name) = 0;
 
         /// <summary>
         /// force unload the plugin.
         /// </summary>
-        virtual bool UnloadPlugin(const UId& iid) = 0;
+        virtual bool UnloadPlugin(const String& name) = 0;
 
         /// <summary>
         /// force unload the plugin.
         /// </summary>
         bool UnloadPlugin(IPlugin* plugin)
         {
-            return UnloadPlugin(plugin->GetPluginInfo().Id);
+            return UnloadPlugin(plugin->GetPluginName());
         }
     };
 } // namespace Ame

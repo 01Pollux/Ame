@@ -1,15 +1,9 @@
 #include <Plugin/PluginHostImpl.hpp>
-#include <boost/property_tree/xml_parser.hpp>
 
 #include <Log/Wrapper.hpp>
 
 namespace Ame
 {
-    PluginHostImpl::PluginHostImpl()
-    {
-        boost::property_tree::read_xml("pd.ame", m_PluginConfig);
-    }
-
     bool PluginHostImpl::ExposeInterface(const UId& iid, IObject* object, IPlugin* owner)
     {
         auto iter = m_Interfaces.find(iid);
@@ -34,24 +28,24 @@ namespace Ame
         return true;
     }
 
-    IPlugin* PluginHostImpl::FindPlugin(const UId& iid)
+    IPlugin* PluginHostImpl::FindPlugin(const String& name)
     {
-        auto ctx = FindContext(iid);
+        auto ctx = FindContext(name);
         return ctx ? ctx->GetPlugin() : nullptr;
     }
 
-    IPlugin* PluginHostImpl::BindPlugin(IPlugin* caller, const UId& iid, bool isRequired)
+    IPlugin* PluginHostImpl::BindPlugin(IPlugin* caller, const String& name, bool isRequired)
     {
         IPlugin* plugin = nullptr;
 
         auto callerCtx = FindContext(caller);
-        if (auto ctx = FindContext(iid))
+        if (auto ctx = FindContext(name))
         {
             plugin = ctx->GetPlugin();
         }
         else if (isRequired)
         {
-            plugin = LoadPlugin(iid);
+            plugin = LoadPlugin(name);
         }
 
         if (plugin)
@@ -83,46 +77,31 @@ namespace Ame
         return hostVersion;
     }
 
-    IPlugin* PluginHostImpl::LoadPlugin(const UId& iid)
+    IPlugin* PluginHostImpl::LoadPlugin(const String& name)
     {
-        if (auto ctx = FindContext(iid))
+        if (auto ctx = FindContext(name))
         {
             return ctx->GetPlugin();
         }
 
-        auto iidStr = UIdUtils::ToString(iid);
-        auto iter   = m_PluginConfig.find(iidStr);
-        if (iter == m_PluginConfig.not_found())
-        {
-            Log::Engine().Warning("Failed to load plugin: '{}' (error: 'plugin not found')", iidStr);
-            return nullptr;
-        }
-
-        auto pluginPath = iter->second.get_value_optional<String>();
-        if (!pluginPath)
-        {
-            Log::Engine().Warning("Failed to load plugin: '{}' (error: 'plugin path not found')", iidStr);
-            return nullptr;
-        }
-
         try
         {
-            return m_Plugins.emplace(iid, std::make_unique < PluginContext>(*pluginPath, iid)).first->second->GetPlugin();
+            return m_Plugins.emplace(name, std::make_unique<PluginContext>(name)).first->second->GetPlugin();
         }
         catch (const std::exception& e)
         {
-            Log::Engine().Warning("Failed to load plugin: '{}' (error: '{}')", iidStr, e.what());
+            Log::Engine().Warning("Failed to load plugin: '{}' (error: '{}')", name, e.what());
             return nullptr;
         }
     }
 
-    bool PluginHostImpl::UnloadPlugin(const UId& iid)
+    bool PluginHostImpl::UnloadPlugin(const String& name)
     {
-        auto ctx = FindContext(iid);
+        auto ctx = FindContext(name);
         if (ctx)
         {
             UnloadPlugin_Internal(*ctx);
-            m_Plugins.erase(iid);
+            m_Plugins.erase(name);
             return true;
         }
         return false;

@@ -15,7 +15,7 @@
     {                                          \
         return WinMainWrapper(__argc, __argv); \
     }                                          \
-    int WinMainWrapper(int argc, char** argv)
+    int WinMainWrapper([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 #else
 
@@ -37,13 +37,13 @@ static void EnableDebugInfo()
         return _dbg_main(argc, argv); \
     }                                 \
     int _dbg_main(                    \
-        int    argc,                  \
-        char** argv)
+        [[maybe_unused]] int    argc, \
+        [[maybe_unused]] char** argv)
 #else
-#define AME_MAIN_ENTRY_POINT \
-    int main(                \
-        int    argc,         \
-        char** argv)
+#define AME_MAIN_ENTRY_POINT          \
+    int main(                         \
+        [[maybe_unused]] int    argc, \
+        [[maybe_unused]] char** argv)
 #endif
 #endif
 
