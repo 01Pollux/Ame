@@ -20,15 +20,15 @@ namespace Ame
             Build,
             Revision
         };
-        using ValueType = unsigned short;
+        using value_type = unsigned short;
 
         constexpr TVersion() = default;
 
         constexpr TVersion(
-            ValueType maj,
-            ValueType min,
-            ValueType build = 0,
-            ValueType rev   = 0) noexcept :
+            value_type maj,
+            value_type min,
+            value_type build = 0,
+            value_type rev   = 0) noexcept :
             m_Major(maj),
             m_Minor(min),
             m_Build(build),
@@ -37,7 +37,7 @@ namespace Ame
         }
 
         constexpr explicit TVersion(
-            const std::array<ValueType, 4>& arr) noexcept :
+            const std::array<value_type, 4>& arr) noexcept :
             m_Major(arr[0]),
             m_Minor(arr[1]),
             m_Build(arr[2]),
@@ -45,14 +45,14 @@ namespace Ame
         {
         }
 
-        template<Concepts::StringType StrTy>
+        template<StringType StrTy>
         constexpr explicit TVersion(
             const StrTy& str) noexcept :
             TVersion(FromString(str))
         {
         }
 
-        [[nodiscard]] constexpr ValueType operator[](
+        [[nodiscard]] constexpr value_type operator[](
             Type type) const noexcept
         {
             switch (type)
@@ -69,7 +69,7 @@ namespace Ame
             }
         }
 
-        [[nodiscard]] constexpr ValueType& operator[](
+        [[nodiscard]] constexpr value_type& operator[](
             Type type) noexcept
         {
             switch (type)
@@ -86,38 +86,38 @@ namespace Ame
             }
         }
 
-        [[nodiscard]] constexpr ValueType& Major() noexcept
+        [[nodiscard]] constexpr value_type& Major() noexcept
         {
             return m_Major;
         }
-        [[nodiscard]] constexpr ValueType Major() const noexcept
+        [[nodiscard]] constexpr value_type Major() const noexcept
         {
             return m_Major;
         }
 
-        [[nodiscard]] constexpr ValueType& Minor() noexcept
+        [[nodiscard]] constexpr value_type& Minor() noexcept
         {
             return m_Minor;
         }
-        [[nodiscard]] constexpr ValueType Minor() const noexcept
+        [[nodiscard]] constexpr value_type Minor() const noexcept
         {
             return m_Minor;
         }
 
-        [[nodiscard]] constexpr ValueType& Build() noexcept
+        [[nodiscard]] constexpr value_type& Build() noexcept
         {
             return m_Build;
         }
-        [[nodiscard]] constexpr ValueType Build() const noexcept
+        [[nodiscard]] constexpr value_type Build() const noexcept
         {
             return m_Build;
         }
 
-        [[nodiscard]] constexpr ValueType& Revision() noexcept
+        [[nodiscard]] constexpr value_type& Revision() noexcept
         {
             return m_Revision;
         }
-        [[nodiscard]] constexpr ValueType Revision() const noexcept
+        [[nodiscard]] constexpr value_type Revision() const noexcept
         {
             return m_Revision;
         }
@@ -133,7 +133,7 @@ namespace Ame
         /// <summary>
         /// Convert to array
         /// </summary>
-        [[nodiscard]] constexpr auto ToString() const noexcept
+        [[nodiscard]] auto ToString() const noexcept
         {
             return std::format(
                 "{:d}.{:d}.{:d}.{:d}",
@@ -146,7 +146,7 @@ namespace Ame
         /// <summary>
         /// Convert from string to version
         /// </summary>
-        template<Concepts::StringType StrTy>
+        template<StringType StrTy>
         [[nodiscard]] static constexpr TVersion FromString(
             const StrTy& str)
         {
@@ -173,7 +173,7 @@ namespace Ame
                 iter *= 10;
                 iter += C - '0';
 
-                version[curVer] = iter;
+                version[curVer] = static_cast<value_type>(iter);
             }
 
             return version;
@@ -183,7 +183,7 @@ namespace Ame
             const TVersion&) const noexcept = default;
 
     private:
-        ValueType
+        value_type
             m_Major    = 0,
             m_Minor    = 0,
             m_Build    = 0,

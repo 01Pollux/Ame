@@ -43,7 +43,7 @@ namespace Ame
     UId UIdUtils::FromString(const String& str)
     {
         // string must be (8-4-4-4-12) characters long
-        static constexpr size_t c_UIdStringLength = 8 + 1 + 4 + 1 + 4 + 1 + 2 * 2 + 1 + 2 * 6;
+        constexpr size_t c_UIdStringLength = 8 + 1 + 4 + 1 + 4 + 1 + 2 * 2 + 1 + 2 * 6;
 
         UId  uid;
         bool error = false;

@@ -11,8 +11,8 @@ namespace Ame
     class ISerializable : public IObject
     {
     public:
-        virtual void Serialize(BinaryOArchiver& ar) const = 0;
-        virtual void Deserialize(BinaryIArchiver& ar)     = 0;
+        virtual void Serialize(BinaryOArchiver&) const {};
+        virtual void Deserialize(BinaryIArchiver&){};
     };
 } // namespace Ame
 
