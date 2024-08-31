@@ -1,7 +1,7 @@
 #include <Window/Glfw/GlfwContext.hpp>
 #include <GLFW/glfw3.h>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Window
 {
@@ -10,7 +10,7 @@ namespace Ame::Window
 
     static void GlfwErrorCallback(int code, const char* description)
     {
-        Log::Window().Error("GLFW Error: {0} ({1})", description, code);
+        AME_LOG_ERROR(std::format("GLFW Error: {} ({})", description, code));
     }
 
     //
@@ -76,7 +76,7 @@ namespace Ame::Window
 
         glfwSetErrorCallback(GlfwErrorCallback);
         glfwInitAllocator(&glfwAllocator);
-        AME_LOG_ASSERT(Log::Window(), glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
+        AME_LOG_ASSERT(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
     }
 
     void GlfwContext::GlfwWorker()
@@ -115,7 +115,7 @@ namespace Ame::Window
             }
             catch (const std::exception& e)
             {
-                Log::Window().Error("Unhandled exception in GLFW worker thread: {0}", e.what());
+                AME_LOG_ERROR(std::format("Unhandled exception in GLFW worker thread: {}", e.what()));
             }
 #else
             if (task) [[likely]]

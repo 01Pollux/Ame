@@ -2,7 +2,7 @@
 #include <Asset/Metadata.hpp>
 #include <FileSystem/Path.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Asset
 {
@@ -86,15 +86,15 @@ namespace Ame::Asset
     std::filesystem::path AssetMetaDataDef::GetMetaPath() const
     {
         auto path = m_MetaData.get<String>("Path");
-        Log::Asset().Validate(
-            !(path.empty() || path.starts_with("..")), "Path '{}' cannot be empty or start with '..'", path);
+        AME_LOG_VALIDATE(!(path.empty() || path.starts_with("..")),
+                         std::format("Path '{}' cannot be empty or start with '..'", path));
         return path;
     }
 
     void AssetMetaDataDef::SetMetaPath(String path)
     {
-        Log::Asset().Validate(
-            !(path.empty() || path.starts_with("..")), "Path '{}' cannot be empty or start with '..'", path);
+        AME_LOG_VALIDATE(!(path.empty() || path.starts_with("..")),
+                         std::format("Path '{}' cannot be empty or start with '..'", path));
         m_MetaData.put("Path", std::move(path));
     }
 

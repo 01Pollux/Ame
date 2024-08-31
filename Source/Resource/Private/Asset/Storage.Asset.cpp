@@ -3,13 +3,13 @@
 #include <Asset/Pack.hpp>
 #include <Asset/Packs/Memory.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Asset
 {
     Co::result<void> Storage::SaveAsset(const AddDesc& desc)
     {
-        AME_LOG_ASSERT(Log::Asset(), desc.Asset != nullptr, "Asset is null");
+        AME_LOG_ASSERT(desc.Asset != nullptr, "Asset is null");
 
         using namespace EnumBitOperators;
 
@@ -20,17 +20,15 @@ namespace Ame::Asset
         }
         else if (!package)
         {
-            AME_LOG_ASSERT(Log::Asset(), m_Packages.size() > 1, "No packages mounted");
+            AME_LOG_ASSERT(m_Packages.size() > 1, "No packages mounted");
             package = *std::next(m_Packages.begin());
         }
 #ifdef AME_DEBUG
         else
         {
-            if (std::ranges::find_if(m_Packages, [package](const auto& curPackage) { return curPackage == package; }) ==
-                m_Packages.end())
-            {
-                AME_LOG_ASSERT(Log::Asset(), false, "Package not mounted");
-            }
+            bool packageFound = std::ranges::find_if(m_Packages, [package](const auto& curPackage)
+                                                     { return curPackage == package; }) != m_Packages.end();
+            AME_LOG_ASSERT(packageFound, "Package not mounted");
         }
 #endif
 
@@ -47,7 +45,7 @@ namespace Ame::Asset
             }
         }
 
-        Log::Asset().Warning("Asset '{}' not found", UIdUtils::ToString(uid));
+        AME_LOG_WARNING(std::format("Asset '{}' not found", UIdUtils::ToString(uid)));
     }
 
     //

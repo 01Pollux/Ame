@@ -1,8 +1,6 @@
 #include <Rg/Resolver.hpp>
 #include <Rg/ResourceStorage.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame::Rg
 {
     Resolver::Resolver(ResourceStorage& resourceStorage) : m_Storage(resourceStorage)

@@ -1,7 +1,7 @@
 #include <Application/Application.hpp>
 #include <Engine/Engine.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame
 {
@@ -12,22 +12,22 @@ namespace Ame
 
     BaseApplication::~BaseApplication()
     {
-        Log::Engine().Trace("Application destroyed");
+        AME_LOG_TRACE("Application destroyed");
     }
 
     //
 
     int BaseApplication::Run()
     {
-        Log::Engine().Trace("Application started");
+        AME_LOG_TRACE("Application started");
 #if !(defined(AME_DIST) || defined(AME_NO_EXCEPTIONS))
         try
         {
 #endif
             OnLoad();
-            Log::Engine().Trace("Application loaded");
+            AME_LOG_TRACE("Application loaded");
             OnInitialize();
-            Log::Engine().Trace("Application initialized");
+            AME_LOG_TRACE("Application initialized");
 
             while (m_Engine->IsRunning())
             {
@@ -35,18 +35,18 @@ namespace Ame
             }
 
             OnShutdown();
-            Log::Engine().Trace("Application shutdown");
+            AME_LOG_TRACE("Application shutdown");
             OnUnload();
-            Log::Engine().Trace("Application unloaded");
+            AME_LOG_TRACE("Application unloaded");
 #if !(defined(AME_DIST) || defined(AME_NO_EXCEPTIONS))
         }
-        catch (const std::bad_alloc& e)
+        catch (const std::exception& e)
         {
-            Log::Engine().Fatal("Memory allocation failed: {}", e.what());
+            AME_LOG_FATAL(std::format("Unhandled exception: {}", e.what()));
             return EXIT_FAILURE;
         }
 #endif
-        Log::Engine().Trace("Application stopped");
+        AME_LOG_TRACE("Application stopped");
         return EXIT_SUCCESS;
     }
 } // namespace Ame

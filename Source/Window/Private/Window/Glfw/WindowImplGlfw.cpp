@@ -2,8 +2,6 @@
 #include <Window/Glfw/WindowImplGlfw.hpp>
 #include <Window/Glfw/GlfwContext.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame::Window
 {
     WindowImplGlfw::WindowImplGlfw(IReferenceCounters* referenceCounters, const WindowCreateDesc& windowDesc) :

@@ -3,7 +3,7 @@
 #include <Rhi/Utils/ShaderCreateInfoX.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/ShaderSourceFactoryUtils.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rhi
 {
@@ -113,10 +113,10 @@ namespace Ame::Rhi
         void Validate([[maybe_unused]] const PartialShaderDesc& desc)
         {
 #ifdef AME_DEBUG
-            Log::Rhi().Assert(desc.Shader, "Shader is null");
-            Log::Rhi().Assert(desc.Shader->Source, "Source is null");
-            Log::Rhi().Assert(!desc.Shader->ByteCode, "Byte code is not supported");
-            Log::Rhi().Assert(desc.Shader->SourceLength, "Source length is 0");
+            AME_LOG_ASSERT(desc.Shader, "Shader is null");
+            AME_LOG_ASSERT(desc.Shader->Source, "Source is null");
+            AME_LOG_ASSERT(!desc.Shader->ByteCode, "Byte code is not supported");
+            AME_LOG_ASSERT(desc.Shader->SourceLength, "Source length is 0");
 #endif
         }
     };

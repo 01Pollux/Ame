@@ -1,9 +1,6 @@
 #include <stack>
 #include <Math/Common.hpp>
-
 #include <Shading/PropertyDescriptor.hpp>
-
-#include <Log/Wrapper.hpp>
 
 #define AME_PROPDESC_METANAME     "meta"
 #define AME_PROPDESC_METADIMS     "dims"

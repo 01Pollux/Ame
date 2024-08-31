@@ -3,8 +3,6 @@
 #include <DiligentCore/Graphics/GraphicsAccessories/interface/GraphicsAccessories.hpp>
 #include <Window/Window.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame::Rhi
 {
     Dg::RENDER_DEVICE_TYPE IRhiDevice::GetGraphicsAPI()

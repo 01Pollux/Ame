@@ -62,8 +62,8 @@ namespace Ame::Rhi
 
         if (!createDesc.Surface || !createDesc.Surface->Window)
         {
-            Log::Rhi().Warning(
-                "Failed to create swapchain for {} graphics engine: Surface is null", DeviceCreateTraitsGL::GetName());
+            AME_LOG_WARNING(std::format(
+                "Failed to create swapchain for {} graphics engine: Surface is null", DeviceCreateTraitsGL::GetName()));
             return deviceWrapper;
         }
 
@@ -85,7 +85,7 @@ namespace Ame::Rhi
 
         if (!(factoryDev && renderDevice && deviceContext && swapchain))
         {
-            Log::Rhi().Warning("Failed to load {} graphics engine", DeviceCreateTraitsGL::GetName());
+            AME_LOG_WARNING(std::format("Failed to load {} graphics engine", DeviceCreateTraitsGL::GetName()));
             return deviceWrapper;
         }
 

@@ -1,4 +1,5 @@
 #include <Plugin/PluginContext.hpp>
+#include <FileSystem/Utils.hpp>
 
 namespace Ame
 {
@@ -7,7 +8,7 @@ namespace Ame
     PluginContext::PluginContext(const String& pluginPath)
     {
         // sanitize plugin path
-        if (pluginPath.contains(".."))
+        if (!FileSystem::EnsurePathIsForward(pluginPath))
         {
             throw std::runtime_error("Invalid plugin path");
         }

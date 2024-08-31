@@ -1,180 +1,44 @@
 #pragma once
 
-#include <vector>
-
-#include <Core/Ame.hpp>
-#include <Core/String.hpp>
 #include <Log/Core.hpp>
-
-namespace spdlog
-{
-    class logger;
-    namespace sinks
-    {
-        class sink;
-    } // namespace sinks
-} // namespace spdlog
-
-#define AME_LOG_TYPE(Type)                                                                                             \
-    template<typename... ArgsTy> void Type(const std::format_string<ArgsTy...> message, ArgsTy&&... args) const        \
-    {                                                                                                                  \
-        Log(LogLevel::Type, std::move(message), std::forward<ArgsTy>(args)...);                                        \
-    }                                                                                                                  \
-    void Type(StringView message)                                                                                      \
-    {                                                                                                                  \
-        LogMessage(LogLevel::Type, message);                                                                           \
-    }
-
-#ifndef AME_DIST
-#define AME_LOG_ASSERT(Logger, Condition, ...) Logger.Assert(Condition, __VA_ARGS__)
-#else
-#define AME_LOG_ASSERT(Logger, Condition, ...) (static_cast<void>(Condition))
-#endif
+#include <Core/Interface.hpp>
 
 namespace Ame::Log
 {
-    class Logger final
+    // {940017D2-269C-45B6-803B-F3C530151CCA}
+    inline constexpr UId IID_Logger{ 0x940017d2, 0x269c, 0x45b6, { 0x80, 0x3b, 0xf3, 0xc5, 0x30, 0x15, 0x1c, 0xca } };
+
+    class ILogger : public IObject
     {
     public:
-        using Sink     = spdlog::sinks::sink;
-        using SinkList = std::vector<SharedPtr<Sink>>;
+        virtual void WriteMessage(const LoggerInfo& info) = 0;
 
-    private:
-        Logger()
+        virtual void AddStream(ILoggerStream* stream)    = 0;
+        virtual void RemoveStream(ILoggerStream* stream) = 0;
+
+        [[nodiscard]] virtual LogLevel GetLevel() const noexcept         = 0;
+        virtual void                   SetLevel(LogLevel level) noexcept = 0;
+
+        [[nodiscard]] bool CanLog([[maybe_unused]] LogLevel level) const noexcept
         {
-        }
-
-        Logger(StringView tagName, SinkList sinks);
-
-    public:
-        /// <summary>
-        /// Register a logger
-        /// </summary>
-        static void Register(const String& tagName, SinkList sinks);
-
-        /// <summary>
-        /// Register a logger
-        /// </summary>
-        static void Register(const String& tagName, StringView fileName);
-
-        /// <summary>
-        /// Register a null logger
-        /// </summary>
-        static void RegisterNull(const String& tagName);
-
-        /// <summary>
-        /// Unregister a logger
-        /// </summary>
-        static void Unregister(const String& tagName);
-
-        /// <summary>
-        /// Get global logger
-        /// </summary>
-        [[nodiscard]] static Logger& GetLogger(const String& name);
-
-        /// <summary>
-        /// Close all loggers
-        /// </summary>
-        static void CloseAllLoggers();
-
-    public:
-#ifndef AME_DISABLE_LOGGING
-        /// <summary>
-        /// Test if a log level can be logged
-        /// </summary>
-        [[nodiscard]] bool CanLog(LogLevel level) const noexcept;
-#else
-        [[nodiscard]] bool CanLog(LogLevel) const noexcept
-        {
+#ifdef AME_DISABLE_LOGGING
             return false;
-        }
-#endif
-
-    public:
-        /// <summary>
-        /// Log a message
-        /// </summary>
-        void LogMessage(LogLevel level, StringView message) const;
-
-        /// <summary>
-        /// Log a message
-        /// </summary>
-        template<typename... ArgsTy>
-        void Log(LogLevel level, const std::format_string<ArgsTy...> message, ArgsTy&&... args) const
-        {
-#ifndef AME_DISABLE_LOGGING
-            if constexpr (sizeof...(ArgsTy) == 0)
-            {
-                LogMessage(level, message.get());
-            }
-            else
-            {
-                LogMessage(level, std::format(std::move(message), std::forward<ArgsTy>(args)...));
-            }
-#endif
-        }
-
-#ifndef AME_DIST
-        AME_LOG_TYPE(Trace);
-        AME_LOG_TYPE(Debug);
-        AME_LOG_TYPE(Info);
 #else
-        void Trace(...)
-        {
-        }
-        void Debug(...)
-        {
-        }
-        void Info(...)
-        {
-        }
-#endif
-        AME_LOG_TYPE(Warning);
-        AME_LOG_TYPE(Error);
-        AME_LOG_TYPE(Fatal);
-
-        template<typename... ArgsTy>
-        void Assert(bool condition, const std::format_string<ArgsTy...> message, ArgsTy&&... args) const
-        {
-#ifndef AME_DISABLE_LOGGING
-#ifndef AME_DIST
-            if (!condition)
+            LogLevel CurLevel = GetLevel();
+#ifdef AME_DIST
+            if (CurLevel < LogLevel::Warning)
             {
-                Fatal(std::move(message), std::forward<ArgsTy>(args)...);
-                Ame::DebugBreak();
+                return false;
             }
 #endif
+            return CurLevel >= level;
 #endif
         }
-
-        template<typename... ArgsTy>
-        void Validate(bool condition, const std::format_string<ArgsTy...> message, ArgsTy&&... args) const
-        {
-#ifndef AME_DISABLE_LOGGING
-            if (!condition)
-            {
-                Fatal(std::move(message), std::forward<ArgsTy>(args)...);
-                std::unreachable();
-            }
-#endif
-        }
-
-    public:
-        /// <summary>
-        /// Set the current log level
-        /// </summary>
-        void SetLevel(LogLevel level);
-
-        /// <summary>
-        /// Get the current log level
-        /// </summary>
-        [[nodiscard]] LogLevel GetLevel() const noexcept;
-
-    private:
-        SharedPtr<spdlog::logger> m_Logger;
     };
 
     //
 
-    [[nodiscard]] String FormatException(const std::exception& ex);
+    inline Ptr<ILogger> Logger;
+
+    [[nodiscard]] Ptr<ILogger> CreateLogger(String name);
 } // namespace Ame::Log

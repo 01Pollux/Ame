@@ -27,6 +27,8 @@ namespace Ame
 
 namespace Ame
 {
+    template<typename Ty> using Atomic = std::atomic<Ty>;
+
     template<typename Ty> using SharedPtr = std::shared_ptr<Ty>;
 
     template<typename Ty> using WeakPtr = std::weak_ptr<Ty>;

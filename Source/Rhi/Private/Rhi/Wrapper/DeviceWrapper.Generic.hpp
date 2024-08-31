@@ -6,7 +6,7 @@
 #include <Rhi/Wrapper/DeviceWrapper.hpp>
 #include <Window/DesktopWindow.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Window
 {
@@ -144,7 +144,7 @@ namespace Ame::Rhi
 
             if (!(factoryDev && renderDevice && deviceContext))
             {
-                Log::Rhi().Warning("Failed to load {} graphics engine", traits_type::GetName());
+                AME_LOG_WARNING(std::format("Failed to load {} graphics engine", traits_type::GetName()));
                 return deviceWrapper;
             }
             factoryDev->QueryInterface(Dg::IID_EngineFactory, engineFactory.RawDblPtr<Dg::IObject>());
@@ -154,8 +154,8 @@ namespace Ame::Rhi
                 auto& surfaceDesc = *createDesc.Surface;
                 if (!surfaceDesc.Window)
                 {
-                    Log::Rhi().Warning(
-                        "Failed to create swapchain for {} graphics engine: Window is null", traits_type::GetName());
+                    AME_LOG_WARNING(std::format(
+                        "Failed to create swapchain for {} graphics engine: Window is null", traits_type::GetName()));
                     return deviceWrapper;
                 }
 
@@ -167,7 +167,8 @@ namespace Ame::Rhi
                                              GetDiligentNativeWindow(desktopWindow), &swapchain);
                 if (!swapchain)
                 {
-                    Log::Rhi().Warning("Failed to create swapchain for {} graphics engine", traits_type::GetName());
+                    AME_LOG_WARNING(
+                        std::format("Failed to create swapchain for {} graphics engine", traits_type::GetName()));
                     return deviceWrapper;
                 }
 

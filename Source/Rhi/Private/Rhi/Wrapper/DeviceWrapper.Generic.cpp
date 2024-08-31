@@ -24,7 +24,7 @@ namespace Ame::Rhi
         Opt<uint32_t> bestAdapter;
         if (adapters.empty())
         {
-            Log::Rhi().Warning("No adapters found");
+            AME_LOG_WARNING("No adapters found");
             return Dg::DEFAULT_ADAPTER_ID;
         }
         if (createDesc.AdapterCallback)
@@ -145,7 +145,7 @@ namespace Ame::Rhi
             level = Log::LogLevel::Fatal;
             break;
         }
-        if (Log::Gfx().GetLevel() <= level)
+        if (Log::Logger && Log::Logger->CanLog(level))
         {
 #ifdef AME_DIST
             Log::Gfx().LogMessage(level, message);
@@ -159,14 +159,14 @@ namespace Ame::Rhi
             switch (code)
             {
             case 0:
-                Log::Gfx().LogMessage(level, message);
+                Log::Logger->WriteMessage({ level, message });
                 break;
             case 1:
             case 2:
-                Log::Gfx().Log(level, "{} (L{}): {}", file, function, line, message);
+                Log::Logger->WriteMessage({ level, std::format("{} (L{}): {}", file, function, line, message) });
                 break;
             case 3:
-                Log::Gfx().Log(level, "{}/{} (L{}): {}", file, function, line, message);
+                Log::Logger->WriteMessage({ level, std::format("{}/{} (L{}): {}", file, function, line, message) });
                 break;
             default:
                 std::unreachable();

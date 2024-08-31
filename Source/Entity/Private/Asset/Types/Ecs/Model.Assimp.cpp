@@ -9,7 +9,7 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/DefaultIOStream.h>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Ecs
 {
@@ -17,9 +17,9 @@ namespace Ame::Ecs
     {
         static void InitializeOnce();
 
-        virtual void write(const char* Message) override
+        virtual void write(const char* message) override
         {
-            String messageStr(Message);
+            String messageStr(message);
             String type;
 
             size_t offset = 0;
@@ -51,7 +51,10 @@ namespace Ame::Ecs
                 severity = iter->second;
             }
 
-            Log::Asset().LogMessage(severity, messageStr);
+            if (Log::Logger)
+            {
+                Log::Logger->WriteMessage({ severity, messageStr });
+            }
         }
     };
 

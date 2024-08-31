@@ -7,7 +7,7 @@
 #include <Window/Glfw/ImGuiWindowImplGlfw.hpp>
 #endif
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Window
 {
@@ -20,7 +20,7 @@ namespace Ame::Window
                 {
                     if (imguiContext != ImGui::GetCurrentContext())
                     {
-                        Log::Window().Warning("ImGui context mismatch");
+                        AME_LOG_WARNING("ImGui context mismatch");
                     }
                     IMGUI_CHECKVERSION();
 
@@ -46,7 +46,7 @@ namespace Ame::Window
                 {
                     if (imguiContext != ImGui::GetCurrentContext())
                     {
-                        Log::Window().Warning("ImGui context mismatch");
+                        AME_LOG_WARNING("ImGui context mismatch");
                     }
                     ImGui_ImplGlfw_InstallCallbacks(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle);
                 })
@@ -63,7 +63,7 @@ namespace Ame::Window
                 {
                     if (imguiContext != ImGui::GetCurrentContext())
                     {
-                        Log::Window().Warning("ImGui context mismatch");
+                        AME_LOG_WARNING("ImGui context mismatch");
                     }
                     ImGui_ImplGlfw_NewFrame(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle);
                 })
@@ -80,7 +80,7 @@ namespace Ame::Window
                 {
                     if (imguiContext != ImGui::GetCurrentContext())
                     {
-                        Log::Window().Warning("ImGui context mismatch");
+                        AME_LOG_WARNING("ImGui context mismatch");
                     }
                     ImGui_ImplGlfw_RestoreCallbacks(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle);
                 })
@@ -97,7 +97,7 @@ namespace Ame::Window
                 {
                     if (imguiContext != ImGui::GetCurrentContext())
                     {
-                        Log::Window().Warning("ImGui context mismatch");
+                        AME_LOG_WARNING("ImGui context mismatch");
                     }
                     ImGui_ImplGlfw_Shutdown(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle);
                 })

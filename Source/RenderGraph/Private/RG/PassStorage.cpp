@@ -5,13 +5,13 @@
 #include <Rg/Context.hpp>
 #include <Rg/DependencyLevel.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rg
 {
     Pass* PassStorage::AddPass(const String& name, UniquePtr<Pass> pass)
     {
-        AME_LOG_ASSERT(Log::Gfx(), !m_NamedPasses.contains(name), "Pass with name '{}' already exists", name);
+        AME_LOG_ASSERT(!m_NamedPasses.contains(name), std::format("Pass with name '{}' already exists", name));
 
         auto iter = m_NamedPasses.emplace(name, std::move(pass)).first;
         m_Passes.emplace_back(iter);
@@ -80,7 +80,7 @@ namespace Ame::Rg
                std::views::transform(
                    [&](auto& pass)
                    {
-                       Log::Gfx().Trace("Building pass '{}'", pass->first);
+                       AME_LOG_TRACE(std::format("Building pass '{}'", pass->first));
                        Resolver resolver(context.GetStorage());
                        pass->second->DoBuild(resolver);
                        return resolver;

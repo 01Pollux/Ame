@@ -1,6 +1,6 @@
 #include <Plugin/Plugin.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 using namespace Ame;
 
@@ -14,33 +14,33 @@ public:
 
     ~ExamplePluginHost() override
     {
-        Log::Engine().Info("ExamplePluginHost::~ExamplePluginHost");
+        AME_LOG_INFO("ExamplePluginHost::~ExamplePluginHost");
     }
 
     void OnPluginPreLoad(IModuleRegistry*) override
     {
-        Log::Engine().Info("ExamplePluginHost::OnPluginPreLoad");
+        AME_LOG_INFO("ExamplePluginHost::OnPluginPreLoad");
     }
 
     bool OnPluginLoad(IModuleRegistry*) override
     {
-        Log::Engine().Info("ExamplePluginHost::OnPluginLoad");
+        AME_LOG_INFO("ExamplePluginHost::OnPluginLoad");
         return true;
     }
 
     void OnInterfaceDrop(IObject*) override
     {
-        Log::Engine().Info("ExamplePluginHost::OnInterfaceDrop");
+        AME_LOG_INFO("ExamplePluginHost::OnInterfaceDrop");
     }
 
     void OnPluginUnload() override
     {
-        Log::Engine().Info("ExamplePluginHost::OnPluginUnload");
+        AME_LOG_INFO("ExamplePluginHost::OnPluginUnload");
     }
 
     void OnPluginPauseChange(bool) override
     {
-        Log::Engine().Info("ExamplePluginHost::OnPluginPauseChange");
+        AME_LOG_INFO("ExamplePluginHost::OnPluginPauseChange");
     }
 };
 

@@ -5,7 +5,7 @@
 #include <Rhi/Device/RhiDevice.hpp>
 
 #include <Core/Enum.hpp>
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Ecs
 {
@@ -213,8 +213,9 @@ namespace Ame::Ecs
             indices32.Sync();
             indices16.Sync();
 
-            Log::Asset().Info("Mesh {} has {} vertices and {} indices",
-                              StringView(mesh->mName.C_Str(), mesh->mName.length), mesh->mNumVertices, indexCount);
+            AME_LOG_TRACE(std::format("Mesh {} has {} vertices and {} indices",
+                                      StringView(mesh->mName.C_Str(), mesh->mName.length), mesh->mNumVertices,
+                                      indexCount));
         }
 
         createDesc.MeshNodes.reserve(scene->mNumMeshes);

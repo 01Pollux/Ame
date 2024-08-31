@@ -4,7 +4,7 @@
 #include <Rhi/Utils/SRBBinder.hpp>
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rhi
 {
@@ -80,7 +80,7 @@ namespace Ame::Rhi
         uint32_t offset       = userDataDesc.GetOffset(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Rhi().Assert(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
+        AME_LOG_ASSERT(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
 #endif
 
         std::memcpy(m_LocalData.UserDataBuffer.get() + offset, data, size);
@@ -92,7 +92,7 @@ namespace Ame::Rhi
         uint32_t offset       = userDataDesc.GetOffset(propertyName);
 
 #ifdef AME_DEBUG
-        Log::Rhi().Assert(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
+        AME_LOG_ASSERT(offset + size <= GetSizeOfUserData(), "User data buffer overflow");
 #endif
 
         std::memcpy(data, m_LocalData.UserDataBuffer.get() + offset, size);

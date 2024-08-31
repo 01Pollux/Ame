@@ -11,8 +11,6 @@
 #include <CommonStates/CommonRenderPasses.hpp>
 #include <Rhi/Utils/SRBBinder.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame::Ecs
 {
     [[nodiscard]] static Ptr<Dg::ITexture> LoadStandardTexture(Dg::IRenderDevice* renderDevice,

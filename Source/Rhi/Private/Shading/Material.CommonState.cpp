@@ -3,8 +3,6 @@
 #include <Shading/Material.CommonState.hpp>
 #include <Shading/Hash.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame::Rhi
 {
     MaterialCommonState::MaterialCommonState(Dg::IRenderDevice* renderDevice, MaterialCreateDesc createDesc) :

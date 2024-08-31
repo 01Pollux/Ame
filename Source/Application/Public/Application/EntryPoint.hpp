@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Coroutine.hpp>
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 #if defined(NEON_PLATFORM_WINDOWS) && defined(NEON_DIST)
 
@@ -44,7 +44,7 @@ static void EnableDebugInfo()
             ret = app.Run();                                                                                           \
         }                                                                                                              \
         Ame::Coroutine::Shutdown();                                                                                    \
-        Ame::Log::Logger::CloseAllLoggers();                                                                           \
+        Ame::Log::Logger = {};                                                                                         \
         return ret;                                                                                                    \
     }
 

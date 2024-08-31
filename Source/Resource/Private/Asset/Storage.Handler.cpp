@@ -3,16 +3,13 @@
 #include <Asset/Pack.hpp>
 #include <Asset/Packs/Memory.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Asset
 {
     void Storage::RegisterHandler(const UId& uid, Ptr<IAssetHandler> handler)
     {
-        if (!m_Handlers.emplace(uid, std::move(handler)).second)
-        {
-            AME_LOG_ASSERT(Log::Asset(), false, "Handler already registered");
-        }
+        AME_LOG_ASSERT(m_Handlers.emplace(uid, std::move(handler)).second, "Handler already registered");
     }
 
     void Storage::UnregisterHandler(const UId& uid)

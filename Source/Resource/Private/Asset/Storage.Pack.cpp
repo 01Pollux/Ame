@@ -3,7 +3,7 @@
 #include <Asset/Pack.hpp>
 #include <Asset/Packs/Memory.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Asset
 {
@@ -12,7 +12,7 @@ namespace Ame::Asset
 #ifndef AME_RELEASE
         if (&package->GetStorage() != this)
         {
-            Log::Asset().Error("Trying to mount an asset that part of this storage");
+            AME_LOG_ERROR("Trying to mount an asset that part of this storage");
             return;
         }
 #endif
@@ -44,7 +44,7 @@ namespace Ame::Asset
             }
             catch (const std::exception& Exception)
             {
-                Log::Asset().Error("Failed to export packages: {}", Exception.what());
+                AME_LOG_ERROR(std::format("Failed to export packages: {}", Exception.what()));
             }
         }
     }

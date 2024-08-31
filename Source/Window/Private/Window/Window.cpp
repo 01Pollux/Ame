@@ -1,6 +1,6 @@
 #include <Window/Glfw/WindowImplGlfw.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Window
 {
@@ -14,7 +14,7 @@ namespace Ame::Window
         }
         default:
         {
-            Log::Window().Warning("Window type not supported");
+            AME_LOG_WARNING("Window type not supported");
             return {};
         }
         }

@@ -1,7 +1,7 @@
 #include <Rhi/Wrapper/DeviceWrapper.hpp>
 #include <Core/Enum.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 // TODO:
 // Add MSAA swapchain support
@@ -20,7 +20,7 @@ namespace Ame::Rhi
             }
         }
 
-        Log::Rhi().Fatal("Failed to create renderer device");
+        AME_LOG_FATAL("Failed to create renderer device");
         return std::nullopt;
     }
 

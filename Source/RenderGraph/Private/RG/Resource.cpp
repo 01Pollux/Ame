@@ -1,7 +1,7 @@
 #include <Rg/Resource.hpp>
 #include <DiligentCore/Common/interface/HashUtils.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rg
 {
@@ -68,7 +68,7 @@ namespace Ame::Rg
     {
         size_t viewId = ComputeViewHash(viewDesc);
 
-        Log::Gfx().Assert(std::holds_alternative<BufferHandle>(m_Handle), "Resource is not a buffer");
+        AME_LOG_ASSERT(std::holds_alternative<BufferHandle>(m_Handle), "Resource is not a buffer");
         auto& bufferHandle = std::get<BufferHandle>(m_Handle);
         if (!bufferHandle.Views.contains(viewId))
         {
@@ -82,7 +82,7 @@ namespace Ame::Rg
     {
         size_t viewId = ComputeViewHash(viewDesc);
 
-        Log::Gfx().Assert(std::holds_alternative<TextureHandle>(m_Handle), "Resource is not a texture");
+        AME_LOG_ASSERT(std::holds_alternative<TextureHandle>(m_Handle), "Resource is not a texture");
         auto& textureHandle = std::get<TextureHandle>(m_Handle);
         if (!textureHandle.Views.contains(viewId))
         {

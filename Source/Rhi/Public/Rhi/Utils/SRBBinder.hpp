@@ -4,7 +4,7 @@
 #include <DiligentCore/Graphics/GraphicsTools/interface/RenderStateCache.hpp>
 
 #include <Math/Common.hpp>
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rhi
 {
@@ -64,7 +64,7 @@ namespace Ame::Rhi
     inline void CopyAllResourcesSrb(Dg::IShaderResourceBinding* src, Dg::IShaderResourceBinding* dst)
     {
         auto signature = src->GetPipelineResourceSignature();
-        Log::Rhi().Assert(
+        AME_LOG_ASSERT(
             signature->IsCompatibleWith(dst->GetPipelineResourceSignature()), "Incompatible resource signatures");
         auto& signatureDesc = signature->GetDesc();
 

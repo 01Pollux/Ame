@@ -5,8 +5,6 @@
 #include <Interfaces/Ecs/EntityStorage.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame
 {
     AmeEngine::AmeEngine(const EngineConfig& engineConfig) : m_ModuleRegistery(CreateModuleRegistry())

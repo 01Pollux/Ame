@@ -2,7 +2,7 @@
 #include <mutex>
 
 #include <Core/Enum.hpp>
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rhi
 {
@@ -15,7 +15,7 @@ namespace Ame::Rhi
     static unsigned FIReadPorc(void* buffer, unsigned size, unsigned count, fi_handle handle)
     {
         auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
-        Log::Rhi().Assert(io.istream != nullptr, "Stream is null");
+        AME_LOG_ASSERT(io.istream != nullptr, "Stream is null");
         io.istream->read(static_cast<char*>(buffer), std::streamsize(size) * count);
         return static_cast<unsigned>(io.istream->gcount()) / size;
     }
@@ -23,7 +23,7 @@ namespace Ame::Rhi
     static unsigned FIWriteProc(void* buffer, unsigned size, unsigned count, fi_handle handle)
     {
         auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
-        Log::Rhi().Assert(io.ostream != nullptr, "Stream is null");
+        AME_LOG_ASSERT(io.ostream != nullptr, "Stream is null");
         io.ostream->write(static_cast<const char*>(buffer), std::streamsize(size) * count);
         return count;
     }
@@ -79,7 +79,7 @@ namespace Ame::Rhi
 
     auto FreeImageUtils::GetIO(std::istream* istream, std::ostream* ostream) -> std::pair<FreeImageIO, IOStream>
     {
-        Log::Rhi().Assert((istream != nullptr) ^ (ostream != nullptr), "Either istream or ostream must be set");
+        AME_LOG_ASSERT((istream != nullptr) ^ (ostream != nullptr), "Either istream or ostream must be set");
         auto offset = istream ? istream->tellg() : ostream->tellp();
         return { FreeImageIO{ .read_proc  = FIReadPorc,
                               .write_proc = FIWriteProc,

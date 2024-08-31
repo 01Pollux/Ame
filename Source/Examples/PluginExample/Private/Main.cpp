@@ -13,7 +13,10 @@ public:
     void OnLoad() override
     {
         using namespace Ame;
-        Log::Engine().SetLevel(Log::LogLevel::Trace);
+        if (Log::Logger)
+        {
+            Log::Logger->SetLevel(Log::LogLevel::Trace);
+        }
 
         auto moduleRegistry = GetEngine().GetRegistry();
         moduleRegistry->LoadPlugin("PluginHost");

@@ -11,7 +11,7 @@
 #include <Core/Enum.hpp>
 #include <Math/Common.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Rhi
 {
@@ -152,7 +152,8 @@ namespace Ame::Rhi
 #ifndef AME_DIST
             if (!shader)
             {
-                Log::Gfx().Error("Failed to create shader for type: {}", Dg::GetShaderTypeLiteralName(shaderType));
+                AME_LOG_ERROR(
+                    std::format("Failed to create shader for type: {}", Dg::GetShaderTypeLiteralName(shaderType)));
             }
 #endif
 

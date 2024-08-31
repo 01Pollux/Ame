@@ -18,7 +18,7 @@
 #include <Rhi/Device/RhiDevice.hpp>
 #include <Math/Matrix.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 //
 
@@ -202,7 +202,7 @@ namespace Ame::Rhi
 #ifdef AME_DEBUG
         if (m_Fonts.contains(fontName))
         {
-            Log::Gfx().Warning("Font '{}' already loaded", fontName);
+            AME_LOG_WARNING(std::format("Font '{}' already loaded", fontName));
             return nullptr;
         }
 #endif
@@ -219,7 +219,7 @@ namespace Ame::Rhi
 #ifdef AME_DEBUG
         if (m_Fonts.contains(fontName))
         {
-            Log::Gfx().Warning("Font '{}' already loaded", fontName);
+            AME_LOG_WARNING(std::format("Font '{}' already loaded", fontName));
             return nullptr;
         }
 #endif
@@ -620,15 +620,14 @@ namespace Ame::Rhi
         }
 
         case Dg::SURFACE_TRANSFORM_OPTIMAL:
-            Log::Rhi().Warning(
-                "SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
+            AME_LOG_WARNING("SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
             return rect;
 
         case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR:
         case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90:
         case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180:
         case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270:
-            Log::Rhi().Warning("Mirror transforms are not supported");
+            AME_LOG_WARNING("Mirror transforms are not supported");
             return rect;
 
         default:
@@ -726,7 +725,7 @@ namespace Ame::Rhi
                 break;
 
             case Dg::SURFACE_TRANSFORM_OPTIMAL:
-                Log::Rhi().Warning(
+                AME_LOG_WARNING(
                     "SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
                 break;
 
@@ -734,7 +733,7 @@ namespace Ame::Rhi
             case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90:
             case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180:
             case Dg::SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270:
-                Log::Rhi().Warning("Mirror transforms are not supported");
+                AME_LOG_WARNING("Mirror transforms are not supported");
                 break;
 
             default:
@@ -832,7 +831,7 @@ namespace Ame::Rhi
 
                     // Bind texture
                     auto textureView = static_cast<Dg::ITextureView*>(cmd->TextureId);
-                    Log::Rhi().Assert(textureView, "Texture view is null");
+                    AME_LOG_ASSERT(textureView, "Texture view is null");
                     if (textureView != lastTextureView)
                     {
                         lastTextureView = textureView;

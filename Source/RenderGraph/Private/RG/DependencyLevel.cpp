@@ -4,8 +4,6 @@
 
 #include <DiligentCore/Graphics/GraphicsTools/interface/ScopedDebugGroup.hpp>
 
-#include <Log/Wrapper.hpp>
-
 namespace Ame::Rg
 {
     void DependencyLevel::AddPass(Pass* pass)

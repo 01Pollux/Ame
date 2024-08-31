@@ -1,6 +1,6 @@
 #include <Plugin/ModuleRegistryImpl.hpp>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame
 {
@@ -120,7 +120,7 @@ namespace Ame
         }
         catch (const std::exception& e)
         {
-            Log::Engine().Warning("Failed to load plugin: '{}' (error: '{}')", name, e.what());
+            AME_LOG_WARNING(std::format("Failed to load plugin: '{}' (error: '{}')", name, e.what()));
         }
         return nullptr;
     }

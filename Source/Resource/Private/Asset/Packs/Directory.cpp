@@ -11,7 +11,7 @@
 #include <Util/Crypto.hpp>
 #include <cryptopp/sha.h>
 
-#include <Log/Wrapper.hpp>
+#include <Log/Logger.hpp>
 
 namespace Ame::Asset
 {
@@ -20,29 +20,27 @@ namespace Ame::Asset
         Base(counters, assetStorage),
         m_RootPath(std::move(path))
     {
-        auto& logger = Log::Asset();
-
         auto rootPathStr = m_RootPath.generic_string();
         if (rootPathStr.empty() || rootPathStr.starts_with(".."))
         {
-            logger.Error("Path '{}' cannot be empty or start with '..'", rootPathStr);
+            AME_LOG_ERROR(std::format("Path '{}' cannot be empty or start with '..'", rootPathStr));
             return;
         }
 
         if (!std::filesystem::exists(m_RootPath))
         {
-            logger.Trace("Path '{}' does not exist, creating a new one", rootPathStr);
+            AME_LOG_TRACE(std::format("Path '{}' does not exist, creating a new one", rootPathStr));
             std::filesystem::create_directories(m_RootPath);
             return;
         }
 
         if (!std::filesystem::is_directory(m_RootPath))
         {
-            logger.Error("Trying to create a directory asset package from a file '{}'", rootPathStr);
+            AME_LOG_ERROR(std::format("Trying to create a directory asset package from a file '{}'", rootPathStr));
             return;
         }
 
-        logger.Trace("Loading assets from directory '{}'", rootPathStr);
+        AME_LOG_TRACE(std::format("Loading assets from directory '{}'", rootPathStr));
 
         // First load all the meta files
         for (auto& metafilePath : GetFiles(m_RootPath))
@@ -55,7 +53,7 @@ namespace Ame::Asset
             std::ifstream file(metafilePath);
             if (!file.is_open())
             {
-                logger.Error("Failed to open meta file '{}'", metafilePath);
+                AME_LOG_ERROR(std::format("Failed to open meta file '{}'", metafilePath));
                 continue;
             }
 
@@ -65,20 +63,21 @@ namespace Ame::Asset
 
                 if ((m_RootPath / metaData.GetMetaPath()) != metafilePath)
                 {
-                    logger.Error("Meta file '{}' has a different path than the one in meta file", metafilePath);
+                    AME_LOG_ERROR(
+                        std::format("Meta file '{}' has a different path than the one in meta file", metafilePath));
                     continue;
                 }
 
                 auto uid = metaData.GetUId();
                 if (UIdUtils::IsNull(uid))
                 {
-                    logger.Error("Asset", "Meta file '{}' does not have a UId", metafilePath);
+                    AME_LOG_ERROR(std::format("Asset", "Meta file '{}' does not have a UId", metafilePath));
                     continue;
                 }
 
                 if (m_AssetMeta.contains(uid))
                 {
-                    logger.Error("Meta file '{}' has a UId that is already in use", metafilePath);
+                    AME_LOG_ERROR(std::format("Meta file '{}' has a UId that is already in use", metafilePath));
                     continue;
                 }
 
@@ -87,7 +86,7 @@ namespace Ame::Asset
 
                 if (!file.is_open())
                 {
-                    logger.Error("Failed to open asset file '{}'", assetPath.string());
+                    AME_LOG_ERROR(std::format("Failed to open asset file '{}'", assetPath.string()));
                     continue;
                 }
 
@@ -101,18 +100,19 @@ namespace Ame::Asset
                 auto expectedHash = metaData.GetHash();
                 if (expectedHash.empty())
                 {
-                    logger.Error("Meta file '{}' does not have a hash", metafilePath);
+                    AME_LOG_ERROR(std::format("Meta file '{}' does not have a hash", metafilePath));
                     continue;
                 }
                 else if (currentHash != expectedHash)
                 {
 #ifndef AME_ASSET_MGR_DISABLE_HASH_VALIDATION
-                    logger.Error("Asset file '{}' has a different hash than the one in meta file", assetPath.string());
+                    AME_LOG_ERROR(std::format(
+                        "Asset file '{}' has a different hash than the one in meta file", assetPath.string()));
                     continue;
 #else
                     // Try to correct the hash
-                    logger.Warning(
-                        "Asset file '{}' has a different hash than the one in meta file", assetPath.string());
+                    AME_LOG_WARNING(std::format(
+                        "Asset file '{}' has a different hash than the one in meta file", assetPath.string()));
                     metaData.SetHash(currentHash);
                     metaData.SetDirty();
 
@@ -414,7 +414,7 @@ namespace Ame::Asset
             auto [handlerId, handler] = m_Storage.get().GetHandler(curAsset);
             if (!handler)
             {
-                Log::Asset().Error("Failed to get handler for asset '{}'", UIdUtils::ToString(uid));
+                AME_LOG_ERROR(std::format("Failed to get handler for asset '{}'", UIdUtils::ToString(uid)));
                 continue;
             }
 
@@ -424,7 +424,7 @@ namespace Ame::Asset
             std::fstream assetFile(assetPath, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
             if (!assetFile.is_open())
             {
-                Log::Asset().Error("Failed to open asset file '{}'", assetPath.string());
+                AME_LOG_ERROR(std::format("Failed to open asset file '{}'", assetPath.string()));
                 continue;
             }
 
