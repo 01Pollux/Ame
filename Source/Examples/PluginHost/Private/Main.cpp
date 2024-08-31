@@ -21,20 +21,20 @@ public:
         Log::Engine().Info("ExamplePluginHost::~ExamplePluginHost");
     }
 
-    void OnPluginPreLoad(IPluginHost*) override
+    void OnPluginPreLoad(IModuleRegistry*) override
     {
         Log::Engine().Info("ExamplePluginHost::OnPluginPreLoad");
     }
 
-    bool OnPluginLoad(IPluginHost*) override
+    bool OnPluginLoad(IModuleRegistry*) override
     {
         Log::Engine().Info("ExamplePluginHost::OnPluginLoad");
         return true;
     }
 
-    void OnDropInterface(IObject*) override
+    void OnInterfaceDrop(IObject*) override
     {
-        Log::Engine().Info("ExamplePluginHost::OnDropInterface");
+        Log::Engine().Info("ExamplePluginHost::OnInterfaceDrop");
     }
 
     void OnPluginUnload() override

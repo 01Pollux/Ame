@@ -1,13 +1,13 @@
 ---
-Language:        Cpp
+Language:     Cpp
 BasedOnStyle: Microsoft
 SortIncludes: Never
-ColumnLimit: 0
 PointerAlignment: Left
 AccessModifierOffset: -4
 NamespaceIndentation: All
 BreakConstructorInitializers: AfterColon
 Cpp11BracedListStyle: false
+PenaltyBreakBeforeFirstCallParameter: 0
 BraceWrapping:
   AfterCaseLabel: true
   BeforeLambdaBody: true

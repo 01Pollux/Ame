@@ -7,7 +7,7 @@
 
 namespace Ame
 {
-    class IPluginHost;
+    class IModuleRegistry;
 
     struct PluginInfo
     {
@@ -41,7 +41,7 @@ namespace Ame
         /// <summary>
         /// Called when plugin is first loaded, use this callback to register interfaces only
         /// </summary>
-        virtual void OnPluginPreLoad(IPluginHost*)
+        virtual void OnPluginPreLoad(IModuleRegistry*)
         {
         }
 
@@ -51,7 +51,7 @@ namespace Ame
         /// <returns>
         /// true if plugin is all set to be loaded, false otherwise
         /// </returns>
-        virtual bool OnPluginLoad(IPluginHost*)
+        virtual bool OnPluginLoad(IModuleRegistry*)
         {
             return false;
         }
@@ -59,7 +59,7 @@ namespace Ame
         /// <summary>
         /// Called when plugin's interface depdenency is dropped
         /// </summary>
-        virtual void OnDropInterface(IObject*)
+        virtual void OnInterfaceDrop(IObject*)
         {
         }
 

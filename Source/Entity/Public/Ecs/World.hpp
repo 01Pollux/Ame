@@ -15,7 +15,10 @@ namespace Ame::Rhi
 
 namespace Ame::Ecs
 {
-    inline constexpr UId IID_EntityWorld{ 0x4132fa8f, 0x6567, 0x45bb, { 0x83, 0xb0, 0xf1, 0xb2, 0x64, 0xff, 0xd5, 0xc7 } };
+    // {FB443EB9-0F56-4640-B724-DE48E737BB9C}
+    inline constexpr UId IID_EntityWorld{
+        0xfb443eb9, 0xf56, 0x4640, { 0xb7, 0x24, 0xde, 0x48, 0xe7, 0x37, 0xbb, 0x9c }
+    };
 
     class World : public BaseObject<IObject>
     {
@@ -25,39 +28,34 @@ namespace Ame::Ecs
             World* world;
         };
 
+    public:
         using Base = BaseObject<IObject>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_EntityWorld, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_EntityWorld, Base);
+
+    private:
+        IMPLEMENT_INTERFACE_CTOR(World, Ptr<Rhi::IRhiDevice> rhiDevice);
 
     public:
-        World(
-            IReferenceCounters*         counter,
-            const Ptr<Rhi::IRhiDevice>& rhiDevice);
-
-        ~World() override;
+        ~World();
 
     public:
         /// <summary>
         /// Create a new entity in the world.
         /// If the entity's name is already in use, Name will be modified to be unique using 'CreateUniqueEntityName'.
         /// </summary>
-        Entity CreateEntity(
-            StringView    name   = "",
-            const Entity& parent = Entity::c_Null);
+        Entity CreateEntity(StringView name = "", const Entity& parent = Entity::c_Null);
 
         /// <summary>
         /// Get entity from its id.
         /// </summary>
-        [[nodiscard]] Entity GetEntityById(
-            const EntityId id) const;
+        [[nodiscard]] Entity GetEntityById(const EntityId id) const;
 
     public:
         /// <summary>
         /// Create a new query in the world for querying entities.
         /// </summary>
-        template<typename... ArgsTy>
-        [[nodiscard]] QueryBuilder<ArgsTy...> CreateQuery()
+        template<typename... ArgsTy> [[nodiscard]] QueryBuilder<ArgsTy...> CreateQuery()
         {
             return m_World->query_builder<ArgsTy...>();
         }
@@ -66,8 +64,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Create a new system in the world for processing entities.
         /// </summary>
-        template<typename... ArgsTy>
-        [[nodiscard]] SystemBuilder<ArgsTy...> CreateSystem()
+        template<typename... ArgsTy> [[nodiscard]] SystemBuilder<ArgsTy...> CreateSystem()
         {
             return m_World->system<ArgsTy...>();
         }
@@ -76,8 +73,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Create a new observer in the world for tracking entities.
         /// </summary>
-        template<typename... ArgsTy>
-        [[nodiscard]] ObserverBuilder<ArgsTy...> CreateObserver()
+        template<typename... ArgsTy> [[nodiscard]] ObserverBuilder<ArgsTy...> CreateObserver()
         {
             return m_World->observer<ArgsTy...>();
         }
@@ -97,15 +93,13 @@ namespace Ame::Ecs
         /// <summary>
         /// Progress the world.
         /// </summary>
-        void Progress(
-            double deltaTime);
+        void Progress(double deltaTime);
 
     public:
         /// <summary>
         /// Register a new module in the world.
         /// </summary>
-        template<typename Ty>
-        auto ImportModule()
+        template<typename Ty> auto ImportModule()
         {
             return m_World->import <Ty>();
         }
@@ -126,15 +120,11 @@ namespace Ame::Ecs
     class WorldRef
     {
     public:
-        WorldRef(
-            World& world) :
-            m_World(world->get_world())
+        WorldRef(World& world) : m_World(world->get_world())
         {
         }
 
-        WorldRef(
-            flecs::world world) :
-            m_World(std::move(world))
+        WorldRef(flecs::world world) : m_World(std::move(world))
         {
         }
 
@@ -154,22 +144,18 @@ namespace Ame::Ecs
         /// Create a new entity in the world.
         /// If the entity's name is already in use, Name will be modified to be unique using 'CreateUniqueEntityName'.
         /// </summary>
-        Entity CreateEntity(
-            StringView    name,
-            const Entity& parent = Entity::c_Null);
+        Entity CreateEntity(StringView name, const Entity& parent = Entity::c_Null);
 
         /// <summary>
         /// Get entity from its id.
         /// </summary>
-        [[nodiscard]] Entity GetEntityById(
-            const EntityId id) const;
+        [[nodiscard]] Entity GetEntityById(const EntityId id) const;
 
     public:
         /// <summary>
         /// Create a new query in the world for querying entities.
         /// </summary>
-        template<typename... ArgsTy>
-        [[nodiscard]] QueryBuilder<ArgsTy...> CreateQuery()
+        template<typename... ArgsTy> [[nodiscard]] QueryBuilder<ArgsTy...> CreateQuery()
         {
             return m_World.query_builder<ArgsTy...>();
         }
@@ -178,8 +164,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Create a new system in the world for processing entities.
         /// </summary>
-        template<typename... ArgsTy>
-        [[nodiscard]] SystemBuilder<ArgsTy...> CreateSystem()
+        template<typename... ArgsTy> [[nodiscard]] SystemBuilder<ArgsTy...> CreateSystem()
         {
             return m_World.system<ArgsTy...>();
         }
@@ -188,8 +173,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Create a new observer in the world for tracking entities.
         /// </summary>
-        template<typename... ArgsTy>
-        [[nodiscard]] ObserverBuilder<ArgsTy...> CreateObserver()
+        template<typename... ArgsTy> [[nodiscard]] ObserverBuilder<ArgsTy...> CreateObserver()
         {
             return m_World.observer<ArgsTy...>();
         }
@@ -230,8 +214,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Register a new module in the world.
         /// </summary>
-        template<typename Ty>
-        void ImportModule()
+        template<typename Ty> void ImportModule()
         {
             m_World.import <Ty>();
         }
@@ -245,15 +228,11 @@ namespace Ame::Ecs
     class AsyncWorld : public WorldRef
     {
     public:
-        AsyncWorld(
-            World& world) :
-            WorldRef(world->async_stage())
+        AsyncWorld(World& world) : WorldRef(world->async_stage())
         {
         }
 
-        AsyncWorld(
-            flecs::world world) :
-            WorldRef(world.async_stage())
+        AsyncWorld(flecs::world world) : WorldRef(world.async_stage())
         {
         }
 
@@ -268,16 +247,12 @@ namespace Ame::Ecs
     class ScopedDeferredWorld : public WorldRef
     {
     public:
-        ScopedDeferredWorld(
-            World& world) :
-            WorldRef(world)
+        ScopedDeferredWorld(World& world) : WorldRef(world)
         {
             m_World.defer_begin();
         }
 
-        ScopedDeferredWorld(
-            flecs::world world) :
-            WorldRef(std::move(world))
+        ScopedDeferredWorld(flecs::world world) : WorldRef(std::move(world))
         {
             m_World.defer_begin();
         }
@@ -299,16 +274,12 @@ namespace Ame::Ecs
     class ScopedDeferredSuspensionWorld : public WorldRef
     {
     public:
-        ScopedDeferredSuspensionWorld(
-            World& world) :
-            WorldRef(world)
+        ScopedDeferredSuspensionWorld(World& world) : WorldRef(world)
         {
             m_World.defer_suspend();
         }
 
-        ScopedDeferredSuspensionWorld(
-            flecs::world world) :
-            WorldRef(std::move(world))
+        ScopedDeferredSuspensionWorld(flecs::world world) : WorldRef(std::move(world))
         {
             m_World.defer_suspend();
         }
@@ -330,16 +301,12 @@ namespace Ame::Ecs
     class ScopedAsyncWorld : public AsyncWorld
     {
     public:
-        ScopedAsyncWorld(
-            World& world) :
-            AsyncWorld(world)
+        ScopedAsyncWorld(World& world) : AsyncWorld(world)
         {
             m_World.defer_begin();
         }
 
-        ScopedAsyncWorld(
-            flecs::world world) :
-            AsyncWorld(std::move(world))
+        ScopedAsyncWorld(flecs::world world) : AsyncWorld(std::move(world))
         {
             m_World.defer_begin();
         }

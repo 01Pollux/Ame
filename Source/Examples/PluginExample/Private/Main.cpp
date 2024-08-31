@@ -1,13 +1,11 @@
 #include <Application/EntryPoint.hpp>
 #include <Application/Application.hpp>
 #include <Engine/Engine.hpp>
-#include <Module/Core/PluginHostSubmodule.hpp>
 
 class PluginExampleApplication : public Ame::BaseApplication
 {
 public:
-    explicit PluginExampleApplication(
-        const Ame::ApplicationConfig& applicationConfig) :
+    explicit PluginExampleApplication(const Ame::ApplicationConfig& applicationConfig) :
         BaseApplication(applicationConfig)
     {
     }
@@ -15,15 +13,13 @@ public:
     void OnLoad() override
     {
         using namespace Ame;
+        Log::Engine().SetLevel(Log::LogLevel::Trace);
 
-        Ptr<PluginHostSubmodule> pluginHostSubmodule;
-        GetEngine().GetRegistry().GetModule(Ame::IID_CoreModule)->QueryInterface(IID_PluginHostSubmodule, pluginHostSubmodule.DblPtr<IObject>());
-
-        auto pluginHost = pluginHostSubmodule->GetPluginHost();
-        pluginHost->LoadPlugin("PluginHost");
+        auto moduleRegistry = GetEngine().GetRegistry();
+        moduleRegistry->LoadPlugin("PluginHost");
 
         GetEngine().Exit(0);
     }
 };
 
-AME_MAIN_APPLICATION_DEFAULT(PluginExampleApplication); 
+AME_MAIN_APPLICATION_DEFAULT(PluginExampleApplication);

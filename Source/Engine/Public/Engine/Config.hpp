@@ -1,18 +1,34 @@
 #pragma once
 
-#include <Core/Ame.hpp>
-#include <Module/Core/Config.hpp>
-#include <Module/Rhi/Config.hpp>
-#include <Module/Ecs/Config.hpp>
-#include <Module/Graphics/Config.hpp>
+#include <Interfaces/Core/Config.hpp>
+#include <Interfaces/Rhi/Config.hpp>
+#include <Interfaces/Ecs/Config.hpp>
+#include <Interfaces/Graphics/Config.hpp>
 
 namespace Ame
 {
     struct EngineConfig
     {
-        CoreModuleConfig          CoreConfig;
-        Opt<RhiModuleConfig>      RhiConfig;
-        Opt<EcsModuleConfig>      EcsConfig;
-        Opt<GraphicsModuleConfig> GraphicsConfig;
+        Interfaces::CoreModuleConfig          CoreConfig;
+        Opt<Interfaces::RhiModuleConfig>      RhiConfig;
+        Opt<Interfaces::EcsModuleConfig>      EcsConfig;
+        Opt<Interfaces::GraphicsModuleConfig> GraphicsConfig;
+
+        void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const
+        {
+            CoreConfig.ExposeInterfaces(registry, owner);
+            if (RhiConfig)
+            {
+                RhiConfig->ExposeInterfaces(registry, owner);
+            }
+            if (EcsConfig)
+            {
+                EcsConfig->ExposeInterfaces(registry, owner);
+            }
+            if (GraphicsConfig)
+            {
+                GraphicsConfig->ExposeInterfaces(registry, owner);
+            }
+        }
     };
 } // namespace Ame

@@ -1,75 +1,30 @@
 #include <Engine/Engine.hpp>
 
-#include <Module/Core/CoreModule.hpp>
-#include <Module/Rhi/RhiModule.hpp>
-#include <Module/Ecs/EntityModule.hpp>
-#include <Module/Graphics/GraphicsModule.hpp>
+#include <Interfaces/Core/FrameTimer.hpp>
+#include <Interfaces/Core/FrameEvent.hpp>
+#include <Interfaces/Ecs/EntityStorage.hpp>
+#include <Interfaces/Graphics/Renderer.hpp>
 
 #include <Log/Wrapper.hpp>
 
-#include <iostream>
-
 namespace Ame
 {
-    AmeEngine::AmeEngine(
-        const EngineConfig& engineConfig)
+    AmeEngine::AmeEngine(const EngineConfig& engineConfig) : m_ModuleRegistery(CreateModuleRegistry())
     {
-        m_ModuleRegistery.RegisterModule<CoreModule>(engineConfig.CoreConfig);
-        RhiModule* rhiModule = nullptr;
-        if (engineConfig.RhiConfig)
-        {
-            rhiModule = m_ModuleRegistery.RegisterModule<RhiModule>(*engineConfig.RhiConfig);
-        }
-
-        EntityModule* ecsModule = nullptr;
-        if (engineConfig.EcsConfig)
-        {
-            EntityModule::Dependencies deps{
-                rhiModule
-            };
-            ecsModule = m_ModuleRegistery.RegisterModule<EntityModule>(deps, *engineConfig.EcsConfig);
-        }
-
-        if (engineConfig.GraphicsConfig)
-        {
-            GraphicsModule::Dependencies deps{
-                rhiModule,
-                ecsModule
-            };
-            m_ModuleRegistery.RegisterModule<GraphicsModule>(deps, *engineConfig.GraphicsConfig);
-        }
-
+        engineConfig.ExposeInterfaces(m_ModuleRegistery.get(), nullptr);
         RefreshSubmoduleCache();
     }
 
-    AmeEngine::~AmeEngine()
-    {
-    }
+    AmeEngine::~AmeEngine() = default;
 
     //
 
     void AmeEngine::RefreshSubmoduleCache()
     {
-        auto& coreModule = m_ModuleRegistery.GetModule(IID_CoreModule);
-
-        coreModule->QueryInterface(IID_TimeSubmodule, m_TimeSubmodule.DblPtr<IObject>());
-        coreModule->QueryInterface(IID_FrameEventSubmodule, m_FrameEventSubmodule.DblPtr<IObject>());
-
-        //
-
-        if (m_ModuleRegistery.ContainsModule(IID_EntityModule))
-        {
-            auto& entityModule = m_ModuleRegistery.GetModule(IID_EntityModule);
-            entityModule->QueryInterface(IID_EntityStorageSubmodule, m_EntityStorageSubmodule.DblPtr<IObject>());
-        }
-
-        //
-
-        if (m_ModuleRegistery.ContainsModule(IID_GraphicsModule))
-        {
-            auto& graphicsModule = m_ModuleRegistery.GetModule(IID_GraphicsModule);
-            graphicsModule->QueryInterface(IID_RendererSubmodule, m_RendererSubmodule.DblPtr<IObject>());
-        }
+        m_ModuleRegistery->RequestInterface(Interfaces::IID_FrameTimer, m_FrameTimer.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(Interfaces::IID_FrameEvent, m_FrameEvent.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(Interfaces::IID_EntityStorage, m_EntityStorage.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(Interfaces::IID_Renderer, m_Renderer.DblPtr<IObject>());
     }
 
     //
@@ -78,22 +33,22 @@ namespace Ame
     {
         bool shouldQuit = false;
 
-        m_TimeSubmodule->GetTimer().Tick();
+        m_FrameTimer->Tick();
 
-        m_FrameEventSubmodule->Invoke_OnFrameStart();
-        m_FrameEventSubmodule->Invoke_OnFrameUpdate();
+        m_FrameEvent->Invoke_OnFrameStart();
+        m_FrameEvent->Invoke_OnFrameUpdate();
 
-        if (m_EntityStorageSubmodule)
+        if (m_EntityStorage)
         {
-            shouldQuit |= !m_EntityStorageSubmodule->Tick(m_TimeSubmodule->GetTimer().GetDeltaTime());
+            shouldQuit |= !m_EntityStorage->Tick(m_FrameTimer->GetDeltaTime());
         }
 
-        if (m_RendererSubmodule)
+        if (m_Renderer)
         {
-            shouldQuit |= !m_RendererSubmodule->Tick();
+            shouldQuit |= !m_Renderer->Tick();
         }
 
-        shouldQuit |= !m_FrameEventSubmodule->Invoke_OnFrameEnd().value_or(true);
+        shouldQuit |= !m_FrameEvent->Invoke_OnFrameEnd().value_or(true);
 
         if (shouldQuit)
         {
@@ -106,21 +61,15 @@ namespace Ame
         return !m_ExitCode.has_value();
     }
 
-    void AmeEngine::Exit(
-        int exitCode)
+    void AmeEngine::Exit(int exitCode)
     {
         m_ExitCode = exitCode;
     }
 
     //
 
-    const ModuleRegistry& AmeEngine::GetRegistry() const noexcept
+    IModuleRegistry* AmeEngine::GetRegistry() const noexcept
     {
-        return m_ModuleRegistery;
-    }
-
-    ModuleRegistry& AmeEngine::GetRegistry() noexcept
-    {
-        return m_ModuleRegistery;
+        return m_ModuleRegistery.get();
     }
 } // namespace Ame

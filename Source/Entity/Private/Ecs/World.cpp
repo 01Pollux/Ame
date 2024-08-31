@@ -14,11 +14,8 @@ namespace Ame::Ecs
     /// </summary>
     static std::mutex g_FlecsMutex;
 
-    World::World(
-        IReferenceCounters*         counter,
-        const Ptr<Rhi::IRhiDevice>& rhiDevice) :
-        Base(counter),
-        m_RhiDevice(rhiDevice)
+    World::World(IReferenceCounters* counters, Ptr<Rhi::IRhiDevice> rhiDevice) :
+        Base(counters), m_RhiDevice(std::move(rhiDevice))
     {
         std::lock_guard initLock(g_FlecsMutex);
         m_World = std::make_unique<flecs::world>();
@@ -38,14 +35,9 @@ namespace Ame::Ecs
 
     //
 
-    static Entity CreateEntityFromWorld(
-        flecs::world& world,
-        StringView    name,
-        const Entity& parent)
+    static Entity CreateEntityFromWorld(flecs::world& world, StringView name, const Entity& parent)
     {
-        Entity entity(
-            world.entity()
-                .emplace<EntityTagComponent>());
+        Entity entity(world.entity().emplace<EntityTagComponent>());
         if (parent)
         {
             entity.SetParent(parent);
@@ -56,38 +48,31 @@ namespace Ame::Ecs
 
     //
 
-    Entity World::CreateEntity(
-        StringView    name,
-        const Entity& parent)
+    Entity World::CreateEntity(StringView name, const Entity& parent)
     {
         return CreateEntityFromWorld(*m_World, name, parent);
     }
 
-    Entity World::GetEntityById(
-        const EntityId id) const
+    Entity World::GetEntityById(const EntityId id) const
     {
         return Entity(m_World->entity(id));
     }
 
     //
 
-    Entity WorldRef::CreateEntity(
-        StringView    name,
-        const Entity& parent)
+    Entity WorldRef::CreateEntity(StringView name, const Entity& parent)
     {
         return CreateEntityFromWorld(m_World, name, parent);
     }
 
-    Entity WorldRef::GetEntityById(
-        const EntityId id) const
+    Entity WorldRef::GetEntityById(const EntityId id) const
     {
         return Entity(m_World.entity(id));
     }
 
     //
 
-    void World::Progress(
-        [[maybe_unused]] double deltaTime)
+    void World::Progress([[maybe_unused]] double deltaTime)
     {
 #ifdef AME_DIST
         m_World->progress(static_cast<float>(deltaTime));

@@ -128,9 +128,24 @@ namespace Ame
 
 //
 
-#define IMPLEMENT_QUERY_INTERFACE_DECL() \
-    void DILIGENT_CALL_TYPE QueryInterface(     \
-        const INTERFACE_ID& iid,         \
+#define AmeCreateRaw(Ty, ...)       (Ame::ObjectAllocator<Ty>()(__VA_ARGS__))
+#define AmeCreateRawObject(Ty, ...) (static_cast<Ame::IObject*>(Ame::ObjectAllocator<Ty>()(__VA_ARGS__)))
+#define AmeCreate(Ty, ...)          (Ptr(AmeCreateRaw(Ty, __VA_ARGS__)))
+#define AmeCreateObject(Ty, ...)    (Ame::Ptr<Ame::IObject>{ AmeCreateRawObject(Ty, __VA_ARGS__) })
+
+//
+
+#define IMPLEMENT_INTERFACE_CTOR(ClassName, ...) \
+    template<typename, typename>                 \
+    friend class Dg::MakeNewRCObj;               \
+    explicit ClassName(                          \
+        IReferenceCounters* counters, __VA_ARGS__)
+
+//
+
+#define IMPLEMENT_QUERY_INTERFACE_DECL()    \
+    void DILIGENT_CALL_TYPE QueryInterface( \
+        const INTERFACE_ID& iid,            \
         IObject**           outObject) override
 
 #define IMPLEMENT_QUERY_INTERFACE_HEAD(ClassName) \

@@ -1,15 +1,14 @@
 #pragma once
 
 #include <Engine/Config.hpp>
-#include <Module/ModuleRegistry.hpp>
+#include <Plugin/ModuleRegistry.hpp>
 
 namespace Ame
 {
     class AmeEngine
     {
     public:
-        explicit AmeEngine(
-            const EngineConfig& engineConfig);
+        explicit AmeEngine(const EngineConfig& engineConfig);
 
         AmeEngine(const AmeEngine&)            = delete;
         AmeEngine& operator=(const AmeEngine&) = delete;
@@ -31,17 +30,16 @@ namespace Ame
         void               Exit(int exitCode = 0);
 
     public:
-        [[nodiscard]] const ModuleRegistry& GetRegistry() const noexcept;
-        [[nodiscard]] ModuleRegistry&       GetRegistry() noexcept;
+        [[nodiscard]] IModuleRegistry* GetRegistry() const noexcept;
 
     private:
-        ModuleRegistry m_ModuleRegistery;
+        UniquePtr<IModuleRegistry> m_ModuleRegistery;
 
         // precaching frequently used submodules
-        Ptr<TimeSubmodule>          m_TimeSubmodule;
-        Ptr<FrameEventSubmodule>    m_FrameEventSubmodule;
-        Ptr<EntityStorageSubmodule> m_EntityStorageSubmodule;
-        Ptr<RendererSubmodule>      m_RendererSubmodule;
+        Ptr<Interfaces::FrameTimer>    m_FrameTimer;
+        Ptr<Interfaces::FrameEvent>    m_FrameEvent;
+        Ptr<Interfaces::EntityStorage> m_EntityStorage;
+        Ptr<Interfaces::IRenderer>     m_Renderer;
 
         Opt<int> m_ExitCode;
     };
