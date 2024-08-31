@@ -6,20 +6,13 @@
 
 namespace Ame::Rg
 {
-    Graph::Graph(
-        IReferenceCounters* counter,
-        Rhi::IRhiDevice*    rhiDevice) :
-        Base(counter),
-        m_Context(rhiDevice)
+    Graph::Graph(IReferenceCounters* counter, Rhi::IRhiDevice* rhiDevice) : Base(counter), m_Context(rhiDevice)
     {
         auto window = rhiDevice->GetWindow();
         if (window)
         {
             auto& eventListener   = window->GetEventListener();
-            m_OnWindowSizeChanged = {
-                eventListener.OnWindowSizeChanged([this](const Math::Size2I&)
-                                                  { MarkDirty(); })
-            };
+            m_OnWindowSizeChanged = { eventListener.OnWindowSizeChanged([this](const Math::Size2I&) { MarkDirty(); }) };
         }
     } // namespace Ame::Rg
 
@@ -29,8 +22,7 @@ namespace Ame::Rg
         Execute(rhiDevice->GetImmediateContext());
     }
 
-    void Graph::Execute(
-        Dg::IDeviceContext* context)
+    void Graph::Execute(Dg::IDeviceContext* context)
     {
         if (IsDirty())
         {
@@ -49,8 +41,7 @@ namespace Ame::Rg
 
     bool Graph::IsDirty() const noexcept
     {
-        return GetResourceStorage().NeedsRebuild() ||
-               m_Passes.NeedsRebuild();
+        return GetResourceStorage().NeedsRebuild() || m_Passes.NeedsRebuild();
     }
 
     //

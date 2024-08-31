@@ -20,9 +20,7 @@ namespace Ame::Rhi
             return "GL";
         }
 
-        static diligent_create_info GetCreateInfo(
-            const DeviceCreateDesc& createDesc,
-            const create_struct_type&)
+        static diligent_create_info GetCreateInfo(const DeviceCreateDesc& createDesc, const create_struct_type&)
         {
             auto& surfaceDesc = *createDesc.Surface;
 
@@ -49,9 +47,8 @@ namespace Ame::Rhi
 
     //
 
-    Opt<DeviceWrapper> DeviceWrapper::CreateImpl(
-        const DeviceCreateDesc&   createDesc,
-        const DeviceCreateDescGL& createDescDev)
+    Opt<DeviceWrapper> DeviceWrapper::CreateImpl(const DeviceCreateDesc&   createDesc,
+                                                 const DeviceCreateDescGL& createDescDev)
     {
         Opt<DeviceWrapper> deviceWrapper;
 
@@ -65,7 +62,8 @@ namespace Ame::Rhi
 
         if (!createDesc.Surface || !createDesc.Surface->Window)
         {
-            Log::Rhi().Warning("Failed to create swapchain for {} graphics engine: Surface is null", DeviceCreateTraitsGL::GetName());
+            Log::Rhi().Warning(
+                "Failed to create swapchain for {} graphics engine: Surface is null", DeviceCreateTraitsGL::GetName());
             return deviceWrapper;
         }
 
@@ -82,11 +80,7 @@ namespace Ame::Rhi
 
             createInfo.AdapterId = FindDiligentBestAdapter(factoryDev, createDesc);
             factoryDev->CreateDeviceAndSwapChainGL(
-                createInfo,
-                &renderDevice,
-                &deviceContext,
-                swapchainDesc,
-                &swapchain);
+                createInfo, &renderDevice, &deviceContext, swapchainDesc, &swapchain);
         }
 
         if (!(factoryDev && renderDevice && deviceContext && swapchain))
@@ -98,7 +92,8 @@ namespace Ame::Rhi
         factoryDev->QueryInterface(Dg::IID_EngineFactory, engineFactory.RawDblPtr<Dg::IObject>());
         auto windowWrapper = std::make_unique<WindowWrapper>(Ptr(surfaceDesc.Window), std::move(swapchain));
 
-        deviceWrapper.emplace(std::move(engineFactory), std::move(renderDevice), std::move(deviceContext), std::move(windowWrapper));
+        deviceWrapper.emplace(
+            std::move(engineFactory), std::move(renderDevice), std::move(deviceContext), std::move(windowWrapper));
 #endif
         return deviceWrapper;
     }

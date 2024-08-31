@@ -4,8 +4,7 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> ContentBrowserEditorWindow::Create(
-        ModuleRegistry& registry)
+    Ptr<IEditorWindow> ContentBrowserEditorWindow::Create(ModuleRegistry& registry)
     {
         return { ObjectAllocator<ContentBrowserEditorWindow>()(registry), IID_BaseEditorWindow };
     }

@@ -28,9 +28,7 @@ namespace Ame::Rg
         /// <summary>
         /// Set the queue type of the pass
         /// </summary>
-        Pass& Flags(
-            PassFlags flags,
-            bool      enable = true)
+        Pass& Flags(PassFlags flags, bool enable = true)
         {
             using namespace EnumBitOperators;
             if (enable)
@@ -44,8 +42,7 @@ namespace Ame::Rg
             return *this;
         }
 
-        Pass& Color(
-            Math::Color4 color)
+        Pass& Color(Math::Color4 color)
         {
 #ifndef AME_DIST
             m_Color = color;
@@ -56,8 +53,7 @@ namespace Ame::Rg
         /// <summary>
         /// Get the name of the pass
         /// </summary>
-        Pass& Name(
-            StringView name)
+        Pass& Name(StringView name)
         {
 #ifndef AME_DIST
             m_Name = name;
@@ -68,8 +64,7 @@ namespace Ame::Rg
         /// <summary>
         /// Initializes a build callback
         /// </summary>
-        Pass& Build(
-            BuildFuncType&& buildFunc)
+        Pass& Build(BuildFuncType&& buildFunc)
         {
             m_BuildFunc = std::move(buildFunc);
             return *this;
@@ -78,8 +73,7 @@ namespace Ame::Rg
         /// <summary>
         /// Initializes an execute callback
         /// </summary>
-        Pass& Execute(
-            ExecuteFuncType&& executeFunc)
+        Pass& Execute(ExecuteFuncType&& executeFunc)
         {
             m_ExecuteFunc = std::move(executeFunc);
             return *this;
@@ -155,8 +149,7 @@ namespace Ame::Rg
         /// <summary>
         /// Build render pass
         /// </summary>
-        [[nodiscard]] void DoBuild(
-            Resolver& resolver)
+        [[nodiscard]] void DoBuild(Resolver& resolver)
         {
             if (m_BuildFunc) [[likely]]
             {
@@ -167,9 +160,7 @@ namespace Ame::Rg
         /// <summary>
         /// Execute render pass
         /// </summary>
-        void DoExecute(
-            const ResourceStorage& storage,
-            Dg::IDeviceContext*    deviceContext)
+        void DoExecute(const ResourceStorage& storage, Dg::IDeviceContext* deviceContext)
         {
             if (m_ExecuteFunc) [[likely]]
             {
@@ -190,8 +181,7 @@ namespace Ame::Rg
 
     //
 
-    template<typename Ty>
-    class TypedPass : public Pass
+    template<typename Ty> class TypedPass : public Pass
     {
     public:
         using BuildFuncType   = std::move_only_function<void(Ty&, Resolver&)>;
@@ -200,26 +190,18 @@ namespace Ame::Rg
         /// <summary>
         /// Initializes a build callback
         /// </summary>
-        TypedPass& Build(
-            BuildFuncType&& buildFunc)
+        TypedPass& Build(BuildFuncType&& buildFunc)
         {
-            Pass::Build(
-                std::bind_front(
-                    std::move(buildFunc),
-                    std::ref(m_Data)));
+            Pass::Build(std::bind_front(std::move(buildFunc), std::ref(m_Data)));
             return *this;
         }
 
         /// <summary>
         /// Initializes an execute callback
         /// </summary>
-        TypedPass& Execute(
-            ExecuteFuncType&& executeFunc)
+        TypedPass& Execute(ExecuteFuncType&& executeFunc)
         {
-            Pass::Execute(
-                std::bind_front(
-                    std::move(executeFunc),
-                    std::cref(m_Data)));
+            Pass::Execute(std::bind_front(std::move(executeFunc), std::cref(m_Data)));
             return *this;
         }
 
@@ -227,8 +209,7 @@ namespace Ame::Rg
         Ty m_Data;
     };
 
-    template<>
-    class TypedPass<void> : public Pass
+    template<> class TypedPass<void> : public Pass
     {
     public:
         using BuildFuncType   = Pass::BuildFuncType;
@@ -237,8 +218,7 @@ namespace Ame::Rg
         /// <summary>
         /// Initializes a build callback
         /// </summary>
-        TypedPass& Build(
-            BuildFuncType&& buildFunc)
+        TypedPass& Build(BuildFuncType&& buildFunc)
         {
             Pass::Build(std::forward<BuildFuncType>(buildFunc));
             return *this;
@@ -247,8 +227,7 @@ namespace Ame::Rg
         /// <summary>
         /// Initializes an execute callback
         /// </summary>
-        TypedPass& Execute(
-            ExecuteFuncType&& executeFunc)
+        TypedPass& Execute(ExecuteFuncType&& executeFunc)
         {
             Pass::Execute(std::forward<ExecuteFuncType>(executeFunc));
             return *this;

@@ -8,15 +8,12 @@ namespace Ame::Ecs
     class ViewporEcsModule
     {
     public:
-        ViewporEcsModule(
-            WorldRef world);
+        ViewporEcsModule(WorldRef world);
 
     private:
-        void RegisterCameraObservers(
-            WorldRef world);
+        void RegisterCameraObservers(WorldRef world);
 
-        void RegisterSignals(
-            WorldRef world);
+        void RegisterSignals(WorldRef world);
 
     private:
         Signals::ScopedConnection m_WindowSizeChangedConnection;

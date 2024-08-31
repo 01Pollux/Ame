@@ -13,10 +13,8 @@
 
 namespace Ame::Rhi
 {
-    uint32_t FindDiligentBestAdapter(
-        Dg::IEngineFactory*     engineFactory,
-        const DeviceCreateDesc& createDesc,
-        const Dg::Version&      version)
+    uint32_t FindDiligentBestAdapter(Dg::IEngineFactory* engineFactory, const DeviceCreateDesc& createDesc,
+                                     const Dg::Version& version)
     {
         Dg::Uint32 numAdapters = 0;
         engineFactory->EnumerateAdapters(version, numAdapters, nullptr);
@@ -58,16 +56,16 @@ namespace Ame::Rhi
             .value_or(Dg::DEFAULT_ADAPTER_ID);
     }
 
-    void ParseDiligentEngineCreateDesc(
-        const DeviceCreateDesc& createDesc,
-        Dg::EngineCreateInfo&   createInfo)
+    void ParseDiligentEngineCreateDesc(const DeviceCreateDesc& createDesc, Dg::EngineCreateInfo& createInfo)
     {
         using namespace EnumBitOperators;
 
         createInfo.Features = createDesc.Features;
 
-        createInfo.EnableValidation = (createDesc.ValidationLayer & DeviceValidationType::DebugLayer) == DeviceValidationType::DebugLayer;
-        if ((createDesc.ValidationLayer & DeviceValidationType::CheckShaderBufferSize) == DeviceValidationType::DebugLayer)
+        createInfo.EnableValidation =
+            (createDesc.ValidationLayer & DeviceValidationType::DebugLayer) == DeviceValidationType::DebugLayer;
+        if ((createDesc.ValidationLayer & DeviceValidationType::CheckShaderBufferSize) ==
+            DeviceValidationType::DebugLayer)
         {
             createInfo.ValidationFlags |= Dg::VALIDATION_FLAGS::VALIDATION_FLAG_CHECK_SHADER_BUFFER_SIZE;
         }
@@ -77,9 +75,8 @@ namespace Ame::Rhi
 
     //
 
-    Dg::SwapChainDesc CreateDiligentSwapChainDesc(
-        Window::IDesktopWindow* desktopWindow,
-        const SwapchainDesc&    swapchainDesc)
+    Dg::SwapChainDesc CreateDiligentSwapChainDesc(Window::IDesktopWindow* desktopWindow,
+                                                  const SwapchainDesc&    swapchainDesc)
     {
         auto              size = desktopWindow->GetSize();
         Dg::SwapChainDesc dgSwapchainDesc;
@@ -98,22 +95,17 @@ namespace Ame::Rhi
         return dgSwapchainDesc;
     }
 
-    Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(
-        Window::IDesktopWindow*,
-        const FullscreenModeDesc& fullscreenDesc)
+    Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(Window::IDesktopWindow*,
+                                                        const FullscreenModeDesc& fullscreenDesc)
     {
-        return {
-            .Fullscreen             = fullscreenDesc.Fullscreen,
-            .RefreshRateNumerator   = fullscreenDesc.RefreshRate.Numerator,
-            .RefreshRateDenominator = fullscreenDesc.RefreshRate.Denominator,
-            .Scaling                = fullscreenDesc.Scaling,
-            .ScanlineOrder          = fullscreenDesc.ScanlineOrder
-        };
+        return { .Fullscreen             = fullscreenDesc.Fullscreen,
+                 .RefreshRateNumerator   = fullscreenDesc.RefreshRate.Numerator,
+                 .RefreshRateDenominator = fullscreenDesc.RefreshRate.Denominator,
+                 .Scaling                = fullscreenDesc.Scaling,
+                 .ScanlineOrder          = fullscreenDesc.ScanlineOrder };
     }
 
-    Dg::NativeWindow GetDiligentNativeWindow(
-        Window::IDesktopWindow* desktopWindow,
-        [[maybe_unused]] bool   isGL)
+    Dg::NativeWindow GetDiligentNativeWindow(Window::IDesktopWindow* desktopWindow, [[maybe_unused]] bool isGL)
     {
         auto glfwWindow = desktopWindow->GetGlfwHandle();
 
@@ -134,12 +126,8 @@ namespace Ame::Rhi
 
     //
 
-    void DILIGENT_CALL_TYPE OnDiligentMessageCallback(
-        Dg::DEBUG_MESSAGE_SEVERITY severity,
-        const Dg::Char*            message,
-        const Dg::Char*            function,
-        const Dg::Char*            file,
-        int                        line)
+    void DILIGENT_CALL_TYPE OnDiligentMessageCallback(Dg::DEBUG_MESSAGE_SEVERITY severity, const Dg::Char* message,
+                                                      const Dg::Char* function, const Dg::Char* file, int line)
     {
         Log::LogLevel level = Log::LogLevel::Disabled;
         switch (severity)
@@ -187,8 +175,7 @@ namespace Ame::Rhi
         }
     }
 
-    void SetMessageCallback(
-        Dg::IEngineFactory* factory)
+    void SetMessageCallback(Dg::IEngineFactory* factory)
     {
         Dg::SetDebugMessageCallback(&OnDiligentMessageCallback);
         factory->SetMessageCallback(&OnDiligentMessageCallback);

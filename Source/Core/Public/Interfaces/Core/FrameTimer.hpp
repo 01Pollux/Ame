@@ -10,12 +10,10 @@ namespace Ame::Interfaces
     public:
         using Base = BaseObject<IObject>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_FrameTimer, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_FrameTimer, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(FrameTimer) :
-            Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(FrameTimer) : Base(counters)
         {
         }
     };

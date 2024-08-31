@@ -52,23 +52,14 @@ namespace Ame::Ecs
 
     public:
         using Base = BaseObject<IBaseRenderable3D>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_Model, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Model, Base);
 
-        MeshModel(
-            IReferenceCounters* counters,
-            CreateDesc          desc) :
-            Base(counters),
-            m_MeshNodes(std::move(desc.MeshNodes)),
-            m_SubMeshes(std::move(desc.SubMeshes)),
-            m_Materials(std::move(desc.Materials)),
-            m_PositionBuffer(std::move(desc.PositionBuffer)),
-            m_NormalBuffer(std::move(desc.NormalBuffer)),
-            m_TangentBuffer(std::move(desc.TangentBuffer)),
-            m_TexCoordBuffer(std::move(desc.TexCoordBuffer)),
-            m_IndexBuffer(std::move(desc.IndexBuffer)),
-            m_VertexDesc(desc.VertexDesc),
-            m_SmallIndexBuffer(desc.SmallIndexBuffer)
+        MeshModel(IReferenceCounters* counters, CreateDesc desc) :
+            Base(counters), m_MeshNodes(std::move(desc.MeshNodes)), m_SubMeshes(std::move(desc.SubMeshes)),
+            m_Materials(std::move(desc.Materials)), m_PositionBuffer(std::move(desc.PositionBuffer)),
+            m_NormalBuffer(std::move(desc.NormalBuffer)), m_TangentBuffer(std::move(desc.TangentBuffer)),
+            m_TexCoordBuffer(std::move(desc.TexCoordBuffer)), m_IndexBuffer(std::move(desc.IndexBuffer)),
+            m_VertexDesc(desc.VertexDesc), m_SmallIndexBuffer(desc.SmallIndexBuffer)
         {
         }
 

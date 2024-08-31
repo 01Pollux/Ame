@@ -10,13 +10,11 @@ namespace Ame::Interfaces
     public:
         using Base = BaseObject<IObject>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
-            IID_WindowBackend, Base, m_Window);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_WindowBackend, Base, m_Window);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(WindowBackend, Ptr<Window::IWindow> window) :
-            Base(counters),
-            m_Window(std::move(window))
+            Base(counters), m_Window(std::move(window))
         {
         }
 

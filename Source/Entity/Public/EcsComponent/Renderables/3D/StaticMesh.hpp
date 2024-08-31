@@ -5,22 +5,18 @@
 namespace Ame::Ecs
 {
     // {75B8DFC4-B5C5-4991-8230-D37C53E814FC}
-    inline constexpr UId IID_StaticMesh{ 0x75b8dfc4, 0xb5c5, 0x4991, { 0x82, 0x30, 0xd3, 0x7c, 0x53, 0xe8, 0x14, 0xfc } };
+    inline constexpr UId IID_StaticMesh{
+        0x75b8dfc4, 0xb5c5, 0x4991, { 0x82, 0x30, 0xd3, 0x7c, 0x53, 0xe8, 0x14, 0xfc }
+    };
 
     class StaticMesh : public BaseObject<IBaseRenderable3D>
     {
     public:
         using Base = BaseObject<IBaseRenderable3D>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_StaticMesh, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_StaticMesh, Base);
 
-        StaticMesh(
-            IReferenceCounters* counters,
-            MeshModel*          model,
-            uint32_t            subMeshIndex) :
-            Base(counters),
-            m_Model(model),
-            m_SubMeshIndex(subMeshIndex)
+        StaticMesh(IReferenceCounters* counters, MeshModel* model, uint32_t subMeshIndex) :
+            Base(counters), m_Model(model), m_SubMeshIndex(subMeshIndex)
         {
             UpdateRenderableDesc();
         }
@@ -46,8 +42,7 @@ namespace Ame::Ecs
         }
 
     public:
-        void SetMaterialOverride(
-            Ptr<Rhi::Material> material)
+        void SetMaterialOverride(Ptr<Rhi::Material> material)
         {
             m_OverrideMaterial = std::move(material);
             UpdateRenderableDesc();
@@ -78,20 +73,14 @@ namespace Ame::Ecs
             auto& submeshData = m_Model->GetSubMeshes()[m_SubMeshIndex];
 
             m_RenderableDesc.Material = GetMaterial();
-            m_RenderableDesc.Vertices = {
-                .Position{ m_Model->GetPositionBuffer() },
-                .Normal{ m_Model->GetNormalBuffer() },
-                .TexCoord{ m_Model->GetTexCoordBuffer() },
-                .Tangent{ m_Model->GetTangentBuffer() },
-                .Offset{ submeshData.VertexOffset },
-                .Desc{ m_Model->GetVertexInputDesc() }
-            };
-            m_RenderableDesc.Indices = {
-                m_Model->GetIndexBuffer(),
-                submeshData.IndexOffset,
-                submeshData.IndexCount,
-                m_Model->GetIndexType()
-            };
+            m_RenderableDesc.Vertices = { .Position{ m_Model->GetPositionBuffer() },
+                                          .Normal{ m_Model->GetNormalBuffer() },
+                                          .TexCoord{ m_Model->GetTexCoordBuffer() },
+                                          .Tangent{ m_Model->GetTangentBuffer() },
+                                          .Offset{ submeshData.VertexOffset },
+                                          .Desc{ m_Model->GetVertexInputDesc() } };
+            m_RenderableDesc.Indices  = { m_Model->GetIndexBuffer(), submeshData.IndexOffset, submeshData.IndexCount,
+                                          m_Model->GetIndexType() };
         }
 
     private:
@@ -106,9 +95,7 @@ namespace Ame::Ecs
     {
         Ptr<StaticMesh> Object;
 
-        StaticMeshComponent(
-            Ptr<StaticMesh> object = {}) :
-            Object(std::move(object))
+        StaticMeshComponent(Ptr<StaticMesh> object = {}) : Object(std::move(object))
         {
         }
     };

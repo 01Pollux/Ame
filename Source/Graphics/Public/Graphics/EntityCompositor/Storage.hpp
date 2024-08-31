@@ -16,30 +16,23 @@ namespace Ame::Gfx
         friend class EntityCollector;
 
     public:
-        EntityStorage(
-            Rhi::IRhiDevice* rhiDevice,
-            Ecs::World*      world);
+        EntityStorage(Rhi::IRhiDevice* rhiDevice, Ecs::World* world);
 
     private:
-        void UploadToRenderGraph(
-            Rg::Graph&                       cameraGraph,
-            const CameraFrameDataUpdateDesc& frameData);
+        void UploadToRenderGraph(Rg::Graph& cameraGraph, const CameraFrameDataUpdateDesc& frameData);
 
     private:
         void UpdateInstances();
 
         void CreateFrameDataBuffer();
-        void UpdateFrameData(
-            const CameraFrameDataUpdateDesc& frameData);
+        void UpdateFrameData(const CameraFrameDataUpdateDesc& frameData);
 
         void CreateLightIdBuffer();
         // First instance of light id is light count
-        void UpdateLightInstances(
-            std::span<const uint32_t> lightIds);
+        void UpdateLightInstances(std::span<const uint32_t> lightIds);
 
     private:
-        void UploadAllResource(
-            Rg::Graph& cameraGraph);
+        void UploadAllResource(Rg::Graph& cameraGraph);
 
     public:
         [[nodiscard]] Rhi::IRhiDevice* GetRenderDevice();

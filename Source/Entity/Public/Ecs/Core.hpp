@@ -5,29 +5,21 @@
 
 namespace Ame::Ecs
 {
-    template<typename Ty>
-    struct Unique
+    template<typename Ty> struct Unique
     {
     public:
         Unique() = default;
-        Unique(
-            const Ty& entity) :
-            m_Entity(entity)
+        Unique(const Ty& entity) : m_Entity(entity)
         {
         }
 
-        Unique(
-            const Unique&) = delete;
-        Unique(
-            Unique&& other) noexcept :
-            m_Entity(std::exchange(other.m_Entity, Ty{}))
+        Unique(const Unique&) = delete;
+        Unique(Unique&& other) noexcept : m_Entity(std::exchange(other.m_Entity, Ty{}))
         {
         }
 
-        Unique& operator=(
-            const Unique&) = delete;
-        Unique& operator=(
-            Unique&& other) noexcept
+        Unique& operator=(const Unique&) = delete;
+        Unique& operator=(Unique&& other) noexcept
         {
             if (this != std::addressof(other))
             {
@@ -109,7 +101,8 @@ namespace Ame::Ecs
                     bool shouldDelete = true;
                     if constexpr (requires { m_Entity.entity(); })
                     {
-                        // assert: query_->entity != 0 destruct() should only be called on queries associated with entities
+                        // assert: query_->entity != 0 destruct() should only be called on queries associated with
+                        // entities
                         if (!m_Entity.entity())
                         {
                             shouldDelete = false;

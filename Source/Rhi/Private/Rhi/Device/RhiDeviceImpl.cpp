@@ -21,19 +21,15 @@ namespace Ame::Rhi
         return deviceType;
     }
 
-    const char* IRhiDevice::GetGraphicsAPIName(
-        bool upperCase)
+    const char* IRhiDevice::GetGraphicsAPIName(bool upperCase)
     {
         return Dg::GetRenderDeviceTypeShortString(GetGraphicsAPI(), upperCase);
     }
 
     //
 
-    RhiDeviceImpl::RhiDeviceImpl(
-        IReferenceCounters*     counters,
-        const DeviceCreateDesc& createDesc) :
-        Base(counters),
-        m_Wrapper(*DeviceWrapper::Create(createDesc)),
+    RhiDeviceImpl::RhiDeviceImpl(IReferenceCounters* counters, const DeviceCreateDesc& createDesc) :
+        Base(counters), m_Wrapper(*DeviceWrapper::Create(createDesc)),
         m_CommonRenderPass(ObjectAllocator<CommonRenderPass>()(this))
     {
     }
@@ -50,8 +46,7 @@ namespace Ame::Rhi
         return true;
     }
 
-    void RhiDeviceImpl::AdvanceFrame(
-        uint32_t syncInterval)
+    void RhiDeviceImpl::AdvanceFrame(uint32_t syncInterval)
     {
         auto windowWrapper = m_Wrapper.GetWindowWrapper();
         if (windowWrapper)

@@ -15,20 +15,17 @@ namespace Ame::Rhi
     {
     public:
         ShaderCreateInfoX() = default;
-        ShaderCreateInfoX(
-            const Dg::ShaderCreateInfo& createInfo)
+        ShaderCreateInfoX(const Dg::ShaderCreateInfo& createInfo)
         {
             CopyFrom(createInfo);
         }
 
-        ShaderCreateInfoX(
-            const ShaderCreateInfoX& other)
+        ShaderCreateInfoX(const ShaderCreateInfoX& other)
         {
             CopyFrom(other.GetCreateInfo());
         }
 
-        ShaderCreateInfoX& operator=(
-            const ShaderCreateInfoX& other)
+        ShaderCreateInfoX& operator=(const ShaderCreateInfoX& other)
         {
             if (this != &other)
             {
@@ -37,17 +34,14 @@ namespace Ame::Rhi
             return *this;
         }
 
-        ShaderCreateInfoX(
-            ShaderCreateInfoX&& other) = default;
+        ShaderCreateInfoX(ShaderCreateInfoX&& other) = default;
 
-        ShaderCreateInfoX& operator=(
-            ShaderCreateInfoX&& other) = default;
+        ShaderCreateInfoX& operator=(ShaderCreateInfoX&& other) = default;
 
         ~ShaderCreateInfoX() = default;
 
     private:
-        void CopyFrom(
-            const Dg::ShaderCreateInfo& createInfo)
+        void CopyFrom(const Dg::ShaderCreateInfo& createInfo)
         {
             this->FilePathCStr(createInfo.FilePath)
                 .SourceInputStreamFactory(Ptr{ createInfo.pShaderSourceStreamFactory })
@@ -77,16 +71,13 @@ namespace Ame::Rhi
         }
 
     public:
-        ShaderCreateInfoX&
-        NameCStr(
-            const char* name)
+        ShaderCreateInfoX& NameCStr(const char* name)
         {
             m_CreateInfo.Desc.Name = name == nullptr ? "" : m_StringPool.insert(std::move(name)).first->c_str();
             return *this;
         }
 
-        ShaderCreateInfoX& Name(
-            String name)
+        ShaderCreateInfoX& Name(String name)
         {
             m_CreateInfo.Desc.Name = m_StringPool.insert(std::move(name)).first->c_str();
             return *this;
@@ -98,15 +89,13 @@ namespace Ame::Rhi
         }
 
     public:
-        ShaderCreateInfoX& FilePathCStr(
-            const char* path)
+        ShaderCreateInfoX& FilePathCStr(const char* path)
         {
             m_CreateInfo.FilePath = path == nullptr ? "" : m_StringPool.insert(std::move(path)).first->c_str();
             return *this;
         }
 
-        ShaderCreateInfoX& FilePath(
-            String path)
+        ShaderCreateInfoX& FilePath(String path)
         {
             m_CreateInfo.FilePath = m_StringPool.insert(std::move(path)).first->c_str();
             return *this;
@@ -119,8 +108,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& SourceInputStreamFactory(
-            Ptr<Dg::IShaderSourceInputStreamFactory> factory)
+        ShaderCreateInfoX& SourceInputStreamFactory(Ptr<Dg::IShaderSourceInputStreamFactory> factory)
         {
             m_CreateInfo.pShaderSourceStreamFactory = factory;
             m_ShaderSourceStreamFactory             = std::move(factory);
@@ -134,17 +122,15 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& SourceCodeCStr(
-            const char* sourceCode,
-            size_t      length = 0)
+        ShaderCreateInfoX& SourceCodeCStr(const char* sourceCode, size_t length = 0)
         {
-            m_CreateInfo.Source       = sourceCode == nullptr ? "" : m_StringPool.insert(std::move(sourceCode)).first->c_str();
+            m_CreateInfo.Source =
+                sourceCode == nullptr ? "" : m_StringPool.insert(std::move(sourceCode)).first->c_str();
             m_CreateInfo.SourceLength = length;
             return *this;
         }
 
-        ShaderCreateInfoX& SourceCode(
-            String sourceCode)
+        ShaderCreateInfoX& SourceCode(String sourceCode)
         {
             m_CreateInfo.SourceLength = sourceCode.size();
             m_CreateInfo.Source       = m_StringPool.insert(std::move(sourceCode)).first->c_str();
@@ -163,18 +149,14 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& ByteCode(
-            std::unique_ptr<std::byte[]> byteCode,
-            size_t                       size)
+        ShaderCreateInfoX& ByteCode(std::unique_ptr<std::byte[]> byteCode, size_t size)
         {
             m_ByteCode                = std::move(byteCode);
             m_CreateInfo.ByteCodeSize = size;
             return *this;
         }
 
-        ShaderCreateInfoX& ByteCode(
-            const void* byteCode,
-            size_t      size)
+        ShaderCreateInfoX& ByteCode(const void* byteCode, size_t size)
         {
             m_ByteCode.release();
             if (size)
@@ -198,8 +180,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& EntryPoint(
-            String entryPoint)
+        ShaderCreateInfoX& EntryPoint(String entryPoint)
         {
             m_CreateInfo.EntryPoint = m_StringPool.insert(std::move(entryPoint)).first->c_str();
             return *this;
@@ -212,8 +193,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& Macros(
-            std::vector<Dg::ShaderMacro> macros)
+        ShaderCreateInfoX& Macros(std::vector<Dg::ShaderMacro> macros)
         {
             m_Macros = std::move(macros);
             for (auto& macro : m_Macros)
@@ -225,21 +205,21 @@ namespace Ame::Rhi
             return *this;
         }
 
-        ShaderCreateInfoX& AppendMacro(
-            Dg::ShaderMacro macro)
+        ShaderCreateInfoX& AppendMacro(Dg::ShaderMacro macro)
         {
-            m_Macros.emplace_back(m_StringPool.insert(macro.Name).first->c_str(), m_StringPool.insert(macro.Definition).first->c_str());
+            m_Macros.emplace_back(
+                m_StringPool.insert(macro.Name).first->c_str(), m_StringPool.insert(macro.Definition).first->c_str());
             m_CreateInfo.Macros = { m_Macros.data(), Count32(m_Macros) };
             return *this;
         }
 
-        ShaderCreateInfoX& AppendMacros(
-            std::span<const Dg::ShaderMacro> macros)
+        ShaderCreateInfoX& AppendMacros(std::span<const Dg::ShaderMacro> macros)
         {
             m_Macros.reserve(m_Macros.size() + macros.size());
             for (auto& macro : macros)
             {
-                m_Macros.emplace_back(m_StringPool.insert(macro.Name).first->c_str(), m_StringPool.insert(macro.Definition).first->c_str());
+                m_Macros.emplace_back(m_StringPool.insert(macro.Name).first->c_str(),
+                                      m_StringPool.insert(macro.Definition).first->c_str());
             }
             m_CreateInfo.Macros = { m_Macros.data(), Count32(m_Macros) };
             return *this;
@@ -258,8 +238,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& ShaderType(
-            Dg::SHADER_TYPE shaderType)
+        ShaderCreateInfoX& ShaderType(Dg::SHADER_TYPE shaderType)
         {
             m_CreateInfo.Desc.ShaderType = shaderType;
             return *this;
@@ -272,8 +251,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& CombinedTextureSamplers(
-            bool combinedTextureSamplers)
+        ShaderCreateInfoX& CombinedTextureSamplers(bool combinedTextureSamplers)
         {
             m_CreateInfo.Desc.UseCombinedTextureSamplers = combinedTextureSamplers;
             return *this;
@@ -286,10 +264,10 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& CombinedSamplerSuffix(
-            String combinedSamplerSuffix)
+        ShaderCreateInfoX& CombinedSamplerSuffix(String combinedSamplerSuffix)
         {
-            m_CreateInfo.Desc.CombinedSamplerSuffix = m_StringPool.insert(std::move(combinedSamplerSuffix)).first->c_str();
+            m_CreateInfo.Desc.CombinedSamplerSuffix =
+                m_StringPool.insert(std::move(combinedSamplerSuffix)).first->c_str();
             return *this;
         }
 
@@ -300,8 +278,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& SourceLanguage(
-            Dg::SHADER_SOURCE_LANGUAGE sourceLanguage)
+        ShaderCreateInfoX& SourceLanguage(Dg::SHADER_SOURCE_LANGUAGE sourceLanguage)
         {
             m_CreateInfo.SourceLanguage = sourceLanguage;
             return *this;
@@ -314,8 +291,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& ShaderCompiler(
-            Dg::SHADER_COMPILER shaderCompiler)
+        ShaderCreateInfoX& ShaderCompiler(Dg::SHADER_COMPILER shaderCompiler)
         {
             m_CreateInfo.ShaderCompiler = shaderCompiler;
             return *this;
@@ -328,8 +304,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& HLSLVersion(
-            Dg::ShaderVersion shaderVersion)
+        ShaderCreateInfoX& HLSLVersion(Dg::ShaderVersion shaderVersion)
         {
             m_CreateInfo.HLSLVersion = shaderVersion;
             return *this;
@@ -342,8 +317,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& GLSLVersion(
-            Dg::ShaderVersion shaderVersion)
+        ShaderCreateInfoX& GLSLVersion(Dg::ShaderVersion shaderVersion)
         {
             m_CreateInfo.GLSLVersion = shaderVersion;
             return *this;
@@ -356,8 +330,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& GLESSLVersion(
-            Dg::ShaderVersion shaderVersion)
+        ShaderCreateInfoX& GLESSLVersion(Dg::ShaderVersion shaderVersion)
         {
             m_CreateInfo.GLESSLVersion = shaderVersion;
             return *this;
@@ -370,8 +343,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& MSLVersion(
-            Dg::ShaderVersion shaderVersion)
+        ShaderCreateInfoX& MSLVersion(Dg::ShaderVersion shaderVersion)
         {
             m_CreateInfo.MSLVersion = shaderVersion;
             return *this;
@@ -384,8 +356,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& CompileFlags(
-            Dg::SHADER_COMPILE_FLAGS compileFlags)
+        ShaderCreateInfoX& CompileFlags(Dg::SHADER_COMPILE_FLAGS compileFlags)
         {
             m_CreateInfo.CompileFlags = compileFlags;
             return *this;
@@ -398,8 +369,7 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& LoadConstantBufferReflection(
-            bool loadConstantBufferReflection)
+        ShaderCreateInfoX& LoadConstantBufferReflection(bool loadConstantBufferReflection)
         {
             m_CreateInfo.LoadConstantBufferReflection = loadConstantBufferReflection;
             return *this;
@@ -412,24 +382,22 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& GLSLExtensionsCStr(
-            const char* path)
+        ShaderCreateInfoX& GLSLExtensionsCStr(const char* path)
         {
             m_CreateInfo.GLSLExtensions = path == nullptr ? "" : m_StringPool.insert(std::move(path)).first->c_str();
             return *this;
         }
 
-        ShaderCreateInfoX& GLSLExtensions(
-            String glslExtensions)
+        ShaderCreateInfoX& GLSLExtensions(String glslExtensions)
         {
             m_CreateInfo.GLSLExtensions = m_StringPool.insert(std::move(glslExtensions)).first->c_str();
             return *this;
         }
 
-        ShaderCreateInfoX& AppendGLSLExtensions(
-            String glslExtensions)
+        ShaderCreateInfoX& AppendGLSLExtensions(String glslExtensions)
         {
-            return GLSLExtensions(std::format("{}\n{}", (m_CreateInfo.GLSLExtensions ? m_CreateInfo.GLSLExtensions : ""), "\n", glslExtensions));
+            return GLSLExtensions(std::format(
+                "{}\n{}", (m_CreateInfo.GLSLExtensions ? m_CreateInfo.GLSLExtensions : ""), "\n", glslExtensions));
         }
 
         [[nodiscard]] const char* GLSLExtensions() const noexcept
@@ -439,17 +407,19 @@ namespace Ame::Rhi
 
         //
 
-        ShaderCreateInfoX& WebGPUEmulatedArrayIndexSuffixCStr(
-            const char* webGPUEmulatedArrayIndexSuffix)
+        ShaderCreateInfoX& WebGPUEmulatedArrayIndexSuffixCStr(const char* webGPUEmulatedArrayIndexSuffix)
         {
-            m_CreateInfo.WebGPUEmulatedArrayIndexSuffix = webGPUEmulatedArrayIndexSuffix == nullptr ? "" : m_StringPool.insert(std::move(webGPUEmulatedArrayIndexSuffix)).first->c_str();
+            m_CreateInfo.WebGPUEmulatedArrayIndexSuffix =
+                webGPUEmulatedArrayIndexSuffix == nullptr
+                    ? ""
+                    : m_StringPool.insert(std::move(webGPUEmulatedArrayIndexSuffix)).first->c_str();
             return *this;
         }
 
-        ShaderCreateInfoX& WebGPUEmulatedArrayIndexSuffix(
-            String webGPUEmulatedArrayIndexSuffix)
+        ShaderCreateInfoX& WebGPUEmulatedArrayIndexSuffix(String webGPUEmulatedArrayIndexSuffix)
         {
-            m_CreateInfo.WebGPUEmulatedArrayIndexSuffix = m_StringPool.insert(std::move(webGPUEmulatedArrayIndexSuffix)).first->c_str();
+            m_CreateInfo.WebGPUEmulatedArrayIndexSuffix =
+                m_StringPool.insert(std::move(webGPUEmulatedArrayIndexSuffix)).first->c_str();
             return *this;
         }
 

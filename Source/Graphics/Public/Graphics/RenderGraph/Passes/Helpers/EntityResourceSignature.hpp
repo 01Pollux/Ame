@@ -7,8 +7,7 @@
 
 namespace Ame::Gfx
 {
-    template<typename Ty, Dg::SHADER_TYPE ShaderFlags>
-    class EntityResourceSignaturePass : public Rg::Pass
+    template<typename Ty, Dg::SHADER_TYPE ShaderFlags> class EntityResourceSignaturePass : public Rg::Pass
     {
     public:
         EntityResourceSignaturePass()
@@ -18,8 +17,7 @@ namespace Ame::Gfx
         }
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver)
+        void OnBuild(Rg::Resolver& resolver)
         {
             if (!m_Srb)
             {
@@ -32,17 +30,18 @@ namespace Ame::Gfx
             resolver.SetUserData(Ty::RGSignature(), m_Srb);
         }
 
-        void OnExecute(
-            const Rg::ResourceStorage& storage,
-            Dg::IDeviceContext*)
+        void OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext*)
         {
             auto transforms      = storage.GetResource(c_RGTransformTable)->AsBuffer();
             auto renderInstances = storage.GetResource(c_RGRenderInstanceTable)->AsBuffer();
             auto lightInstances  = storage.GetResource(c_RGLightInstanceTable)->AsBuffer();
 
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllTransforms", transforms->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllRenderInstances", renderInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
-            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllLightInstances", lightInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(
+                m_Srb, ShaderFlags, "AllTransforms", transforms->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllRenderInstances",
+                              renderInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
+            Rhi::BindAllInSrb(m_Srb, ShaderFlags, "AllLightInstances",
+                              lightInstances->GetDefaultView(Dg::BUFFER_VIEW_SHADER_RESOURCE));
         }
 
     private:
@@ -50,16 +49,17 @@ namespace Ame::Gfx
             Dg::IRenderDevice* renderDevice)
         {
             constexpr std::array resources{
-                Dg::PipelineResourceDesc{ ShaderFlags, "AllTransforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ ShaderFlags, "AllRenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ ShaderFlags, "AllLightInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "AllTransforms", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                                          Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "AllRenderInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                                          Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "AllLightInstances", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                                          Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
 
-            Dg::PipelineResourceSignatureDesc desc{
-                .Resources    = resources.data(),
-                .NumResources = Rhi::Count32(resources),
-                .BindingIndex = 2
-            };
+            Dg::PipelineResourceSignatureDesc desc{ .Resources    = resources.data(),
+                                                    .NumResources = Rhi::Count32(resources),
+                                                    .BindingIndex = 2 };
 
             Ptr<Dg::IPipelineResourceSignature> signature;
             renderDevice->CreatePipelineResourceSignature(desc, &signature);

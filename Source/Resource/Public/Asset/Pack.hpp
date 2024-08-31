@@ -26,8 +26,7 @@ namespace Ame::Asset
         using RWLock = std::unique_lock<std::shared_mutex>;
 
     public:
-        IAssetPackage(
-            Storage& assetStorage);
+        IAssetPackage(Storage& assetStorage);
 
         IAssetPackage(const IAssetPackage&) = delete;
         IAssetPackage(IAssetPackage&&)      = delete;
@@ -46,21 +45,18 @@ namespace Ame::Asset
         /// <summary>
         /// Query if this package contains the given asset.
         /// </summary>
-        [[nodiscard]] virtual bool ContainsAsset(
-            const UId& uid) const = 0;
+        [[nodiscard]] virtual bool ContainsAsset(const UId& uid) const = 0;
 
     public:
         /// <summary>
         /// Finds assets by path.
         /// </summary>
-        [[nodiscard]] virtual UId FindAsset(
-            const String& path) const = 0;
+        [[nodiscard]] virtual UId FindAsset(const String& path) const = 0;
 
         /// <summary>
         /// Finds assets by path as regex.
         /// </summary>
-        [[nodiscard]] virtual Co::generator<UId> FindAssets(
-            const std::regex& pathRegex) const = 0;
+        [[nodiscard]] virtual Co::generator<UId> FindAssets(const std::regex& pathRegex) const = 0;
 
     public:
         /// <summary>
@@ -71,29 +67,23 @@ namespace Ame::Asset
         /// <summary>
         /// Add an asset to this package.
         /// </summary>
-        virtual Co::result<void> SaveAsset(
-            Ptr<IAsset> asset) = 0;
+        virtual Co::result<void> SaveAsset(Ptr<IAsset> asset) = 0;
 
         /// <summary>
         /// Remove an asset from this package.
         /// </summary>
-        virtual bool RemoveAsset(
-            const UId& uid) = 0;
+        virtual bool RemoveAsset(const UId& uid) = 0;
 
     protected:
         /// <summary>
         /// Load an asset from this package.
         /// </summary>
-        [[nodiscard]] virtual Ptr<IAsset> LoadAsset(
-            const UId& uid,
-            bool       loadTemp) = 0;
+        [[nodiscard]] virtual Ptr<IAsset> LoadAsset(const UId& uid, bool loadTemp) = 0;
 
         /// <summary>
         /// Unload an asset from this package.
         /// </summary>
-        virtual bool UnloadAsset(
-            const UId& uid,
-            bool       force) = 0;
+        virtual bool UnloadAsset(const UId& uid, bool force) = 0;
 
     private:
         /// <summary>

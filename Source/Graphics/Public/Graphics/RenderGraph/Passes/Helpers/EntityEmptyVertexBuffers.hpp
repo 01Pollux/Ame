@@ -15,10 +15,10 @@ namespace Ame::Gfx
         }
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver)
+        void OnBuild(Rg::Resolver& resolver)
         {
-            constexpr uint8_t        bufferSize = Rhi::c_InputVertexAttributes[std::to_underlying(Rhi::VertexInputFlags::Count)].Offset;
+            constexpr uint8_t bufferSize =
+                Rhi::c_InputVertexAttributes[std::to_underlying(Rhi::VertexInputFlags::Count)].Offset;
             constexpr Dg::BufferDesc bufferDesc{
 #ifndef AME_DIST
                 "_EEVB",

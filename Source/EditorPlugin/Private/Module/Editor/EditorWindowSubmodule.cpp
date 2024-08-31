@@ -3,14 +3,12 @@
 
 namespace Ame
 {
-    EditorWindowSubmodule::EditorWindowSubmodule(
-        IReferenceCounters*       counters,
-        ModuleRegistry&           registry,
-        RhiModule*                rhiModule,
-        GraphicsModule*           graphicsModule,
-        const EditorModuleConfig& config) :
+    EditorWindowSubmodule::EditorWindowSubmodule(IReferenceCounters* counters, ModuleRegistry& registry,
+                                                 RhiModule* rhiModule, GraphicsModule* graphicsModule,
+                                                 const EditorModuleConfig& config) :
         Base(counters, IID_EditorWindowSubmodule),
-        m_EditorWindowManager(Editor::CreateEditorWindowManager(registry, rhiModule, graphicsModule, config.EditorManagerDesc))
+        m_EditorWindowManager(
+            Editor::CreateEditorWindowManager(registry, rhiModule, graphicsModule, config.EditorManagerDesc))
     {
     }
 } // namespace Ame

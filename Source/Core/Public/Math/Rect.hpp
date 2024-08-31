@@ -5,27 +5,20 @@
 namespace Ame::Concepts
 {
     template<typename Ty>
-    concept VecRectType = std::disjunction_v<
-        std::is_same<Ty, Math::Vector2>,
-        std::is_same<Ty, Math::Vector2I>,
-        std::is_same<Ty, Math::Vector2U>>;
+    concept VecRectType = std::disjunction_v<std::is_same<Ty, Math::Vector2>, std::is_same<Ty, Math::Vector2I>,
+                                             std::is_same<Ty, Math::Vector2U>>;
 }
 
 namespace Ame::Math
 {
-    template<Concepts::VecRectType Ty>
-    struct RectT
+    template<Concepts::VecRectType Ty> struct RectT
     {
         using value_type = typename Ty::value_type;
 
         Ty Position;
         Ty Size;
 
-        constexpr explicit RectT(
-            const Ty& position = {},
-            const Ty& size     = {}) noexcept :
-            Position(position),
-            Size(size)
+        constexpr explicit RectT(const Ty& position = {}, const Ty& size = {}) noexcept : Position(position), Size(size)
         {
         }
 

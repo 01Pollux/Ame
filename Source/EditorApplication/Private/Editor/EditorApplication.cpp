@@ -27,17 +27,12 @@
 
 namespace Ame
 {
-    EditorApplication::EditorApplication(
-        const EditorApplicationConfig& config) :
-        Base(config.Application)
+    EditorApplication::EditorApplication(const EditorApplicationConfig& config) : Base(config.Application)
     {
         auto& moduleRegistry = GetEngine().GetRegistry();
 
-        EditorModule::Dependencies deps{
-            &moduleRegistry,
-            moduleRegistry.GetModule<RhiModule>(IID_RhiModule),
-            moduleRegistry.GetModule<GraphicsModule>(IID_GraphicsModule)
-        };
+        EditorModule::Dependencies deps{ &moduleRegistry, moduleRegistry.GetModule<RhiModule>(IID_RhiModule),
+                                         moduleRegistry.GetModule<GraphicsModule>(IID_GraphicsModule) };
         moduleRegistry.RegisterModule<EditorModule>(deps, config.EditorConfig);
     }
 
@@ -48,16 +43,28 @@ namespace Ame
         //
 
         Ptr<Ecs::World> world;
-        GetEngine().GetRegistry().GetModule<EditorModule>(IID_EntityModule)->QueryInterface(Ecs::IID_EntityWorld, world.DblPtr<IObject>());
+        GetEngine()
+            .GetRegistry()
+            .GetModule<EditorModule>(IID_EntityModule)
+            ->QueryInterface(Ecs::IID_EntityWorld, world.DblPtr<IObject>());
 
         Ptr<Rhi::IRhiDevice> rhiDevice;
-        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Rhi::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
+        GetEngine()
+            .GetRegistry()
+            .GetModule(IID_RhiModule)
+            ->QueryInterface(Rhi::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
 
         Ptr<Rhi::CommonRenderPass> crp;
-        GetEngine().GetRegistry().GetModule(IID_RhiModule)->QueryInterface(Rhi::IID_CommandRenderPass, crp.DblPtr<IObject>());
+        GetEngine()
+            .GetRegistry()
+            .GetModule(IID_RhiModule)
+            ->QueryInterface(Rhi::IID_CommandRenderPass, crp.DblPtr<IObject>());
 
         Ptr<Gfx::Renderer> rendererSubmodule;
-        GetEngine().GetRegistry().GetModule(IID_GraphicsModule)->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
+        GetEngine()
+            .GetRegistry()
+            .GetModule(IID_GraphicsModule)
+            ->QueryInterface(Gfx::IID_Renderer, rendererSubmodule.DblPtr<IObject>());
 
         //
 
@@ -73,8 +80,7 @@ namespace Ame
         camTr.SetPosition({ 0.251502007f, 4.27811623f, -0.114832222f });
 
         auto cameraEntity = world->CreateEntity("Camera");
-        cameraEntity->set(Ecs::CameraComponent{
-            .RenderGraph = std::move(renderGraph) });
+        cameraEntity->set(Ecs::CameraComponent{ .RenderGraph = std::move(renderGraph) });
         cameraEntity->set(camTr);
         cameraEntity->set(Ecs::CameraOutputComponent{});
 
@@ -103,7 +109,9 @@ namespace Ame
 
         Rhi::MaterialCreateDesc materialDesc;
 
-        Ptr mdl(Ecs::MeshModelLoader::LoadModelAsync({ .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/DamagedHelmet/DamagedHelmet.gltf" }).get());
+        Ptr mdl(Ecs::MeshModelLoader::LoadModelAsync(
+                    { .RhiDevice = rhiDevice, .ModelPath = "Shared/Assets/Models/DamagedHelmet/DamagedHelmet.gltf" })
+                    .get());
 
         //
 
@@ -213,9 +221,7 @@ namespace Ame
                     /// <summary>
                     /// Process the camera keyboard inputs.
                     /// </summary>
-                    auto ProcessCameraKeyboard = [&](
-                                                     float                    DeltaTime,
-                                                     Ecs::TransformComponent* Transform,
+                    auto ProcessCameraKeyboard = [&](float DeltaTime, Ecs::TransformComponent* Transform,
                                                      const Ecs::CameraComponent&) -> bool
                     {
                         float Speed = GetCameraKeyboardSpeed();
@@ -270,8 +276,7 @@ namespace Ame
                     /// <summary>
                     /// Process the camera orbit inputs.
                     /// </summary>
-                    auto ProcessCamera_Orbit = [&](float                    DeltaTime,
-                                                   Ecs::TransformComponent* Transform) -> bool
+                    auto ProcessCamera_Orbit = [&](float DeltaTime, Ecs::TransformComponent* Transform) -> bool
                     {
                         Math::Quaternion Rotation   = Transform->GetBasis().GetRotationQuat();
                         float            Speed      = GetCameraMouseSpeed();
@@ -297,17 +302,18 @@ namespace Ame
                     /// <summary>
                     /// Process the camera orbit inputs.
                     /// </summary>
-                    auto ProcessCamera_Zoom = [&](float                    DeltaTime,
-                                                  Ecs::TransformComponent* Transform) -> bool
+                    auto ProcessCamera_Zoom = [&](float DeltaTime, Ecs::TransformComponent* Transform) -> bool
                     {
                         Math::Quaternion Rotation   = Transform->GetBasis().GetRotationQuat();
                         float            Speed      = GetCameraKeyboardSpeed();
                         auto             MouseDelta = ImGui::GetMouseDragDelta();
 
                         bool Changed = false;
-                        if (float Length = Math::Vector2(MouseDelta.x, MouseDelta.y).Length() * (MouseDelta.x >= 0.f ? 1.f : -1.f))
+                        if (float Length =
+                                Math::Vector2(MouseDelta.x, MouseDelta.y).Length() * (MouseDelta.x >= 0.f ? 1.f : -1.f))
                         {
-                            Transform->SetPosition(Transform->GetPosition() + Transform->GetLookDir() * Length * Speed * DeltaTime);
+                            Transform->SetPosition(Transform->GetPosition() +
+                                                   Transform->GetLookDir() * Length * Speed * DeltaTime);
                             Changed = true;
                         }
 

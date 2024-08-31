@@ -7,10 +7,7 @@
 
 namespace Ame::Asset
 {
-    Co::result<Ptr<IAsset>> Manager::LoadAsync(
-        IAssetPackage* package,
-        UId            uid,
-        bool           loadTemp)
+    Co::result<Ptr<IAsset>> Manager::LoadAsync(IAssetPackage* package, UId uid, bool loadTemp)
     {
         if (package->ContainsAsset(uid)) [[likely]]
         {
@@ -20,9 +17,7 @@ namespace Ame::Asset
         co_return nullptr;
     }
 
-    Co::result<Ptr<IAsset>> Manager::LoadAsync(
-        UId  uid,
-        bool loadTemp)
+    Co::result<Ptr<IAsset>> Manager::LoadAsync(UId uid, bool loadTemp)
     {
         using namespace EnumBitOperators;
 
@@ -38,9 +33,7 @@ namespace Ame::Asset
         co_return nullptr;
     }
 
-    Ptr<IAsset> Manager::Load(
-        const UId& uid,
-        bool       loadTemp)
+    Ptr<IAsset> Manager::Load(const UId& uid, bool loadTemp)
     {
         using namespace EnumBitOperators;
 
@@ -56,10 +49,7 @@ namespace Ame::Asset
         return {};
     }
 
-    Ptr<IAsset> Manager::Load(
-        IAssetPackage* package,
-        const UId&     uid,
-        bool           loadTemp)
+    Ptr<IAsset> Manager::Load(IAssetPackage* package, const UId& uid, bool loadTemp)
     {
         if (package->ContainsAsset(uid))
         {
@@ -69,8 +59,7 @@ namespace Ame::Asset
         return {};
     }
 
-    Co::result<Ptr<IAsset>> Manager::ReloadAsync(
-        UId uid)
+    Co::result<Ptr<IAsset>> Manager::ReloadAsync(UId uid)
     {
         using namespace EnumBitOperators;
 
@@ -86,8 +75,7 @@ namespace Ame::Asset
         return LoadAsync(uid);
     }
 
-    Ptr<IAsset> Manager::Reload(
-        const UId& uid)
+    Ptr<IAsset> Manager::Reload(const UId& uid)
     {
         using namespace EnumBitOperators;
 
@@ -103,8 +91,7 @@ namespace Ame::Asset
         return Load(uid);
     }
 
-    bool Manager::Unload(
-        const UId& uid)
+    bool Manager::Unload(const UId& uid)
     {
         using namespace EnumBitOperators;
 
@@ -120,8 +107,7 @@ namespace Ame::Asset
         return false;
     }
 
-    bool Manager::RequestUnload(
-        const UId& uid)
+    bool Manager::RequestUnload(const UId& uid)
     {
         using namespace EnumBitOperators;
 

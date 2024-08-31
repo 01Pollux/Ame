@@ -44,17 +44,15 @@ namespace Ame::Rhi
 
     //
 
-    template<typename Ty>
-    struct MaterialDataMappable
+    template<typename Ty> struct MaterialDataMappable
     {
         static constexpr bool Enabled = false;
     };
 
-#define AME_RHI_SHADING_RESOURCE_MAP(Ty)      \
-    template<>                                \
-    struct MaterialDataMappable<Ty>           \
-    {                                         \
-        static constexpr bool Enabled = true; \
+#define AME_RHI_SHADING_RESOURCE_MAP(Ty)                                                                               \
+    template<> struct MaterialDataMappable<Ty>                                                                         \
+    {                                                                                                                  \
+        static constexpr bool Enabled = true;                                                                          \
     }
 
     AME_RHI_SHADING_RESOURCE_MAP(uint32_t);

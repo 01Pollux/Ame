@@ -10,9 +10,7 @@ namespace Ame
     class InterfaceContext
     {
     public:
-        InterfaceContext(IPlugin* owner, IObject* object) :
-            m_Plugin(owner),
-            m_Object(object)
+        InterfaceContext(IPlugin* owner, IObject* object) : m_Plugin(owner), m_Object(object)
         {
         }
 

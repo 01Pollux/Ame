@@ -7,7 +7,8 @@ namespace imcxx
     /// <summary>
     /// Widgets: Main
     /// - Most widgets return true when the value has been changed or when pressed/selected
-    /// - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget state.
+    /// - You may also use one of the many IsItemXXX functions (e.g. IsItemActive, IsItemHovered, etc.) to query widget
+    /// state.
     /// </summary>
     class button : public scope_wrap<button, scope_traits::no_dtor>
     {
@@ -38,8 +39,7 @@ namespace imcxx
         };
 
         template<typename _StrTy>
-        button(const _StrTy& label, const ImVec2& size = {}) :
-            scope_wrap(ImGui::Button(impl::get_string(label), size))
+        button(const _StrTy& label, const ImVec2& size = {}) : scope_wrap(ImGui::Button(impl::get_string(label), size))
         {
         }
 
@@ -47,13 +47,13 @@ namespace imcxx
         /// button with FramePadding=(0,0) to easily embed within text
         /// </summary>
         template<typename _StrTy>
-        button(small, const _StrTy& label) :
-            scope_wrap(ImGui::SmallButton(impl::get_string(label)))
+        button(small, const _StrTy& label) : scope_wrap(ImGui::SmallButton(impl::get_string(label)))
         {
         }
 
         /// <summary>
-        /// flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
+        /// flexible button behavior without the visuals, frequently useful to build custom behaviors using the public
+        /// api (along with IsItemActive, IsItemHovered, etc.)
         /// </summary>
         template<typename _StrTy>
         button(invisible, const _StrTy& label, const ImVec2& size = {}, ImGuiButtonFlags flags = 0) :
@@ -73,15 +73,9 @@ namespace imcxx
         /// <summary>
         /// <0 frame_padding uses default frame padding settings. 0 for no padding
         /// </summary>
-        button(
-            image,
-            const char*   Id,
-            ImTextureID   user_texture_id,
-            const ImVec2& size,
-            const ImVec2& uv0      = {},
-            const ImVec2& uv1      = { 1.f, 1.f },
-            const ImVec4& bg_col   = {},
-            const ImVec4& tint_col = { 1.f, 1.f, 1.f, 1.f }) :
+        button(image, const char* Id, ImTextureID user_texture_id, const ImVec2& size, const ImVec2& uv0 = {},
+               const ImVec2& uv1 = { 1.f, 1.f }, const ImVec4& bg_col = {},
+               const ImVec4& tint_col = { 1.f, 1.f, 1.f, 1.f }) :
             scope_wrap(ImGui::ImageButton(Id, user_texture_id, size, uv0, uv1, bg_col, tint_col))
         {
         }
@@ -105,7 +99,8 @@ namespace imcxx
         }
 
         /// <summary>
-        /// draw a small circle + keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
+        /// draw a small circle + keep the cursor on the same line. advance cursor x position by
+        /// GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
         /// </summary>
         button(bullet)
         {
@@ -113,7 +108,8 @@ namespace imcxx
         }
 
         /// <summary>
-        /// draw a small circle + keep the cursor on the same line. advance cursor x position by GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
+        /// draw a small circle + keep the cursor on the same line. advance cursor x position by
+        /// GetTreeNodeToLabelSpacing(), same distance that TreeNode() uses
         /// </summary>
         button(progress, float fraction, ImVec2 size_arg = { -FLT_MIN, 0.f }, const char* overlay = nullptr)
         {

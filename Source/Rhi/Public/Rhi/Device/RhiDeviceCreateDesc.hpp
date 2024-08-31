@@ -59,11 +59,7 @@ namespace Ame::Rhi
         /// \note Enabling this option may slow things down a lot.
         GpuBasedValidation = 1 << 3,
 
-        All = DebugLayer |
-              CheckShaderBufferSize |
-              CommittedResourceRelevance |
-              BreakOnError |
-              BreakOnCorruption |
+        All = DebugLayer | CheckShaderBufferSize | CommittedResourceRelevance | BreakOnError | BreakOnCorruption |
               GpuBasedValidation
     };
 
@@ -97,8 +93,10 @@ namespace Ame::Rhi
         /// When the application exits, the engine prints the GPU descriptor heap
         /// statistics to the log, for example:
         ///
-        ///     Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/128 (0.00%) | 0/1920 (0.00%).
-        ///     Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) | 128/32768 (0.39%).
+        ///     Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size
+        ///     (static|dynamic): 0/128 (0.00%) | 0/1920 (0.00%). Diligent Engine: Info:
+        ///     D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) |
+        ///     128/32768 (0.39%).
         ///
         /// An application should monitor the GPU descriptor heap statistics and
         /// set GPUDescriptorHeapSize and GPUDescriptorHeapDynamicSize accordingly.
@@ -126,8 +124,10 @@ namespace Ame::Rhi
         /// When the application exits, the engine prints the GPU descriptor heap
         /// statistics to the log, for example:
         ///
-        ///     Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size (static|dynamic): 0/128 (0.00%) | 0/1920 (0.00%).
-        ///     Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) | 128/32768 (0.39%).
+        ///     Diligent Engine: Info: D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER     GPU heap max allocated size
+        ///     (static|dynamic): 0/128 (0.00%) | 0/1920 (0.00%). Diligent Engine: Info:
+        ///     D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV GPU heap max allocated size (static|dynamic): 9/16384 (0.05%) |
+        ///     128/32768 (0.39%).
         ///
         /// An application should monitor the GPU descriptor heap statistics and
         /// set GPUDescriptorHeapSize and GPUDescriptorHeapDynamicSize accordingly.
@@ -244,8 +244,7 @@ namespace Ame::Rhi
             uint32_t NumStorageTexelBufferDescriptors = 0; // 0 = Use whatever diligent default deems default.
             uint32_t NumInputAttachmentDescriptors    = 0; // 0 = Use whatever diligent default deems default.
             uint32_t NumAccelStructDescriptors        = 0; // 0 = Use whatever diligent default deems default.
-        } MainDescriptorPool,
-            DynamicDescriptorPool;
+        } MainDescriptorPool, DynamicDescriptorPool;
 
         std::span<const char*> RequiredLayerExtensions;
         std::span<const char*> RequiredInstanceExtensions;
@@ -302,7 +301,8 @@ namespace Ame::Rhi
         ///             On exit, the engine prints the number of pages that were
         ///             allocated by each context to the log, for example:
         ///
-        ///                 Diligent Engine: Info: Upload heap of immediate context peak used/allocated frame size: 80.00 MB / 80.00 MB (80 pages)
+        ///                 Diligent Engine: Info: Upload heap of immediate context peak used/allocated frame
+        ///                 size: 80.00 MB / 80.00 MB (80 pages)
         /// </summary>
         uint32_t UploadHeapPageSize = 0; // 0 = Use whatever diligent default deems default.
 
@@ -350,7 +350,9 @@ namespace Ame::Rhi
         ///             for each context to the log, for example:
         ///
         ///                 Diligent Engine: Info: Dynamic heap of immediate context usage stats:
-        ///                                        Peak used/aligned/allocated size: 94.14 KB / 94.56 KB / 256.00 KB (1 page). Peak efficiency (used/aligned): 99.6%. Peak utilization (used/allocated): 36.8%
+        ///                                        Peak used/aligned/allocated size: 94.14 KB / 94.56 KB / 256.00 KB (1
+        ///                                        page). Peak efficiency (used/aligned): 99.6%. Peak utilization
+        ///                                        (used/allocated): 36.8%
         ///
         ///             * Peak used size is the total amount of memory required for dynamic resources
         ///               allocated by the context during the frame.
@@ -383,11 +385,8 @@ namespace Ame::Rhi
 
     //
 
-    using DeviceCreateDescVariant = std::variant<
-        DeviceCreateDescD3D11,
-        DeviceCreateDescD3D12,
-        DeviceCreateDescGL,
-        DeviceCreateDescVulkan>;
+    using DeviceCreateDescVariant =
+        std::variant<DeviceCreateDescD3D11, DeviceCreateDescD3D12, DeviceCreateDescGL, DeviceCreateDescVulkan>;
 
     using DeviceCreateDescStream = std::vector<DeviceCreateDescVariant>;
 
@@ -486,8 +485,9 @@ namespace Ame::Rhi
 #ifdef AME_DEBUG_SANITIZE
         DeviceValidationType ValidationLayer = DeviceValidationType::All;
 #elif defined(AME_DEBUG)
-        DeviceValidationType ValidationLayer = static_cast<DeviceValidationType>(std::to_underlying(DeviceValidationType::BreakOnError) |
-                                                                                 std::to_underlying(DeviceValidationType::BreakOnCorruption));
+        DeviceValidationType ValidationLayer =
+            static_cast<DeviceValidationType>(std::to_underlying(DeviceValidationType::BreakOnError) |
+                                              std::to_underlying(DeviceValidationType::BreakOnCorruption));
 #else
         DeviceValidationType ValidationLayer = DeviceValidationType::None;
 #endif

@@ -4,8 +4,7 @@
 
 namespace Ame::Math
 {
-    template<typename VecTy>
-    class Ray
+    template<typename VecTy> class Ray
     {
     public:
         using vector_type = VecTy;
@@ -15,11 +14,8 @@ namespace Ame::Math
         vector_type Direction;
 
     public:
-        constexpr Ray(
-            const vector_type& origin,
-            const vector_type& direction) noexcept :
-            Origin(origin),
-            Direction(direction)
+        constexpr Ray(const vector_type& origin, const vector_type& direction) noexcept :
+            Origin(origin), Direction(direction)
         {
         }
 

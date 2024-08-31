@@ -10,25 +10,18 @@ namespace Ame::Rhi
     struct ImGuiFrameContext
     {
     public:
-        ImGuiFrameContext(
-            IImGuiRenderer* renderer = nullptr) :
-            m_Renderer(renderer)
+        ImGuiFrameContext(IImGuiRenderer* renderer = nullptr) : m_Renderer(renderer)
         {
             BeginFrame();
         }
 
-        ImGuiFrameContext(
-            const ImGuiFrameContext&) = delete;
-        ImGuiFrameContext& operator=(
-            const ImGuiFrameContext&) = delete;
+        ImGuiFrameContext(const ImGuiFrameContext&)            = delete;
+        ImGuiFrameContext& operator=(const ImGuiFrameContext&) = delete;
 
-        ImGuiFrameContext(
-            ImGuiFrameContext&& other) noexcept :
-            m_Renderer(std::exchange(other.m_Renderer, nullptr))
+        ImGuiFrameContext(ImGuiFrameContext&& other) noexcept : m_Renderer(std::exchange(other.m_Renderer, nullptr))
         {
         }
-        ImGuiFrameContext& operator=(
-            ImGuiFrameContext&& other) noexcept
+        ImGuiFrameContext& operator=(ImGuiFrameContext&& other) noexcept
         {
             if (this != &other)
             {

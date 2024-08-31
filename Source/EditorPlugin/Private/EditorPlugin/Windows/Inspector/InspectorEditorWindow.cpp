@@ -4,8 +4,7 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> InspectorEditorWindow::Create(
-        ModuleRegistry& registry)
+    Ptr<IEditorWindow> InspectorEditorWindow::Create(ModuleRegistry& registry)
     {
         return { ObjectAllocator<InspectorEditorWindow>()(registry), IID_BaseEditorWindow };
     }

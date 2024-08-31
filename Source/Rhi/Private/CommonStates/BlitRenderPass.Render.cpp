@@ -3,16 +3,13 @@
 
 namespace Ame::Rhi
 {
-    void BlitRenderPass::Blit(
-        const BlitDrawParameters& parameters)
+    void BlitRenderPass::Blit(const BlitDrawParameters& parameters)
     {
         auto deviceContext = m_RhiDevice->GetImmediateContext();
         Blit(deviceContext, parameters);
     }
 
-    void BlitRenderPass::Blit(
-        Dg::IDeviceContext*       deviceContext,
-        const BlitDrawParameters& parameters)
+    void BlitRenderPass::Blit(Dg::IDeviceContext* deviceContext, const BlitDrawParameters& parameters)
     {
         auto& [pso, srb] = GetPipelineState(parameters);
 

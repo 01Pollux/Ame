@@ -7,8 +7,7 @@ namespace Ame::Asset
         return m_AssetGuid;
     }
 
-    void IAsset::SetUId(
-        const UId& uid) noexcept
+    void IAsset::SetUId(const UId& uid) noexcept
     {
         m_AssetGuid = uid;
     }
@@ -18,14 +17,12 @@ namespace Ame::Asset
         return m_AssetPath;
     }
 
-    void IAsset::SetPath(
-        const String& path) noexcept
+    void IAsset::SetPath(const String& path) noexcept
     {
         m_AssetPath = path;
     }
 
-    void IAsset::MarkDirty(
-        bool isDirty) noexcept
+    void IAsset::MarkDirty(bool isDirty) noexcept
     {
         m_IsDirty = isDirty;
     }

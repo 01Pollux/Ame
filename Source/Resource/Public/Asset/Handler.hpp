@@ -24,8 +24,7 @@ namespace Ame::Asset
         /// </summary>
         template<typename Ty, typename ArchiveTy>
             requires std::is_base_of_v<IAsset, Ty>
-        [[nodiscard]] Ptr<Ty> ReadOne(
-            ArchiveTy& archive) const
+        [[nodiscard]] Ptr<Ty> ReadOne(ArchiveTy& archive) const
         {
             UId uid;
             archive >> uid;
@@ -45,8 +44,7 @@ namespace Ame::Asset
         /// </summary>
         template<typename Ty = IAsset, typename ArchiveTy>
             requires std::is_base_of_v<IAsset, Ty>
-        [[nodiscard]] auto ReadMany(
-            ArchiveTy& archive) const
+        [[nodiscard]] auto ReadMany(ArchiveTy& archive) const
         {
             std::vector<UId> guids;
             archive >> guids;
@@ -79,9 +77,7 @@ namespace Ame::Asset
         /// Internal use only for package reading.
         /// Link an asset for depdendency reading.
         /// </summary>
-        void Link(
-            const UId&         uid,
-            const Ptr<IAsset>& asset)
+        void Link(const UId& uid, const Ptr<IAsset>& asset)
         {
             m_Assets.emplace(uid, asset);
         }
@@ -100,9 +96,7 @@ namespace Ame::Asset
         /// </summary>
         template<typename ArchiveTy, typename Ty>
             requires std::is_base_of_v<IAsset, Ty>
-        void WriteOne(
-            ArchiveTy& archive,
-            Ty*        asset)
+        void WriteOne(ArchiveTy& archive, Ty* asset)
         {
             if (asset)
             {
@@ -118,10 +112,7 @@ namespace Ame::Asset
         /// <summary>
         /// Read the dependencies of an asset.
         /// </summary>
-        template<typename ArchiveTy, typename Ty>
-        void WriteMany(
-            ArchiveTy& archive,
-            const Ty&  assets)
+        template<typename ArchiveTy, typename Ty> void WriteMany(ArchiveTy& archive, const Ty& assets)
         {
             std::vector<UId> handles;
             for (auto& asset : assets)
@@ -182,71 +173,58 @@ namespace Ame::Asset
         /// <summary>
         /// Query if this asset handler can handle the given asset.
         /// </summary>
-        virtual bool CanHandle(
-            IAsset* asset) = 0;
+        virtual bool CanHandle(IAsset* asset) = 0;
 
         /// <summary>
         /// Load the asset from an input stream.
         /// </summary>
-        [[nodiscard]] virtual Co::result<Ptr<IAsset>> Load(
-            AssetHandlerLoadDesc& desc) = 0;
+        [[nodiscard]] virtual Co::result<Ptr<IAsset>> Load(AssetHandlerLoadDesc& desc) = 0;
 
         /// <summary>
         /// Save the asset to an output stream.
         /// </summary>
-        [[nodiscard]] virtual Co::result<void> Save(
-            AssetHandlerSaveDesc& desc) = 0;
+        [[nodiscard]] virtual Co::result<void> Save(AssetHandlerSaveDesc& desc) = 0;
     };
 
     //
 
-#define AME_STANDARD_ASSET_HANDLER_BODY           \
-    bool CanHandle(                               \
-        IAsset* asset) override;                  \
-                                                  \
-    Co::result<Ptr<IAsset>> Load(                 \
-        AssetHandlerLoadDesc& loadDesc) override; \
-                                                  \
-    Co::result<void> Save(                        \
-        AssetHandlerSaveDesc& saveDesc) override
+#define AME_STANDARD_ASSET_HANDLER_BODY                                                                                \
+    bool CanHandle(IAsset* asset) override;                                                                            \
+                                                                                                                       \
+    Co::result<Ptr<IAsset>> Load(AssetHandlerLoadDesc& loadDesc) override;                                             \
+                                                                                                                       \
+    Co::result<void> Save(AssetHandlerSaveDesc& saveDesc) override
 
-#define AME_STANDARD_ASSET_HANDLER(Name, ID)      \
-    class Name : public BaseObject<IAssetHandler> \
-    {                                             \
-    public:                                       \
-        static inline const UId& UID = ID;        \
-                                                  \
-        using Base = BaseObject<IAssetHandler>;   \
-                                                  \
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(      \
-            UID, IID_BaseAssetHandler, Base);     \
-                                                  \
-        Name(                                     \
-            IReferenceCounters* counters) :       \
-            Base(counters)                        \
-        {                                         \
-        }                                         \
-                                                  \
-    public:                                       \
-        AME_STANDARD_ASSET_HANDLER_BODY;          \
+#define AME_STANDARD_ASSET_HANDLER(Name, ID)                                                                           \
+    class Name : public BaseObject<IAssetHandler>                                                                      \
+    {                                                                                                                  \
+    public:                                                                                                            \
+        static inline const UId& UID = ID;                                                                             \
+                                                                                                                       \
+        using Base = BaseObject<IAssetHandler>;                                                                        \
+                                                                                                                       \
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, Base);                                          \
+                                                                                                                       \
+        Name(IReferenceCounters* counters) : Base(counters)                                                            \
+        {                                                                                                              \
+        }                                                                                                              \
+                                                                                                                       \
+    public:                                                                                                            \
+        AME_STANDARD_ASSET_HANDLER_BODY;                                                                               \
     };
 
     //
 
-    template<typename Ty, UId ID>
-    class DefaultAssetHandler : public BaseObject<IAssetHandler>
+    template<typename Ty, UId ID> class DefaultAssetHandler : public BaseObject<IAssetHandler>
     {
     public:
         static inline UId UID = ID;
 
         using Base = BaseObject<IAssetHandler>;
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
-            UID, IID_BaseAssetHandler, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, Base);
 
-        DefaultAssetHandler(
-            IReferenceCounters* counters) :
-            Base(counters)
+        DefaultAssetHandler(IReferenceCounters* counters) : Base(counters)
         {
         }
 
@@ -256,8 +234,7 @@ namespace Ame::Asset
             return dynamic_cast<Ty*>(asset) != nullptr;
         }
 
-        Co::result<Ptr<IAsset>> Load(
-            AssetHandlerLoadDesc& loadDesc) override
+        Co::result<Ptr<IAsset>> Load(AssetHandlerLoadDesc& loadDesc) override
         {
             Ptr asset{ ObjectAllocator<Ty>()() };
             if (!asset)

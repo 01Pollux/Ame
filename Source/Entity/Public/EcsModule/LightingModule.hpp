@@ -7,7 +7,6 @@ namespace Ame::Ecs
     class LightingEcsModule
     {
     public:
-        LightingEcsModule(
-            WorldRef world);
+        LightingEcsModule(WorldRef world);
     };
 } // namespace Ame::Ecs

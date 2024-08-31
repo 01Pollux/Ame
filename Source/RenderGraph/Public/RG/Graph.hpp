@@ -12,12 +12,9 @@ namespace Ame::Rg
     public:
         using Base = BaseObject<IObject>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_RenderGraph, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RenderGraph, Base);
 
-        Graph(
-            IReferenceCounters* counter,
-            Rhi::IRhiDevice*    rhiDevice);
+        Graph(IReferenceCounters* counter, Rhi::IRhiDevice* rhiDevice);
 
     public:
         /// <summary>
@@ -28,8 +25,7 @@ namespace Ame::Rg
         /// <summary>
         /// Execute the render graph with the specified execution context
         /// </summary>
-        void Execute(
-            Dg::IDeviceContext* contexts);
+        void Execute(Dg::IDeviceContext* contexts);
 
     public:
         void               MarkDirty() noexcept;

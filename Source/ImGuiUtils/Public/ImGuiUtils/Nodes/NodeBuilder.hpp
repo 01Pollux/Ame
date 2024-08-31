@@ -22,8 +22,7 @@ namespace Neon::UI::Graph
         };
 
     public:
-        NodeBuilder(
-            NodeGraph::EditorConfig Config = {});
+        NodeBuilder(NodeGraph::EditorConfig Config = {});
 
         [[nodiscard]] NodeGraph* operator->() noexcept
         {
@@ -33,16 +32,14 @@ namespace Neon::UI::Graph
         /// <summary>
         /// Add new node to the graph
         /// </summary>
-        NodeGraph::NodeId AddNode(
-            UPtr<Node> NewNode);
+        NodeGraph::NodeId AddNode(UPtr<Node> NewNode);
 
         /// <summary>
         /// Add new node to the graph
         /// </summary>
         template<typename _Ty, typename... _Args>
             requires std::is_base_of_v<Node, _Ty>
-        NodeGraph::NodeId AddNode(
-            _Args&&... Args)
+        NodeGraph::NodeId AddNode(_Args&&... Args)
         {
             return AddNode(std::make_unique<_Ty>(std::forward<_Args>(Args)...));
         }
@@ -50,26 +47,19 @@ namespace Neon::UI::Graph
         /// <summary>
         /// Remove node from the graph
         /// </summary>
-        void RemoveNode(
-            NodeGraph::NodeId TargetNode);
+        void RemoveNode(NodeGraph::NodeId TargetNode);
 
         /// <summary>
         /// Add new pin to the node
         /// </summary>
-        NodeGraph::PinId AddPin(
-            NodeGraph::NodeId TargetNode,
-            bool              IsInput,
-            UPtr<Pin>         NewPin);
+        NodeGraph::PinId AddPin(NodeGraph::NodeId TargetNode, bool IsInput, UPtr<Pin> NewPin);
 
         /// <summary>
         /// Add new pin to the node
         /// </summary>
         template<typename _Ty, typename... _Args>
             requires std::is_base_of_v<Pin, _Ty>
-        NodeGraph::PinId AddPin(
-            NodeGraph::NodeId TargetNode,
-            bool              IsInput,
-            _Args&&... Args)
+        NodeGraph::PinId AddPin(NodeGraph::NodeId TargetNode, bool IsInput, _Args&&... Args)
         {
             return AddPin(TargetNode, IsInput, std::make_unique<_Ty>(std::forward<_Args>(Args)...));
         }
@@ -77,14 +67,12 @@ namespace Neon::UI::Graph
         /// <summary>
         /// Add link between pins
         /// </summary>
-        NodeGraph::LinkId LinkPins(
-            Link NewLink);
+        NodeGraph::LinkId LinkPins(Link NewLink);
 
         /// <summary>
         /// Remove link between pins
         /// </summary>
-        void UnlinkPins(
-            NodeGraph::LinkId TargetLink);
+        void UnlinkPins(NodeGraph::LinkId TargetLink);
 
     public:
         /// <summary>
@@ -104,26 +92,20 @@ namespace Neon::UI::Graph
         void RenderCreator();
 
     private:
-        void BeginNode(
-            NodeGraph::NodeId Id);
+        void BeginNode(NodeGraph::NodeId Id);
         void EndNode();
 
-        void BeginHeader(
-            const ImColor& Color = ImColor(255, 255, 255, 255));
+        void BeginHeader(const ImColor& Color = ImColor(255, 255, 255, 255));
         void EndHeader();
 
-        void BeginInput(
-            NodeGraph::PinId Id);
+        void BeginInput(NodeGraph::PinId Id);
         void EndInput();
 
-        void BeginOutput(
-            NodeGraph::PinId Id);
+        void BeginOutput(NodeGraph::PinId Id);
         void EndOutput();
 
     private:
-        void BeginPin(
-            NodeGraph::PinId   Id,
-            NodeGraph::PinKind Kind);
+        void BeginPin(NodeGraph::PinId Id, NodeGraph::PinKind Kind);
 
         void EndPin();
 

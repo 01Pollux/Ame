@@ -28,8 +28,7 @@ namespace Ame::Gfx
 
         static auto observer_create(Ecs::WorldRef world)
         {
-            return world
-                ->observer<const Ecs::GlobalTransformComponent>()
+            return world->observer<const Ecs::GlobalTransformComponent>()
                 .with<const Ecs::RenderableComponent>()
                 .or_()
                 .with<const Ecs::LightTagComponent>()

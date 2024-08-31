@@ -15,10 +15,8 @@
 
 namespace Ame::Asset
 {
-    DirectoryAssetPackage::DirectoryAssetPackage(
-        IReferenceCounters*   counters,
-        Storage&              assetStorage,
-        std::filesystem::path path) :
+    DirectoryAssetPackage::DirectoryAssetPackage(IReferenceCounters* counters, Storage& assetStorage,
+                                                 std::filesystem::path path) :
         Base(counters, assetStorage),
         m_RootPath(std::move(path))
     {
@@ -113,7 +111,8 @@ namespace Ame::Asset
                     continue;
 #else
                     // Try to correct the hash
-                    logger.Warning("Asset file '{}' has a different hash than the one in meta file", assetPath.string());
+                    logger.Warning(
+                        "Asset file '{}' has a different hash than the one in meta file", assetPath.string());
                     metaData.SetHash(currentHash);
                     metaData.SetDirty();
 
@@ -136,23 +135,20 @@ namespace Ame::Asset
         }
     }
 
-    bool DirectoryAssetPackage::ContainsAsset(
-        const UId& uid) const
+    bool DirectoryAssetPackage::ContainsAsset(const UId& uid) const
     {
         RLock readLock(m_CacheMutex);
         return m_AssetMeta.contains(uid);
     }
 
-    UId DirectoryAssetPackage::FindAsset(
-        const String& path) const
+    UId DirectoryAssetPackage::FindAsset(const String& path) const
     {
         RLock readLock(m_CacheMutex);
         auto  iter = m_AssetPath.find(path);
         return iter != m_AssetPath.end() ? iter->second : UIdUtils::Null();
     }
 
-    Co::generator<UId> DirectoryAssetPackage::FindAssets(
-        const std::regex& pathRegex) const
+    Co::generator<UId> DirectoryAssetPackage::FindAssets(const std::regex& pathRegex) const
     {
         RLock readLock(m_CacheMutex);
         for (auto& [path, uid] : m_AssetPath)
@@ -187,16 +183,14 @@ namespace Ame::Asset
         return executor->submit(std::move(ExportTask));
     }
 
-    Co::result<void> DirectoryAssetPackage::SaveAsset(
-        Ptr<IAsset> asset)
+    Co::result<void> DirectoryAssetPackage::SaveAsset(Ptr<IAsset> asset)
     {
         auto executor = m_Runtime.get().background_executor();
         co_await Co::resume_on(executor);
         SaveAssetAndDependencies(asset);
     }
 
-    bool DirectoryAssetPackage::RemoveAsset(
-        const UId& uid)
+    bool DirectoryAssetPackage::RemoveAsset(const UId& uid)
     {
         RWLock readWriteLock(m_CacheMutex);
 
@@ -212,17 +206,14 @@ namespace Ame::Asset
         return true;
     }
 
-    const UId& DirectoryAssetPackage::GetGuidOfPath(
-        const String& path) const
+    const UId& DirectoryAssetPackage::GetGuidOfPath(const String& path) const
     {
         RLock readLock(m_CacheMutex);
         auto  iter = m_AssetPath.find(path);
         return iter != m_AssetPath.end() ? iter->second : UIdUtils::Null();
     }
 
-    Ptr<IAsset> DirectoryAssetPackage::LoadAsset(
-        const UId& uid,
-        bool       loadTemp)
+    Ptr<IAsset> DirectoryAssetPackage::LoadAsset(const UId& uid, bool loadTemp)
     {
         // The reason for checking if the asset is already loaded in the cache
         // is because we later will only load the asset if it's not already loaded
@@ -233,9 +224,7 @@ namespace Ame::Asset
         return LoadAssetAndDependencies(uid, loadTemp);
     }
 
-    bool DirectoryAssetPackage::UnloadAsset(
-        const UId& uid,
-        bool       force)
+    bool DirectoryAssetPackage::UnloadAsset(const UId& uid, bool force)
     {
         RWLock readWriteLock(m_CacheMutex);
 
@@ -254,8 +243,7 @@ namespace Ame::Asset
 
     //
 
-    Co::generator<String> DirectoryAssetPackage::GetFiles(
-        const std::filesystem::path& path)
+    Co::generator<String> DirectoryAssetPackage::GetFiles(const std::filesystem::path& path)
     {
         for (auto& entry : std::filesystem::recursive_directory_iterator(path))
         {
@@ -266,8 +254,7 @@ namespace Ame::Asset
         }
     }
 
-    void DirectoryAssetPackage::ExportMeta(
-        AssetMetaDataDef& metaData) const
+    void DirectoryAssetPackage::ExportMeta(AssetMetaDataDef& metaData) const
     {
         std::filesystem::path metaPath = m_RootPath / metaData.GetMetaPath();
         std::filesystem::create_directories(metaPath.parent_path());
@@ -277,8 +264,7 @@ namespace Ame::Asset
         metaData.SetDirty(false);
     }
 
-    Ptr<IAsset> DirectoryAssetPackage::LoadAssetFromCache(
-        const UId& uid)
+    Ptr<IAsset> DirectoryAssetPackage::LoadAssetFromCache(const UId& uid)
     {
         RLock readLock(m_CacheMutex);
         if (auto iter = m_Cache.find(uid); iter != m_Cache.end())
@@ -288,9 +274,7 @@ namespace Ame::Asset
         return {};
     }
 
-    Ptr<IAsset> DirectoryAssetPackage::LoadAssetAndDependencies(
-        const UId& uid,
-        bool       loadTemp)
+    Ptr<IAsset> DirectoryAssetPackage::LoadAssetAndDependencies(const UId& uid, bool loadTemp)
     {
         std::stack<UId> toLoad;
         toLoad.push(uid);
@@ -353,7 +337,8 @@ namespace Ame::Asset
             IAssetHandler* handler = m_Storage.get().GetHandler(metaData->GetLoaderId());
             if (!handler)
             {
-                throw toLoad.size() == 1 ? AssetWithNoHandlerException(uid) : AssetWithNoHandlerException(uid, currentGuid);
+                throw toLoad.size() == 1 ? AssetWithNoHandlerException(uid)
+                                         : AssetWithNoHandlerException(uid, currentGuid);
             }
 
             std::ifstream assetFile(path, std::ios::in | std::ios::binary);
@@ -362,19 +347,17 @@ namespace Ame::Asset
                 throw AssetNotFoundException(uid, currentGuid);
             }
 
-            AssetHandlerLoadDesc loadDesc{
-                .BackgroundExecutor = m_Runtime.get().background_executor(),
-                .ForegroundExecutor = m_Runtime.get().inline_executor(),
+            AssetHandlerLoadDesc loadDesc{ .BackgroundExecutor = m_Runtime.get().background_executor(),
+                                           .ForegroundExecutor = m_Runtime.get().inline_executor(),
 
-                .Stream       = assetFile,
-                .Dependencies = dependencyReader,
+                                           .Stream       = assetFile,
+                                           .Dependencies = dependencyReader,
 
-                .UId  = currentGuid,
-                .Path = path.string(),
+                                           .UId  = currentGuid,
+                                           .Path = path.string(),
 
-                .LoaderData = metaData->GetLoaderData()
-            };
-            auto asset = handler->Load(loadDesc).get();
+                                           .LoaderData = metaData->GetLoaderData() };
+            auto                 asset = handler->Load(loadDesc).get();
             if (!asset)
             {
                 throw AssetHandlerFailureException(uid, currentGuid);
@@ -396,8 +379,7 @@ namespace Ame::Asset
         return tempAssets.empty() ? Ptr<IAsset>{} : tempAssets.back();
     }
 
-    void DirectoryAssetPackage::SaveAssetAndDependencies(
-        Ptr<IAsset> firstAsset)
+    void DirectoryAssetPackage::SaveAssetAndDependencies(Ptr<IAsset> firstAsset)
     {
         std::queue<IAsset*> toSave;
         toSave.emplace(firstAsset);
@@ -419,7 +401,8 @@ namespace Ame::Asset
                 {
                     iter = m_AssetMeta.emplace(uid, AssetMetaDataDef(uid, curAsset->GetPath())).first;
                     m_AssetPath.emplace(curAsset->GetPath(), uid);
-                    iter->second.SetMetaPath(std::format("{}{}", curAsset->GetPath(), AssetMetaDataDef::c_MetaFileExtension));
+                    iter->second.SetMetaPath(
+                        std::format("{}{}", curAsset->GetPath(), AssetMetaDataDef::c_MetaFileExtension));
                 }
                 metaData = &iter->second;
             }
@@ -447,16 +430,14 @@ namespace Ame::Asset
 
             DependencyWriter dependencyWriter;
 
-            AssetHandlerSaveDesc saveDesc{
-                .BackgroundExecutor = m_Runtime.get().background_executor(),
-                .ForegroundExecutor = m_Runtime.get().inline_executor(),
+            AssetHandlerSaveDesc saveDesc{ .BackgroundExecutor = m_Runtime.get().background_executor(),
+                                           .ForegroundExecutor = m_Runtime.get().inline_executor(),
 
-                .Stream       = assetFile,
-                .Dependencies = dependencyWriter,
+                                           .Stream       = assetFile,
+                                           .Dependencies = dependencyWriter,
 
-                .Asset      = curAsset,
-                .LoaderData = metaData->GetLoaderData()
-            };
+                                           .Asset      = curAsset,
+                                           .LoaderData = metaData->GetLoaderData() };
             handler->Save(saveDesc).wait();
 
             // Write dependencies to metadata

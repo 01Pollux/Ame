@@ -7,8 +7,7 @@
 
 namespace Ame::Ecs
 {
-    CoreEcsModule::CoreEcsModule(
-        WorldRef world)
+    CoreEcsModule::CoreEcsModule(WorldRef world)
     {
         world->module<CoreEcsModule>();
 

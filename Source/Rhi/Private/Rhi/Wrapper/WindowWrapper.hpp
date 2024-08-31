@@ -13,9 +13,7 @@ namespace Ame::Rhi
     {
     public:
         WindowWrapper() = default;
-        WindowWrapper(
-            Ptr<Window::IWindow> window,
-            Ptr<Dg::ISwapChain>  swapchain);
+        WindowWrapper(Ptr<Window::IWindow> window, Ptr<Dg::ISwapChain> swapchain);
 
         WindowWrapper(const WindowWrapper&)           = delete;
         WindowWrapper(WindowWrapper&& other) noexcept = default;
@@ -35,8 +33,7 @@ namespace Ame::Rhi
         /// <summary>
         /// Present the backbuffer.
         /// </summary>
-        void Present(
-            uint32_t syncInterval);
+        void Present(uint32_t syncInterval);
 
     public:
         /// <summary>

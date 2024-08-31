@@ -11,8 +11,7 @@ namespace Ame
         using Base = BaseApplication;
 
     public:
-        explicit EditorApplication(
-            const EditorApplicationConfig& config);
+        explicit EditorApplication(const EditorApplicationConfig& config);
 
     protected:
         void OnLoad() override;

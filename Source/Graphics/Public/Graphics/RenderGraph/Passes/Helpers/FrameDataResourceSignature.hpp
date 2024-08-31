@@ -18,8 +18,7 @@ namespace Ame::Gfx
         }
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver)
+        void OnBuild(Rg::Resolver& resolver)
         {
             if (!m_Srb)
             {
@@ -32,9 +31,7 @@ namespace Ame::Gfx
             resolver.SetUserData(Ty::RGSignature(), m_Srb);
         }
 
-        void OnExecute(
-            const Rg::ResourceStorage& storage,
-            Dg::IDeviceContext*)
+        void OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext*)
         {
             auto buffer            = storage.GetResource(c_RGFrameData)->AsBuffer();
             auto resourceSignature = m_Srb->GetPipelineResourceSignature();
@@ -50,7 +47,8 @@ namespace Ame::Gfx
             Dg::IRenderDevice* renderDevice)
         {
             constexpr std::array resources{
-                Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER, Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "FrameDataBuffer", Dg::SHADER_RESOURCE_TYPE_CONSTANT_BUFFER,
+                                          Dg::SHADER_RESOURCE_VARIABLE_TYPE_STATIC },
             };
 
             constexpr std::array c_SamplersTemplate{
@@ -65,11 +63,9 @@ namespace Ame::Gfx
                 Dg::ImmutableSamplerDesc{ ShaderFlags, "Sampler_Aniso4xWrap", Dg::Sam_Aniso4xWrap },
             };
 
-            Dg::PipelineResourceSignatureDesc desc{
-                .Resources    = resources.data(),
-                .NumResources = Rhi::Count32(resources),
-                .BindingIndex = 1
-            };
+            Dg::PipelineResourceSignatureDesc desc{ .Resources    = resources.data(),
+                                                    .NumResources = Rhi::Count32(resources),
+                                                    .BindingIndex = 1 };
 
             if constexpr (WithSamplers)
             {

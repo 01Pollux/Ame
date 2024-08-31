@@ -11,14 +11,11 @@ namespace Ame::Rg
     public:
         ResourceId() = default;
 
-        explicit ResourceId(
-            size_t id) :
-            m_Id(id)
+        explicit ResourceId(size_t id) : m_Id(id)
         {
         }
 
-        explicit ResourceId(
-            StringView name) :
+        explicit ResourceId(StringView name) :
             m_Id(name)
 #ifndef AME_DIST
             ,
@@ -47,8 +44,7 @@ namespace Ame::Rg
 #endif
         }
 
-        auto operator<=>(
-            const ResourceId& other) const noexcept
+        auto operator<=>(const ResourceId& other) const noexcept
         {
             return GetId() <=> other.GetId();
         }
@@ -74,11 +70,7 @@ namespace Ame::Rg
     public:
         ResourceViewId() = default;
 
-        ResourceViewId(
-            const ResourceId& resource,
-            size_t            id) :
-            m_ResourceId(resource.GetId()),
-            m_ViewId(id)
+        ResourceViewId(const ResourceId& resource, size_t id) : m_ResourceId(resource.GetId()), m_ViewId(id)
         {
         }
 

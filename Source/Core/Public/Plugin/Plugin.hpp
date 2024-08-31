@@ -31,8 +31,7 @@ namespace Ame
         }
 
     public:
-        IPlugin(const PluginInfo& info) noexcept :
-            m_PluginInfo(info)
+        IPlugin(const PluginInfo& info) noexcept : m_PluginInfo(info)
         {
         }
 

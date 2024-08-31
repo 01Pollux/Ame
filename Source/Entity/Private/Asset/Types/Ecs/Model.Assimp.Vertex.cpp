@@ -12,31 +12,24 @@ namespace Ame::Ecs
     /// <summary>
     /// Convert an AssImp matrix to a Neon matrix.
     /// </summary>
-    [[nodiscard]] static Math::Matrix4x4 FromAiMatrix(
-        const aiMatrix4x4& matrix)
+    [[nodiscard]] static Math::Matrix4x4 FromAiMatrix(const aiMatrix4x4& matrix)
     {
         return Math::Matrix4x4(
-            { matrix.a1, matrix.b1, matrix.c1, matrix.d1 },
-            { matrix.a2, matrix.b2, matrix.c2, matrix.d2 },
-            { matrix.a3, matrix.b3, matrix.c3, matrix.d3 },
-            { matrix.a4, matrix.b4, matrix.c4, matrix.d4 });
+            { matrix.a1, matrix.b1, matrix.c1, matrix.d1 }, { matrix.a2, matrix.b2, matrix.c2, matrix.d2 },
+            { matrix.a3, matrix.b3, matrix.c3, matrix.d3 }, { matrix.a4, matrix.b4, matrix.c4, matrix.d4 });
     }
 
     /// <summary>
     /// Traverse an AssImp node and add it to the model as a mesh node.
     /// </summary>
-    static void TraverseAISubMesh(
-        aiNode*                     aiNode,
-        MeshModel::SubMeshDataList& subMeshes,
-        MeshModel::MeshNodeList&    rootNode,
-        uint32_t                    parentIndex     = std::numeric_limits<uint32_t>::max(),
-        const Math::Matrix4x4&      parentTransform = Math::Matrix4x4::Constants::Identity)
+    static void TraverseAISubMesh(aiNode* aiNode, MeshModel::SubMeshDataList& subMeshes,
+                                  MeshModel::MeshNodeList& rootNode,
+                                  uint32_t                 parentIndex     = std::numeric_limits<uint32_t>::max(),
+                                  const Math::Matrix4x4&   parentTransform = Math::Matrix4x4::Constants::Identity)
     {
-        MeshNode node{
-            .Parent    = parentIndex,
-            .Transform = FromAiMatrix(aiNode->mTransformation),
-            .Name      = String(aiNode->mName.data, aiNode->mName.length)
-        };
+        MeshNode node{ .Parent    = parentIndex,
+                       .Transform = FromAiMatrix(aiNode->mTransformation),
+                       .Name      = String(aiNode->mName.data, aiNode->mName.length) };
 
         Math::Matrix4x4 finalTransform = parentTransform * node.Transform;
         node.SubMeshes.reserve(aiNode->mNumMeshes);
@@ -62,8 +55,7 @@ namespace Ame::Ecs
 
     //
 
-    template<typename Ty>
-    struct VectorAndOffset
+    template<typename Ty> struct VectorAndOffset
     {
         std::vector<Ty> Buffer;
         uint32_t        Offset = 0;
@@ -73,8 +65,7 @@ namespace Ame::Ecs
             Buffer.emplace_back(data);
         }
 
-        template<typename Ty>
-        void AppendRange(Ty&& data)
+        template<typename Ty> void AppendRange(Ty&& data)
         {
             Buffer.append_range(std::forward<Ty>(data));
         }
@@ -112,9 +103,7 @@ namespace Ame::Ecs
 
     //
 
-    void AssImpModelImporter::CreateBufferResources(
-        MeshModel::CreateDesc& createDesc,
-        Rhi::IRhiDevice*       rhiDevice) const
+    void AssImpModelImporter::CreateBufferResources(MeshModel::CreateDesc& createDesc, Rhi::IRhiDevice* rhiDevice) const
     {
         const aiScene* scene = m_Importer.GetScene();
         if (!scene->HasMeshes())
@@ -134,10 +123,7 @@ namespace Ame::Ecs
 
         //
 
-        auto reserveBuffer = [](auto& buffer, size_t count)
-        {
-            buffer.reserve(buffer.size() + count);
-        };
+        auto reserveBuffer = [](auto& buffer, size_t count) { buffer.reserve(buffer.size() + count); };
 
         size_t   totalVertices = 0;
         uint32_t maxIndex      = 0;
@@ -203,8 +189,7 @@ namespace Ame::Ecs
                 if (use16BitIndices)
                 {
                     auto indices = std::span<const uint32_t>{ face.mIndices, face.mNumIndices } |
-                                   std::views::transform([](auto idx)
-                                                         { return static_cast<uint16_t>(idx); });
+                                   std::views::transform([](auto idx) { return static_cast<uint16_t>(idx); });
                     indices16.AppendRange(std::move(indices));
                 }
                 else
@@ -215,12 +200,11 @@ namespace Ame::Ecs
 
             auto indexOffset = static_cast<uint32_t>(use16BitIndices ? indices16.Offset : indices32.Offset);
 
-            createDesc.SubMeshes.emplace_back(SubMeshData{
-                .AABB          = minMax.ToAABB(),
-                .IndexOffset   = indexOffset,
-                .IndexCount    = indexCount,
-                .VertexOffset  = positions.Offset,
-                .MaterialIndex = mesh->mMaterialIndex });
+            createDesc.SubMeshes.emplace_back(SubMeshData{ .AABB          = minMax.ToAABB(),
+                                                           .IndexOffset   = indexOffset,
+                                                           .IndexCount    = indexCount,
+                                                           .VertexOffset  = positions.Offset,
+                                                           .MaterialIndex = mesh->mMaterialIndex });
 
             positions.Sync();
             normals.Sync();
@@ -229,7 +213,8 @@ namespace Ame::Ecs
             indices32.Sync();
             indices16.Sync();
 
-            Log::Asset().Info("Mesh {} has {} vertices and {} indices", StringView(mesh->mName.C_Str(), mesh->mName.length), mesh->mNumVertices, indexCount);
+            Log::Asset().Info("Mesh {} has {} vertices and {} indices",
+                              StringView(mesh->mName.C_Str(), mesh->mName.length), mesh->mNumVertices, indexCount);
         }
 
         createDesc.MeshNodes.reserve(scene->mNumMeshes);
@@ -241,9 +226,7 @@ namespace Ame::Ecs
         bufferDesc.Usage = Dg::USAGE_IMMUTABLE;
 
         auto createBuffer = [&bufferDesc, rhiDevice, scene](
-                                const auto&    buffer,
-                                const char*    name,
-                                Dg::BIND_FLAGS bindFlags)
+                                const auto& buffer, const char* name, Dg::BIND_FLAGS bindFlags)
         {
             Ptr<Dg::IBuffer> result;
             if (!buffer.Empty())
@@ -281,11 +264,10 @@ namespace Ame::Ecs
             createDesc.IndexBuffer = createBuffer(indices32, "VI_Index", Dg::BIND_INDEX_BUFFER);
         }
 
-        for (auto flag : {
-                 createDesc.PositionBuffer ? Rhi::VertexInputFlags::Position : Rhi::VertexInputFlags::None,
-                 createDesc.NormalBuffer ? Rhi::VertexInputFlags::Normal : Rhi::VertexInputFlags::None,
-                 createDesc.TexCoordBuffer ? Rhi::VertexInputFlags::TexCoord : Rhi::VertexInputFlags::None,
-                 createDesc.TangentBuffer ? Rhi::VertexInputFlags::Tangent : Rhi::VertexInputFlags::None })
+        for (auto flag : { createDesc.PositionBuffer ? Rhi::VertexInputFlags::Position : Rhi::VertexInputFlags::None,
+                           createDesc.NormalBuffer ? Rhi::VertexInputFlags::Normal : Rhi::VertexInputFlags::None,
+                           createDesc.TexCoordBuffer ? Rhi::VertexInputFlags::TexCoord : Rhi::VertexInputFlags::None,
+                           createDesc.TangentBuffer ? Rhi::VertexInputFlags::Tangent : Rhi::VertexInputFlags::None })
         {
             using namespace EnumBitOperators;
             createDesc.VertexDesc.Flags |= flag;

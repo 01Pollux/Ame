@@ -4,8 +4,7 @@
 
 namespace Ame::Ecs
 {
-    RenderableEcsModule::RenderableEcsModule(
-        flecs::world& flecsWorld)
+    RenderableEcsModule::RenderableEcsModule(flecs::world& flecsWorld)
     {
         flecsWorld.module<RenderableEcsModule>();
 

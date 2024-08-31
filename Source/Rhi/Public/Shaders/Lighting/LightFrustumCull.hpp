@@ -20,8 +20,8 @@ namespace Ame::Rhi
     class LightFrustumCull_ComputeShader : public EngineShader
     {
     private:
-        static constexpr const char* DISPATCH_CHUNK_SIZE   = "DISPATCH_CHUNK_SIZE";
-        static constexpr const char* MAX_LIGHT_CHUNK_SIZE  = "MAX_LIGHT_CHUNK_SIZE";
+        static constexpr const char* DISPATCH_CHUNK_SIZE  = "DISPATCH_CHUNK_SIZE";
+        static constexpr const char* MAX_LIGHT_CHUNK_SIZE = "MAX_LIGHT_CHUNK_SIZE";
 
         static constexpr const char c_SourceCode[] =
 #ifndef AME_DIST
@@ -34,15 +34,10 @@ namespace Ame::Rhi
             ;
 
     public:
-        LightFrustumCull_ComputeShader(
-            uint8_t blockSize,
-            uint16_t maxLightChunkSize) :
-            m_DispatchChunkSize(std::to_string(blockSize)),
-            m_MaxLightChunkSize(std::to_string(maxLightChunkSize)),
-            m_Macros{
-                Dg::ShaderMacro{ DISPATCH_CHUNK_SIZE, m_DispatchChunkSize.c_str() },
-                Dg::ShaderMacro{ MAX_LIGHT_CHUNK_SIZE, m_MaxLightChunkSize.c_str() }
-            }
+        LightFrustumCull_ComputeShader(uint8_t blockSize, uint16_t maxLightChunkSize) :
+            m_DispatchChunkSize(std::to_string(blockSize)), m_MaxLightChunkSize(std::to_string(maxLightChunkSize)),
+            m_Macros{ Dg::ShaderMacro{ DISPATCH_CHUNK_SIZE, m_DispatchChunkSize.c_str() },
+                      Dg::ShaderMacro{ MAX_LIGHT_CHUNK_SIZE, m_MaxLightChunkSize.c_str() } }
         {
             Setup({ "L_LightFrustumCull_CS", Dg::SHADER_TYPE_COMPUTE, true }, c_SourceCode);
             m_CreateInfo.Macros = { m_Macros.data(), Count32(m_Macros) };

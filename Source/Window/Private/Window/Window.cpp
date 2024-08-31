@@ -4,9 +4,7 @@
 
 namespace Ame::Window
 {
-    Ptr<IWindow> CreateWindow(
-        const WindowType&       windowType,
-        const WindowCreateDesc& createDesc)
+    Ptr<IWindow> CreateWindow(const WindowType& windowType, const WindowCreateDesc& createDesc)
     {
         switch (windowType)
         {

@@ -5,8 +5,7 @@
 
 namespace Ame
 {
-    BaseApplication::BaseApplication(
-        const ApplicationConfig& applicationConfig) :
+    BaseApplication::BaseApplication(const ApplicationConfig& applicationConfig) :
         m_Engine(std::make_unique<AmeEngine>(applicationConfig.Engine))
     {
     }

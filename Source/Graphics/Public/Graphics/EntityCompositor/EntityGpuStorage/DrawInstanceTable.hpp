@@ -27,8 +27,7 @@ namespace Ame::Gfx
 
         static auto observer_create(Ecs::WorldRef world)
         {
-            return world
-                ->observer<const Ecs::RenderableComponent, const EntityTransform_EcsId>()
+            return world->observer<const Ecs::RenderableComponent, const EntityTransform_EcsId>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

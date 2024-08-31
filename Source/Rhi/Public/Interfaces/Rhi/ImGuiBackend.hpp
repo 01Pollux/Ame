@@ -10,14 +10,11 @@ namespace Ame::Interfaces
     public:
         using Base = BaseObject<IObject>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
-            IID_ImGuiBackend, Base,
-            m_ImGuiRenderer);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_ImGuiBackend, Base, m_ImGuiRenderer);
 
     public:
         IMPLEMENT_INTERFACE_CTOR(ImGuiBackend, Ptr<Rhi::IImGuiRenderer> imguiRenderer) :
-            Base(counters),
-            m_ImGuiRenderer(std::move(imguiRenderer))
+            Base(counters), m_ImGuiRenderer(std::move(imguiRenderer))
         {
         }
 

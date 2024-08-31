@@ -6,7 +6,8 @@ namespace imcxx
 {
     /// <summary>
     /// Tab Bars, Tabs
-    /// Note: Tabs are automatically created by the docking system. Use this to create tab bars/tabs yourself without docking being involved.
+    /// Note: Tabs are automatically created by the docking system. Use this to create tab bars/tabs yourself without
+    /// docking being involved.
     /// </summary>
     class [[nodiscard]] tabbar : public scope_wrap<tabbar>
     {
@@ -33,14 +34,15 @@ namespace imcxx
         /// <summary>
         /// create a Tab behaving like a button. return true when clicked. cannot be selected in the tab bar
         /// </summary>
-        template<typename _StrTy>
-        [[nodiscard]] bool add_button(const _StrTy& label, ImGuiTabItemFlags flags = 0)
+        template<typename _StrTy> [[nodiscard]] bool add_button(const _StrTy& label, ImGuiTabItemFlags flags = 0)
         {
             return ImGui::TabItemButton(impl::get_string(label), flags);
         }
 
         /// <summary>
-        /// notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window name.
+        /// notify TabBar or Docking system of a closed tab/window ahead (useful to reduce visual flicker on reorderable
+        /// tab bars). For tab-bar: call after BeginTabBar() and before Tab submissions. Otherwise call with a window
+        /// name.
         /// </summary>
         void notify_tab_closed(const char* tab_or_docked_window_label)
         {

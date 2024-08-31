@@ -9,18 +9,10 @@ namespace Ame::Rhi
     void FreeImageUtils::Initialize()
     {
         static std::once_flag s_OnceFlag;
-        std::call_once(s_OnceFlag,
-                       []
-                       {
-                           FreeImage_Initialise();
-                       });
+        std::call_once(s_OnceFlag, [] { FreeImage_Initialise(); });
     }
 
-    static unsigned FIReadPorc(
-        void*     buffer,
-        unsigned  size,
-        unsigned  count,
-        fi_handle handle)
+    static unsigned FIReadPorc(void* buffer, unsigned size, unsigned count, fi_handle handle)
     {
         auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
         Log::Rhi().Assert(io.istream != nullptr, "Stream is null");
@@ -28,11 +20,7 @@ namespace Ame::Rhi
         return static_cast<unsigned>(io.istream->gcount()) / size;
     }
 
-    static unsigned FIWriteProc(
-        void*     buffer,
-        unsigned  size,
-        unsigned  count,
-        fi_handle handle)
+    static unsigned FIWriteProc(void* buffer, unsigned size, unsigned count, fi_handle handle)
     {
         auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
         Log::Rhi().Assert(io.ostream != nullptr, "Stream is null");
@@ -40,10 +28,7 @@ namespace Ame::Rhi
         return count;
     }
 
-    static int FISetProc(
-        fi_handle handle,
-        long      offset,
-        int       pos)
+    static int FISetProc(fi_handle handle, long offset, int pos)
     {
         auto& io     = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
         int   stdPos = 0;
@@ -83,29 +68,24 @@ namespace Ame::Rhi
         return seekDone ? 0 : -1;
     }
 
-    static long FIGetProc(
-        fi_handle handle)
+    static long FIGetProc(fi_handle handle)
     {
         auto& io = *std::bit_cast<FreeImageUtils::IOStream*>(handle);
-        return (io.istream ? static_cast<long>(io.istream->tellg()) : static_cast<long>(io.ostream->tellp() - io.Offset));
+        return (io.istream ? static_cast<long>(io.istream->tellg())
+                           : static_cast<long>(io.ostream->tellp() - io.Offset));
     }
 
     //
 
-    auto FreeImageUtils::GetIO(
-        std::istream* istream,
-        std::ostream* ostream) -> std::pair<FreeImageIO, IOStream>
+    auto FreeImageUtils::GetIO(std::istream* istream, std::ostream* ostream) -> std::pair<FreeImageIO, IOStream>
     {
         Log::Rhi().Assert((istream != nullptr) ^ (ostream != nullptr), "Either istream or ostream must be set");
         auto offset = istream ? istream->tellg() : ostream->tellp();
-        return {
-            FreeImageIO{
-                .read_proc  = FIReadPorc,
-                .write_proc = FIWriteProc,
-                .seek_proc  = FISetProc,
-                .tell_proc  = FIGetProc },
-            { offset, istream, ostream }
-        };
+        return { FreeImageIO{ .read_proc  = FIReadPorc,
+                              .write_proc = FIWriteProc,
+                              .seek_proc  = FISetProc,
+                              .tell_proc  = FIGetProc },
+                 { offset, istream, ostream } };
     }
 
     //
@@ -150,14 +130,12 @@ namespace Ame::Rhi
     static_assert(std::to_underlying(ImageFormat::Webp) == FIF_WEBP);
     static_assert(std::to_underlying(ImageFormat::Jxr) == FIF_JXR);
 
-    FREE_IMAGE_FORMAT FreeImageUtils::ConvertFormat(
-        ImageFormat format)
+    FREE_IMAGE_FORMAT FreeImageUtils::ConvertFormat(ImageFormat format)
     {
         return static_cast<FREE_IMAGE_FORMAT>(format);
     }
 
-    ImageFormat FreeImageUtils::ConvertFormat(
-        FREE_IMAGE_FORMAT format)
+    ImageFormat FreeImageUtils::ConvertFormat(FREE_IMAGE_FORMAT format)
     {
         return static_cast<ImageFormat>(format);
     }
@@ -182,7 +160,7 @@ namespace Ame::Rhi
     {
         return static_cast<FREE_IMAGE_TYPE>(type);
     }
-    
+
     ImageDataType FreeImageUtils::ConvertType(FREE_IMAGE_TYPE type)
     {
         return static_cast<ImageDataType>(type);
@@ -202,8 +180,7 @@ namespace Ame::Rhi
 
     //
 
-    int FreeImageUtils::ConvertFlags(
-        ImageEncodeFlags flags)
+    int FreeImageUtils::ConvertFlags(ImageEncodeFlags flags)
     {
         if (flags == ImageEncodeFlags::None)
         {
@@ -271,8 +248,7 @@ namespace Ame::Rhi
         return result;
     }
 
-    int FreeImageUtils::ConvertFlags(
-        ImageDecodeFlags flags)
+    int FreeImageUtils::ConvertFlags(ImageDecodeFlags flags)
     {
         if (flags == ImageDecodeFlags::None)
         {
@@ -315,8 +291,7 @@ namespace Ame::Rhi
         return result;
     }
 
-    FIBITMAP* FreeImageUtils::GetBitmap(
-        void* bitmap)
+    FIBITMAP* FreeImageUtils::GetBitmap(void* bitmap)
     {
         return static_cast<FIBITMAP*>(bitmap);
     }
@@ -326,8 +301,7 @@ namespace Ame::Rhi
         return static_cast<FIMEMORY*>(bitmap);
     }
 
-    FIMULTIBITMAP* FreeImageUtils::GetBitmapArray(
-        void* bitmap)
+    FIMULTIBITMAP* FreeImageUtils::GetBitmapArray(void* bitmap)
     {
         return static_cast<FIMULTIBITMAP*>(bitmap);
     }

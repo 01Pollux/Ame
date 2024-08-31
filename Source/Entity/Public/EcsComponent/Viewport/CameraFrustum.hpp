@@ -13,8 +13,7 @@ namespace Ame::Ecs
         using Geometry::Frustum::Frustum;
 
         CameraFrustumComponent() = default;
-        CameraFrustumComponent(const Geometry::Frustum& frustum) :
-            Geometry::Frustum(frustum)
+        CameraFrustumComponent(const Geometry::Frustum& frustum) : Geometry::Frustum(frustum)
         {
         }
     };

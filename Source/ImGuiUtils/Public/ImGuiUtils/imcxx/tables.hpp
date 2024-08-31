@@ -24,10 +24,13 @@ namespace imcxx
     ///    - IMPORTANT: Comparatively to the old Columns() API, we need to call TableNextColumn() for the first column!
     ///    - Summary of possible call flow:
     ///        --------------------------------------------------------------------------------------------------------
-    ///        TableNextRow() -> TableSetColumnIndex(0) -> Text("Hello 0") -> TableSetColumnIndex(1) -> Text("Hello 1")  // OK
-    ///        TableNextRow() -> TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")  // OK
-    ///                          TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")  // OK: TableNextColumn() automatically gets to next row!
-    ///        TableNextRow()                           -> Text("Hello 0")                                               // Not OK! Missing TableSetColumnIndex() or TableNextColumn()! Text will not appear!
+    ///        TableNextRow() -> TableSetColumnIndex(0) -> Text("Hello 0") -> TableSetColumnIndex(1) -> Text("Hello 1")
+    ///        // OK TableNextRow() -> TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      ->
+    ///        Text("Hello 1")  // OK
+    ///                          TableNextColumn()      -> Text("Hello 0") -> TableNextColumn()      -> Text("Hello 1")
+    ///                          // OK: TableNextColumn() automatically gets to next row!
+    ///        TableNextRow()                           -> Text("Hello 0") // Not OK! Missing TableSetColumnIndex() or
+    ///        TableNextColumn()! Text will not appear!
     ///        --------------------------------------------------------------------------------------------------------
     /// - 5. Call EndTable()
     /// </summary>
@@ -39,7 +42,8 @@ namespace imcxx
         class column;
 
         template<typename _StrTy>
-        table(const _StrTy& name, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = {}, float inner_width = 0.0f) :
+        table(const _StrTy& name, int column, ImGuiTableFlags flags = 0, const ImVec2& outer_size = {},
+              float inner_width = 0.0f) :
             scope_wrap(ImGui::BeginTable(impl::get_string(name), column, flags, outer_size, inner_width))
         {
         }
@@ -60,7 +64,8 @@ namespace imcxx
 
         /// <summary>
         /// Tables: Headers & Columns declaration
-        /// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+        /// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags
+        /// etc.
         /// - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
         ///   Headers are required to perform: reordering, sorting, and opening the context menu.
         ///   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
@@ -70,8 +75,7 @@ namespace imcxx
         ///
         /// _Args can be either a c-string, 'std::string', 'std::string_view' or 'setup_info'
         /// </summary>
-        template<typename... _Args>
-        void setup(setup_no_row, const _Args&... args)
+        template<typename... _Args> void setup(setup_no_row, const _Args&... args)
         {
             table_setup_impl(args...);
             ImGui::TableHeadersRow();
@@ -79,7 +83,8 @@ namespace imcxx
 
         /// <summary>
         /// Tables: Headers & Columns declaration
-        /// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+        /// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags
+        /// etc.
         /// - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
         ///   Headers are required to perform: reordering, sorting, and opening the context menu.
         ///   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
@@ -89,15 +94,15 @@ namespace imcxx
         ///
         /// _Args can be either a c-string, 'std::string', 'std::string_view' or 'setup_info'
         /// </summary>
-        template<typename... _Args>
-        void setup(setup_no_headers, const _Args&... args)
+        template<typename... _Args> void setup(setup_no_headers, const _Args&... args)
         {
             table_setup_impl(args...);
         }
 
         /// <summary>
         /// Tables: Headers & Columns declaration
-        /// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags etc.
+        /// - Use TableSetupColumn() to specify label, resizing policy, default width/weight, id, various other flags
+        /// etc.
         /// - Use TableHeadersRow() to create a header row and automatically submit a TableHeader() for each column.
         ///   Headers are required to perform: reordering, sorting, and opening the context menu.
         ///   The context menu can also be made available in columns body using ImGuiTableFlags_ContextMenuInBody.
@@ -107,8 +112,7 @@ namespace imcxx
         ///
         /// _Args can be either a c-string, 'std::string', 'std::string_view' or 'setup_info'
         /// </summary>
-        template<typename... _Args>
-        void setup(int cols, int rows, const _Args&... args)
+        template<typename... _Args> void setup(int cols, int rows, const _Args&... args)
         {
             ImGui::TableSetupScrollFreeze(cols, rows);
             table_setup_impl(args...);
@@ -124,7 +128,8 @@ namespace imcxx
         /// calls next_column() and invoke the function if the former returned true
         /// </summary>
         template<typename _InvokeTy, typename... _Args>
-        void nextrow_and_invoke(_InvokeTy&& fn, _Args&&... args) noexcept(std::is_nothrow_invocable_v<_InvokeTy, _Args...>)
+        void nextrow_and_invoke(_InvokeTy&& fn,
+                                _Args&&... args) noexcept(std::is_nothrow_invocable_v<_InvokeTy, _Args...>)
         {
             next_row();
             fn(std::forward<_Args>(args)...);
@@ -139,7 +144,8 @@ namespace imcxx
         /// calls next_column() and invoke the function if the former returned true
         /// </summary>
         template<typename _InvokeTy, typename... _Args>
-        void nextcol_and_invoke(_InvokeTy&& fn, _Args&&... args) noexcept(std::is_nothrow_invocable_v<_InvokeTy, _Args...>)
+        void nextcol_and_invoke(_InvokeTy&& fn,
+                                _Args&&... args) noexcept(std::is_nothrow_invocable_v<_InvokeTy, _Args...>)
         {
             if (next_column())
                 fn(std::forward<_Args>(args)...);
@@ -192,8 +198,7 @@ namespace imcxx
         }
 
     private:
-        template<typename _Ty, typename... _Args>
-        void table_setup_impl(const _Ty& arg, const _Args&... rest)
+        template<typename _Ty, typename... _Args> void table_setup_impl(const _Ty& arg, const _Args&... rest)
         {
             if constexpr (std::is_same_v<setup_info, _Ty>)
                 ImGui::TableSetupColumn(arg.label, arg.flags, arg.init_width_or_weight, arg.user_id);
@@ -213,8 +218,7 @@ namespace imcxx
     class [[nodiscard]] table::column
     {
     public:
-        column(int column) noexcept :
-            m_Column(column)
+        column(int column) noexcept : m_Column(column)
         {
         }
 
@@ -244,7 +248,8 @@ namespace imcxx
 
         /// <summary>
         /// change user accessible enabled/disabled state of a column. Set to false to hide the column.
-        /// User can use the context menu to change this themselves (right-click in headers, or right-click in columns body with ImGuiTableFlags_ContextMenuInBody)
+        /// User can use the context menu to change this themselves (right-click in headers, or right-click in columns
+        /// body with ImGuiTableFlags_ContextMenuInBody)
         /// </summary>
         [[nodiscard]] void set_state(bool enable) const
         {

@@ -75,19 +75,15 @@ namespace Ame::Math
             /// <summary>
             /// Get the projection matrix of the viewport.
             /// </summary>
-            [[nodiscard]] Math::Matrix4x4 ProjectionMatrix(
-                CameraType type) const;
+            [[nodiscard]] Math::Matrix4x4 ProjectionMatrix(CameraType type) const;
         };
 
-        Camera(
-            CameraType Type = CameraType::Perspective) noexcept;
+        Camera(CameraType Type = CameraType::Perspective) noexcept;
 
     public:
-        void SetViewport(
-            const Viewport& viewport) noexcept;
+        void SetViewport(const Viewport& viewport) noexcept;
 
-        void SetType(
-            CameraType type) noexcept;
+        void SetType(CameraType type) noexcept;
 
         [[nodiscard]] const Viewport& GetViewport() const noexcept;
 

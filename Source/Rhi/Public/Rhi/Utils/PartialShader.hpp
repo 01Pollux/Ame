@@ -29,14 +29,12 @@ namespace Ame::Rhi
         using ShaderCreateInfoX::ShaderCreateInfoX;
 
     public:
-        CombinedShader(
-            const CombinedShaderCreateDesc& desc)
+        CombinedShader(const CombinedShaderCreateDesc& desc)
         {
             Initialize(desc);
         }
 
-        void Initialize(
-            const CombinedShaderCreateDesc& desc)
+        void Initialize(const CombinedShaderCreateDesc& desc)
         {
             if (desc.Shaders.empty())
             {
@@ -93,9 +91,8 @@ namespace Ame::Rhi
         }
 
     private:
-        void CreateSourceStream(
-            std::vector<Dg::IShaderSourceInputStreamFactory*>& factories,
-            std::span<const Dg::MemoryShaderSourceFileInfo>    memorySources)
+        void CreateSourceStream(std::vector<Dg::IShaderSourceInputStreamFactory*>& factories,
+                                std::span<const Dg::MemoryShaderSourceFileInfo>    memorySources)
         {
             Ptr<Dg::IShaderSourceInputStreamFactory> memoryFactory;
             Dg::CreateMemoryShaderSourceFactory({ memorySources.data(), Count32(memorySources) }, &memoryFactory);
@@ -113,8 +110,7 @@ namespace Ame::Rhi
         }
 
     private:
-        void Validate(
-            [[maybe_unused]] const PartialShaderDesc& desc)
+        void Validate([[maybe_unused]] const PartialShaderDesc& desc)
         {
 #ifdef AME_DEBUG
             Log::Rhi().Assert(desc.Shader, "Shader is null");

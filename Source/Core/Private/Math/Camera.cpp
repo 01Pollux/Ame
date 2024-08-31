@@ -3,9 +3,7 @@
 
 namespace Ame::Math
 {
-    Camera::Camera(
-        CameraType type) noexcept :
-        m_Type(type)
+    Camera::Camera(CameraType type) noexcept : m_Type(type)
     {
         if (type == CameraType::Orthographic)
         {
@@ -17,15 +15,13 @@ namespace Ame::Math
 
     //
 
-    void Camera::SetViewport(
-        const Viewport& viewport) noexcept
+    void Camera::SetViewport(const Viewport& viewport) noexcept
     {
         m_Viewport = viewport;
         MarkChanged();
     }
 
-    void Camera::SetType(
-        CameraType type) noexcept
+    void Camera::SetType(CameraType type) noexcept
     {
         m_Type = type;
         MarkChanged();
@@ -35,7 +31,7 @@ namespace Ame::Math
     {
         return m_Viewport;
     }
-    
+
     auto Camera::GetViewport() noexcept -> Viewport&
     {
         return m_Viewport;
@@ -58,18 +54,13 @@ namespace Ame::Math
         return Width / Height;
     }
 
-    Matrix4x4 Camera::Viewport::ProjectionMatrix(
-        CameraType type) const
+    Matrix4x4 Camera::Viewport::ProjectionMatrix(CameraType type) const
     {
         switch (type)
         {
         case CameraType::Perspective:
         {
-            return Matrix4x4::PerspectiveFov(
-                Util::DegToRad(FieldOfView),
-                AspectRatio(),
-                NearPlane,
-                FarPlane);
+            return Matrix4x4::PerspectiveFov(Util::DegToRad(FieldOfView), AspectRatio(), NearPlane, FarPlane);
         }
         case CameraType::Orthographic:
         {
@@ -83,10 +74,7 @@ namespace Ame::Math
 
             float halfSize = OrthographicSize / 2.f;
             return Matrix4x4::Orthographic(
-                Width * xAxisMultiplier * halfSize,
-                Height * yAxisMultiplier * halfSize,
-                NearPlane,
-                FarPlane);
+                Width * xAxisMultiplier * halfSize, Height * yAxisMultiplier * halfSize, NearPlane, FarPlane);
         }
         default:
             std::unreachable();

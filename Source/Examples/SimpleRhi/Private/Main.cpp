@@ -6,17 +6,11 @@
 
 namespace Ame
 {
-    static auto GetDeviceDesc(
-        Ptr<Window::IWindow> window)
+    static auto GetDeviceDesc(Ptr<Window::IWindow> window)
     {
-        return Rhi::DeviceCreateDesc{
-            .Types{
-                Rhi::DeviceCreateDescD3D12{},
-                Rhi::DeviceCreateDescVulkan{},
-                Rhi::DeviceCreateDescD3D11{},
-                Rhi::DeviceCreateDescGL{} },
-            .Surface = Rhi::RenderSurfaceDesc{ std::move(window) }
-        };
+        return Rhi::DeviceCreateDesc{ .Types{ Rhi::DeviceCreateDescD3D12{}, Rhi::DeviceCreateDescVulkan{},
+                                              Rhi::DeviceCreateDescD3D11{}, Rhi::DeviceCreateDescGL{} },
+                                      .Surface = Rhi::RenderSurfaceDesc{ std::move(window) } };
     }
 
     static void Main()
@@ -31,7 +25,6 @@ namespace Ame
         }
     }
 } // namespace Ame
-
 
 int main()
 {

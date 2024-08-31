@@ -46,8 +46,7 @@ namespace Ame
         /// <summary>
         /// Set time scale
         /// </summary>
-        void SetTimeScale(
-            float timeScale) noexcept;
+        void SetTimeScale(float timeScale) noexcept;
 
         /// <summary>
         /// Reset game timer

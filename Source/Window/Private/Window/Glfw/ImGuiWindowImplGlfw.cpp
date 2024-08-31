@@ -11,8 +11,7 @@
 
 namespace Ame::Window
 {
-    void ImGuiWindowImplGlfw::InitializeImGui(
-        void* imguiContext)
+    void ImGuiWindowImplGlfw::InitializeImGui(void* imguiContext)
     {
 #ifndef AME_NO_IMGUI
         GlfwContext::Get()
@@ -27,12 +26,10 @@ namespace Ame::Window
 
                     ImGuiIO& io = ImGui::GetIO();
                     io.ConfigFlags |= /*ImGuiConfigFlags_ViewportsEnable |*/ // TODO
-                                      ImGuiConfigFlags_DockingEnable |
-                                      ImGuiConfigFlags_NavEnableKeyboard |
+                                      ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard |
                                       ImGuiConfigFlags_NavEnableGamepad;
 
-                    io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports |
-                                       ImGuiBackendFlags_RendererHasVtxOffset;
+                    io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports | ImGuiBackendFlags_RendererHasVtxOffset;
 
                     ImGui_ImplGlfw_InitForOther(std::bit_cast<ImGuiContext*>(imguiContext), m_Handle, false);
                 })
@@ -40,8 +37,7 @@ namespace Ame::Window
 #endif
     }
 
-    void ImGuiWindowImplGlfw::InstallImGuiCallbacks(
-        void* imguiContext)
+    void ImGuiWindowImplGlfw::InstallImGuiCallbacks(void* imguiContext)
     {
 #ifndef AME_NO_IMGUI
         GlfwContext::Get()
@@ -58,8 +54,7 @@ namespace Ame::Window
 #endif
     }
 
-    void ImGuiWindowImplGlfw::NewFrameImGui(
-        void* imguiContext)
+    void ImGuiWindowImplGlfw::NewFrameImGui(void* imguiContext)
     {
 #ifndef AME_NO_IMGUI
         GlfwContext::Get()
@@ -76,8 +71,7 @@ namespace Ame::Window
 #endif
     }
 
-    void ImGuiWindowImplGlfw::UninstallImGuiCallbacks(
-        void* imguiContext)
+    void ImGuiWindowImplGlfw::UninstallImGuiCallbacks(void* imguiContext)
     {
 #ifndef AME_NO_IMGUI
         GlfwContext::Get()
@@ -94,8 +88,7 @@ namespace Ame::Window
 #endif
     }
 
-    void ImGuiWindowImplGlfw::ShutdownImGui(
-        void* imguiContext)
+    void ImGuiWindowImplGlfw::ShutdownImGui(void* imguiContext)
     {
 #ifndef AME_NO_IMGUI
         GlfwContext::Get()

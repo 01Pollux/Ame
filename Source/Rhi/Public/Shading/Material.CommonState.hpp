@@ -7,9 +7,7 @@ namespace Ame::Rhi
     class MaterialCommonState
     {
     public:
-        MaterialCommonState(
-            Dg::IRenderDevice* renderDevice,
-            MaterialCreateDesc createDesc);
+        MaterialCommonState(Dg::IRenderDevice* renderDevice, MaterialCreateDesc createDesc);
 
     public:
         /// <summary>
@@ -37,14 +35,12 @@ namespace Ame::Rhi
         /// Create resource signature for material desc
         /// </summary>
         [[nodiscard]] static Ptr<Dg::IPipelineResourceSignature> CreatePipelineResourceSignature(
-            Dg::IRenderDevice*                       renderDevice,
-            const Dg::PipelineResourceSignatureDesc& resourcesDesc);
+            Dg::IRenderDevice* renderDevice, const Dg::PipelineResourceSignatureDesc& resourcesDesc);
 
         /// <summary>
         /// Create material's hash
         /// </summary>
-        [[nodiscard]] static MaterialHash CreateBaseMaterialHash(
-            const MaterialShaderSourceStorage& materialDesc);
+        [[nodiscard]] static MaterialHash CreateBaseMaterialHash(const MaterialShaderSourceStorage& materialDesc);
 
     private:
         Ptr<Dg::IPipelineResourceSignature> m_ResourceSignature;

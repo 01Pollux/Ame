@@ -3,8 +3,7 @@
 
 namespace Ame::Rhi
 {
-    Ptr<IImGuiRenderer> CreateImGuiRenderer(
-        const ImGuiRendererCreateDesc& desc)
+    Ptr<IImGuiRenderer> CreateImGuiRenderer(const ImGuiRendererCreateDesc& desc)
     {
 #ifdef AME_NO_IMGUI
         return CreateImGuiNullRenderer();

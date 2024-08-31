@@ -16,21 +16,17 @@ namespace Ame::Asset
         /// <summary>
         /// Creating an asset's metadata from an input stream.
         /// </summary>
-        explicit AssetMetaDataDef(
-            std::istream& stream);
+        explicit AssetMetaDataDef(std::istream& stream);
 
         /// <summary>
         /// Creating an empty asset's metadata.
         /// </summary>
-        AssetMetaDataDef(
-            const UId& uid,
-            String     path);
+        AssetMetaDataDef(const UId& uid, String path);
 
         /// <summary>
         /// Creating an asset's metadata from an input stream.
         /// </summary>
-        void Export(
-            std::ostream& stream) const;
+        void Export(std::ostream& stream) const;
 
         /// <summary>
         /// Get the asset's UId.
@@ -40,8 +36,7 @@ namespace Ame::Asset
         /// <summary>
         /// Set the asset's GUID.
         /// </summary>
-        void SetGuid(
-            const UId& uid) noexcept;
+        void SetGuid(const UId& uid) noexcept;
 
         /// <summary>
         /// Get the asset's hash.
@@ -51,8 +46,7 @@ namespace Ame::Asset
         /// <summary>
         /// Set the asset's hash.
         /// </summary>
-        void SetHash(
-            String hash) noexcept;
+        void SetHash(String hash) noexcept;
 
         /// <summary>
         /// Get the asset's loader id.
@@ -62,8 +56,7 @@ namespace Ame::Asset
         /// <summary>
         /// Set the asset's loader id.
         /// </summary>
-        void SetLoaderId(
-            const UId& uid) noexcept;
+        void SetLoaderId(const UId& uid) noexcept;
 
         /// <summary>
         /// Get the asset's loader data.
@@ -88,8 +81,7 @@ namespace Ame::Asset
         /// <summary>
         /// Set the asset's metadata path.
         /// </summary>
-        void SetMetaPath(
-            String path);
+        void SetMetaPath(String path);
 
         /// <summary>
         /// Query if the asset is dirty.
@@ -99,8 +91,7 @@ namespace Ame::Asset
         /// <summary>
         /// Marks the asset as dirty.
         /// </summary>
-        void SetDirty(
-            bool isDirty = true) noexcept;
+        void SetDirty(bool isDirty = true) noexcept;
 
         /// <summary>
         /// Get the asset's dependencies.
@@ -110,8 +101,7 @@ namespace Ame::Asset
         /// <summary>
         /// Set the asset's dependencies.
         /// </summary>
-        void SetDependencies(
-            std::span<String> dependencies);
+        void SetDependencies(std::span<String> dependencies);
 
     private:
         AssetMetaData m_MetaData;

@@ -4,8 +4,7 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> GameViewEditorWindow::Create(
-        ModuleRegistry& registry)
+    Ptr<IEditorWindow> GameViewEditorWindow::Create(ModuleRegistry& registry)
     {
         return { ObjectAllocator<GameViewEditorWindow>()(registry), IID_BaseEditorWindow };
     }

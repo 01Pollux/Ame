@@ -14,9 +14,7 @@
 
 namespace Ame::Gfx
 {
-    void RegisterForwardPlus(
-        Rg::Graph&  graph,
-        Ecs::World* world)
+    void RegisterForwardPlus(Rg::Graph& graph, Ecs::World* world)
     {
         auto& passStorage = graph.GetPassStorage();
 

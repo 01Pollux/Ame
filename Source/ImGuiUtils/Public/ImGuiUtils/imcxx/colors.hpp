@@ -6,8 +6,10 @@
 namespace imcxx
 {
     /// <summary>
-    /// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked to open a picker, and right-clicked to open an option menu.)
-    /// - Note that in C++ a 'float v[X]' function argument is the _same_ as 'float* v', the array syntax is just a way to document the number of elements that are expected to be accessible.
+    /// Widgets: Color Editor/Picker (tip: the ColorEdit* functions have a little color square that can be left-clicked
+    /// to open a picker, and right-clicked to open an option menu.)
+    /// - Note that in C++ a 'float v[X]' function argument is the _same_ as 'float* v', the array syntax is just a way
+    /// to document the number of elements that are expected to be accessible.
     /// - You can pass the address of a first float element out of a contiguous structure, e.g. &myvector.x
     /// </summary>
     class color : public scope_wrap<color, scope_traits::no_dtor>
@@ -23,9 +25,9 @@ namespace imcxx
         template<typename _StrTy, typename _Ty>
         color(picker, const _StrTy& label, _Ty& col, ImGuiColorEditFlags flags = 0, const float* ref_col = nullptr)
         {
-            using inner_type                 = impl::array_value_t<_Ty>;
-            constexpr float         to_ratio = impl::is_imvec4_v<_Ty> || std::is_floating_point_v<inner_type> ? 1.f : 255.f;
-            static constexpr size_t size     = impl::array_value_size<_Ty>;
+            using inner_type             = impl::array_value_t<_Ty>;
+            constexpr float to_ratio     = impl::is_imvec4_v<_Ty> || std::is_floating_point_v<inner_type> ? 1.f : 255.f;
+            static constexpr size_t size = impl::array_value_size<_Ty>;
 
             float tmp[4];
             if constexpr (impl::is_imvec4_v<_Ty>)
@@ -65,9 +67,9 @@ namespace imcxx
         template<typename _StrTy, typename _Ty>
         color(edit, const _StrTy& label, _Ty& col, ImGuiColorEditFlags flags = 0)
         {
-            using inner_type                 = impl::array_value_t<_Ty>;
-            constexpr float         to_ratio = impl::is_imvec4_v<_Ty> || std::is_floating_point_v<inner_type> ? 1.f : 255.f;
-            static constexpr size_t size     = impl::array_value_size<_Ty>;
+            using inner_type             = impl::array_value_t<_Ty>;
+            constexpr float to_ratio     = impl::is_imvec4_v<_Ty> || std::is_floating_point_v<inner_type> ? 1.f : 255.f;
+            static constexpr size_t size = impl::array_value_size<_Ty>;
 
             float tmp[4];
             if constexpr (impl::is_imvec4_v<_Ty>)

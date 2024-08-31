@@ -15,9 +15,7 @@ namespace Ame
     public:
         using Base = BaseObject<IModule>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(
-            IID_EditorModule, IID_BaseModule, Base,
-            m_EditorWindowSubmodule);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(IID_EditorModule, IID_BaseModule, Base, m_EditorWindowSubmodule);
 
         struct Dependencies
         {
@@ -27,10 +25,7 @@ namespace Ame
         };
 
     public:
-        EditorModule(
-            IReferenceCounters*       counters,
-            Dependencies              dependencies,
-            const EditorModuleConfig& config);
+        EditorModule(IReferenceCounters* counters, Dependencies dependencies, const EditorModuleConfig& config);
 
     private:
         Ptr<EditorWindowSubmodule> m_EditorWindowSubmodule;

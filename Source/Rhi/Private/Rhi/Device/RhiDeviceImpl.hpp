@@ -28,25 +28,18 @@ namespace Ame::Rhi
         using Base = BaseObject<IRhiDevice>;
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
-            IID_RhiDevice, Base,
-            m_Wrapper.GetFactory(),
-            m_Wrapper.GetDevice(),
-            m_Wrapper.GetImmediateContext(),
+            IID_RhiDevice, Base, m_Wrapper.GetFactory(), m_Wrapper.GetDevice(), m_Wrapper.GetImmediateContext(),
             m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetWindow() : nullptr,
-            m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetSwapchain() : nullptr,
-            m_CommonRenderPass,
+            m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetSwapchain() : nullptr, m_CommonRenderPass,
             m_RenderStateCache);
 
     public:
-        RhiDeviceImpl(
-            IReferenceCounters*     counters,
-            const DeviceCreateDesc& createDesc);
+        RhiDeviceImpl(IReferenceCounters* counters, const DeviceCreateDesc& createDesc);
 
     public:
         bool BeginFrame() override;
 
-        void AdvanceFrame(
-            uint32_t syncInterval) override;
+        void AdvanceFrame(uint32_t syncInterval) override;
 
         Dg::IEngineFactory*    GetFactory() const override;
         Dg::IRenderDevice*     GetRenderDevice() const override;

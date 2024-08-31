@@ -16,13 +16,9 @@ namespace Ame
     public:
         using Base = BaseObject<IDataBlob>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_DataBlob, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_DataBlob, Base);
 
-        RawDataBlob(
-            IReferenceCounters* counters,
-            const std::byte*    data        = nullptr,
-            size_t              initialSize = 0) :
+        RawDataBlob(IReferenceCounters* counters, const std::byte* data = nullptr, size_t initialSize = 0) :
             Base(counters)
         {
             m_Data.resize(initialSize);
@@ -32,15 +28,10 @@ namespace Ame
             }
         }
 
-        RawDataBlob(
-            IReferenceCounters* counters,
-            const IDataBlob*    otherBlob) :
-            Base(counters)
+        RawDataBlob(IReferenceCounters* counters, const IDataBlob* otherBlob) : Base(counters)
         {
-            m_Data.insert(
-                m_Data.end(),
-                std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()),
-                std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()) + otherBlob->GetSize());
+            m_Data.insert(m_Data.end(), std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()),
+                          std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()) + otherBlob->GetSize());
         }
 
     public:
@@ -64,14 +55,12 @@ namespace Ame
             return m_Data.data();
         }
 
-        template<typename Ty>
-        [[nodiscard]] Ty* GetDataPtr()
+        template<typename Ty> [[nodiscard]] Ty* GetDataPtr()
         {
             return std::bit_cast<Ty*>(GetDataPtr());
         }
 
-        template<typename Ty>
-        [[nodiscard]] const Ty* GetConstDataPtr() const
+        template<typename Ty> [[nodiscard]] const Ty* GetConstDataPtr() const
         {
             return std::launder(std::bit_cast<const Ty*>(GetConstDataPtr()));
         }

@@ -13,7 +13,7 @@ namespace Ame::Ecs
     /// Component set automatically when an entity has a transform component.
     /// </summary>
     struct GlobalTransformComponent final : Math::TransformMatrix
-	{
-		using TransformMatrix::TransformMatrix;
-	};
-} // namespace Ame::Ecs::Component
+    {
+        using TransformMatrix::TransformMatrix;
+    };
+} // namespace Ame::Ecs

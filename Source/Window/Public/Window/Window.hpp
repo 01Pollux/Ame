@@ -30,7 +30,5 @@ namespace Ame::Window
         [[nodiscard]] virtual WindowEventListener& GetEventListener() = 0;
     };
 
-    [[nodiscard]] Ptr<IWindow> CreateWindow(
-        const WindowType&       windowType,
-        const WindowCreateDesc& createDesc);
+    [[nodiscard]] Ptr<IWindow> CreateWindow(const WindowType& windowType, const WindowCreateDesc& createDesc);
 } // namespace Ame::Window

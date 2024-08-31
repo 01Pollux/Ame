@@ -41,20 +41,16 @@ namespace Ame::Gfx
         };
 
     public:
-        ForwardPlus_RenderObjectsPass(
-            Ecs::World* world);
+        ForwardPlus_RenderObjectsPass(Ecs::World* world);
 
     private:
         void BindResourceOnce(const Rg::ResourceStorage& storage);
         void CreateResourcesOnce(const Rg::ResourceStorage& storage);
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver);
+        void OnBuild(Rg::Resolver& resolver);
 
-        void OnExecute(
-            const Rg::ResourceStorage& storage,
-            Dg::IDeviceContext*        deviceContext);
+        void OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext);
 
     private:
         Ecs::World*                 m_World;

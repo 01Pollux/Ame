@@ -13,8 +13,7 @@ namespace Ame::Gfx
         Dg::ITextureView* LightGrid          = nullptr;
     };
 
-    template<typename Ty, Dg::SHADER_TYPE ShaderFlags>
-    class LightingResourceSignaturePass : public Rg::Pass
+    template<typename Ty, Dg::SHADER_TYPE ShaderFlags> class LightingResourceSignaturePass : public Rg::Pass
     {
     public:
         LightingResourceSignaturePass()
@@ -22,17 +21,14 @@ namespace Ame::Gfx
             Build(std::bind_front(&LightingResourceSignaturePass::OnBuild, this));
         }
 
-        static void Bind(
-            Dg::IShaderResourceBinding* srb,
-            const LightingDrawProp&     prop)
+        static void Bind(Dg::IShaderResourceBinding* srb, const LightingDrawProp& prop)
         {
             Rhi::BindAllInSrb(srb, ShaderFlags, "LinkedLightIndices", prop.LinkedLightIndices);
             Rhi::BindAllInSrb(srb, ShaderFlags, "LightGrid", prop.LightGrid);
         }
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver)
+        void OnBuild(Rg::Resolver& resolver)
         {
             if (!m_Srb)
             {
@@ -50,15 +46,15 @@ namespace Ame::Gfx
             Dg::IRenderDevice* renderDevice)
         {
             constexpr std::array resources{
-                Dg::PipelineResourceDesc{ ShaderFlags, "LinkedLightIndices", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
-                Dg::PipelineResourceDesc{ ShaderFlags, "LightGrid", Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV, Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "LinkedLightIndices", Dg::SHADER_RESOURCE_TYPE_BUFFER_SRV,
+                                          Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
+                Dg::PipelineResourceDesc{ ShaderFlags, "LightGrid", Dg::SHADER_RESOURCE_TYPE_TEXTURE_SRV,
+                                          Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC },
             };
 
-            Dg::PipelineResourceSignatureDesc desc{
-                .Resources    = resources.data(),
-                .NumResources = Rhi::Count32(resources),
-                .BindingIndex = 3
-            };
+            Dg::PipelineResourceSignatureDesc desc{ .Resources    = resources.data(),
+                                                    .NumResources = Rhi::Count32(resources),
+                                                    .BindingIndex = 3 };
 
             Ptr<Dg::IPipelineResourceSignature> signature;
             renderDevice->CreatePipelineResourceSignature(desc, &signature);

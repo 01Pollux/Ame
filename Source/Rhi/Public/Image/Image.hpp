@@ -18,18 +18,14 @@ namespace Ame::Rhi
         }
 
         Image(const Image& image) noexcept :
-            m_BitmapData(image.m_BitmapData),
-            m_Format(image.m_Format),
-            m_ReferenceType(image.m_ReferenceType),
+            m_BitmapData(image.m_BitmapData), m_Format(image.m_Format), m_ReferenceType(image.m_ReferenceType),
             m_OwnsBitmapData(false)
         {
         }
 
         Image(Image&& image) noexcept :
-            m_BitmapData(std::exchange(image.m_BitmapData, nullptr)),
-            m_Format(image.m_Format),
-            m_ReferenceType(image.m_ReferenceType),
-            m_OwnsBitmapData(image.m_OwnsBitmapData)
+            m_BitmapData(std::exchange(image.m_BitmapData, nullptr)), m_Format(image.m_Format),
+            m_ReferenceType(image.m_ReferenceType), m_OwnsBitmapData(image.m_OwnsBitmapData)
         {
             image.m_OwnsBitmapData = false;
         }
@@ -128,16 +124,14 @@ namespace Ame::Rhi
 
     private:
         Image(void* bitmap, ImageFormat format, ImageReferenceType referenceType, bool ownsBitmapData) :
-            m_BitmapData(bitmap),
-            m_Format(format),
-            m_ReferenceType(referenceType),
-            m_OwnsBitmapData(ownsBitmapData)
+            m_BitmapData(bitmap), m_Format(format), m_ReferenceType(referenceType), m_OwnsBitmapData(ownsBitmapData)
         {
         }
 
     public:
         [[nodiscard]] void*        GetBitmap() const;
-        [[nodiscard]] static Image Wrap(void* bitmap, ImageFormat format, ImageReferenceType referenceType, bool ownsBitmapData)
+        [[nodiscard]] static Image Wrap(void* bitmap, ImageFormat format, ImageReferenceType referenceType,
+                                        bool ownsBitmapData)
         {
             return Image(bitmap, format, referenceType, ownsBitmapData);
         }

@@ -34,8 +34,7 @@ namespace Ame::Allocator
         using size_map_type   = std::map<size_type, offset_map_type::const_iterator>;
     };
 
-    template<BuddyTraits Ty = BuddyTraits_U64>
-    class Buddy
+    template<BuddyTraits Ty = BuddyTraits_U64> class Buddy
     {
     public:
         using traits_type = Ty;
@@ -56,21 +55,16 @@ namespace Ame::Allocator
                 return Size != 0;
             }
 
-            [[nodiscard]] auto operator<=>(
-                const Handle& other) const noexcept = default;
+            [[nodiscard]] auto operator<=>(const Handle& other) const noexcept = default;
         };
 
-        explicit Buddy(
-            size_type size) :
-            m_Size(size)
+        explicit Buddy(size_type size) : m_Size(size)
         {
             m_FreeOffsets.emplace(0, size);
             m_FreeSizes.emplace(size, m_FreeOffsets.begin());
         }
 
-        [[nodiscard]] Handle Allocate(
-            size_type size,
-            size_type alignement = 1)
+        [[nodiscard]] Handle Allocate(size_type size, size_type alignement = 1)
         {
             size = Math::AlignUp(size, alignement);
 
@@ -112,8 +106,7 @@ namespace Ame::Allocator
             return handle;
         }
 
-        void Free(
-            Handle handle)
+        void Free(Handle handle)
         {
             auto iter = m_FreeOffsets.lower_bound(handle.Offset);
             if (iter != m_FreeOffsets.end())
@@ -143,8 +136,7 @@ namespace Ame::Allocator
             handle.Size = 0;
         }
 
-        void Grow(
-            size_type size)
+        void Grow(size_type size)
         {
             auto iter = m_FreeOffsets.rbegin();
             if (iter != m_FreeOffsets.rend())

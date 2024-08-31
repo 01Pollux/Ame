@@ -8,17 +8,14 @@
 
 namespace Ame::Rg
 {
-    void DependencyLevel::AddPass(
-        Pass* pass)
+    void DependencyLevel::AddPass(Pass* pass)
     {
         m_Passes.push_back(pass);
     }
 
     //
 
-    void DependencyLevel::Execute(
-        Context&            context,
-        Dg::IDeviceContext* deviceContext) const
+    void DependencyLevel::Execute(Context& context, Dg::IDeviceContext* deviceContext) const
     {
         LockStorage(context);
         ExecutePasses(context, deviceContext);
@@ -27,8 +24,7 @@ namespace Ame::Rg
 
     //
 
-    void DependencyLevel::LockStorage(
-        Context& context) const
+    void DependencyLevel::LockStorage(Context& context) const
     {
         auto& resourceStorage = context.GetStorage();
         resourceStorage.Lock();
@@ -36,9 +32,7 @@ namespace Ame::Rg
 
     //
 
-    void DependencyLevel::ExecutePasses(
-        Context&            context,
-        Dg::IDeviceContext* deviceContext) const
+    void DependencyLevel::ExecutePasses(Context& context, Dg::IDeviceContext* deviceContext) const
     {
         auto& resourceStorage = context.GetStorage();
         for (auto& pass : m_Passes)
@@ -67,8 +61,7 @@ namespace Ame::Rg
 
     //
 
-    void DependencyLevel::UnlockStorage(
-        Context& context) const
+    void DependencyLevel::UnlockStorage(Context& context) const
     {
         auto& resourceStorage = context.GetStorage();
         resourceStorage.Unlock();

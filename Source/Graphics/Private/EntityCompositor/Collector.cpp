@@ -5,9 +5,7 @@
 
 namespace Ame::Gfx
 {
-    EntityCollector::EntityCollector(
-        EntityStorage& storage) :
-        m_Storage(storage)
+    EntityCollector::EntityCollector(EntityStorage& storage) : m_Storage(storage)
     {
         auto& world = *m_Storage.get().GetWorld();
         world->component<EntityDrawCommandsCategoryIterator>();
@@ -21,42 +19,34 @@ namespace Ame::Gfx
         }
     }
 
-    void EntityCollector::AddEntity(
-        DrawInstanceType      type,
-        Ecs::IBaseRenderable* renderable,
-        uint32_t              instanceId)
+    void EntityCollector::AddEntity(DrawInstanceType type, Ecs::IBaseRenderable* renderable, uint32_t instanceId)
     {
         auto& commands = m_DrawCommands[std::to_underlying(type)];
         commands.emplace_back(renderable, instanceId);
     }
 
-    void EntityCollector::UpdateLights(
-        std::span<const uint32_t> lightIds)
+    void EntityCollector::UpdateLights(std::span<const uint32_t> lightIds)
     {
         m_Storage.get().UpdateLightInstances(lightIds);
     }
 
     //
 
-    void EntityCollector::Sort(
-        const Math::TransformMatrix& cameraTransform)
+    void EntityCollector::Sort(const Math::TransformMatrix& cameraTransform)
     {
         for (auto& commands : m_DrawCommands)
         {
-            std::sort(
-                commands.begin(), commands.end(),
-                [&cameraTransform](auto& a, auto& b)
-                {
-                    a.SetDistance(cameraTransform.GetPosition());
-                    b.SetDistance(cameraTransform.GetPosition());
-                    return a < b;
-                });
+            std::sort(commands.begin(), commands.end(),
+                      [&cameraTransform](auto& a, auto& b)
+                      {
+                          a.SetDistance(cameraTransform.GetPosition());
+                          b.SetDistance(cameraTransform.GetPosition());
+                          return a < b;
+                      });
         }
     }
 
-    void EntityCollector::Upload(
-        Rg::Graph&                       cameraGraph,
-        const CameraFrameDataUpdateDesc& frameData)
+    void EntityCollector::Upload(Rg::Graph& cameraGraph, const CameraFrameDataUpdateDesc& frameData)
     {
         m_Storage.get().UploadToRenderGraph(cameraGraph, frameData);
 

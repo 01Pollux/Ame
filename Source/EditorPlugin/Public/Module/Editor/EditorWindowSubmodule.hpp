@@ -12,17 +12,12 @@ namespace Ame
     public:
         using Base = BaseObject<ISubmodule>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(
-            IID_EditorWindowSubmodule, IID_BaseSubmodule, Base,
-            m_EditorWindowManager);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(IID_EditorWindowSubmodule, IID_BaseSubmodule, Base,
+                                                      m_EditorWindowManager);
 
     public:
-        EditorWindowSubmodule(
-            IReferenceCounters*       counters,
-            ModuleRegistry&           registry,
-            RhiModule*                rhiModule,
-            GraphicsModule*           graphicsModule,
-            const EditorModuleConfig& config);
+        EditorWindowSubmodule(IReferenceCounters* counters, ModuleRegistry& registry, RhiModule* rhiModule,
+                              GraphicsModule* graphicsModule, const EditorModuleConfig& config);
 
     private:
         Ptr<Editor::IEditorWindowManager> m_EditorWindowManager;

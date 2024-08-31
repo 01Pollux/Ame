@@ -22,12 +22,8 @@ namespace Ame::Editor
         // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
         // because it would be confusing to have two docking targets within each others.
         constexpr ImGuiWindowFlags c_EditorWindowFlags =
-            ImGuiWindowFlags_NoDocking |
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus |
             ImGuiWindowFlags_NoNavFocus;
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -46,8 +42,7 @@ namespace Ame::Editor
         bool editorOpen;
         {
             imcxx::shared_style overrideStyle(
-                ImGuiStyleVar_WindowPadding, ImVec2{},
-                ImGuiStyleVar_WindowBorderSize, 0.0f);
+                ImGuiStyleVar_WindowPadding, ImVec2{}, ImGuiStyleVar_WindowBorderSize, 0.0f);
             imcxx::shared_color overrideBg(ImGuiCol_MenuBarBg, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
             editorOpen = ImGui::Begin("Neon Editor", nullptr, c_EditorWindowFlags);
@@ -55,8 +50,7 @@ namespace Ame::Editor
 
         // Submit the DockSpace
         ImGuiID dockerspaceId = ImGui::GetID("MainDockspace##NEON");
-        if ((ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable) &&
-            !ImGui::DockBuilderGetNode(dockerspaceId))
+        if ((ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable) && !ImGui::DockBuilderGetNode(dockerspaceId))
         {
             // Clear out existing layout
             ImGui::DockBuilderRemoveNode(dockerspaceId);
@@ -109,8 +103,7 @@ namespace Ame::Editor
         }
 
         constexpr ImGuiDockNodeFlags c_MainEditorWindowDockSpaceFlags =
-            ImGuiDockNodeFlags_None |
-            ImGuiDockNodeFlags_PassthruCentralNode;
+            ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode;
 
         ImGui::DockSpace(dockerspaceId, {}, c_MainEditorWindowDockSpaceFlags);
         return editorOpen;
@@ -143,10 +136,10 @@ namespace Ame::Editor
             auto buttonSize     = ImVec2(titlebarHeight * 1.4f, titlebarHeight);
 
             imcxx::shared_style OverrideSpacing(ImGuiStyleVar_ItemSpacing, ImVec2{});
-            imcxx::shared_color OverrideColor(
-                ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_MenuBarBg),
-                ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive),
-                ImGuiCol_ButtonHovered, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabHovered));
+            imcxx::shared_color OverrideColor(ImGuiCol_Button, ImGui::GetColorU32(ImGuiCol_MenuBarBg),
+                                              ImGuiCol_ButtonActive, ImGui::GetColorU32(ImGuiCol_ScrollbarGrabActive),
+                                              ImGuiCol_ButtonHovered,
+                                              ImGui::GetColorU32(ImGuiCol_ScrollbarGrabHovered));
 
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() - buttonSize.x * 3);
 

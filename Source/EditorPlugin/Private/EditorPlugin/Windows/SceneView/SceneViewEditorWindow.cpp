@@ -10,24 +10,18 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindow> SceneViewEditorWindow::Create(
-        ModuleRegistry& registry)
+    Ptr<IEditorWindow> SceneViewEditorWindow::Create(ModuleRegistry& registry)
     {
         return { ObjectAllocator<SceneViewEditorWindow>()(registry), IID_BaseEditorWindow };
     }
 
-    SceneViewEditorWindow::SceneViewEditorWindow(
-        IReferenceCounters* counter,
-        ModuleRegistry&     registry) :
+    SceneViewEditorWindow::SceneViewEditorWindow(IReferenceCounters* counter, ModuleRegistry& registry) :
         Base(counter, registry, c_SceneViewEditorWindowPath),
         m_World(GetModuleRegistry().QueryInterface<Ecs::World>(IID_EntityModule, Ecs::IID_EntityWorld)),
-        m_CameraQuery(m_World->CreateQuery<
-                                 const Ecs::CameraComponent,
-                                 const Ecs::GlobalTransformComponent,
-                                 const Ecs::CameraOutputComponent>()
-                          .order_by<Ecs::CameraComponent>([](
-                                                              Ecs::EntityId, auto a,
-                                                              Ecs::EntityId, auto b)
+        m_CameraQuery(m_World
+                          ->CreateQuery<const Ecs::CameraComponent, const Ecs::GlobalTransformComponent,
+                                        const Ecs::CameraOutputComponent>()
+                          .order_by<Ecs::CameraComponent>([](Ecs::EntityId, auto a, Ecs::EntityId, auto b)
                                                           { return a->Priority - b->Priority; })
                           .build())
     {
@@ -48,8 +42,7 @@ namespace Ame::Editor
     {
         if (m_CameraQuery->changed())
         {
-            m_CameraQuery->run([this](auto& iter)
-                               { UpdateCameraList(iter); });
+            m_CameraQuery->run([this](auto& iter) { UpdateCameraList(iter); });
         }
 
         ValidateCameraList();
@@ -109,16 +102,13 @@ namespace Ame::Editor
         auto srv = textureOutputView->GetDefaultView(Dg::TEXTURE_VIEW_SHADER_RESOURCE);
         if (srv)
         {
-            ImGui::Image(
-                ImTextureID(srv),
-                ImGui::GetContentRegionAvail());
+            ImGui::Image(ImTextureID(srv), ImGui::GetContentRegionAvail());
         }
     }
 
     //
 
-    void SceneViewEditorWindow::UpdateCameraList(
-        Ecs::Iterator& iter)
+    void SceneViewEditorWindow::UpdateCameraList(Ecs::Iterator& iter)
     {
         m_CameraList.clear();
         while (iter.next())
@@ -133,8 +123,7 @@ namespace Ame::Editor
 
     void SceneViewEditorWindow::ValidateCameraList()
     {
-        std::erase_if(m_CameraList, [this](const CameraInfo& info)
-                      { return !info.Entity; });
+        std::erase_if(m_CameraList, [this](const CameraInfo& info) { return !info.Entity; });
     }
 
     //

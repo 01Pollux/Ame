@@ -15,33 +15,25 @@
 
 namespace Ame::Rhi
 {
-    MaterialTechnique* MaterialTechnique::Create(
-        Dg::IRenderDevice*  renderDevice,
-        MaterialRenderState renderState)
+    MaterialTechnique* MaterialTechnique::Create(Dg::IRenderDevice* renderDevice, MaterialRenderState renderState)
     {
         return ObjectAllocator<MaterialTechnique>()(renderDevice, std::move(renderState));
     }
 
-    MaterialTechnique::MaterialTechnique(
-        IReferenceCounters* counters,
-        Dg::IRenderDevice*  renderDevice,
-        MaterialRenderState renderState) :
+    MaterialTechnique::MaterialTechnique(IReferenceCounters* counters, Dg::IRenderDevice* renderDevice,
+                                         MaterialRenderState renderState) :
         Base(counters),
-        m_RenderDevice(renderDevice),
-        m_RenderState(std::move(renderState))
+        m_RenderDevice(renderDevice), m_RenderState(std::move(renderState))
     {
     }
 
     //
 
-    Dg::IPipelineState* MaterialTechnique::GetPipelineState(
-        const MaterialVertexDesc&    vertexDesc,
-        const Material*              material,
-        Dg::IShaderResourceBinding** srb) const
+    Dg::IPipelineState* MaterialTechnique::GetPipelineState(const MaterialVertexDesc&    vertexDesc,
+                                                            const Material*              material,
+                                                            Dg::IShaderResourceBinding** srb) const
     {
-        auto hash = Dg::ComputeHash(
-            material->GetMaterialHash(),
-            vertexDesc);
+        auto hash = Dg::ComputeHash(material->GetMaterialHash(), vertexDesc);
 
         auto& pipelineState = m_PipelineStates[hash];
         if (!pipelineState)
@@ -62,9 +54,8 @@ namespace Ame::Rhi
 
     //
 
-    auto MaterialTechnique::CombineShaders(
-        Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        const Material*                      material) const -> ShadersToKeepAliveList
+    auto MaterialTechnique::CombineShaders(Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+                                           const Material* material) const -> ShadersToKeepAliveList
     {
         using namespace EnumBitOperators;
         auto& renderStateShaders = m_RenderState.Links;
@@ -141,8 +132,7 @@ namespace Ame::Rhi
             CombinedShaderCreateDesc combinedDesc{ { partialShaders, partialShaderCount } };
             shaderComposer.Initialize(combinedDesc);
 
-            shaderComposer
-                .ShaderType(shaderType)
+            shaderComposer.ShaderType(shaderType)
                 .ShaderType(mainShader.ShaderType())
                 .SourceLanguage(mainShader.SourceLanguage())
                 .ShaderCompiler(mainShader.ShaderCompiler())
@@ -153,7 +143,8 @@ namespace Ame::Rhi
                 .WebGPUEmulatedArrayIndexSuffixCStr(mainShader.WebGPUEmulatedArrayIndexSuffix());
 
 #ifndef AME_DIST
-            shaderComposer.Name(std::format("{}_{:X}_{}", m_RenderState.Name, material->GetMaterialHash(), Dg::GetShaderTypeLiteralName(shaderType)));
+            shaderComposer.Name(std::format("{}_{:X}_{}", m_RenderState.Name, material->GetMaterialHash(),
+                                            Dg::GetShaderTypeLiteralName(shaderType)));
 #endif
 
             auto shader = renderDevice.CreateShader(shaderComposer.GetCreateInfo());
@@ -172,9 +163,8 @@ namespace Ame::Rhi
         return shadersToKeepAlive;
     }
 
-    auto MaterialTechnique::CombineSignatures(
-        Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        const Material*                      material) const -> SignaturesToKeepAlive
+    auto MaterialTechnique::CombineSignatures(Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+                                              const Material* material) const -> SignaturesToKeepAlive
     {
         SignaturesToKeepAlive signatures;
         signatures.reserve(m_RenderState.Signatures.size() + 1);
@@ -192,9 +182,8 @@ namespace Ame::Rhi
         return signatures;
     }
 
-    void MaterialTechnique::InitializePipelineState(
-        Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
-        const MaterialVertexDesc&            vertexDesc) const
+    void MaterialTechnique::InitializePipelineState(Dg::GraphicsPipelineStateCreateInfo& graphicsPsoDesc,
+                                                    const MaterialVertexDesc&            vertexDesc) const
     {
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableType        = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
         graphicsPsoDesc.PSODesc.ResourceLayout.DefaultVariableMergeStages = Dg::SHADER_TYPE_ALL_GRAPHICS;
@@ -212,9 +201,8 @@ namespace Ame::Rhi
         graphicsPsoDesc.GraphicsPipeline.SmplDesc    = m_RenderState.Sample;
     }
 
-    Ptr<Dg::IPipelineState> MaterialTechnique::CreatePipelineState(
-        const MaterialVertexDesc& vertexDesc,
-        const Material*           material) const
+    Ptr<Dg::IPipelineState> MaterialTechnique::CreatePipelineState(const MaterialVertexDesc& vertexDesc,
+                                                                   const Material*           material) const
     {
         MaterialVertexInputLayout vertexInputLayout(vertexDesc.Flags);
 

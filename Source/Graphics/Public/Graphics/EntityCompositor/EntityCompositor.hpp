@@ -9,15 +9,10 @@ namespace Ame::Gfx
     class EntityCompositor
     {
     public:
-        EntityCompositor(
-            Rhi::IRhiDevice* rhiDevice,
-            Ecs::World*      world);
+        EntityCompositor(Rhi::IRhiDevice* rhiDevice, Ecs::World* world);
 
         void Update();
-        void RenderGraph(
-            Rg::Graph&                   renderGraph,
-            const Math::Camera&          camera,
-            const Math::TransformMatrix& transform);
+        void RenderGraph(Rg::Graph& renderGraph, const Math::Camera& camera, const Math::TransformMatrix& transform);
 
     private:
         EntityStorage   m_Storage;

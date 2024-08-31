@@ -5,10 +5,7 @@
 
 namespace Ame::Asset
 {
-    IAssetPackage::IAssetPackage(
-        Storage& assetStorage) :
-        m_Storage(assetStorage),
-        m_Runtime(assetStorage.GetRuntime())
+    IAssetPackage::IAssetPackage(Storage& assetStorage) : m_Storage(assetStorage), m_Runtime(assetStorage.GetRuntime())
     {
     }
 

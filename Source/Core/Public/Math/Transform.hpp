@@ -18,18 +18,14 @@ namespace Ame::Math
         static constexpr uint32_t LookDirIndex  = 2;
 
     public:
-        TransformMatrix(
-            const Matrix3x3& basis    = Matrix3x3::Constants::Identity,
-            const Vector3&   position = Vector3::Constants::Zero) :
+        TransformMatrix(const Matrix3x3& basis    = Matrix3x3::Constants::Identity,
+                        const Vector3&   position = Vector3::Constants::Zero) :
             m_Basis(basis),
             m_Position(position)
         {
         }
 
-        TransformMatrix(
-            const Matrix4x4& transform) :
-            m_Basis(transform),
-            m_Position(transform(3))
+        TransformMatrix(const Matrix4x4& transform) : m_Basis(transform), m_Position(transform(3))
         {
         }
 
@@ -67,8 +63,7 @@ namespace Ame::Math
         /// <summary>
         /// Set basis of transform
         /// </summary>
-        void SetBasis(
-            const Matrix3x3& basis) noexcept
+        void SetBasis(const Matrix3x3& basis) noexcept
         {
             m_Basis = basis;
         }
@@ -108,8 +103,7 @@ namespace Ame::Math
         /// <summary>
         /// Apply pitch rotation to transform
         /// </summary>
-        void AppendPitch(
-            float delta)
+        void AppendPitch(float delta)
         {
             auto& right = GetBasis()(0);
             auto& up    = GetBasis()(1);
@@ -124,8 +118,7 @@ namespace Ame::Math
         /// <summary>
         /// Apply yaw rotation to transform
         /// </summary>
-        void AppendYaw(
-            float delta)
+        void AppendYaw(float delta)
         {
             auto& right = GetBasis()(0);
             auto& up    = GetBasis()(1);
@@ -141,8 +134,7 @@ namespace Ame::Math
         /// <summary>
         /// Apply roll rotation to transform
         /// </summary>
-        void AppendRoll(
-            float delta)
+        void AppendRoll(float delta)
         {
             auto& right = GetBasis()(0);
             auto& up    = GetBasis()(1);
@@ -174,8 +166,7 @@ namespace Ame::Math
         /// <summary>
         /// Set position of transform
         /// </summary>
-        void SetPosition(
-            const Vector3& position) noexcept
+        void SetPosition(const Vector3& position) noexcept
         {
             m_Position = position;
         }
@@ -186,12 +177,7 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Matrix4x4 ToMat4x4() const noexcept
         {
-            return {
-                m_Basis(0),
-                m_Basis(1),
-                m_Basis(2),
-                Vector4(m_Position.x(), m_Position.y(), m_Position.z(), 1.f)
-            };
+            return { m_Basis(0), m_Basis(1), m_Basis(2), Vector4(m_Position.x(), m_Position.y(), m_Position.z(), 1.f) };
         }
 
         /// <summary>
@@ -199,23 +185,19 @@ namespace Ame::Math
         /// </summary>
         [[nodiscard]] Matrix4x4 ToMat4x4Transposed() const noexcept
         {
-            return {
-                { m_Basis(0).x(), m_Basis(1).x(), m_Basis(2).x(), m_Position.x() },
-                { m_Basis(0).y(), m_Basis(1).y(), m_Basis(2).y(), m_Position.y() },
-                { m_Basis(0).z(), m_Basis(1).z(), m_Basis(2).z(), m_Position.z() },
-                { 0.f, 0.f, 0.f, 1.f }
-            };
+            return { { m_Basis(0).x(), m_Basis(1).x(), m_Basis(2).x(), m_Position.x() },
+                     { m_Basis(0).y(), m_Basis(1).y(), m_Basis(2).y(), m_Position.y() },
+                     { m_Basis(0).z(), m_Basis(1).z(), m_Basis(2).z(), m_Position.z() },
+                     { 0.f, 0.f, 0.f, 1.f } };
         }
 
     public:
-        [[nodiscard]] TransformMatrix operator*(
-            const TransformMatrix& other) const noexcept
+        [[nodiscard]] TransformMatrix operator*(const TransformMatrix& other) const noexcept
         {
             return TransformMatrix(GetBasis() * other.GetBasis(), GetPosition() + other.GetPosition());
         }
 
-        TransformMatrix& operator*=(
-            const TransformMatrix& other) noexcept
+        TransformMatrix& operator*=(const TransformMatrix& other) noexcept
         {
             m_Basis *= other.m_Basis;
             m_Position += other.m_Position;
@@ -225,10 +207,7 @@ namespace Ame::Math
     private:
         friend class boost::serialization::access;
 
-        template<typename ArchiveTy>
-        void Serialize(
-            ArchiveTy& archive,
-            uint32_t)
+        template<typename ArchiveTy> void Serialize(ArchiveTy& archive, uint32_t)
         {
             archive & m_Basis & m_Position;
         }

@@ -14,7 +14,6 @@ namespace Ame::Ecs
     class CoreEcsModule
     {
     public:
-        CoreEcsModule(
-            WorldRef world);
+        CoreEcsModule(WorldRef world);
     };
 } // namespace Ame::Ecs

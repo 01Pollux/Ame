@@ -13,34 +13,27 @@ namespace Ame::Rg
         /// <summary>
         /// Append render pass
         /// </summary>
-        void AddPass(
-            Pass* pass);
+        void AddPass(Pass* pass);
 
         /// <summary>
         /// Execute render passes
         /// </summary>
-        void Execute(
-            Context&            context,
-            Dg::IDeviceContext* deviceContext) const;
+        void Execute(Context& context, Dg::IDeviceContext* deviceContext) const;
 
     private:
         /// <summary>
         /// Create resources that are needed for this level
         /// </summary>
-        void LockStorage(
-            Context& context) const;
+        void LockStorage(Context& context) const;
 
         /// <summary>
         /// Execute render passes
         /// </summary>
-        void ExecutePasses(
-            Context&            context,
-            Dg::IDeviceContext* deviceContext) const;
+        void ExecutePasses(Context& context, Dg::IDeviceContext* deviceContext) const;
 
         /// <summary>
         /// </summary>
-        void UnlockStorage(
-            Context& context) const;
+        void UnlockStorage(Context& context) const;
 
     private:
         std::vector<Pass*> m_Passes;

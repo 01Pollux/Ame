@@ -13,13 +13,10 @@ namespace Ame::Rhi
     public:
         using Base = BaseObject<IObject>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_Material, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Material, Base);
 
     public:
-        [[nodiscard]] static Ptr<Material> Create(
-            Dg::IRenderDevice* renderDevice,
-            MaterialCreateDesc materialDesc);
+        [[nodiscard]] static Ptr<Material> Create(Dg::IRenderDevice* renderDevice, MaterialCreateDesc materialDesc);
 
     public:
         /// <summary>
@@ -49,29 +46,20 @@ namespace Ame::Rhi
         [[nodiscard]] Dg::IPipelineResourceSignature* GetResourceSignature() const;
 
     public:
-        void WriteUserData(
-            const String&    propertyName,
-            const std::byte* data,
-            size_t           size);
+        void WriteUserData(const String& propertyName, const std::byte* data, size_t size);
 
         template<typename Ty>
             requires MaterialDataMappable<Ty>::Enabled
-        void WriteUserData(
-            const String& propertyName,
-            const Ty&     data)
+        void WriteUserData(const String& propertyName, const Ty& data)
         {
             WriteUserData(propertyName, std::bit_cast<const std::byte*>(std::addressof(data)), sizeof(Ty));
         }
 
-        void ReadUserData(
-            const String& propertyName,
-            std::byte*    data,
-            size_t        size) const;
+        void ReadUserData(const String& propertyName, std::byte* data, size_t size) const;
 
         template<typename Ty>
             requires MaterialDataMappable<Ty>::Enabled
-        [[nodiscard]] Ty ReadUserData(
-            const String& propertyName) const
+        [[nodiscard]] Ty ReadUserData(const String& propertyName) const
         {
             Ty data;
             ReadUserData(propertyName, std::bit_cast<std::byte*>(std::addressof(data)), sizeof(Ty));
@@ -87,17 +75,11 @@ namespace Ame::Rhi
         void                        SetName(const StringView& name);
 
     private:
-        template<typename, typename>
-        friend class Dg::MakeNewRCObj;
+        template<typename, typename> friend class Dg::MakeNewRCObj;
 
-        Material(
-            IReferenceCounters*       counters,
-            Dg::IRenderDevice*        renderDevice,
-            const MaterialCreateDesc& materialDesc);
+        Material(IReferenceCounters* counters, Dg::IRenderDevice* renderDevice, const MaterialCreateDesc& materialDesc);
 
-        Material(
-            IReferenceCounters* counters,
-            const Material*     material);
+        Material(IReferenceCounters* counters, const Material* material);
 
     private:
         struct LocalData
@@ -106,9 +88,7 @@ namespace Ame::Rhi
             UniquePtr<std::byte[]>          UserDataBuffer;
             Ptr<Dg::IShaderResourceBinding> Bindings;
 
-            LocalData(
-                const MaterialCommonState& commonState,
-                const LocalData*           copyFrom = nullptr);
+            LocalData(const MaterialCommonState& commonState, const LocalData* copyFrom = nullptr);
 
             LocalData(const LocalData&) = delete;
             LocalData(LocalData&&)      = delete;
@@ -124,9 +104,7 @@ namespace Ame::Rhi
             Dg::IRenderDevice*  RenderDevice;
             MaterialCommonState CommonState;
 
-            SharedData(
-                Dg::IRenderDevice* renderDevice,
-                MaterialCreateDesc createDesc);
+            SharedData(Dg::IRenderDevice* renderDevice, MaterialCreateDesc createDesc);
         };
 
         SharedPtr<SharedData> m_SharedData;

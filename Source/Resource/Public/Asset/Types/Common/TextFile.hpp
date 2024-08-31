@@ -9,12 +9,9 @@ namespace Ame::Asset::Common
     {
     public:
         using Base = BaseObject<IAsset>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_TextFileAsset, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_TextFileAsset, Base);
 
-        TextFileAsset(
-            IReferenceCounters* counters) :
-            Base(counters)
+        TextFileAsset(IReferenceCounters* counters) : Base(counters)
         {
         }
 
@@ -49,8 +46,7 @@ namespace Ame::Asset::Common
         /// <summary>
         /// Get the underlying string
         /// </summary>
-        void Set(
-            String text)
+        void Set(String text)
         {
             m_Text = std::move(text);
         }

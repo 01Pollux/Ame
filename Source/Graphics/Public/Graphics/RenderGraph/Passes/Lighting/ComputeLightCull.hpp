@@ -56,9 +56,7 @@ namespace Ame::Gfx
         };
 
     public:
-        ComputeLightCullPass(
-            uint8_t  blockSize         = 16,
-            uint16_t maxLightChunkSize = 1024);
+        ComputeLightCullPass(uint8_t blockSize = 16, uint16_t maxLightChunkSize = 1024);
 
     private:
         void UpdateAndBindResourcesOnce(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext);

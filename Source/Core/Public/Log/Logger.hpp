@@ -15,18 +15,14 @@ namespace spdlog
     } // namespace sinks
 } // namespace spdlog
 
-#define AME_LOG_TYPE(Type)                                                      \
-    template<typename... ArgsTy>                                                \
-    void Type(                                                                  \
-        const std::format_string<ArgsTy...> message,                            \
-        ArgsTy&&... args) const                                                 \
-    {                                                                           \
-        Log(LogLevel::Type, std::move(message), std::forward<ArgsTy>(args)...); \
-    }                                                                           \
-    void Type(                                                                  \
-        StringView message)                                                     \
-    {                                                                           \
-        LogMessage(LogLevel::Type, message);                                    \
+#define AME_LOG_TYPE(Type)                                                                                             \
+    template<typename... ArgsTy> void Type(const std::format_string<ArgsTy...> message, ArgsTy&&... args) const        \
+    {                                                                                                                  \
+        Log(LogLevel::Type, std::move(message), std::forward<ArgsTy>(args)...);                                        \
+    }                                                                                                                  \
+    void Type(StringView message)                                                                                      \
+    {                                                                                                                  \
+        LogMessage(LogLevel::Type, message);                                                                           \
     }
 
 #ifndef AME_DIST
@@ -48,42 +44,33 @@ namespace Ame::Log
         {
         }
 
-        Logger(
-            StringView tagName,
-            SinkList   sinks);
+        Logger(StringView tagName, SinkList sinks);
 
     public:
         /// <summary>
         /// Register a logger
         /// </summary>
-        static void Register(
-            const String& tagName,
-            SinkList      sinks);
+        static void Register(const String& tagName, SinkList sinks);
 
         /// <summary>
         /// Register a logger
         /// </summary>
-        static void Register(
-            const String& tagName,
-            StringView    fileName);
+        static void Register(const String& tagName, StringView fileName);
 
         /// <summary>
         /// Register a null logger
         /// </summary>
-        static void RegisterNull(
-            const String& tagName);
+        static void RegisterNull(const String& tagName);
 
         /// <summary>
         /// Unregister a logger
         /// </summary>
-        static void Unregister(
-            const String& tagName);
+        static void Unregister(const String& tagName);
 
         /// <summary>
         /// Get global logger
         /// </summary>
-        [[nodiscard]] static Logger& GetLogger(
-            const String& name);
+        [[nodiscard]] static Logger& GetLogger(const String& name);
 
         /// <summary>
         /// Close all loggers
@@ -95,11 +82,9 @@ namespace Ame::Log
         /// <summary>
         /// Test if a log level can be logged
         /// </summary>
-        [[nodiscard]] bool CanLog(
-            LogLevel level) const noexcept;
+        [[nodiscard]] bool CanLog(LogLevel level) const noexcept;
 #else
-        [[nodiscard]] bool CanLog(
-            LogLevel) const noexcept
+        [[nodiscard]] bool CanLog(LogLevel) const noexcept
         {
             return false;
         }
@@ -109,18 +94,13 @@ namespace Ame::Log
         /// <summary>
         /// Log a message
         /// </summary>
-        void LogMessage(
-            LogLevel   level,
-            StringView message) const;
+        void LogMessage(LogLevel level, StringView message) const;
 
         /// <summary>
         /// Log a message
         /// </summary>
         template<typename... ArgsTy>
-        void Log(
-            LogLevel                            level,
-            const std::format_string<ArgsTy...> message,
-            ArgsTy&&... args) const
+        void Log(LogLevel level, const std::format_string<ArgsTy...> message, ArgsTy&&... args) const
         {
 #ifndef AME_DISABLE_LOGGING
             if constexpr (sizeof...(ArgsTy) == 0)
@@ -154,10 +134,7 @@ namespace Ame::Log
         AME_LOG_TYPE(Fatal);
 
         template<typename... ArgsTy>
-        void Assert(
-            bool                                condition,
-            const std::format_string<ArgsTy...> message,
-            ArgsTy&&... args) const
+        void Assert(bool condition, const std::format_string<ArgsTy...> message, ArgsTy&&... args) const
         {
 #ifndef AME_DISABLE_LOGGING
 #ifndef AME_DIST
@@ -171,10 +148,7 @@ namespace Ame::Log
         }
 
         template<typename... ArgsTy>
-        void Validate(
-            bool                                condition,
-            const std::format_string<ArgsTy...> message,
-            ArgsTy&&... args) const
+        void Validate(bool condition, const std::format_string<ArgsTy...> message, ArgsTy&&... args) const
         {
 #ifndef AME_DISABLE_LOGGING
             if (!condition)
@@ -189,8 +163,7 @@ namespace Ame::Log
         /// <summary>
         /// Set the current log level
         /// </summary>
-        void SetLevel(
-            LogLevel level);
+        void SetLevel(LogLevel level);
 
         /// <summary>
         /// Get the current log level
@@ -203,6 +176,5 @@ namespace Ame::Log
 
     //
 
-    [[nodiscard]] String FormatException(
-        const std::exception& ex);
+    [[nodiscard]] String FormatException(const std::exception& ex);
 } // namespace Ame::Log

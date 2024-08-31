@@ -22,10 +22,10 @@ namespace imcxx
     };
 
     /// <summary>
-    /// Useful for handling multiple Push/Pop of different types (check 'shared_override_strategy') when the items is in current window,
+    /// Useful for handling multiple Push/Pop of different types (check 'shared_override_strategy') when the items is in
+    /// current window,
     /// </summary>
-    template<shared_override_strategy _Strategy>
-    class [[nodiscard]] shared_override
+    template<shared_override_strategy _Strategy> class [[nodiscard]] shared_override
     {
     public:
         shared_override() = default;
@@ -33,8 +33,7 @@ namespace imcxx
         shared_override(const shared_override&)            = delete;
         shared_override& operator=(const shared_override&) = delete;
 
-        shared_override(shared_override&& other) noexcept :
-            m_PopCount(std::exchange(other.m_PopCount, 0))
+        shared_override(shared_override&& other) noexcept : m_PopCount(std::exchange(other.m_PopCount, 0))
         {
         }
         shared_override& operator=(shared_override&& other) noexcept
@@ -47,8 +46,7 @@ namespace imcxx
             return *this;
         }
 
-        template<typename... _Args>
-        shared_override(_Args&&... args)
+        template<typename... _Args> shared_override(_Args&&... args)
         {
             push(std::forward<_Args>(args)...);
         }
@@ -59,8 +57,7 @@ namespace imcxx
                 pop(m_PopCount);
         }
 
-        template<typename... _Args>
-        void push(_Args&&... args)
+        template<typename... _Args> void push(_Args&&... args)
         {
             static constexpr size_t strategy_size = get_strategy_size();
 
@@ -123,7 +120,8 @@ namespace imcxx
                     ImGui::PopFocusScope();
                 }
             }
-            else if constexpr (_Strategy == shared_override_strategy::clip_rect || _Strategy == shared_override_strategy::column_clip_rect)
+            else if constexpr (_Strategy == shared_override_strategy::clip_rect ||
+                               _Strategy == shared_override_strategy::column_clip_rect)
             {
                 while (count-- != 0)
                 {
@@ -219,8 +217,7 @@ namespace imcxx
                 push_impl_2(std::forward<_TyX>(others)...);
         }
 
-        template<typename _Ty0, typename... _TyX>
-        void push_impl_1(_Ty0 value, _TyX&&... others)
+        template<typename _Ty0, typename... _TyX> void push_impl_1(_Ty0 value, _TyX&&... others)
         {
             if constexpr (_Strategy == shared_override_strategy::font)
             {

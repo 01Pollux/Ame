@@ -34,8 +34,8 @@ namespace Ame::Rhi
         ImGuiColorConversionMode ConversionMode = ImGuiColorConversionMode::Auto;
 
         /// <summary>
-        /// If true, the renderer will be created in a multi-threaded mode, and only one instance is allowed to execute at a time.
-        /// (Between BeginFrame and EndFrame)
+        /// If true, the renderer will be created in a multi-threaded mode, and only one instance is allowed to execute
+        /// at a time. (Between BeginFrame and EndFrame)
         /// </summary>
         bool MultiThreaded : 1 = true;
     };

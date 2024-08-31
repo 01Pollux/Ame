@@ -10,19 +10,17 @@ namespace Ame::Gfx
             .Execute(std::bind_front(&ForwardPlus_InitializePass::OnExecute, this));
     }
 
-    void ForwardPlus_InitializePass::OnBuild(
-        Rg::Resolver& resolver)
+    void ForwardPlus_InitializePass::OnBuild(Rg::Resolver& resolver)
     {
         Rg::TextureResourceDesc textureDesc{ resolver.GetBackbufferDesc() };
         textureDesc.BindFlags |= Dg::BIND_SHADER_RESOURCE;
 
         resolver.CreateTexture(c_RGFinalImage, nullptr, textureDesc);
-        m_PassData.FinalImageViewId = resolver.WriteTexture(c_RGFinalImage, Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
+        m_PassData.FinalImageViewId =
+            resolver.WriteTexture(c_RGFinalImage, Dg::BIND_RENDER_TARGET, Dg::TEXTURE_VIEW_RENDER_TARGET);
     }
 
-    void ForwardPlus_InitializePass::OnExecute(
-        const Rg::ResourceStorage& storage,
-        Dg::IDeviceContext*        deviceContext)
+    void ForwardPlus_InitializePass::OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext)
     {
         auto rtv = storage.GetTextureView(m_PassData.FinalImageViewId);
 

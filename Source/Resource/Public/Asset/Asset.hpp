@@ -9,14 +9,12 @@ namespace Ame::Asset
     class IAsset : public ISerializable
     {
     public:
-        void Serialize(
-            BinaryOArchiver& ar) const override
+        void Serialize(BinaryOArchiver& ar) const override
         {
             ar(m_AssetPath, m_AssetGuid);
         }
 
-        void Deserialize(
-            BinaryIArchiver& ar) override
+        void Deserialize(BinaryIArchiver& ar) override
         {
             ar(m_AssetPath, m_AssetGuid);
         }
@@ -30,8 +28,7 @@ namespace Ame::Asset
         /// <summary>
         /// Sets the asset uid.
         /// </summary>
-        [[nodiscard]] void SetUId(
-            const UId& uid) noexcept;
+        [[nodiscard]] void SetUId(const UId& uid) noexcept;
 
         /// <summary>
         /// Get the asset path.
@@ -41,8 +38,7 @@ namespace Ame::Asset
         /// <summary>
         /// Set the asset path.
         /// </summary>
-        void SetPath(
-            const String& path) noexcept;
+        void SetPath(const String& path) noexcept;
 
         /// <summary>
         /// Query if the asset is dirty.
@@ -52,8 +48,7 @@ namespace Ame::Asset
         /// <summary>
         /// Marks the asset as dirty.
         /// </summary>
-        void MarkDirty(
-            bool isDirty) noexcept;
+        void MarkDirty(bool isDirty) noexcept;
 
     protected:
         String m_AssetPath;
@@ -70,51 +65,41 @@ namespace Ame::Asset
     class AssetTaskPtr
     {
     private:
-        using AssetState = std::variant<
-            std::monostate,
-            Co::result<AssetPtr>,
-            Ptr<Ty>>;
+        using AssetState = std::variant<std::monostate, Co::result<AssetPtr>, Ptr<Ty>>;
 
     public:
         static inline const Ptr<Ty> c_NullPtr;
 
-        AssetTaskPtr() :
-            m_Asset(std::monostate{})
+        AssetTaskPtr() : m_Asset(std::monostate{})
         {
         }
 
-        AssetTaskPtr(
-            Co::result<AssetPtr> asset) :
-            m_Asset(std::move(asset))
+        AssetTaskPtr(Co::result<AssetPtr> asset) : m_Asset(std::move(asset))
         {
         }
 
         template<typename OTy = IAsset>
             requires std::is_base_of_v<IAsset, OTy>
-        AssetTaskPtr(
-            Ptr<OTy> asset)
+        AssetTaskPtr(Ptr<OTy> asset)
         {
             SetFromBase(std::move(asset));
         }
 
         //
 
-        void operator=(
-            Co::result<AssetPtr> asset) noexcept
+        void operator=(Co::result<AssetPtr> asset) noexcept
         {
             m_Asset = std::move(asset);
         }
 
-        void operator=(
-            Ptr<Ty> asset) noexcept
+        void operator=(Ptr<Ty> asset) noexcept
         {
             m_Asset = std::move(asset);
         }
 
         template<typename BaseTy>
             requires std::is_base_of_v<Ty, BaseTy>
-        void operator=(
-            AssetTaskPtr<BaseTy> asset)
+        void operator=(AssetTaskPtr<BaseTy> asset)
         {
             SetFromBase(std::move(asset));
         }
@@ -164,9 +149,7 @@ namespace Ame::Asset
         }
 
     private:
-        template<typename OTy>
-        void SetFromBase(
-            Ptr<OTy> asset)
+        template<typename OTy> void SetFromBase(Ptr<OTy> asset)
         {
             if constexpr (std::is_same_v<Ty, OTy>)
             {

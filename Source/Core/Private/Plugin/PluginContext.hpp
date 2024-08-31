@@ -9,7 +9,7 @@ namespace Ame
 {
     class PluginContext
     {
-        using LibraryDLL = boost::dll::shared_library;
+        using LibraryDLL                              = boost::dll::shared_library;
         static constexpr const StringView PluginsPath = "Plugins";
 
     public:

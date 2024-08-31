@@ -27,8 +27,7 @@ namespace Neon::UI::Graph
 
     public:
         NodeGraph() = default;
-        NodeGraph(
-            const EditorConfig& Config)
+        NodeGraph(const EditorConfig& Config)
         {
             m_Editor.reset(NEON_NEW EditorContext(&Config));
         }
@@ -190,7 +189,8 @@ namespace Neon::UI::Graph
             return Node ? m_Editor->GetNodeBuilder().GetUserBackgroundDrawList(Node) : nullptr;
         }
 
-        bool Link(LinkId Id, PinId StartPinId, PinId EndPinId, const ImColor& Color = ImColor(1, 1, 1, 1), float Thickness = 1.0f)
+        bool Link(LinkId Id, PinId StartPinId, PinId EndPinId, const ImColor& Color = ImColor(1, 1, 1, 1),
+                  float Thickness = 1.0f)
         {
             return m_Editor->DoLink(Id, StartPinId, EndPinId, Color, Thickness);
         }

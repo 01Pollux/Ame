@@ -7,8 +7,7 @@
 
 namespace Ame::Asset
 {
-    void Storage::Mount(
-        Ptr<IAssetPackage> package)
+    void Storage::Mount(Ptr<IAssetPackage> package)
     {
 #ifndef AME_RELEASE
         if (&package->GetStorage() != this)
@@ -21,12 +20,9 @@ namespace Ame::Asset
         m_Packages.emplace_back(std::move(package));
     }
 
-    void Storage::Unmount(
-        IAssetPackage* package)
+    void Storage::Unmount(IAssetPackage* package)
     {
-        std::erase_if(
-            m_Packages, [package](const auto& CurPackage)
-            { return CurPackage == package; });
+        std::erase_if(m_Packages, [package](const auto& CurPackage) { return CurPackage == package; });
     }
 
     //
@@ -55,8 +51,7 @@ namespace Ame::Asset
 
     //
 
-    Co::generator<Ptr<IAssetPackage>> Storage::GetPackages(
-        const PackageFlags& flags)
+    Co::generator<Ptr<IAssetPackage>> Storage::GetPackages(const PackageFlags& flags)
     {
         using namespace EnumBitOperators;
 
@@ -78,9 +73,7 @@ namespace Ame::Asset
 
     //
 
-    IAssetPackage* Storage::FindPackage(
-        const UId&          uid,
-        const PackageFlags& flags)
+    IAssetPackage* Storage::FindPackage(const UId& uid, const PackageFlags& flags)
     {
         for (auto& package : GetPackages(flags))
         {

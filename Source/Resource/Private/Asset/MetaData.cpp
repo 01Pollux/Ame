@@ -6,8 +6,7 @@
 
 namespace Ame::Asset
 {
-    AssetMetaDataDef::AssetMetaDataDef(
-        std::istream& stream)
+    AssetMetaDataDef::AssetMetaDataDef(std::istream& stream)
     {
         boost::property_tree::read_json(stream, m_MetaData);
         if (m_MetaData.find("LoaderData") == m_MetaData.not_found())
@@ -20,10 +19,7 @@ namespace Ame::Asset
         }
     }
 
-    AssetMetaDataDef::AssetMetaDataDef(
-        const UId& uid,
-        String     path) :
-        m_IsDirty(true)
+    AssetMetaDataDef::AssetMetaDataDef(const UId& uid, String path) : m_IsDirty(true)
     {
         SetGuid(uid);
         SetMetaPath(std::move(path));
@@ -31,8 +27,7 @@ namespace Ame::Asset
         m_MetaData.add_child("Dependencies", boost::property_tree::ptree());
     }
 
-    void AssetMetaDataDef::Export(
-        std::ostream& stream) const
+    void AssetMetaDataDef::Export(std::ostream& stream) const
     {
         boost::property_tree::write_json(stream, m_MetaData);
     }
@@ -42,11 +37,11 @@ namespace Ame::Asset
     UId AssetMetaDataDef::GetUId() const noexcept
     {
         auto Iter = m_MetaData.find("Guid");
-        return Iter != m_MetaData.not_found() ? UIdUtils::FromString(Iter->second.get_value<String>()) : UIdUtils::Null();
+        return Iter != m_MetaData.not_found() ? UIdUtils::FromString(Iter->second.get_value<String>())
+                                              : UIdUtils::Null();
     }
 
-    void AssetMetaDataDef::SetGuid(
-        const UId& uid) noexcept
+    void AssetMetaDataDef::SetGuid(const UId& uid) noexcept
     {
         m_MetaData.put("Guid", UIdUtils::ToString(uid));
     }
@@ -57,8 +52,7 @@ namespace Ame::Asset
         return iter != m_MetaData.not_found() ? iter->second.get_value<String>() : String();
     }
 
-    void AssetMetaDataDef::SetHash(
-        String hash) noexcept
+    void AssetMetaDataDef::SetHash(String hash) noexcept
     {
         m_MetaData.put("Hash", std::move(hash));
     }
@@ -69,8 +63,7 @@ namespace Ame::Asset
         return uid ? UIdUtils::FromString(uid.get()) : UIdUtils::Null();
     }
 
-    void AssetMetaDataDef::SetLoaderId(
-        const UId& uid) noexcept
+    void AssetMetaDataDef::SetLoaderId(const UId& uid) noexcept
     {
         m_MetaData.put("LoaderId", UIdUtils::ToString(uid));
     }
@@ -93,14 +86,15 @@ namespace Ame::Asset
     std::filesystem::path AssetMetaDataDef::GetMetaPath() const
     {
         auto path = m_MetaData.get<String>("Path");
-        Log::Asset().Validate(!(path.empty() || path.starts_with("..")), "Path '{}' cannot be empty or start with '..'", path);
+        Log::Asset().Validate(
+            !(path.empty() || path.starts_with("..")), "Path '{}' cannot be empty or start with '..'", path);
         return path;
     }
 
-    void AssetMetaDataDef::SetMetaPath(
-        String path)
+    void AssetMetaDataDef::SetMetaPath(String path)
     {
-        Log::Asset().Validate(!(path.empty() || path.starts_with("..")), "Path '{}' cannot be empty or start with '..'", path);
+        Log::Asset().Validate(
+            !(path.empty() || path.starts_with("..")), "Path '{}' cannot be empty or start with '..'", path);
         m_MetaData.put("Path", std::move(path));
     }
 
@@ -109,8 +103,7 @@ namespace Ame::Asset
         return m_IsDirty;
     }
 
-    void AssetMetaDataDef::SetDirty(
-        bool IsDirty) noexcept
+    void AssetMetaDataDef::SetDirty(bool IsDirty) noexcept
     {
         m_IsDirty = IsDirty;
     }
@@ -123,8 +116,7 @@ namespace Ame::Asset
         }
     }
 
-    void AssetMetaDataDef::SetDependencies(
-        std::span<String> Dependencies)
+    void AssetMetaDataDef::SetDependencies(std::span<String> Dependencies)
     {
         auto& depsnode = m_MetaData.get_child("Dependencies");
         depsnode.clear();

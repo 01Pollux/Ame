@@ -24,29 +24,17 @@ namespace Ame
 
         constexpr TVersion() = default;
 
-        constexpr TVersion(
-            value_type maj,
-            value_type min,
-            value_type build = 0,
-            value_type rev   = 0) noexcept :
-            m_Major(maj),
-            m_Minor(min),
-            m_Build(build),
-            m_Revision(rev)
+        constexpr TVersion(value_type maj, value_type min, value_type build = 0, value_type rev = 0) noexcept :
+            m_Major(maj), m_Minor(min), m_Build(build), m_Revision(rev)
         {
         }
 
         constexpr explicit TVersion(const std::array<value_type, 4>& arr) noexcept :
-            m_Major(arr[0]),
-            m_Minor(arr[1]),
-            m_Build(arr[2]),
-            m_Revision(arr[3])
+            m_Major(arr[0]), m_Minor(arr[1]), m_Build(arr[2]), m_Revision(arr[3])
         {
         }
 
-        template<StringType StrTy>
-        constexpr explicit TVersion(const StrTy& str) noexcept :
-            TVersion(FromString(str))
+        template<StringType StrTy> constexpr explicit TVersion(const StrTy& str) noexcept : TVersion(FromString(str))
         {
         }
 
@@ -131,19 +119,13 @@ namespace Ame
         /// </summary>
         [[nodiscard]] auto ToString() const noexcept
         {
-            return std::format(
-                "{:d}.{:d}.{:d}.{:d}",
-                Major(),
-                Minor(),
-                Build(),
-                Revision());
+            return std::format("{:d}.{:d}.{:d}.{:d}", Major(), Minor(), Build(), Revision());
         }
 
         /// <summary>
         /// Convert from string to version
         /// </summary>
-        template<StringType StrTy>
-        [[nodiscard]] static constexpr TVersion FromString(const StrTy& str)
+        template<StringType StrTy> [[nodiscard]] static constexpr TVersion FromString(const StrTy& str)
         {
             int      iter   = 0;
             Type     curVer = Type::Major;
@@ -177,10 +159,6 @@ namespace Ame
         constexpr auto operator<=>(const TVersion&) const noexcept = default;
 
     private:
-        value_type
-            m_Major    = 0,
-            m_Minor    = 0,
-            m_Build    = 0,
-            m_Revision = 0;
+        value_type m_Major = 0, m_Minor = 0, m_Build = 0, m_Revision = 0;
     };
 } // namespace Ame

@@ -15,9 +15,7 @@ namespace Ame::Rhi
     class EngineShader
     {
     public:
-        void AddMacro(
-            const char* name,
-            const char* definition)
+        void AddMacro(const char* name, const char* definition)
         {
             m_Macros.emplace_back(Dg::ShaderMacro{ name, definition });
         }
@@ -28,8 +26,7 @@ namespace Ame::Rhi
             return m_CreateInfo;
         }
 
-        void SetFactory(
-            Dg::IShaderSourceInputStreamFactory* factory)
+        void SetFactory(Dg::IShaderSourceInputStreamFactory* factory)
         {
             m_CreateInfo.pShaderSourceStreamFactory = factory;
         }
@@ -39,17 +36,14 @@ namespace Ame::Rhi
             return m_CreateInfo;
         }
 
-        [[nodiscard]] Dg::MemoryShaderSourceFileInfo GetMemoryShaderSourceFileInfo(
-            const char* name) const
+        [[nodiscard]] Dg::MemoryShaderSourceFileInfo GetMemoryShaderSourceFileInfo(const char* name) const
         {
             return { name, m_CreateInfo.Source, static_cast<uint32_t>(m_CreateInfo.SourceLength) };
         }
 
     protected:
-        void Setup(
-            const Dg::ShaderDesc&      desc,
-            StringView                 sourceCode,
-            Dg::SHADER_SOURCE_LANGUAGE lang = Dg::SHADER_SOURCE_LANGUAGE_HLSL)
+        void Setup(const Dg::ShaderDesc& desc, StringView sourceCode,
+                   Dg::SHADER_SOURCE_LANGUAGE lang = Dg::SHADER_SOURCE_LANGUAGE_HLSL)
         {
             m_CreateInfo.SourceLanguage = lang;
             m_CreateInfo.Desc           = desc;
@@ -57,10 +51,8 @@ namespace Ame::Rhi
             m_CreateInfo.SourceLength   = sourceCode.size();
         }
 
-        void SetupCompressed(
-            const Dg::ShaderDesc&      desc,
-            std::span<const uint8_t>   compressedCode,
-            Dg::SHADER_SOURCE_LANGUAGE lang = Dg::SHADER_SOURCE_LANGUAGE_HLSL)
+        void SetupCompressed(const Dg::ShaderDesc& desc, std::span<const uint8_t> compressedCode,
+                             Dg::SHADER_SOURCE_LANGUAGE lang = Dg::SHADER_SOURCE_LANGUAGE_HLSL)
         {
             namespace bio = boost::iostreams;
 

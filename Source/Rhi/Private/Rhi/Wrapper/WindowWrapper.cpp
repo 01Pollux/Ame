@@ -5,17 +5,10 @@
 
 namespace Ame::Rhi
 {
-    WindowWrapper::WindowWrapper(
-        Ptr<Window::IWindow> window,
-        Ptr<Dg::ISwapChain>  swapchain) :
-        m_Window(std::move(window)),
-        m_Swapchain(std::move(swapchain)),
+    WindowWrapper::WindowWrapper(Ptr<Window::IWindow> window, Ptr<Dg::ISwapChain> swapchain) :
+        m_Window(std::move(window)), m_Swapchain(std::move(swapchain)),
         m_WindowSizeChangedConnection(
-            m_Window->GetEventListener().OnWindowSizeChanged(
-                [this](const Math::Size2I&)
-                {
-                    m_DirtySwapChain = true;
-                }))
+            m_Window->GetEventListener().OnWindowSizeChanged([this](const Math::Size2I&) { m_DirtySwapChain = true; }))
     {
     }
 
@@ -27,8 +20,7 @@ namespace Ame::Rhi
         return m_Window->IsRunning();
     }
 
-    void WindowWrapper::Present(
-        uint32_t syncInterval)
+    void WindowWrapper::Present(uint32_t syncInterval)
     {
         m_Swapchain->Present(syncInterval);
 

@@ -48,16 +48,13 @@ namespace Ame::Window
         /// <summary>
         /// Push a task to the glfw worker thread
         /// </summary>
-        template<std::invocable Fn>
-        [[nodiscard]] auto PushTask(
-            Fn callback)
+        template<std::invocable Fn> [[nodiscard]] auto PushTask(Fn callback)
         {
             using ResTy = std::invoke_result_t<Fn>;
             std::packaged_task<ResTy()> pkg{ std::forward<Fn>(callback) };
 
             auto future = pkg.get_future();
-            PushWrappedTask([pkg = std::move(pkg)]() mutable
-                            { pkg(); });
+            PushWrappedTask([pkg = std::move(pkg)]() mutable { pkg(); });
             return future;
         }
 
@@ -65,8 +62,7 @@ namespace Ame::Window
         /// <summary>
         /// Push a task to the glfw worker thread
         /// </summary>
-        void PushWrappedTask(
-            Task task);
+        void PushWrappedTask(Task task);
 
     private:
         /// <summary>

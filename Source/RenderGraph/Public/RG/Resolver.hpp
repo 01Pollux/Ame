@@ -10,8 +10,7 @@ namespace Ame::Rg
         friend class PassStorage;
 
     public:
-        Resolver(
-            ResourceStorage& storage);
+        Resolver(ResourceStorage& storage);
 
     public:
         [[nodiscard]] Rhi::IRhiDevice*       GetDevice() const noexcept;
@@ -25,9 +24,8 @@ namespace Ame::Rg
         void CreateTexture(const ResourceId& id, Rhi::TextureInitData* initData, const Dg::TextureDesc& desc);
 
     public:
-        [[nodiscard]] IObject* GetUserData(const ResourceId& id) const;
-        template<typename Ty>
-        [[nodiscard]] Ptr<Ty> GetUserData(const ResourceId& id, const UId& iid) const
+        [[nodiscard]] IObject*                      GetUserData(const ResourceId& id) const;
+        template<typename Ty> [[nodiscard]] Ptr<Ty> GetUserData(const ResourceId& id, const UId& iid) const
         {
             auto userdata = GetUserData(id);
             return { userdata, iid };
@@ -40,18 +38,24 @@ namespace Ame::Rg
     public:
         void           WriteResource(const ResourceId& id);
         void           SetUserData(const ResourceId& id, IObject* userData);
-        ResourceViewId WriteBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);
-        ResourceViewId WriteTexture(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const TextureResourceViewDesc& viewDesc);
+        ResourceViewId WriteBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags,
+                                   const BufferResourceViewDesc& viewDesc);
+        ResourceViewId WriteTexture(const ResourceId& id, Dg::BIND_FLAGS bindFlags,
+                                    const TextureResourceViewDesc& viewDesc);
 
     public:
         void           ReadResource(const ResourceId& id);
         void           ReadUserData(const ResourceId& id);
-        ResourceViewId ReadBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);
-        ResourceViewId ReadTexture(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const TextureResourceViewDesc& viewDesc);
+        ResourceViewId ReadBuffer(const ResourceId& id, Dg::BIND_FLAGS bindFlags,
+                                  const BufferResourceViewDesc& viewDesc);
+        ResourceViewId ReadTexture(const ResourceId& id, Dg::BIND_FLAGS bindFlags,
+                                   const TextureResourceViewDesc& viewDesc);
 
     private:
-        ResourceViewId DeclareView(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const BufferResourceViewDesc& viewDesc);
-        ResourceViewId DeclareView(const ResourceId& id, Dg::BIND_FLAGS bindFlags, const TextureResourceViewDesc& viewDesc);
+        ResourceViewId DeclareView(const ResourceId& id, Dg::BIND_FLAGS bindFlags,
+                                   const BufferResourceViewDesc& viewDesc);
+        ResourceViewId DeclareView(const ResourceId& id, Dg::BIND_FLAGS bindFlags,
+                                   const TextureResourceViewDesc& viewDesc);
 
     private:
         Ref<ResourceStorage> m_Storage;

@@ -17,19 +17,15 @@ namespace Ame::Rhi
     public:
         using Base = BaseObject<IImGuiRenderer>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_ImGuiRenderer, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiRenderer, Base);
 
     public:
-        ImGuiDiligentRendererImpl(
-            IReferenceCounters*            counters,
-            const ImGuiRendererCreateDesc& desc);
+        ImGuiDiligentRendererImpl(IReferenceCounters* counters, const ImGuiRendererCreateDesc& desc);
 
         ~ImGuiDiligentRendererImpl() override;
 
     public:
-        void BeginFrame(
-            Dg::SURFACE_TRANSFORM transform) override;
+        void BeginFrame(Dg::SURFACE_TRANSFORM transform) override;
         void EndFrame() override;
         void Reset() override;
 
@@ -50,8 +46,7 @@ namespace Ame::Rhi
         void CreateFontsTextures();
 
     private:
-        void SubmitDrawData(
-            ImDrawData* drawData);
+        void SubmitDrawData(ImDrawData* drawData);
 
     private:
         Ptr<Dg::IRenderDevice>    m_RenderDevice;

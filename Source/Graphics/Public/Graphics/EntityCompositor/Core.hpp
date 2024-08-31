@@ -42,7 +42,8 @@ namespace Ame::Gfx
         uint32_t           BoundingId  = std::numeric_limits<uint32_t>::max();
         EntityInstanceCode Code;
     };
-    static_assert(sizeof(EntityDrawInstance) == Math::AlignUp(sizeof(EntityDrawInstance), 4), "EntityDrawInstance size is not aligned to 4 bytes");
+    static_assert(sizeof(EntityDrawInstance) == Math::AlignUp(sizeof(EntityDrawInstance), 4),
+                  "EntityDrawInstance size is not aligned to 4 bytes");
 
     enum class DrawInstanceType : uint8_t
     {
@@ -58,8 +59,7 @@ namespace Ame::Gfx
         uint32_t              InstanceId = std::numeric_limits<uint32_t>::max();
         float                 Distance   = std::numeric_limits<float>::quiet_NaN();
 
-        void SetDistance(
-            const Math::Vector3& cameraPosition)
+        void SetDistance(const Math::Vector3& cameraPosition)
         {
             // if distance was not calculated yet
             if (Distance == Distance)
@@ -76,8 +76,7 @@ namespace Ame::Gfx
             auto& renderableDescA = Renderable->GetRenderableDesc();
             auto& renderableDescB = other.Renderable->GetRenderableDesc();
 
-            return std::tie(renderableDescA, Distance) <=>
-                   std::tie(renderableDescB, other.Distance);
+            return std::tie(renderableDescA, Distance) <=> std::tie(renderableDescB, other.Distance);
         }
     };
 

@@ -37,14 +37,11 @@ namespace Ame::Rhi
 
     //
 
-    BlitRenderPass::BlitRenderPass(
-        Rhi::IRhiDevice* rhiDevice) :
-        m_RhiDevice(rhiDevice)
+    BlitRenderPass::BlitRenderPass(Rhi::IRhiDevice* rhiDevice) : m_RhiDevice(rhiDevice)
     {
     }
 
-    auto BlitRenderPass::GetPipelineState(
-        const BlitDrawParameters& parameters) -> const PsoCacheData&
+    auto BlitRenderPass::GetPipelineState(const BlitDrawParameters& parameters) -> const PsoCacheData&
     {
         Dg::TEXTURE_FORMAT format = parameters.TargetView->GetDesc().Format;
 
@@ -66,12 +63,9 @@ namespace Ame::Rhi
             shaderDesc.EntryPoint      = "VS_Main";
             auto vertexShader          = GetShader(shaderDesc);
 
-            Dg::ShaderResourceVariableDesc textures[]{
-                { Dg::SHADER_TYPE_PIXEL, "_Texture", Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC }
-            };
-            Dg::ImmutableSamplerDesc samplers[]{
-                { Dg::SHADER_TYPE_PIXEL, "_Sampler", Dg::Sam_LinearClamp }
-            };
+            Dg::ShaderResourceVariableDesc textures[]{ { Dg::SHADER_TYPE_PIXEL, "_Texture",
+                                                         Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC } };
+            Dg::ImmutableSamplerDesc       samplers[]{ { Dg::SHADER_TYPE_PIXEL, "_Sampler", Dg::Sam_LinearClamp } };
 
             Dg::GraphicsPipelineStateCreateInfo desc;
 
@@ -102,15 +96,13 @@ namespace Ame::Rhi
         return cache;
     }
 
-    Ptr<Dg::IShader> BlitRenderPass::GetShader(
-        const Dg::ShaderCreateInfo& desc)
+    Ptr<Dg::IShader> BlitRenderPass::GetShader(const Dg::ShaderCreateInfo& desc)
     {
         Rhi::RenderDeviceWithCache renderDevice(m_RhiDevice);
         return renderDevice.CreateShader(desc);
     }
 
-    size_t BlitRenderPass::PsoCacheKey::Hash::operator()(
-        const PsoCacheKey& other) const
+    size_t BlitRenderPass::PsoCacheKey::Hash::operator()(const PsoCacheKey& other) const
     {
         size_t hash = 0;
         Dg::HashCombine(hash, other.Format);

@@ -19,12 +19,12 @@ namespace Ame
     /// String type concept
     /// </summary>
     template<typename Ty>
-    concept StringType = std::is_same_v<Ty, String> || std::is_same_v<Ty, WideString> ||
-                         std::is_same_v<Ty, StringView> || std::is_same_v<Ty, WideStringView> ||
-                         std::is_same_v<Ty, std::string> || std::is_same_v<Ty, std::wstring> ||
-                         std::is_same_v<Ty, std::string_view> || std::is_same_v<Ty, std::wstring_view> ||
-                         std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, Char> ||
-                         std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, WideChar>;
+    concept StringType =
+        std::is_same_v<Ty, String> || std::is_same_v<Ty, WideString> || std::is_same_v<Ty, StringView> ||
+        std::is_same_v<Ty, WideStringView> || std::is_same_v<Ty, std::string> || std::is_same_v<Ty, std::wstring> ||
+        std::is_same_v<Ty, std::string_view> || std::is_same_v<Ty, std::wstring_view> ||
+        std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, Char> ||
+        std::is_same_v<std::remove_cv_t<std::remove_pointer_t<std::decay_t<Ty>>>, WideChar>;
 
 } // namespace Ame
 
@@ -40,9 +40,7 @@ namespace Ame::Strings
     /// <summary>
     /// Transform string to another type
     /// </summary>
-    template<typename ToTy, typename FromTy>
-    [[nodiscard]] constexpr ToTy To(
-        const FromTy& str) noexcept
+    template<typename ToTy, typename FromTy> [[nodiscard]] constexpr ToTy To(const FromTy& str) noexcept
     {
         // same type
         if constexpr (std::is_same_v<ToTy, FromTy>)
@@ -72,8 +70,7 @@ namespace Ame::Strings
     /// Transform string to another type
     /// </summary>
     template<typename ToTy, typename FromTy, size_t Size>
-    [[nodiscard]] constexpr ToTy Transform(
-        const FromTy (&str)[Size]) noexcept
+    [[nodiscard]] constexpr ToTy Transform(const FromTy (&str)[Size]) noexcept
     {
         if constexpr (std::is_same_v<typename ToTy::value_type, FromTy>)
             return ToTy{ str };
@@ -90,71 +87,53 @@ namespace Ame::Strings
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] String ToLower(
-        StringView str) noexcept;
+    [[nodiscard]] String ToLower(StringView str) noexcept;
 
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] WideString ToLower(
-        WideStringView str) noexcept;
+    [[nodiscard]] WideString ToLower(WideStringView str) noexcept;
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] String ToUpper(
-        StringView str) noexcept;
+    [[nodiscard]] String ToUpper(StringView str) noexcept;
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] WideString ToUpper(
-        WideStringView str) noexcept;
+    [[nodiscard]] WideString ToUpper(WideStringView str) noexcept;
 
     //
 
     /// <summary>
     /// Replace occurence of a token in a string
     /// </summary>
-    bool Replace(
-        String&    str,
-        StringView token,
-        StringView value) noexcept;
+    bool Replace(String& str, StringView token, StringView value) noexcept;
 
     /// <summary>
     /// Replace occurence of a token in a string
     /// </summary>
-    bool Replace(
-        WideString&    str,
-        WideStringView token,
-        WideStringView value) noexcept;
+    bool Replace(WideString& str, WideStringView token, WideStringView value) noexcept;
 
     //
 
     /// <summary>
     /// Replace all occurences of a token in a string
     /// </summary>
-    size_t ReplaceAll(
-        String&    str,
-        StringView token,
-        StringView value) noexcept;
+    size_t ReplaceAll(String& str, StringView token, StringView value) noexcept;
 
     /// <summary>
     /// Replace all occurences of a token in a string
     /// </summary>
-    size_t ReplaceAll(
-        WideString&    str,
-        WideStringView token,
-        WideStringView value) noexcept;
+    size_t ReplaceAll(WideString& str, WideStringView token, WideStringView value) noexcept;
 
     //
 
     /// <summary>
     /// Hash a string
     /// </summary>
-    template<StringType Ty>
-    [[nodiscard]] constexpr size_t Hash(
-        const Ty& str)
+    template<StringType Ty> [[nodiscard]] constexpr size_t Hash(const Ty& str)
     {
         // https://github.com/elanthis/constexpr-hash-demo/blob/master/test.cpp
         // FNV-1a constants
@@ -177,16 +156,11 @@ namespace Ame
     struct StringHash
     {
     public:
-        template<StringType Ty>
-        constexpr StringHash(
-            const Ty& str) :
-            StringHash(Strings::Hash(str))
+        template<StringType Ty> constexpr StringHash(const Ty& str) : StringHash(Strings::Hash(str))
         {
         }
 
-        constexpr StringHash(
-            size_t hash) :
-            m_Hash(hash)
+        constexpr StringHash(size_t hash) : m_Hash(hash)
         {
         }
 
@@ -203,16 +177,12 @@ namespace Ame
 
     namespace Literals
     {
-        [[nodiscard]] constexpr StringHash operator""_hash(
-            const char* str,
-            size_t      size)
+        [[nodiscard]] constexpr StringHash operator""_hash(const char* str, size_t size)
         {
             return Strings::Hash(std::string_view(str, size));
         }
 
-        [[nodiscard]] constexpr StringHash operator""_hash(
-            const wchar_t* str,
-            size_t         size)
+        [[nodiscard]] constexpr StringHash operator""_hash(const wchar_t* str, size_t size)
         {
             return Strings::Hash(std::wstring_view(str, size));
         }
@@ -221,8 +191,7 @@ namespace Ame
 
 namespace std
 {
-    template<>
-    struct hash<Ame::StringView>
+    template<> struct hash<Ame::StringView>
     {
         size_t operator()(const Ame::StringView& str) const
         {
@@ -230,8 +199,7 @@ namespace std
         }
     };
 
-    template<>
-    struct hash<Ame::WideStringView>
+    template<> struct hash<Ame::WideStringView>
     {
         size_t operator()(const Ame::WideStringView& str) const
         {

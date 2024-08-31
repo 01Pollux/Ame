@@ -8,9 +8,7 @@
 
 namespace Ame::Ecs
 {
-    static void OnWindowSizeChanged_UpdateCamera(
-        Iterator&           iter,
-        const Math::Size2I& newSize)
+    static void OnWindowSizeChanged_UpdateCamera(Iterator& iter, const Math::Size2I& newSize)
     {
         while (iter.next())
         {
@@ -41,8 +39,7 @@ namespace Ame::Ecs
         }
     }
 
-    void ViewporEcsModule::RegisterSignals(
-        WorldRef world)
+    void ViewporEcsModule::RegisterSignals(WorldRef world)
     {
         auto& rhiDevice = world.GetWorld()->GetRhiDevice();
         if (!rhiDevice)
@@ -60,8 +57,6 @@ namespace Ame::Ecs
 
         m_WindowSizeChangedConnection = window->GetEventListener().OnWindowSizeChanged(
             [allCameras](const Math::Size2I& newSize)
-            {
-                allCameras.run(std::bind_back(OnWindowSizeChanged_UpdateCamera, newSize));
-            });
+            { allCameras.run(std::bind_back(OnWindowSizeChanged_UpdateCamera, newSize)); });
     }
 } // namespace Ame::Ecs

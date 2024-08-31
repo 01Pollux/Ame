@@ -1,17 +1,20 @@
 // dear imgui: Platform Backend for GLFW
 // This needs to be used along with a Renderer (e.g. OpenGL3, Vulkan, WebGPU..)
-// (Info: GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
+// (Info: GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context
+// creation, etc.)
 
 // Implemented features:
 //  [X] Platform: Clipboard support.
 //  [X] Platform: Mouse support. Can discriminate Mouse/TouchScreen/Pen (Windows only).
-//  [X] Platform: Keyboard support. Since 1.87 we are using the io.AddKeyEvent() function. Pass ImGuiKey values to all key functions e.g. ImGui::IsKeyPressed(ImGuiKey_Space). [Legacy GLFW_KEY_* values will also be supported unless IMGUI_DISABLE_OBSOLETE_KEYIO is set]
-//  [X] Platform: Gamepad support. Enable with 'io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad'.
-//  [X] Platform: Mouse cursor shape and visibility. Disable with 'io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange' (note: the resizing cursors requires GLFW 3.4+).
+//  [X] Platform: Keyboard support. Since 1.87 we are using the io.AddKeyEvent() function. Pass ImGuiKey values to all
+//  key functions e.g. ImGui::IsKeyPressed(ImGuiKey_Space). [Legacy GLFW_KEY_* values will also be supported unless
+//  IMGUI_DISABLE_OBSOLETE_KEYIO is set] [X] Platform: Gamepad support. Enable with 'io.ConfigFlags |=
+//  ImGuiConfigFlags_NavEnableGamepad'. [X] Platform: Mouse cursor shape and visibility. Disable with 'io.ConfigFlags |=
+//  ImGuiConfigFlags_NoMouseCursorChange' (note: the resizing cursors requires GLFW 3.4+).
 
 // You can use unmodified imgui_impl_* files in your project. See examples/ folder for examples of using this.
-// Prefer including the entire imgui/ repository into your project (either as a copy or as a submodule), and only build the backends you need.
-// Learn about Dear ImGui:
+// Prefer including the entire imgui/ repository into your project (either as a copy or as a submodule), and only build
+// the backends you need. Learn about Dear ImGui:
 // - FAQ                  https://dearimgui.com/faq
 // - Getting Started      https://dearimgui.com/getting-started
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
@@ -31,12 +34,15 @@ IMGUI_IMPL_API void ImGui_ImplGlfw_NewFrame(ImGuiContext* context, GLFWwindow* w
 // Emscripten related initialization phase methods (call after ImGui_ImplGlfw_InitForOpenGL)
 #ifdef __EMSCRIPTEN__
 IMGUI_IMPL_API void ImGui_ImplGlfw_InstallEmscriptenCallbacks(GLFWwindow* window, const char* canvas_selector);
-// static inline void    ImGui_ImplGlfw_InstallEmscriptenCanvasResizeCallback(const char* canvas_selector) { ImGui_ImplGlfw_InstallEmscriptenCallbacks(nullptr, canvas_selector); } } // Renamed in 1.91.0
+// static inline void    ImGui_ImplGlfw_InstallEmscriptenCanvasResizeCallback(const char* canvas_selector) {
+// ImGui_ImplGlfw_InstallEmscriptenCallbacks(nullptr, canvas_selector); } } // Renamed in 1.91.0
 #endif
 
 // GLFW callbacks install
-// - When calling Init with 'install_callbacks=true': ImGui_ImplGlfw_InstallCallbacks() is called. GLFW callbacks will be installed for you. They will chain-call user's previously installed callbacks, if any.
-// - When calling Init with 'install_callbacks=false': GLFW callbacks won't be installed. You will need to call individual function yourself from your own GLFW callbacks.
+// - When calling Init with 'install_callbacks=true': ImGui_ImplGlfw_InstallCallbacks() is called. GLFW callbacks will
+// be installed for you. They will chain-call user's previously installed callbacks, if any.
+// - When calling Init with 'install_callbacks=false': GLFW callbacks won't be installed. You will need to call
+// individual function yourself from your own GLFW callbacks.
 IMGUI_IMPL_API void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext* context, GLFWwindow* window);
 IMGUI_IMPL_API void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWwindow* window);
 

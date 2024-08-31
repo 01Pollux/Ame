@@ -7,9 +7,7 @@
 
 namespace Ame::Asset
 {
-    void Storage::RegisterHandler(
-        const UId&         uid,
-        Ptr<IAssetHandler> handler)
+    void Storage::RegisterHandler(const UId& uid, Ptr<IAssetHandler> handler)
     {
         if (!m_Handlers.emplace(uid, std::move(handler)).second)
         {
@@ -17,14 +15,12 @@ namespace Ame::Asset
         }
     }
 
-    void Storage::UnregisterHandler(
-        const UId& uid)
+    void Storage::UnregisterHandler(const UId& uid)
     {
         m_Handlers.erase(uid);
     }
 
-    std::pair<UId, IAssetHandler*> Storage::GetHandler(
-        IAsset* asset)
+    std::pair<UId, IAssetHandler*> Storage::GetHandler(IAsset* asset)
     {
         for (auto& [uid, handler] : m_Handlers)
         {
@@ -37,8 +33,7 @@ namespace Ame::Asset
         return {};
     }
 
-    IAssetHandler* Storage::GetHandler(
-        const UId& uid)
+    IAssetHandler* Storage::GetHandler(const UId& uid)
     {
         auto iter = m_Handlers.find(uid);
         return iter != m_Handlers.end() ? iter->second : nullptr;

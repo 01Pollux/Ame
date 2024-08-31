@@ -9,19 +9,15 @@ namespace Ame::Rhi
     public:
         using Base = BaseObject<IImGuiRenderer>;
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
-            IID_ImGuiNullRenderer, IID_ImGuiRenderer, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_ImGuiNullRenderer, IID_ImGuiRenderer, Base);
 
     public:
-        ImGuiNullRendererImpl(
-            IReferenceCounters* referenceCounters) :
-            Base(referenceCounters)
+        ImGuiNullRendererImpl(IReferenceCounters* referenceCounters) : Base(referenceCounters)
         {
         }
 
     public:
-        void BeginFrame(
-            Dg::SURFACE_TRANSFORM) override
+        void BeginFrame(Dg::SURFACE_TRANSFORM) override
         {
         }
         void EndFrame() override

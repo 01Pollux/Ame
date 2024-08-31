@@ -9,6 +9,5 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Renders the outer borders of the window.
     /// </summary>
-    void RenderWindowOuterBorders(
-        ImGuiWindow* Window);
+    void RenderWindowOuterBorders(ImGuiWindow* Window);
 } // namespace Ame::ImGuiUtils

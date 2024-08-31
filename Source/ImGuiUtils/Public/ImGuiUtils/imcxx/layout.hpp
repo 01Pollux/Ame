@@ -33,8 +33,7 @@ namespace imcxx
         friend class scope_wrap<indent, scope_traits::has_dtor>;
 
     public:
-        indent(float indent_w = 0.f, bool enable = true) :
-            scope_wrap(enable), m_Indent(indent_w)
+        indent(float indent_w = 0.f, bool enable = true) : scope_wrap(enable), m_Indent(indent_w)
         {
             if (enable)
                 ImGui::Indent(indent_w);
@@ -56,8 +55,7 @@ namespace imcxx
         friend class scope_wrap<indent, scope_traits::has_dtor>;
 
     public:
-        unindent(float indent_w = 0.f, bool enable = true) :
-            scope_wrap(enable), m_Indent(indent_w)
+        unindent(float indent_w = 0.f, bool enable = true) : scope_wrap(enable), m_Indent(indent_w)
         {
             if (enable)
                 ImGui::Unindent(indent_w);

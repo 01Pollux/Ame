@@ -17,7 +17,5 @@ namespace Ame::Gfx
     /// <summary>
     /// Registers the Forward+ rendering pass to the graph.
     /// </summary>
-    void RegisterForwardPlus(
-        Rg::Graph&  graph,
-        Ecs::World* world);
+    void RegisterForwardPlus(Rg::Graph& graph, Ecs::World* world);
 } // namespace Ame::Gfx

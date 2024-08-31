@@ -17,23 +17,19 @@
 
 namespace Ame::Editor
 {
-    Ptr<IEditorWindowManager> CreateEditorWindowManager(
-        ModuleRegistry&                      registry,
-        RhiModule*                           rhiModule,
-        GraphicsModule*                      graphicsModule,
-        const EditorWindowManagerCreateDesc& desc)
+    Ptr<IEditorWindowManager> CreateEditorWindowManager(ModuleRegistry& registry, RhiModule* rhiModule,
+                                                        GraphicsModule*                      graphicsModule,
+                                                        const EditorWindowManagerCreateDesc& desc)
     {
-        return { ObjectAllocator<EditorWindowManagerImpl>()(registry, rhiModule, graphicsModule, desc), IID_EditorWindowManager };
+        return { ObjectAllocator<EditorWindowManagerImpl>()(registry, rhiModule, graphicsModule, desc),
+                 IID_EditorWindowManager };
     }
 
     //
 
-    EditorWindowManagerImpl::EditorWindowManagerImpl(
-        IReferenceCounters* counters,
-        ModuleRegistry&     registry,
-        RhiModule*          rhiModule,
-        GraphicsModule*     graphicsModule,
-        const EditorWindowManagerCreateDesc&) :
+    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters, ModuleRegistry& registry,
+                                                     RhiModule* rhiModule, GraphicsModule* graphicsModule,
+                                                     const EditorWindowManagerCreateDesc&) :
         Base(counters),
         m_Registry(registry)
     {
@@ -41,10 +37,7 @@ namespace Ame::Editor
         if (m_DesktopWindow)
         {
             m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest(
-                [this](const Math::Vector2I&)
-                {
-                    return m_IsTitlebarHovered;
-                });
+                [this](const Math::Vector2I&) { return m_IsTitlebarHovered; });
         }
 
         Ptr<Gfx::Renderer> rendererSubmodule;
@@ -82,8 +75,7 @@ namespace Ame::Editor
         }
     }
 
-    void EditorWindowManagerImpl::AddWindow(
-        const EditorWindowCreateDesc& desc)
+    void EditorWindowManagerImpl::AddWindow(const EditorWindowCreateDesc& desc)
     {
         const auto& path = desc.Window->GetFullPath();
         if (m_Windows.contains(path))
@@ -98,8 +90,7 @@ namespace Ame::Editor
         }
     }
 
-    void EditorWindowManagerImpl::RemoveWindow(
-        IEditorWindow* window)
+    void EditorWindowManagerImpl::RemoveWindow(IEditorWindow* window)
     {
         auto iter = m_Windows.find(window->GetFullPath());
         if (iter == m_Windows.end())
@@ -114,8 +105,7 @@ namespace Ame::Editor
         m_Windows.erase(iter);
     }
 
-    void EditorWindowManagerImpl::ShowWindow(
-        IEditorWindow* window)
+    void EditorWindowManagerImpl::ShowWindow(IEditorWindow* window)
     {
         if (!m_Windows.contains(window->GetFullPath())) [[unlikely]]
         {
@@ -125,8 +115,7 @@ namespace Ame::Editor
         OpenWindow(window);
     }
 
-    void EditorWindowManagerImpl::HideWindow(
-        IEditorWindow* window)
+    void EditorWindowManagerImpl::HideWindow(IEditorWindow* window)
     {
         if (!m_Windows.contains(window->GetFullPath())) [[unlikely]]
         {
@@ -138,22 +127,19 @@ namespace Ame::Editor
 
     //
 
-    void EditorWindowManagerImpl::CloseWindow(
-        IEditorWindow* window)
+    void EditorWindowManagerImpl::CloseWindow(IEditorWindow* window)
     {
         window->OnHide();
         m_OpenWindows.erase(window);
     }
 
-    void EditorWindowManagerImpl::OpenWindow(
-        IEditorWindow* window)
+    void EditorWindowManagerImpl::OpenWindow(IEditorWindow* window)
     {
         window->OnShow();
         m_OpenWindows.insert(window);
     }
 
-    bool EditorWindowManagerImpl::IsWindowOpen(
-        IEditorWindow* window) const
+    bool EditorWindowManagerImpl::IsWindowOpen(IEditorWindow* window) const
     {
         return m_OpenWindows.contains(window);
     }

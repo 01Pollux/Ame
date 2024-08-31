@@ -11,7 +11,6 @@ namespace Ame::Ecs
     class Renderable3DEcsModule
     {
     public:
-        Renderable3DEcsModule(
-            flecs::world& flecsWorld);
+        Renderable3DEcsModule(flecs::world& flecsWorld);
     };
 } // namespace Ame::Ecs

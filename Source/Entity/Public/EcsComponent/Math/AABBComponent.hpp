@@ -14,4 +14,4 @@ namespace Ame::Ecs
     struct TransformedAABBComponent : public Geometry::AABBMinMax
     {
     };
-} // namespace Ame::Ecs::Component
+} // namespace Ame::Ecs

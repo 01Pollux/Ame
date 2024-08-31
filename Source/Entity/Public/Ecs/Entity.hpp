@@ -15,8 +15,7 @@ namespace Ame::Ecs
 
     public:
         Entity() = default;
-        Entity(
-            const flecs::entity& flecsEntity);
+        Entity(const flecs::entity& flecsEntity);
 
     public:
         /// <summary>
@@ -42,8 +41,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Release the entity.
         /// </summary>
-        void Reset(
-            bool withChildren = false);
+        void Reset(bool withChildren = false);
 
         /// <summary>
         /// Release all children of the entity.
@@ -54,8 +52,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Get the children of the entity.
         /// </summary>
-        [[nodiscard]] std::vector<Entity> GetChildren(
-            bool allowDisabled = true) const;
+        [[nodiscard]] std::vector<Entity> GetChildren(bool allowDisabled = true) const;
 
         void                        SetName(String name) const;
         [[nodiscard]] const String& GetName() const;
@@ -64,8 +61,7 @@ namespace Ame::Ecs
         /// <summary>
         /// Get the parent of the entity.
         /// </summary>
-        void SetParent(
-            const Entity& parent = Entity::c_Null);
+        void SetParent(const Entity& parent = Entity::c_Null);
 
     private:
         flecs::entity m_Entity;

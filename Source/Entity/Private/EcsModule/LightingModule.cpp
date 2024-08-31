@@ -7,17 +7,13 @@
 
 namespace Ame::Ecs
 {
-    template<typename Ty>
-    static void BaseLight(flecs::component<Ty> component)
+    template<typename Ty> static void BaseLight(flecs::component<Ty> component)
     {
-        component.on_set([](const Entity& entity, Ty&)
-                         { entity->add<LightTagComponent>(); });
-        component.on_remove([](const Entity& entity, Ty&)
-                            { entity->remove<LightTagComponent>(); });
+        component.on_set([](const Entity& entity, Ty&) { entity->add<LightTagComponent>(); });
+        component.on_remove([](const Entity& entity, Ty&) { entity->remove<LightTagComponent>(); });
     }
 
-    LightingEcsModule::LightingEcsModule(
-        WorldRef world)
+    LightingEcsModule::LightingEcsModule(WorldRef world)
     {
         world->module<LightingEcsModule>();
 

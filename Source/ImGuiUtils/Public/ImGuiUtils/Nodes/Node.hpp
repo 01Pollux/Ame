@@ -69,10 +69,7 @@ namespace Neon::UI::Graph
         }
 
     public:
-        Pin(StringU8 Name,
-            Type     PinType) :
-            m_Name(std::move(Name)),
-            m_Type(PinType)
+        Pin(StringU8 Name, Type PinType) : m_Name(std::move(Name)), m_Type(PinType)
         {
         }
 
@@ -82,8 +79,7 @@ namespace Neon::UI::Graph
         /// <summary>
         /// Check if pin can accept link
         /// </summary>
-        [[nodiscard]] virtual bool AcceptLink(
-            const Pin& Other) const;
+        [[nodiscard]] virtual bool AcceptLink(const Pin& Other) const;
 
     private:
         StringU8 m_Name;
@@ -131,18 +127,14 @@ namespace Neon::UI::Graph
         /// <summary>
         /// Set node's color
         /// </summary>
-        [[nodiscard]] void GetColor(
-            ImColor Color) noexcept
+        [[nodiscard]] void GetColor(ImColor Color) noexcept
         {
             m_Color = Color;
         }
 
     public:
-        Node(StringU8 Name,
-             Type     NodeType,
-             ImColor  Color = ImColor(48, 44, 51)) :
-            m_Name(std::move(Name)),
-            m_Type(NodeType)
+        Node(StringU8 Name, Type NodeType, ImColor Color = ImColor(48, 44, 51)) :
+            m_Name(std::move(Name)), m_Type(NodeType)
         {
         }
 
@@ -184,12 +176,8 @@ namespace Neon::UI::Graph
             return m_Color;
         }
 
-        Link(NodeGraph::PinId Source,
-             NodeGraph::PinId Dest,
-             ImColor          Color) :
-            m_Start(Source),
-            m_Dest(Dest),
-            m_Color(Color)
+        Link(NodeGraph::PinId Source, NodeGraph::PinId Dest, ImColor Color) :
+            m_Start(Source), m_Dest(Dest), m_Color(Color)
         {
         }
 

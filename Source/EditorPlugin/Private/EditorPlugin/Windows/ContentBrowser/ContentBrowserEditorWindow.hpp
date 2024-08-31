@@ -7,18 +7,14 @@ namespace Ame::Editor
     class ContentBrowserEditorWindow : public BaseObject<IEditorWindow>
     {
     public:
-        static Ptr<IEditorWindow> Create(
-            ModuleRegistry& registry);
+        static Ptr<IEditorWindow> Create(ModuleRegistry& registry);
 
         using Base = BaseObject<IEditorWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
-            IID_ContentBrowserEditorWindow, IID_BaseEditorWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_ContentBrowserEditorWindow, IID_BaseEditorWindow, Base);
 
     public:
-        ContentBrowserEditorWindow(
-            IReferenceCounters* counter,
-            ModuleRegistry&     registry) :
+        ContentBrowserEditorWindow(IReferenceCounters* counter, ModuleRegistry& registry) :
             Base(counter, registry, c_ContentBrowserEditorWindowPath)
         {
         }

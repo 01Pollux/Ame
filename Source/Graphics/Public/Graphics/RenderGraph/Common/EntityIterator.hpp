@@ -15,13 +15,10 @@ namespace Ame::Gfx
     class EntityDrawCommandListIterator
     {
     public:
-        EntityDrawCommandListIterator(
-            const EntityDrawCommandList& list,
-            DrawInstanceType             instancesType,
-            uint32_t                     commandOffset) :
+        EntityDrawCommandListIterator(const EntityDrawCommandList& list, DrawInstanceType instancesType,
+                                      uint32_t commandOffset) :
             m_DrawCommandList(list),
-            m_CommandOffset(commandOffset),
-            m_InstancesType(instancesType)
+            m_CommandOffset(commandOffset), m_InstancesType(instancesType)
         {
         }
 
@@ -49,8 +46,7 @@ namespace Ame::Gfx
     class EntityDrawCommandsCategoryIterator
     {
     public:
-        EntityDrawCommandsCategoryIterator(
-            const EntityDrawCommandsCategory& categories) noexcept :
+        EntityDrawCommandsCategoryIterator(const EntityDrawCommandsCategory& categories) noexcept :
             m_DrawCategories(categories)
         {
         }

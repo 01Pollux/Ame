@@ -6,8 +6,7 @@
 
 namespace Ame::Ecs
 {
-    ViewporEcsModule::ViewporEcsModule(
-        WorldRef world)
+    ViewporEcsModule::ViewporEcsModule(WorldRef world)
     {
         world->module<ViewporEcsModule>();
 

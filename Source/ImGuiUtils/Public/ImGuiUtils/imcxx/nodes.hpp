@@ -6,7 +6,8 @@ namespace imcxx
 {
     /// <summary>
     /// Widgets: Trees
-    /// - TreeNode functions return true when the node is open, in which case you need to also call TreePop() when you are finished displaying the tree node contents.
+    /// - TreeNode functions return true when the node is open, in which case you need to also call TreePop() when you
+    /// are finished displaying the tree node contents.
     /// </summary>
     class [[nodiscard]] tree_node : public scope_wrap<tree_node>
     {
@@ -44,12 +45,11 @@ namespace imcxx
             if constexpr (std::is_same_v<_StrTy, void*> || std::is_same_v<_StrTy, const void*>)
                 m_Result._Value = ImGui::TreeNodeEx(label, flags, impl::get_string(fmt), std::forward<_Args>(args)...);
             else
-                m_Result._Value = ImGui::TreeNodeEx(impl::get_string(label), flags, impl::get_string(fmt), std::forward<_Args>(args)...);
+                m_Result._Value = ImGui::TreeNodeEx(
+                    impl::get_string(label), flags, impl::get_string(fmt), std::forward<_Args>(args)...);
         }
 
-        template<typename _StrTy>
-        tree_node(push, const _StrTy& label) :
-            m_ShouldPop(true)
+        template<typename _StrTy> tree_node(push, const _StrTy& label) : m_ShouldPop(true)
         {
             if constexpr (std::is_same_v<void*, _StrTy>)
                 ImGui::TreePush(label);

@@ -2,9 +2,7 @@
 
 namespace Ame::ImGuiUtils
 {
-    void DrawTextBG(
-        const char* text,
-        const char* textEnd)
+    void DrawTextBG(const char* text, const char* textEnd)
     {
         auto   drawList  = ImGui::GetWindowDrawList();
         ImVec2 pos       = ImGui::GetCursorScreenPos();
@@ -13,37 +11,33 @@ namespace Ame::ImGuiUtils
         ImVec2 endPos    = { pos.x + size.x + frameSize, pos.y + size.y + frameSize };
 
         drawList->AddRectFilled(pos, endPos, ImGui::GetColorU32(ImGuiCol_FrameBg));
-        drawList->AddText({ pos.x + frameSize / 2.f, pos.y + frameSize / 2.f }, ImGui::GetColorU32(ImGuiCol_Text), text, textEnd);
+        drawList->AddText(
+            { pos.x + frameSize / 2.f, pos.y + frameSize / 2.f }, ImGui::GetColorU32(ImGuiCol_Text), text, textEnd);
 
         ImGui::Dummy(size);
     }
 
-    void IncrementCursorPosX(
-        float pos)
+    void IncrementCursorPosX(float pos)
     {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + pos);
     }
 
-    void IncrementCursorPosY(
-        float pos)
+    void IncrementCursorPosY(float pos)
     {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + pos);
     }
 
-    void IncrementCursorPos(
-        const ImVec2& pos)
+    void IncrementCursorPos(const ImVec2& pos)
     {
         ImGui::SetCursorPos(ImVec2(ImGui::GetCursorPosX() + pos.x, ImGui::GetCursorPosY() + pos.y));
     }
 
-    void TableAlignCenter(
-        float width)
+    void TableAlignCenter(float width)
     {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetColumnWidth() / 2.0f - width / 2.0f);
     }
 
-    void CursorMiddleScreen(
-        const char* label)
+    void CursorMiddleScreen(const char* label)
     {
         float textW = ImGui::CalcTextSize(label).x;
         ImGui::SetCursorPosX(ImGui::GetWindowWidth() / 2 - textW / 2.0f);
@@ -60,11 +54,7 @@ namespace Ame::ImGuiUtils
         ImGui::SetCursorPosY(ImGui::GetWindowHeight() / 2.0f);
     }
 
-    void CenterCursor(
-        bool   region,
-        ImVec2 offset,
-        bool   centerX,
-        bool   centerY)
+    void CenterCursor(bool region, ImVec2 offset, bool centerX, bool centerY)
     {
         ImVec2 middle    = (region ? ImGui::GetContentRegionAvail() : ImGui::GetWindowSize()) / 2.f;
         ImVec2 cursorPos = ImGui::GetCursorPos() + offset;
@@ -79,11 +69,7 @@ namespace Ame::ImGuiUtils
         ImGui::SetCursorPos(cursorPos);
     }
 
-    void CenterText(
-        const char* text,
-        bool        region,
-        bool        centerX,
-        bool        centerY)
+    void CenterText(const char* text, bool region, bool centerX, bool centerY)
     {
         ImVec2 textSize = ImGui::CalcTextSize(text);
         CenterCursor(region, -textSize / 2.f, centerX, centerY);
@@ -92,29 +78,25 @@ namespace Ame::ImGuiUtils
 
     //
 
-    float PushFontScale(
-        float scale)
+    float PushFontScale(float scale)
     {
         ImFont* Font = ImGui::GetFont();
         return std::exchange(Font->Scale, scale);
     }
 
-    float PushFontScaleMul(
-        float scale)
+    float PushFontScaleMul(float scale)
     {
         ImFont* Font = ImGui::GetFont();
         return std::exchange(Font->Scale, Font->Scale * scale);
     }
 
-    float PushFontScaleAccumulate(
-        float scale)
+    float PushFontScaleAccumulate(float scale)
     {
         ImFont* Font = ImGui::GetFont();
         return std::exchange(Font->Scale, Font->Scale + scale);
     }
 
-    void PopFontScale(
-        float oldScale)
+    void PopFontScale(float oldScale)
     {
         ImFont* Font = ImGui::GetFont();
         std::exchange(Font->Scale, oldScale);
@@ -122,10 +104,7 @@ namespace Ame::ImGuiUtils
 
     //
 
-    void DrawLabel(
-        const String&  label,
-        const ImColor& color,
-        const ImVec2&  maxSize)
+    void DrawLabel(const String& label, const ImColor& color, const ImVec2& maxSize)
     {
         auto drawList = ImGui::GetWindowDrawList();
         auto pos      = ImGui::GetCursorScreenPos();
@@ -148,10 +127,7 @@ namespace Ame::ImGuiUtils
         ImGui::Dummy(size);
     }
 
-    void DrawLabel(
-        const char*    label,
-        const ImColor& color,
-        const ImVec2&  maxSize)
+    void DrawLabel(const char* label, const ImColor& color, const ImVec2& maxSize)
     {
         auto drawList = ImGui::GetWindowDrawList();
         auto pos      = ImGui::GetCursorScreenPos();
@@ -176,10 +152,7 @@ namespace Ame::ImGuiUtils
 
     //
 
-    void DrawComponentLabel(
-        const char* label,
-        bool        sameLine,
-        float       propertyNameWidth)
+    void DrawComponentLabel(const char* label, bool sameLine, float propertyNameWidth)
     {
         ImGui::AlignTextToFramePadding();
         ImGui::TextUnformatted(label);
@@ -191,15 +164,13 @@ namespace Ame::ImGuiUtils
         }
     }
 
-    bool DrawColorPicker(
-        const char*         name,
-        Math::Color4&       color,
-        ImGuiColorEditFlags flags)
+    bool DrawColorPicker(const char* name, Math::Color4& color, ImGuiColorEditFlags flags)
     {
         imcxx::shared_item_id id(name);
 
         ImVec4 imColor{ color.r(), color.g(), color.b(), color.a() };
-        if (imcxx::button{ imcxx::button::color{}, "", imColor, flags, ImVec2{ ImGui::GetContentRegionAvail().x, 0.f } })
+        if (imcxx::button{ imcxx::button::color{}, "", imColor, flags,
+                           ImVec2{ ImGui::GetContentRegionAvail().x, 0.f } })
         {
             ImGui::OpenPopup("ColorPalette");
         }
@@ -210,10 +181,7 @@ namespace Ame::ImGuiUtils
         return false;
     }
 
-    bool DrawColorPicker(
-        const char*         name,
-        Math::Color3&       color,
-        ImGuiColorEditFlags flags)
+    bool DrawColorPicker(const char* name, Math::Color3& color, ImGuiColorEditFlags flags)
     {
         Math::Color4 tmpColor{ color };
         if (DrawColorPicker(name, tmpColor, flags | ImGuiColorEditFlags_NoAlpha))
@@ -226,13 +194,8 @@ namespace Ame::ImGuiUtils
 
     //
 
-    void DrawIcon(
-        ImDrawList*   drawList,
-        const ImVec2& size,
-        BasicIconType type,
-        bool          filled,
-        ImU32         color,
-        ImU32         fillColor)
+    void DrawIcon(ImDrawList* drawList, const ImVec2& size, BasicIconType type, bool filled, ImU32 color,
+                  ImU32 fillColor)
     {
         if (!ImGui::IsRectVisible(size))
         {
@@ -283,23 +246,16 @@ namespace Ame::ImGuiUtils
 
             drawList->PathLineTo(ImVec2(left, top) + ImVec2(0, rounding));
             drawList->PathBezierCubicCurveTo(
-                ImVec2(left, top),
-                ImVec2(left, top),
-                ImVec2(left, top) + ImVec2(rounding, 0));
+                ImVec2(left, top), ImVec2(left, top), ImVec2(left, top) + ImVec2(rounding, 0));
 
             drawList->PathLineTo(tip_top);
             drawList->PathLineTo(tip_top + (tip_right - tip_top) * tipRound);
-            drawList->PathBezierCubicCurveTo(
-                tip_right,
-                tip_right,
-                tip_bottom + (tip_right - tip_bottom) * tipRound);
+            drawList->PathBezierCubicCurveTo(tip_right, tip_right, tip_bottom + (tip_right - tip_bottom) * tipRound);
 
             drawList->PathLineTo(tip_bottom);
             drawList->PathLineTo(ImVec2(left, bottom) + ImVec2(rounding, 0));
             drawList->PathBezierCubicCurveTo(
-                ImVec2(left, bottom),
-                ImVec2(left, bottom),
-                ImVec2(left, bottom) - ImVec2(0, rounding));
+                ImVec2(left, bottom), ImVec2(left, bottom), ImVec2(left, bottom) - ImVec2(0, rounding));
 
             if (!filled)
             {

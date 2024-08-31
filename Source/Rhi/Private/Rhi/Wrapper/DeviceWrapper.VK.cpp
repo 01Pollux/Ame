@@ -20,17 +20,14 @@ namespace Ame::Rhi
             return "Vulkan";
         }
 
-        static diligent_create_info GetCreateInfo(
-            const DeviceCreateDesc&,
-            const create_struct_type& createDescDev)
+        static diligent_create_info GetCreateInfo(const DeviceCreateDesc&, const create_struct_type& createDescDev)
         {
             static VkAllocationCallbacks allocation{
                 .pfnAllocation = [](void*, size_t size, size_t alignment, VkSystemAllocationScope) -> void*
                 { return mi_aligned_alloc(alignment, size); },
                 .pfnReallocation = [](void*, void* ptr, size_t size, size_t, VkSystemAllocationScope) -> void*
                 { return mi_realloc(ptr, size); },
-                .pfnFree = [](void*, void* ptr)
-                { mi_free(ptr); },
+                .pfnFree = [](void*, void* ptr) { mi_free(ptr); },
                 .pfnInternalAllocation = [](void*, size_t, VkInternalAllocationType, VkSystemAllocationScope) {},
                 .pfnInternalFree       = [](void*, size_t, VkInternalAllocationType, VkSystemAllocationScope) {}
             };
@@ -52,9 +49,9 @@ namespace Ame::Rhi
             createInfo.IgnoreDebugMessageCount   = static_cast<uint32_t>(createDescDev.IgnoredDebugMessageNames.size());
             createInfo.ppIgnoreDebugMessageNames = createDescDev.IgnoredDebugMessageNames.data();
 
-            for (auto [pool, desc] : {
-                     std::pair{ &createInfo.MainDescriptorPoolSize, &createDescDev.MainDescriptorPool },
-                     std::pair{ &createInfo.DynamicDescriptorPoolSize, &createDescDev.DynamicDescriptorPool } })
+            for (auto [pool, desc] :
+                 { std::pair{ &createInfo.MainDescriptorPoolSize, &createDescDev.MainDescriptorPool },
+                   std::pair{ &createInfo.DynamicDescriptorPoolSize, &createDescDev.DynamicDescriptorPool } })
             {
                 GetOrDefault(pool->MaxDescriptorSets, desc->MaxDescriptorSets);
                 GetOrDefault(pool->NumSeparateSamplerDescriptors, desc->NumSeparateSamplerDescriptors);
@@ -92,23 +89,16 @@ namespace Ame::Rhi
             return getEngineFactoryVK ? getEngineFactoryVK() : nullptr;
         }
 
-        static void CreateDeviceAndContext(
-            diligent_factory_type* factory,
-            diligent_create_info   createInfo,
-            Dg::IRenderDevice**    renderDevice,
-            Dg::IDeviceContext**   deviceContext)
+        static void CreateDeviceAndContext(diligent_factory_type* factory, diligent_create_info createInfo,
+                                           Dg::IRenderDevice** renderDevice, Dg::IDeviceContext** deviceContext)
         {
             factory->CreateDeviceAndContextsVk(createInfo, renderDevice, deviceContext);
         }
 
-        static void CreateSwapchain(
-            diligent_factory_type*   factory,
-            Dg::IRenderDevice*       renderDevice,
-            Dg::IDeviceContext*      deviceContext,
-            const Dg::SwapChainDesc& swapchainDesc,
-            const Dg::FullScreenModeDesc&,
-            const Dg::NativeWindow& nativeWindow,
-            Dg::ISwapChain**        swapchain)
+        static void CreateSwapchain(diligent_factory_type* factory, Dg::IRenderDevice* renderDevice,
+                                    Dg::IDeviceContext* deviceContext, const Dg::SwapChainDesc& swapchainDesc,
+                                    const Dg::FullScreenModeDesc&, const Dg::NativeWindow&      nativeWindow,
+                                    Dg::ISwapChain** swapchain)
         {
             factory->CreateSwapChainVk(renderDevice, deviceContext, swapchainDesc, nativeWindow, swapchain);
         }
@@ -117,9 +107,8 @@ namespace Ame::Rhi
 
     //
 
-    Opt<DeviceWrapper> DeviceWrapper::CreateImpl(
-        const DeviceCreateDesc&       createDesc,
-        const DeviceCreateDescVulkan& createDescDev)
+    Opt<DeviceWrapper> DeviceWrapper::CreateImpl(const DeviceCreateDesc&       createDesc,
+                                                 const DeviceCreateDescVulkan& createDescDev)
     {
 #ifdef VULKAN_SUPPORTED
         return GenericDeviceCreator<DeviceCreateTraitsVk>::Create(createDesc, createDescDev);

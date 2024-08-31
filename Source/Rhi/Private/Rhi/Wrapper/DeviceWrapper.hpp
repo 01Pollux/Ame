@@ -15,16 +15,12 @@ namespace Ame::Rhi
         /// <summary>
         /// Create a device wrapper.
         /// </summary>
-        [[nodiscard]] static Opt<DeviceWrapper> Create(
-            const DeviceCreateDesc& createDesc);
+        [[nodiscard]] static Opt<DeviceWrapper> Create(const DeviceCreateDesc& createDesc);
 
     public:
         DeviceWrapper() = default;
-        DeviceWrapper(
-            Ptr<Dg::IEngineFactory>  engineFactory,
-            Ptr<Dg::IRenderDevice>   renderDevice,
-            Ptr<Dg::IDeviceContext>  deviceContext,
-            UniquePtr<WindowWrapper> windowWrapper);
+        DeviceWrapper(Ptr<Dg::IEngineFactory> engineFactory, Ptr<Dg::IRenderDevice> renderDevice,
+                      Ptr<Dg::IDeviceContext> deviceContext, UniquePtr<WindowWrapper> windowWrapper);
 
         DeviceWrapper(const DeviceWrapper&) = delete;
         DeviceWrapper(DeviceWrapper&&)      = default;
@@ -64,30 +60,26 @@ namespace Ame::Rhi
         /// <summary>
         /// Create a device wrapper for D3D11.
         /// </summary>
-        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(
-            const DeviceCreateDesc&      createDesc,
-            const DeviceCreateDescD3D11& createDescD3D11);
+        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(const DeviceCreateDesc&      createDesc,
+                                                           const DeviceCreateDescD3D11& createDescD3D11);
 
         /// <summary>
         /// Create a device wrapper for D3D12.
         /// </summary>
-        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(
-            const DeviceCreateDesc&      createDesc,
-            const DeviceCreateDescD3D12& createDescD3D12);
+        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(const DeviceCreateDesc&      createDesc,
+                                                           const DeviceCreateDescD3D12& createDescD3D12);
 
         /// <summary>
         /// Create a device wrapper for OpenGL.
         /// </summary>
-        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(
-            const DeviceCreateDesc&   createDesc,
-            const DeviceCreateDescGL& createDescGL);
+        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(const DeviceCreateDesc&   createDesc,
+                                                           const DeviceCreateDescGL& createDescGL);
 
         /// <summary>
         /// Create a device wrapper for Vulkan.
         /// </summary>
-        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(
-            const DeviceCreateDesc&       createDesc,
-            const DeviceCreateDescVulkan& createDescVK);
+        [[nodiscard]] static Opt<DeviceWrapper> CreateImpl(const DeviceCreateDesc&       createDesc,
+                                                           const DeviceCreateDescVulkan& createDescVK);
 
     protected:
         Ptr<Dg::IEngineFactory>  m_EngineFactory;

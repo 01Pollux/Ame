@@ -2,8 +2,7 @@
 
 namespace Ame::Rhi
 {
-    Ptr<IRhiDevice> CreateRhiDevice(
-        const DeviceCreateDesc& createDesc)
+    Ptr<IRhiDevice> CreateRhiDevice(const DeviceCreateDesc& createDesc)
     {
         return AmeCreate(RhiDeviceImpl, createDesc);
     }

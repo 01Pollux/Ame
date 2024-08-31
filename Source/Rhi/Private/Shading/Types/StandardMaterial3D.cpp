@@ -5,8 +5,7 @@ namespace Ame::Rhi
 {
     StandardMaterial3D::CreateDesc::CreateDesc()
     {
-        UserData
-            .Float4(Names::BaseColorCst)
+        UserData.Float4(Names::BaseColorCst)
             .Float4(Names::AmbientCst)
             .Float4(Names::EmissiveCst)
             .Float4(Names::SpecularCst)

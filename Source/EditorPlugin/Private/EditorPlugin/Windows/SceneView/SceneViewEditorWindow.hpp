@@ -17,24 +17,18 @@ namespace Ame::Editor
     class SceneViewEditorWindow : public BaseObject<IEditorWindow>
     {
     private:
-        using CameraQuery = Ecs::UniqueQuery<
-            const Ecs::CameraComponent,
-            const Ecs::GlobalTransformComponent,
-            const Ecs::CameraOutputComponent>;
+        using CameraQuery = Ecs::UniqueQuery<const Ecs::CameraComponent, const Ecs::GlobalTransformComponent,
+                                             const Ecs::CameraOutputComponent>;
 
     public:
-        static Ptr<IEditorWindow> Create(
-            ModuleRegistry& registry);
+        static Ptr<IEditorWindow> Create(ModuleRegistry& registry);
 
         using Base = BaseObject<IEditorWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(
-            IID_SceneViewEditorWindow, IID_BaseEditorWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_SceneViewEditorWindow, IID_BaseEditorWindow, Base);
 
     public:
-        SceneViewEditorWindow(
-            IReferenceCounters* counter,
-            ModuleRegistry&     registry);
+        SceneViewEditorWindow(IReferenceCounters* counter, ModuleRegistry& registry);
 
     public:
         void OnDrawVisible() override;
@@ -44,8 +38,7 @@ namespace Ame::Editor
         void RenderContent();
 
     private:
-        void UpdateCameraList(
-            Ecs::Iterator& iter);
+        void UpdateCameraList(Ecs::Iterator& iter);
 
         void ValidateCameraList();
 
@@ -55,15 +48,11 @@ namespace Ame::Editor
             Ecs::Entity Entity;
             String      Name;
 
-            CameraInfo() :
-                Name("None")
+            CameraInfo() : Name("None")
             {
             }
 
-            CameraInfo(
-                Ecs::Entity entity) :
-                Entity(entity),
-                Name(entity.GetName())
+            CameraInfo(Ecs::Entity entity) : Entity(entity), Name(entity.GetName())
             {
             }
         };

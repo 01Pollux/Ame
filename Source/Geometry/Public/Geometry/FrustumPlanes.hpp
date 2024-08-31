@@ -31,8 +31,7 @@ namespace Ame::Geometry
 
     public:
         constexpr FrustumPlanes() = default;
-        FrustumPlanes(
-            const Frustum& frustum);
+        FrustumPlanes(const Frustum& frustum);
 
     public:
         [[nodiscard]] std::span<Math::Plane> GetPlanes() noexcept

@@ -32,20 +32,17 @@ namespace Ame::Math
     /// <summary>
     /// Converts a Color3 to uint32_t
     /// </summary>
-    [[nodiscard]] constexpr uint32_t ColorToU32(
-        const Color3& color)
+    [[nodiscard]] constexpr uint32_t ColorToU32(const Color3& color)
     {
         return ((static_cast<uint32_t>(color.x() * 255.0f) & 0xFF) << 24) |
                ((static_cast<uint32_t>(color.y() * 255.0f) & 0xFF) << 16) |
-               ((static_cast<uint32_t>(color.z() * 255.0f) & 0xFF) << 8) |
-               (0xFF);
+               ((static_cast<uint32_t>(color.z() * 255.0f) & 0xFF) << 8) | (0xFF);
     }
 
     /// <summary>
     /// Converts a Color4 to uint32_t
     /// </summary>
-    [[nodiscard]] constexpr uint32_t ColorToU32(
-        const Color4& color)
+    [[nodiscard]] constexpr uint32_t ColorToU32(const Color4& color)
     {
         return ((static_cast<uint32_t>(color.x() * 255.0f) & 0xFF) << 24) |
                ((static_cast<uint32_t>(color.y() * 255.0f) & 0xFF) << 16) |
@@ -58,28 +55,19 @@ namespace Ame::Math
     /// <summary>
     /// Converts a uint32_t to Color3
     /// </summary>
-    [[nodiscard]] constexpr Color3 U32ToColor3(
-        uint32_t color)
+    [[nodiscard]] constexpr Color3 U32ToColor3(uint32_t color)
     {
-        return {
-            static_cast<float>((color >> 24) & 0xFF) / 255.0f,
-            static_cast<float>((color >> 16) & 0xFF) / 255.0f,
-            static_cast<float>((color >> 8) & 0xFF) / 255.0f
-        };
+        return { static_cast<float>((color >> 24) & 0xFF) / 255.0f, static_cast<float>((color >> 16) & 0xFF) / 255.0f,
+                 static_cast<float>((color >> 8) & 0xFF) / 255.0f };
     }
 
     /// <summary>
     /// Converts a uint32_t to Color4
     /// </summary>
-    [[nodiscard]] constexpr Color4 U32ToColor4(
-        uint32_t color)
+    [[nodiscard]] constexpr Color4 U32ToColor4(uint32_t color)
     {
-        return {
-            static_cast<float>((color >> 24) & 0xFF) / 255.0f,
-            static_cast<float>((color >> 16) & 0xFF) / 255.0f,
-            static_cast<float>((color >> 8) & 0xFF) / 255.0f,
-            static_cast<float>((color >> 0) & 0xFF) / 255.0f
-        };
+        return { static_cast<float>((color >> 24) & 0xFF) / 255.0f, static_cast<float>((color >> 16) & 0xFF) / 255.0f,
+                 static_cast<float>((color >> 8) & 0xFF) / 255.0f, static_cast<float>((color >> 0) & 0xFF) / 255.0f };
     }
 } // namespace Ame::Math
 

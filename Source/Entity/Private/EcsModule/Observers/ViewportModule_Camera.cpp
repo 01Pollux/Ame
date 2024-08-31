@@ -8,8 +8,7 @@
 
 namespace Ame::Ecs
 {
-    static void OnCameraTransformChanged_UpdateFrustum(
-        Iterator& iter)
+    static void OnCameraTransformChanged_UpdateFrustum(Iterator& iter)
     {
         while (iter.next())
         {
@@ -35,8 +34,7 @@ namespace Ame::Ecs
 
     //
 
-    void ViewporEcsModule::RegisterCameraObservers(
-        WorldRef world)
+    void ViewporEcsModule::RegisterCameraObservers(WorldRef world)
     {
         // Register global transform observer, to update global transform when transform changes
         world->observer<const GlobalTransformComponent, const CameraComponent>()

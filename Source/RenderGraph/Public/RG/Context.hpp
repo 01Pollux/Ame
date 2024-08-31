@@ -13,9 +13,7 @@ namespace Ame::Rg
         using DependencyLevelListType = std::vector<DependencyLevel>;
 
     public:
-        Context(
-            Rhi::IRhiDevice* rhiDevice) :
-            m_Resources(rhiDevice)
+        Context(Rhi::IRhiDevice* rhiDevice) : m_Resources(rhiDevice)
         {
         }
 
@@ -34,14 +32,12 @@ namespace Ame::Rg
         /// <summary>
         /// Execute the render graph with the specified execution context
         /// </summary>
-        void Execute(
-            Dg::IDeviceContext* context);
+        void Execute(Dg::IDeviceContext* context);
 
         /// <summary>
         /// Build the render graph
         /// </summary>
-        void Build(
-            DependencyLevelListType&& levels);
+        void Build(DependencyLevelListType&& levels);
 
     private:
         ResourceStorage              m_Resources;

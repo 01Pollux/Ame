@@ -25,8 +25,7 @@ namespace Ame::Rhi
 
         MaterialBaseShaderDesc() = default;
 
-        MaterialBaseShaderDesc(
-            const Dg::ShaderCreateInfo& createInfo) :
+        MaterialBaseShaderDesc(const Dg::ShaderCreateInfo& createInfo) :
             StreamFactories({ Ptr{ createInfo.pShaderSourceStreamFactory } })
         {
             Macros.reserve(createInfo.Macros.Count);
@@ -55,8 +54,8 @@ namespace Ame::Rhi
     //
 
     /// <summary>
-    /// We will merge both MaterialCreateDesc::Shaders and MaterialShaderLinks::Sources to generate the shaders at runtime
-    /// We use this to separate shader permutation between different pipelines such as deferred, forward, etc.
+    /// We will merge both MaterialCreateDesc::Shaders and MaterialShaderLinks::Sources to generate the shaders at
+    /// runtime We use this to separate shader permutation between different pipelines such as deferred, forward, etc.
     /// </summary>
     struct MaterialShaderLinks
     {
@@ -120,8 +119,7 @@ namespace Ame::Rhi
     {
     public:
         MaterialVertexInputLayout() noexcept = default;
-        MaterialVertexInputLayout(
-            VertexInputFlags flags) noexcept
+        MaterialVertexInputLayout(VertexInputFlags flags) noexcept
         {
             for (uint8_t i = 0; i < std::to_underlying(VertexInputFlags::Count); i++)
             {
@@ -130,8 +128,8 @@ namespace Ame::Rhi
                 m_Elements[i].BufferSlot    = i;
                 m_Elements[i].NumComponents = c_InputVertexAttributes[i].NumComponents;
                 m_Elements[i].ValueType     = c_InputVertexAttributes[i].Type;
-                m_Elements[i].IsNormalized  = (m_Elements[i].ValueType == Dg::VT_UINT8 ||
-                                              m_Elements[i].ValueType == Dg::VT_INT8);
+                m_Elements[i].IsNormalized =
+                    (m_Elements[i].ValueType == Dg::VT_UINT8 || m_Elements[i].ValueType == Dg::VT_INT8);
                 if (!hasAttribute)
                 {
                     m_Elements[i].Stride = 0;

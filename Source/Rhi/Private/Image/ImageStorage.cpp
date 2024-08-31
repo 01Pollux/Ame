@@ -3,22 +3,19 @@
 
 namespace Ame::Rhi
 {
-    ImageFormat ImageStorage::GetFormat(
-        const char* format)
+    ImageFormat ImageStorage::GetFormat(const char* format)
     {
         FreeImageUtils::Initialize();
         return FreeImageUtils::ConvertFormat(FreeImage_GetFIFFromFormat(format));
     }
 
-    ImageFormat ImageStorage::GetFormatFromFileName(
-        const char* fileName)
+    ImageFormat ImageStorage::GetFormatFromFileName(const char* fileName)
     {
         FreeImageUtils::Initialize();
         return FreeImageUtils::ConvertFormat(FreeImage_GetFIFFromFilename(fileName));
     }
 
-    ImageFormat ImageStorage::GetFormat(
-        std::istream& stream)
+    ImageFormat ImageStorage::GetFormat(std::istream& stream)
     {
         FreeImageUtils::Initialize();
 
@@ -30,10 +27,7 @@ namespace Ame::Rhi
 
     //
 
-    bool ImageStorage::Encode(
-        const Image&     image,
-        std::ostream&    stream,
-        ImageEncodeFlags flags)
+    bool ImageStorage::Encode(const Image& image, std::ostream& stream, ImageEncodeFlags flags)
     {
         FreeImageUtils::Initialize();
 
@@ -60,11 +54,7 @@ namespace Ame::Rhi
         }
     }
 
-    ImageMemory ImageStorage::Load(
-        ImageFormat      format,
-        std::byte*       data,
-        size_t           size,
-        ImageDecodeFlags flags)
+    ImageMemory ImageStorage::Load(ImageFormat format, std::byte* data, size_t size, ImageDecodeFlags flags)
     {
         FreeImageUtils::Initialize();
 
@@ -77,10 +67,7 @@ namespace Ame::Rhi
         return ImageMemory::Wrap(mem, bitmap, format);
     }
 
-    ImageMemory ImageStorage::Load(
-        std::byte*       data,
-        size_t           size,
-        ImageDecodeFlags flags)
+    ImageMemory ImageStorage::Load(std::byte* data, size_t size, ImageDecodeFlags flags)
     {
         FreeImageUtils::Initialize();
 
@@ -95,10 +82,7 @@ namespace Ame::Rhi
         return ImageMemory::Wrap(mem, bitmap, format);
     }
 
-    Image ImageStorage::Decode(
-        ImageFormat      format,
-        std::istream&    stream,
-        ImageDecodeFlags flags)
+    Image ImageStorage::Decode(ImageFormat format, std::istream& stream, ImageDecodeFlags flags)
     {
         FreeImageUtils::Initialize();
 
@@ -111,10 +95,7 @@ namespace Ame::Rhi
         return Image::Wrap(bitmap, format, ImageReferenceType::Local, true);
     }
 
-    Image ImageStorage::DecodeArray(
-        ImageFormat      format,
-        std::istream&    stream,
-        ImageDecodeFlags flags)
+    Image ImageStorage::DecodeArray(ImageFormat format, std::istream& stream, ImageDecodeFlags flags)
     {
         FreeImageUtils::Initialize();
 

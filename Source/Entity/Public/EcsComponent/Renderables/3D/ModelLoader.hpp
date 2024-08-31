@@ -15,13 +15,10 @@ namespace Ame::Ecs
 
         using CreateDesc = MeshModel::CreateDesc;
 
-        [[nodiscard]] static MeshModel* CreateModel(
-            CreateDesc desc);
+        [[nodiscard]] static MeshModel* CreateModel(CreateDesc desc);
 
-        [[nodiscard]] static MeshModel* LoadModel(
-            const ImportDesc& desc);
+        [[nodiscard]] static MeshModel* LoadModel(const ImportDesc& desc);
 
-        [[nodiscard]] static Co::result<MeshModel*> LoadModelAsync(
-            const ImportDesc& desc);
+        [[nodiscard]] static Co::result<MeshModel*> LoadModelAsync(const ImportDesc& desc);
     };
 } // namespace Ame::Ecs

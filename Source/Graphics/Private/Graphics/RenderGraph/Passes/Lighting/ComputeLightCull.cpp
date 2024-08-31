@@ -6,11 +6,8 @@
 
 namespace Ame::Gfx
 {
-    ComputeLightCullPass::ComputeLightCullPass(
-        uint8_t  blockSize,
-        uint16_t maxLightChunkSize) :
-        m_BlockSize(blockSize),
-        m_MaxLightChunkSize(maxLightChunkSize)
+    ComputeLightCullPass::ComputeLightCullPass(uint8_t blockSize, uint16_t maxLightChunkSize) :
+        m_BlockSize(blockSize), m_MaxLightChunkSize(maxLightChunkSize)
     {
         Name("Light Frustum Cull")
             .Flags(Rg::PassFlags::Compute)
@@ -20,16 +17,17 @@ namespace Ame::Gfx
 
     //
 
-    void ComputeLightCullPass::UpdateAndBindResourcesOnce(
-        const Rg::ResourceStorage& storage,
-        Dg::IDeviceContext*        deviceContext)
+    void ComputeLightCullPass::UpdateAndBindResourcesOnce(const Rg::ResourceStorage& storage,
+                                                          Dg::IDeviceContext*        deviceContext)
     {
         auto lightIndices_Transparent = storage.GetBufferView(m_PassData.LightIndices_Transparent);
         auto lightIndices_Opaque      = storage.GetBufferView(m_PassData.LightIndices_Opaque);
 
         const uint32_t initParams[]{ m_BlockSize, 0 };
-        deviceContext->UpdateBuffer(lightIndices_Transparent->GetBuffer(), 0, sizeof(initParams), initParams, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-        deviceContext->UpdateBuffer(lightIndices_Opaque->GetBuffer(), 0, sizeof(initParams), initParams, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->UpdateBuffer(lightIndices_Transparent->GetBuffer(), 0, sizeof(initParams), initParams,
+                                    Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+        deviceContext->UpdateBuffer(lightIndices_Opaque->GetBuffer(), 0, sizeof(initParams), initParams,
+                                    Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
         if (m_PassData)
         {
@@ -55,12 +53,13 @@ namespace Ame::Gfx
         m_Srb->GetVariableByName(Dg::SHADER_TYPE_COMPUTE, c_LightDebugTexture)->Set(debugTexture);
 #endif
 
-        m_PassData.Srbs[0] = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGFrameDataResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
-        m_PassData.Srbs[1] = storage.GetUserData<Dg::IShaderResourceBinding>(c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+        m_PassData.Srbs[0] = storage.GetUserData<Dg::IShaderResourceBinding>(
+            c_RGFrameDataResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
+        m_PassData.Srbs[1] = storage.GetUserData<Dg::IShaderResourceBinding>(
+            c_RGEntityResourceSignature_Graphics, Dg::IID_ShaderResourceBinding);
     }
 
-    void ComputeLightCullPass::CreateResourcesOnce(
-        const Rg::ResourceStorage& storage)
+    void ComputeLightCullPass::CreateResourcesOnce(const Rg::ResourceStorage& storage)
     {
         if (m_PipelineState)
         {
@@ -76,7 +75,8 @@ namespace Ame::Gfx
         };
         computeDesc.PSODesc.ResourceLayout.DefaultVariableType = Dg::SHADER_RESOURCE_VARIABLE_TYPE_DYNAMIC;
 
-        Ptr shader = device.CreateShader(Rhi::LightFrustumCull_ComputeShader(m_BlockSize, m_MaxLightChunkSize).GetCreateInfo());
+        Ptr shader =
+            device.CreateShader(Rhi::LightFrustumCull_ComputeShader(m_BlockSize, m_MaxLightChunkSize).GetCreateInfo());
 
         computeDesc.pCS = shader;
         m_PipelineState = device.CreatePipelineState(computeDesc);
@@ -86,15 +86,13 @@ namespace Ame::Gfx
 
     //
 
-    void ComputeLightCullPass::OnBuild(
-        Rg::Resolver& resolver)
+    void ComputeLightCullPass::OnBuild(Rg::Resolver& resolver)
     {
         auto& textureDesc = resolver.GetBackbufferDesc();
-        m_DispatchSize    = {
-            static_cast<uint32_t>(std::ceil(static_cast<float>(textureDesc.Width) / m_BlockSize)),
-            static_cast<uint32_t>(std::ceil(static_cast<float>(textureDesc.Height) / m_BlockSize))
-        };
-        uint32_t bufferSize = (m_DispatchSize.x() * m_DispatchSize.y() * c_AverageOverlappingLightsPerTile + 1) * sizeof(uint32_t);
+        m_DispatchSize    = { static_cast<uint32_t>(std::ceil(static_cast<float>(textureDesc.Width) / m_BlockSize)),
+                              static_cast<uint32_t>(std::ceil(static_cast<float>(textureDesc.Height) / m_BlockSize)) };
+        uint32_t bufferSize =
+            (m_DispatchSize.x() * m_DispatchSize.y() * c_AverageOverlappingLightsPerTile + 1) * sizeof(uint32_t);
 
         //
 
@@ -119,12 +117,7 @@ namespace Ame::Gfx
         //
 
         Dg::TextureDesc lightTextureDesc{
-            nullptr,
-            Dg::RESOURCE_DIM_TEX_2D,
-            m_DispatchSize.x(),
-            m_DispatchSize.y(),
-            1,
-            Dg::TEX_FORMAT_RG32_UINT,
+            nullptr, Dg::RESOURCE_DIM_TEX_2D, m_DispatchSize.x(), m_DispatchSize.y(), 1, Dg::TEX_FORMAT_RG32_UINT,
         };
         lightTextureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_UNORDERED_ACCESS;
 
@@ -144,21 +137,28 @@ namespace Ame::Gfx
         debugTextureDesc.BindFlags = Dg::BIND_SHADER_RESOURCE | Dg::BIND_UNORDERED_ACCESS;
 
         resolver.CreateTexture(c_RGLightDebugTextures, nullptr, debugTextureDesc);
-        m_PassData.DebugTexture = resolver.WriteTexture(c_RGLightDebugTextures, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
+        m_PassData.DebugTexture =
+            resolver.WriteTexture(c_RGLightDebugTextures, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
 #endif
 
         //
 
         resolver.ReadUserData(c_RGEntityResourceSignature_Compute);
 
-        m_PassData.LightIds  = resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
-        m_PassData.DepthView = resolver.ReadTexture(c_RGDepthImage, Dg::BIND_SHADER_RESOURCE, Dg::TEXTURE_VIEW_READ_ONLY_DEPTH_STENCIL);
+        m_PassData.LightIds =
+            resolver.ReadBuffer(c_RGLightIdInstanceTable, Dg::BIND_SHADER_RESOURCE, Dg::BUFFER_VIEW_SHADER_RESOURCE);
+        m_PassData.DepthView =
+            resolver.ReadTexture(c_RGDepthImage, Dg::BIND_SHADER_RESOURCE, Dg::TEXTURE_VIEW_READ_ONLY_DEPTH_STENCIL);
 
-        m_PassData.LightIndices_Transparent = resolver.WriteBuffer(c_RGLightIndices_Transparent, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
-        m_PassData.LightIndices_Opaque      = resolver.WriteBuffer(c_RGLightIndices_Opaque, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightIndices_Transparent = resolver.WriteBuffer(
+            c_RGLightIndices_Transparent, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightIndices_Opaque =
+            resolver.WriteBuffer(c_RGLightIndices_Opaque, Dg::BIND_UNORDERED_ACCESS, Dg::BUFFER_VIEW_UNORDERED_ACCESS);
 
-        m_PassData.LightHeads_Transparent = resolver.WriteTexture(c_RGLightHeads_Transparent, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
-        m_PassData.LightHeads_Opaque      = resolver.WriteTexture(c_RGLightHeads_Opaque, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightHeads_Transparent = resolver.WriteTexture(
+            c_RGLightHeads_Transparent, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
+        m_PassData.LightHeads_Opaque =
+            resolver.WriteTexture(c_RGLightHeads_Opaque, Dg::BIND_UNORDERED_ACCESS, Dg::TEXTURE_VIEW_UNORDERED_ACCESS);
 
         resolver.ReadUserData(c_RGFrameDataResourceSignature_Graphics);
         resolver.ReadUserData(c_RGEntityResourceSignature_Graphics);
@@ -168,9 +168,7 @@ namespace Ame::Gfx
         m_PassData.Reset();
     }
 
-    void ComputeLightCullPass::OnExecute(
-        const Rg::ResourceStorage& storage,
-        Dg::IDeviceContext*        deviceContext)
+    void ComputeLightCullPass::OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext)
     {
         CreateResourcesOnce(storage);
         UpdateAndBindResourcesOnce(storage, deviceContext);
@@ -184,11 +182,7 @@ namespace Ame::Gfx
         }
         deviceContext->CommitShaderResources(m_Srb, Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 
-        Dg::DispatchComputeAttribs attrib{
-            m_DispatchSize.x(),
-            m_DispatchSize.y(),
-            1
-        };
+        Dg::DispatchComputeAttribs attrib{ m_DispatchSize.x(), m_DispatchSize.y(), 1 };
         deviceContext->DispatchCompute(attrib);
     }
 } // namespace Ame::Gfx

@@ -4,8 +4,7 @@
 
 namespace Ame::Ecs
 {
-    template<typename... ArgsTy>
-    using SystemBuilder = flecs::system_builder<ArgsTy...>;
+    template<typename... ArgsTy> using SystemBuilder = flecs::system_builder<ArgsTy...>;
 
     using System = flecs::system;
 

@@ -22,36 +22,29 @@ namespace Ame::Rhi
     class BlitRenderPass
     {
     public:
-        BlitRenderPass(
-            Rhi::IRhiDevice* rhiDevice);
+        BlitRenderPass(Rhi::IRhiDevice* rhiDevice);
 
     public:
         /// <summary>
         /// Blit a texture to another texture.
         /// </summary>
-        void Blit(
-            const BlitCopyParameters& parameters);
+        void Blit(const BlitCopyParameters& parameters);
 
         /// <summary>
         /// Blit a texture to another texture.
         /// </summary>
-        void Blit(
-            Dg::IDeviceContext*       deviceContext,
-            const BlitCopyParameters& parameters);
+        void Blit(Dg::IDeviceContext* deviceContext, const BlitCopyParameters& parameters);
 
     public:
         /// <summary>
         /// Blit a texture to render target.
         /// </summary>
-        void Blit(
-            const BlitDrawParameters& parameters);
+        void Blit(const BlitDrawParameters& parameters);
 
         /// <summary>
         /// Blit a texture to render target.
         /// </summary>
-        void Blit(
-            Dg::IDeviceContext*       deviceContext,
-            const BlitDrawParameters& parameters);
+        void Blit(Dg::IDeviceContext* deviceContext, const BlitDrawParameters& parameters);
 
     private:
         struct PsoCacheKey
@@ -60,19 +53,14 @@ namespace Ame::Rhi
             Dg::RenderTargetBlendDesc BlendTarget;
             bool                      SwapRBChannels : 1 = false;
 
-            PsoCacheKey(
-                const BlitDrawParameters& parameters,
-                Dg::TEXTURE_FORMAT        format) :
-                Format(format),
-                BlendTarget(parameters.BlendTarget),
-                SwapRBChannels(parameters.SwapRBChannels)
+            PsoCacheKey(const BlitDrawParameters& parameters, Dg::TEXTURE_FORMAT format) :
+                Format(format), BlendTarget(parameters.BlendTarget), SwapRBChannels(parameters.SwapRBChannels)
             {
             }
 
             bool operator==(const PsoCacheKey& other) const
             {
-                return Format == other.Format &&
-                       SwapRBChannels == other.SwapRBChannels &&
+                return Format == other.Format && SwapRBChannels == other.SwapRBChannels &&
                        BlendTarget == other.BlendTarget;
             }
 
@@ -98,14 +86,12 @@ namespace Ame::Rhi
         /// <summary>
         /// Get or create a pipeline state for blit draw.
         /// </summary>
-        [[nodiscard]] const PsoCacheData& GetPipelineState(
-            const BlitDrawParameters& parameters);
+        [[nodiscard]] const PsoCacheData& GetPipelineState(const BlitDrawParameters& parameters);
 
         /// <summary>
         /// Get or create a shader.
         /// </summary>
-        [[nodiscard]] Ptr<Dg::IShader> GetShader(
-            const Dg::ShaderCreateInfo& desc);
+        [[nodiscard]] Ptr<Dg::IShader> GetShader(const Dg::ShaderCreateInfo& desc);
 
     private:
         Rhi::IRhiDevice* m_RhiDevice;

@@ -14,14 +14,10 @@ namespace Ame::Window
     public:
         using Base = BaseObject<IDesktopWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(
-            IID_DesktopWindow, IID_Window, Base,
-            m_ImGuiWindow);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(IID_DesktopWindow, IID_Window, Base, m_ImGuiWindow);
 
     public:
-        WindowImplGlfw(
-            IReferenceCounters*     referenceCounters,
-            const WindowCreateDesc& windowDesc);
+        WindowImplGlfw(IReferenceCounters* referenceCounters, const WindowCreateDesc& windowDesc);
 
         ~WindowImplGlfw() override;
 

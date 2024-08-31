@@ -9,9 +9,7 @@
 
 namespace Ame::Rg
 {
-    Pass* PassStorage::AddPass(
-        const String&   name,
-        UniquePtr<Pass> pass)
+    Pass* PassStorage::AddPass(const String& name, UniquePtr<Pass> pass)
     {
         AME_LOG_ASSERT(Log::Gfx(), !m_NamedPasses.contains(name), "Pass with name '{}' already exists", name);
 
@@ -22,8 +20,7 @@ namespace Ame::Rg
         return iter->second.get();
     }
 
-    void PassStorage::RemovePass(
-        const String& name)
+    void PassStorage::RemovePass(const String& name)
     {
         auto iter = m_NamedPasses.find(name);
         if (iter != m_NamedPasses.end())
@@ -35,8 +32,7 @@ namespace Ame::Rg
         }
     }
 
-    Pass* PassStorage::GetPass(
-        const String& name) const
+    Pass* PassStorage::GetPass(const String& name) const
     {
         auto it = m_NamedPasses.find(name);
         return it != m_NamedPasses.end() ? it->second.get() : nullptr;
@@ -50,8 +46,7 @@ namespace Ame::Rg
 
     //
 
-    void PassStorage::Build(
-        Context& context)
+    void PassStorage::Build(Context& context)
     {
         SetRebuildState(false);
 
@@ -69,16 +64,14 @@ namespace Ame::Rg
         return m_NeedsRebuild;
     }
 
-    void PassStorage::SetRebuildState(
-        bool state) noexcept
+    void PassStorage::SetRebuildState(bool state) noexcept
     {
         m_NeedsRebuild = state;
     }
 
     //
 
-    auto PassStorage::ResolvePasses(
-        Context& context) -> ResolverListType
+    auto PassStorage::ResolvePasses(Context& context) -> ResolverListType
     {
         ResolverListType resolvers;
         resolvers.reserve(m_Passes.size());
@@ -95,8 +88,7 @@ namespace Ame::Rg
                std::ranges::to<std::vector>();
     }
 
-    auto PassStorage::BuildPasses(
-        ResolverListType& resolvers) -> DependencyLevelListType
+    auto PassStorage::BuildPasses(ResolverListType& resolvers) -> DependencyLevelListType
     {
         auto adjacencyList         = BuildAdjacencyLists(resolvers);
         auto topologicalSortedList = TopologicalSort(adjacencyList);
@@ -105,8 +97,7 @@ namespace Ame::Rg
 
     //
 
-    auto PassStorage::BuildAdjacencyLists(
-        const ResolverListType& resolvers) -> AdjacencyListType
+    auto PassStorage::BuildAdjacencyLists(const ResolverListType& resolvers) -> AdjacencyListType
     {
         AdjacencyListType adjacencyList(m_Passes.size());
 
@@ -118,7 +109,8 @@ namespace Ame::Rg
             for (size_t j = i + 1; j < m_Passes.size(); j++)
             {
                 auto& otherResolver = resolvers[j];
-                for (auto& resource : boost::range::join(otherResolver.m_ResourcesRead, otherResolver.m_ResourcesWritten))
+                for (auto& resource :
+                     boost::range::join(otherResolver.m_ResourcesRead, otherResolver.m_ResourcesWritten))
                 {
                     if (resolver.m_ResourcesWritten.contains(resource))
                     {
@@ -134,8 +126,7 @@ namespace Ame::Rg
 
     //
 
-    auto PassStorage::TopologicalSort(
-        const AdjacencyListType& adjacencyList) -> TopologicalSortListType
+    auto PassStorage::TopologicalSort(const AdjacencyListType& adjacencyList) -> TopologicalSortListType
     {
         std::stack<size_t> dfsStack{};
         std::vector<bool>  visitedList(m_Passes.size(), false);
@@ -162,11 +153,8 @@ namespace Ame::Rg
 
     //
 
-    void PassStorage::DepthFirstSearch(
-        const AdjacencyListType& adjacencyList,
-        size_t                   index,
-        std::vector<bool>&       visitedList,
-        std::stack<size_t>&      dfsStack)
+    void PassStorage::DepthFirstSearch(const AdjacencyListType& adjacencyList, size_t index,
+                                       std::vector<bool>& visitedList, std::stack<size_t>& dfsStack)
     {
         visitedList[index] = true;
         for (size_t adjIndex : adjacencyList[index])
@@ -181,9 +169,8 @@ namespace Ame::Rg
 
     //
 
-    auto PassStorage::BuildDependencyLevels(
-        const TopologicalSortListType& topologicallySortedList,
-        const AdjacencyListType&       adjacencyList) -> DependencyLevelListType
+    auto PassStorage::BuildDependencyLevels(const TopologicalSortListType& topologicallySortedList,
+                                            const AdjacencyListType&       adjacencyList) -> DependencyLevelListType
     {
         std::vector<size_t> distances(topologicallySortedList.size());
         for (size_t d = 0; d < distances.size(); d++)

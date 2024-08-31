@@ -8,24 +8,17 @@ namespace Ame::Ecs
     class AssImpModelImporter
     {
     public:
-        AssImpModelImporter(
-            const String& path);
+        AssImpModelImporter(const String& path);
 
     public:
-        [[nodiscard]] MeshModel::CreateDesc CreateModelDesc(
-            Rhi::IRhiDevice* rhiDevice) const;
+        [[nodiscard]] MeshModel::CreateDesc CreateModelDesc(Rhi::IRhiDevice* rhiDevice) const;
 
-        [[nodiscard]] Co::result<MeshModel::CreateDesc> CreateModelDescAsync(
-            Rhi::IRhiDevice* rhiDevice) const;
+        [[nodiscard]] Co::result<MeshModel::CreateDesc> CreateModelDescAsync(Rhi::IRhiDevice* rhiDevice) const;
 
     private:
-        void CreateBufferResources(
-            MeshModel::CreateDesc& createDesc,
-            Rhi::IRhiDevice*       rhiDevice) const;
+        void CreateBufferResources(MeshModel::CreateDesc& createDesc, Rhi::IRhiDevice* rhiDevice) const;
 
-        void CreateMaterials(
-            MeshModel::CreateDesc& createDesc,
-            Rhi::IRhiDevice*       rhiDevice) const;
+        void CreateMaterials(MeshModel::CreateDesc& createDesc, Rhi::IRhiDevice* rhiDevice) const;
 
     private:
         Assimp::Importer m_Importer;

@@ -17,12 +17,9 @@ namespace Ame::Gfx
         ForwardPlus_InitializePass();
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver);
+        void OnBuild(Rg::Resolver& resolver);
 
-        void OnExecute(
-            const Rg::ResourceStorage& storage,
-            Dg::IDeviceContext*        deviceContext);
+        void OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext);
 
     private:
         PassData m_PassData;

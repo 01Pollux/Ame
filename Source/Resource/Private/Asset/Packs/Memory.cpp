@@ -13,8 +13,7 @@ namespace Ame::Asset
         }
     }
 
-    bool MemoryAssetPackage::ContainsAsset(
-        const UId& uid) const
+    bool MemoryAssetPackage::ContainsAsset(const UId& uid) const
     {
         RLock readLock(m_CacheMutex);
         return m_Cache.contains(uid);
@@ -22,8 +21,7 @@ namespace Ame::Asset
 
     //
 
-    UId MemoryAssetPackage::FindAsset(
-        const String& path) const
+    UId MemoryAssetPackage::FindAsset(const String& path) const
     {
         RLock readLock(m_CacheMutex);
         for (auto& [uid, asset] : m_Cache)
@@ -36,8 +34,7 @@ namespace Ame::Asset
         return UIdUtils::Null();
     }
 
-    Co::generator<UId> MemoryAssetPackage::FindAssets(
-        const std::regex& pathRegex) const
+    Co::generator<UId> MemoryAssetPackage::FindAssets(const std::regex& pathRegex) const
     {
         RLock readLock(m_CacheMutex);
         for (auto& [uid, asset] : m_Cache)
@@ -56,33 +53,27 @@ namespace Ame::Asset
         co_return;
     }
 
-    Co::result<void> MemoryAssetPackage::SaveAsset(
-        Ptr<IAsset> asset)
+    Co::result<void> MemoryAssetPackage::SaveAsset(Ptr<IAsset> asset)
     {
         RWLock readWriteLock(m_CacheMutex);
         m_Cache[asset->GetUId()] = std::move(asset);
         co_return;
     }
 
-    bool MemoryAssetPackage::RemoveAsset(
-        const UId& uid)
+    bool MemoryAssetPackage::RemoveAsset(const UId& uid)
     {
         RWLock readWriteLock(m_CacheMutex);
         return m_Cache.erase(uid) > 0;
     }
 
-    Ptr<IAsset> MemoryAssetPackage::LoadAsset(
-        const UId& uid,
-        bool)
+    Ptr<IAsset> MemoryAssetPackage::LoadAsset(const UId& uid, bool)
     {
         RWLock readWriteLock(m_CacheMutex);
         auto   iter = m_Cache.find(uid);
         return iter != m_Cache.end() ? iter->second : Ptr<IAsset>{};
     }
 
-    bool MemoryAssetPackage::UnloadAsset(
-        const UId& uid,
-        bool       force)
+    bool MemoryAssetPackage::UnloadAsset(const UId& uid, bool force)
     {
         RWLock readWriteLock(m_CacheMutex);
 

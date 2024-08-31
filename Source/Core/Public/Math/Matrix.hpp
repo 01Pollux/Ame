@@ -56,9 +56,11 @@ namespace Ame::Math
 
         [[nodiscard]] static Matrix4x4 RotationAxis(const Vector3& axis, float angle);
 
-        [[nodiscard]] static Matrix4x4 LookAt(const Vector3& eyePosition, const Vector3& focusPosition, const Vector3& upDirection);
+        [[nodiscard]] static Matrix4x4 LookAt(const Vector3& eyePosition, const Vector3& focusPosition,
+                                              const Vector3& upDirection);
 
-        [[nodiscard]] static Matrix4x4 LookTo(const Vector3& eyePosition, const Vector3& eyeDirection, const Vector3& upDirection);
+        [[nodiscard]] static Matrix4x4 LookTo(const Vector3& eyePosition, const Vector3& eyeDirection,
+                                              const Vector3& upDirection);
 
         [[nodiscard]] static Matrix4x4 Perspective(float viewWidth, float viewHeight, float nearZ, float farZ);
 
@@ -66,7 +68,8 @@ namespace Ame::Math
 
         [[nodiscard]] static Matrix4x4 Orthographic(float viewWidth, float viewHeight, float nearZ, float farZ);
 
-        [[nodiscard]] static Matrix4x4 SRT(const Matrix4x4& scale, const Matrix4x4& rotation, const Matrix4x4& translation);
+        [[nodiscard]] static Matrix4x4 SRT(const Matrix4x4& scale, const Matrix4x4& rotation,
+                                           const Matrix4x4& translation);
 
     public:
         [[nodiscard]] Vector2 DoTransform(const Vector2& vec) const;
@@ -143,12 +146,10 @@ namespace Ame::Math
 
     public:
         constexpr Matrix3x3() = default;
-        constexpr Matrix3x3(const Vector3& row1, const Vector3& row2, const Vector3& row3) :
-            m_Data{ row1, row2, row3 }
+        constexpr Matrix3x3(const Vector3& row1, const Vector3& row2, const Vector3& row3) : m_Data{ row1, row2, row3 }
         {
         }
-        constexpr Matrix3x3(const Matrix4x4& matrix) :
-            m_Data({ matrix(0), matrix(1), matrix(2) })
+        constexpr Matrix3x3(const Matrix4x4& matrix) : m_Data({ matrix(0), matrix(1), matrix(2) })
         {
         }
 
@@ -235,22 +236,17 @@ namespace Ame::Math
 
     //
 
-    inline constexpr Matrix4x4::Matrix4x4(const Matrix3x3& matrix) :
-        m_Data({ matrix(0), matrix(1), matrix(2), {} })
-	{
-	}
+    inline constexpr Matrix4x4::Matrix4x4(const Matrix3x3& matrix) : m_Data({ matrix(0), matrix(1), matrix(2), {} })
+    {
+    }
 
     //
 
     struct Matrix4x4::Constants
     {
         static constexpr Matrix4x4 Zero{};
-        static constexpr Matrix4x4 Identity{
-            Vector4{ 1.f, 0.f, 0.f, 0.f },
-            Vector4{ 0.f, 1.f, 0.f, 0.f },
-            Vector4{ 0.f, 0.f, 1.f, 0.f },
-            Vector4{ 0.f, 0.f, 0.f, 1.f }
-        };
+        static constexpr Matrix4x4 Identity{ Vector4{ 1.f, 0.f, 0.f, 0.f }, Vector4{ 0.f, 1.f, 0.f, 0.f },
+                                             Vector4{ 0.f, 0.f, 1.f, 0.f }, Vector4{ 0.f, 0.f, 0.f, 1.f } };
     };
 
     //
@@ -258,17 +254,13 @@ namespace Ame::Math
     struct Matrix3x3::Constants
     {
         static constexpr Matrix3x3 Zero{};
-        static constexpr Matrix3x3 Identity{
-            Vector3{ 1.f, 0.f, 0.f },
-            Vector3{ 0.f, 1.f, 0.f },
-            Vector3{ 0.f, 0.f, 1.f }
-        };
+        static constexpr Matrix3x3 Identity{ Vector3{ 1.f, 0.f, 0.f }, Vector3{ 0.f, 1.f, 0.f },
+                                             Vector3{ 0.f, 0.f, 1.f } };
     };
 } // namespace Ame::Math
 
 namespace Ame::Concepts
 {
     template<typename Ty>
-    concept MatrixType = std::is_same_v<Ty, Math::Matrix3x3> ||
-                         std::is_same_v<Ty, Math::Matrix4x4>;
+    concept MatrixType = std::is_same_v<Ty, Math::Matrix3x3> || std::is_same_v<Ty, Math::Matrix4x4>;
 } // namespace Ame::Concepts

@@ -10,8 +10,7 @@ namespace Ame
     class BaseApplication
     {
     public:
-        explicit BaseApplication(
-            const ApplicationConfig& applicationConfig);
+        explicit BaseApplication(const ApplicationConfig& applicationConfig);
 
         BaseApplication(const BaseApplication&)            = delete;
         BaseApplication& operator=(const BaseApplication&) = delete;

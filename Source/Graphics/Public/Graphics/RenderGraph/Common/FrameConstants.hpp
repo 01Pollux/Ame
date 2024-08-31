@@ -45,5 +45,6 @@ namespace Ame::Gfx
 
         uint32_t CameraMask;
     };
-    static_assert(sizeof(CameraFrameData) == Math::AlignUp(sizeof(CameraFrameData), 16), "CameraFrameData is not 16-byte aligned");
+    static_assert(sizeof(CameraFrameData) == Math::AlignUp(sizeof(CameraFrameData), 16),
+                  "CameraFrameData is not 16-byte aligned");
 } // namespace Ame::Gfx

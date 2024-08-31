@@ -7,8 +7,7 @@
 
 namespace Ame::Ecs
 {
-    static void OnTransformChanged_UpdateGlobal(
-        Iterator& iter)
+    static void OnTransformChanged_UpdateGlobal(Iterator& iter)
     {
         while (iter.next())
         {
@@ -25,7 +24,8 @@ namespace Ame::Ecs
                 {
                     if (parentTransform)
                     {
-                        entity->set(GlobalTransformComponent{ parentTransform->ToMat4x4() * localTransform.ToMat4x4() });
+                        entity->set(
+                            GlobalTransformComponent{ parentTransform->ToMat4x4() * localTransform.ToMat4x4() });
                     }
                     else
                     {
@@ -40,8 +40,7 @@ namespace Ame::Ecs
         }
     }
 
-    static void OnTransformChanged_ChangeAABB(
-        Iterator& iter)
+    static void OnTransformChanged_ChangeAABB(Iterator& iter)
     {
         while (iter.next())
         {
@@ -68,8 +67,7 @@ namespace Ame::Ecs
 
     //
 
-    void MathEcsModule::RegisterTransformObservers(
-        WorldRef world)
+    void MathEcsModule::RegisterTransformObservers(WorldRef world)
     {
         // Register global transform observer, to update global transform when transform changes
         world->observer<const TransformComponent, const GlobalTransformComponent*>()

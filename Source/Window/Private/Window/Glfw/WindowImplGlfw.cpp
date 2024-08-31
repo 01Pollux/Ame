@@ -6,17 +6,11 @@
 
 namespace Ame::Window
 {
-    WindowImplGlfw::WindowImplGlfw(
-        IReferenceCounters*     referenceCounters,
-        const WindowCreateDesc& windowDesc) :
-        Base(referenceCounters),
-        m_Title(windowDesc.Title)
+    WindowImplGlfw::WindowImplGlfw(IReferenceCounters* referenceCounters, const WindowCreateDesc& windowDesc) :
+        Base(referenceCounters), m_Title(windowDesc.Title)
     {
         GlfwContext::Initialize();
-        GlfwContext::Get()
-            .PushTask([this, windowDesc]
-                      { CreateGlfwWindow(windowDesc); })
-            .wait();
+        GlfwContext::Get().PushTask([this, windowDesc] { CreateGlfwWindow(windowDesc); }).wait();
 
         m_ImGuiWindow = ObjectAllocator<ImGuiWindowImplGlfw>()(m_Handle);
     }
@@ -40,57 +34,38 @@ namespace Ame::Window
 
     void WindowImplGlfw::ProcessEvents()
     {
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwPollEvents(); })
-            .wait();
+        GlfwContext::Get().PushTask([this] { glfwPollEvents(); }).wait();
     }
 
     bool WindowImplGlfw::IsRunning() const
     {
-        return GlfwContext::Get()
-                   .PushTask([this]
-                             { return glfwWindowShouldClose(m_Handle); })
-                   .get() == GLFW_FALSE;
+        return GlfwContext::Get().PushTask([this] { return glfwWindowShouldClose(m_Handle); }).get() == GLFW_FALSE;
     }
 
     void WindowImplGlfw::Close()
     {
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwSetWindowShouldClose(m_Handle, GLFW_TRUE); })
-            .wait();
+        GlfwContext::Get().PushTask([this] { glfwSetWindowShouldClose(m_Handle, GLFW_TRUE); }).wait();
     }
 
     //
 
-    void WindowImplGlfw::SetTitle(
-        const String& title)
+    void WindowImplGlfw::SetTitle(const String& title)
     {
         m_Title = title;
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwSetWindowTitle(m_Handle, m_Title.c_str()); })
-            .wait();
+        GlfwContext::Get().PushTask([this] { glfwSetWindowTitle(m_Handle, m_Title.c_str()); }).wait();
     }
 
-    void WindowImplGlfw::SetSize(
-        const Math::Size2I& size)
+    void WindowImplGlfw::SetSize(const Math::Size2I& size)
     {
         m_WindowSize = size;
         GlfwContext::Get()
-            .PushTask([this]
-                      { glfwSetWindowSize(m_Handle, m_WindowSize.Width(), m_WindowSize.Height()); })
+            .PushTask([this] { glfwSetWindowSize(m_Handle, m_WindowSize.Width(), m_WindowSize.Height()); })
             .wait();
     }
 
-    void WindowImplGlfw::SetPosition(
-        const Math::Vector2I& position)
+    void WindowImplGlfw::SetPosition(const Math::Vector2I& position)
     {
-        GlfwContext::Get()
-            .PushTask([&]
-                      { glfwSetWindowPos(m_Handle, position.x(), position.y()); })
-            .wait();
+        GlfwContext::Get().PushTask([&] { glfwSetWindowPos(m_Handle, position.x(), position.y()); }).wait();
     }
 
     //
@@ -108,10 +83,7 @@ namespace Ame::Window
     Math::Vector2I WindowImplGlfw::GetPosition() const
     {
         int x, y;
-        GlfwContext::Get()
-            .PushTask([&]
-                      { glfwGetWindowPos(m_Handle, &x, &y); })
-            .wait();
+        GlfwContext::Get().PushTask([&] { glfwGetWindowPos(m_Handle, &x, &y); }).wait();
         return { x, y };
     }
 
@@ -122,8 +94,7 @@ namespace Ame::Window
         return m_Handle;
     }
 
-    void WindowImplGlfw::SetFullscreen(
-        bool state)
+    void WindowImplGlfw::SetFullscreen(bool state)
     {
         GlfwContext::Get()
             .PushTask(
@@ -149,18 +120,14 @@ namespace Ame::Window
 
     bool WindowImplGlfw::IsMinimized() const
     {
-        return GlfwContext::Get()
-                   .PushTask([this]
-                             { return glfwGetWindowAttrib(m_Handle, GLFW_ICONIFIED); })
-                   .get() == GLFW_TRUE;
+        return GlfwContext::Get().PushTask([this] { return glfwGetWindowAttrib(m_Handle, GLFW_ICONIFIED); }).get() ==
+               GLFW_TRUE;
     }
 
     bool WindowImplGlfw::IsMaximized() const
     {
-        return GlfwContext::Get()
-                   .PushTask([this]
-                             { return glfwGetWindowAttrib(m_Handle, GLFW_MAXIMIZED); })
-                   .get() == GLFW_TRUE;
+        return GlfwContext::Get().PushTask([this] { return glfwGetWindowAttrib(m_Handle, GLFW_MAXIMIZED); }).get() ==
+               GLFW_TRUE;
     }
 
     void WindowImplGlfw::Minimize()
@@ -170,48 +137,40 @@ namespace Ame::Window
 
     void WindowImplGlfw::Maximize()
     {
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwMaximizeWindow(m_Handle); })
-            .wait();
+        GlfwContext::Get().PushTask([this] { glfwMaximizeWindow(m_Handle); }).wait();
     }
 
     bool WindowImplGlfw::IsFullScreen() const
     {
-        return GlfwContext::Get()
-            .PushTask([this]
-                      { return glfwGetWindowMonitor(m_Handle) != nullptr; })
-            .get();
+        return GlfwContext::Get().PushTask([this] { return glfwGetWindowMonitor(m_Handle) != nullptr; }).get();
     }
 
     bool WindowImplGlfw::IsVisible() const
     {
         return GlfwContext::Get()
-            .PushTask([this]
-                      { return glfwGetWindowAttrib(m_Handle, GLFW_VISIBLE) == GLFW_TRUE &&
-                               glfwGetWindowAttrib(m_Handle, GLFW_ICONIFIED) == GLFW_FALSE &&
-                               glfwWindowShouldClose(m_Handle) == GLFW_FALSE; })
+            .PushTask(
+                [this]
+                {
+                    return glfwGetWindowAttrib(m_Handle, GLFW_VISIBLE) == GLFW_TRUE &&
+                           glfwGetWindowAttrib(m_Handle, GLFW_ICONIFIED) == GLFW_FALSE &&
+                           glfwWindowShouldClose(m_Handle) == GLFW_FALSE;
+                })
             .get();
     }
 
     bool WindowImplGlfw::HasFocus() const
     {
         return GlfwContext::Get()
-            .PushTask([this]
-                      { return glfwGetWindowAttrib(m_Handle, GLFW_FOCUSED) == GLFW_TRUE; })
+            .PushTask([this] { return glfwGetWindowAttrib(m_Handle, GLFW_FOCUSED) == GLFW_TRUE; })
             .get();
     }
 
     void WindowImplGlfw::RequestFocus()
     {
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwRequestWindowAttention(m_Handle); })
-            .wait();
+        GlfwContext::Get().PushTask([this] { glfwRequestWindowAttention(m_Handle); }).wait();
     }
 
-    void WindowImplGlfw::SetVisible(
-        bool show)
+    void WindowImplGlfw::SetVisible(bool show)
     {
         GlfwContext::Get()
             .PushTask(
@@ -233,10 +192,7 @@ namespace Ame::Window
 
     void WindowImplGlfw::Restore()
     {
-        GlfwContext::Get()
-            .PushTask([this]
-                      { glfwRestoreWindow(m_Handle); })
-            .wait();
+        GlfwContext::Get().PushTask([this] { glfwRestoreWindow(m_Handle); }).wait();
     }
 
     WindowEventListener& WindowImplGlfw::GetEventListener()
@@ -246,8 +202,7 @@ namespace Ame::Window
 
     //
 
-    void WindowImplGlfw::CreateGlfwWindow(
-        const WindowCreateDesc& windowDesc)
+    void WindowImplGlfw::CreateGlfwWindow(const WindowCreateDesc& windowDesc)
     {
         GLFWmonitor*       monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode    = glfwGetVideoMode(monitor);
@@ -268,7 +223,8 @@ namespace Ame::Window
             }
             else
             {
-                m_Handle = glfwCreateWindow(windowDesc.Size.Width(), windowDesc.Size.Height(), windowDesc.Title, nullptr, nullptr);
+                m_Handle = glfwCreateWindow(
+                    windowDesc.Size.Width(), windowDesc.Size.Height(), windowDesc.Title, nullptr, nullptr);
             }
         }
 
@@ -328,7 +284,8 @@ namespace Ame::Window
                 [](GLFWwindow* glfwWindow, int x, int y, int* hit)
                 {
                     auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-                    *hit        = window->GetEventListener().Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
+                    *hit =
+                        window->GetEventListener().Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
                     return true;
                 });
         }

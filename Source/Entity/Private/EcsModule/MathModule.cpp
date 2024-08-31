@@ -5,8 +5,7 @@
 
 namespace Ame::Ecs
 {
-    MathEcsModule::MathEcsModule(
-        WorldRef world)
+    MathEcsModule::MathEcsModule(WorldRef world)
     {
         world->module<MathEcsModule>();
 

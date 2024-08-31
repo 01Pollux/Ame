@@ -4,18 +4,13 @@
 
 namespace Ame::Gfx
 {
-    EntityDrawer::EntityDrawer(
-        EntityCollector& collector) :
-        m_Collector(collector)
+    EntityDrawer::EntityDrawer(EntityCollector& collector) : m_Collector(collector)
     {
-        auto world        = collector.GetWorld();
-        m_RenderableQuery = world->CreateQuery<const Ecs::RenderableComponent, const EntityDrawInstance_EcsId>()
-                                .cached()
-                                .build();
-        m_LightQuery = world->CreateQuery<const EntityLightInstance_EcsId>()
-                           .with<const Ecs::LightTagComponent>()
-                           .cached()
-                           .build();
+        auto world = collector.GetWorld();
+        m_RenderableQuery =
+            world->CreateQuery<const Ecs::RenderableComponent, const EntityDrawInstance_EcsId>().cached().build();
+        m_LightQuery =
+            world->CreateQuery<const EntityLightInstance_EcsId>().with<const Ecs::LightTagComponent>().cached().build();
     }
 
     void EntityDrawer::Update()
@@ -56,15 +51,11 @@ namespace Ame::Gfx
         }
     }
 
-    void EntityDrawer::Draw(
-        Rg::Graph&                   cameraGraph,
-        const Math::Camera&          camera,
-        const Math::TransformMatrix& cameraTransform)
+    void EntityDrawer::Draw(Rg::Graph& cameraGraph, const Math::Camera& camera,
+                            const Math::TransformMatrix& cameraTransform)
     {
         Math::Matrix4x4 cameraView = Math::Util::XMMatrixLookToLH(
-            cameraTransform.GetPosition(),
-            cameraTransform.GetLookDir(),
-            cameraTransform.GetUpDir());
+            cameraTransform.GetPosition(), cameraTransform.GetLookDir(), cameraTransform.GetUpDir());
 
         CameraFrameDataUpdateDesc frameDesc{
             .World      = cameraTransform.ToMat4x4(),

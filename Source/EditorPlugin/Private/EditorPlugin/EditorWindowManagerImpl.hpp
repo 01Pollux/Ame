@@ -19,33 +19,24 @@ namespace Ame::Editor
     public:
         using Base = BaseObject<IEditorWindowManager>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_EditorWindowManager, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_EditorWindowManager, Base);
 
     public:
-        EditorWindowManagerImpl(
-            IReferenceCounters*                  counters,
-            ModuleRegistry&                      registry,
-            RhiModule*                           rhiModule,
-            GraphicsModule*                      graphicsModule,
-            const EditorWindowManagerCreateDesc& createDesc);
+        EditorWindowManagerImpl(IReferenceCounters* counters, ModuleRegistry& registry, RhiModule* rhiModule,
+                                GraphicsModule* graphicsModule, const EditorWindowManagerCreateDesc& createDesc);
 
     public:
         ModuleRegistry& GetRegistry() override;
 
         void ResetDefaultWindows() override;
 
-        void AddWindow(
-            const EditorWindowCreateDesc& desc) override;
+        void AddWindow(const EditorWindowCreateDesc& desc) override;
 
-        void RemoveWindow(
-            IEditorWindow* window) override;
+        void RemoveWindow(IEditorWindow* window) override;
 
-        void ShowWindow(
-            IEditorWindow* window) override;
+        void ShowWindow(IEditorWindow* window) override;
 
-        void HideWindow(
-            IEditorWindow* window) override;
+        void HideWindow(IEditorWindow* window) override;
 
     private:
         void Render();

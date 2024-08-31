@@ -8,23 +8,21 @@ namespace imcxx
     /// Viewports
     /// - Currently represents the Platform Window created by the application which is hosting our Dear ImGui windows.
     /// - In 'docking' branch with multi-viewport enabled, we extend this concept to have multiple active viewports.
-    /// - In the future we will extend this concept further to also represent Platform Monitor and support a "no main platform window" operation mode.
+    /// - In the future we will extend this concept further to also represent Platform Monitor and support a "no main
+    /// platform window" operation mode.
     /// </summary>
     class [[nodiscard]] viewport
     {
     public:
-        viewport(ImGuiViewport* vp = ImGui::GetMainViewport()) :
-            m_Viewport(vp)
+        viewport(ImGuiViewport* vp = ImGui::GetMainViewport()) : m_Viewport(vp)
         {
         }
 
-        viewport(int id) :
-            m_Viewport(ImGui::FindViewportByID(id))
+        viewport(int id) : m_Viewport(ImGui::FindViewportByID(id))
         {
         }
 
-        viewport(void* platform_hndl) :
-            m_Viewport(ImGui::FindViewportByPlatformHandle(platform_hndl))
+        viewport(void* platform_hndl) : m_Viewport(ImGui::FindViewportByPlatformHandle(platform_hndl))
         {
         }
 

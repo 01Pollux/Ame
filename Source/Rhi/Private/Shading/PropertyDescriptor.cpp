@@ -14,49 +14,38 @@
 
 namespace Ame::Rhi
 {
-    MaterialPropertyDescriptor& MaterialPropertyDescriptor::IntImpl(
-        const String& propertyName,
-        uint8_t       dims)
+    MaterialPropertyDescriptor& MaterialPropertyDescriptor::IntImpl(const String& propertyName, uint8_t dims)
     {
         InsertProp(propertyName, { MaterialResourceType::Scalar, MaterialDataType::Int, dims });
         return *this;
     }
 
-    MaterialPropertyDescriptor& MaterialPropertyDescriptor::FloatImpl(
-        const String& propertyName,
-        uint8_t       dims)
+    MaterialPropertyDescriptor& MaterialPropertyDescriptor::FloatImpl(const String& propertyName, uint8_t dims)
     {
         InsertProp(propertyName, { MaterialResourceType::Scalar, MaterialDataType::Float, dims });
         return *this;
     }
 
-    MaterialPropertyDescriptor& MaterialPropertyDescriptor::BoolImpl(
-        const String& propertyName,
-        uint8_t       dims)
+    MaterialPropertyDescriptor& MaterialPropertyDescriptor::BoolImpl(const String& propertyName, uint8_t dims)
     {
         InsertProp(propertyName, { MaterialResourceType::Scalar, MaterialDataType::Bool, dims });
         return *this;
     }
 
-    MaterialPropertyDescriptor& MaterialPropertyDescriptor::Matrix3x3Impl(
-        const String& propertyName,
-        uint8_t       dims)
+    MaterialPropertyDescriptor& MaterialPropertyDescriptor::Matrix3x3Impl(const String& propertyName, uint8_t dims)
     {
         InsertProp(propertyName, { MaterialResourceType::Scalar, MaterialDataType::Matrix3x3, dims });
         return *this;
     }
 
-    MaterialPropertyDescriptor& MaterialPropertyDescriptor::Matrix4x4Impl(
-        const String& propertyName,
-        uint8_t       dims)
+    MaterialPropertyDescriptor& MaterialPropertyDescriptor::Matrix4x4Impl(const String& propertyName, uint8_t dims)
     {
         InsertProp(propertyName, { MaterialResourceType::Scalar, MaterialDataType::Matrix4x4, dims });
         return *this;
     }
 
-    MaterialPropertyDescriptor& MaterialPropertyDescriptor::StructImpl(
-        const String&                     propertyName,
-        const MaterialPropertyDescriptor& descriptor)
+    MaterialPropertyDescriptor& MaterialPropertyDescriptor::StructImpl(const String&                     propertyName,
+                                                                       const MaterialPropertyDescriptor& descriptor)
     {
         InsertStruct(propertyName, descriptor);
         return *this;
@@ -69,14 +58,14 @@ namespace Ame::Rhi
         return m_AlignedSize;
     }
 
-    uint32_t MaterialPropertyDescriptor::GetOffset(
-        const String& propertyName) const
+    uint32_t MaterialPropertyDescriptor::GetOffset(const String& propertyName) const
     {
         return m_Tree.get_child_optional(propertyName)
-            .map([](const boost::property_tree::ptree& property)
-                 { return property.get_optional<uint32_t>(
-                                      AME_PROPDESC_META(AME_PROPDESC_METAOFFSET))
-                       .value_or(InvalidOffset); })
+            .map(
+                [](const boost::property_tree::ptree& property) {
+                    return property.get_optional<uint32_t>(AME_PROPDESC_META(AME_PROPDESC_METAOFFSET))
+                        .value_or(InvalidOffset);
+                })
             .value_or(InvalidOffset);
     }
 
@@ -89,10 +78,7 @@ namespace Ame::Rhi
 
     //
 
-    uint32_t MaterialPropertyDescriptor::GetSize(
-        MaterialResourceType type,
-        MaterialDataType     dataType,
-        uint8_t              dims)
+    uint32_t MaterialPropertyDescriptor::GetSize(MaterialResourceType type, MaterialDataType dataType, uint8_t dims)
     {
         uint32_t size = 0;
         if (type == MaterialResourceType::Scalar)
@@ -149,8 +135,7 @@ namespace Ame::Rhi
         return size;
     }
 
-    uint32_t MaterialPropertyDescriptor::AdvanceSize(
-        uint32_t size)
+    uint32_t MaterialPropertyDescriptor::AdvanceSize(uint32_t size)
     {
         uint32_t offset = InvalidOffset;
 
@@ -170,9 +155,7 @@ namespace Ame::Rhi
 
     //
 
-    void MaterialPropertyDescriptor::InsertProp(
-        const String&       propertyName,
-        const PropertyInfo& propertyInfo)
+    void MaterialPropertyDescriptor::InsertProp(const String& propertyName, const PropertyInfo& propertyInfo)
     {
         uint32_t size   = GetSize(propertyInfo.Type, propertyInfo.DataType, propertyInfo.Dims);
         uint32_t offset = AdvanceSize(size);
@@ -186,9 +169,8 @@ namespace Ame::Rhi
         metaData.put(AME_PROPDESC_METAOFFSET, offset);
     }
 
-    void MaterialPropertyDescriptor::InsertStruct(
-        const String&                     propertyName,
-        const MaterialPropertyDescriptor& descriptor)
+    void MaterialPropertyDescriptor::InsertStruct(const String&                     propertyName,
+                                                  const MaterialPropertyDescriptor& descriptor)
     {
         PadToBoundaries();
 
@@ -208,9 +190,7 @@ namespace Ame::Rhi
 
     //
 
-    void MaterialPropertyDescriptor::TraverseAppendOffset(
-        PropertyTree& subtree,
-        uint32_t      offset)
+    void MaterialPropertyDescriptor::TraverseAppendOffset(PropertyTree& subtree, uint32_t offset)
     {
         std::stack<Ref<PropertyTree>> trees;
 
@@ -228,7 +208,8 @@ namespace Ame::Rhi
             trees.pop();
 
             auto& metaData = child.get_child(AME_PROPDESC_METANAME);
-            auto  type     = static_cast<MaterialResourceType>(metaData.get<std::underlying_type_t<MaterialResourceType>>(AME_PROPDESC_METATYPE));
+            auto  type     = static_cast<MaterialResourceType>(
+                metaData.get<std::underlying_type_t<MaterialResourceType>>(AME_PROPDESC_METATYPE));
 
             metaData.put(AME_PROPDESC_METAOFFSET, metaData.get<uint32_t>(AME_PROPDESC_METAOFFSET) + offset);
 
@@ -245,8 +226,7 @@ namespace Ame::Rhi
         }
     }
 
-    void MaterialPropertyDescriptor::InsertPadding(
-        uint32_t size)
+    void MaterialPropertyDescriptor::InsertPadding(uint32_t size)
     {
         m_AlignedSize += size;
     }

@@ -9,11 +9,8 @@
 namespace Ame::Rhi
 {
 #ifdef D3D12_SUPPORTED
-    static void EnableFlagsOnCreateInfo(
-        Dg::EngineD3D12CreateInfo& createInfo,
-        Dg::D3D12_VALIDATION_FLAGS flags,
-        DeviceValidationType       validationFlags,
-        DeviceValidationType       validationType)
+    static void EnableFlagsOnCreateInfo(Dg::EngineD3D12CreateInfo& createInfo, Dg::D3D12_VALIDATION_FLAGS flags,
+                                        DeviceValidationType validationFlags, DeviceValidationType validationType)
     {
         using namespace EnumBitOperators;
         if ((validationFlags & validationType) == validationType)
@@ -33,16 +30,15 @@ namespace Ame::Rhi
             return "D3D12";
         }
 
-        static diligent_create_info GetCreateInfo(
-            const DeviceCreateDesc&   createDesc,
-            const create_struct_type& createDescDev)
+        static diligent_create_info GetCreateInfo(const DeviceCreateDesc&   createDesc,
+                                                  const create_struct_type& createDescDev)
         {
             diligent_create_info createInfo;
 
             createInfo.GraphicsAPIVersion = createDescDev.GraphicsAPIVersion;
 
-            EnableFlagsOnCreateInfo(createInfo, Dg::D3D12_VALIDATION_FLAG_BREAK_ON_ERROR,
-                                    createDesc.ValidationLayer, DeviceValidationType::BreakOnError);
+            EnableFlagsOnCreateInfo(createInfo, Dg::D3D12_VALIDATION_FLAG_BREAK_ON_ERROR, createDesc.ValidationLayer,
+                                    DeviceValidationType::BreakOnError);
             EnableFlagsOnCreateInfo(createInfo, Dg::D3D12_VALIDATION_FLAG_BREAK_ON_CORRUPTION,
                                     createDesc.ValidationLayer, DeviceValidationType::BreakOnCorruption);
             EnableFlagsOnCreateInfo(createInfo, Dg::D3D12_VALIDATION_FLAG_ENABLE_GPU_BASED_VALIDATION,
@@ -51,7 +47,8 @@ namespace Ame::Rhi
             GetOrDefault(createInfo.CPUDescriptorHeapAllocationSize[0], createDescDev.CpuDescriptors.MaxResources);
             GetOrDefault(createInfo.CPUDescriptorHeapAllocationSize[1], createDescDev.CpuDescriptors.MaxSamplers);
             GetOrDefault(createInfo.CPUDescriptorHeapAllocationSize[2], createDescDev.CpuDescriptors.MaxRenderTargets);
-            GetOrDefault(createInfo.CPUDescriptorHeapAllocationSize[3], createDescDev.CpuDescriptors.MaxDepthStencilViews);
+            GetOrDefault(
+                createInfo.CPUDescriptorHeapAllocationSize[3], createDescDev.CpuDescriptors.MaxDepthStencilViews);
 
             GetOrDefault(createInfo.GPUDescriptorHeapSize[0], createDescDev.GpuDescriptors.MaxResources);
             GetOrDefault(createInfo.GPUDescriptorHeapSize[1], createDescDev.GpuDescriptors.MaxSamplers);
@@ -59,8 +56,10 @@ namespace Ame::Rhi
             GetOrDefault(createInfo.GPUDescriptorHeapDynamicSize[0], createDescDev.GpuDynamicDescriptors.MaxResources);
             GetOrDefault(createInfo.GPUDescriptorHeapDynamicSize[1], createDescDev.GpuDynamicDescriptors.MaxSamplers);
 
-            GetOrDefault(createInfo.DynamicDescriptorAllocationChunkSize[0], createDescDev.GpuDynamicDescriptorsChunk.MaxResources);
-            GetOrDefault(createInfo.DynamicDescriptorAllocationChunkSize[1], createDescDev.GpuDynamicDescriptorsChunk.MaxSamplers);
+            GetOrDefault(createInfo.DynamicDescriptorAllocationChunkSize[0],
+                         createDescDev.GpuDynamicDescriptorsChunk.MaxResources);
+            GetOrDefault(createInfo.DynamicDescriptorAllocationChunkSize[1],
+                         createDescDev.GpuDynamicDescriptorsChunk.MaxSamplers);
 
             GetOrDefault(createInfo.DynamicHeapPageSize, createDescDev.DynamicHeapPageSize);
             GetOrDefault(createInfo.NumDynamicHeapPagesToReserve, createDescDev.NumDynamicHeapPagesToReserve);
@@ -89,34 +88,27 @@ namespace Ame::Rhi
             return factory;
         }
 
-        static void CreateDeviceAndContext(
-            diligent_factory_type* factory,
-            diligent_create_info   createInfo,
-            Dg::IRenderDevice**    renderDevice,
-            Dg::IDeviceContext**   deviceContext)
+        static void CreateDeviceAndContext(diligent_factory_type* factory, diligent_create_info createInfo,
+                                           Dg::IRenderDevice** renderDevice, Dg::IDeviceContext** deviceContext)
         {
             factory->CreateDeviceAndContextsD3D12(createInfo, renderDevice, deviceContext);
         }
 
-        static void CreateSwapchain(
-            diligent_factory_type*        factory,
-            Dg::IRenderDevice*            renderDevice,
-            Dg::IDeviceContext*           deviceContext,
-            const Dg::SwapChainDesc&      swapchainDesc,
-            const Dg::FullScreenModeDesc& fullscreenDesc,
-            const Dg::NativeWindow&       nativeWindow,
-            Dg::ISwapChain**              swapchain)
+        static void CreateSwapchain(diligent_factory_type* factory, Dg::IRenderDevice* renderDevice,
+                                    Dg::IDeviceContext* deviceContext, const Dg::SwapChainDesc& swapchainDesc,
+                                    const Dg::FullScreenModeDesc& fullscreenDesc, const Dg::NativeWindow& nativeWindow,
+                                    Dg::ISwapChain** swapchain)
         {
-            factory->CreateSwapChainD3D12(renderDevice, deviceContext, swapchainDesc, fullscreenDesc, nativeWindow, swapchain);
+            factory->CreateSwapChainD3D12(
+                renderDevice, deviceContext, swapchainDesc, fullscreenDesc, nativeWindow, swapchain);
         }
     };
 #endif
 
     //
 
-    Opt<DeviceWrapper> DeviceWrapper::CreateImpl(
-        const DeviceCreateDesc&      createDesc,
-        const DeviceCreateDescD3D12& createDescDev)
+    Opt<DeviceWrapper> DeviceWrapper::CreateImpl(const DeviceCreateDesc&      createDesc,
+                                                 const DeviceCreateDescD3D12& createDescDev)
     {
 #ifdef D3D12_SUPPORTED
         return GenericDeviceCreator<DeviceCreateTraitsD3D12>::Create(createDesc, createDescDev);

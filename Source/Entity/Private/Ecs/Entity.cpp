@@ -3,9 +3,7 @@
 
 namespace Ame::Ecs
 {
-    Entity::Entity(
-        const flecs::entity& flecsEntity) :
-        m_Entity(flecsEntity)
+    Entity::Entity(const flecs::entity& flecsEntity) : m_Entity(flecsEntity)
     {
     }
 
@@ -41,8 +39,7 @@ namespace Ame::Ecs
         return m_Entity;
     }
 
-    bool Entity::operator==(
-        const Entity& other) const
+    bool Entity::operator==(const Entity& other) const
     {
         return m_Entity == other.m_Entity;
     }
@@ -54,8 +51,7 @@ namespace Ame::Ecs
 
     //
 
-    void Entity::Reset(
-        bool withChildren)
+    void Entity::Reset(bool withChildren)
     {
         if (!withChildren)
         {
@@ -82,27 +78,21 @@ namespace Ame::Ecs
 
     //
 
-    std::vector<Entity> Entity::GetChildren(
-        bool allowDisabled) const
+    std::vector<Entity> Entity::GetChildren(bool allowDisabled) const
     {
         std::vector<Entity> children;
         if (!allowDisabled)
         {
-            m_Entity.children(
-                [&children](const flecs::entity& Child)
-                {
-                    children.emplace_back(Child);
-                });
+            m_Entity.children([&children](const flecs::entity& Child) { children.emplace_back(Child); });
         }
         else
         {
-            auto query =
-                m_Entity.world()
-                    .query_builder()
-                    .with(flecs::ChildOf, m_Entity)
-                    .with(flecs::Disabled)
-                    .optional()
-                    .build();
+            auto query = m_Entity.world()
+                             .query_builder()
+                             .with(flecs::ChildOf, m_Entity)
+                             .with(flecs::Disabled)
+                             .optional()
+                             .build();
 
             query.run(
                 [&children](flecs::iter& It)
@@ -129,8 +119,7 @@ namespace Ame::Ecs
 
     //
 
-    void Entity::SetParent(
-        const Entity& parent)
+    void Entity::SetParent(const Entity& parent)
     {
         m_Entity.child_of(parent.GetFlecsEntity());
     }

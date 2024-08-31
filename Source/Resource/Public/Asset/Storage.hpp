@@ -57,8 +57,7 @@ namespace Ame::Asset
         friend class IAssetPackage;
 
     public:
-        Storage(
-            SharedPtr<Co::runtime> coroutine);
+        Storage(SharedPtr<Co::runtime> coroutine);
 
         Storage(const Storage&) = delete;
         Storage(Storage&&)      = default;
@@ -72,23 +71,19 @@ namespace Ame::Asset
         /// <summary>
         /// Adds an asset to the storage system.
         /// </summary>
-        Co::result<void> SaveAsset(
-            const AddDesc& desc);
+        Co::result<void> SaveAsset(const AddDesc& desc);
 
         /// <summary>
         /// Removes an asset from the storage system.
         /// </summary>
-        void RemoveAsset(
-            const UId& uid);
+        void RemoveAsset(const UId& uid);
 
     public:
         /// <summary>
         /// Registers an asset handler.
         /// Not thread safe.
         /// </summary>
-        void RegisterHandler(
-            const UId&         uid,
-            Ptr<IAssetHandler> handler);
+        void RegisterHandler(const UId& uid, Ptr<IAssetHandler> handler);
 
         /// <summary>
         /// Registers an asset handler.
@@ -96,8 +91,7 @@ namespace Ame::Asset
         /// </summary>
         template<typename Ty, typename... ArgsTy>
             requires std::derived_from<Ty, IAssetHandler>
-        void RegisterHandler(
-            ArgsTy&&... args)
+        void RegisterHandler(ArgsTy&&... args)
         {
             RegisterHandler(Ty::UID, { ObjectAllocator<Ty>()(std::forward<ArgsTy>(args)...), IID_BaseAssetHandler });
         }
@@ -106,22 +100,19 @@ namespace Ame::Asset
         /// Unregisters an asset handler.
         /// Not thread safe.
         /// </summary>
-        void UnregisterHandler(
-            const UId& uid);
+        void UnregisterHandler(const UId& uid);
 
         /// <summary>
         /// Gets the asset handler for the specified asset.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] std::pair<UId, IAssetHandler*> GetHandler(
-            IAsset* asset);
+        [[nodiscard]] std::pair<UId, IAssetHandler*> GetHandler(IAsset* asset);
 
         /// <summary>
         /// Gets the asset handler for the specified id.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] IAssetHandler* GetHandler(
-            const UId& uid);
+        [[nodiscard]] IAssetHandler* GetHandler(const UId& uid);
 
         /// <summary>
         /// Get the associated asset manager.
@@ -133,8 +124,7 @@ namespace Ame::Asset
         /// Mounts an asset package.
         /// Not thread safe.
         /// </summary>
-        void Mount(
-            Ptr<IAssetPackage> package);
+        void Mount(Ptr<IAssetPackage> package);
 
     public:
         /// <summary>
@@ -143,8 +133,7 @@ namespace Ame::Asset
         /// </summary>
         template<typename Ty, typename... ArgsTy>
             requires std::derived_from<Ty, IAssetPackage>
-        Ty* Mount(
-            ArgsTy&&... args)
+        Ty* Mount(ArgsTy&&... args)
         {
             auto handler = ObjectAllocator<Ty>()(*this, std::forward<ArgsTy>(args)...);
             Mount(Ptr<IAssetPackage>{ handler, IID_BaseAssetPackage });
@@ -155,8 +144,7 @@ namespace Ame::Asset
         /// Unmounts an asset package.
         /// Not thread safe.
         /// </summary>
-        void Unmount(
-            IAssetPackage* package);
+        void Unmount(IAssetPackage* package);
 
         /// <summary>
         /// Helper function to exports all packages to disk.
@@ -175,37 +163,30 @@ namespace Ame::Asset
         /// Gets the asset package with the specified name.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] Co::generator<Ptr<IAssetPackage>> GetPackages(
-            const PackageFlags& flags = PackageFlags::Disk);
+        [[nodiscard]] Co::generator<Ptr<IAssetPackage>> GetPackages(const PackageFlags& flags = PackageFlags::Disk);
 
         /// <summary>
         /// Gets all assets in all packages.
         /// Not thread safe.
         /// </summary>
-        [[nodiscard]] Co::generator<PackageAndAsset> GetAllAssets(
-            const PackageFlags& flags = PackageFlags::Disk);
+        [[nodiscard]] Co::generator<PackageAndAsset> GetAllAssets(const PackageFlags& flags = PackageFlags::Disk);
 
     public:
         /// <summary>
         /// Finds an asset by uid.
         /// </summary>
-        [[nodiscard]] IAssetPackage* FindPackage(
-            const UId&          uid,
-            const PackageFlags& flags = PackageFlags::Disk);
+        [[nodiscard]] IAssetPackage* FindPackage(const UId& uid, const PackageFlags& flags = PackageFlags::Disk);
 
         /// <summary>
         /// Finds assets by path.
         /// </summary>
-        [[nodiscard]] PackageAndAsset FindAsset(
-            const String&       path,
-            const PackageFlags& flags = PackageFlags::Disk);
+        [[nodiscard]] PackageAndAsset FindAsset(const String& path, const PackageFlags& flags = PackageFlags::Disk);
 
         /// <summary>
         /// Finds assets by path as regex.
         /// </summary>
-        [[nodiscard]] Co::generator<PackageAndAsset> FindAssets(
-            const std::regex&   pathRegex,
-            const PackageFlags& flags = PackageFlags::Disk);
+        [[nodiscard]] Co::generator<PackageAndAsset> FindAssets(const std::regex&   pathRegex,
+                                                                const PackageFlags& flags = PackageFlags::Disk);
 
     private:
         /// <summary>

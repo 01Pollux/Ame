@@ -11,86 +11,85 @@
 
 namespace Ame::Math::Impl
 {
-#define AME_VECTOR_IMPL_MATH_OP(VecType, Symbol)                                \
-    VecType& operator##Symbol##=(const VecType & other) noexcept;               \
-    VecType& operator##Symbol##=(value_type val) noexcept;                      \
-    [[nodiscard]] VecType operator##Symbol(const VecType& other) const noexcept \
-    {                                                                           \
-        VecType Tmp   = *this;                                                  \
-        Tmp##Symbol## = other;                                                  \
-        return Tmp;                                                             \
-    }                                                                           \
-    [[nodiscard]] VecType operator##Symbol(value_type val) const noexcept       \
-    {                                                                           \
-        VecType Tmp   = *this;                                                  \
-        Tmp##Symbol## = val;                                                    \
-        return Tmp;                                                             \
+#define AME_VECTOR_IMPL_MATH_OP(VecType, Symbol)                                                                       \
+    VecType& operator##Symbol##=(const VecType & other) noexcept;                                                      \
+    VecType& operator##Symbol##=(value_type val) noexcept;                                                             \
+    [[nodiscard]] VecType operator##Symbol(const VecType& other) const noexcept                                        \
+    {                                                                                                                  \
+        VecType Tmp   = *this;                                                                                         \
+        Tmp##Symbol## = other;                                                                                         \
+        return Tmp;                                                                                                    \
+    }                                                                                                                  \
+    [[nodiscard]] VecType operator##Symbol(value_type val) const noexcept                                              \
+    {                                                                                                                  \
+        VecType Tmp   = *this;                                                                                         \
+        Tmp##Symbol## = val;                                                                                           \
+        return Tmp;                                                                                                    \
     }
 
-#define AME_VECTOR_IMPL_ACCESSOR(Index, Name)  \
-    constexpr value_type Name() const noexcept \
-    {                                          \
-        return (*this)[Index];                 \
-    }                                          \
-                                               \
-    constexpr value_type& Name() noexcept      \
-    {                                          \
-        return (*this)[Index];                 \
+#define AME_VECTOR_IMPL_ACCESSOR(Index, Name)                                                                          \
+    constexpr value_type Name() const noexcept                                                                         \
+    {                                                                                                                  \
+        return (*this)[Index];                                                                                         \
+    }                                                                                                                  \
+                                                                                                                       \
+    constexpr value_type& Name() noexcept                                                                              \
+    {                                                                                                                  \
+        return (*this)[Index];                                                                                         \
     }
 
-#define AME_VECTOR_IMPL_MATHVEC_DECLARATIONS(VecType)                                                               \
-                                                                                                                    \
-    [[nodiscard]] bool IsNan() const noexcept;                                                                      \
-                                                                                                                    \
-    void Negate() noexcept;                                                                                         \
-                                                                                                                    \
-    [[nodiscard]] value_type Dot(const VecType& other) const noexcept;                                              \
-                                                                                                                    \
-    [[nodiscard]] value_type LengthSqr() const noexcept;                                                            \
-                                                                                                                    \
-    [[nodiscard]] value_type Length() const noexcept;                                                               \
-                                                                                                                    \
-    [[nodiscard]] bool IsGreaterThan(const VecType& other) const noexcept;                                          \
-                                                                                                                    \
-    [[nodiscard]] bool IsLessThan(const VecType& other) const noexcept;                                             \
-                                                                                                                    \
-    void Normalize() noexcept;                                                                                      \
-                                                                                                                    \
-    [[nodiscard]] bool NearEqual(const VecType& other,                                                              \
-                                 value_type     tolerance = std::numeric_limits<value_type>::epsilon()) const noexcept; \
-                                                                                                                    \
-    [[nodiscard]] bool Within(const VecType& min, const VecType& max) const noexcept;                               \
-                                                                                                                    \
-    /* Multiply, add, and assign to this (ie: *this = *this * a + b ). */                                           \
-    void MultAdd(const VecType& a, const VecType& b) noexcept;                                                      \
-                                                                                                                    \
-    VecType& operator=(value_type val) noexcept;                                                                    \
-                                                                                                                    \
-    [[nodiscard]] VecType operator-() const noexcept;                                                               \
-                                                                                                                    \
-    [[nodiscard]] VecType min(const VecType& other) const noexcept;                                                 \
-                                                                                                                    \
-    [[nodiscard]] VecType max(const VecType& other) const noexcept;                                                 \
-                                                                                                                    \
-    [[nodiscard]] value_type DistanceTo(const VecType& other) const noexcept                                        \
-    {                                                                                                               \
-        return (other - *this).Length();                                                                            \
-    }                                                                                                               \
-                                                                                                                    \
-    [[nodiscard]] value_type DistanceToSqr(const VecType& other) const noexcept                                     \
-    {                                                                                                               \
-        return (other - *this).LengthSqr();                                                                         \
-    }                                                                                                               \
-                                                                                                                    \
-    AME_VECTOR_IMPL_MATH_OP(VecType, +);                                                                            \
-    AME_VECTOR_IMPL_MATH_OP(VecType, -);                                                                            \
-    AME_VECTOR_IMPL_MATH_OP(VecType, /);                                                                            \
+#define AME_VECTOR_IMPL_MATHVEC_DECLARATIONS(VecType)                                                                  \
+                                                                                                                       \
+    [[nodiscard]] bool IsNan() const noexcept;                                                                         \
+                                                                                                                       \
+    void Negate() noexcept;                                                                                            \
+                                                                                                                       \
+    [[nodiscard]] value_type Dot(const VecType& other) const noexcept;                                                 \
+                                                                                                                       \
+    [[nodiscard]] value_type LengthSqr() const noexcept;                                                               \
+                                                                                                                       \
+    [[nodiscard]] value_type Length() const noexcept;                                                                  \
+                                                                                                                       \
+    [[nodiscard]] bool IsGreaterThan(const VecType& other) const noexcept;                                             \
+                                                                                                                       \
+    [[nodiscard]] bool IsLessThan(const VecType& other) const noexcept;                                                \
+                                                                                                                       \
+    void Normalize() noexcept;                                                                                         \
+                                                                                                                       \
+    [[nodiscard]] bool NearEqual(                                                                                      \
+        const VecType& other, value_type tolerance = std::numeric_limits<value_type>::epsilon()) const noexcept;       \
+                                                                                                                       \
+    [[nodiscard]] bool Within(const VecType& min, const VecType& max) const noexcept;                                  \
+                                                                                                                       \
+    /* Multiply, add, and assign to this (ie: *this = *this * a + b ). */                                              \
+    void MultAdd(const VecType& a, const VecType& b) noexcept;                                                         \
+                                                                                                                       \
+    VecType& operator=(value_type val) noexcept;                                                                       \
+                                                                                                                       \
+    [[nodiscard]] VecType operator-() const noexcept;                                                                  \
+                                                                                                                       \
+    [[nodiscard]] VecType min(const VecType& other) const noexcept;                                                    \
+                                                                                                                       \
+    [[nodiscard]] VecType max(const VecType& other) const noexcept;                                                    \
+                                                                                                                       \
+    [[nodiscard]] value_type DistanceTo(const VecType& other) const noexcept                                           \
+    {                                                                                                                  \
+        return (other - *this).Length();                                                                               \
+    }                                                                                                                  \
+                                                                                                                       \
+    [[nodiscard]] value_type DistanceToSqr(const VecType& other) const noexcept                                        \
+    {                                                                                                                  \
+        return (other - *this).LengthSqr();                                                                            \
+    }                                                                                                                  \
+                                                                                                                       \
+    AME_VECTOR_IMPL_MATH_OP(VecType, +);                                                                               \
+    AME_VECTOR_IMPL_MATH_OP(VecType, -);                                                                               \
+    AME_VECTOR_IMPL_MATH_OP(VecType, /);                                                                               \
     AME_VECTOR_IMPL_MATH_OP(VecType, *)
 
     //
 
-    template<typename Ty, size_t Size>
-    class MVector
+    template<typename Ty, size_t Size> class MVector
     {
     public:
         using value_type      = Ty;
@@ -117,8 +116,7 @@ namespace Ame::Math::Impl
             std::copy_n(list.begin(), std::min(list.size(), size()), begin());
         }
 
-        constexpr MVector(const array_type& arr) noexcept :
-            m_Data{ arr }
+        constexpr MVector(const array_type& arr) noexcept : m_Data{ arr }
         {
         }
 
@@ -320,13 +318,11 @@ namespace Ame::Math::Impl
 
     //
 
-    template<typename Ty, typename... RestTy>
-    MVector(Ty, RestTy...) -> MVector<Ty, 1 + sizeof...(RestTy)>;
+    template<typename Ty, typename... RestTy> MVector(Ty, RestTy...) -> MVector<Ty, 1 + sizeof...(RestTy)>;
 
     //
 
-    template<typename Ty>
-    class VectorConstants
+    template<typename Ty> class VectorConstants
     {
         using value_type = typename Ty::value_type;
 

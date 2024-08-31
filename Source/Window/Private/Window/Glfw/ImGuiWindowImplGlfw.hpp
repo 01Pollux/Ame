@@ -10,29 +10,20 @@ namespace Ame::Window
     public:
         using Base = BaseObject<IImGuiWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(
-            IID_ImGuiWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiWindow, Base);
 
     public:
-        ImGuiWindowImplGlfw(
-            IReferenceCounters* referenceCounters,
-            GLFWwindow*         handle) :
-            Base(referenceCounters),
-            m_Handle(handle)
+        ImGuiWindowImplGlfw(IReferenceCounters* referenceCounters, GLFWwindow* handle) :
+            Base(referenceCounters), m_Handle(handle)
         {
         }
 
     public:
-        void InitializeImGui(
-            void* imguiContext) override;
-        void InstallImGuiCallbacks(
-            void* imguiContext) override;
-        void NewFrameImGui(
-            void* imguiContext) override;
-        void UninstallImGuiCallbacks(
-            void* imguiContext) override;
-        void ShutdownImGui(
-            void* imguiContext) override;
+        void InitializeImGui(void* imguiContext) override;
+        void InstallImGuiCallbacks(void* imguiContext) override;
+        void NewFrameImGui(void* imguiContext) override;
+        void UninstallImGuiCallbacks(void* imguiContext) override;
+        void ShutdownImGui(void* imguiContext) override;
 
     private:
         GLFWwindow* m_Handle = nullptr;

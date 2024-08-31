@@ -149,26 +149,23 @@ namespace Ame
     {
         auto plugin = context.GetPlugin();
 
-        std::erase_if(
-            m_Plugins,
-            [this, plugin](auto& pair)
-            {
-                if (!pair.second->HasDependencies())
-                {
-                    return false;
-                }
+        std::erase_if(m_Plugins,
+                      [this, plugin](auto& pair)
+                      {
+                          if (!pair.second->HasDependencies())
+                          {
+                              return false;
+                          }
 
-                bool erase = false;
-                if (pair.second->GetDependencies().contains(plugin))
-                {
-                    this->UnloadPlugin_Internal(*pair.second);
-                    erase = true;
-                }
-                return erase;
-            });
+                          bool erase = false;
+                          if (pair.second->GetDependencies().contains(plugin))
+                          {
+                              this->UnloadPlugin_Internal(*pair.second);
+                              erase = true;
+                          }
+                          return erase;
+                      });
 
-        std::erase_if(m_Interfaces,
-                      [plugin](const auto& pair)
-                      { return pair.second.GetPlugin() == plugin; });
+        std::erase_if(m_Interfaces, [plugin](const auto& pair) { return pair.second.GetPlugin() == plugin; });
     }
 } // namespace Ame

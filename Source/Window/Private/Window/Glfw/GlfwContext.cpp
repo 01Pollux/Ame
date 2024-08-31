@@ -8,9 +8,7 @@ namespace Ame::Window
     static std::shared_ptr<GlfwContext> s_Instance;
     static std::mutex                   s_GlfwInitMutex;
 
-    static void GlfwErrorCallback(
-        int         code,
-        const char* description)
+    static void GlfwErrorCallback(int code, const char* description)
     {
         Log::Window().Error("GLFW Error: {0} ({1})", description, code);
     }
@@ -57,8 +55,7 @@ namespace Ame::Window
 
     //
 
-    void GlfwContext::PushWrappedTask(
-        Task task)
+    void GlfwContext::PushWrappedTask(Task task)
     {
         {
             std::unique_lock lock(m_TaskMutex);
@@ -72,14 +69,10 @@ namespace Ame::Window
 
     void GlfwContext::InitializeGlfwWorker()
     {
-        GLFWallocator glfwAllocator{
-            .allocate = [](size_t size, void*)
-            { return mi_malloc(size); },
-            .reallocate = [](void* block, size_t size, void*)
-            { return mi_realloc(block, size); },
-            .deallocate = [](void* block, void*)
-            { mi_free(block); }
-        };
+        GLFWallocator glfwAllocator{ .allocate = [](size_t size, void*) { return mi_malloc(size); },
+                                     .reallocate = [](void* block, size_t size, void*)
+                                     { return mi_realloc(block, size); },
+                                     .deallocate = [](void* block, void*) { mi_free(block); } };
 
         glfwSetErrorCallback(GlfwErrorCallback);
         glfwInitAllocator(&glfwAllocator);
@@ -96,22 +89,21 @@ namespace Ame::Window
             Task task;
             {
                 std::unique_lock lock(m_TaskMutex);
-                m_TaskNotifier.wait(
-                    lock,
-                    [&]
-                    {
-                        if (stopToken.stop_requested())
-                        {
-                            return true;
-                        }
-                        if (!m_Tasks.empty())
-                        {
-                            task = std::move(m_Tasks.front());
-                            m_Tasks.pop();
-                            return true;
-                        }
-                        return false;
-                    });
+                m_TaskNotifier.wait(lock,
+                                    [&]
+                                    {
+                                        if (stopToken.stop_requested())
+                                        {
+                                            return true;
+                                        }
+                                        if (!m_Tasks.empty())
+                                        {
+                                            task = std::move(m_Tasks.front());
+                                            m_Tasks.pop();
+                                            return true;
+                                        }
+                                        return false;
+                                    });
             }
 #ifdef AME_DEBUG
             try

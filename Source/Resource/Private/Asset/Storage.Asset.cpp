@@ -7,8 +7,7 @@
 
 namespace Ame::Asset
 {
-    Co::result<void> Storage::SaveAsset(
-        const AddDesc& desc)
+    Co::result<void> Storage::SaveAsset(const AddDesc& desc)
     {
         AME_LOG_ASSERT(Log::Asset(), desc.Asset != nullptr, "Asset is null");
 
@@ -27,9 +26,8 @@ namespace Ame::Asset
 #ifdef AME_DEBUG
         else
         {
-            if (std::ranges::find_if(
-                    m_Packages, [package](const auto& curPackage)
-                    { return curPackage == package; }) == m_Packages.end())
+            if (std::ranges::find_if(m_Packages, [package](const auto& curPackage) { return curPackage == package; }) ==
+                m_Packages.end())
             {
                 AME_LOG_ASSERT(Log::Asset(), false, "Package not mounted");
             }
@@ -39,8 +37,7 @@ namespace Ame::Asset
         return package->SaveAsset(desc.Asset);
     }
 
-    void Storage::RemoveAsset(
-        const UId& uid)
+    void Storage::RemoveAsset(const UId& uid)
     {
         for (auto& package : m_Packages)
         {
@@ -55,8 +52,7 @@ namespace Ame::Asset
 
     //
 
-    auto Storage::GetAllAssets(
-        const PackageFlags& flags) -> Co::generator<PackageAndAsset>
+    auto Storage::GetAllAssets(const PackageFlags& flags) -> Co::generator<PackageAndAsset>
     {
         for (auto& package : GetPackages(flags))
         {
@@ -69,9 +65,7 @@ namespace Ame::Asset
 
     //
 
-    auto Storage::FindAsset(
-        const String&       path,
-        const PackageFlags& flags) -> PackageAndAsset
+    auto Storage::FindAsset(const String& path, const PackageFlags& flags) -> PackageAndAsset
     {
         PackageAndAsset result;
         for (auto& package : GetPackages(flags))
@@ -85,9 +79,7 @@ namespace Ame::Asset
         return result;
     }
 
-    auto Storage::FindAssets(
-        const std::regex&   pathRegex,
-        const PackageFlags& flags) -> Co::generator<PackageAndAsset>
+    auto Storage::FindAssets(const std::regex& pathRegex, const PackageFlags& flags) -> Co::generator<PackageAndAsset>
     {
         for (auto& package : GetPackages(flags))
         {

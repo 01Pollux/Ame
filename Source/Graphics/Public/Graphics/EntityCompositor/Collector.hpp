@@ -9,24 +9,16 @@ namespace Ame::Gfx
         friend class EntityDrawer;
 
     public:
-        EntityCollector(
-            EntityStorage& storage);
+        EntityCollector(EntityStorage& storage);
 
     private:
         void ResetCommands();
-        void AddEntity(
-            DrawInstanceType      type,
-            Ecs::IBaseRenderable* renderable,
-            uint32_t              instanceId);
-        void UpdateLights(
-            std::span<const uint32_t> lightIds);
+        void AddEntity(DrawInstanceType type, Ecs::IBaseRenderable* renderable, uint32_t instanceId);
+        void UpdateLights(std::span<const uint32_t> lightIds);
 
     private:
-        void Sort(
-            const Math::TransformMatrix& cameraTransform);
-        void Upload(
-            Rg::Graph&                       cameraGraph,
-            const CameraFrameDataUpdateDesc& frameData);
+        void Sort(const Math::TransformMatrix& cameraTransform);
+        void Upload(Rg::Graph& cameraGraph, const CameraFrameDataUpdateDesc& frameData);
         void Reset();
 
     private:

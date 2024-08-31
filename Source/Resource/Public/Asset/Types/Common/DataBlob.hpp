@@ -9,12 +9,9 @@ namespace Ame::Asset::Common
     {
     public:
         using Base = BaseObject<IAsset>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
-            IID_DataBlobAsset, Base,
-            m_Blob);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_DataBlobAsset, Base, m_Blob);
 
-        DataBlobAsset(IReferenceCounters* counters) :
-            Base(counters)
+        DataBlobAsset(IReferenceCounters* counters) : Base(counters)
         {
         }
 
@@ -49,8 +46,7 @@ namespace Ame::Asset::Common
         /// <summary>
         /// Set data of the buffer
         /// </summary>
-        void Set(
-            Ptr<IDataBlob> blob)
+        void Set(Ptr<IDataBlob> blob)
         {
             m_Blob = std::move(blob);
         }

@@ -34,17 +34,17 @@ namespace Ame::Rhi
         /// <summary>
         /// End the rendering device frame and present if device has window.
         /// </summary>
-        virtual void AdvanceFrame(
-            uint32_t syncInterval = 1) = 0;
+        virtual void AdvanceFrame(uint32_t syncInterval = 1) = 0;
 
     public:
         [[nodiscard]] virtual Dg::IEngineFactory*    GetFactory() const          = 0;
         [[nodiscard]] virtual Dg::IRenderDevice*     GetRenderDevice() const     = 0;
         [[nodiscard]] virtual Dg::IDeviceContext*    GetImmediateContext() const = 0;
-        [[nodiscard]] virtual Window::IWindow*       GetWindow() const           = 0; // may be null if there is no window
-        [[nodiscard]] virtual Dg::ISwapChain*        GetSwapchain() const        = 0; // may be null if there is no window
+        [[nodiscard]] virtual Window::IWindow*       GetWindow() const    = 0; // may be null if there is no window
+        [[nodiscard]] virtual Dg::ISwapChain*        GetSwapchain() const = 0; // may be null if there is no window
         [[nodiscard]] virtual CommonRenderPass*      GetCommonRenderPass() const = 0;
-        [[nodiscard]] virtual Dg::IRenderStateCache* GetRenderStateCache() const = 0; // may be null if the device was not created with a render state cache
+        [[nodiscard]] virtual Dg::IRenderStateCache* GetRenderStateCache()
+            const = 0; // may be null if the device was not created with a render state cache
 
     public:
         /// <summary>
@@ -55,13 +55,11 @@ namespace Ame::Rhi
         /// <summary>
         /// Get the graphics API used by the device.
         /// </summary>
-        [[nodiscard]] const char* GetGraphicsAPIName(
-            bool upperCase = false);
+        [[nodiscard]] const char* GetGraphicsAPIName(bool upperCase = false);
     };
 
     /// <summary>
     /// Create a rendering device.
     /// </summary>
-    [[nodiscard]] Ptr<IRhiDevice> CreateRhiDevice(
-        const DeviceCreateDesc& desc);
+    [[nodiscard]] Ptr<IRhiDevice> CreateRhiDevice(const DeviceCreateDesc& desc);
 } // namespace Ame::Rhi

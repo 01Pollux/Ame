@@ -34,20 +34,16 @@ namespace Ame::Gfx
         };
 
     public:
-        DepthPrePass(
-            Ecs::World* world);
+        DepthPrePass(Ecs::World* world);
 
     private:
         void BindResourcesOnce(const Rg::ResourceStorage& storage);
         void CreateResourcesOnce(const Rg::ResourceStorage& storage);
 
     private:
-        void OnBuild(
-            Rg::Resolver& resolver);
+        void OnBuild(Rg::Resolver& resolver);
 
-        void OnExecute(
-            const Rg::ResourceStorage& storage,
-            Dg::IDeviceContext*        deviceContext);
+        void OnExecute(const Rg::ResourceStorage& storage, Dg::IDeviceContext* deviceContext);
 
     private:
         Ecs::World*                 m_World;

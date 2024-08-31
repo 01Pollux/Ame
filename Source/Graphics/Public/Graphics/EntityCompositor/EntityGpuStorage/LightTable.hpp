@@ -26,10 +26,11 @@ namespace Ame::Gfx
         };
 
         Math::Vector4 Color;
-        Math::Vector3 Attenuation_Angle{};                                  // 0 for directional light, (attenuation, 0, 0) for point light, (attenuation, angle, attenuation) for spot light
-        float         Range         = 0.f;                                  // 0 for directional light, Point light + spot light
-        uint32_t      TransformId   = std::numeric_limits<uint32_t>::max(); // Id of the transform component
-        uint32_t      Flags         = 0;                                    // LightFlags::* flags
+        Math::Vector3 Attenuation_Angle{}; // 0 for directional light, (attenuation, 0, 0) for point light,
+                                           // (attenuation, angle, attenuation) for spot light
+        float    Range       = 0.f;        // 0 for directional light, Point light + spot light
+        uint32_t TransformId = std::numeric_limits<uint32_t>::max(); // Id of the transform component
+        uint32_t Flags       = 0;                                    // LightFlags::* flags
     };
 
     struct EntityGpuStorageTraits_Light
@@ -73,8 +74,7 @@ namespace Ame::Gfx
 
         static auto observer_create(Ecs::WorldRef world)
         {
-            return world
-                ->observer<const EntityTransform_EcsId, const Ecs::LightTagComponent>()
+            return world->observer<const EntityTransform_EcsId, const Ecs::LightTagComponent>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

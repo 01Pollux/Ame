@@ -21,8 +21,7 @@ namespace Ame::Gfx
         };
     };
 
-    template<EntityGpuStorageTraits Traits>
-    class EntityGpuStorage
+    template<EntityGpuStorageTraits Traits> class EntityGpuStorage
     {
     public:
         using traits_type            = Traits;
@@ -53,36 +52,29 @@ namespace Ame::Gfx
         };
 
     public:
-        EntityGpuStorage(
-            Ecs::WorldRef world)
+        EntityGpuStorage(Ecs::WorldRef world)
         {
             world->component<typename traits_type::id_container_type>();
-            m_Observer =
-                traits_type::observer_create(world)
-                    .yield_existing()
-                    .run(
-                        [this](Ecs::Iterator& iter)
+            m_Observer = traits_type::observer_create(world).yield_existing().run(
+                [this](Ecs::Iterator& iter)
+                {
+                    while (iter.next())
+                    {
+                        for (size_t i : iter)
                         {
-                            while (iter.next())
+                            Ecs::Entity entity(iter.entity(i));
+                            if (iter.event() == flecs::OnSet)
                             {
-                                for (size_t i : iter)
-                                {
-                                    Ecs::Entity entity(iter.entity(i));
-                                    if (iter.event() == flecs::OnSet)
-                                    {
-                                        UpdateEntity(entity);
-                                    }
-                                    else
-                                    {
-                                        RemoveEntity(entity);
-                                    }
-                                }
+                                UpdateEntity(entity);
                             }
-                        });
-            m_InstanceObserver =
-                world->query_builder<const typename traits_type::id_container_type>()
-                    .cached()
-                    .build();
+                            else
+                            {
+                                RemoveEntity(entity);
+                            }
+                        }
+                    }
+                });
+            m_InstanceObserver = world->query_builder<const typename traits_type::id_container_type>().cached().build();
         }
 
     private:
@@ -90,8 +82,7 @@ namespace Ame::Gfx
         /// Add or Update entity state.
         /// Function is not thread safe.
         /// </summary>
-        void UpdateEntity(
-            const Ecs::Entity& entity)
+        void UpdateEntity(const Ecs::Entity& entity)
         {
             auto& instanceId = entity->ensure<typename traits_type::id_container_type>();
             if (instanceId.Id == c_InvalidId)
@@ -101,8 +92,7 @@ namespace Ame::Gfx
             }
         }
 
-        void RemoveEntity(
-            const Ecs::Entity& entity)
+        void RemoveEntity(const Ecs::Entity& entity)
         {
             auto instanceId = entity->get<typename traits_type::id_container_type>();
             if (instanceId)
@@ -116,9 +106,7 @@ namespace Ame::Gfx
         /// <summary>
         /// Updates the buffer with the dirty instances.
         /// </summary>
-        void Upload(
-            Dg::IRenderDevice*  renderDevice,
-            Dg::IDeviceContext* renderContext)
+        void Upload(Dg::IRenderDevice* renderDevice, Dg::IDeviceContext* renderContext)
         {
             // At least 1 instance must be available
             size_t requiredSize      = sizeof(typename traits_type::instance_type) * GetMaxCount();
@@ -157,12 +145,10 @@ namespace Ame::Gfx
                         uint32_t bufferOffset = 0;
                         for (auto& [start, count] : result.Ranges)
                         {
-                            renderContext->UpdateBuffer(
-                                m_Buffer,
-                                start * sizeof(typename traits_type::instance_type),
-                                count * sizeof(typename traits_type::instance_type),
-                                result.Instances.data() + bufferOffset,
-                                Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+                            renderContext->UpdateBuffer(m_Buffer, start * sizeof(typename traits_type::instance_type),
+                                                        count * sizeof(typename traits_type::instance_type),
+                                                        result.Instances.data() + bufferOffset,
+                                                        Dg::RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
                             bufferOffset += count;
                         }
                     }
@@ -189,14 +175,11 @@ namespace Ame::Gfx
         /// 2: [5, 2] (5, 6)
         /// 3: [9, 1] (9)
         /// </summary>
-        [[nodiscard]] SortedIdRangeResult GroupAndSortIds(
-            Ecs::Iterator&              iter,
-            std::span<UnsortedEntityId> ids)
+        [[nodiscard]] SortedIdRangeResult GroupAndSortIds(Ecs::Iterator& iter, std::span<UnsortedEntityId> ids)
         {
             SortedIdRangeResult result;
 
-            std::sort(ids.begin(), ids.end(), [](const auto& a, const auto& b)
-                      { return a.InstanceId < b.InstanceId; });
+            std::sort(ids.begin(), ids.end(), [](const auto& a, const auto& b) { return a.InstanceId < b.InstanceId; });
             result.Instances.resize(ids.size());
 
             auto     start  = ids[0].InstanceId;
@@ -248,9 +231,7 @@ namespace Ame::Gfx
         /// Try to grow the buffer to the new size.
         /// Returns true if the buffer was grown, this is used to avoid whole buffer update.
         /// </summary>
-        [[nodiscard]] bool TryGrowBuffer(
-            Dg::IRenderDevice* renderDevice,
-            size_t             newSize)
+        [[nodiscard]] bool TryGrowBuffer(Dg::IRenderDevice* renderDevice, size_t newSize)
         {
             const Dg::BufferDesc* oldBufferDesc = nullptr;
             if (m_Buffer)

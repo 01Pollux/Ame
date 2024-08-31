@@ -26,9 +26,7 @@ namespace Ame::Log
         std::filesystem::create_directories("Logs", ErrorCode);
     }
 
-    Logger::Logger(
-        StringView tagName,
-        SinkList   sinks)
+    Logger::Logger(StringView tagName, SinkList sinks)
     {
         m_Logger = std::make_unique<spdlog::logger>(Strings::To<std::string>(tagName), sinks.begin(), sinks.end());
         m_Logger->flush_on(spdlog::level::err);
@@ -44,9 +42,7 @@ namespace Ame::Log
 
     //
 
-    void Logger::Register(
-        const String& tagName,
-        SinkList      sinks)
+    void Logger::Register(const String& tagName, SinkList sinks)
     {
         if (s_Loggers.contains(tagName))
         {
@@ -56,9 +52,7 @@ namespace Ame::Log
         s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, std::move(sinks))));
     }
 
-    void Logger::Register(
-        const String& tagName,
-        StringView    fileName)
+    void Logger::Register(const String& tagName, StringView fileName)
     {
         if (s_Loggers.contains(tagName))
         {
@@ -67,12 +61,11 @@ namespace Ame::Log
 
         EnsureLogsDirectory();
 
-        SinkList Sinks{
-            std::make_shared<spdlog::sinks::basic_file_sink_mt>(String(fileName)),
+        SinkList Sinks{ std::make_shared<spdlog::sinks::basic_file_sink_mt>(String(fileName)),
 #ifndef AME_DIST
-            std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
+                        std::make_shared<spdlog::sinks::stdout_color_sink_mt>(),
 #ifdef AME_PLATFORM_WINDOWS
-            std::make_shared<spdlog::sinks::msvc_sink_mt>()
+                        std::make_shared<spdlog::sinks::msvc_sink_mt>()
 #endif
 #endif
         };
@@ -90,14 +83,12 @@ namespace Ame::Log
         s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger(tagName, std::move(Sinks))));
     }
 
-    void Logger::RegisterNull(
-        const String& tagName)
+    void Logger::RegisterNull(const String& tagName)
     {
         s_Loggers.emplace(tagName, UniquePtr<Logger>(new Logger));
     }
 
-    void Logger::Unregister(
-        const String& tagName)
+    void Logger::Unregister(const String& tagName)
     {
         spdlog::drop(Strings::To<std::string>(tagName));
         s_Loggers.erase(tagName);
@@ -105,8 +96,7 @@ namespace Ame::Log
 
     //
 
-    Logger& Logger::GetLogger(
-        const String& name)
+    Logger& Logger::GetLogger(const String& name)
     {
         static Logger s_NullLogger;
         auto          Iter = s_Loggers.find(name);
@@ -125,8 +115,7 @@ namespace Ame::Log
 
     //
 
-    bool Logger::CanLog(
-        LogLevel level) const noexcept
+    bool Logger::CanLog(LogLevel level) const noexcept
     {
         if (!m_Logger) [[unlikely]]
         {
@@ -143,9 +132,7 @@ namespace Ame::Log
         return CurLevel >= level;
     }
 
-    void Logger::LogMessage(
-        LogLevel   level,
-        StringView message) const
+    void Logger::LogMessage(LogLevel level, StringView message) const
     {
 #ifndef AME_DISABLE_LOGGING
         if (!m_Logger) [[unlikely]]
@@ -169,7 +156,8 @@ namespace Ame::Log
                 int index = 0;
                 while (it != stack.end())
                 {
-                    m_Logger->log(level, "{}> {}({}): {}", index++, it->source_file(), it->source_line(), it->description());
+                    m_Logger->log(
+                        level, "{}> {}({}): {}", index++, it->source_file(), it->source_line(), it->description());
                     it++;
                 }
             }
@@ -209,8 +197,7 @@ namespace Ame::Log
 #endif
     }
 
-    void Logger::SetLevel(
-        LogLevel level)
+    void Logger::SetLevel(LogLevel level)
     {
         if (!m_Logger) [[unlikely]]
         {
@@ -271,8 +258,7 @@ namespace Ame::Log
 
     //
 
-    String FormatException(
-        const std::exception& ex)
+    String FormatException(const std::exception& ex)
     {
         String message = ex.what();
 #ifndef AME_DIST

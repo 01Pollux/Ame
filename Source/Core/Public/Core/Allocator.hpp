@@ -25,8 +25,8 @@ terms of the MIT license. A copy of the license can be found in the file
 #define mi_decl_new(n)         mi_decl_nodiscard _Ret_notnull_ _Post_writable_byte_size_(n)
 #define mi_decl_new_nothrow(n) mi_decl_nodiscard _Ret_maybenull_ _Success_(return != NULL) _Post_writable_byte_size_(n)
 #else
-#define mi_decl_new(n)         mi_decl_nodiscard 
-#define mi_decl_new_nothrow(n) mi_decl_nodiscard 
+#define mi_decl_new(n)         mi_decl_nodiscard
+#define mi_decl_new_nothrow(n) mi_decl_nodiscard
 #endif
 
 void operator delete(void* p) noexcept;
@@ -59,4 +59,3 @@ void* operator new[](std::size_t n, std::align_val_t al) noexcept(false);
 void* operator new(std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept;
 void* operator new[](std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept;
 #endif
-

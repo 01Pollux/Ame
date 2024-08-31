@@ -7,11 +7,9 @@ namespace Ame::Ecs
     class MathEcsModule
     {
     public:
-        MathEcsModule(
-            WorldRef world);
+        MathEcsModule(WorldRef world);
 
     private:
-        void RegisterTransformObservers(
-            WorldRef world);
+        void RegisterTransformObservers(WorldRef world);
     };
 } // namespace Ame::Ecs

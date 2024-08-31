@@ -14,8 +14,7 @@ namespace Ame::Rg
 
     //
 
-    void Context::Execute(
-        Dg::IDeviceContext* context)
+    void Context::Execute(Dg::IDeviceContext* context)
     {
         GetStorage().UpdateResources();
         for (auto& level : m_Levels)
@@ -24,8 +23,7 @@ namespace Ame::Rg
         }
     }
 
-    void Context::Build(
-        DependencyLevelListType&& levels)
+    void Context::Build(DependencyLevelListType&& levels)
     {
         m_Levels = std::move(levels);
     }

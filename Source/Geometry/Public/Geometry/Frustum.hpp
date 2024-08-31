@@ -12,8 +12,7 @@ namespace Ame::Geometry
     public:
         using BoundingFrustum::Transform;
 
-        [[nodiscard]] Frustum Transform(
-            const Math::Matrix4x4& transform) const noexcept
+        [[nodiscard]] Frustum Transform(const Math::Matrix4x4& transform) const noexcept
         {
             auto copy = *this;
             Transform(copy, transform);

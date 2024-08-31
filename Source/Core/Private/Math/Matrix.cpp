@@ -184,8 +184,7 @@ namespace Ame::Math
 
         XMMatrixDecompose(&unused, &xmRotation, &xmPosition, *this);
 
-        *this = XMMatrixScalingFromVector(scale) *
-                XMMatrixRotationQuaternion(xmRotation) *
+        *this = XMMatrixScalingFromVector(scale) * XMMatrixRotationQuaternion(xmRotation) *
                 XMMatrixTranslationFromVector(xmPosition);
     }
 
@@ -312,8 +311,7 @@ namespace Ame::Math
 
     void Matrix3x3::SetRotationScale(const Quaternion& rotation, const Vector3& scale)
     {
-        *this = XMMatrixScalingFromVector(scale) *
-                XMMatrixRotationQuaternion(rotation);
+        *this = XMMatrixScalingFromVector(scale) * XMMatrixRotationQuaternion(rotation);
     }
 
     Vector3 Matrix3x3::GetScale() const
@@ -327,8 +325,7 @@ namespace Ame::Math
     {
         XMVECTOR rotation, unused;
         XMMatrixDecompose(&unused, &rotation, &unused, *this);
-        *this = XMMatrixScalingFromVector(scale) *
-                XMMatrixRotationQuaternion(rotation);
+        *this = XMMatrixScalingFromVector(scale) * XMMatrixRotationQuaternion(rotation);
     }
 
     Quaternion Matrix3x3::GetRotationQuat() const
@@ -340,8 +337,7 @@ namespace Ame::Math
     {
         XMVECTOR scale, unused;
         XMMatrixDecompose(&scale, &unused, &unused, *this);
-        *this = XMMatrixRotationQuaternion(quat) *
-                XMMatrixScalingFromVector(scale);
+        *this = XMMatrixRotationQuaternion(quat) * XMMatrixScalingFromVector(scale);
     }
 
     Matrix3x3 Matrix3x3::operator*(const Matrix3x3& other) const

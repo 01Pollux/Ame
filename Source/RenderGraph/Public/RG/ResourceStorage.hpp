@@ -15,9 +15,7 @@ namespace Ame::Rg
         using UserDataMapType = std::map<ResourceId, Ptr<IObject>>;
 
     public:
-        ResourceStorage(
-            Rhi::IRhiDevice* rhiDevice) :
-            m_RhiDevice(rhiDevice)
+        ResourceStorage(Rhi::IRhiDevice* rhiDevice) : m_RhiDevice(rhiDevice)
         {
         }
 
@@ -36,13 +34,10 @@ namespace Ame::Rg
         [[nodiscard]] Dg::ITextureView* GetTextureView(ResourceViewId viewId) const;
 
     public:
-        [[nodiscard]] bool     ContainsUserData(const ResourceId& id) const;
-        [[nodiscard]] void     SetUserData(const ResourceId& id, IObject* object);
-        [[nodiscard]] IObject* GetUserData(const ResourceId& id) const;
-        template<typename Ty>
-        [[nodiscard]] Ptr<Ty> GetUserData(
-            const ResourceId& id,
-            const UId&        iid) const
+        [[nodiscard]] bool                          ContainsUserData(const ResourceId& id) const;
+        [[nodiscard]] void                          SetUserData(const ResourceId& id, IObject* object);
+        [[nodiscard]] IObject*                      GetUserData(const ResourceId& id) const;
+        template<typename Ty> [[nodiscard]] Ptr<Ty> GetUserData(const ResourceId& id, const UId& iid) const
         {
             return { GetUserData(id), iid };
         }
@@ -80,8 +75,7 @@ namespace Ame::Rg
         /// Check if storage is locked or not
         /// DEBUG ONLY
         /// </summary>
-        void CheckLockState(
-            bool locked) const;
+        void CheckLockState(bool locked) const;
 
     private:
         [[nodiscard]] bool NeedsRebuild() const noexcept;

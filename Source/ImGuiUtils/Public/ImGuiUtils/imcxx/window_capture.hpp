@@ -22,8 +22,7 @@ namespace imcxx
         {
         };
 
-        capture(ImGuiWindow* window) :
-            m_Window(window)
+        capture(ImGuiWindow* window) : m_Window(window)
         {
         }
 
@@ -32,13 +31,11 @@ namespace imcxx
         {
         }
 
-        capture(imid, ImGuiID id) :
-            capture(ImGui::FindWindowByID(id))
+        capture(imid, ImGuiID id) : capture(ImGui::FindWindowByID(id))
         {
         }
 
-        capture(imid, const char* name) :
-            capture(ImGui::FindWindowByName(name))
+        capture(imid, const char* name) : capture(ImGui::FindWindowByName(name))
         {
         }
 
@@ -47,8 +44,7 @@ namespace imcxx
         {
         }
 
-        capture(nav) :
-            capture(ImGui::GetCurrentContext()->NavWindow)
+        capture(nav) : capture(ImGui::GetCurrentContext()->NavWindow)
         {
         }
 
@@ -146,7 +142,8 @@ namespace imcxx
         /// </summary>
         [[nodiscard]] bool is_hovered(ImGuiHoveredFlags flags = 0) const noexcept
         {
-            IM_ASSERT((flags & (ImGuiHoveredFlags_AllowWhenOverlapped | ImGuiHoveredFlags_AllowWhenDisabled)) == 0); // Flags not supported by this function
+            IM_ASSERT((flags & (ImGuiHoveredFlags_AllowWhenOverlapped | ImGuiHoveredFlags_AllowWhenDisabled)) ==
+                      0); // Flags not supported by this function
             ImGuiContext& g          = *GImGui;
             ImGuiWindow*  ref_window = g.HoveredWindow;
             ImGuiWindow*  cur_window = g.CurrentWindow;
@@ -245,7 +242,8 @@ namespace imcxx
         void set_fontscale(float scale)
         {
             get()->FontWindowScale               = scale;
-            ImGui::GetCurrentContext()->FontSize = ImGui::GetCurrentContext()->DrawListSharedData.FontSize = get()->CalcFontSize();
+            ImGui::GetCurrentContext()->FontSize = ImGui::GetCurrentContext()->DrawListSharedData.FontSize =
+                get()->CalcFontSize();
         }
 
         void hittest_hole(const ImVec2& pos, const ImVec2& size)
@@ -288,7 +286,8 @@ namespace imcxx
         {
             ImGuiContext* ctx          = ImGui::GetCurrentContext();
             float         spacing_x    = (std::max)(get()->WindowPadding.x, ctx->Style.ItemSpacing.x);
-            float         target_pos_x = ImLerp(ctx->LastItemData.Rect.Min.x - spacing_x, ctx->LastItemData.Rect.Max.x + spacing_x, center_x_ratio);
+            float         target_pos_x = ImLerp(
+                ctx->LastItemData.Rect.Min.x - spacing_x, ctx->LastItemData.Rect.Max.x + spacing_x, center_x_ratio);
             scroll_x_rel(target_pos_x - get()->Pos.x, center_x_ratio); // Convert from absolute to local pos
 
             // Tweak: snap on edges when aiming at an item very close to the edge
@@ -297,8 +296,10 @@ namespace imcxx
 
         void scroll_y_here(float center_y_ratio)
         {
-            float spacing_y    = (std::max)(get()->WindowPadding.y, ImGui::GetCurrentContext()->Style.ItemSpacing.x);
-            float target_pos_y = ImLerp(get()->DC.CursorPosPrevLine.y - spacing_y, get()->DC.CursorPosPrevLine.y + get()->DC.PrevLineSize.y + spacing_y, center_y_ratio);
+            float spacing_y = (std::max)(get()->WindowPadding.y, ImGui::GetCurrentContext()->Style.ItemSpacing.x);
+            float target_pos_y =
+                ImLerp(get()->DC.CursorPosPrevLine.y - spacing_y,
+                       get()->DC.CursorPosPrevLine.y + get()->DC.PrevLineSize.y + spacing_y, center_y_ratio);
             scroll_x_rel(target_pos_y - get()->Pos.y, center_y_ratio); // Convert from absolute to local pos
 
             // Tweak: snap on edges when aiming at an item very close to the edge
@@ -318,7 +319,8 @@ namespace imcxx
     public:
         // Content region
         // - Retrieve available space from a given point. GetContentRegionAvail() is frequently useful.
-        // - Those functions are bound to be redesigned (they are confusing, incomplete and the Min/Max return values are in local window coordinates which increases confusion)
+        // - Those functions are bound to be redesigned (they are confusing, incomplete and the Min/Max return values
+        // are in local window coordinates which increases confusion)
 
         ImVec2 abs_region_max() const noexcept
         {
@@ -340,7 +342,8 @@ namespace imcxx
         }
 
         /// <summary>
-        /// current content boundaries (typically window boundaries including scrolling, or current column boundaries), in windows coordinates
+        /// current content boundaries (typically window boundaries including scrolling, or current column boundaries),
+        /// in windows coordinates
         /// </summary>
         ImVec2 region_max() const noexcept
         {
@@ -420,7 +423,8 @@ namespace imcxx
         }
 
     private:
-        [[nodiscard]] static ImGuiWindow* get_combined_root_window(ImGuiWindow* wnd, bool popup_hierarchy, bool dock_hierarchy)
+        [[nodiscard]] static ImGuiWindow* get_combined_root_window(ImGuiWindow* wnd, bool popup_hierarchy,
+                                                                   bool dock_hierarchy)
         {
             ImGuiWindow* last_window = nullptr;
             while (last_window != wnd)
@@ -435,7 +439,8 @@ namespace imcxx
             return wnd;
         }
 
-        [[nodiscard]] static bool is_window_child_of(ImGuiWindow* window, ImGuiWindow* potential_parent, bool popup_hierarchy, bool dock_hierarchy)
+        [[nodiscard]] static bool is_window_child_of(ImGuiWindow* window, ImGuiWindow* potential_parent,
+                                                     bool popup_hierarchy, bool dock_hierarchy)
         {
             ImGuiWindow* window_root = get_combined_root_window(window, popup_hierarchy, dock_hierarchy);
             if (window_root == potential_parent)
@@ -466,7 +471,8 @@ namespace imcxx
                         // NB: The order of those two tests is important because Modal windows are also Popups.
                         if (focused_root_window->Flags & ImGuiWindowFlags_Modal)
                             return false;
-                        if ((focused_root_window->Flags & ImGuiWindowFlags_Popup) && !(flags & ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+                        if ((focused_root_window->Flags & ImGuiWindowFlags_Popup) &&
+                            !(flags & ImGuiHoveredFlags_AllowWhenBlockedByPopup))
                             return false;
                     }
                 }

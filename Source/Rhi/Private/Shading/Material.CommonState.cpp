@@ -7,12 +7,9 @@
 
 namespace Ame::Rhi
 {
-    MaterialCommonState::MaterialCommonState(
-        Dg::IRenderDevice* renderDevice,
-        MaterialCreateDesc createDesc) :
+    MaterialCommonState::MaterialCommonState(Dg::IRenderDevice* renderDevice, MaterialCreateDesc createDesc) :
         m_ResourceSignature(CreatePipelineResourceSignature(renderDevice, std::move(createDesc.ResourceSignature))),
-        m_UserDataDesc(std::move(createDesc.UserData)),
-        m_MaterialShaders(std::move(createDesc.Shaders)),
+        m_UserDataDesc(std::move(createDesc.UserData)), m_MaterialShaders(std::move(createDesc.Shaders)),
         m_MaterialHash(CreateBaseMaterialHash(m_MaterialShaders))
     {
     }
@@ -42,20 +39,17 @@ namespace Ame::Rhi
     //
 
     Ptr<Dg::IPipelineResourceSignature> MaterialCommonState::CreatePipelineResourceSignature(
-        Dg::IRenderDevice*                       renderDevice,
-        const Dg::PipelineResourceSignatureDesc& resourcesDesc)
+        Dg::IRenderDevice* renderDevice, const Dg::PipelineResourceSignatureDesc& resourcesDesc)
     {
         Ptr<Dg::IPipelineResourceSignature> resourceSignature;
-        if (resourcesDesc.NumResources != 0 ||
-            resourcesDesc.NumImmutableSamplers != 0)
+        if (resourcesDesc.NumResources != 0 || resourcesDesc.NumImmutableSamplers != 0)
         {
             renderDevice->CreatePipelineResourceSignature(resourcesDesc, &resourceSignature);
         }
         return resourceSignature;
     }
 
-    auto MaterialCommonState::CreateBaseMaterialHash(
-        const MaterialShaderSourceStorage& shaders) -> MaterialHash
+    auto MaterialCommonState::CreateBaseMaterialHash(const MaterialShaderSourceStorage& shaders) -> MaterialHash
     {
         return Dg::ComputeHash(shaders);
     }

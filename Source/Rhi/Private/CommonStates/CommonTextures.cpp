@@ -17,8 +17,7 @@
 
 namespace Ame::Rhi
 {
-    [[nodiscard]] static std::vector<std::uint8_t> DecompressTextureData(
-        std::span<const std::uint8_t> data)
+    [[nodiscard]] static std::vector<std::uint8_t> DecompressTextureData(std::span<const std::uint8_t> data)
     {
         namespace bio = boost::iostreams;
 
@@ -32,13 +31,10 @@ namespace Ame::Rhi
         return image;
     }
 
-    [[nodiscard]] static Ptr<Dg::ITexture> CreateTexture(
-        IRhiDevice*                      rhiDevice,
-        Dg::RESOURCE_DIMENSION           dim,
-        const char*                      name,
-        const Math::Vector3U&            size,
-        std::span<Dg::TextureSubResData> subresourceData,
-        Dg::TEXTURE_FORMAT               format = Dg::TEX_FORMAT_RGBA8_UNORM)
+    [[nodiscard]] static Ptr<Dg::ITexture> CreateTexture(IRhiDevice* rhiDevice, Dg::RESOURCE_DIMENSION dim,
+                                                         const char* name, const Math::Vector3U& size,
+                                                         std::span<Dg::TextureSubResData> subresourceData,
+                                                         Dg::TEXTURE_FORMAT format = Dg::TEX_FORMAT_RGBA8_UNORM)
     {
         auto renderDevice = rhiDevice->GetRenderDevice();
 
@@ -48,15 +44,7 @@ namespace Ame::Rhi
 #else
             nullptr,
 #endif
-            dim,
-            size.x(),
-            size.y(),
-            size.z(),
-            format,
-            1u,
-            1u,
-            Dg::USAGE_IMMUTABLE,
-            Dg::BIND_SHADER_RESOURCE
+            dim,  size.x(), size.y(), size.z(), format, 1u, 1u, Dg::USAGE_IMMUTABLE, Dg::BIND_SHADER_RESOURCE
         };
 
         Dg::TextureData   initData{ subresourceData.data(), Rhi::Count32(subresourceData) };
@@ -67,50 +55,47 @@ namespace Ame::Rhi
 
     //
 
-    CommonTextures::CommonTextures(
-        IRhiDevice* rhiDevice) :
-        m_RhiDevice(rhiDevice)
+    CommonTextures::CommonTextures(IRhiDevice* rhiDevice) : m_RhiDevice(rhiDevice)
     {
     }
 
     //
 
-    Dg::ITexture* CommonTextures::GetDefaultTexture(
-        CommonTexture type)
+    Dg::ITexture* CommonTextures::GetDefaultTexture(CommonTexture type)
     {
         auto index = std::to_underlying(type);
         if (!m_DefaultTextures[index])
         {
             switch (type)
             {
-#define COMMON_TEXTURES_111(Name)                                                                         \
-    case CommonTexture::Name##1D:                                                                         \
-    {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
-        m_DefaultTextures[index] =                                                                        \
-            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_1D, #Name "1D", { 1, 1, 1 }, subresources);   \
-        break;                                                                                            \
-    }                                                                                                     \
-    case CommonTexture::Name##2D:                                                                         \
-    {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
-        m_DefaultTextures[index] =                                                                        \
-            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, #Name "2D", { 1, 1, 1 }, subresources);   \
-        break;                                                                                            \
-    }                                                                                                     \
-    case CommonTexture::Name##3D:                                                                         \
-    {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
-        m_DefaultTextures[index] =                                                                        \
-            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_3D, #Name "3D", { 1, 1, 1 }, subresources);   \
-        break;                                                                                            \
-    }                                                                                                     \
-    case CommonTexture::Name##Cube:                                                                       \
-    {                                                                                                     \
-        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };      \
-        m_DefaultTextures[index] =                                                                        \
-            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_3D, #Name "Cube", { 1, 1, 1 }, subresources); \
-        break;                                                                                            \
+#define COMMON_TEXTURES_111(Name)                                                                                      \
+    case CommonTexture::Name##1D:                                                                                      \
+    {                                                                                                                  \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };                   \
+        m_DefaultTextures[index] =                                                                                     \
+            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_1D, #Name "1D", { 1, 1, 1 }, subresources);                \
+        break;                                                                                                         \
+    }                                                                                                                  \
+    case CommonTexture::Name##2D:                                                                                      \
+    {                                                                                                                  \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };                   \
+        m_DefaultTextures[index] =                                                                                     \
+            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, #Name "2D", { 1, 1, 1 }, subresources);                \
+        break;                                                                                                         \
+    }                                                                                                                  \
+    case CommonTexture::Name##3D:                                                                                      \
+    {                                                                                                                  \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };                   \
+        m_DefaultTextures[index] =                                                                                     \
+            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_3D, #Name "3D", { 1, 1, 1 }, subresources);                \
+        break;                                                                                                         \
+    }                                                                                                                  \
+    case CommonTexture::Name##Cube:                                                                                    \
+    {                                                                                                                  \
+        Dg::TextureSubResData subresources[] = { { s_##Name##Texture, sizeof(s_##Name##Texture) } };                   \
+        m_DefaultTextures[index] =                                                                                     \
+            CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_3D, #Name "Cube", { 1, 1, 1 }, subresources);              \
+        break;                                                                                                         \
     }
 
                 COMMON_TEXTURES_111(White);
@@ -138,9 +123,7 @@ namespace Ame::Rhi
 
     //
 
-    Dg::ITexture* CommonTextures::GetCheckboardTexture(
-        const Math::Vector2U& size,
-        const Math::Vector2U& slices)
+    Dg::ITexture* CommonTextures::GetCheckboardTexture(const Math::Vector2U& size, const Math::Vector2U& slices)
     {
         auto  index   = HashCompute(size.x(), size.y(), slices.x(), slices.y());
         auto& texture = m_CheckboardTextures[index];
@@ -149,18 +132,19 @@ namespace Ame::Rhi
         {
             size_t               rowPitch = size.x() * sizeof(uint8_t[4]);
             std::vector<uint8_t> data(rowPitch * size.y());
-            Dg::GenerateCheckerBoardPattern(size.x(), size.y(), Dg::TEX_FORMAT_RGBA8_UNORM, slices.x(), slices.y(), data.data(), rowPitch);
+            Dg::GenerateCheckerBoardPattern(
+                size.x(), size.y(), Dg::TEX_FORMAT_RGBA8_UNORM, slices.x(), slices.y(), data.data(), rowPitch);
 
             Dg::TextureSubResData subresources[]{ { data.data(), rowPitch } };
-            texture = CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, "Checkboard", { size.x(), size.y(), 1 }, subresources);
+            texture = CreateTexture(
+                m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, "Checkboard", { size.x(), size.y(), 1 }, subresources);
         }
         return texture;
     }
 
     //
 
-    Dg::ITexture* CommonTextures::GetDevTexture(
-        const Math::Vector2U& size)
+    Dg::ITexture* CommonTextures::GetDevTexture(const Math::Vector2U& size)
     {
         auto  index   = HashCompute(size.x(), size.y());
         auto& texture = m_DevTextures[index];
@@ -178,7 +162,8 @@ namespace Ame::Rhi
             image = image.ConvertTo(ImageDataType::Rgbaf);
 
             Dg::TextureSubResData subresources[]{ image.GetSubresource() };
-            texture = CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, "Development", { size.x(), size.y(), 1 }, subresources, Dg::TEX_FORMAT_RGBA32_FLOAT);
+            texture = CreateTexture(m_RhiDevice, Dg::RESOURCE_DIM_TEX_2D, "Development", { size.x(), size.y(), 1 },
+                                    subresources, Dg::TEX_FORMAT_RGBA32_FLOAT);
         }
         return texture;
     }
