@@ -40,9 +40,7 @@ namespace Ame
         /// <summary>
         /// Called when plugin is first loaded, use this callback to register interfaces only
         /// </summary>
-        virtual void OnPluginPreLoad(IModuleRegistry*)
-        {
-        }
+        virtual bool OnPluginPreLoad(IModuleRegistry* registry);
 
         /// <summary>
         /// Called when plugin is first loaded
@@ -50,9 +48,8 @@ namespace Ame
         /// <returns>
         /// true if plugin is all set to be loaded, false otherwise
         /// </returns>
-        virtual bool OnPluginLoad(IModuleRegistry*)
+        virtual void OnPluginLoad(IModuleRegistry*)
         {
-            return false;
         }
 
         /// <summary>

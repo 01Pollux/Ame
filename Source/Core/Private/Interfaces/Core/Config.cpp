@@ -15,8 +15,14 @@ namespace Ame::Interfaces
             {
                 logger->AddStream(stream.get());
             }
+            logger->SetLevel(LoggerDesc.DefaultLevel);
 
             registry->ExposeInterface(owner, IID_Logger, logger);
+
+            if (LoggerDesc.SetAsMain)
+            {
+                Log::Logger = logger;
+            }
         }
         if (EnableFrameTimer)
         {

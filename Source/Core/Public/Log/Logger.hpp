@@ -24,14 +24,14 @@ namespace Ame::Log
 #ifdef AME_DISABLE_LOGGING
             return false;
 #else
-            LogLevel CurLevel = GetLevel();
+            LogLevel curLevel = GetLevel();
 #ifdef AME_DIST
-            if (CurLevel < LogLevel::Warning)
+            if (curLevel < LogLevel::Warning)
             {
                 return false;
             }
 #endif
-            return CurLevel >= level;
+            return curLevel <= level;
 #endif
         }
     };

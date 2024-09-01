@@ -12,12 +12,6 @@ public:
 
     void OnLoad() override
     {
-        using namespace Ame;
-        if (Log::Logger)
-        {
-            Log::Logger->SetLevel(Log::LogLevel::Trace);
-        }
-
         auto moduleRegistry = GetEngine().GetRegistry();
         moduleRegistry->LoadPlugin("PluginHost");
 
@@ -25,4 +19,4 @@ public:
     }
 };
 
-AME_MAIN_APPLICATION_DEFAULT(PluginExampleApplication);
+AME_MAIN_APPLICATION_DEFAULT(PluginExampleApplication, "Logs/PluginExampleApplication.log");

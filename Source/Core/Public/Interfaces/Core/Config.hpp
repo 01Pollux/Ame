@@ -13,6 +13,14 @@ namespace Ame::Interfaces
     {
         String                                     LoggerName = "Ame";
         std::vector<UniquePtr<Log::ILoggerStream>> Streams;
+#ifdef AME_DEBUG
+        Log::LogLevel DefaultLevel = Log::LogLevel::Trace;
+#elif defined(AME_DIST)
+        Log::LogLevel DefaultLevel = Log::LogLevel::Error;
+#else
+        Log::LogLevel DefaultLevel = Log::LogLevel::Info;
+#endif
+        bool SetAsMain = true;
     };
 
     struct CoreModuleConfig

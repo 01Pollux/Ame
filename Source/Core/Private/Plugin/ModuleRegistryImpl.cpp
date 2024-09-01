@@ -111,9 +111,9 @@ namespace Ame
             auto ctx    = std::make_unique<PluginContext>(name);
             auto plugin = ctx->GetPlugin();
 
-            plugin->OnPluginPreLoad(this);
-            if (plugin->OnPluginLoad(this))
+            if (plugin->OnPluginPreLoad(this))
             {
+                plugin->OnPluginLoad(this);
                 m_Plugins.emplace(name, std::move(ctx));
                 return plugin;
             }

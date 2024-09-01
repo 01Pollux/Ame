@@ -17,15 +17,18 @@ public:
         AME_LOG_INFO("ExamplePluginHost::~ExamplePluginHost");
     }
 
-    void OnPluginPreLoad(IModuleRegistry*) override
+    bool OnPluginPreLoad(IModuleRegistry* registry) override
     {
-        AME_LOG_INFO("ExamplePluginHost::OnPluginPreLoad");
+        if (IPlugin::OnPluginPreLoad(registry))
+        {
+            AME_LOG_INFO("ExamplePluginHost::OnPluginPreLoad");
+        }
+        return true;
     }
 
-    bool OnPluginLoad(IModuleRegistry*) override
+    void OnPluginLoad(IModuleRegistry*) override
     {
         AME_LOG_INFO("ExamplePluginHost::OnPluginLoad");
-        return true;
     }
 
     void OnInterfaceDrop(IObject*) override
