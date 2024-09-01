@@ -1,3 +1,4 @@
+#include <Interfaces/Core/Config.hpp>
 #include <Interfaces/Core/FrameTimer.hpp>
 #include <Interfaces/Core/FrameEvent.hpp>
 

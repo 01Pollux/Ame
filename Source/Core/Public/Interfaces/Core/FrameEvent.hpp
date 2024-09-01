@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Interfaces/Core/Config.hpp>
+#include <Core/Interface.hpp>
 #include <Core/Signal.hpp>
 
 namespace Ame::Signals
@@ -15,6 +15,11 @@ namespace Ame::Signals
 
 namespace Ame::Interfaces
 {
+    // {919C726D-72E2-4573-ACC2-98EA5AF1781B}
+    inline constexpr UId IID_FrameEvent{
+        0x919c726d, 0x72e2, 0x4573, { 0xac, 0xc2, 0x98, 0xea, 0x5a, 0xf1, 0x78, 0x1b }
+    };
+
     class FrameEvent final : public BaseObject<IObject>
     {
     public:

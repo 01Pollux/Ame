@@ -1,3 +1,4 @@
+#include <Interfaces/Rhi/Config.hpp>
 #include <Interfaces/Rhi/RhiBackend.hpp>
 #include <Interfaces/Rhi/WindowBackend.hpp>
 #include <Interfaces/Rhi/ImGuiBackend.hpp>

@@ -1,3 +1,4 @@
+#include <Interfaces/Ecs/Config.hpp>
 #include <Interfaces/Ecs/EntityStorage.hpp>
 #include <Interfaces/Rhi/RhiBackend.hpp>
 

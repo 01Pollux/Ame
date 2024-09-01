@@ -1,3 +1,4 @@
+#include <Interfaces/Graphics/Config.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
 #include <Interfaces/Rhi/RhiBackend.hpp>

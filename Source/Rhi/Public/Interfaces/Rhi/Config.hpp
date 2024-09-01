@@ -11,22 +11,8 @@
 
 namespace Ame::Interfaces
 {
-    // {CF40EE16-0DE3-4095-938A-FB8993CD01FD}
-    inline constexpr UId IID_ImGuiBackend{
-        0xcf40ee16, 0xde3, 0x4095, { 0x93, 0x8a, 0xfb, 0x89, 0x93, 0xcd, 0x1, 0xfd }
-    };
     class ImGuiBackend;
-
-    // {640F1A0F-8EBC-4722-931D-92EAD1EFFE74}
-    inline constexpr UId IID_WindowBackend{
-        0x640f1a0f, 0x8ebc, 0x4722, { 0x93, 0x1d, 0x92, 0xea, 0xd1, 0xef, 0xfe, 0x74 }
-    };
     class WindowBackend;
-
-    // {116F0CD7-9584-417E-BA5E-5EC61E74C7E6}
-    inline constexpr UId IID_RhiBackend{
-        0x116f0cd7, 0x9584, 0x417e, { 0xba, 0x5e, 0x5e, 0xc6, 0x1e, 0x74, 0xc7, 0xe6 }
-    };
     class RhiBackend;
 
     struct GraphicsModuleImGuiConfig

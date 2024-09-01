@@ -1,10 +1,15 @@
 #pragma once
 
+#include <Core/Interface.hpp>
 #include <Window/Window.hpp>
-#include <Interfaces/Rhi/Config.hpp>
 
 namespace Ame::Interfaces
 {
+    // {640F1A0F-8EBC-4722-931D-92EAD1EFFE74}
+    inline constexpr UId IID_WindowBackend{
+        0x640f1a0f, 0x8ebc, 0x4722, { 0x93, 0x1d, 0x92, 0xea, 0xd1, 0xef, 0xfe, 0x74 }
+    };
+
     class WindowBackend final : public BaseObject<IObject>
     {
     public:
