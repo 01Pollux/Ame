@@ -17,7 +17,7 @@ namespace Ame
 
     public:
         bool ExposeInterface(IPlugin* owner, const UId& iid, IObject* object) override;
-        bool RequestInterface(IPlugin* caller, const UId& iid, IObject** iface) override;
+        bool RequestInterface(IPlugin* caller, const UId& iid, IObject** object) override;
         bool DropInterface(const UId& iid);
 
     public:

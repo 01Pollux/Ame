@@ -101,16 +101,21 @@ target_end()
 --
 
 target("Ame.EditorPlugin")
-    ame_utils:add_library("Ame", "static", "Source/EditorPlugin")
+    ame_utils:add_library("Ame/Editor", "headeronly", "Source/Editor/EditorPlugin")
     add_deps("Ame.Engine", nonshared_public_inherit)
     add_packages("Ame.ImGuiUtils", nonshared_public_inherit)
 target_end()
 
+target("EditorCore")
+    ame_utils:add_library("Ame/Editor", "shared", "Source/Editor/EditorCore")
+    add_deps("Ame.EditorPlugin", nonshared_public_inherit)
+    ame_utils:copy_to_plugins()
+target_end()
+
 target("AmeEditor")
     set_default(true)
-    ame_utils:add_library("Ame", "binary", "Source/EditorApplication")
+    ame_utils:add_library("Ame/Editor", "binary", "Source/Editor/EditorApplication")
     ame_utils:install_assets()
 
     add_deps("Ame.Application", nonshared_public_inherit)
-    add_deps("Ame.EditorPlugin", nonshared_public_inherit)
 target_end()

@@ -114,10 +114,12 @@ namespace Ame
 
 //
 
-#define AmeCreateRaw(Ty, ...)       (Ame::ObjectAllocator<Ty>()(__VA_ARGS__))
-#define AmeCreateRawObject(Ty, ...) (static_cast<Ame::IObject*>(Ame::ObjectAllocator<Ty>()(__VA_ARGS__)))
-#define AmeCreate(Ty, ...)          (Ptr(AmeCreateRaw(Ty, __VA_ARGS__)))
-#define AmeCreateObject(Ty, ...)    (Ame::Ptr<Ame::IObject>{ AmeCreateRawObject(Ty, __VA_ARGS__) })
+#define AmeCreateRaw(Ty, ...)         (Ame::ObjectAllocator<Ty>()(__VA_ARGS__))
+#define AmeCreateRawAs(Ty, AsTy, ...) (static_cast<AsTy*>(Ame::ObjectAllocator<Ty>()(__VA_ARGS__)))
+#define AmeCreateRawObject(Ty, ...)   (static_cast<Ame::IObject*>(Ame::ObjectAllocator<Ty>()(__VA_ARGS__)))
+#define AmeCreate(Ty, ...)            (Ptr(AmeCreateRaw(Ty, __VA_ARGS__)))
+#define AmeCreateAs(Ty, AsTy, ...)    (Ame::Ptr<AsTy>{ AmeCreateRawAs(Ty, AsTy, __VA_ARGS__) })
+#define AmeCreateObject(Ty, ...)      (Ame::Ptr<Ame::IObject>{ AmeCreateRawObject(Ty, __VA_ARGS__) })
 
 //
 

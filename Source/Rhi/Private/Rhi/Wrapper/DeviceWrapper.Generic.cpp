@@ -145,7 +145,7 @@ namespace Ame::Rhi
             level = Log::LogLevel::Fatal;
             break;
         }
-        if (Log::Logger && Log::Logger->CanLog(level))
+        if (Log::s_Logger && Log::s_Logger->CanLog(level))
         {
 #ifdef AME_DIST
             Log::Gfx().LogMessage(level, message);
@@ -159,14 +159,14 @@ namespace Ame::Rhi
             switch (code)
             {
             case 0:
-                Log::Logger->WriteMessage({ level, message });
+                Log::s_Logger->WriteMessage({ level, message });
                 break;
             case 1:
             case 2:
-                Log::Logger->WriteMessage({ level, std::format("{} (L{}): {}", file, function, line, message) });
+                Log::s_Logger->WriteMessage({ level, std::format("{} (L{}): {}", file, function, line, message) });
                 break;
             case 3:
-                Log::Logger->WriteMessage({ level, std::format("{}/{} (L{}): {}", file, function, line, message) });
+                Log::s_Logger->WriteMessage({ level, std::format("{}/{} (L{}): {}", file, function, line, message) });
                 break;
             default:
                 std::unreachable();

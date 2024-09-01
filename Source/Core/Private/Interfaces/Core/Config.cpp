@@ -21,7 +21,7 @@ namespace Ame::Interfaces
 
             if (LoggerDesc.SetAsMain)
             {
-                Log::Logger = logger;
+                Log::s_Logger = logger;
             }
         }
         if (EnableFrameTimer)

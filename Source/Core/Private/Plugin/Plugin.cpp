@@ -6,7 +6,7 @@ namespace Ame
 {
     bool IPlugin::OnPluginPreLoad(IModuleRegistry* registry)
     {
-        registry->RequestInterface(this, Interfaces::IID_Logger, Log::Logger.DblPtr<IObject>());
+        registry->RequestInterface(this, Interfaces::IID_Logger, Log::s_Logger.DblPtr<IObject>());
         return true;
     }
 } // namespace Ame

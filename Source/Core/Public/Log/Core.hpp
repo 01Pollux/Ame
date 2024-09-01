@@ -43,7 +43,7 @@ namespace Ame::Log
 
 #ifndef AME_NO_LOGGERS
 
-#define AME_INTERNAL_LOGGER_INST Ame::Log::Logger
+#define AME_INTERNAL_LOGGER_INST Ame::Log::s_Logger
 #define LOG_MESSAGE_IMPL(logger, type, message)                                                                        \
     if (logger) [[likely]]                                                                                             \
     {                                                                                                                  \

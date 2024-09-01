@@ -19,11 +19,12 @@ namespace Ame
             return false;
         }
 
+        AME_LOG_ASSERT(object != nullptr, "Invalid interface pointer");
         m_Interfaces.emplace(iid, InterfaceContext{ owner, object });
         return true;
     }
 
-    bool ModuleRegistryImpl::RequestInterface(IPlugin* caller, const UId& iid, IObject** iface)
+    bool ModuleRegistryImpl::RequestInterface(IPlugin* caller, const UId& iid, IObject** object)
     {
         auto iter = m_Interfaces.find(iid);
         if (iter == m_Interfaces.end())
@@ -35,8 +36,16 @@ namespace Ame
             iter->second.AddDependencies(caller);
         }
 
-        *iface = iter->second.GetObject();
-        (*iface)->AddRef();
+        AME_LOG_ASSERT(object != nullptr, "Invalid interface pointer");
+#ifdef AME_DEBUG
+        if (*object != nullptr)
+        {
+            AME_LOG_WARNING("Interface will be overwritten");
+        }
+#endif
+
+        *object = iter->second.GetObject();
+        (*object)->AddRef();
         return true;
     }
 
@@ -65,6 +74,7 @@ namespace Ame
 
     IPlugin* ModuleRegistryImpl::BindPlugin(IPlugin* caller, const String& name, bool isRequired)
     {
+        AME_LOG_ASSERT(caller != nullptr, "Invalid caller plugin");
         IPlugin* plugin = nullptr;
 
         auto callerCtx = FindContext(caller);

@@ -22,10 +22,11 @@ function ame_utils:add_library(group, kind, path)
     set_kind(kind)
     set_group(group)
 
-    _ame_add_sources_if_not_empty(path .. "/Private")
-
+    if kind ~= "headeronly" then
+        _ame_add_sources_if_not_empty(path .. "/Private")
+        _ame_add_headers_if_not_empty(path .. "/Private")
+    end
     _ame_add_headers_if_not_empty(path .. "/Public")
-    _ame_add_headers_if_not_empty(path .. "/Private")
 
     local include_dirs = file_utils:path_from_root(path .. "/Public")
     local folder_exists = os.isdir(include_dirs)

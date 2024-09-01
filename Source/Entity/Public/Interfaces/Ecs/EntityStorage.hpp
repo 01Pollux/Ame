@@ -23,7 +23,7 @@ namespace Ame::Interfaces
                                  const EntityStorageCreateDesc& storageDesc);
 
     public:
-        [[nodiscard]] Ecs::World* GetWorld() const noexcept
+        [[nodiscard]] const auto& GetWorld() const noexcept
         {
             return m_World;
         }

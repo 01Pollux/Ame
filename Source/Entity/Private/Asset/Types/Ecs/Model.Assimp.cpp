@@ -51,9 +51,9 @@ namespace Ame::Ecs
                 severity = iter->second;
             }
 
-            if (Log::Logger)
+            if (Log::s_Logger)
             {
-                Log::Logger->WriteMessage({ severity, messageStr });
+                Log::s_Logger->WriteMessage({ severity, messageStr });
             }
         }
     };

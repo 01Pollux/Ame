@@ -38,7 +38,7 @@ namespace Ame::Log
 
     //
 
-    inline Ptr<ILogger> Logger;
+    inline Ptr<ILogger> s_Logger;
 
     [[nodiscard]] Ptr<ILogger> CreateLogger(String name);
 } // namespace Ame::Log

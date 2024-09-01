@@ -48,7 +48,7 @@ static void EnableDebugInfo()
             ret = app.Run();                                                                                           \
         }                                                                                                              \
         Ame::Coroutine::Shutdown();                                                                                    \
-        Ame::Log::Logger = {};                                                                                         \
+        Ame::Log::s_Logger = {};                                                                                       \
         return ret;                                                                                                    \
     }
 
