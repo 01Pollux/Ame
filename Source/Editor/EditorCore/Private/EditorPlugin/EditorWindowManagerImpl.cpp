@@ -1,4 +1,5 @@
 #include <EditorPlugin/EditorWindowManagerImpl.hpp>
+#include <EditorPlugin/EditorCore.hpp>
 
 #include <Window/DesktopWindow.hpp>
 #include <Window/WindowEventListener.hpp>
@@ -18,8 +19,7 @@
 
 namespace Ame::Editor
 {
-    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters,
-                                                     const EditorWindowManagerCreateDesc&) :
+    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters) :
         Base(counters)
     {
         Ptr<Interfaces::IRhiDevice> rhiDevice;

@@ -5,24 +5,24 @@
 #include <Core/String.hpp>
 #include <Core/Signal.hpp>
 
+#include <EditorPlugin/EditorWindowManagerDesc.hpp>
 #include <Interfaces/EditorPlugin/EditorWindowManager.hpp>
-#include <Interfaces/EditorPlugin/EditorWindowManagerDesc.hpp>
-#include <EditorPlugin/EditorCore.hpp>
+#include <EditorPlugin/EditorWindow.hpp>
 
 #include <Window/Window.hpp>
 #include <Window/DesktopWindow.hpp>
 
 namespace Ame::Editor
 {
-    class EditorWindowManagerImpl final : public BaseObject<IEditorWindowManager>
+    class EditorWindowManagerImpl final : public BaseObject<Interfaces::IEditorWindowManager>
     {
     public:
-        using Base = BaseObject<IEditorWindowManager>;
+        using Base = BaseObject<Interfaces::IEditorWindowManager>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_EditorWindowManager, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(Interfaces::IID_EditorWindowManager, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(EditorWindowManagerImpl, const EditorWindowManagerCreateDesc& createDesc);
+        IMPLEMENT_INTERFACE_CTOR(EditorWindowManagerImpl);
 
     public:
         void ResetDefaultWindows() override;

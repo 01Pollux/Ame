@@ -2,11 +2,6 @@
 
 #include <Core/Interface.hpp>
 
-namespace Ame
-{
-    class RendererSubmodule;
-} // namespace Ame
-
 namespace Ame::Editor
 {
     class IEditorWindow;
@@ -15,9 +10,5 @@ namespace Ame::Editor
     {
         IEditorWindow* Window         = nullptr;
         bool           DefaultVisible = true;
-    };
-
-    struct EditorWindowManagerCreateDesc
-    {
     };
 } // namespace Ame::Editor

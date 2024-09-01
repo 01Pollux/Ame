@@ -127,4 +127,4 @@ namespace Ame
 
 #define AME_PLUGIN_EXPORT_FUNCTION Ame_GetPlugin
 #define AME_PLUGIN_EXPORT_NAME     "Ame_GetPlugin"
-#define AME_PLUGIN_EXPORT(Type)    BOOST_DLL_ALIAS(IPlugin::Create<Type>, AME_PLUGIN_EXPORT_FUNCTION)
+#define AME_PLUGIN_EXPORT(Type)    BOOST_DLL_ALIAS(Ame::IPlugin::Create<Type>, AME_PLUGIN_EXPORT_FUNCTION)

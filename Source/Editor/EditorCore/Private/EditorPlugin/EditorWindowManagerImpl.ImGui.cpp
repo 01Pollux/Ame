@@ -1,6 +1,6 @@
 #include <EditorPlugin/EditorWindowManagerImpl.hpp>
-#include <Interfaces/EditorPlugin/EditorWindow.hpp>
 #include <EditorPlugin/StandardWindows.hpp>
+#include <EditorPlugin/EditorWindow.hpp>
 
 #include <ImGuiUtils/Utils.hpp>
 #include <ImGuiUtils/WindowUtils.hpp>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Interfaces/EditorPlugin/EditorWindow.hpp>
+#include <EditorPlugin/EditorWindow.hpp>
 #include <EditorPlugin/StandardWindows.hpp>
 
 namespace Ame::Editor

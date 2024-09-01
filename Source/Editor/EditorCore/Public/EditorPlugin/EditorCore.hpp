@@ -10,6 +10,7 @@ namespace Ame::Editor
         EditorCorePlugin();
 
         bool OnPluginPreLoad(IModuleRegistry* registry);
+        void OnPluginLoad(IModuleRegistry* registry);
     };
 
     inline EditorCorePlugin* s_ThisPlugin     = nullptr;
