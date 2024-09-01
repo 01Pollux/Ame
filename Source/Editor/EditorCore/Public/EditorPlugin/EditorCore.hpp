@@ -12,5 +12,6 @@ namespace Ame::Editor
         bool OnPluginPreLoad(IModuleRegistry* registry);
     };
 
-    inline IModuleRegistry* s_ModuleRegistry = nullptr;
+    inline EditorCorePlugin* s_ThisPlugin     = nullptr;
+    inline IModuleRegistry*  s_ModuleRegistry = nullptr;
 } // namespace Ame::Editor

@@ -5,8 +5,6 @@
 
 namespace Ame::Interfaces
 {
-    class IRenderer;
-
     struct GraphicsModuleConfig
     {
         void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner = nullptr) const;

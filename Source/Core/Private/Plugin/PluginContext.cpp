@@ -3,7 +3,8 @@
 
 namespace Ame
 {
-    namespace bdll = boost::dll;
+    namespace bdll         = boost::dll;
+    using PluginCreateFunc = IPlugin* (*)();
 
     PluginContext::PluginContext(const String& pluginPath)
     {
@@ -15,13 +16,7 @@ namespace Ame
 
         m_Library = LibraryDLL(boost::filesystem::path(PluginsPath) / pluginPath, bdll::load_mode::append_decorations);
 
-        using PluginCreateFunc = IPlugin* (*)();
-
-        auto createPlugin = m_Library.get<PluginCreateFunc>(AME_PLUGIN_EXPORT_NAME);
-        if (!createPlugin)
-        {
-            throw std::runtime_error("Plugin entry point not found");
-        }
+        auto& createPlugin = m_Library.get<PluginCreateFunc>(AME_PLUGIN_EXPORT_NAME);
 
         m_Plugin.reset(createPlugin());
         m_Plugin->m_PluginName = pluginPath;

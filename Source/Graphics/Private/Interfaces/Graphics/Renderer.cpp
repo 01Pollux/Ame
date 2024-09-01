@@ -1,7 +1,5 @@
 #include <Interfaces/Graphics/RendererImpl.hpp>
 
-#include <imgui.h>
-
 namespace Ame::Interfaces
 {
     Ptr<IRenderer> CreateRenderer(const RendererCreateDesc& createDesc)

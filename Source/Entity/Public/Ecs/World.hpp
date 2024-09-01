@@ -93,7 +93,8 @@ namespace Ame::Ecs
         /// <summary>
         /// Progress the world.
         /// </summary>
-        void Progress(double deltaTime);
+        /// <returns>True if the world is still running, false if the world has stopped.</returns>
+        [[nodiscard]] bool Progress(double deltaTime);
 
     public:
         /// <summary>

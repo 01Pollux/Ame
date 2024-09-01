@@ -2,8 +2,8 @@
 #include <Engine/Engine.hpp>
 #include <Plugin/ModuleRegistry.hpp>
 
-#include <Interfaces/Ecs/EntityStorage.hpp>
-#include <Interfaces/Rhi/RhiBackend.hpp>
+#include <Interfaces/Ecs/EntityWorld.hpp>
+#include <Interfaces/Rhi/RhiDevice.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
 //
@@ -40,13 +40,11 @@ namespace Ame
 
         auto moduleRegistry = GetEngine().GetRegistry();
 
-        Ptr<Interfaces::EntityStorage> entityStorage;
-        moduleRegistry->RequestInterface(Interfaces::IID_EntityStorage, entityStorage.DblPtr<IObject>());
-        auto world = entityStorage->GetWorld();
+        Ptr<Interfaces::IEntityWorld> entityWorld;
+        moduleRegistry->RequestInterface(Interfaces::IID_EntityWorld, entityWorld.DblPtr<IObject>());
 
-        Ptr<Interfaces::RhiBackend> rhiBackend;
-        moduleRegistry->RequestInterface(Interfaces::IID_RhiBackend, rhiBackend.DblPtr<IObject>());
-        auto rhiDevice = rhiBackend->GetRhiDevice();
+        Ptr<Interfaces::IRhiDevice> rhiDevice;
+        moduleRegistry->RequestInterface(Interfaces::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
 
         Ptr<Interfaces::IRenderer> renderer;
         moduleRegistry->RequestInterface(Interfaces::IID_Renderer, renderer.DblPtr<IObject>());
@@ -54,7 +52,7 @@ namespace Ame
         //
 
         Ptr renderGraph{ ObjectAllocator<Rg::Graph>()(rhiDevice) };
-        Gfx::RegisterForwardPlus(*renderGraph, world);
+        Gfx::RegisterForwardPlus(*renderGraph, entityWorld);
 
         Ecs::TransformComponent camTr;
         camTr.SetBasis({
@@ -64,16 +62,16 @@ namespace Ame
         });
         camTr.SetPosition({ 0.251502007f, 4.27811623f, -0.114832222f });
 
-        auto cameraEntity = world->CreateEntity("Camera");
+        auto cameraEntity = entityWorld->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{ .RenderGraph = std::move(renderGraph) });
         cameraEntity->set(camTr);
         cameraEntity->set(Ecs::CameraOutputComponent{});
 
         //
 
-        auto parent = world->CreateEntity();
+        auto parent = entityWorld->CreateEntity();
 
-        auto lightEntity = world->CreateEntity();
+        auto lightEntity = entityWorld->CreateEntity();
 
         Ecs::TransformComponent lightTr;
         lightTr.SetPosition({ 0.f, 10.f, 0.f });
@@ -104,7 +102,7 @@ namespace Ame
         {
             Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, idx));
 
-            auto meshEntity = world->CreateEntity("Mesh");
+            auto meshEntity = entityWorld->CreateEntity("Mesh");
             meshEntity->set(Ecs::TransformComponent{});
             meshEntity->set(Ecs::StaticMeshComponent{ submesh });
         }

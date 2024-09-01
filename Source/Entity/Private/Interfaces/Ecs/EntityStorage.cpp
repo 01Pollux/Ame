@@ -1,5 +1,5 @@
 #include <Interfaces/Ecs/Config.hpp>
-#include <Interfaces/Ecs/EntityStorage.hpp>
+#include <Interfaces/Ecs/EntityWorld.hpp>
 
 #include <EcsModule/RenderableModule.hpp>
 #include <EcsModule/Renderable3DModule.hpp>
@@ -8,36 +8,27 @@
 
 namespace Ame::Interfaces
 {
-    EntityStorage::EntityStorage(IReferenceCounters* counters, Ptr<Rhi::IRhiDevice> rhiDevice,
-                                 const EntityStorageCreateDesc& storageDesc) :
-        Base(counters),
-        m_World(AmeCreate(Ecs::World, std::move(rhiDevice)))
+    Ptr<IEntityWorld> CreateEntityWorld(Ptr<Rhi::IRhiDevice> rhiDevice, const EntityWorldCreateDesc& createDesc)
     {
-        auto& world = *GetWorld();
+        auto world = AmeCreate(Ecs::World, std::move(rhiDevice));
+
 #ifndef AME_DIST
-        if (storageDesc.EnableMonitors)
+        if (createDesc.EnableMonitors)
         {
-            world->emplace<flecs::Rest>();
+            (*world)->emplace<flecs::Rest>();
         }
 #endif
 
-        bool anyRenderable = storageDesc.Enable3DModule;
+        bool anyRenderable = createDesc.Enable3DModule;
         if (anyRenderable)
         {
-            world.ImportModule<Ecs::RenderableEcsModule>();
-            if (storageDesc.Enable3DModule)
+            world->ImportModule<Ecs::RenderableEcsModule>();
+            if (createDesc.Enable3DModule)
             {
-                world.ImportModule<Ecs::Renderable3DEcsModule>();
+                world->ImportModule<Ecs::Renderable3DEcsModule>();
             }
         }
-    }
 
-    //
-
-    bool EntityStorage::Tick(double deltaTime)
-    {
-        auto& world = *GetWorld();
-        world.Progress(deltaTime);
-        return !world->should_quit();
+        return world;
     }
 } // namespace Ame::Interfaces

@@ -4,6 +4,7 @@ namespace Ame::Editor
 {
     EditorCorePlugin::EditorCorePlugin() : IPlugin({ "EditorCore", "01Pollux", "Core plugin for the editor", __DATE__ })
     {
+        s_ThisPlugin = this;
     }
 
     bool EditorCorePlugin::OnPluginPreLoad(IModuleRegistry* registry)

@@ -5,9 +5,7 @@
 
 namespace Ame::Interfaces
 {
-    class EntityStorage;
-
-    struct EntityStorageCreateDesc
+    struct EntityWorldCreateDesc
     {
         // Monitors are disabled on release builds
         bool EnableMonitors : 1 = true;
@@ -16,7 +14,7 @@ namespace Ame::Interfaces
 
     struct EcsModuleConfig
     {
-        EntityStorageCreateDesc StorageDesc;
+        EntityWorldCreateDesc WorldDesc;
 
         void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner = nullptr) const;
     };

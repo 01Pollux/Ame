@@ -1,24 +1,23 @@
 #include <Interfaces/Graphics/Config.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
-#include <Interfaces/Rhi/RhiBackend.hpp>
-#include <Interfaces/Ecs/EntityStorage.hpp>
-#include <Interfaces/Rhi/ImGuiBackend.hpp>
+#include <Interfaces/Rhi/RhiDevice.hpp>
+#include <Interfaces/Ecs/EntityWorld.hpp>
+#include <Interfaces/Rhi/ImGuiRenderer.hpp>
 
 namespace Ame::Interfaces
 {
     void GraphicsModuleConfig::ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const
     {
-        Ptr<RhiBackend>    rhibackend;
-        Ptr<EntityStorage> entityStorage;
-        Ptr<ImGuiBackend>  imguiBackend;
+        Ptr<IRhiDevice>     rhiDevice;
+        Ptr<IEntityWorld>   entityWorld;
+        Ptr<IImGuiRenderer> imguiRenderer;
 
-        registry->RequestInterface(owner, IID_RhiBackend, rhibackend.DblPtr<IObject>());
-        registry->RequestInterface(owner, IID_EntityStorage, entityStorage.DblPtr<IObject>());
-        registry->RequestInterface(owner, IID_ImGuiBackend, imguiBackend.DblPtr<IObject>());
+        registry->RequestInterface(owner, IID_RhiDevice, rhiDevice.DblPtr<IObject>());
+        registry->RequestInterface(owner, IID_EntityWorld, entityWorld.DblPtr<IObject>());
+        registry->RequestInterface(owner, IID_ImGuiRenderer, imguiRenderer.DblPtr<IObject>());
 
-        RendererCreateDesc createDesc{ rhibackend->GetRhiDevice(), entityStorage->GetWorld(),
-                                       imguiBackend->GetImGuiRenderer() };
+        RendererCreateDesc createDesc{ rhiDevice, entityWorld, imguiRenderer };
 
         registry->ExposeInterface(owner, IID_Renderer, CreateRenderer(createDesc));
     }

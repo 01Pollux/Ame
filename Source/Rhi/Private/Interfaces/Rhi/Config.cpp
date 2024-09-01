@@ -1,7 +1,7 @@
 #include <Interfaces/Rhi/Config.hpp>
-#include <Interfaces/Rhi/RhiBackend.hpp>
-#include <Interfaces/Rhi/WindowBackend.hpp>
-#include <Interfaces/Rhi/ImGuiBackend.hpp>
+#include <Interfaces/Rhi/RhiDevice.hpp>
+#include <Interfaces/Rhi/SurfaceWindow.hpp>
+#include <Interfaces/Rhi/ImGuiRenderer.hpp>
 
 #include <Rhi/Device/RhiDeviceCreateDesc.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
@@ -37,13 +37,13 @@ namespace Ame::Interfaces
         bool hasWindow = false;
         if (RhiDeviceDesc.Surface.has_value() && RhiDeviceDesc.Surface->Window)
         {
-            registry->ExposeInterface(
-                owner, IID_WindowBackend, AmeCreateObject(WindowBackend, RhiDeviceDesc.Surface->Window));
+            registry->ExposeInterface(owner, IID_SurfaceWindow, RhiDeviceDesc.Surface->Window);
             hasWindow = true;
         }
-        auto rhiDevice  = Rhi::CreateRhiDevice(RhiDeviceDesc);
-        auto rhiBackend = AmeCreateObject(RhiBackend, rhiDevice);
-        registry->ExposeInterface(owner, IID_RhiBackend, rhiBackend);
-        registry->ExposeInterface(owner, IID_ImGuiBackend, CreateImGuiRenderer(rhiDevice, ImGuiConfig, hasWindow));
+
+        auto rhiDevice     = Rhi::CreateRhiDevice(RhiDeviceDesc);
+        auto imguiRenderer = CreateImGuiRenderer(rhiDevice, ImGuiConfig, hasWindow);
+        registry->ExposeInterface(owner, IID_RhiDevice, rhiDevice);
+        registry->ExposeInterface(owner, IID_ImGuiRenderer, imguiRenderer);
     }
 } // namespace Ame::Interfaces

@@ -7,17 +7,17 @@
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
 
-#include <Interfaces/Ecs/EntityStorage.hpp>
+#include <Interfaces/Ecs/EntityWorld.hpp>
 
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 
 namespace Ame::Editor
 {
-    [[nodiscard]] static const Ptr<Ecs::World>& GetWorld()
+    [[nodiscard]] static Ptr<Ecs::World> GetWorld()
     {
-        Ptr<Interfaces::EntityStorage> entityStorage;
-        s_ModuleRegistry->RequestInterface(Interfaces::IID_EntityStorage, entityStorage.DblPtr<IObject>());
-        return entityStorage->GetWorld();
+        Ptr<Interfaces::IEntityWorld> entityWorld;
+        s_ModuleRegistry->RequestInterface(Interfaces::IID_EntityWorld, entityWorld.DblPtr<IObject>());
+        return entityWorld;
     }
 
     SceneViewEditorWindow::SceneViewEditorWindow(IReferenceCounters* counter) :

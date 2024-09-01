@@ -2,7 +2,7 @@
 
 #include <Interfaces/Core/FrameTimer.hpp>
 #include <Interfaces/Core/FrameEvent.hpp>
-#include <Interfaces/Ecs/EntityStorage.hpp>
+#include <Interfaces/Ecs/EntityWorld.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
 namespace Ame
@@ -21,7 +21,7 @@ namespace Ame
     {
         m_ModuleRegistery->RequestInterface(Interfaces::IID_FrameTimer, m_FrameTimer.DblPtr<IObject>());
         m_ModuleRegistery->RequestInterface(Interfaces::IID_FrameEvent, m_FrameEvent.DblPtr<IObject>());
-        m_ModuleRegistery->RequestInterface(Interfaces::IID_EntityStorage, m_EntityStorage.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(Interfaces::IID_EntityWorld, m_EntityWorld.DblPtr<IObject>());
         m_ModuleRegistery->RequestInterface(Interfaces::IID_Renderer, m_Renderer.DblPtr<IObject>());
     }
 
@@ -36,9 +36,9 @@ namespace Ame
         m_FrameEvent->Invoke_OnFrameStart();
         m_FrameEvent->Invoke_OnFrameUpdate();
 
-        if (m_EntityStorage)
+        if (m_EntityWorld)
         {
-            shouldQuit |= !m_EntityStorage->Tick(m_FrameTimer->GetDeltaTime());
+            shouldQuit |= !m_EntityWorld->Progress(m_FrameTimer->GetDeltaTime());
         }
 
         if (m_Renderer)

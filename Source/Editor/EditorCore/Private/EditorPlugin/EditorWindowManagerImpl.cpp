@@ -11,7 +11,7 @@
 #include <EditorPlugin/Windows/SceneView/SceneViewEditorWindow.hpp>
 
 #include <Plugin/ModuleRegistry.hpp>
-#include <Interfaces/Rhi/RhiBackend.hpp>
+#include <Interfaces/Rhi/RhiDevice.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
 #include <Log/Logger.hpp>
@@ -22,13 +22,13 @@ namespace Ame::Editor
                                                      const EditorWindowManagerCreateDesc&) :
         Base(counters)
     {
-        Ptr<Interfaces::RhiBackend> rhibackend;
+        Ptr<Interfaces::IRhiDevice> rhiDevice;
         Ptr<Interfaces::IRenderer>  renderer;
 
-        s_ModuleRegistry->RequestInterface(nullptr, Interfaces::IID_RhiBackend, rhibackend.DblPtr<IObject>());
-        s_ModuleRegistry->RequestInterface(nullptr, Interfaces::IID_Renderer, renderer.DblPtr<IObject>());
+        s_ModuleRegistry->RequestInterface(s_ThisPlugin, Interfaces::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
+        s_ModuleRegistry->RequestInterface(s_ThisPlugin, Interfaces::IID_Renderer, renderer.DblPtr<IObject>());
 
-        rhibackend->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
+        rhiDevice->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
         if (m_DesktopWindow)
         {
             m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest(

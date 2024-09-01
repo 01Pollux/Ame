@@ -3,6 +3,9 @@
 #include <Engine/Config.hpp>
 #include <Plugin/ModuleRegistry.hpp>
 
+#include <Interfaces/Ecs/EntityWorld.hpp>
+#include <Interfaces/Graphics/Renderer.hpp>
+
 namespace Ame
 {
     class AmeEngine
@@ -36,10 +39,10 @@ namespace Ame
         UniquePtr<IModuleRegistry> m_ModuleRegistery;
 
         // precaching frequently used submodules
-        Ptr<Interfaces::FrameTimer>    m_FrameTimer;
-        Ptr<Interfaces::FrameEvent>    m_FrameEvent;
-        Ptr<Interfaces::EntityStorage> m_EntityStorage;
-        Ptr<Interfaces::IRenderer>     m_Renderer;
+        Ptr<Interfaces::FrameTimer>   m_FrameTimer;
+        Ptr<Interfaces::FrameEvent>   m_FrameEvent;
+        Ptr<Interfaces::IEntityWorld> m_EntityWorld;
+        Ptr<Interfaces::IRenderer>    m_Renderer;
 
         Opt<int> m_ExitCode;
     };

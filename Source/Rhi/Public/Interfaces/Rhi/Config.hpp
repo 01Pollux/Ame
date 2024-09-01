@@ -11,10 +11,6 @@
 
 namespace Ame::Interfaces
 {
-    class ImGuiBackend;
-    class WindowBackend;
-    class RhiBackend;
-
     struct GraphicsModuleImGuiConfig
     {
         static constexpr uint32_t DefaultInitialVBSize = 1024;
