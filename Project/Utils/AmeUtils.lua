@@ -97,8 +97,8 @@ function ame_utils:copy_to_plugins()
         if not os.isdir(plugins_dir) then
             os.mkdir(plugins_dir)
         end
-        os.cp(dll_path, plugins_dir)
-        print("DLL copied to " .. plugins_dir)
+        os.mv(dll_path, plugins_dir)
+        print("DLL moved to " .. plugins_dir)
     end
 
     after_build(callback)

@@ -33,8 +33,8 @@ void _LightingResult_Compute_Directional(
 	const in Light light, const in LightingSurface surface)
 {
 	float3 light_dir = normalize(-transform_get_forward(light_transform));
-	float3 diffuse = Lighting_DiffuseLambert(surface.normal, light_dir) * light.color;
-	float3 specular = (float3) 0.f;
+	float diffuse = Lighting_DiffuseLambert(surface.normal, light_dir) * light.color;
+	float specular = (float3) 0.f;
 	if (surface.specular_power > 0.f)
 	{
 		specular = Lighting_SpecularBlinnPhong(surface.normal, light_dir, surface.view_dir, surface.specular_power) * light.color;

@@ -6,6 +6,7 @@
 
 struct ImFont;
 struct ImFontConfig;
+struct ImGuiContext;
 
 namespace Ame::Rhi
 {
@@ -31,8 +32,9 @@ namespace Ame::Rhi
         [[nodiscard]] virtual ImFont* LoadFont(const String& fontName, const ImFontConfig& fontConfig)         = 0;
         [[nodiscard]] virtual ImFont* LoadCompressedFont(const char* fontName, const ImFontConfig& fontConfig) = 0;
 
-        [[nodiscard]] virtual bool RenderBackbufferToTexture()
-            const = 0; // Used to determine if we should render directly to backbuffer or let imgui render to a texture.
+        // Used to determine if we should render directly to backbuffer or let imgui render to a texture.
+        [[nodiscard]] virtual ImGuiContext* GetContext() const                = 0;
+        [[nodiscard]] virtual bool          RenderBackbufferToTexture() const = 0;
     };
 
     /// <summary>

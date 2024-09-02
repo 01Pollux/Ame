@@ -94,6 +94,7 @@
 //  -FLT_MAX,-FLT_MAX when mouse is unavailable/missing (instead of -1,-1). 2016-10-15: Misc: Added a void* user_data
 //  parameter to Clipboard function handlers.
 
+#include <Core/Allocator.hpp>
 #include <imgui.h>
 #ifndef IMGUI_DISABLE
 #include <Window/Glfw/ImGuiGlfwImpl.hpp>

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Plugin/Plugin.hpp>
+#include <Plugin/EditorPlugin.hpp>
 
 namespace Ame::Editor
 {
-    class EditorCorePlugin : public IPlugin
+    class EditorCorePlugin : public IEditorPlugin
     {
     public:
         EditorCorePlugin();
@@ -13,6 +13,5 @@ namespace Ame::Editor
         void OnPluginLoad(IModuleRegistry* registry);
     };
 
-    inline EditorCorePlugin* s_ThisPlugin     = nullptr;
-    inline IModuleRegistry*  s_ModuleRegistry = nullptr;
+    inline EditorCorePlugin* s_ThisPlugin = nullptr;
 } // namespace Ame::Editor

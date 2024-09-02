@@ -91,7 +91,9 @@ if is_plat("windows") then
 elseif is_plat("linux") then
     add_defines("AME_PLATFORM_LINUX")
 end
-add_defines("FLECS_CPP_NO_AUTO_REGISTRATION")
+-- comprimise until a fix for https://github.com/SanderMertens/flecs/issues/1032 is found
+-- flecs component's id are static and can't be used in multiple dlls
+-- add_defines("FLECS_CPP_NO_AUTO_REGISTRATION") 
 
 --
 

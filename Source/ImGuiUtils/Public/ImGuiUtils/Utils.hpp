@@ -1,8 +1,6 @@
 #pragma once
 
-#include <span>
-#include <imgui.h>
-
+#include <ImGuiUtils/Core.hpp>
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 #include <ImGuiUtils/WindowUtils.hpp>
 #include <Rhi/ImGui/Fonts/FontAwesome5.hpp>

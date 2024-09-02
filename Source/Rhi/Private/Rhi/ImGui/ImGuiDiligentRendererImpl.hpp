@@ -34,7 +34,8 @@ namespace Ame::Rhi
         ImFont* LoadFont(const String& fontName, const ImFontConfig& fontConfig) override;
         ImFont* LoadCompressedFont(const char* fontName, const ImFontConfig& fontConfig) override;
 
-        bool RenderBackbufferToTexture() const override;
+        ImGuiContext* GetContext() const;
+        bool          RenderBackbufferToTexture() const override;
 
     private:
         void SetDefaultTheme();

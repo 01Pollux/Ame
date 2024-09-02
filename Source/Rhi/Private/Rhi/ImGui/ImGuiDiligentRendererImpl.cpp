@@ -89,6 +89,9 @@ namespace Ame::Rhi
         m_BaseVertexSupported =
             m_RenderDevice->GetAdapterInfo().DrawCommand.CapFlags & Dg::DRAW_COMMAND_CAP_FLAG_BASE_VERTEX;
 
+        ImGui::SetAllocatorFunctions(
+            [](size_t size, void*) { return mi_malloc(size); }, [](void* ptr, void*) -> void { mi_free(ptr); });
+
         if (m_MultiThreaded)
         {
             std::scoped_lock lock(s_Mutex);
@@ -230,6 +233,11 @@ namespace Ame::Rhi
 
         m_Fonts.emplace(fontName, font);
         return font;
+    }
+
+    ImGuiContext* ImGuiDiligentRendererImpl::GetContext() const
+    {
+        return m_Context;
     }
 
     bool ImGuiDiligentRendererImpl::RenderBackbufferToTexture() const

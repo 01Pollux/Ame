@@ -6,11 +6,11 @@ target("Ame.Core")
     add_packages(
         "boost",
         "cereal",
-        "ame.mimalloc",
         "ame.diligent_core",
         "ame.kangaru",
         "spdlog",
         "fmt",
+        "flecs",
         "cryptopp",
         "magic_enum",
         "glm",
@@ -19,7 +19,7 @@ target("Ame.Core")
         "ame.octree",
         nonshared_public_inherit)
     add_packages(
-        "flecs",
+        "ame.mimalloc",
         "freeimage",
         shared_public_inherit)
 target_end()
@@ -101,7 +101,7 @@ target_end()
 --
 
 target("Ame.EditorPlugin")
-    ame_utils:add_library("Ame/Editor", "headeronly", "Source/Editor/EditorPlugin")
+    ame_utils:add_library("Ame/Editor", "static", "Source/Editor/EditorPlugin")
     add_deps("Ame.Engine", nonshared_public_inherit)
     add_packages("Ame.ImGuiUtils", nonshared_public_inherit)
 target_end()
