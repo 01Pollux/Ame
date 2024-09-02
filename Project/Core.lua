@@ -10,7 +10,6 @@ target("Ame.Core")
         "ame.kangaru",
         "spdlog",
         "fmt",
-        "flecs",
         "cryptopp",
         "magic_enum",
         "glm",
@@ -20,6 +19,7 @@ target("Ame.Core")
         nonshared_public_inherit)
     add_packages(
         "ame.mimalloc",
+        "flecs",
         "freeimage",
         shared_public_inherit)
 target_end()
