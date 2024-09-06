@@ -2,7 +2,7 @@
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/EntityGpuStorage.hpp>
 
-#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Renderables/BaseRenderable.hpp>
 #include <EcsComponent/Lighting/BaseLight.hpp>
 

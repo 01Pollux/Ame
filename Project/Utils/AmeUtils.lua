@@ -44,7 +44,7 @@ function ame_utils:add_library(group, kind, path)
 end
 
 function ame_utils:add_binary(group, path)
-    ame_utils:add_library(group, "binary", path)
+    self:add_library(group, "binary", path)
     add_deps("Ame.Engine", {public = true})
 end
 

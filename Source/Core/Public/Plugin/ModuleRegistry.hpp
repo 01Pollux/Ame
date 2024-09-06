@@ -16,15 +16,6 @@ namespace Ame
         virtual bool ExposeInterface(IPlugin* owner, const UId& iid, IObject* object) = 0;
 
         /// <summary>
-        /// Expose interface by name.
-        /// </summary>
-        /// <returns>true if the interface does exists, false otherwise</returns>
-        bool ExposeInterface(const UId& iid, IObject* object)
-        {
-            return ExposeInterface(nullptr, iid, object);
-        }
-
-        /// <summary>
         /// Drop interface by name.
         /// </summary>
         /// <returns>true if the interface does exists, false otherwise</returns>
@@ -32,18 +23,10 @@ namespace Ame
 
         /// <summary>
         /// Request an interface by name, and bind it as dependency.
+        /// The caller may be null if the interface shouldn't be bound as dependency.
         /// </summary>
         /// <returns>true if the interface does exists, false otherwise</returns>
         virtual bool RequestInterface(IPlugin* caller, const UId& iid, IObject** iface) = 0;
-
-        /// <summary>
-        /// Request an interface by name, and bind it as dependency.
-        /// </summary>
-        /// <returns>true if the interface does exists, false otherwise</returns>
-        bool RequestInterface(const UId& iid, IObject** iface)
-        {
-            return RequestInterface(nullptr, iid, iface);
-        }
 
         /// <summary>
         /// find plugin by either it's file name

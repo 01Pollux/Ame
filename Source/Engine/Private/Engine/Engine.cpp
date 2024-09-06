@@ -19,10 +19,10 @@ namespace Ame
 
     void AmeEngine::RefreshSubmoduleCache()
     {
-        m_ModuleRegistery->RequestInterface(Interfaces::IID_FrameTimer, m_FrameTimer.DblPtr<IObject>());
-        m_ModuleRegistery->RequestInterface(Interfaces::IID_FrameEvent, m_FrameEvent.DblPtr<IObject>());
-        m_ModuleRegistery->RequestInterface(Interfaces::IID_EntityWorld, m_EntityWorld.DblPtr<IObject>());
-        m_ModuleRegistery->RequestInterface(Interfaces::IID_Renderer, m_Renderer.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(nullptr, Interfaces::IID_FrameTimer, m_FrameTimer.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(nullptr, Interfaces::IID_FrameEvent, m_FrameEvent.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(nullptr, Interfaces::IID_EntityWorld, m_EntityWorld.DblPtr<IObject>());
+        m_ModuleRegistery->RequestInterface(nullptr, Interfaces::IID_Renderer, m_Renderer.DblPtr<IObject>());
     }
 
     //

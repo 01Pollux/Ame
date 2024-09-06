@@ -6,8 +6,18 @@ includes("kangaru.lua")
 includes("mimalloc.lua")
 includes("octree.lua")
 
-add_requires("boost 1.86.0",                {system = false, debug = _debug_packages, configs = {
-    vs_runtime = vs_runtime,
+local _package_options = function (opts) 
+    opts = opts or {}
+    opts["system"] = opts["system"] or false
+    opts["debug"] = opts["debug"] or _debug_packages
+    opts["configs"] = opts["configs"] or {}
+    opts["configs"]["symbols"] = opts["configs"]["symbols"] or _with_symbols
+    opts["configs"]["exceptions"] = opts["configs"]["exceptions"] or _use_exception
+
+    return opts
+end
+
+add_requires("boost 1.86.0",                _package_options({configs = {
     iostreams = true,
     lzma = true,
     zlib = true,
@@ -16,24 +26,24 @@ add_requires("boost 1.86.0",                {system = false, debug = _debug_pack
     system = true,
     stacktrace = true,
     program_options = true,
-    serialization = true
-}})
-add_requires("assimp",                      {system = false, debug = _debug_packages, configs = {asan = _use_asan}})
-add_requires("cereal",                      {system = false, debug = _debug_packages})
-add_requires("boost_ut",                    {system = false, debug = _debug_packages, configs = {shared = true}})
-add_requires("vulkansdk",                   {debug = _debug_packages})
-add_requires("ame.mimalloc",                {system = false, debug = _debug_packages, configs = {shared = true}})
-add_requires("ame.kangaru",                 {system = false, debug = _debug_packages})
-add_requires("spdlog",                      {system = false, debug = _debug_packages})
-add_requires("fmt",                         {system = false, debug = _debug_packages})
-add_requires("flecs v4.0.1",                {system = false, debug = _debug_packages, configs = {shared = true, symbols = _with_symbols}})
-add_requires("freeimage",                   {system = false, debug = _debug_packages, configs = {symbols = _with_symbols, rgb = true}})
-add_requires("cryptopp",                    {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
-add_requires("magic_enum",                  {system = false, debug = _debug_packages})
-add_requires("directxmath",                 {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
-add_requires("ame.concurrencpp",            {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
-add_requires("ame.glfw",                    {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
-add_requires("ame.diligent_core",           {system = false, debug = _debug_packages, configs = {symbols = _with_symbols, exceptions = _use_exception}})
-add_requires("directxshadercompiler",       {system = false, debug = _debug_packages, configs = {symbols = _with_symbols}})
-add_requires("ame.imgui v1.90.9-docking",   {system = false, debug = _debug_packages, configs = {symbols = _width_symbols, freetype = true}})
-add_requires("ame.octree",                  {system = false, debug = _debug_packages})
+    serialization = true,
+}}))
+add_requires("assimp",                      _package_options())
+add_requires("cereal",                      _package_options())
+add_requires("boost_ut",                    _package_options({configs = {shared = true}}))
+add_requires("vulkansdk")
+add_requires("ame.mimalloc",                _package_options({configs = {shared = true}}))
+add_requires("ame.kangaru",                 _package_options())
+add_requires("spdlog",                      _package_options())
+add_requires("fmt",                         _package_options())
+add_requires("flecs v4.0.1",                _package_options({configs = {shared = true}}))
+add_requires("freeimage",                   _package_options({configs = {rgb = true}}))
+add_requires("cryptopp",                    _package_options())
+add_requires("magic_enum",                  _package_options())
+add_requires("directxmath",                 _package_options())
+add_requires("ame.concurrencpp",            _package_options())
+add_requires("ame.glfw",                    _package_options())
+add_requires("ame.diligent_core",           _package_options())
+add_requires("directxshadercompiler",       _package_options())
+add_requires("ame.imgui v1.90.9-docking",   _package_options({configs = {freetype = true}}))
+add_requires("ame.octree",                  _package_options())

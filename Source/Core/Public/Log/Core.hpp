@@ -47,7 +47,10 @@ namespace Ame::Log
 #define LOG_MESSAGE_IMPL(logger, type, message)                                                                        \
     if (logger) [[likely]]                                                                                             \
     {                                                                                                                  \
-        logger->WriteMessage({ Ame::Log::LogLevel::type, message });                                                   \
+        if (logger->CanLog(Ame::Log::LogLevel::type))                                                                  \
+        {                                                                                                              \
+            logger->WriteMessage({ Ame::Log::LogLevel::type, message });                                               \
+        }                                                                                                              \
     }
 
 //

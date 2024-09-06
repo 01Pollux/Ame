@@ -3,7 +3,7 @@
 #include <limits>
 #include <Rhi/Core.hpp>
 
-#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Renderables/BaseRenderable.hpp>
 
 #include <Math/Camera.hpp>

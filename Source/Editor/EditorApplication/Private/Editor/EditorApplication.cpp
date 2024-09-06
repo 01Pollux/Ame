@@ -8,7 +8,7 @@
 
 //
 
-#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Renderables/3D/ModelLoader.hpp>
@@ -22,14 +22,13 @@
 #include <DiligentCore/Graphics/GraphicsTools/interface/MapHelper.hpp>
 #include <Graphics/RenderGraph/Graphs/ForwardPlus.hpp>
 
+#include <Log/Logger.hpp>
 #include <imgui.h>
 
 namespace Ame
 {
     EditorApplication::EditorApplication(const EditorApplicationConfig& config) : Base(config.Application)
     {
-        auto moduleRegistry = GetEngine().GetRegistry();
-        moduleRegistry->LoadPlugin("EditorCore");
     }
 
     void EditorApplication::OnLoad()
@@ -39,15 +38,19 @@ namespace Ame
         //
 
         auto moduleRegistry = GetEngine().GetRegistry();
+        moduleRegistry->LoadPlugin("EditorCore");
+        moduleRegistry->UnloadPlugin("EditorCore");
+
+        //
 
         Ptr<Interfaces::IEntityWorld> entityWorld;
-        moduleRegistry->RequestInterface(Interfaces::IID_EntityWorld, entityWorld.DblPtr<IObject>());
+        moduleRegistry->RequestInterface(nullptr, Interfaces::IID_EntityWorld, entityWorld.DblPtr<IObject>());
 
         Ptr<Interfaces::IRhiDevice> rhiDevice;
-        moduleRegistry->RequestInterface(Interfaces::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
+        moduleRegistry->RequestInterface(nullptr, Interfaces::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
 
         Ptr<Interfaces::IRenderer> renderer;
-        moduleRegistry->RequestInterface(Interfaces::IID_Renderer, renderer.DblPtr<IObject>());
+        moduleRegistry->RequestInterface(nullptr, Interfaces::IID_Renderer, renderer.DblPtr<IObject>());
 
         //
 

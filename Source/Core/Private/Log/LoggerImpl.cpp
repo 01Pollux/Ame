@@ -34,10 +34,6 @@ namespace Ame::Log
     void LoggerImpl::WriteMessage(const LoggerInfo& info)
     {
 #ifndef AME_DISABLE_LOGGING
-        if (!CanLog(info.Level))
-        {
-            return;
-        }
         m_Logger.log(GetSpdlogLevel(info.Level), info.Message);
 
         if (info.Level >= LogLevel::Error)

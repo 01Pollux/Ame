@@ -3,6 +3,8 @@
 #include <EditorPlugin/EditorWindow.hpp>
 #include <EditorPlugin/StandardWindows.hpp>
 
+#include <Ecs/Entity.hpp>
+
 namespace Ame::Editor
 {
     class HierarchyEditorWindow : public BaseObject<IEditorWindow>
@@ -19,5 +21,8 @@ namespace Ame::Editor
 
     public:
         void OnDrawVisible() override;
+
+    private:
+        Ecs::Entity m_EntityToRename;
     };
 } // namespace Ame::Editor

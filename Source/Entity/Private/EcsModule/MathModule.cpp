@@ -1,7 +1,7 @@
 #include <EcsModule/MathModule.hpp>
 
-#include <EcsComponent/Math/TransformComponent.hpp>
-#include <EcsComponent/Math/AABBComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
+#include <EcsComponent/Math/AABB.hpp>
 
 namespace Ame::Ecs
 {

@@ -1,6 +1,6 @@
 #include <EcsModule/ViewportModule.hpp>
 
-#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
 #include <EcsComponent/Viewport/CameraFrustum.hpp>
 

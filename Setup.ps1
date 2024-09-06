@@ -3,6 +3,8 @@ param (
     [switch]$ShadersToCString = $false
 )
 
+#
+
 if ($ShadersToCString) {
     Write-Host "Converting shaders to C string..."
     .\Project\ConfigureShaders.ps1

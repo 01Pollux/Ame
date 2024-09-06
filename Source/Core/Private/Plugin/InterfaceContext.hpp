@@ -14,18 +14,6 @@ namespace Ame
         {
         }
 
-        ~InterfaceContext()
-        {
-            for (auto& plugin : m_Dependencies)
-            {
-                plugin->OnInterfaceDrop(m_Object);
-            }
-            if (m_Plugin)
-            {
-                m_Plugin->OnInterfaceDrop(m_Object);
-            }
-        }
-
     public:
         [[nodiscard]] IPlugin* GetPlugin() const noexcept
         {
@@ -40,6 +28,20 @@ namespace Ame
         void AddDependencies(IPlugin* plugin)
         {
             m_Dependencies.insert(plugin);
+        }
+        
+        void RemoveDependencies(IPlugin* plugin)
+        {
+            m_Dependencies.erase(plugin);
+        }
+
+        void DropDependencies()
+        {
+            for (auto& plugin : m_Dependencies)
+            {
+                plugin->OnInterfaceDrop(m_Object);
+            }
+            m_Dependencies.clear();
         }
 
         [[nodiscard]] bool HasDependencies() const noexcept

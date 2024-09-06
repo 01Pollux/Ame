@@ -16,6 +16,7 @@ namespace Ame
         auto iter = m_Interfaces.find(iid);
         if (iter != m_Interfaces.end())
         {
+            AME_LOG_WARNING(std::format("Interface '{}' not found", UIdUtils::ToString(iid)));
             return false;
         }
 
@@ -29,10 +30,13 @@ namespace Ame
         auto iter = m_Interfaces.find(iid);
         if (iter == m_Interfaces.end())
         {
+            AME_LOG_WARNING(std::format("Interface '{}' not found", UIdUtils::ToString(iid)));
             return false;
         }
+
         if (caller)
         {
+            AME_LOG_ASSERT(FindContext(caller) != nullptr, "Invalid caller plugin");
             iter->second.AddDependencies(caller);
         }
 
@@ -54,12 +58,10 @@ namespace Ame
         auto iter = m_Interfaces.find(iid);
         if (iter == m_Interfaces.end())
         {
+            AME_LOG_WARNING(std::format("Interface '{}' not found", UIdUtils::ToString(iid)));
             return false;
         }
-        if (iter->second.HasDependencies())
-        {
-            return false;
-        }
+        iter->second.DropDependencies();
         m_Interfaces.erase(iter);
         return true;
     }
@@ -116,21 +118,30 @@ namespace Ame
             return ctx->GetPlugin();
         }
 
+        PluginContext* ctxPtr = nullptr;
         try
         {
-            auto ctx    = std::make_unique<PluginContext>(name);
+            auto ctx = std::make_unique<PluginContext>(name);
+            ctxPtr   = ctx.get();
+
             auto plugin = ctx->GetPlugin();
+            m_Plugins.emplace(name, std::move(ctx));
 
             if (plugin->OnPluginPreLoad(this))
             {
                 plugin->OnPluginLoad(this);
-                m_Plugins.emplace(name, std::move(ctx));
                 return plugin;
             }
         }
         catch (const std::exception& e)
         {
             AME_LOG_WARNING(std::format("Failed to load plugin: '{}' (error: '{}')", name, e.what()));
+        }
+
+        if (ctxPtr)
+        {
+            ctxPtr->Invalidate();
+            m_Plugins.erase(name);
         }
         return nullptr;
     }
@@ -151,8 +162,12 @@ namespace Ame
 
     void ModuleRegistryImpl::ReleaseAllPlugins()
     {
-        m_Interfaces.clear();
+        for (auto& iface : m_Interfaces | std::views::values)
+        {
+            iface.DropDependencies();
+        }
         m_Plugins.clear();
+        m_Interfaces.clear();
     }
 
     void ModuleRegistryImpl::UnloadPlugin_Internal(PluginContext& context)
@@ -176,6 +191,18 @@ namespace Ame
                           return erase;
                       });
 
-        std::erase_if(m_Interfaces, [plugin](const auto& pair) { return pair.second.GetPlugin() == plugin; });
+        std::erase_if(m_Interfaces,
+                      [plugin](auto& pair)
+                      {
+                          bool erase = false;
+                          if (pair.second.GetPlugin() == plugin)
+                          {
+                              pair.second.DropDependencies();
+                              erase = true;
+                          }
+
+                          pair.second.RemoveDependencies(plugin);
+                          return erase;
+                      });
     }
 } // namespace Ame

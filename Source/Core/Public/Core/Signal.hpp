@@ -2,6 +2,7 @@
 
 #include <boost/signals2.hpp>
 #include <Core/Ame.hpp>
+#include <Core/Export.hpp>
 
 namespace Ame::Signals
 {
@@ -16,11 +17,11 @@ namespace Ame::Signals
 
 #define AME_SIGNAL_INST_N(Namespace, Name)                                                                             \
 public:                                                                                                                \
-    boost::signals2::connection Name(const Namespace##Name##_Slot& slot)                                               \
+    boost::signals2::connection Name(const Namespace::Name##_Signal::slot_type& slot)                                  \
     {                                                                                                                  \
         return m_##Name.connect(slot);                                                                                 \
     }                                                                                                                  \
-    boost::signals2::connection Name##Ex(const Namespace##Name##_SlotEx& slot)                                         \
+    boost::signals2::connection Name##Ex(const Namespace::Name##_Signal::extended_slot_type& slot)                     \
     {                                                                                                                  \
         return m_##Name.connect_extended(slot);                                                                        \
     }                                                                                                                  \
@@ -31,15 +32,15 @@ public:                                                                         
     }                                                                                                                  \
                                                                                                                        \
 private:                                                                                                               \
-    Namespace##Name##_Signal m_##Name
+    Namespace::Name##_Signal m_##Name
 
 #define AME_SIGNAL_STATIC_N(Namespace, Name)                                                                           \
 public:                                                                                                                \
-    static boost::signals2::connection Name(const Namespace##Name##_Slot& slot)                                        \
+    static boost::signals2::connection Name(const Namespace::Name##_Signal::slot_type& slot)                           \
     {                                                                                                                  \
         return s_##Name.connect(slot);                                                                                 \
     }                                                                                                                  \
-    static boost::signals2::connection Name##Ex(const Namespace##Name##_SlotEx& slot)                                  \
+    static boost::signals2::connection Name##Ex(const Namespace::Name##_Signal::extended_slot_type& slot)              \
     {                                                                                                                  \
         return s_##Name.connect_extended(slot);                                                                        \
     }                                                                                                                  \
@@ -52,5 +53,5 @@ public:                                                                         
 private:                                                                                                               \
     static inline Namespace##Name##_Signal s_##Name
 
-#define AME_SIGNAL_INST(Name)   AME_SIGNAL_INST_N(Ame::Signals::, Name)
-#define AME_SIGNAL_STATIC(Name) AME_SIGNAL_STATIC_N(Ame::Signals::, Name)
+#define AME_SIGNAL_INST(Name)   AME_SIGNAL_INST_N(Ame::Signals, Name)
+#define AME_SIGNAL_STATIC(Name) AME_SIGNAL_STATIC_N(Ame::Signals, Name)

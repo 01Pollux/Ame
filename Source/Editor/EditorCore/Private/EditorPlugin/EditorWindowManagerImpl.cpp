@@ -19,8 +19,7 @@
 
 namespace Ame::Editor
 {
-    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters) :
-        Base(counters)
+    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters) : Base(counters)
     {
         Ptr<Interfaces::IRhiDevice> rhiDevice;
         Ptr<Interfaces::IRenderer>  renderer;
@@ -34,7 +33,7 @@ namespace Ame::Editor
             m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest(
                 [this](const Math::Vector2I&) { return m_IsTitlebarHovered; });
         }
-        m_OnImGuiRender = renderer->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));
+        //m_OnImGuiRender = renderer->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));
 
         ResetDefaultWindows();
     }

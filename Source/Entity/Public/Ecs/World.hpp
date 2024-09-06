@@ -37,7 +37,7 @@ namespace Ame::Ecs
         IMPLEMENT_INTERFACE_CTOR(World, Ptr<Rhi::IRhiDevice> rhiDevice);
 
     public:
-        ~World();
+        ~World() override;
 
     public:
         /// <summary>

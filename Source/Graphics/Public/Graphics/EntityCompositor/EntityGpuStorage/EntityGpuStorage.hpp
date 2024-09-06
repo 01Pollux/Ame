@@ -74,7 +74,7 @@ namespace Ame::Gfx
                         }
                     }
                 });
-            m_InstanceObserver = world->query_builder<const typename traits_type::id_container_type>().cached().build();
+            m_InstanceQuery = world->query_builder<const typename traits_type::id_container_type>().cached().build();
         }
 
     private:
@@ -112,12 +112,12 @@ namespace Ame::Gfx
             size_t requiredSize      = sizeof(typename traits_type::instance_type) * GetMaxCount();
             bool   wholeBufferUpdate = TryGrowBuffer(renderDevice, requiredSize);
 
-            if (!wholeBufferUpdate && !m_InstanceObserver->changed())
+            if (!wholeBufferUpdate && !m_InstanceQuery->changed())
             {
                 return;
             }
 
-            m_InstanceObserver->run(
+            m_InstanceQuery->run(
                 [&](Ecs::Iterator& iter)
                 {
                     std::vector<UnsortedEntityId> collectedIds;
@@ -266,6 +266,6 @@ namespace Ame::Gfx
         buddy_allocator_type m_Allocator{ c_ChunkSize };
 
         Ecs::UniqueObserver    m_Observer;
-        instance_observer_type m_InstanceObserver;
+        instance_observer_type m_InstanceQuery;
     };
 } // namespace Ame::Gfx

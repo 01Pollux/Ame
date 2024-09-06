@@ -18,9 +18,11 @@ namespace Ame::Ecs
         Base(counters), m_RhiDevice(std::move(rhiDevice))
     {
         std::lock_guard initLock(g_FlecsMutex);
+
         m_World = std::make_unique<flecs::world>();
         m_World->component<This>();
         m_World->set(This{ this });
+
         ImportModule<CoreEcsModule>();
     }
 

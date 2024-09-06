@@ -3,7 +3,7 @@
 #include <CommonStates/CommonRenderPasses.hpp>
 #include <Rg/Graph.hpp>
 
-#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
 

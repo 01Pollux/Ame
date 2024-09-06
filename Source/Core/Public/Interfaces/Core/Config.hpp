@@ -29,6 +29,6 @@ namespace Ame::Interfaces
         bool             EnableFrameTimer : 1 = true;
         bool             EnableFrameEvent : 1 = true;
 
-        void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner = nullptr) const;
+        void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const;
     };
 } // namespace Ame::Interfaces

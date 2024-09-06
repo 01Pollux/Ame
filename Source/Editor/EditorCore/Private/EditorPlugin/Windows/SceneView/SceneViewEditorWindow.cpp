@@ -1,27 +1,16 @@
 #include <EditorPlugin/Windows/SceneView/SceneViewEditorWindow.hpp>
+#include <EditorCore/ModuleRegistryUtils.hpp>
 
-#include <EditorPlugin/EditorCore.hpp>
-#include <Plugin/ModuleRegistry.hpp>
-
-#include <EcsComponent/Math/TransformComponent.hpp>
+#include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
-
-#include <Interfaces/Ecs/EntityWorld.hpp>
 
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 
 namespace Ame::Editor
 {
-    [[nodiscard]] static Ptr<Ecs::World> GetWorld()
-    {
-        Ptr<Interfaces::IEntityWorld> entityWorld;
-        s_ModuleRegistry->RequestInterface(Interfaces::IID_EntityWorld, entityWorld.DblPtr<IObject>());
-        return entityWorld;
-    }
-
     SceneViewEditorWindow::SceneViewEditorWindow(IReferenceCounters* counter) :
-        Base(counter, SceneViewEditorWindowPath), m_World(GetWorld()),
+        Base(counter, SceneViewEditorWindowPath), m_World(ModuleUtils::GetWorld()),
         m_CameraQuery(m_World
                           ->CreateQuery<const Ecs::CameraComponent, const Ecs::GlobalTransformComponent,
                                         const Ecs::CameraOutputComponent>()

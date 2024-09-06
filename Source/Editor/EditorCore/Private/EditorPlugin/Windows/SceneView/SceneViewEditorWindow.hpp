@@ -62,8 +62,7 @@ namespace Ame::Editor
 
     private:
         Ptr<Ecs::World> m_World;
-
-        CameraQuery m_CameraQuery;
+        CameraQuery     m_CameraQuery;
 
         std::vector<CameraInfo> m_CameraList;
         uint32_t                m_CurrentCameraIndex = 0;

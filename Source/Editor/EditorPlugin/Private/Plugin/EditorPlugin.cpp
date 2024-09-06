@@ -10,7 +10,7 @@ namespace Ame::Editor
     {
         Ptr<Interfaces::IImGuiRenderer> imguiRenderer;
         if (!IPlugin::OnPluginPreLoad(registry) ||
-            !registry->RequestInterface(Interfaces::IID_ImGuiRenderer, imguiRenderer.DblPtr<IObject>()))
+            !registry->RequestInterface(this, Interfaces::IID_ImGuiRenderer, imguiRenderer.DblPtr<IObject>()))
         {
             return false;
         }

@@ -22,6 +22,11 @@ namespace Ame
             }
         }
 
+        void Invalidate()
+        {
+            m_Plugin = nullptr;
+        }
+
     public:
         [[nodiscard]] IPlugin* GetPlugin()
         {

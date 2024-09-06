@@ -1,89 +1,58 @@
-includes("Project/Utils.lua")
-
---
-
-rule("mode.debug_sanitize")
-    add_deps("debug")
-rule_end()
-
---
-
-add_rules("mode.debug", "mode.debug_sanitize", "mode.releasedbg")
+add_rules("mode.debug", "mode.releasedbg", "mode.check")
 set_languages("cxxlatest")
 
 --
 
-_current_mode = nil
+includes("Project/Utils.lua")
+
+--
+
 _script_root_dir = os.scriptdir()
-_use_asan = false
-_use_exception = false
 _debug_packages = false
 _with_symbols = false
+_use_exception = false
 _vc_runtime = ""
 
 --
 
-if is_mode("debug") or is_mode("debug_sanitize") then
-    _vc_runtime = "MTd"
-else 
-    _vc_runtime = "MT"
-end
-
---
-
-set_runtimes(_vc_runtime)
 add_defines("NOMINMAX")
 set_warnings("allextra", "error")
 
 --
 
+set_exceptions("cxx")
+_use_exception = true
+
 if is_mode("debug") then
-    add_defines("_DEBUG")
-    add_defines("DEBUG")
     add_defines("AME_DEBUG")
-    add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
 
     set_symbols("debug", "edit")
+    set_runtimes("MDd")
 
-    _use_exception = true
     _debug_packages = true
     _with_symbols = true
-    _current_mode = "debug"
-end
-
-if is_mode("debug_sanitize") then 
-    add_defines("_DEBUG")
-    add_defines("DEBUG")
+elseif is_mode("check") then 
     add_defines("AME_DEBUG")
     add_defines("AME_DEBUG_SANITIZE")
-    add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
 
-    set_policy("build.sanitizer.address", true)
-    set_exceptions("cxx", "objc")
+    set_symbols("debug")
+    set_runtimes("MDd")
 
-    _use_asan = true
-    _use_exception = true
     _debug_packages = true
     _with_symbols = true
-    _current_mode = "debug_sanitize"
-end
-
-if is_mode("releasedbg") then
-    add_defines("NDEBUG")
-    add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
+elseif is_mode("releasedbg") then
     add_defines("AME_RELEASE")
 
+    set_symbols("debug")
+    set_runtimes("MD")
+
     _with_symbols = true
-    _current_mode = "releasedbg"
-end
-
-if is_mode("release") then
-    add_defines("NDEBUG")
-    add_defines("AME_ASSET_MGR_DISABLE_HASH_VALIDATION")
+elseif is_mode("release") then
     add_defines("AME_DIST")
-    _current_mode = "release"
-end
 
+    set_symbols("hidden")
+    set_runtimes("MD")
+end
 --
 
 if is_plat("windows") then
@@ -98,7 +67,7 @@ end
 --
 
 -- linking for asan, adding directory of clang_rt.asan
-if (_use_asan) then
+if is_mode("asan") then
     on_load(function (target)
         local msvc = target:toolchain("msvc")
         if msvc then
