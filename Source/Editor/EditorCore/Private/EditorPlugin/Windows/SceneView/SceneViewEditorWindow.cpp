@@ -4,6 +4,7 @@
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 
@@ -14,6 +15,7 @@ namespace Ame::Editor
         m_CameraQuery(m_World
                           ->CreateQuery<const Ecs::CameraComponent, const Ecs::GlobalTransformComponent,
                                         const Ecs::CameraOutputComponent>()
+                          .with<Ecs::ActiveSceneEntityTag>()
                           .order_by<Ecs::CameraComponent>([](Ecs::EntityId, auto a, Ecs::EntityId, auto b)
                                                           { return a->Priority - b->Priority; })
                           .build())

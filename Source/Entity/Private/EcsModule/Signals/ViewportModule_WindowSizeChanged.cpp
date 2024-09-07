@@ -53,7 +53,7 @@ namespace Ame::Ecs
             return;
         }
 
-        auto allCameras = world->query<CameraComponent>();
+        auto allCameras = world.CreateQuery<CameraComponent>().cached().build();
 
         m_WindowSizeChangedConnection = window->GetEventListener().OnWindowSizeChanged.Connect(
             [allCameras](const Math::Size2I& newSize)

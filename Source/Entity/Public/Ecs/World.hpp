@@ -89,6 +89,11 @@ namespace Ame::Ecs
             return *m_World;
         }
 
+        [[nodiscard]] auto GetFlecsWorld() const noexcept
+        {
+            return m_World.get();
+        }
+
     public:
         /// <summary>
         /// Progress the world.

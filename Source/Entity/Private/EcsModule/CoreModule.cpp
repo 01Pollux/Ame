@@ -18,9 +18,9 @@ namespace Ame::Ecs
 
         //
 
+        world->import <SceneEcsModule>();
         world->import <MathEcsModule>();
         world->import <ViewporEcsModule>();
         world->import <LightingEcsModule>();
-        world->import <SceneEcsModule>();
     }
 } // namespace Ame::Ecs

@@ -14,6 +14,7 @@
 #include <EcsComponent/Renderables/3D/ModelLoader.hpp>
 #include <EcsComponent/Renderables/3D/StaticMesh.hpp>
 #include <EcsComponent/Lighting/DirectionalLight.hpp>
+#include <EcsComponent/Scene/RuntimeScene.hpp>
 
 #include <Shading/Technique.hpp>
 #include <Shading/Material.hpp>
@@ -53,6 +54,11 @@ namespace Ame
 
         //
 
+        auto scene = AmeCreate(Ecs::RuntimeScene, entityWorld);
+        scene->SetCurrent();
+
+        //
+
         Ptr renderGraph{ ObjectAllocator<Rg::Graph>()(rhiDevice) };
         Gfx::RegisterForwardPlus(*renderGraph, entityWorld);
 
@@ -64,16 +70,14 @@ namespace Ame
         });
         camTr.SetPosition({ 0.251502007f, 4.27811623f, -0.114832222f });
 
-        auto cameraEntity = entityWorld->CreateEntity("Camera");
+        auto cameraEntity = scene->CreateEntity("Camera");
         cameraEntity->set(Ecs::CameraComponent{ .RenderGraph = std::move(renderGraph) });
         cameraEntity->set(camTr);
         cameraEntity->set(Ecs::CameraOutputComponent{});
 
         //
 
-        auto parent = entityWorld->CreateEntity();
-
-        auto lightEntity = entityWorld->CreateEntity();
+        auto lightEntity = scene->CreateEntity("Light");
 
         Ecs::TransformComponent lightTr;
         lightTr.SetPosition({ 0.f, 10.f, 0.f });
@@ -86,7 +90,6 @@ namespace Ame
         Ecs::DirectionalLightComponent lightComp;
         lightComp.Color = Math::Color4{ 1.f, 1.f, 1.f, 1.f };
 
-        lightEntity->child_of(*parent);
         lightEntity->set(lightComp);
         lightEntity->set(lightTr);
 
@@ -104,14 +107,20 @@ namespace Ame
         {
             Ptr submesh(ObjectAllocator<Ecs::StaticMesh>()(mdl, idx));
 
-            auto meshEntity = entityWorld->CreateEntity("Mesh");
+            auto meshEntity = scene->CreateEntity("Mesh");
             meshEntity->set(Ecs::TransformComponent{});
             meshEntity->set(Ecs::StaticMeshComponent{ submesh });
         }
 
-        renderer->OnImGuiRender.Connect(
-            [cameraEntity]
+        renderer->OnImGuiRender.ConnectEx(
+            [cameraEntity](const Signals::Connection& con)
             {
+                if (!cameraEntity)
+                {
+                    con.disconnect();
+                    return;
+                }
+
                 {
                     enum class CameraMoveType : uint8_t
                     {

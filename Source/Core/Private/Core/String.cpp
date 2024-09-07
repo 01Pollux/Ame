@@ -1,7 +1,7 @@
 #include <ranges>
 #include <Core/String.hpp>
 
-namespace Ame
+namespace Ame::Strings
 {
     String ToLower(StringView str) noexcept
     {

@@ -7,6 +7,7 @@
 #include <EcsComponent/Lighting/DirectionalLight.hpp>
 #include <EcsComponent/Lighting/PointLight.hpp>
 #include <EcsComponent/Lighting/SpotLight.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Gfx
 {
@@ -74,7 +75,8 @@ namespace Ame::Gfx
 
         static auto observer_create(Ecs::WorldRef world)
         {
-            return world->observer<const EntityTransform_EcsId, const Ecs::LightTagComponent>()
+            return world.CreateObserver<const EntityTransform_EcsId, const Ecs::LightTagComponent>()
+                .with<Ecs::ActiveSceneEntityTag>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

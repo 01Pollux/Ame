@@ -1,6 +1,7 @@
 #include <EcsModule/SceneModule.hpp>
 
 #include <EcsComponent/Scene/RuntimeScene.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Ecs
 {
@@ -15,13 +16,13 @@ namespace Ame::Ecs
             {
                 auto entity(iter.entity(i));
                 auto entityScene = entity.target<SceneEntityPairComponent>();
-                if ((entityScene == currentScene) && (iter.event() == flecs::OnSet))
+                if ((entityScene == currentScene) && (iter.event() == flecs::OnAdd))
                 {
-                    entity.add<ActiveEntityTag>();
+                    entity.add<ActiveSceneEntityTag>();
                 }
                 else
                 {
-                    entity.remove<ActiveEntityTag>();
+                    entity.remove<ActiveSceneEntityTag>();
                 }
             }
         }
@@ -29,17 +30,17 @@ namespace Ame::Ecs
 
     static void OnWorldSceneEntityChanged_UpdateActiveScene(Iterator& iter)
     {
-        auto world  = iter.world();
-        auto target = world.target<SceneEntityPairComponent>();
-        auto filter = world.query_builder<SceneEntityPairComponent>(target).build();
+        Ecs::WorldRef world  = iter.world();
+        auto          target = world->target<SceneEntityPairComponent>();
+        auto          filter = world.CreateQuery().with<SceneEntityPairComponent>(target ? target : flecs::Wildcard).build();
 
-        if (iter.event() == flecs::OnSet)
+        if (iter.event() == flecs::OnAdd)
         {
-            filter.each([](auto& entity) { entity.add<ActiveEntityTag>(); });
+            filter.each([](auto entity) { entity.add<ActiveSceneEntityTag>(); });
         }
         else
         {
-            filter.each([](auto& entity) { entity.remove<ActiveEntityTag>(); });
+            filter.each([](auto entity) { entity.remove<ActiveSceneEntityTag>(); });
         }
     }
 
@@ -47,18 +48,16 @@ namespace Ame::Ecs
 
     void SceneEcsModule::RegisterSceneObservers(WorldRef world)
     {
-        world->observer()
+        world.CreateObserver()
             .with<SceneEntityPairComponent>(flecs::Wildcard)
             .singleton()
-            .event(flecs::OnSet)
-            .event(flecs::OnRemove)
+            .event(flecs::Monitor)
             .yield_existing()
             .run(OnWorldSceneEntityChanged_UpdateActiveScene);
 
-        world->observer()
+        world.CreateObserver()
             .with<SceneEntityPairComponent>(flecs::Wildcard)
-            .event(flecs::OnSet)
-            .event(flecs::OnRemove)
+            .event(flecs::Monitor)
             .yield_existing()
             .run(OnEntitySceneChange_UpdateActiveScene);
     }

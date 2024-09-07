@@ -2,6 +2,7 @@
 
 #include <Graphics/EntityCompositor/EntityGpuStorage/EntityGpuStorage.hpp>
 #include <Graphics/EntityCompositor/EntityGpuStorage/TransformTable.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Gfx
 {
@@ -27,7 +28,8 @@ namespace Ame::Gfx
 
         static auto observer_create(Ecs::WorldRef world)
         {
-            return world->observer<const Ecs::RenderableComponent, const EntityTransform_EcsId>()
+            return world.CreateObserver<const Ecs::RenderableComponent, const EntityTransform_EcsId>()
+                .with<Ecs::ActiveSceneEntityTag>()
                 .event(flecs::OnRemove)
                 .event(flecs::OnSet);
         }

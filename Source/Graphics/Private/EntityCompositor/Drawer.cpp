@@ -6,11 +6,16 @@ namespace Ame::Gfx
 {
     EntityDrawer::EntityDrawer(EntityCollector& collector) : m_Collector(collector)
     {
-        auto world = collector.GetWorld();
-        m_RenderableQuery =
-            world->CreateQuery<const Ecs::RenderableComponent, const EntityDrawInstance_EcsId>().cached().build();
-        m_LightQuery =
-            world->CreateQuery<const EntityLightInstance_EcsId>().with<const Ecs::LightTagComponent>().cached().build();
+        auto world        = collector.GetWorld();
+        m_RenderableQuery = world->CreateQuery<const Ecs::RenderableComponent, const EntityDrawInstance_EcsId>()
+                                .with<Ecs::ActiveSceneEntityTag>()
+                                .cached()
+                                .build();
+        m_LightQuery = world->CreateQuery<const EntityLightInstance_EcsId>()
+                           .with<const Ecs::LightTagComponent>()
+                           .with<Ecs::ActiveSceneEntityTag>()
+                           .cached()
+                           .build();
     }
 
     void EntityDrawer::Update()

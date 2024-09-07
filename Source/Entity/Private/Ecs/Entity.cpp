@@ -97,10 +97,13 @@ namespace Ame::Ecs
             query.run(
                 [&children](flecs::iter& It)
                 {
-                    children.reserve(children.size() + It.count());
-                    for (auto i = 0; i < It.count(); i++)
+                    while (It.next())
                     {
-                        children.emplace_back(It.entity(i));
+                        children.reserve(children.size() + It.count());
+                        for (auto i = 0; i < It.count(); i++)
+                        {
+                            children.emplace_back(It.entity(i));
+                        }
                     }
                 });
         }

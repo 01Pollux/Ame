@@ -3,6 +3,7 @@
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
 #include <EcsComponent/Viewport/CameraFrustum.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Ecs
 {
@@ -35,7 +36,8 @@ namespace Ame::Ecs
     void ViewporEcsModule::RegisterCameraObservers(WorldRef world)
     {
         // Register global transform observer, to update global transform when transform changes
-        world->observer<const GlobalTransformComponent, const CameraComponent>()
+        world.CreateObserver<const GlobalTransformComponent, const CameraComponent>()
+            .with<ActiveSceneEntityTag>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .yield_existing()

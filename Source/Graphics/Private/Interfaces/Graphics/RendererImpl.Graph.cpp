@@ -6,6 +6,7 @@
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/CameraOutput.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 #include <Rhi/ImGui/ImGuiFrameContext.hpp>
 #include <imgui.h>
@@ -66,6 +67,7 @@ namespace Ame::Interfaces
                               const Ecs::CameraOutputComponent>()
                 .order_by<const Ecs::CameraComponent>([](Ecs::EntityId, auto a, Ecs::EntityId, auto b) -> int
                                                       { return a->Priority - b->Priority; })
+                .with<Ecs::ActiveSceneEntityTag>()
                 .build();
     }
 

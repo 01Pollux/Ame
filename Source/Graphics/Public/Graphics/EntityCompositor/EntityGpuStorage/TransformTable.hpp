@@ -5,6 +5,7 @@
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Renderables/BaseRenderable.hpp>
 #include <EcsComponent/Lighting/BaseLight.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Gfx
 {
@@ -28,7 +29,8 @@ namespace Ame::Gfx
 
         static auto observer_create(Ecs::WorldRef world)
         {
-            return world->observer<const Ecs::GlobalTransformComponent>()
+            return world.CreateObserver<const Ecs::GlobalTransformComponent>()
+                .with<Ecs::ActiveSceneEntityTag>()
                 .with<const Ecs::RenderableComponent>()
                 .or_()
                 .with<const Ecs::LightTagComponent>()

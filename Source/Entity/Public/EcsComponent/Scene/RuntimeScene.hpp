@@ -46,6 +46,11 @@ namespace Ame::Ecs
 
     public:
         /// <summary>
+        /// Create and add entity to the scene
+        /// </summary>
+        Ecs::Entity CreateEntity(const StringView name = {});
+
+        /// <summary>
         /// Add entity to the scene
         /// </summary>
         void AddEntity(const Ecs::Entity& entity);
@@ -67,35 +72,36 @@ namespace Ame::Ecs
 
         [[nodiscard]] const Ecs::Entity& GetRoot() const noexcept
         {
-            return m_Root;
+            return m_Root.Get();
         }
         [[nodiscard]] const flecs::entity& GetRootFlecsEntity() const noexcept
         {
             return m_Root->GetFlecsEntity();
         }
 
+    public:
+        /// <summary>
+        /// Get the current scene
+        /// </summary>
+        [[nodiscard]] static RuntimeScene* GetCurrent(Ecs::World* world);
+
+        /// <summary>
+        /// Set the scene as the current scene,
+        /// if null, the current scene reference will be cleared
+        /// </summary>
+        [[nodiscard]] static void SetCurrent(Ecs::World* world, RuntimeScene* scene);
+
+        /// <summary>
+        /// Set the scene as the current scene
+        /// </summary>
+        void SetCurrent();
+
     private:
-        Ptr<Ecs::World>   m_World;
+        WPtr<Ecs::World>  m_World;
         Ecs::UniqueEntity m_Root;
     };
 
     //
 
     AME_ECS_WRAP_COMPONENT_PTR(RuntimeScene);
-
-    /// <summary>
-    /// pair: [SceneEntityComponent, Entity] # world,entity
-    /// world: Mark the scene as active
-    /// entity: Mark the entity as part of a scene
-    /// </summary>
-    struct SceneEntityPairComponent
-    {
-    };
-
-    /// <summary>
-    /// Tag automatically added to the entities that are part of an active scene
-    /// </summary>
-    struct ActiveEntityTag
-    {
-    };
 } // namespace Ame::Ecs

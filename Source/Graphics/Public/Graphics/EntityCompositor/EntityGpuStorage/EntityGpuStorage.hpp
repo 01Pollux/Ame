@@ -74,7 +74,7 @@ namespace Ame::Gfx
                         }
                     }
                 });
-            m_InstanceQuery = world->query_builder<const typename traits_type::id_container_type>().cached().build();
+            m_InstanceQuery = world.CreateQuery<const typename traits_type::id_container_type>().cached().build();
         }
 
     private:

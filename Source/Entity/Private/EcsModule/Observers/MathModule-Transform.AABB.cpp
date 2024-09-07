@@ -2,6 +2,7 @@
 
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Math/AABB.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Ecs
 {
@@ -68,17 +69,19 @@ namespace Ame::Ecs
     void MathEcsModule::RegisterTransformObservers(WorldRef world)
     {
         // Register global transform observer, to update global transform when transform changes
-        world->observer<const TransformComponent, const GlobalTransformComponent*>()
+        world.CreateObserver<const TransformComponent, const GlobalTransformComponent*>()
             .term_at(1) ///
             .parent()   // GlobalTransformComponent is a parent of TransformComponent
             .cascade()  ///
+            .with<ActiveSceneEntityTag>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .yield_existing()
             .run(OnTransformChanged_UpdateGlobal);
 
         // Register transformed AABB observer, to update AABB when transform changes
-        world->observer<const GlobalTransformComponent, const AABBComponent>()
+        world.CreateObserver<const GlobalTransformComponent, const AABBComponent>()
+            .with<ActiveSceneEntityTag>()
             .event(flecs::OnSet)
             .event(flecs::OnRemove)
             .yield_existing()

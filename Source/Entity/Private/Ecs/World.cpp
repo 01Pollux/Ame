@@ -76,7 +76,11 @@ namespace Ame::Ecs
 
     bool World::Progress([[maybe_unused]] double deltaTime)
     {
+#ifdef AME_DIST
         m_World->progress(static_cast<float>(deltaTime));
+#else
+        m_World->progress();
+#endif
         return !m_World->should_quit();
     }
 } // namespace Ame::Ecs

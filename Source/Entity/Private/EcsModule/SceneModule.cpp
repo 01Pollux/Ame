@@ -1,6 +1,7 @@
 #include <EcsModule/SceneModule.hpp>
 
 #include <EcsComponent/Scene/RuntimeScene.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
 
 namespace Ame::Ecs
 {
@@ -10,9 +11,9 @@ namespace Ame::Ecs
 
         //
 
-        world->component<RuntimeSceneComponent>("Ame.RuntimeSceneComponent");
-        world->component<SceneEntityPairComponent>("Ame.SceneEntityPairComponent");
-        world->component<ActiveEntityTag>("Ame.SceneEntityPairComponent");
+        world->component<RuntimeSceneComponent>("Ame.RuntimeSceneComponent").add(flecs::Relationship);
+        world->component<SceneEntityPairComponent>("Ame.SceneEntityPairComponent").add(flecs::Relationship);
+        world->component<ActiveSceneEntityTag>("Ame.ActiveSceneEntityTag").add(flecs::Trait);
 
         //
 

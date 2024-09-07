@@ -1,4 +1,6 @@
 #include <EcsComponent/Scene/RuntimeScene.hpp>
+#include <EcsComponent/Scene/SceneEntity.hpp>
+#include <Core/String.hpp>
 
 namespace Ame::Ecs
 {
@@ -13,10 +15,10 @@ namespace Ame::Ecs
     // find in the cleanup code By adding a name (or any other component) to it, it's no longer empty and the cleanup
     // works as expected I'll add a note to the docs for now, until I come up with a better way to address this
     /// </summary>
-    [[nodiscard]] static String RandomGuiName()
+    [[nodiscard]] static String RandomUIdName()
     {
         auto uid = UIdUtils::ToString(UIdUtils::Generate());
-        Strings::ReplaceAll(uid, "-", "_");
+        Strings::ReplaceAll(uid, "-", "");
         return uid;
     }
 
@@ -54,7 +56,22 @@ namespace Ame::Ecs
     RuntimeScene::RuntimeScene(IReferenceCounters* referenceCounters, Ecs::World* world) :
         Base(referenceCounters), m_World(world), m_Root(world->CreateEntity())
     {
-        m_Root.Get()->set_name(RandomGuiName().c_str());
+        auto flecsRoot = m_Root->GetFlecsEntity();
+        flecsRoot.set_name(RandomUIdName().c_str());
+        flecsRoot.emplace<RuntimeSceneComponent>(Ptr{ this });
+    }
+
+    //
+
+    Ecs::Entity RuntimeScene::CreateEntity(const StringView name)
+    {
+        Ecs::Entity entity;
+        if (auto world = m_World.Lock())
+        {
+            entity = world->CreateEntity(name, m_Root);
+            AddEntity(entity);
+        }
+        return entity;
     }
 
     void RuntimeScene::AddEntity(const Ecs::Entity& entity)
@@ -118,6 +135,35 @@ namespace Ame::Ecs
         }
         default:
             std::unreachable();
+        }
+    }
+
+    //
+
+    RuntimeScene* RuntimeScene::GetCurrent(Ecs::World* world)
+    {
+        auto scene = world->GetFlecsWorld()->target<SceneEntityPairComponent>();
+        return scene ? scene.get<RuntimeSceneComponent>()->Object : nullptr;
+    }
+
+    void RuntimeScene::SetCurrent(Ecs::World* world, RuntimeScene* scene)
+    {
+        auto flecsWorld = world->GetFlecsWorld();
+        if (scene)
+        {
+            flecsWorld->add<SceneEntityPairComponent>(scene->GetRoot().GetFlecsEntity());
+        }
+        else
+        {
+            flecsWorld->remove<SceneEntityPairComponent>();
+        }
+    }
+
+    void RuntimeScene::SetCurrent()
+    {
+        if (auto world = m_World.Lock())
+        {
+            SetCurrent(world, this);
         }
     }
 } // namespace Ame::Ecs
