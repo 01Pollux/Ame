@@ -2,6 +2,7 @@
 #include <EcsModule/MathModule.hpp>
 #include <EcsModule/ViewportModule.hpp>
 #include <EcsModule/LightingModule.hpp>
+#include <EcsModule/SceneModule.hpp>
 
 #include <EcsComponent/Core/EntityTagComponent.hpp>
 
@@ -20,5 +21,6 @@ namespace Ame::Ecs
         world->import <MathEcsModule>();
         world->import <ViewporEcsModule>();
         world->import <LightingEcsModule>();
+        world->import <SceneEcsModule>();
     }
 } // namespace Ame::Ecs

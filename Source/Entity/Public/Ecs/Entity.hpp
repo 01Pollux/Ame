@@ -41,12 +41,12 @@ namespace Ame::Ecs
         /// <summary>
         /// Release the entity.
         /// </summary>
-        void Reset(bool withChildren = false);
+        void Reset(bool withChildren = true);
 
         /// <summary>
         /// Release all children of the entity.
         /// </summary>
-        void RemoveAllChildren();
+        void RemoveAllChildren() const;
 
     public:
         /// <summary>

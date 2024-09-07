@@ -68,7 +68,7 @@ namespace Ame::Ecs
         m_Entity = {};
     }
 
-    void Entity::RemoveAllChildren()
+    void Entity::RemoveAllChildren() const
     {
         for (auto& Child : GetChildren())
         {
