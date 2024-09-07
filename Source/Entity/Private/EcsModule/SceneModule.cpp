@@ -1,7 +1,6 @@
 #include <EcsModule/SceneModule.hpp>
 
 #include <EcsComponent/Scene/RuntimeScene.hpp>
-#include <EcsComponent/Scene/CurrentRuntimeScene.hpp>
 
 namespace Ame::Ecs
 {
@@ -13,6 +12,10 @@ namespace Ame::Ecs
 
         world->component<RuntimeSceneComponent>("Ame.RuntimeSceneComponent");
         world->component<SceneEntityPairComponent>("Ame.SceneEntityPairComponent");
-        world->component<CurrentRuntimeScenePairComponent>("Ame.CurrentRuntimeScenePairComponent");
+        world->component<ActiveEntityTag>("Ame.SceneEntityPairComponent");
+
+        //
+
+        RegisterSceneObservers(world);
     }
 } // namespace Ame::Ecs

@@ -45,8 +45,25 @@ namespace Ame::Ecs
         IMPLEMENT_INTERFACE_CTOR(RuntimeScene, Ecs::World* world);
 
     public:
-        Ecs::Entity CloneEntity(const Ecs::Entity& entity);
-        void        MergeTo(RuntimeScene* targetScene, RuntimeSceneMerge mergeType);
+        /// <summary>
+        /// Add entity to the scene
+        /// </summary>
+        void AddEntity(const Ecs::Entity& entity);
+
+        /// <summary>
+        /// Remove entity from the scene
+        /// </summary>
+        void RemoveEntity(const Ecs::Entity& entity);
+
+        /// <summary>
+        /// Clone entity and add it to the scene
+        /// </summary>
+        Ecs::Entity CloneEntity(const Ecs::Entity& entity, bool deepClone = true);
+
+        /// <summary>
+        /// Merge the scene to the target scene
+        /// </summary>
+        void MergeTo(RuntimeScene* targetScene, RuntimeSceneMerge mergeType);
 
         [[nodiscard]] const Ecs::Entity& GetRoot() const noexcept
         {
@@ -67,10 +84,18 @@ namespace Ame::Ecs
     AME_ECS_WRAP_COMPONENT_PTR(RuntimeScene);
 
     /// <summary>
-    /// pair: [SceneEntityComponent, Entity] # entity
-    /// Mark the entity as part of a scene
+    /// pair: [SceneEntityComponent, Entity] # world,entity
+    /// world: Mark the scene as active
+    /// entity: Mark the entity as part of a scene
     /// </summary>
     struct SceneEntityPairComponent
+    {
+    };
+
+    /// <summary>
+    /// Tag automatically added to the entities that are part of an active scene
+    /// </summary>
+    struct ActiveEntityTag
     {
     };
 } // namespace Ame::Ecs

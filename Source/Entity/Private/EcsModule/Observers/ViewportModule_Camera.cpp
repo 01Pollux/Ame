@@ -4,8 +4,6 @@
 #include <EcsComponent/Viewport/Camera.hpp>
 #include <EcsComponent/Viewport/CameraFrustum.hpp>
 
-#include <Ecs/World.hpp>
-
 namespace Ame::Ecs
 {
     static void OnCameraTransformChanged_UpdateFrustum(Iterator& iter)

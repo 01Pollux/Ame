@@ -3,8 +3,6 @@
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Math/AABB.hpp>
 
-#include <Ecs/World.hpp>
-
 namespace Ame::Ecs
 {
     static void OnTransformChanged_UpdateGlobal(Iterator& iter)

@@ -57,9 +57,29 @@ namespace Ame::Ecs
         m_Root.Get()->set_name(RandomGuiName().c_str());
     }
 
-    Ecs::Entity RuntimeScene::CloneEntity(const Ecs::Entity& entity)
+    void RuntimeScene::AddEntity(const Ecs::Entity& entity)
     {
-        return CloneEntityTo(m_Root, entity, m_Root);
+        entity->add<SceneEntityPairComponent>(m_Root->GetFlecsEntity());
+    }
+
+    void RuntimeScene::RemoveEntity(const Ecs::Entity& entity)
+    {
+        if (entity->target<SceneEntityPairComponent>() == m_Root->GetFlecsEntity())
+        {
+            entity->remove<SceneEntityPairComponent>();
+        }
+    }
+
+    Ecs::Entity RuntimeScene::CloneEntity(const Ecs::Entity& entity, bool deepClone)
+    {
+        if (!deepClone)
+        {
+            return CloneEntityInternal(m_Root, entity, m_Root);
+        }
+        else
+        {
+            return CloneEntityTo(m_Root, entity, m_Root);
+        }
     }
 
     void RuntimeScene::MergeTo(RuntimeScene* targetScene, RuntimeSceneMerge mergeType)

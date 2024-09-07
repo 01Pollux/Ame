@@ -8,5 +8,8 @@ namespace Ame::Ecs
     {
     public:
         SceneEcsModule(WorldRef world);
+
+    private:
+        void RegisterSceneObservers(WorldRef world);
     };
 } // namespace Ame::Ecs
