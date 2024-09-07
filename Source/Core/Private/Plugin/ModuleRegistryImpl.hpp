@@ -25,7 +25,6 @@ namespace Ame
         IPlugin* BindPlugin(IPlugin* caller, const String& name, bool isRequired) override;
 
     public:
-        void     Shutdown() override;
         TVersion GetHostVersion() override;
 
     public:

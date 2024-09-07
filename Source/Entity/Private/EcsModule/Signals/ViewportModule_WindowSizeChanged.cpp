@@ -55,7 +55,7 @@ namespace Ame::Ecs
 
         auto allCameras = world->query<CameraComponent>();
 
-        m_WindowSizeChangedConnection = window->GetEventListener().OnWindowSizeChanged(
+        m_WindowSizeChangedConnection = window->GetEventListener().OnWindowSizeChanged.Connect(
             [allCameras](const Math::Size2I& newSize)
             { allCameras.run(std::bind_back(OnWindowSizeChanged_UpdateCamera, newSize)); });
     }

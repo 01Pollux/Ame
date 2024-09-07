@@ -8,50 +8,55 @@ namespace Ame::Signals
 {
     using Connection       = boost::signals2::connection;
     using ScopedConnection = boost::signals2::scoped_connection;
+
+    template<typename... SigTy> class Signal
+    {
+    public:
+        using base_type = boost::signals2::signal<SigTy...>;
+        using slot_type = typename base_type::slot_type;
+        using slot_ex   = typename base_type::extended_slot_type;
+
+    private:
+        struct ISignal
+        {
+            virtual ~ISignal()                                = default;
+            virtual Connection Connect(const slot_type& slot) = 0;
+            virtual Connection ConnectEx(const slot_ex& slot) = 0;
+        };
+
+        struct SignalImpl : ISignal
+        {
+            [[nodiscard]] Connection Connect(const slot_type& slot) override
+            {
+                return m_Signal.connect(slot);
+            }
+            [[nodiscard]] Connection ConnectEx(const slot_ex& slot) override
+            {
+                return m_Signal.connect_extended(slot);
+            }
+            base_type m_Signal;
+        };
+
+    public:
+        Connection Connect(const slot_type& slot)
+        {
+            return m_Signal->Connect(slot);
+        }
+
+        Connection ConnectEx(const slot_ex& slot)
+        {
+            return m_Signal->ConnectEx(slot);
+        }
+
+        template<typename... Args> auto Invoke(Args&&... args)
+        {
+            auto impl = static_cast<SignalImpl*>(m_Signal.get());
+            return impl->m_Signal(std::forward<Args>(args)...);
+        }
+
+    private:
+        UniquePtr<ISignal> m_Signal = std::make_unique<SignalImpl>();
+    };
 } // namespace Ame::Signals
 
-#define AME_SIGNAL_DECL(Name, ...)                                                                                     \
-    using Name##_Signal = boost::signals2::signal<__VA_ARGS__>;                                                        \
-    using Name##_Slot   = Name##_Signal::slot_type;                                                                    \
-    using Name##_SlotEx = Name##_Signal::extended_slot_type;
-
-#define AME_SIGNAL_INST_N(Namespace, Name)                                                                             \
-public:                                                                                                                \
-    boost::signals2::connection Name(const Namespace::Name##_Signal::slot_type& slot)                                  \
-    {                                                                                                                  \
-        return m_##Name.connect(slot);                                                                                 \
-    }                                                                                                                  \
-    boost::signals2::connection Name##Ex(const Namespace::Name##_Signal::extended_slot_type& slot)                     \
-    {                                                                                                                  \
-        return m_##Name.connect_extended(slot);                                                                        \
-    }                                                                                                                  \
-                                                                                                                       \
-    template<typename... Args> auto Invoke_##Name(Args&&... args)                                                      \
-    {                                                                                                                  \
-        return m_##Name(std::forward<Args>(args)...);                                                                  \
-    }                                                                                                                  \
-                                                                                                                       \
-private:                                                                                                               \
-    Namespace::Name##_Signal m_##Name
-
-#define AME_SIGNAL_STATIC_N(Namespace, Name)                                                                           \
-public:                                                                                                                \
-    static boost::signals2::connection Name(const Namespace::Name##_Signal::slot_type& slot)                           \
-    {                                                                                                                  \
-        return s_##Name.connect(slot);                                                                                 \
-    }                                                                                                                  \
-    static boost::signals2::connection Name##Ex(const Namespace::Name##_Signal::extended_slot_type& slot)              \
-    {                                                                                                                  \
-        return s_##Name.connect_extended(slot);                                                                        \
-    }                                                                                                                  \
-                                                                                                                       \
-    template<typename... Args> auto Invoke_##Name(Args&&... args)                                                      \
-    {                                                                                                                  \
-        return s_##Name(std::forward<Args>(args)...);                                                                  \
-    }                                                                                                                  \
-                                                                                                                       \
-private:                                                                                                               \
-    static inline Namespace##Name##_Signal s_##Name
-
-#define AME_SIGNAL_INST(Name)   AME_SIGNAL_INST_N(Ame::Signals, Name)
-#define AME_SIGNAL_STATIC(Name) AME_SIGNAL_STATIC_N(Ame::Signals, Name)
+#define AME_SIGNAL_DECL(Name, ...) using Name##_Signal = Ame::Signals::Signal<__VA_ARGS__>;

@@ -12,7 +12,7 @@ namespace Ame::Rg
         if (window)
         {
             auto& eventListener   = window->GetEventListener();
-            m_OnWindowSizeChanged = { eventListener.OnWindowSizeChanged([this](const Math::Size2I&) { MarkDirty(); }) };
+            m_OnWindowSizeChanged = { eventListener.OnWindowSizeChanged.Connect([this](const Math::Size2I&) { MarkDirty(); }) };
         }
     } // namespace Ame::Rg
 

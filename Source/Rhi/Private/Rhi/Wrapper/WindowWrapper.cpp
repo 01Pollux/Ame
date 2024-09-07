@@ -7,8 +7,8 @@ namespace Ame::Rhi
 {
     WindowWrapper::WindowWrapper(Ptr<Window::IWindow> window, Ptr<Dg::ISwapChain> swapchain) :
         m_Window(std::move(window)), m_Swapchain(std::move(swapchain)),
-        m_WindowSizeChangedConnection(
-            m_Window->GetEventListener().OnWindowSizeChanged([this](const Math::Size2I&) { m_DirtySwapChain = true; }))
+        m_WindowSizeChangedConnection(m_Window->GetEventListener().OnWindowSizeChanged.Connect(
+            [this](const Math::Size2I&) { m_DirtySwapChain = true; }))
     {
     }
 

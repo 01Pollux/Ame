@@ -98,14 +98,9 @@ namespace Ame
 
     //
 
-    void ModuleRegistryImpl::Shutdown()
-    {
-        ReleaseAllPlugins();
-    }
-
     TVersion ModuleRegistryImpl::GetHostVersion()
     {
-        constexpr TVersion hostVersion{ "1.1.0.0" };
+        constexpr TVersion hostVersion{ "1.2.0.0" };
         return hostVersion;
     }
 
@@ -164,7 +159,7 @@ namespace Ame
     {
         for (auto& iface : m_Interfaces | std::views::values)
         {
-            iface.DropDependencies();
+            iface.DropInterface();
         }
         m_Plugins.clear();
         m_Interfaces.clear();

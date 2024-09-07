@@ -39,7 +39,6 @@ namespace Ame
 
         auto moduleRegistry = GetEngine().GetRegistry();
         moduleRegistry->LoadPlugin("EditorCore");
-        moduleRegistry->UnloadPlugin("EditorCore");
 
         //
 
@@ -110,7 +109,7 @@ namespace Ame
             meshEntity->set(Ecs::StaticMeshComponent{ submesh });
         }
 
-        renderer->OnImGuiRender(
+        renderer->OnImGuiRender.Connect(
             [cameraEntity]
             {
                 {

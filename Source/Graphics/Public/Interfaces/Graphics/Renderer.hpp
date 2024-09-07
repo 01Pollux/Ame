@@ -59,14 +59,14 @@ namespace Ame::Interfaces
         }
 
     public:
-        AME_SIGNAL_INST(OnRenderBegin);
-        AME_SIGNAL_INST(OnRenderUpdate);
-        AME_SIGNAL_INST(OnRenderPostUpdate);
-        AME_SIGNAL_INST(OnRenderEnd);
+        Signals::OnRenderBegin_Signal      OnRenderBegin;
+        Signals::OnRenderUpdate_Signal     OnRenderUpdate;
+        Signals::OnRenderPostUpdate_Signal OnRenderPostUpdate;
+        Signals::OnRenderEnd_Signal        OnRenderEnd;
 
 #ifndef AME_DIST
-        AME_SIGNAL_INST(OnImGuiRender);
-        AME_SIGNAL_INST(OnImGuiPostRender);
+        Signals::OnImGuiRender_Signal     OnImGuiRender;
+        Signals::OnImGuiPostRender_Signal OnImGuiPostRender;
 #endif
 
     protected:

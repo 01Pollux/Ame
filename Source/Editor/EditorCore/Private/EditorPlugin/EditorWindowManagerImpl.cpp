@@ -30,10 +30,10 @@ namespace Ame::Editor
         rhiDevice->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
         if (m_DesktopWindow)
         {
-            m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest(
+            m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest.Connect(
                 [this](const Math::Vector2I&) { return m_IsTitlebarHovered; });
         }
-        //m_OnImGuiRender = renderer->OnImGuiRender(std::bind(&EditorWindowManagerImpl::Render, this));
+        m_OnImGuiRender = renderer->OnImGuiRender.Connect(std::bind(&EditorWindowManagerImpl::Render, this));
 
         ResetDefaultWindows();
     }

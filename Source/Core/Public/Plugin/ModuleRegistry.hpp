@@ -41,11 +41,6 @@ namespace Ame
         virtual IPlugin* BindPlugin(IPlugin* caller, const String& name, bool isRequired) = 0;
 
         /// <summary>
-        /// Unload main plugin and all of its subplugins.
-        /// </summary>
-        virtual void Shutdown() = 0;
-
-        /// <summary>
         /// Get plugin host version.
         /// </summary>
         [[nodiscard]] virtual TVersion GetHostVersion() = 0;

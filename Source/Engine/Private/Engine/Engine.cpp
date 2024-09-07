@@ -33,8 +33,8 @@ namespace Ame
 
         m_FrameTimer->Tick();
 
-        m_FrameEvent->Invoke_OnFrameStart();
-        m_FrameEvent->Invoke_OnFrameUpdate();
+        m_FrameEvent->OnFrameStart.Invoke();
+        m_FrameEvent->OnFrameUpdate.Invoke();
 
         if (m_EntityWorld)
         {
@@ -46,7 +46,7 @@ namespace Ame
             shouldQuit |= !m_Renderer->Tick();
         }
 
-        shouldQuit |= !m_FrameEvent->Invoke_OnFrameEnd().value_or(true);
+        shouldQuit |= !m_FrameEvent->OnFrameEnd.Invoke().value_or(true);
 
         if (shouldQuit)
         {

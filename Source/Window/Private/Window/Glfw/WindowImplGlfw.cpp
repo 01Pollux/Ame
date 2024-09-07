@@ -260,7 +260,7 @@ namespace Ame::Window
                 Math::Size2I newSize{ width, height };
                 if (width && height)
                 {
-                    window->GetEventListener().Invoke_OnWindowSizeChanged(newSize);
+                    window->GetEventListener().OnWindowSizeChanged.Invoke(newSize);
                 }
                 window->m_WindowSize = Math::Size2I{ width, height };
                 return true;
@@ -271,7 +271,7 @@ namespace Ame::Window
             [](GLFWwindow* glfwWindow)
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-                window->GetEventListener().Invoke_OnWindowClosed();
+                window->GetEventListener().OnWindowClosed.Invoke();
                 return true;
             });
 
@@ -283,7 +283,7 @@ namespace Ame::Window
                 {
                     auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
                     *hit =
-                        window->GetEventListener().Invoke_OnWindowTitleHitTest(Math::Vector2I{ x, y }).value_or(false);
+                        window->GetEventListener().OnWindowTitleHitTest.Invoke(Math::Vector2I{ x, y }).value_or(false);
                     return true;
                 });
         }
@@ -293,7 +293,7 @@ namespace Ame::Window
             [](GLFWwindow* glfwWindow, int iconified)
             {
                 auto window = static_cast<WindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
-                window->GetEventListener().Invoke_OnWindowMinized(iconified);
+                window->GetEventListener().OnWindowMinized.Invoke(iconified);
                 return true;
             });
     }

@@ -44,6 +44,13 @@ namespace Ame
             m_Dependencies.clear();
         }
 
+        void DropInterface()
+        {
+            DropDependencies();
+            m_Plugin = nullptr;
+            m_Object = {};
+        }
+
         [[nodiscard]] bool HasDependencies() const noexcept
         {
             return !m_Dependencies.empty();

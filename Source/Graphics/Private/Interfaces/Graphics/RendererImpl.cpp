@@ -23,19 +23,19 @@ namespace Ame::Interfaces
         {
             ClearRenderTarget();
 
-            Invoke_OnRenderBegin();
-            Invoke_OnRenderUpdate();
+            OnRenderBegin.Invoke();
+            OnRenderUpdate.Invoke();
 
             RunRenderGraph();
 
-            Invoke_OnRenderPostUpdate();
-            Invoke_OnRenderEnd();
+            OnRenderPostUpdate.Invoke();
+            OnRenderEnd.Invoke();
 
 #ifndef AME_NO_IMGUI
             {
                 Rhi::ImGuiFrameContext imguiContext(m_ImGuiRenderer);
-                Invoke_OnImGuiRender();
-                Invoke_OnImGuiPostRender();
+                OnImGuiRender.Invoke();
+                OnImGuiPostRender.Invoke();
             }
 #endif
             m_RhiDevice->AdvanceFrame(m_SyncInterval);

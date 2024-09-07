@@ -20,21 +20,21 @@ namespace Ame::Window
         /// <summary>
         /// Event fired when the window is resized
         /// </summary>
-        AME_SIGNAL_INST(OnWindowSizeChanged);
+        Signals::OnWindowSizeChanged_Signal OnWindowSizeChanged;
 
         /// <summary>
         /// Event fired when the window is minimized or restored
         /// </summary>
-        AME_SIGNAL_INST(OnWindowMinized);
+        Signals::OnWindowMinized_Signal OnWindowMinized;
 
         /// <summary>
         /// Event fired when the window is closed
         /// </summary>
-        AME_SIGNAL_INST(OnWindowClosed);
+        Signals::OnWindowClosed_Signal OnWindowClosed;
 
         /// <summary>
         /// Event fired when the window title bar is hit
         /// </summary>
-        AME_SIGNAL_INST(OnWindowTitleHitTest);
+        Signals::OnWindowTitleHitTest_Signal OnWindowTitleHitTest;
     };
 } // namespace Ame::Window

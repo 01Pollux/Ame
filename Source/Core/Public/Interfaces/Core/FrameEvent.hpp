@@ -33,8 +33,8 @@ namespace Ame::Interfaces
         }
 
     public:
-        AME_SIGNAL_INST(OnFrameStart);
-        AME_SIGNAL_INST(OnFrameUpdate);
-        AME_SIGNAL_INST(OnFrameEnd);
+        Signals::OnFrameStart_Signal  OnFrameStart;
+        Signals::OnFrameUpdate_Signal OnFrameUpdate;
+        Signals::OnFrameEnd_Signal    OnFrameEnd;
     };
 } // namespace Ame::Interfaces
