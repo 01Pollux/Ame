@@ -64,7 +64,7 @@ namespace Ame::Interfaces
         Signals::OnRenderPostUpdate_Signal OnRenderPostUpdate;
         Signals::OnRenderEnd_Signal        OnRenderEnd;
 
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         Signals::OnImGuiRender_Signal     OnImGuiRender;
         Signals::OnImGuiPostRender_Signal OnImGuiPostRender;
 #endif

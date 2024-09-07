@@ -95,8 +95,8 @@
 //  parameter to Clipboard function handlers.
 
 #include <Core/Allocator.hpp>
-#include <imgui.h>
 #ifndef IMGUI_DISABLE
+#include <imgui.h>
 #include <Window/Glfw/ImGuiGlfwImpl.hpp>
 #include <Window/Glfw/GlfwHooks.hpp>
 #include <imgui_internal.h>

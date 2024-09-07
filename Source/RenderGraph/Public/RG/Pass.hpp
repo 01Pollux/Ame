@@ -42,7 +42,7 @@ namespace Ame::Rg
             return *this;
         }
 
-        Pass& Color(Math::Color4 color)
+        Pass& Color([[maybe_unused]] Math::Color4 color)
         {
 #ifndef AME_DIST
             m_Color = color;
@@ -53,7 +53,7 @@ namespace Ame::Rg
         /// <summary>
         /// Get the name of the pass
         /// </summary>
-        Pass& Name(StringView name)
+        Pass& Name([[maybe_unused]] StringView name)
         {
 #ifndef AME_DIST
             m_Name = name;

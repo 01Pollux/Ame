@@ -28,8 +28,13 @@ namespace Ame::Log
 #endif
         LogLevel Level;
 
-        LoggerInfo(LogLevel level, StringView message,
-                   std::source_location sourceLoc = std::source_location::current()) noexcept :
+        LoggerInfo(LogLevel level, StringView message
+#ifndef AME_DIST
+                   ,
+                   std::source_location sourceLoc = std::source_location::current()
+#endif
+                       ) noexcept :
+
             Level(level),
             Message(message)
 #ifndef AME_DIST
@@ -94,8 +99,8 @@ namespace Ame::Log
 #define AME_LOG_DEBUG_EX(...)
 #define AME_LOG_DEBUG(...)
 
-#define AME_LOG_ASSERT_EX(cond, ...)
-#define AME_LOG_ASSERT(cond, ...)
+#define AME_LOG_ASSERT_EX(cond, ...) ((void)(cond))
+#define AME_LOG_ASSERT(cond, ...)    ((void)(cond))
 
 #define AME_LOG_VALIDATE_EX(logger, cond, ...)                                                                         \
     do                                                                                                                 \

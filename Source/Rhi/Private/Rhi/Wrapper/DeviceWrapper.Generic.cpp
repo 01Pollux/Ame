@@ -127,7 +127,8 @@ namespace Ame::Rhi
     //
 
     void DILIGENT_CALL_TYPE OnDiligentMessageCallback(Dg::DEBUG_MESSAGE_SEVERITY severity, const Dg::Char* message,
-                                                      const Dg::Char* function, const Dg::Char* file, int line)
+                                                      [[maybe_unused]] const Dg::Char* function,
+                                                      [[maybe_unused]] const Dg::Char* file, [[maybe_unused]] int line)
     {
         Log::LogLevel level = Log::LogLevel::Disabled;
         switch (severity)
@@ -148,7 +149,7 @@ namespace Ame::Rhi
         if (Log::s_Logger && Log::s_Logger->CanLog(level))
         {
 #ifdef AME_DIST
-            Log::Gfx().LogMessage(level, message);
+            Log::s_Logger->WriteMessage({ level, message });
 #else
             StringView logFormat;
             uint32_t   code = (function ? 1 : 0) | (file ? 2 : 0);

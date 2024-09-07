@@ -227,7 +227,7 @@ namespace Ame::Ecs
         bufferDesc.Usage = Dg::USAGE_IMMUTABLE;
 
         auto createBuffer = [&bufferDesc, rhiDevice, scene](
-                                const auto& buffer, const char* name, Dg::BIND_FLAGS bindFlags)
+                                const auto& buffer, [[maybe_unused]] const char* name, Dg::BIND_FLAGS bindFlags)
         {
             Ptr<Dg::IBuffer> result;
             if (!buffer.Empty())

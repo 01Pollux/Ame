@@ -116,9 +116,10 @@ namespace Ame::Rg
     {
         CheckLockState(false);
 
-        auto& resource = m_Resources.at(id);
-        AME_LOG_ASSERT(resource.IsImported(), std::format("Resource '{}' is not imported", id.GetName()));
-        m_Resources.erase(id);
+        auto iter = m_Resources.find(id);
+        AME_LOG_ASSERT(iter != m_Resources.end() && iter->second.IsImported(),
+                       std::format("Resource '{}' is not imported", id.GetName()));
+        m_Resources.erase(iter);
 
         SetRebuildState(true);
     }
@@ -175,7 +176,7 @@ namespace Ame::Rg
 #endif
     }
 
-    void ResourceStorage::CheckLockState(bool locked) const
+    void ResourceStorage::CheckLockState([[maybe_unused]] bool locked) const
     {
 #ifndef AME_DIST
         AME_LOG_ASSERT(m_Locked == locked, std::format("ResourceStorage is{} locked", locked ? "" : "n't"));

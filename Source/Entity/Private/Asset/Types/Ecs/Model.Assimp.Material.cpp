@@ -184,7 +184,8 @@ namespace Ame::Ecs
         //
 
         auto getOrCreateTexture = [this, rhiDevice, scene, textureCache = std::map<String, Ptr<Dg::ITexture>>()](
-                                      Rhi::Material* material, const StringView name, const aiString& texturePath,
+                                      [[maybe_unused]] Rhi::Material* material, [[maybe_unused]] const StringView name,
+                                      const aiString&    texturePath,
                                       Rhi::CommonTexture placeholder) mutable -> Dg::ITexture*
         {
             auto iter = textureCache.find(texturePath.C_Str());

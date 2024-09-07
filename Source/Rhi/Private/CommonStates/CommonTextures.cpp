@@ -32,7 +32,7 @@ namespace Ame::Rhi
     }
 
     [[nodiscard]] static Ptr<Dg::ITexture> CreateTexture(IRhiDevice* rhiDevice, Dg::RESOURCE_DIMENSION dim,
-                                                         const char* name, const Math::Vector3U& size,
+                                                         [[maybe_unused]] const char* name, const Math::Vector3U& size,
                                                          std::span<Dg::TextureSubResData> subresourceData,
                                                          Dg::TEXTURE_FORMAT format = Dg::TEX_FORMAT_RGBA8_UNORM)
     {

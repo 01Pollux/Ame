@@ -28,8 +28,8 @@ namespace Ame::Rhi
 #include "LightFrustumCull_CS_Debug.hlsli.generated.hpp"
 #include "LightFrustumCull_CS.hlsli.generated.hpp"
 #else
-#include "Shaders/LightFrustumCull_CS_DebugNone.hlsli.generated.hpp"
-#include "Shaders/LightFrustumCull_CS.hlsli.generated.hpp"
+#include "LightFrustumCull_CS_DebugNone.hlsli.generated.hpp"
+#include "LightFrustumCull_CS.hlsli.generated.hpp"
 #endif
             ;
 

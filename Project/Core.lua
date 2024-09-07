@@ -36,9 +36,7 @@ target_end()
 target("Ame.Window")
     ame_utils:add_library("Ame", "static", "Source/Window")
     add_deps("Ame.Core", public_inherit)
-    if not is_mode("release") then
-        add_packages("ame.imgui", public_inherit)
-    end
+    add_packages("ame.imgui", public_inherit)
 target_end()
 
 --
@@ -75,9 +73,7 @@ target_end()
 target("Ame.Graphics")
     ame_utils:add_library("Ame", "static", "Source/Graphics")
     add_deps("Ame.Ecs", public_inherit)
-    if not is_mode("release") then
-        add_deps("Ame.ImGuiUtils", public_inherit)
-    end
+    add_deps("Ame.ImGuiUtils", public_inherit)
 target_end()
 
 --

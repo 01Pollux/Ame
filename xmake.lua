@@ -1,3 +1,8 @@
+-- defines:
+-- AME_NO_IMGUI: disable imgui
+
+--
+
 add_rules("mode.debug", "mode.releasedbg", "mode.check")
 set_languages("cxxlatest")
 

@@ -10,11 +10,11 @@
 
 namespace Ame::Interfaces
 {
-    [[nodiscard]] static Ptr<Rhi::IImGuiRenderer> CreateImGuiRenderer(Rhi::IRhiDevice*                 rhiDevice,
-                                                                      const GraphicsModuleImGuiConfig& imguiConfig,
-                                                                      bool                             enabled)
+    [[nodiscard]] static Ptr<Rhi::IImGuiRenderer> CreateImGuiRenderer(
+        [[maybe_unused]] Rhi::IRhiDevice* rhiDevice, [[maybe_unused]] const GraphicsModuleImGuiConfig& imguiConfig,
+        [[maybe_unused]] bool enabled)
     {
-#ifndef AME_DIST
+#ifndef AME_NO_IMGUI
         if (enabled && imguiConfig.EnableImGuiSubmodule)
         {
             Rhi::ImGuiRendererCreateDesc imguiCreateDesc{ .RhiDevice = rhiDevice,
