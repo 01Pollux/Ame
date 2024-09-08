@@ -36,7 +36,7 @@ namespace Ame::Gfx
 
     struct EntityGpuStorageTraits_Light
     {
-        static constexpr const char* name = "LightTableTable";
+        static constexpr const char* name = "AllLightInstancesTable";
 
         using id_container_type = EntityLightInstance_EcsId;
         using instance_type     = EntityLightInstance_Data;

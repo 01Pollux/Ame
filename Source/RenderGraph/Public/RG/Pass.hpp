@@ -138,15 +138,6 @@ namespace Ame::Rg
         }
 
         /// <summary>
-        /// Get the queue type of the pass
-        /// </summary>
-        [[nodiscard]] PassFlags GetQueueType() const
-        {
-            using namespace EnumBitOperators;
-            return m_Flags & PassFlags::TypeMask;
-        }
-
-        /// <summary>
         /// Build render pass
         /// </summary>
         [[nodiscard]] void DoBuild(Resolver& resolver)

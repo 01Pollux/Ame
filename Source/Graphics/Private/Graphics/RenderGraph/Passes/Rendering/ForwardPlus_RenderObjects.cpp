@@ -12,7 +12,6 @@ namespace Ame::Gfx
     ForwardPlus_RenderObjectsPass::ForwardPlus_RenderObjectsPass(Ecs::World* world) : m_World(world)
     {
         Name("Render Objects")
-            .Flags(Rg::PassFlags::Graphics)
             .Build(std::bind_front(&ForwardPlus_RenderObjectsPass::OnBuild, this))
             .Execute(std::bind_front(&ForwardPlus_RenderObjectsPass::OnExecute, this));
     }

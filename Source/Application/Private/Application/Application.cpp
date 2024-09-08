@@ -20,7 +20,7 @@ namespace Ame
     int BaseApplication::Run()
     {
 #if !(defined(AME_DIST) || defined(AME_NO_EXCEPTIONS))
-        try
+        //try
         {
 #endif
             AME_LOG_TRACE("Application started");
@@ -41,12 +41,12 @@ namespace Ame
             m_Engine = nullptr;
 #if !(defined(AME_DIST) || defined(AME_NO_EXCEPTIONS))
         }
-        catch (const std::exception& e)
-        {
-            AME_LOG_FATAL(std::format("Unhandled exception: {}", e.what()));
-            m_Engine = nullptr;
-            return EXIT_FAILURE;
-        }
+        //catch (const std::exception& e)
+        //{
+        //    AME_LOG_FATAL(std::format("Unhandled exception: {}", e.what()));
+        //    m_Engine = nullptr;
+        //    return EXIT_FAILURE;
+        //}
 #endif
         return EXIT_SUCCESS;
     }

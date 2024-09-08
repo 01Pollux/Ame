@@ -5,7 +5,6 @@ namespace Ame::Gfx
     ForwardPlus_InitializePass::ForwardPlus_InitializePass()
     {
         Name("Initialize Forward+ Pass")
-            .Flags(Rg::PassFlags::Graphics)
             .Build(std::bind_front(&ForwardPlus_InitializePass::OnBuild, this))
             .Execute(std::bind_front(&ForwardPlus_InitializePass::OnExecute, this));
     }

@@ -44,7 +44,9 @@ namespace Ame::Gfx
     inline const Rg::ResourceId c_RGEntityResourceSignature_Graphics{
         "_ERS_Graphics"
     }; // Srb: [AllTransforms, RenderInstances, AllLightInstances]
-    inline const Rg::ResourceId c_RGLightingResourceSignature_Graphics{ "_LRS_Graphics" }; // Srb: [FrameDataBuffer]
+    inline const Rg::ResourceId c_RGLightingResourceSignature_Graphics{
+        "_LRS_Graphics"
+    }; // Srb: [LinkedLightIndices, LightGrid]
 
     inline const Rg::ResourceId c_RGFrameDataResourceSignature_Compute{
         "_FRS_Compute"

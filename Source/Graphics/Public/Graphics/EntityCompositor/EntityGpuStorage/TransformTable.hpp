@@ -16,7 +16,7 @@ namespace Ame::Gfx
 
     struct EntityGpuStorageTraits_Transform
     {
-        static constexpr const char* name = "TransformTable";
+        static constexpr const char* name = "AllTransformsTable";
 
         using id_container_type = EntityTransform_EcsId;
         using instance_type     = Math::Matrix4x4;

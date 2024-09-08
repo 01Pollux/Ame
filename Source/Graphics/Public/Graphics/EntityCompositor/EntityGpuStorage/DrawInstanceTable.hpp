@@ -13,7 +13,7 @@ namespace Ame::Gfx
 
     struct EntityGpuStorageTraits_DrawInstance
     {
-        static constexpr const char* name = "DrawInstanceTable";
+        static constexpr const char* name = "AllDrawInstancesTable";
 
         using id_container_type = EntityDrawInstance_EcsId;
         using instance_type     = EntityDrawInstance;

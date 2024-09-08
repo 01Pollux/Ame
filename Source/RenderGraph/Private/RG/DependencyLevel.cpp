@@ -32,29 +32,23 @@ namespace Ame::Rg
 
     void DependencyLevel::ExecutePasses(Context& context, Dg::IDeviceContext* deviceContext) const
     {
+        using namespace EnumBitOperators;
+
         auto& resourceStorage = context.GetStorage();
         for (auto& pass : m_Passes)
         {
-            switch (pass->GetQueueType())
-            {
-            case PassFlags::Graphics:
-            case PassFlags::Compute:
-            case PassFlags::Copy:
-            {
 #ifndef AME_DIST
-                Dg::ScopedDebugGroup marker(deviceContext, pass->GetName().data(), pass->GetColorPtr());
-#endif
-                pass->DoExecute(resourceStorage, deviceContext);
-                break;
-            }
-
-            default:
+            if ((pass->GetFlags() & PassFlags::NoMarker) == PassFlags::NoMarker)
             {
-                pass->DoExecute(resourceStorage, nullptr);
-                break;
+                pass->DoExecute(resourceStorage, deviceContext);
+                continue;
             }
-            }
-        };
+            Dg::ScopedDebugGroup marker(deviceContext, pass->GetName().data(), pass->GetColorPtr());
+            pass->DoExecute(resourceStorage, deviceContext);
+#else
+            pass->DoExecute(resourceStorage, deviceContext);
+#endif
+        }
     }
 
     //

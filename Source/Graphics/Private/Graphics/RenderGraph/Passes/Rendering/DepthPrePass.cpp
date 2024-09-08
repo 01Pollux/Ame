@@ -10,7 +10,6 @@ namespace Ame::Gfx
     DepthPrePass::DepthPrePass(Ecs::World* world) : m_World(world)
     {
         Name("Depth Prepass")
-            .Flags(Rg::PassFlags::Graphics)
             .Build(std::bind_front(&DepthPrePass::OnBuild, this))
             .Execute(std::bind_front(&DepthPrePass::OnExecute, this));
     }

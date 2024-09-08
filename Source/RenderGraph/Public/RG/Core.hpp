@@ -43,10 +43,7 @@ namespace Ame::Rg
     {
         None = 0,
 
-        Copy     = 1 << 0,
-        Compute  = 1 << 1,
-        Graphics = 1 << 3 | Copy | Compute,
-        TypeMask = Copy | Compute | Graphics,
+        NoMarker = 1 << 0,
     };
 
     enum class RTClearType : uint8_t
