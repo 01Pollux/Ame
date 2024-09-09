@@ -75,11 +75,8 @@ namespace Ame::Rhi
         void                        SetName(const StringView& name);
 
     private:
-        template<typename, typename> friend class Dg::MakeNewRCObj;
-
-        Material(IReferenceCounters* counters, Dg::IRenderDevice* renderDevice, const MaterialCreateDesc& materialDesc);
-
-        Material(IReferenceCounters* counters, const Material* material);
+        IMPLEMENT_INTERFACE_CTOR(Material, Dg::IRenderDevice* renderDevice, const MaterialCreateDesc& materialDesc);
+        IMPLEMENT_INTERFACE_CTOR(Material, const Material* material);
 
     private:
         struct LocalData

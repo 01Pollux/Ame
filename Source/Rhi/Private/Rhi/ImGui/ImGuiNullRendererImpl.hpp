@@ -12,7 +12,7 @@ namespace Ame::Rhi
         IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_ImGuiNullRenderer, IID_ImGuiRenderer, Base);
 
     public:
-        ImGuiNullRendererImpl(IReferenceCounters* referenceCounters) : Base(referenceCounters)
+        IMPLEMENT_INTERFACE_CTOR(ImGuiNullRendererImpl) : Base(counters)
         {
         }
 

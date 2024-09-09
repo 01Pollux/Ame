@@ -13,8 +13,7 @@ namespace Ame::Window
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiWindow, Base);
 
     public:
-        ImGuiWindowImplGlfw(IReferenceCounters* referenceCounters, GLFWwindow* handle) :
-            Base(referenceCounters), m_Handle(handle)
+        IMPLEMENT_INTERFACE_CTOR(ImGuiWindowImplGlfw, GLFWwindow* handle): Base(counters), m_Handle(handle)
         {
         }
 

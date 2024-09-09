@@ -20,8 +20,8 @@ namespace Ame::Rhi
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CommandRenderPass, Base);
 
-    public:
-        CommonRenderPass(IReferenceCounters* counters, Rhi::IRhiDevice* rhiDevice) :
+    private:
+        IMPLEMENT_INTERFACE_CTOR(CommonRenderPass, Rhi::IRhiDevice* rhiDevice) :
             Base(counters), BlitRenderPass(rhiDevice), CommonTextures(rhiDevice)
         {
         }

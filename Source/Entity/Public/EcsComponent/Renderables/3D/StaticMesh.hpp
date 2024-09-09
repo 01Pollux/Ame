@@ -15,7 +15,8 @@ namespace Ame::Ecs
         using Base = BaseObject<IBaseRenderable3D>;
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_StaticMesh, Base);
 
-        StaticMesh(IReferenceCounters* counters, MeshModel* model, uint32_t subMeshIndex) :
+    private:
+        IMPLEMENT_INTERFACE_CTOR(StaticMesh, MeshModel* model, uint32_t subMeshIndex) :
             Base(counters), m_Model(model), m_SubMeshIndex(subMeshIndex)
         {
             UpdateRenderableDesc();

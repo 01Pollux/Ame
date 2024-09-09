@@ -4,14 +4,9 @@
 #include <Window/Window.hpp>
 
 #include <Rhi/Wrapper/DeviceWrapper.hpp>
-#include <Window/DesktopWindow.hpp>
+#include <Window/Window.hpp>
 
 #include <Log/Logger.hpp>
-
-namespace Ame::Window
-{
-    class IDesktopWindow;
-} // namespace Ame::Window
 
 namespace Ame::Rhi
 {
@@ -21,13 +16,6 @@ namespace Ame::Rhi
         {
             finalValue = value;
         }
-    }
-
-    template<typename Ty> [[nodiscard]] static Ptr<Ty> GetWindowForSurface(const RenderSurfaceDesc& surface)
-    {
-        Ptr<Window::IDesktopWindow> desktopWindow;
-        surface.Window->QueryInterface(Window::IID_DesktopWindow, desktopWindow.DblPtr<IObject>());
-        return desktopWindow;
     }
 
     template<typename Ty>
@@ -81,19 +69,18 @@ namespace Ame::Rhi
     /// <summary>
     /// Create a swapchain description.
     /// </summary>
-    Dg::SwapChainDesc CreateDiligentSwapChainDesc(Window::IDesktopWindow* desktopWindow,
-                                                  const SwapchainDesc&    swapchainDesc);
+    Dg::SwapChainDesc CreateDiligentSwapChainDesc(Window::IWindow* window, const SwapchainDesc& swapchainDesc);
 
     /// <summary>
     /// Create a fullscreen mode description.
     /// </summary>
-    Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(Window::IDesktopWindow*   desktopWindow,
+    Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(Window::IWindow*          window,
                                                         const FullscreenModeDesc& fullscreenDesc);
 
     /// <summary>
     /// Convert a window to a Diligent native window struct
     /// </summary>
-    [[nodiscard]] Dg::NativeWindow GetDiligentNativeWindow(Window::IDesktopWindow* desktopWindow, bool isGL = false);
+    [[nodiscard]] Dg::NativeWindow GetDiligentNativeWindow(Window::IWindow* window, bool isGL = false);
 
     /// <summary>
     /// Set the debug callback for the Diligent engine
@@ -159,12 +146,11 @@ namespace Ame::Rhi
                     return deviceWrapper;
                 }
 
-                auto desktopWindow  = GetWindowForSurface<Window::IDesktopWindow>(surfaceDesc);
-                auto swapchainDesc  = CreateDiligentSwapChainDesc(desktopWindow, surfaceDesc.Swapchain);
-                auto fullscreenDesc = CreateDiligentFullscreenDesc(desktopWindow, surfaceDesc.FullscreenMode);
+                auto swapchainDesc  = CreateDiligentSwapChainDesc(surfaceDesc.Window, surfaceDesc.Swapchain);
+                auto fullscreenDesc = CreateDiligentFullscreenDesc(surfaceDesc.Window, surfaceDesc.FullscreenMode);
 
                 traits_type::CreateSwapchain(factoryDev, renderDevice, deviceContext, swapchainDesc, fullscreenDesc,
-                                             GetDiligentNativeWindow(desktopWindow), &swapchain);
+                                             GetDiligentNativeWindow(surfaceDesc.Window), &swapchain);
                 if (!swapchain)
                 {
                     AME_LOG_WARNING(

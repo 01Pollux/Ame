@@ -33,8 +33,8 @@ namespace Ame::Rhi
             m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetSwapchain() : nullptr, m_CommonRenderPass,
             m_RenderStateCache);
 
-    public:
-        RhiDeviceImpl(IReferenceCounters* counters, const DeviceCreateDesc& createDesc);
+    private:
+        IMPLEMENT_INTERFACE_CTOR(RhiDeviceImpl, const DeviceCreateDesc& createDesc);
 
     public:
         bool BeginFrame() override;

@@ -131,7 +131,7 @@ namespace Ame::Editor
 
         auto curPos = ImGui::GetCursorPos();
         // Render the titlebar buttons if we have a desktop window
-        if (m_DesktopWindow)
+        if (m_Window)
         {
             auto titlebarHeight = ImGui::GetCurrentWindow()->MenuBarHeight;
             auto buttonSize     = ImVec2(titlebarHeight * 1.4f, titlebarHeight);
@@ -146,25 +146,25 @@ namespace Ame::Editor
 
             if (ImGui::Button(ICON_FA_WINDOW_MINIMIZE, buttonSize))
             {
-                m_DesktopWindow->Minimize();
+                m_Window->Minimize();
             }
 
-            bool IsMaximized = m_DesktopWindow->IsMaximized();
+            bool IsMaximized = m_Window->IsMaximized();
             if (ImGui::Button(IsMaximized ? ICON_FA_WINDOW_RESTORE : ICON_FA_WINDOW_MAXIMIZE, buttonSize))
             {
                 if (IsMaximized)
                 {
-                    m_DesktopWindow->Restore();
+                    m_Window->Restore();
                 }
                 else
                 {
-                    m_DesktopWindow->Maximize();
+                    m_Window->Maximize();
                 }
             }
 
             if (ImGui::Button(ICON_FA_TIMES, buttonSize))
             {
-                m_DesktopWindow->Close();
+                m_Window->Close();
             }
         }
         ImGui::SetCursorPos(curPos);

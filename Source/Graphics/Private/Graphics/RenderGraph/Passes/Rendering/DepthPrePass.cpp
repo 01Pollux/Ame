@@ -47,7 +47,7 @@ namespace Ame::Gfx
         };
 
         auto renderDevice = storage.GetDevice()->GetRenderDevice();
-        m_Technique       = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
+        m_Technique       = AmeCreate(Rhi::MaterialTechnique, renderDevice, std::move(renderState));
     }
 
     //

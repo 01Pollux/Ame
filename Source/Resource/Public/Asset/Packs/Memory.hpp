@@ -11,7 +11,8 @@ namespace Ame::Asset
 
         IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_MemoryAssetPackage, IID_BaseAssetPackage, Base);
 
-        MemoryAssetPackage(IReferenceCounters* counters, Storage& assetStorage) : Base(counters, assetStorage)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(MemoryAssetPackage, Storage& assetStorage) : Base(counters, assetStorage)
         {
         }
 

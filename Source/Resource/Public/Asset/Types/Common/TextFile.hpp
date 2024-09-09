@@ -11,7 +11,8 @@ namespace Ame::Asset::Common
         using Base = BaseObject<IAsset>;
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_TextFileAsset, Base);
 
-        TextFileAsset(IReferenceCounters* counters) : Base(counters)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(TextFileAsset) : Base(counters)
         {
         }
 

@@ -11,7 +11,8 @@ namespace Ame::Asset::Common
         using Base = BaseObject<IAsset>;
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_DataBlobAsset, Base, m_Blob);
 
-        DataBlobAsset(IReferenceCounters* counters) : Base(counters)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(DataBlobAsset) : Base(counters)
         {
         }
 

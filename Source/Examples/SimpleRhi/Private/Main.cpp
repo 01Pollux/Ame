@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include <Window/DesktopWindow.hpp>
+#include <Window/Window.hpp>
 #include <Rhi/Device/RhiDeviceCreateDesc.hpp>
 #include <Rhi/Device/RhiDevice.hpp>
 
@@ -18,10 +18,9 @@ namespace Ame
         auto window    = Window::CreateWindow(Window::WindowType::DesktopWindow, { .Title = "Hello world" });
         auto rhiDevice = Rhi::CreateRhiDevice(GetDeviceDesc(window));
 
-        auto desktopWindow = window.Cast<Window::IDesktopWindow>(Window::IID_DesktopWindow);
-        while (desktopWindow->IsRunning())
+        while (window->IsRunning())
         {
-            desktopWindow->ProcessEvents();
+            window->ProcessEvents();
         }
     }
 } // namespace Ame

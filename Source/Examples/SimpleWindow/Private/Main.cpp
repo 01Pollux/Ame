@@ -1,6 +1,4 @@
-#include <fstream>
-
-#include <Window/DesktopWindow.hpp>
+#include <Window/Window.hpp>
 
 namespace Ame
 {
@@ -8,10 +6,9 @@ namespace Ame
     {
         auto window = Window::CreateWindow(Window::WindowType::DesktopWindow, { .Title = "Hello world" });
 
-        auto desktopWindow = window.Cast<Window::IDesktopWindow>(Window::IID_DesktopWindow);
-        while (desktopWindow->IsRunning())
+        while (window->IsRunning())
         {
-            desktopWindow->ProcessEvents();
+            window->ProcessEvents();
         }
     }
 } // namespace Ame

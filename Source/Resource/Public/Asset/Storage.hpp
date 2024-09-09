@@ -93,7 +93,7 @@ namespace Ame::Asset
             requires std::derived_from<Ty, IAssetHandler>
         void RegisterHandler(ArgsTy&&... args)
         {
-            RegisterHandler(Ty::UID, { ObjectAllocator<Ty>()(std::forward<ArgsTy>(args)...), IID_BaseAssetHandler });
+            RegisterHandler(Ty::UID, AmeCreateAs(Ty, IAssetHandler, std::forward<ArgsTy>(args)...));
         }
 
         /// <summary>
@@ -135,7 +135,7 @@ namespace Ame::Asset
             requires std::derived_from<Ty, IAssetPackage>
         Ty* Mount(ArgsTy&&... args)
         {
-            auto handler = ObjectAllocator<Ty>()(*this, std::forward<ArgsTy>(args)...);
+            auto handler = AmeCreate(Ty, *this, std::forward<ArgsTy>(args)...);
             Mount(Ptr<IAssetPackage>{ handler, IID_BaseAssetPackage });
             return handler;
         }

@@ -2,7 +2,6 @@
 
 #include <Rg/Pass.hpp>
 #include <Graphics/RenderGraph/Common/Names.hpp>
-#include <Shading/Technique.hpp>
 
 namespace Ame::Ecs
 {

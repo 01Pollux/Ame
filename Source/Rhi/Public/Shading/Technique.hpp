@@ -24,9 +24,8 @@ namespace Ame::Rhi
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_MaterialTechnique, Base);
 
-    public:
-        [[nodiscard]] static MaterialTechnique* Create(Dg::IRenderDevice*  renderDevice,
-                                                       MaterialRenderState renderState);
+    private:
+        IMPLEMENT_INTERFACE_CTOR(MaterialTechnique, Dg::IRenderDevice* renderDevice, MaterialRenderState renderState);
 
     public:
         /// <summary>
@@ -64,12 +63,6 @@ namespace Ame::Rhi
         /// </summary>
         [[nodiscard]] Ptr<Dg::IPipelineState> CreatePipelineState(const MaterialVertexDesc& vertexDesc,
                                                                   const Material*           material) const;
-
-    private:
-        template<typename, typename> friend class Dg::MakeNewRCObj;
-
-        MaterialTechnique(IReferenceCounters* counters, Dg::IRenderDevice* renderDevice,
-                          MaterialRenderState renderState);
 
     private:
         Dg::IRenderDevice* m_RenderDevice = nullptr;

@@ -8,12 +8,12 @@ namespace Ame::Rhi
 #ifdef AME_NO_IMGUI
         return CreateImGuiNullRenderer();
 #else
-        return { ObjectAllocator<ImGuiDiligentRendererImpl>()(desc), IID_ImGuiRenderer };
+        return AmeCreate(ImGuiDiligentRendererImpl, desc);
 #endif
     }
 
     Ptr<IImGuiRenderer> CreateImGuiNullRenderer()
     {
-        return { ObjectAllocator<ImGuiNullRendererImpl>()(), IID_ImGuiRenderer };
+        return AmeCreate(ImGuiNullRendererImpl);
     }
 } // namespace Ame::Rhi

@@ -18,8 +18,8 @@ namespace Ame
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_DataBlob, Base);
 
-        RawDataBlob(IReferenceCounters* counters, const std::byte* data = nullptr, size_t initialSize = 0) :
-            Base(counters)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(RawDataBlob, const std::byte* data = nullptr, size_t initialSize = 0) : Base(counters)
         {
             m_Data.resize(initialSize);
             if (data != nullptr)
@@ -28,10 +28,9 @@ namespace Ame
             }
         }
 
-        RawDataBlob(IReferenceCounters* counters, const IDataBlob* otherBlob) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(RawDataBlob, const IDataBlob* otherBlob) :
+            RawDataBlob(counters, std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()), otherBlob->GetSize())
         {
-            m_Data.insert(m_Data.end(), std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()),
-                          std::bit_cast<const std::byte*>(otherBlob->GetConstDataPtr()) + otherBlob->GetSize());
         }
 
     public:

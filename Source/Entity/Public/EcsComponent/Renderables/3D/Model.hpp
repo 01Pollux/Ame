@@ -54,7 +54,8 @@ namespace Ame::Ecs
         using Base = BaseObject<IBaseRenderable3D>;
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Model, Base);
 
-        MeshModel(IReferenceCounters* counters, CreateDesc desc) :
+    private:
+        IMPLEMENT_INTERFACE_CTOR(MeshModel, CreateDesc desc) :
             Base(counters), m_MeshNodes(std::move(desc.MeshNodes)), m_SubMeshes(std::move(desc.SubMeshes)),
             m_Materials(std::move(desc.Materials)), m_PositionBuffer(std::move(desc.PositionBuffer)),
             m_NormalBuffer(std::move(desc.NormalBuffer)), m_TangentBuffer(std::move(desc.TangentBuffer)),

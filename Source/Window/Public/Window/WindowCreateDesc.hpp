@@ -12,6 +12,7 @@ namespace Ame::Window
     enum class WindowType : uint8_t
     {
         DesktopWindow,
+        // WebWindow,
         Count
     };
 

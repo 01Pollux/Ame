@@ -1,7 +1,6 @@
 #include <EditorPlugin/EditorWindowManagerImpl.hpp>
 #include <EditorPlugin/EditorCore.hpp>
 
-#include <Window/DesktopWindow.hpp>
 #include <Window/WindowEventListener.hpp>
 
 #include <EditorPlugin/Windows/Console/ConsoleEditorWindow.hpp>
@@ -27,12 +26,9 @@ namespace Ame::Editor
         s_ModuleRegistry->RequestInterface(s_ThisPlugin, Interfaces::IID_RhiDevice, rhiDevice.DblPtr<IObject>());
         s_ModuleRegistry->RequestInterface(s_ThisPlugin, Interfaces::IID_Renderer, renderer.DblPtr<IObject>());
 
-        rhiDevice->QueryInterface(Window::IID_DesktopWindow, m_DesktopWindow.DblPtr<IObject>());
-        if (m_DesktopWindow)
-        {
-            m_OnWindowTitleHitTest = m_DesktopWindow->GetEventListener().OnWindowTitleHitTest.Connect(
-                [this](const Math::Vector2I&) { return m_IsTitlebarHovered; });
-        }
+        rhiDevice->QueryInterface(Window::IID_Window, m_Window.DblPtr<IObject>());
+        m_OnWindowTitleHitTest = m_Window->GetEventListener().OnWindowTitleHitTest.Connect(
+            [this](const Math::Vector2I&) { return m_IsTitlebarHovered; });
         m_OnImGuiRender = renderer->OnImGuiRender.Connect(std::bind(&EditorWindowManagerImpl::Render, this));
 
         ResetDefaultWindows();

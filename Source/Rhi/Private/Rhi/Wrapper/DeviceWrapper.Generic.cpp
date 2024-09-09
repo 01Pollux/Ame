@@ -75,10 +75,9 @@ namespace Ame::Rhi
 
     //
 
-    Dg::SwapChainDesc CreateDiligentSwapChainDesc(Window::IDesktopWindow* desktopWindow,
-                                                  const SwapchainDesc&    swapchainDesc)
+    Dg::SwapChainDesc CreateDiligentSwapChainDesc(Window::IWindow* window, const SwapchainDesc& swapchainDesc)
     {
-        auto              size = desktopWindow->GetSize();
+        auto              size = window->GetSize();
         Dg::SwapChainDesc dgSwapchainDesc;
 
         dgSwapchainDesc.Width             = static_cast<Dg::Uint32>(size.x());
@@ -95,8 +94,7 @@ namespace Ame::Rhi
         return dgSwapchainDesc;
     }
 
-    Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(Window::IDesktopWindow*,
-                                                        const FullscreenModeDesc& fullscreenDesc)
+    Dg::FullScreenModeDesc CreateDiligentFullscreenDesc(Window::IWindow*, const FullscreenModeDesc& fullscreenDesc)
     {
         return { .Fullscreen             = fullscreenDesc.Fullscreen,
                  .RefreshRateNumerator   = fullscreenDesc.RefreshRate.Numerator,
@@ -105,9 +103,9 @@ namespace Ame::Rhi
                  .ScanlineOrder          = fullscreenDesc.ScanlineOrder };
     }
 
-    Dg::NativeWindow GetDiligentNativeWindow(Window::IDesktopWindow* desktopWindow, [[maybe_unused]] bool isGL)
+    Dg::NativeWindow GetDiligentNativeWindow(Window::IWindow* window, [[maybe_unused]] bool isGL)
     {
-        auto glfwWindow = desktopWindow->GetGlfwHandle();
+        auto glfwWindow = window->GetGlfwHandle();
 
 #if PLATFORM_WIN32
         Dg::Win32NativeWindow handle{ glfwGetWin32Window(glfwWindow) };

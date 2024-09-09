@@ -19,9 +19,10 @@ namespace Ame::Rhi
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiRenderer, Base);
 
-    public:
-        ImGuiDiligentRendererImpl(IReferenceCounters* counters, const ImGuiRendererCreateDesc& desc);
+    private:
+        IMPLEMENT_INTERFACE_CTOR(ImGuiDiligentRendererImpl, const ImGuiRendererCreateDesc& desc);
 
+    public:
         ~ImGuiDiligentRendererImpl() override;
 
     public:

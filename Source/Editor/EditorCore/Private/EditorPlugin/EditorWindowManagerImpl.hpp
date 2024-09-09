@@ -10,7 +10,6 @@
 #include <EditorPlugin/EditorWindow.hpp>
 
 #include <Window/Window.hpp>
-#include <Window/DesktopWindow.hpp>
 
 namespace Ame::Editor
 {
@@ -49,7 +48,7 @@ namespace Ame::Editor
         [[nodiscard]] bool IsWindowOpen(IEditorWindow* window) const;
 
     private:
-        Ptr<Window::IDesktopWindow> m_DesktopWindow;
+        Ptr<Window::IWindow> m_Window;
 
         std::map<String, Ptr<IEditorWindow>> m_Windows;
         std::unordered_set<IEditorWindow*>   m_OpenWindows;

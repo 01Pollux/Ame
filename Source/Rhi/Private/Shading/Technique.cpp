@@ -15,11 +15,6 @@
 
 namespace Ame::Rhi
 {
-    MaterialTechnique* MaterialTechnique::Create(Dg::IRenderDevice* renderDevice, MaterialRenderState renderState)
-    {
-        return ObjectAllocator<MaterialTechnique>()(renderDevice, std::move(renderState));
-    }
-
     MaterialTechnique::MaterialTechnique(IReferenceCounters* counters, Dg::IRenderDevice* renderDevice,
                                          MaterialRenderState renderState) :
         Base(counters),

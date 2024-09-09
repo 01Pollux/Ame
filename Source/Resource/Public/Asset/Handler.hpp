@@ -205,7 +205,8 @@ namespace Ame::Asset
                                                                                                                        \
         IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, Base);                                          \
                                                                                                                        \
-        Name(IReferenceCounters* counters) : Base(counters)                                                            \
+    private:                                                                                                           \
+        IMPLEMENT_INTERFACE_CTOR(Name) : Base(counters)                                                                \
         {                                                                                                              \
         }                                                                                                              \
                                                                                                                        \
@@ -224,7 +225,8 @@ namespace Ame::Asset
 
         IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, Base);
 
-        DefaultAssetHandler(IReferenceCounters* counters) : Base(counters)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(DefaultAssetHandler) : Base(counters)
         {
         }
 
@@ -236,7 +238,7 @@ namespace Ame::Asset
 
         Co::result<Ptr<IAsset>> Load(AssetHandlerLoadDesc& loadDesc) override
         {
-            Ptr asset{ ObjectAllocator<Ty>()() };
+            auto asset = AmeCreate(Ty);
             if (!asset)
             {
                 co_return asset;

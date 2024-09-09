@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Window/DesktopWindow.hpp>
+#include <Window/Window.hpp>
 #include <Window/WindowEventListener.hpp>
 #include <Window/Glfw/ImGuiWindowImplGlfw.hpp>
 #include <GLFW/glfw3.h>
@@ -9,17 +9,18 @@ namespace Ame::Window
 {
     struct WindowCreateDesc;
 
-    class WindowImplGlfw : public BaseObject<IDesktopWindow>
+    class DesktopWindowImplGlfw : public BaseObject<IWindow>
     {
     public:
-        using Base = BaseObject<IDesktopWindow>;
+        using Base = BaseObject<IWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS2(IID_DesktopWindow, IID_Window, Base, m_ImGuiWindow);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_Window, Base, m_ImGuiWindow);
+
+    private:
+        IMPLEMENT_INTERFACE_CTOR(DesktopWindowImplGlfw, const WindowCreateDesc& windowDesc);
 
     public:
-        WindowImplGlfw(IReferenceCounters* referenceCounters, const WindowCreateDesc& windowDesc);
-
-        ~WindowImplGlfw() override;
+        ~DesktopWindowImplGlfw() override;
 
     public:
         void ProcessEvents() override;

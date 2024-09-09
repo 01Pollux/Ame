@@ -1,4 +1,4 @@
-#include <Window/Glfw/WindowImplGlfw.hpp>
+#include <Window/Glfw/DesktopWindowImplGlfw.hpp>
 
 #include <Log/Logger.hpp>
 
@@ -10,7 +10,7 @@ namespace Ame::Window
         {
         case WindowType::DesktopWindow:
         {
-            return { ObjectAllocator<WindowImplGlfw>()(createDesc), IID_Window };
+            return AmeCreate(DesktopWindowImplGlfw, createDesc);
         }
         default:
         {

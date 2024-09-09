@@ -16,9 +16,10 @@ namespace Ame::Asset
         using AssetMetaMap = std::unordered_map<UId, AssetMetaDataDef, UIdUtils::Hasher>;
         using AssetPathMap = std::unordered_map<String, UId>;
 
-    public:
-        DirectoryAssetPackage(IReferenceCounters* counters, Storage& storage, std::filesystem::path path);
+    private:
+        IMPLEMENT_INTERFACE_CTOR(DirectoryAssetPackage, Storage& storage, std::filesystem::path path);
 
+    public:
         [[nodiscard]] Co::generator<UId> GetAssets() override;
 
         bool ContainsAsset(const UId& uid) const override;

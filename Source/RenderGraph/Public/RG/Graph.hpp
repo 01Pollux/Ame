@@ -14,7 +14,8 @@ namespace Ame::Rg
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RenderGraph, Base);
 
-        Graph(IReferenceCounters* counter, Rhi::IRhiDevice* rhiDevice);
+    private:
+        IMPLEMENT_INTERFACE_CTOR(Graph, Rhi::IRhiDevice* rhiDevice);
 
     public:
         /// <summary>

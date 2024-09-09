@@ -40,14 +40,14 @@ namespace Ame::Rhi
 
     Ptr<Material> Material::Create(Dg::IRenderDevice* renderDevice, MaterialCreateDesc materialDesc)
     {
-        return Ptr{ ObjectAllocator<Material>()(renderDevice, materialDesc) };
+        return AmeCreate(Material, renderDevice, materialDesc);
     }
 
     //
 
     Ptr<Material> Material::Instantiate() const
     {
-        return Ptr{ ObjectAllocator<Material>()(this) };
+        return AmeCreate(Material, this);
     }
 
     //

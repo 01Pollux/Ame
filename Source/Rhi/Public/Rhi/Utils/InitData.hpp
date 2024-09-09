@@ -18,18 +18,15 @@ namespace Ame::Rhi
 
     struct BufferInitData : BaseObject<IObject>
     {
-        BufferInitData(IReferenceCounters* counters) : BaseObject(counters)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(BufferInitData) : BaseObject(counters)
         {
         }
 
-        static Ptr<BufferInitData> Create()
-        {
-            return Ptr<BufferInitData>{ ObjectAllocator<BufferInitData>()() };
-        }
-
+    public:
         static Ptr<BufferInitData> Create(const void* data, size_t size)
         {
-            auto initData  = Create();
+            auto initData  = AmeCreate(BufferInitData);
             initData->Data = { static_cast<const std::byte*>(data), static_cast<const std::byte*>(data) + size };
             return initData;
         }
@@ -48,10 +45,12 @@ namespace Ame::Rhi
 
     struct TextureInitData : public BaseObject<IObject>
     {
-        TextureInitData(IReferenceCounters* counters, Dg::TEXTURE_FORMAT format) : BaseObject(counters), Format(format)
+    private:
+        IMPLEMENT_INTERFACE_CTOR(TextureInitData, Dg::TEXTURE_FORMAT format) : BaseObject(counters), Format(format)
         {
         }
 
+    public:
         const Dg::TEXTURE_FORMAT Format;
 
         struct LevelData

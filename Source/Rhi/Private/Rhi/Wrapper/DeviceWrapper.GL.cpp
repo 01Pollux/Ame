@@ -3,7 +3,7 @@
 #if defined(GL_SUPPORTED) || defined(GLES_SUPPORTED)
 #include <DiligentCore/Platforms/interface/NativeWindow.h>
 #include <DiligentCore/Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h>
-#include <Window/DesktopWindow.hpp>
+#include <Window/Window.hpp>
 #endif
 
 namespace Ame::Rhi
@@ -26,8 +26,7 @@ namespace Ame::Rhi
 
             diligent_create_info createInfo;
 
-            auto desktopWindow = GetWindowForSurface<Window::IDesktopWindow>(surfaceDesc);
-            createInfo.Window  = GetDiligentNativeWindow(desktopWindow, true);
+            createInfo.Window = GetDiligentNativeWindow(surfaceDesc.Window, true);
 
 #ifdef PLATFORM_EMSCRIPTEN
             createInfo.WebGLAttribs.Alpha           = false;
@@ -74,9 +73,8 @@ namespace Ame::Rhi
         auto factoryDev = DeviceCreateTraitsGL::LoadFactory();
         if (factoryDev)
         {
-            auto desktopWindow  = GetWindowForSurface<Window::IDesktopWindow>(surfaceDesc);
-            auto swapchainDesc  = CreateDiligentSwapChainDesc(desktopWindow, surfaceDesc.Swapchain);
-            auto fullscreenDesc = CreateDiligentFullscreenDesc(desktopWindow, surfaceDesc.FullscreenMode);
+            auto swapchainDesc  = CreateDiligentSwapChainDesc(surfaceDesc.Window, surfaceDesc.Swapchain);
+            auto fullscreenDesc = CreateDiligentFullscreenDesc(surfaceDesc.Window, surfaceDesc.FullscreenMode);
 
             createInfo.AdapterId = FindDiligentBestAdapter(factoryDev, createDesc);
             factoryDev->CreateDeviceAndSwapChainGL(

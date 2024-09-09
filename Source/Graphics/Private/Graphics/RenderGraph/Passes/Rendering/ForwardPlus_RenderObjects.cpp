@@ -60,7 +60,7 @@ namespace Ame::Gfx
         renderState.Signatures.emplace_back(Ptr(m_PassData.LightSrb->GetPipelineResourceSignature()));
         renderState.DepthStencil.DepthFunc = Dg::COMPARISON_FUNC_LESS_EQUAL;
 
-        m_Technique = Rhi::MaterialTechnique::Create(renderDevice, std::move(renderState));
+        m_Technique = AmeCreate(Rhi::MaterialTechnique, renderDevice, std::move(renderState));
     }
 
     //
