@@ -7,8 +7,8 @@ void LightingResult_Combine(inout LightingResult result, const in LightingResult
 }
 void LightingResult_Compute(inout LightingResult result, const in Light light, const in float diffuse, const in float specular)
 {
-	result.diffuse = diffuse * light.color;
-	result.specular = specular * light.color;
+	result.diffuse = diffuse * light.color.rgb;
+	result.specular = specular * light.color.rgb;
 }
 
 //

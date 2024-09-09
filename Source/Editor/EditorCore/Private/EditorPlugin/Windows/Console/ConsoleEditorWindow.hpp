@@ -25,5 +25,6 @@ namespace Ame::Editor
 
     private:
         UniquePtr<ConsoleLogStream> m_LogStream;
+        bool                        m_AutoScroll;
     };
 } // namespace Ame::Editor

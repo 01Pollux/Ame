@@ -78,13 +78,17 @@ namespace Ame::Editor
             return;
         }
 
-        if (ImGui::BeginPopupContextWindow())
+        if (imcxx::popup options{ imcxx::popup::context_window{} })
         {
-            if (ImGui::Selectable("Clear"))
+            ImGui::Checkbox("Auto-scroll", &m_AutoScroll);
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Clear", { -FLT_MIN, 0.f }))
             {
                 m_LogStream->Clear();
+                options.close();
             }
-            ImGui::EndPopup();
         }
 
         m_LogStream->UpdateActiveLogs();
@@ -101,6 +105,13 @@ namespace Ame::Editor
                 imcxx::shared_color textColor(ImGuiCol_Text, color);
                 imcxx::text         logText(log.Message);
             }
+        }
+
+        // Keep up at the bottom of the scroll region if we were already at the bottom at the beginning of the frame.
+        // Using a scrollbar or mouse-wheel will take away from the bottom edge.
+        if (m_AutoScroll && (ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
+        {
+            ImGui::SetScrollHereY(1.0f);
         }
     }
 } // namespace Ame::Editor

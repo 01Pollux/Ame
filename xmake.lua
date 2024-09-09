@@ -98,14 +98,3 @@ add_extrafiles(clang_tidy)
 --
 
 includes("Project/Ame.lua")
-
-target("Host")
-    add_files("Test/host.cpp")
-    set_kind("binary")
-    add_packages("boost")
-target_end()
-target("Shared")
-    add_files("Test/shared.cpp")
-    set_kind("shared")
-    add_packages("boost")
-target_end()

@@ -94,6 +94,7 @@ namespace Ame::Editor
     void ConsoleLogStream::Clear()
     {
         m_Logs.clear();
+        m_ActiveLogs.clear();
     }
 
     //
