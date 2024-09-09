@@ -9,7 +9,7 @@ namespace Ame::Editor
     class EntityHierarchyDisplayer
     {
     public:
-        EntityHierarchyDisplayer(Ecs::RuntimeScene* scene, const Ecs::Entity& entityToRename) noexcept;
+        EntityHierarchyDisplayer(Ecs::RuntimeScene* scene, Ecs::Entity& entityToRename) noexcept;
 
         EntityHierarchyDisplayer(const EntityHierarchyDisplayer&)            = delete;
         EntityHierarchyDisplayer& operator=(const EntityHierarchyDisplayer&) = delete;
@@ -37,7 +37,7 @@ namespace Ame::Editor
         static inline char m_RenameBuffer[256] = "";
 
         Ecs::RuntimeScene*              m_RuntimeScene;
-        Ecs::Entity                     m_EntityToRename;
+        Ecs::Entity&                    m_EntityToRename;
         std::move_only_function<void()> m_DeferredTask;
     };
 } // namespace Ame::Editor

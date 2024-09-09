@@ -8,10 +8,8 @@
 
 namespace Ame::Editor
 {
-    EntityHierarchyDisplayer::EntityHierarchyDisplayer(Ecs::RuntimeScene* scene,
-                                                       const Ecs::Entity& entityToRename) noexcept :
-        m_RuntimeScene(scene),
-        m_EntityToRename(entityToRename)
+    EntityHierarchyDisplayer::EntityHierarchyDisplayer(Ecs::RuntimeScene* scene, Ecs::Entity& entityToRename) noexcept :
+        m_RuntimeScene(scene), m_EntityToRename(entityToRename)
     {
     }
 
@@ -327,7 +325,10 @@ namespace Ame::Editor
 
     Ecs::Entity EntityHierarchyDisplayer::HelperCreateEntity(const Ecs::Entity& parentEntity)
     {
-        auto entity = m_RuntimeScene->CreateEntity("New Entity");
+        std::ranges::copy("New Entity", m_RenameBuffer);
+        auto entity      = m_RuntimeScene->CreateEntity(m_RenameBuffer);
+        m_EntityToRename = entity;
+
         if (parentEntity)
         {
             entity.SetParent(parentEntity);
