@@ -1,28 +1,28 @@
 #include <Window/Window.hpp>
 #include <Window/Glfw/DesktopWindowImplGlfw.hpp>
-#include <Window/Glfw/GlfwContext.hpp>
+#include <Window/Glfw/GlfwDriverImpl.hpp>
 
 namespace Ame::Window
 {
     DesktopWindowImplGlfw::DesktopWindowImplGlfw(IReferenceCounters* counters, const WindowCreateDesc& windowDesc) :
         Base(counters), m_Title(windowDesc.Title)
     {
-        GlfwContext::Initialize();
-        GlfwContext::Get().PushTask([this, windowDesc] { CreateGlfwWindow(windowDesc); }).wait();
+        GlfwDriverImpl::Initialize();
+        GetGlfwDriver()->submit([this, windowDesc] { CreateGlfwWindow(windowDesc); }).wait();
 
-        m_ImGuiWindow = AmeCreate(ImGuiWindowImplGlfw, m_Handle);
+        m_ImGuiWindow = AmeCreate(ImGuiWindowImplGlfw, this);
     }
 
     DesktopWindowImplGlfw::~DesktopWindowImplGlfw()
     {
-        GlfwContext::Get()
-            .PushTask(
+        GetGlfwDriver()
+            ->submit(
                 [this]
                 {
-                    GlfwContext::GetHooks().Uninstall_WindowSize(m_Handle, m_WindowSizeCallbackId);
-                    GlfwContext::GetHooks().Uninstall_WindowPos(m_Handle, m_WindowPosCallbackId);
-                    GlfwContext::GetHooks().Uninstall_TitlebarHitTest(m_Handle, m_WindowTitlebarCallbackId);
-                    GlfwContext::GetHooks().Uninstall_WindowIconified(m_Handle, m_WindowIconifyCallbackId);
+                    GlfwHooks::Get().Uninstall_WindowSize(m_Handle, m_WindowSizeCallbackId);
+                    GlfwHooks::Get().Uninstall_WindowPos(m_Handle, m_WindowPosCallbackId);
+                    GlfwHooks::Get().Uninstall_TitlebarHitTest(m_Handle, m_WindowTitlebarCallbackId);
+                    GlfwHooks::Get().Uninstall_WindowIconified(m_Handle, m_WindowIconifyCallbackId);
                     glfwDestroyWindow(m_Handle);
                 })
             .wait();
@@ -32,17 +32,17 @@ namespace Ame::Window
 
     void DesktopWindowImplGlfw::ProcessEvents()
     {
-        GlfwContext::Get().PushTask([this] { glfwPollEvents(); }).wait();
+        //GetGlfwDriver()->submit([this] { glfwPollEvents(); }).wait();
     }
 
     bool DesktopWindowImplGlfw::IsRunning() const
     {
-        return GlfwContext::Get().PushTask([this] { return glfwWindowShouldClose(m_Handle); }).get() == GLFW_FALSE;
+        return GetGlfwDriver()->submit([this] { return glfwWindowShouldClose(m_Handle); }).get() == GLFW_FALSE;
     }
 
     void DesktopWindowImplGlfw::Close()
     {
-        GlfwContext::Get().PushTask([this] { glfwSetWindowShouldClose(m_Handle, GLFW_TRUE); }).wait();
+        GetGlfwDriver()->submit([this] { glfwSetWindowShouldClose(m_Handle, GLFW_TRUE); }).wait();
     }
 
     //
@@ -50,20 +50,20 @@ namespace Ame::Window
     void DesktopWindowImplGlfw::SetTitle(const String& title)
     {
         m_Title = title;
-        GlfwContext::Get().PushTask([this] { glfwSetWindowTitle(m_Handle, m_Title.c_str()); }).wait();
+        GetGlfwDriver()->submit([this] { glfwSetWindowTitle(m_Handle, m_Title.c_str()); }).wait();
     }
 
     void DesktopWindowImplGlfw::SetSize(const Math::Size2I& size)
     {
         m_WindowSize = size;
-        GlfwContext::Get()
-            .PushTask([this] { glfwSetWindowSize(m_Handle, m_WindowSize.Width(), m_WindowSize.Height()); })
+        GetGlfwDriver()
+            ->submit([this] { glfwSetWindowSize(m_Handle, m_WindowSize.Width(), m_WindowSize.Height()); })
             .wait();
     }
 
     void DesktopWindowImplGlfw::SetPosition(const Math::Vector2I& position)
     {
-        GlfwContext::Get().PushTask([&] { glfwSetWindowPos(m_Handle, position.x(), position.y()); }).wait();
+        GetGlfwDriver()->submit([&] { glfwSetWindowPos(m_Handle, position.x(), position.y()); }).wait();
     }
 
     //
@@ -81,7 +81,7 @@ namespace Ame::Window
     Math::Vector2I DesktopWindowImplGlfw::GetPosition() const
     {
         int x, y;
-        GlfwContext::Get().PushTask([&] { glfwGetWindowPos(m_Handle, &x, &y); }).wait();
+        GetGlfwDriver()->submit([&] { glfwGetWindowPos(m_Handle, &x, &y); }).wait();
         return { x, y };
     }
 
@@ -94,8 +94,8 @@ namespace Ame::Window
 
     void DesktopWindowImplGlfw::SetFullscreen(bool state)
     {
-        GlfwContext::Get()
-            .PushTask(
+        GetGlfwDriver()
+            ->submit(
                 [this, state]
                 {
                     if (state)
@@ -118,35 +118,35 @@ namespace Ame::Window
 
     bool DesktopWindowImplGlfw::IsMinimized() const
     {
-        return GlfwContext::Get().PushTask([this] { return glfwGetWindowAttrib(m_Handle, GLFW_ICONIFIED); }).get() ==
+        return GetGlfwDriver()->submit([this] { return glfwGetWindowAttrib(m_Handle, GLFW_ICONIFIED); }).get() ==
                GLFW_TRUE;
     }
 
     bool DesktopWindowImplGlfw::IsMaximized() const
     {
-        return GlfwContext::Get().PushTask([this] { return glfwGetWindowAttrib(m_Handle, GLFW_MAXIMIZED); }).get() ==
+        return GetGlfwDriver()->submit([this] { return glfwGetWindowAttrib(m_Handle, GLFW_MAXIMIZED); }).get() ==
                GLFW_TRUE;
     }
 
     void DesktopWindowImplGlfw::Minimize()
     {
-        GlfwContext::Get().PushTask([this] { glfwIconifyWindow(m_Handle); }).wait();
+        GetGlfwDriver()->submit([this] { glfwIconifyWindow(m_Handle); }).wait();
     }
 
     void DesktopWindowImplGlfw::Maximize()
     {
-        GlfwContext::Get().PushTask([this] { glfwMaximizeWindow(m_Handle); }).wait();
+        GetGlfwDriver()->submit([this] { glfwMaximizeWindow(m_Handle); }).wait();
     }
 
     bool DesktopWindowImplGlfw::IsFullScreen() const
     {
-        return GlfwContext::Get().PushTask([this] { return glfwGetWindowMonitor(m_Handle) != nullptr; }).get();
+        return GetGlfwDriver()->submit([this] { return glfwGetWindowMonitor(m_Handle) != nullptr; }).get();
     }
 
     bool DesktopWindowImplGlfw::IsVisible() const
     {
-        return GlfwContext::Get()
-            .PushTask(
+        return GetGlfwDriver()
+            ->submit(
                 [this]
                 {
                     return glfwGetWindowAttrib(m_Handle, GLFW_VISIBLE) == GLFW_TRUE &&
@@ -158,20 +158,20 @@ namespace Ame::Window
 
     bool DesktopWindowImplGlfw::HasFocus() const
     {
-        return GlfwContext::Get()
-            .PushTask([this] { return glfwGetWindowAttrib(m_Handle, GLFW_FOCUSED) == GLFW_TRUE; })
+        return GetGlfwDriver()
+            ->submit([this] { return glfwGetWindowAttrib(m_Handle, GLFW_FOCUSED) == GLFW_TRUE; })
             .get();
     }
 
     void DesktopWindowImplGlfw::RequestFocus()
     {
-        GlfwContext::Get().PushTask([this] { glfwRequestWindowAttention(m_Handle); }).wait();
+        GetGlfwDriver()->submit([this] { glfwRequestWindowAttention(m_Handle); }).wait();
     }
 
     void DesktopWindowImplGlfw::SetVisible(bool show)
     {
-        GlfwContext::Get()
-            .PushTask(
+        GetGlfwDriver()
+            ->submit(
                 [this, show]
                 {
                     if (show)
@@ -190,12 +190,17 @@ namespace Ame::Window
 
     void DesktopWindowImplGlfw::Restore()
     {
-        GlfwContext::Get().PushTask([this] { glfwRestoreWindow(m_Handle); }).wait();
+        GetGlfwDriver()->submit([this] { glfwRestoreWindow(m_Handle); }).wait();
     }
 
     WindowEventListener& DesktopWindowImplGlfw::GetEventListener()
     {
         return m_EventListener;
+    }
+
+    SharedPtr<IGlfwDriver> DesktopWindowImplGlfw::GetGlfwDriver() const
+    {
+        return GlfwDriverImpl::Initialize();
     }
 
     //
@@ -252,21 +257,26 @@ namespace Ame::Window
 
         //
 
-        m_WindowSizeCallbackId = GlfwContext::GetHooks().Install_WindowSize(
+        m_WindowSizeCallbackId = GlfwHooks::Get().Install_WindowSize(
             m_Handle,
             [](GLFWwindow* glfwWindow, int width, int height)
             {
                 auto         window = static_cast<DesktopWindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
                 Math::Size2I newSize{ width, height };
-                if (width && height)
-                {
-                    window->GetEventListener().OnWindowSizeChanged.Invoke(newSize);
-                }
                 window->m_WindowSize = Math::Size2I{ width, height };
+
+                if (glfwGetWindowAttrib(glfwWindow, GLFW_ICONIFIED) == GLFW_FALSE)
+                {
+                    if (newSize.Width() && newSize.Height())
+                    {
+                        window->GetEventListener().OnWindowSizeChanged.Invoke(newSize);
+                    }
+                }
+
                 return true;
             });
 
-        m_WindowPosCallbackId = GlfwContext::GetHooks().Install_WindowClose(
+        m_WindowPosCallbackId = GlfwHooks::Get().Install_WindowClose(
             m_Handle,
             [](GLFWwindow* glfwWindow)
             {
@@ -277,18 +287,19 @@ namespace Ame::Window
 
         if (windowDesc.CustomTitleBar)
         {
-            m_WindowTitlebarCallbackId = GlfwContext::GetHooks().Install_TitlebarHitTest(
+            m_WindowTitlebarCallbackId = GlfwHooks::Get().Install_TitlebarHitTest(
                 m_Handle,
                 [](GLFWwindow* glfwWindow, int x, int y, int* hit)
                 {
                     auto window = static_cast<DesktopWindowImplGlfw*>(glfwGetWindowUserPointer(glfwWindow));
+
                     *hit =
                         window->GetEventListener().OnWindowTitleHitTest.Invoke(Math::Vector2I{ x, y }).value_or(false);
                     return true;
                 });
         }
 
-        m_WindowIconifyCallbackId = GlfwContext::GetHooks().Install_WindowIconified(
+        m_WindowIconifyCallbackId = GlfwHooks::Get().Install_WindowIconified(
             m_Handle,
             [](GLFWwindow* glfwWindow, int iconified)
             {

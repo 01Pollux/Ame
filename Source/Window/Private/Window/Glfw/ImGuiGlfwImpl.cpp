@@ -164,8 +164,6 @@
 #endif
 #ifdef GLFW_MOUSE_PASSTHROUGH // Let's be nice to people who pulled GLFW between 2019-04-16 (3.4 define) and 2020-07-17
                               // (passthrough)
-#define GLFW_HAS_MOUSE_PASSTHROUGH (GLFW_VERSION_COMBINED >= 3400) // 3.4+ GLFW_MOUSE_PASSTHROUGH
-#else
 #define GLFW_HAS_MOUSE_PASSTHROUGH (0)
 #endif
 #define GLFW_HAS_GAMEPAD_API (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetGamepadState() new api

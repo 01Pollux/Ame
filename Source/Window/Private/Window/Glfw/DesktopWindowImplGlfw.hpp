@@ -55,7 +55,8 @@ namespace Ame::Window
 
         void Restore() override;
 
-        [[nodiscard]] WindowEventListener& GetEventListener() override;
+        [[nodiscard]] WindowEventListener&   GetEventListener() override;
+        [[nodiscard]] SharedPtr<IGlfwDriver> GetGlfwDriver() const override;
 
     private:
         void CreateGlfwWindow(const WindowCreateDesc& windowDesc);

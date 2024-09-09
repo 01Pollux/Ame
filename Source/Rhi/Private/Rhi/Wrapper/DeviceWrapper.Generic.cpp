@@ -1,4 +1,5 @@
 #include <Rhi/Wrapper/DeviceWrapper.Generic.hpp>
+#include <Window/GlfwDriver.hpp>
 
 #include <boost/predef.h>
 
@@ -107,19 +108,26 @@ namespace Ame::Rhi
     {
         auto glfwWindow = window->GetGlfwHandle();
 
+        return window->GetGlfwDriver()
+            ->submit(
+                [glfwWindow]() -> Dg::NativeWindow
+                {
 #if PLATFORM_WIN32
-        Dg::Win32NativeWindow handle{ glfwGetWin32Window(glfwWindow) };
+                    return Dg::Win32NativeWindow{ glfwGetWin32Window(glfwWindow) };
 #endif
 
 #if PLATFORM_LINUX
-        Dg::LinuxNativeWindow handle;
-        handle.WindowId = glfwGetX11Window(glfwWindow);
-        handle.pDisplay = glfwGetX11Display();
-        if (isGL)
-            glfwMakeContextCurrent(glfwWindow);
+                    Dg::LinuxNativeWindow handle;
+                    handle.WindowId = glfwGetX11Window(glfwWindow);
+                    handle.pDisplay = glfwGetX11Display();
+                    if (isGL)
+                    {
+                        glfwMakeContextCurrent(glfwWindow);
+                    }
+                    return handle;
 #endif
-
-        return handle;
+                })
+            .get();
     }
 
     //

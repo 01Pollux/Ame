@@ -1,32 +1,49 @@
 #pragma once
 
-#include <functional>
 #include <map>
+#include <functional>
 
 #include <GLFW/glfw3.h>
+#include <Log/Logger.hpp>
 
-namespace Ame::Window
-{
-    /// <summary>
-    /// Since glfw is a singleton, we need to have a way to properly manage and dispatch callbacks between the hooks.
-    /// All operations must be called inside GlfwContext
-    /// </summary>
-    class GlfwHooks
+//
+
+#ifdef AME_NO_EXCEPTIONS
+#define AME_INSTALL_GLFW_CALLBACK_PROLOG                                                                               \
+    self.SetCallbackInProgress(true);                                                                                  \
+    do                                                                                                                 \
     {
-    public:
-        static constexpr uint32_t InvalidId = 0;
+#else
+#define AME_INSTALL_GLFW_CALLBACK_PROLOG                                                                               \
+    self.SetCallbackInProgress(true);                                                                                  \
+    try                                                                                                                \
+    {
+#endif
 
-    public:
-        /// <summary>
-        /// Get the glfw hooks
-        /// </summary>
-        [[nodiscard]] static GlfwHooks& Get();
+#ifdef AME_NO_EXCEPTIONS
+#define AME_INSTALL_GLFW_CALLBACK_EPILOG                                                                               \
+    }                                                                                                                  \
+    while (false)                                                                                                      \
+        ;                                                                                                              \
+    self.SetCallbackInProgress(false)
+#else
+#define AME_INSTALL_GLFW_CALLBACK_EPILOG                                                                               \
+    }                                                                                                                  \
+    catch (const std::exception& e)                                                                                    \
+    {                                                                                                                  \
+        AME_LOG_ERROR(std::format("Exception in glfw callback: {}", e.what()));                                        \
+    }                                                                                                                  \
+    self.SetCallbackInProgress(false)
+#endif
+
+//
 
 #define AME_INSTALL_GLFW_CALLBACKS_INSTALLER_IMPL(name)                                                                \
 private:                                                                                                               \
     template<typename... Args> static void GLFW##name##Callback(Args... args)                                          \
     {                                                                                                                  \
         auto& self = Get();                                                                                            \
+        AME_INSTALL_GLFW_CALLBACK_PROLOG;                                                                              \
         for (auto& [id, callback] : self.m_GLFW##name##Callbacks)                                                      \
         {                                                                                                              \
             if (!callback(std::forward<Args>(args)...))                                                                \
@@ -38,6 +55,7 @@ private:                                                                        
         {                                                                                                              \
             self.m_Old##name##Callback(std::forward<Args>(args)...);                                                   \
         }                                                                                                              \
+        AME_INSTALL_GLFW_CALLBACK_EPILOG;                                                                              \
     }                                                                                                                  \
                                                                                                                        \
 public:                                                                                                                \
@@ -76,11 +94,14 @@ private:                                                                        
     name##callbackMap m_GLFW##name##Callbacks;                                                                         \
     callbackType      m_Old##name##Callback = nullptr
 
-#define AME_INSTALL_GLFW_CALLBACKS_WINDOW_INSTALLER(name)                                                              \
+//
+
+#define AME_INSTALL_GLFW_CALLBACKS_WINDOW_IMPL(name)                                                                   \
 private:                                                                                                               \
     template<typename... Args> static void GLFW##name##Callback(GLFWwindow* window, Args... args)                      \
     {                                                                                                                  \
-        auto& self                          = Get();                                                                   \
+        auto& self = Get();                                                                                            \
+        AME_INSTALL_GLFW_CALLBACK_PROLOG;                                                                              \
         auto& [originalCallback, listeners] = self.m_##name##Callbacks[window];                                        \
         for (auto& [id, callback] : listeners)                                                                         \
         {                                                                                                              \
@@ -93,6 +114,7 @@ private:                                                                        
         {                                                                                                              \
             originalCallback(window, std::forward<Args>(args)...);                                                     \
         }                                                                                                              \
+        AME_INSTALL_GLFW_CALLBACK_EPILOG;                                                                              \
     }                                                                                                                  \
                                                                                                                        \
 public:                                                                                                                \
@@ -123,7 +145,7 @@ private:                                                                        
     }                                                                                                                  \
                                                                                                                        \
 public:                                                                                                                \
-    AME_INSTALL_GLFW_CALLBACKS_WINDOW_INSTALLER(name);                                                                 \
+    AME_INSTALL_GLFW_CALLBACKS_WINDOW_IMPL(name);                                                                      \
                                                                                                                        \
 private:                                                                                                               \
     using name##callbackType = bool(GLFWwindow*, __VA_ARGS__);                                                         \
@@ -136,6 +158,37 @@ private:                                                                        
     using callbackType##Map = std::map<GLFWwindow*, name##OldAndCallbacks>;                                            \
                                                                                                                        \
     callbackType##Map m_##name##Callbacks
+
+//
+
+namespace Ame::Window
+{
+    /// <summary>
+    /// Since glfw is a singleton, we need to have a way to properly manage and dispatch callbacks between the hooks.
+    /// All operations must be called inside GlfwContext
+    /// </summary>
+    class GlfwHooks
+    {
+    public:
+        static constexpr uint32_t InvalidId = 0;
+
+    public:
+        void SetCallbackInProgress(bool state)
+        {
+            m_CallbackInProgress = state;
+        }
+
+        [[nodiscard]] bool IsCallbackInProgress() const noexcept
+        {
+            return m_CallbackInProgress;
+        }
+
+        /// <summary>
+        /// Get the glfw hooks
+        /// </summary>
+        [[nodiscard]] static GlfwHooks& Get();
+
+        //
 
     public:
         AME_INSTALL_GLFW_CALLBACKS(GLFWerrorfun, glfwSetErrorCallback, Error, int, const char*);
@@ -167,13 +220,16 @@ private:                                                                        
         AME_INSTALL_GLFW_CALLBACKS(GLFWjoystickfun, glfwSetJoystickCallback, Joystick, int, int);
 
     private:
-#undef AME_INSTALL_GLFW_CALLBACKS_IMPL
-#undef AME_INSTALL_GLFW_CALLBACKS_INSTALLER
-#undef AME_INSTALL_GLFW_CALLBACKS
-#undef AME_INSTALL_GLFW_CALLBACKS_WINDOW
-#undef AME_INSTALL_GLFW_CALLBACKS_WINDOW_INSTALLER
-
-    private:
-        static inline uint32_t m_IdCounter = 1;
+        uint32_t m_IdCounter          = 1;
+        bool     m_CallbackInProgress = false;
     }; // namespace Ame::Window
 } // namespace Ame::Window
+
+//
+
+#undef AME_INSTALL_GLFW_CALLBACK_PROLOG
+#undef AME_INSTALL_GLFW_CALLBACK_EPILOG
+#undef AME_INSTALL_GLFW_CALLBACKS_INSTALLER_IMPL
+#undef AME_INSTALL_GLFW_CALLBACKS
+#undef AME_INSTALL_GLFW_CALLBACKS_WINDOW_IMPL
+#undef AME_INSTALL_GLFW_CALLBACKS_WINDOW

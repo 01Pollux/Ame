@@ -13,6 +13,7 @@ namespace Ame::Window
     inline constexpr UId IID_Window{ 0xd04401d7, 0xe3e3, 0x45d8, { 0xb6, 0x6d, 0xfa, 0x5e, 0x5, 0x75, 0xd, 0x90 } };
 
     class WindowEventListener;
+    class IGlfwDriver;
 
     class IWindow : public IObject
     {
@@ -29,7 +30,8 @@ namespace Ame::Window
         [[nodiscard]] virtual const Math::Size2I& GetSize() const     = 0;
         [[nodiscard]] virtual Math::Vector2I      GetPosition() const = 0;
 
-        [[nodiscard]] virtual WindowEventListener& GetEventListener() = 0;
+        [[nodiscard]] virtual WindowEventListener&   GetEventListener()    = 0;
+        [[nodiscard]] virtual SharedPtr<IGlfwDriver> GetGlfwDriver() const = 0;
 
     public:
         [[nodiscard]] virtual GLFWwindow* GetGlfwHandle() const = 0;

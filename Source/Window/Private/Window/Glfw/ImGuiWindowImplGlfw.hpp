@@ -13,7 +13,7 @@ namespace Ame::Window
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiWindow, Base);
 
     public:
-        IMPLEMENT_INTERFACE_CTOR(ImGuiWindowImplGlfw, GLFWwindow* handle): Base(counters), m_Handle(handle)
+        IMPLEMENT_INTERFACE_CTOR(ImGuiWindowImplGlfw, IWindow* window) : Base(counters), m_Window(window)
         {
         }
 
@@ -25,6 +25,6 @@ namespace Ame::Window
         void ShutdownImGui(void* imguiContext) override;
 
     private:
-        GLFWwindow* m_Handle = nullptr;
+        IWindow* m_Window = nullptr;
     };
 } // namespace Ame::Window
