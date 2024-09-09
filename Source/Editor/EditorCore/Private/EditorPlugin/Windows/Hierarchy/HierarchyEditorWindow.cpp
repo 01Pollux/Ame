@@ -16,8 +16,8 @@ namespace Ame::Editor
 
     void HierarchyEditorWindow::OnDrawVisible()
     {
-        imcxx::window Window{ GetFullPath(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse };
-        if (!Window)
+        imcxx::window window{ GetFullPath(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse };
+        if (!window)
         {
             return;
         }

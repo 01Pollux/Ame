@@ -6,6 +6,6 @@ namespace Ame::Editor
 {
     void GameViewEditorWindow::OnDrawVisible()
     {
-        imcxx::window Window{ GetFullPath(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse };
+        imcxx::window window{ GetFullPath(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse };
     }
 } // namespace Ame::Editor

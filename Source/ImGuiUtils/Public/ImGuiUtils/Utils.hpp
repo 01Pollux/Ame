@@ -434,4 +434,26 @@ namespace Ame::ImGuiUtils
     {
         DrawIcon(ImGui::GetWindowDrawList(), size, type, filled, color, fillColor);
     }
+
+    //
+
+    inline ImColor GetImColor(const Math::Color4& color)
+    {
+        return ImColor(color.r(), color.g(), color.b(), color.a());
+    }
+
+    inline ImColor GetImColor(const Math::Color3& color)
+    {
+        return ImColor(color.r(), color.g(), color.b(), 1.f);
+    }
+
+    inline Math::Color4 GetColor4(const ImColor& color)
+    {
+        return Math::Color4(color.Value.x, color.Value.y, color.Value.z, color.Value.w);
+    }
+
+    inline Math::Color3 GetColor3(const ImColor& color)
+    {
+        return Math::Color3(color.Value.x, color.Value.y, color.Value.z);
+    }
 } // namespace Ame::ImGuiUtils

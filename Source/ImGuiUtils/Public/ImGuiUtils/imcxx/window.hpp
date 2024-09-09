@@ -68,14 +68,14 @@ namespace imcxx
         };
 
         template<typename _StrTy, typename _VecTy = ImVec2>
-        child(const _StrTy& str_id, _VecTy size = {}, bool border = false, ImGuiWindowFlags flags = 0) :
-            scope_wrap(ImGui::BeginChild(impl::get_string(str_id), impl::to_imvec2(size), border, flags))
+        child(const _StrTy& str_id, _VecTy size = {}, ImGuiChildFlags child_flags = 0, ImGuiWindowFlags flags = 0) :
+            scope_wrap(ImGui::BeginChild(impl::get_string(str_id), impl::to_imvec2(size), child_flags, flags))
         {
         }
 
         template<typename _VecTy = ImVec2>
-        child(ImGuiID id, const _VecTy& size = {}, bool border = false, ImGuiWindowFlags flags = 0) :
-            scope_wrap(ImGui::BeginChild(id, impl::to_imvec2(size), border, flags))
+        child(ImGuiID id, const _VecTy& size = {}, ImGuiChildFlags child_flags = 0, ImGuiWindowFlags flags = 0) :
+            scope_wrap(ImGui::BeginChild(id, impl::to_imvec2(size), child_flags, flags))
         {
         }
 

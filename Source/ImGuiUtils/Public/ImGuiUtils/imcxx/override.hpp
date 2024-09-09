@@ -200,7 +200,14 @@ namespace imcxx
             if constexpr (_Strategy == shared_override_strategy::style_color)
             {
                 ++m_PopCount;
-                ImGui::PushStyleColor(type, value);
+                if constexpr (std::is_same_v<_Ty1, ImGuiCol> || std::is_same_v<_Ty1, ImU32>)
+                {
+                    ImGui::PushStyleColor(type, static_cast<ImU32>(value));
+                }
+                else
+                {
+                    ImGui::PushStyleColor(type, ImVec4{ value });
+                }
             }
             else if constexpr (_Strategy == shared_override_strategy::style_var)
             {

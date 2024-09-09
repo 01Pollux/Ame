@@ -24,7 +24,7 @@ namespace Ame::Editor
 
     void SceneViewEditorWindow::OnDrawVisible()
     {
-        imcxx::window Window{ GetFullPath(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse };
+        imcxx::window window{ GetFullPath(), nullptr, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoCollapse };
 
         RenderHeader();
         ImGui::Separator();
