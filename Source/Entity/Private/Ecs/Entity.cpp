@@ -110,15 +110,21 @@ namespace Ame::Ecs
         return children;
     }
 
-    void Entity::SetName(String name) const
+    auto Entity::GetParent() const -> Entity
     {
-        m_Entity.get_ref<EntityTagComponent>()->Tag = std::move(name);
+        return m_Entity.parent();
     }
 
     const String& Entity::GetName() const
     {
         return m_Entity.get_ref<EntityTagComponent>()->Tag;
     }
+
+    void Entity::SetName(String name) const
+    {
+        m_Entity.get_ref<EntityTagComponent>()->Tag = std::move(name);
+    }
+
 
     //
 

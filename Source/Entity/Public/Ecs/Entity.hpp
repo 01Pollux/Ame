@@ -49,13 +49,11 @@ namespace Ame::Ecs
         void RemoveAllChildren() const;
 
     public:
-        /// <summary>
-        /// Get the children of the entity.
-        /// </summary>
-        [[nodiscard]] std::vector<Entity> GetChildren(bool allowDisabled = true) const;
+        [[nodiscard]] auto GetChildren(bool allowDisabled = true) const -> std::vector<Entity>;
+        [[nodiscard]] auto GetParent() const -> Entity;
+        [[nodiscard]] auto GetName() const -> const String&;
 
-        void                        SetName(String name) const;
-        [[nodiscard]] const String& GetName() const;
+        void SetName(String name) const;
 
     public:
         /// <summary>

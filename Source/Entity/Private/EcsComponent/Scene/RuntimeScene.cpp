@@ -1,5 +1,6 @@
 #include <EcsComponent/Scene/RuntimeScene.hpp>
 #include <EcsComponent/Scene/SceneEntity.hpp>
+#include <Ecs/EntityUtils.hpp>
 #include <Core/String.hpp>
 
 namespace Ame::Ecs
@@ -20,35 +21,6 @@ namespace Ame::Ecs
         auto uid = UIdUtils::ToString(UIdUtils::Generate());
         Strings::ReplaceAll(uid, "-", "");
         return uid;
-    }
-
-    /// <summary>
-    /// Clones an entity and all its children.
-    /// </summary>
-    [[nodiscard]] static Ecs::Entity CloneEntityInternal(const Ecs::Entity& sceneRoot, const Ecs::Entity& entity,
-                                                         const Ecs::Entity& newParent)
-    {
-        auto newEntity = entity->clone();
-        newEntity.add<SceneEntityPairComponent>(sceneRoot.GetFlecsEntity());
-        if (newParent)
-        {
-            newEntity.child_of(newParent.GetFlecsEntity());
-        }
-        return newEntity;
-    }
-
-    /// <summary>
-    /// Clones an entity and all its children while also executing a callback for each entity.
-    /// </summary>
-    static Ecs::Entity CloneEntityTo(const Ecs::Entity& sceneRoot, const Ecs::Entity& entity,
-                                     const Ecs::Entity& newParent)
-    {
-        auto newEntity = CloneEntityInternal(sceneRoot, entity, newParent);
-        for (auto& child : entity.GetChildren())
-        {
-            CloneEntityTo(sceneRoot, child, newEntity);
-        }
-        return newEntity;
     }
 
     //
@@ -81,22 +53,15 @@ namespace Ame::Ecs
 
     void RuntimeScene::RemoveEntity(const Ecs::Entity& entity)
     {
-        if (entity->target<SceneEntityPairComponent>() == m_Root->GetFlecsEntity())
+        if (EntityUtils::GetSceneRoot(entity) == m_Root)
         {
-            entity->remove<SceneEntityPairComponent>();
+            entity->remove<SceneEntityPairComponent>(flecs::Wildcard);
         }
     }
 
     Ecs::Entity RuntimeScene::CloneEntity(const Ecs::Entity& entity, bool deepClone)
     {
-        if (!deepClone)
-        {
-            return CloneEntityInternal(m_Root, entity, m_Root);
-        }
-        else
-        {
-            return CloneEntityTo(m_Root, entity, m_Root);
-        }
+        return EntityUtils::Clone(entity, m_Root, deepClone);
     }
 
     void RuntimeScene::MergeTo(RuntimeScene* targetScene, RuntimeSceneMerge mergeType)
@@ -107,7 +72,7 @@ namespace Ame::Ecs
         {
             for (auto& entity : m_Root->GetChildren())
             {
-                CloneEntityTo(targetScene->m_Root, entity, targetScene->m_Root);
+                EntityUtils::CloneTo(targetScene->m_Root, entity, targetScene->m_Root);
             }
             break;
         }
@@ -142,8 +107,14 @@ namespace Ame::Ecs
 
     RuntimeScene* RuntimeScene::GetCurrent(Ecs::World* world)
     {
-        auto scene = world->GetFlecsWorld()->target<SceneEntityPairComponent>();
+        auto scene = world->GetFlecsWorld()->target<ActiveSceneEntityPairComponent>();
         return scene ? scene.get<RuntimeSceneComponent>()->Object : nullptr;
+    }
+
+    Ecs::Entity RuntimeScene::GetCurrentEntity(Ecs::World* world)
+    {
+        auto scene = GetCurrent(world);
+        return scene ? scene->GetRoot() : Ecs::Entity::c_Null;
     }
 
     void RuntimeScene::SetCurrent(Ecs::World* world, RuntimeScene* scene)
@@ -151,11 +122,11 @@ namespace Ame::Ecs
         auto flecsWorld = world->GetFlecsWorld();
         if (scene)
         {
-            flecsWorld->add<SceneEntityPairComponent>(scene->GetRoot().GetFlecsEntity());
+            flecsWorld->add<ActiveSceneEntityPairComponent>(scene->GetRoot().GetFlecsEntity());
         }
         else
         {
-            flecsWorld->remove<SceneEntityPairComponent>();
+            flecsWorld->remove<ActiveSceneEntityPairComponent>(flecs::Wildcard);
         }
     }
 

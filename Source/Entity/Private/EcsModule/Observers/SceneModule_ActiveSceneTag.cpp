@@ -8,7 +8,7 @@ namespace Ame::Ecs
     static void OnEntitySceneChange_UpdateActiveScene(Iterator& iter)
     {
         auto world        = iter.world();
-        auto currentScene = world.target<SceneEntityPairComponent>();
+        auto currentScene = world.target<ActiveSceneEntityPairComponent>();
 
         while (iter.next())
         {
@@ -31,7 +31,7 @@ namespace Ame::Ecs
     static void OnWorldSceneEntityChanged_UpdateActiveScene(Iterator& iter)
     {
         Ecs::WorldRef world  = iter.world();
-        auto          target = world->target<SceneEntityPairComponent>();
+        auto          target = world->target<ActiveSceneEntityPairComponent>();
         auto          filter = world.CreateQuery().with<SceneEntityPairComponent>(target ? target : flecs::Wildcard).build();
 
         if (iter.event() == flecs::OnAdd)
@@ -49,7 +49,7 @@ namespace Ame::Ecs
     void SceneEcsModule::RegisterSceneObservers(WorldRef world)
     {
         world.CreateObserver()
-            .with<SceneEntityPairComponent>(flecs::Wildcard)
+            .with<ActiveSceneEntityPairComponent>(flecs::Wildcard)
             .singleton()
             .event(flecs::Monitor)
             .yield_existing()

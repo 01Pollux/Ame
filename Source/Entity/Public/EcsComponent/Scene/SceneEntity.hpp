@@ -3,11 +3,18 @@
 namespace Ame::Ecs
 {
     /// <summary>
-    /// pair: [SceneEntityComponent, Entity] # world,entity
-    /// world: Mark the scene as active
+    /// pair: [SceneEntityComponent, Entity] # entity
     /// entity: Mark the entity as part of a scene
     /// </summary>
     struct SceneEntityPairComponent
+    {
+    };
+    
+    /// <summary>
+    /// pair: [SceneEntityComponent, Entity] # world
+    /// world: Mark the scene as active
+    /// </summary>
+    struct ActiveSceneEntityPairComponent
     {
     };
 

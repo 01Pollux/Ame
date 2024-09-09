@@ -86,6 +86,11 @@ namespace Ame::Ecs
         [[nodiscard]] static RuntimeScene* GetCurrent(Ecs::World* world);
 
         /// <summary>
+        /// Get the current scene entity
+        /// </summary>
+        [[nodiscard]] static Ecs::Entity GetCurrentEntity(Ecs::World* world);
+
+        /// <summary>
         /// Set the scene as the current scene,
         /// if null, the current scene reference will be cleared
         /// </summary>
