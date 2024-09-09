@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Ame.hpp>
+#include <Core/Interface.hpp>
 #include <concurrencpp/concurrencpp.h>
 
 #define AME_COROUTINE_INST(Type, Name)                                                                                 \
@@ -15,27 +16,37 @@ private:                                                                        
 
 namespace Ame
 {
-    class Coroutine
+    // {6A81E4C8-A67E-44C0-9A06-03B3539B1F1D}
+    inline constexpr UId IID_Coroutine{ 0x6a81e4c8, 0xa67e, 0x44c0, { 0x9a, 0x6, 0x3, 0xb3, 0x53, 0x9b, 0x1f, 0x1d } };
+
+    class Coroutine : public BaseObject<IObject>
     {
     public:
-        static void Initialize()
-        {
-            s_Runtime = std::make_unique<Co::runtime>();
-        }
+        using Base = BaseObject<IObject>;
 
-        [[nodiscard]] static Co::runtime& Get() noexcept
-        {
-            return *s_Runtime;
-        }
-
-        static void Shutdown()
-        {
-            s_Runtime.reset();
-        }
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Coroutine, Base);
 
     private:
-        static inline UniquePtr<Co::runtime> s_Runtime;
+        IMPLEMENT_INTERFACE_CTOR(Coroutine) : Base(counters)
+        {
+        }
+
+    public:
+        [[nodiscard]] static Co::runtime& Get() noexcept;
+
+        static void Initialize();
+        static void Shutdown();
+
+    private:
+        static inline Co::runtime m_Runtime;
     };
+
+    inline Ptr<Coroutine> s_Coroutine;
+
+    inline Co::runtime& Coroutine::Get() noexcept
+    {
+        return s_Coroutine->m_Runtime;
+    }
 } // namespace Ame
 
 namespace concurrencpp

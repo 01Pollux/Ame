@@ -1,5 +1,6 @@
 #include <Interfaces/Core/Config.hpp>
 #include <Interfaces/Core/Logger.hpp>
+#include <Interfaces/Core/Coroutine.hpp>
 #include <Interfaces/Core/FrameTimer.hpp>
 #include <Interfaces/Core/FrameEvent.hpp>
 
@@ -24,6 +25,7 @@ namespace Ame::Interfaces
                 Log::s_Logger = logger;
             }
         }
+        registry->ExposeInterface(owner, IID_Coroutine, s_Coroutine);
         if (EnableFrameTimer)
         {
             registry->ExposeInterface(owner, IID_FrameTimer, AmeCreateObject(FrameTimer));

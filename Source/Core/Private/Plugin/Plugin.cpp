@@ -1,5 +1,7 @@
 #include <Plugin/Plugin.hpp>
 #include <Plugin/ModuleRegistry.hpp>
+
+#include <Interfaces/Core/Coroutine.hpp>
 #include <Interfaces/Core/Logger.hpp>
 
 namespace Ame
@@ -10,6 +12,7 @@ namespace Ame
 
     bool IPlugin::OnPluginPreLoad(IModuleRegistry* registry)
     {
+        registry->RequestInterface(this, Interfaces::IID_Coroutine, s_Coroutine.DblPtr<IObject>());
         registry->RequestInterface(this, Interfaces::IID_Logger, Log::s_Logger.DblPtr<IObject>());
         return true;
     }
