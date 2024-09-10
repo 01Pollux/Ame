@@ -1,4 +1,4 @@
-#include <EditorPlugin/Windows/SceneView/SceneViewEditorWindow.hpp>
+#include <EditorWindows/Windows/SceneView/SceneViewEditorWindow.hpp>
 #include <EditorCore/ModuleRegistryUtils.hpp>
 
 #include <EcsComponent/Math/Transform.hpp>

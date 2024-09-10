@@ -3,7 +3,7 @@
 #include <EditorPlugin/EditorWindow.hpp>
 #include <EditorPlugin/StandardWindows.hpp>
 
-#include <EditorPlugin/Windows/Console/ConsoleLogStream.hpp>
+#include <EditorWindows/Windows/Console/ConsoleLogStream.hpp>
 
 namespace Ame::Editor
 {

@@ -1,6 +1,6 @@
 #include <chrono>
 
-#include <EditorPlugin/Windows/Console/ConsoleLogStream.hpp>
+#include <EditorWindows/Windows/Console/ConsoleLogStream.hpp>
 #include <Core/Enum.hpp>
 
 #include <Log/Logger.hpp>

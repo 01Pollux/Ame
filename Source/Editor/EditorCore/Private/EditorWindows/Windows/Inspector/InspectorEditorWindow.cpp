@@ -1,4 +1,4 @@
-#include <EditorPlugin/Windows/Inspector/InspectorEditorWindow.hpp>
+#include <EditorWindows/Windows/Inspector/InspectorEditorWindow.hpp>
 
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 

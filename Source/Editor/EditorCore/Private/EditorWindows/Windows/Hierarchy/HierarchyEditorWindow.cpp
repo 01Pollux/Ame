@@ -1,5 +1,5 @@
-#include <EditorPlugin/Windows/Hierarchy/HierarchyEditorWindow.hpp>
-#include <EditorPlugin/Windows/Hierarchy/EntityHierarchyDisplayer.hpp>
+#include <EditorWindows/Windows/Hierarchy/HierarchyEditorWindow.hpp>
+#include <EditorWindows/Windows/Hierarchy/EntityHierarchyDisplayer.hpp>
 #include <EditorCore/ModuleRegistryUtils.hpp>
 
 #include <EcsComponent/Scene/RuntimeScene.hpp>

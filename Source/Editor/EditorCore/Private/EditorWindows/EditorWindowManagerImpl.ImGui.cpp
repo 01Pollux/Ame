@@ -1,4 +1,4 @@
-#include <EditorPlugin/EditorWindowManagerImpl.hpp>
+#include <EditorWindows/EditorWindowManagerImpl.hpp>
 #include <EditorPlugin/StandardWindows.hpp>
 #include <EditorPlugin/EditorWindow.hpp>
 

@@ -1,4 +1,4 @@
-#include <EditorPlugin/Windows/Console/ConsoleEditorWindow.hpp>
+#include <EditorWindows/Windows/Console/ConsoleEditorWindow.hpp>
 
 #include <Core/Enum.hpp>
 #include <ImGuiUtils/Utils.hpp>

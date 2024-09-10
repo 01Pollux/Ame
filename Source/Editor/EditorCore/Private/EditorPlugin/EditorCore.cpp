@@ -1,5 +1,5 @@
+#include <EditorWindows/EditorWindowManagerImpl.hpp>
 #include <EditorPlugin/EditorCore.hpp>
-#include <EditorPlugin/EditorWindowManagerImpl.hpp>
 #include <Plugin/ModuleRegistry.hpp>
 
 namespace Ame::Editor

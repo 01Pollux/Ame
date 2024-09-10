@@ -1,4 +1,4 @@
-#include <EditorPlugin/Windows/Hierarchy/EntityHierarchyDisplayer.hpp>
+#include <EditorWindows/Windows/Hierarchy/EntityHierarchyDisplayer.hpp>
 
 #include <Ecs/EntityUtils.hpp>
 #include <EcsComponent/Math/Transform.hpp>

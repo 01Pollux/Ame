@@ -1,14 +1,14 @@
-#include <EditorPlugin/EditorWindowManagerImpl.hpp>
+#include <EditorWindows/EditorWindowManagerImpl.hpp>
 #include <EditorPlugin/EditorCore.hpp>
 
 #include <Window/WindowEventListener.hpp>
 
-#include <EditorPlugin/Windows/Console/ConsoleEditorWindow.hpp>
-#include <EditorPlugin/Windows/ContentBrowser/ContentBrowserEditorWindow.hpp>
-#include <EditorPlugin/Windows/GameView/GameViewEditorWindow.hpp>
-#include <EditorPlugin/Windows/Hierarchy/HierarchyEditorWindow.hpp>
-#include <EditorPlugin/Windows/Inspector/InspectorEditorWindow.hpp>
-#include <EditorPlugin/Windows/SceneView/SceneViewEditorWindow.hpp>
+#include <EditorWindows/Windows/Console/ConsoleEditorWindow.hpp>
+#include <EditorWindows/Windows/ContentBrowser/ContentBrowserEditorWindow.hpp>
+#include <EditorWindows/Windows/GameView/GameViewEditorWindow.hpp>
+#include <EditorWindows/Windows/Hierarchy/HierarchyEditorWindow.hpp>
+#include <EditorWindows/Windows/Inspector/InspectorEditorWindow.hpp>
+#include <EditorWindows/Windows/SceneView/SceneViewEditorWindow.hpp>
 
 #include <Plugin/ModuleRegistry.hpp>
 #include <Interfaces/Rhi/RhiDevice.hpp>
