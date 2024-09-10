@@ -46,7 +46,7 @@ namespace Ame::Editor
                 ImGuiStyleVar_WindowPadding, ImVec2{}, ImGuiStyleVar_WindowBorderSize, 0.0f);
             imcxx::shared_color overrideBg(ImGuiCol_MenuBarBg, ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f });
 
-            editorOpen = ImGui::Begin("Neon Editor", nullptr, c_EditorWindowFlags);
+            editorOpen = ImGui::Begin("Ame Editor", nullptr, c_EditorWindowFlags);
         }
 
         // Submit the DockSpace

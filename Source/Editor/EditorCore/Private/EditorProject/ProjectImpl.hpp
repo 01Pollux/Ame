@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorPlugin/Project.hpp>
+#include <EditorPlugin/ProjectEventListener.hpp>
 
 namespace Ame::Editor
 {
@@ -12,15 +13,15 @@ namespace Ame::Editor
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Project, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(ProjectImpl, const String& solutionPath);
+        IMPLEMENT_INTERFACE_CTOR(ProjectImpl, const String& rootPath) : Base(counters), m_SolutionRootPath(rootPath)
+        {
+        }
 
     public:
-        auto GetName() const -> const String& override
-        {
-            return m_Name;
-        }
-        void SetName(String name) override;
+        void Create(const String& projectName);
+        void Open();
 
+    public:
         void Save() override;
         void Reload() override;
         void Close() override;
@@ -28,13 +29,14 @@ namespace Ame::Editor
         auto ResolvePath(ProjectDataPath type) const -> std::filesystem::path override;
         auto ResolvePath(ProjectDataPath type, const String& path) const -> std::filesystem::path override;
 
-        auto GetProperties() -> boost::property_tree::ptree& override;
-        auto GetProperties() const -> const boost::property_tree::ptree& override;
+        auto GetProperty(const PropertyPath& name) const -> const PropertyTree* override;
+        void SetProperty(const PropertyPath& name, const PropertyTree& value);
 
         auto GetEventListener() -> ProjectEventListener& override;
 
     private:
-        std::filesystem::path m_SolutionRootPath;
-        String                m_Name;
+        boost::property_tree::ptree m_Properties;
+        std::filesystem::path       m_SolutionRootPath;
+        ProjectEventListener        m_EventListener;
     };
 } // namespace Ame::Editor

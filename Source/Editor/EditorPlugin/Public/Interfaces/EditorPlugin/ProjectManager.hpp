@@ -17,10 +17,8 @@ namespace Ame::Interfaces
     class IEditorProjectManager : public IObject
     {
     public:
-        virtual Editor::IProject* CreateProject(const String& name, const String& path) = 0;
-
-        virtual Editor::IProject* OpenProject(const String& path) = 0;
-
-        virtual Editor::IProject* GetCurrentProject() = 0;
+        virtual Editor::IProject*               CreateProject(const String& name, const String& path) = 0;
+        virtual Editor::IProject*               OpenProject(const String& path)                       = 0;
+        [[nodiscard]] virtual Editor::IProject* GetCurrentProject()                                   = 0;
     };
 } // namespace Ame::Interfaces

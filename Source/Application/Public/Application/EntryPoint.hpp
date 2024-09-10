@@ -7,7 +7,7 @@
 #include <Log/Streams/ConsoleStream.hpp>
 #include <Log/Streams/MsvcDebugStream.hpp>
 
-#if defined(NEON_PLATFORM_WINDOWS) && defined(NEON_DIST)
+#if defined(AME_PLATFORM_WINDOWS) && defined(AME_DIST)
 
 #define AME_MAIN_ENTRY_POINT                                                                                           \
     int WinMainWrapper(int argc, char** argv);                                                                         \
@@ -18,24 +18,7 @@
     int WinMainWrapper([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
 #else
-
-#ifdef AME_DEBUG
-
-static void EnableDebugInfo()
-{
-}
-
-#define AME_MAIN_ENTRY_POINT                                                                                           \
-    int _dbg_main(int argc, char** argv);                                                                              \
-    int main(int argc, char** argv)                                                                                    \
-    {                                                                                                                  \
-        EnableDebugInfo();                                                                                             \
-        return _dbg_main(argc, argv);                                                                                  \
-    }                                                                                                                  \
-    int _dbg_main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
-#else
 #define AME_MAIN_ENTRY_POINT int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
-#endif
 #endif
 
 #define AME_MAIN_APPLICATION_CONFIG(ApplicationType, Config)                                                           \

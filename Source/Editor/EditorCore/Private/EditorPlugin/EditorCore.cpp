@@ -1,6 +1,10 @@
-#include <EditorWindows/EditorWindowManagerImpl.hpp>
 #include <EditorPlugin/EditorCore.hpp>
 #include <Plugin/ModuleRegistry.hpp>
+
+#include <EditorProject/ProjectManagerImpl.hpp>
+#include <EditorWindows/EditorWindowManagerImpl.hpp>
+
+#include <Log/Logger.hpp>
 
 namespace Ame::Editor
 {
@@ -24,8 +28,12 @@ namespace Ame::Editor
     void EditorCorePlugin::OnPluginLoad(IModuleRegistry* registry)
     {
         IEditorPlugin::OnPluginLoad(registry);
-        registry->ExposeInterface(
-            s_ThisPlugin, Interfaces::IID_EditorWindowManager, AmeCreate(EditorWindowManagerImpl));
+
+        AME_LOG_ASSERT(registry->ExposeInterface(this, Interfaces::IID_ProjectManager, AmeCreate(ProjectManagerImpl)),
+                       "Failed to expose ProjectManager");
+        AME_LOG_ASSERT(
+            registry->ExposeInterface(this, Interfaces::IID_EditorWindowManager, AmeCreate(EditorWindowManagerImpl)),
+            "Failed to expose EditorWindowManager");
     }
 } // namespace Ame::Editor
 

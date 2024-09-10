@@ -10,7 +10,7 @@
 namespace Ame::Ecs
 {
     /// <summary>
-    /// Convert an AssImp matrix to a Neon matrix.
+    /// Convert an AssImp matrix to a Ame matrix.
     /// </summary>
     [[nodiscard]] static Math::Matrix4x4 FromAiMatrix(const aiMatrix4x4& matrix)
     {
