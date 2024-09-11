@@ -169,7 +169,7 @@ namespace Ame::Window
 #else
             if (task) [[likely]]
             {
-                m_TaskInProgress = true;
+                m_Hooks.SetCallbackInProgress(true);
                 task();
             }
 #endif

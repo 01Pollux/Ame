@@ -72,7 +72,7 @@ end
 --
 
 -- linking for asan, adding directory of clang_rt.asan
-if is_mode("asan") then
+if is_mode("check") then
     on_load(function (target)
         local msvc = target:toolchain("msvc")
         if msvc then

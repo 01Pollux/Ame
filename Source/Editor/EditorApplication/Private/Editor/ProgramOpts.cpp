@@ -2,14 +2,18 @@
 #include <Editor/Main.hpp>
 
 #include <iostream>
+#include <print>
 #include <boost/program_options.hpp>
 
 namespace bpo = boost::program_options;
 
 namespace Ame
 {
-    static bpo::options_description GetProgramOptions(Window::WindowCreateDesc& windowCreateDesc)
+    static bpo::options_description GetProgramOptions(Window::WindowCreateDesc& windowCreateDesc,
+                                                      EditorApplicationConfig&  editorConfig)
     {
+        auto& projectConfig = editorConfig.ProjectConfig;
+
         bpo::options_description programOpts("Allowed options");
         programOpts.add_options()("help", "Produce help message")(
 
@@ -35,7 +39,15 @@ namespace Ame
 
             "start-in-middle,sim",
             bpo::value<bool>()->default_value(true)->notifier([&](bool val) { windowCreateDesc.StartInMiddle = val; }),
-            "Start window in the middle of the screen");
+            "Start window in the middle of the screen")(
+
+            "project-path,p",
+            bpo::value<String>()->notifier([&](String val) { projectConfig->ProjectPath = std::move(val); }),
+            "Project path (containing .neon file) to load")(
+
+            "new-project-name,n",
+            bpo::value<String>()->notifier([&](String val) { projectConfig->ProjectName = std::move(val); }),
+            "Creates a new project with name");
         return programOpts;
     }
 
@@ -45,7 +57,7 @@ namespace Ame
                                                    .Size           = { 1280, 720 },
                                                    .CustomTitleBar = true };
 
-        auto               programOpts = GetProgramOptions(windowCreateDesc);
+        auto               programOpts = GetProgramOptions(windowCreateDesc, *this);
         bpo::variables_map programVars;
         try
         {
@@ -54,13 +66,20 @@ namespace Ame
         }
         catch (const std::exception& ex)
         {
-            std::cout << "Error parsing command line arguments: " << ex.what() << std::endl;
+            std::println("Error parsing command line arguments: {}", ex.what());
             return false;
         }
 
         if (programVars.count("help"))
         {
+            std::println("Usage: Editor [options]");
             std::cout << programOpts << std::endl;
+            return false;
+        }
+
+        if (!ProjectConfig->IsValid())
+        {
+            std::println("Project path/Project name is not valid.");
             return false;
         }
 

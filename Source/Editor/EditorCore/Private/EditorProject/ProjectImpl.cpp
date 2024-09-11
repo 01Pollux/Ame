@@ -7,19 +7,27 @@
 
 namespace Ame::Editor
 {
-    void ProjectImpl::Create(const String& projectName)
+    Ptr<IProject> ProjectImpl::Create(const String& projectRootPath, const String& projectName)
     {
-        std::filesystem::create_directories(m_SolutionRootPath);
+        auto project = AmeCreate(ProjectImpl, projectRootPath);
+        std::filesystem::create_directories(projectRootPath);
 
-        SetProperty(String{ ProjectPropNames::Name }, PropertyTree{ projectName });
-        SetProperty(String{ ProjectPropNames::Version }, PropertyTree{ "1.0.0" });
+        project->SetProperty(String{ ProjectPropNames::Name }, PropertyTree{ projectName });
+        project->SetProperty(String{ ProjectPropNames::Version }, PropertyTree{ "1.0.0" });
+        project->Save();
 
-        Save();
+        return project;
     }
 
-    void ProjectImpl::Open()
+    Ptr<IProject> ProjectImpl::Open(const String& projectPath)
     {
-        Reload();
+        auto project = AmeCreate(ProjectImpl, projectPath);
+
+        std::ifstream file(projectPath);
+        boost::property_tree::read_xml(file, project->m_Properties);
+        project->m_EventListener.OnReload.Invoke();
+
+        return project;
     }
 
     //

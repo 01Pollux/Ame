@@ -18,8 +18,8 @@ namespace Ame::Editor
         }
 
     public:
-        void Create(const String& projectName);
-        void Open();
+        static Ptr<IProject> Create(const String& projectRootPath, const String& projectName);
+        static Ptr<IProject> Open(const String& projectPath);
 
     public:
         void Save() override;

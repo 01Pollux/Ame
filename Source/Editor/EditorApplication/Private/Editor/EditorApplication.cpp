@@ -2,11 +2,13 @@
 #include <Engine/Engine.hpp>
 #include <Plugin/ModuleRegistry.hpp>
 
+#include <Interfaces/EditorPlugin/ProjectManager.hpp>
+
+//
+
 #include <Interfaces/Ecs/EntityWorld.hpp>
 #include <Interfaces/Rhi/RhiDevice.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
-
-//
 
 #include <EcsComponent/Math/Transform.hpp>
 #include <EcsComponent/Viewport/Camera.hpp>
@@ -28,7 +30,8 @@
 
 namespace Ame
 {
-    EditorApplication::EditorApplication(const EditorApplicationConfig& config) : Base(config.Application)
+    EditorApplication::EditorApplication(EditorApplicationConfig config) :
+        Base(config.Application), m_ProjectConfig(std::move(config.ProjectConfig))
     {
     }
 
@@ -40,6 +43,18 @@ namespace Ame
 
         auto moduleRegistry = GetEngine().GetRegistry();
         moduleRegistry->LoadPlugin("EditorCore");
+
+        Ptr<Interfaces::IEditorProjectManager> projectManager;
+        moduleRegistry->RequestInterface(nullptr, Interfaces::IID_ProjectManager, projectManager.DblPtr<IObject>());
+
+        if (m_ProjectConfig->ShouldCreateNewProject())
+        {
+            projectManager->CreateProject(m_ProjectConfig->ProjectName, m_ProjectConfig->ProjectPath);
+        }
+        else
+        {
+            projectManager->OpenProject(m_ProjectConfig->ProjectPath);
+        }
 
         //
 

@@ -110,5 +110,8 @@ target("AmeEditor")
     ame_utils:add_library("Ame/Editor", "binary", "Source/Editor/EditorApplication")
     ame_utils:install_assets()
 
-    add_deps("Ame.Application", public_inherit)
+    add_deps("Ame.Application")
+    add_deps("Ame.EditorPlugin")
+
+    set_runargs("-p", "Shared/Assets/Projects/EmptyProject/EmptyProject.ame")
 target_end()

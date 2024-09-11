@@ -11,10 +11,7 @@ namespace Ame::Editor
             throw std::runtime_error("Project already exists at the specified path");
         }
 
-        auto project = AmeCreate(ProjectImpl, path);
-        project->Create(name);
-        m_CurrentProject = std::move(project);
-
+        m_CurrentProject = ProjectImpl::Create(path, name);
         return m_CurrentProject;
     }
 
@@ -25,10 +22,7 @@ namespace Ame::Editor
             throw std::runtime_error("Project does not exist at the specified path");
         }
 
-        auto project = AmeCreate(ProjectImpl, path);
-        project->Open();
-        m_CurrentProject = std::move(project);
-
+        m_CurrentProject = ProjectImpl::Open(path);
         return m_CurrentProject;
     }
 

@@ -11,12 +11,15 @@ namespace Ame
         using Base = BaseApplication;
 
     public:
-        explicit EditorApplication(const EditorApplicationConfig& config);
+        explicit EditorApplication(EditorApplicationConfig config);
 
     protected:
         void OnLoad() override;
         void OnInitialize() override;
         void OnShutdown() override;
         void OnUnload() override;
+
+    private:
+        UniquePtr<EditorApplicationProjectConfig> m_ProjectConfig;
     };
 } // namespace Ame
