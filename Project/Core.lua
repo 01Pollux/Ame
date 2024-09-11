@@ -30,6 +30,13 @@ target_end()
 
 --
 
+target("Ame.ScriptingEngine")
+    ame_utils:add_library("Ame/Scripting", "headeronly", "Source/Scripting/ScriptEngine")
+    add_deps("AmeEngine")
+target_end()
+
+--
+
 target("Ame.Application")
     ame_utils:add_library("Ame", "static", "Source/Application")
     add_deps("AmeEngine")
