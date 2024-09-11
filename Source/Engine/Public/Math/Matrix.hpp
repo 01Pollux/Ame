@@ -257,10 +257,7 @@ namespace Ame::Math
         static constexpr Matrix3x3 Identity{ Vector3{ 1.f, 0.f, 0.f }, Vector3{ 0.f, 1.f, 0.f },
                                              Vector3{ 0.f, 0.f, 1.f } };
     };
-} // namespace Ame::Math
 
-namespace Ame::Concepts
-{
     template<typename Ty>
     concept MatrixType = std::is_same_v<Ty, Math::Matrix3x3> || std::is_same_v<Ty, Math::Matrix4x4>;
-} // namespace Ame::Concepts
+} // namespace Ame::Math

@@ -299,10 +299,7 @@ namespace Ame::Math
     {
         static inline constexpr Quaternion Identity = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
     };
-} // namespace Ame::Math
 
-namespace Ame::Concepts
-{
     template<typename Ty>
     concept VectorType =
         std::is_same_v<Ty, Math::Vector2> || std::is_same_v<Ty, Math::Vector2U> || std::is_same_v<Ty, Math::Vector2I> ||
@@ -311,4 +308,4 @@ namespace Ame::Concepts
 
     template<typename Ty>
     concept QuaternionType = std::is_same_v<Ty, Math::Quaternion>;
-} // namespace Ame::Concepts
+} // namespace Ame::Math

@@ -2,16 +2,9 @@
 
 #include <Math/Vector.hpp>
 
-namespace Ame::Concepts
-{
-    template<typename Ty>
-    concept VecSize2Type = std::disjunction_v<std::is_same<Ty, Math::Vector2>, std::is_same<Ty, Math::Vector2I>,
-                                              std::is_same<Ty, Math::Vector2U>>;
-}
-
 namespace Ame::Math
 {
-    template<Concepts::VecSize2Type Ty> struct Size2T : Ty
+    template<typename Ty> struct Size2T : Ty
     {
     public:
         using Ty::Ty;
@@ -42,4 +35,7 @@ namespace Ame::Math
     using Size2  = Size2T<Vector2>;
     using Size2I = Size2T<Vector2I>;
     using Size2U = Size2T<Vector2U>;
+
+    template<typename Ty>
+    concept Size2Type = std::is_same_v<Ty, Size2> || std::is_same_v<Ty, Size2I> || std::is_same_v<Ty, Size2U>;
 } // namespace Ame::Math

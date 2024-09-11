@@ -2,16 +2,9 @@
 
 #include <Math/Vector.hpp>
 
-namespace Ame::Concepts
-{
-    template<typename Ty>
-    concept VecRectType = std::disjunction_v<std::is_same<Ty, Math::Vector2>, std::is_same<Ty, Math::Vector2I>,
-                                             std::is_same<Ty, Math::Vector2U>>;
-}
-
 namespace Ame::Math
 {
-    template<Concepts::VecRectType Ty> struct RectT
+    template<typename Ty> struct RectT
     {
         using value_type = typename Ty::value_type;
 
@@ -78,4 +71,7 @@ namespace Ame::Math
 
     using RectI = RectT<Vector2I>;
     using RectF = RectT<Vector2>;
+
+    template<typename Ty>
+    concept RectType = std::is_same_v<Ty, RectI> || std::is_same_v<Ty, RectF>;
 } // namespace Ame::Math

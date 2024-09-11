@@ -208,7 +208,7 @@ namespace Ame::ImGuiUtils
 
     inline constexpr const char* DrawVectorPositionNames[] = { "X", "Y", "Z", "W" };
 
-    template<Concepts::VectorType _Ty> struct DrawVectorData
+    template<Math::VectorType _Ty> struct DrawVectorData
     {
         _Ty& Value = nullptr;
 
@@ -234,7 +234,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<DrawVectorType DrawType, Concepts::VectorType _Ty>
+    template<DrawVectorType DrawType, Math::VectorType _Ty>
     inline bool DrawVectorComponent(const DrawVectorData<_Ty>& drawData)
     {
         ImGui::PushID(std::addressof(drawData.Value));
@@ -329,7 +329,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<Concepts::VectorType _Ty> static bool DragVectorComponent(DrawVectorData<_Ty> drawData)
+    template<Math::VectorType _Ty> static bool DragVectorComponent(DrawVectorData<_Ty> drawData)
     {
         return DrawVectorComponent<DrawVectorType::Drag>(std::move(drawData));
     }
@@ -341,7 +341,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<Concepts::VectorType _Ty> static bool DragVectorComponent(_Ty& value)
+    template<Math::VectorType _Ty> static bool DragVectorComponent(_Ty& value)
     {
         return DrawVectorComponent<DrawVectorType::Drag>(DrawVectorData(value));
     }
@@ -353,7 +353,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<Concepts::VectorType _Ty> static bool InputVectorComponent(DrawVectorData<_Ty> drawData)
+    template<Math::VectorType _Ty> static bool InputVectorComponent(DrawVectorData<_Ty> drawData)
     {
         return DrawVectorComponent<DrawVectorType::Input>(std::move(drawData));
     }
@@ -365,7 +365,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<Concepts::VectorType _Ty> static bool InputVectorComponent(_Ty& value)
+    template<Math::VectorType _Ty> static bool InputVectorComponent(_Ty& value)
     {
         return DrawVectorComponent<DrawVectorType::Input>(DrawVectorData(value));
     }
@@ -377,7 +377,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<Concepts::VectorType _Ty> static bool SliderVectorComponent(DrawVectorData<_Ty> drawData)
+    template<Math::VectorType _Ty> static bool SliderVectorComponent(DrawVectorData<_Ty> drawData)
     {
         return DrawVectorComponent<DrawVectorType::Slider>(std::move(drawData));
     }
@@ -389,7 +389,7 @@ namespace Ame::ImGuiUtils
     /// If Flags is 0, the default flags are used.
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
-    template<Concepts::VectorType _Ty> static bool SliderVectorComponent(_Ty& value)
+    template<Math::VectorType _Ty> static bool SliderVectorComponent(_Ty& value)
     {
         return DrawVectorComponent<DrawVectorType::Slider>(DrawVectorData(value));
     }
