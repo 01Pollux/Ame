@@ -5,7 +5,7 @@
 
 namespace Ame
 {
-    class FrameTimer
+    class AME_ENGINE_API FrameTimer
     {
     public:
         using steady_clock = std::chrono::steady_clock;

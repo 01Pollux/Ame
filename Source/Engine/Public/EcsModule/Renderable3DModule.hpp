@@ -9,7 +9,7 @@ namespace Ame::Ecs
     /// IBaseRenderable3DComponent
     /// StaticMeshComponent
     /// </summary>
-    class Renderable3DEcsModule
+    class AME_ENGINE_API Renderable3DEcsModule
     {
     public:
         Renderable3DEcsModule(flecs::world& flecsWorld);

@@ -4,7 +4,7 @@
 
 namespace Ame::Log
 {
-    class CallbackStream : public ILoggerStream
+    class AME_ENGINE_API CallbackStream : public ILoggerStream
     {
     public:
         using LogTimePoint = std::chrono::system_clock::time_point;

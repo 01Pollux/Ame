@@ -13,7 +13,7 @@ namespace Ame::Rhi
     /// <summary>
     /// All common render passes can use cached render pass.
     /// </summary>s
-    class CommonRenderPass : public BaseObject<IObject>, public BlitRenderPass, public CommonTextures
+    class AME_ENGINE_API CommonRenderPass : public BaseObject<IObject>, public BlitRenderPass, public CommonTextures
     {
     public:
         using Base = BaseObject<IObject>;

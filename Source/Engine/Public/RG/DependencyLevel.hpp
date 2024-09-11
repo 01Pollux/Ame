@@ -4,7 +4,7 @@
 
 namespace Ame::Rg
 {
-    class DependencyLevel
+    class AME_ENGINE_API DependencyLevel
     {
         friend class Graph;
         friend class Context;

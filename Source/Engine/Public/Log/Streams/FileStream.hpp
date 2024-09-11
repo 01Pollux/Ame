@@ -5,7 +5,7 @@
 namespace Ame::Log
 {
     struct LogFileEvent;
-    class FileStream final : public ILoggerStream
+    class AME_ENGINE_API FileStream final : public ILoggerStream
     {
     public:
         FileStream(const String& fileName, bool truncate = false);

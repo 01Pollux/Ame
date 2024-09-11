@@ -7,7 +7,7 @@
 
 namespace Ame::Geometry
 {
-    struct FrustumPlanes
+    struct AME_ENGINE_API FrustumPlanes
     {
     public:
         enum class Type : uint8_t

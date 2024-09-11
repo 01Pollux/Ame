@@ -50,7 +50,7 @@ namespace Ame::Rhi
     };
 
     // clang-format off
-    static constexpr VertexAttributeDesc c_InputVertexAttributes[] = {
+    inline constexpr VertexAttributeDesc c_InputVertexAttributes[] = {
         { "float3", "position",   "ATTRIB0",    Dg::VT_FLOAT32,  3, 0 },
         { "float3", "normal",     "ATTRIB1",    Dg::VT_FLOAT32,  3, sizeof(float[3])  },
         { "float2", "tex_coord",  "ATTRIB2",    Dg::VT_FLOAT32,  2, sizeof(float[3])  + sizeof(float[3])  },
@@ -58,7 +58,7 @@ namespace Ame::Rhi
         {nullptr, nullptr, nullptr, Dg::VT_UNDEFINED, 0, sizeof(float[3])  + sizeof(float[3])  + sizeof(float[2]) + sizeof(float[3]) }
     };
 
-    static constexpr VertexAttributeDesc c_OutputVertexAttributes[] = {
+    inline constexpr VertexAttributeDesc c_OutputVertexAttributes[] = {
         { "float4", "screen_position",  "SV_POSITION",      Dg::VT_FLOAT32, 4 },
         { "float3", "world_position",   "WORLD_POSITION",   Dg::VT_FLOAT32, 3 },
         { "float3", "world_normal",     "WORLD_NORMAL",     Dg::VT_FLOAT32, 3 },

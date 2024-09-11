@@ -153,21 +153,6 @@ namespace Ame::Math::Impl
             return m_Data[i];
         }
 
-        [[nodiscard]] constexpr const_reference cref() const noexcept
-        {
-            return m_Data.data();
-        }
-
-        [[nodiscard]] constexpr const_reference ref() const noexcept
-        {
-            return m_Data.data();
-        }
-
-        [[nodiscard]] constexpr reference ref() noexcept
-        {
-            return m_Data.data();
-        }
-
         [[nodiscard]] constexpr const_pointer data() const noexcept
         {
             return m_Data.data();

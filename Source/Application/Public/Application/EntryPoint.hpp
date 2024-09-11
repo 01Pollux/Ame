@@ -31,7 +31,6 @@
             ret = app.Run();                                                                                           \
         }                                                                                                              \
         Ame::Coroutine::Shutdown();                                                                                    \
-        Ame::Log::s_Logger = {};                                                                                       \
         return ret;                                                                                                    \
     }
 

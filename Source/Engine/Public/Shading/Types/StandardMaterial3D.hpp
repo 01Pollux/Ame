@@ -5,7 +5,7 @@
 
 namespace Ame::Rhi
 {
-    class StandardMaterial3D : public Material
+    class AME_ENGINE_API StandardMaterial3D : public Material
     {
     public:
         struct Names

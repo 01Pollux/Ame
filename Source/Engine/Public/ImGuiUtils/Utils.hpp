@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ImGuiUtils/Core.hpp>
 #include <ImGuiUtils/imcxx/all_in_one.hpp>
 #include <ImGuiUtils/WindowUtils.hpp>
 #include <Rhi/ImGui/Fonts/FontAwesome5.hpp>
@@ -15,7 +14,7 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Draw a text with a background color of ImGuiCol_FrameBg.
     /// </summary>
-    void DrawTextBG(const char* text, const char* textEnd = nullptr);
+    AME_ENGINE_API void DrawTextBG(const char* text, const char* textEnd = nullptr);
 
     /// <summary>
     /// Draw a text with a background color of ImGuiCol_FrameBg.
@@ -30,76 +29,78 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Increment the cursor position on the X axis.
     /// </summary>
-    void IncrementCursorPosX(float pos);
+    AME_ENGINE_API void IncrementCursorPosX(float pos);
 
     /// <summary>
     /// Increment the cursor position on the Y axis.
     /// </summary>
-    void IncrementCursorPosY(float pos);
+    AME_ENGINE_API void IncrementCursorPosY(float pos);
 
     /// <summary>
     /// Increment the cursor position.
     /// </summary>
-    void IncrementCursorPos(const ImVec2& pos);
+    AME_ENGINE_API void IncrementCursorPos(const ImVec2& pos);
 
     /// <summary>
     /// Align the cursor position on the X axis.
     /// </summary>
-    void TableAlignCenter(float width);
+    AME_ENGINE_API void TableAlignCenter(float width);
 
     /// <summary>
     /// Center the cursor position on the X axis.
     /// </summary>
-    void CenterCursorX();
+    AME_ENGINE_API void CenterCursorX();
 
     /// <summary>
     /// Center the cursor position on the Y axis.
     /// </summary>
-    void CenterCursorY();
+    AME_ENGINE_API void CenterCursorY();
 
     /// <summary>
     /// Center the cursor position.
     /// </summary>
-    void CenterCursor(bool region, ImVec2 offset = {}, bool centerX = true, bool centerY = false);
+    AME_ENGINE_API void CenterCursor(bool region, ImVec2 offset = {}, bool centerX = true, bool centerY = false);
 
     /// <summary>
     /// Center the text position.
     /// </summary>
-    void CenterText(const char* text, bool region, bool centerX = true, bool centerY = false);
+    AME_ENGINE_API void CenterText(const char* text, bool region, bool centerX = true, bool centerY = false);
 
     //
 
     /// <summary>
     /// Push a font scale.
     /// </summary>
-    [[nodiscard]] float PushFontScale(float scale);
+    [[nodiscard]] AME_ENGINE_API float PushFontScale(float scale);
 
     /// <summary>
     /// Push a font scale while multiplying with old value.
     /// </summary>
-    [[nodiscard]] float PushFontScaleMul(float scale);
+    [[nodiscard]] AME_ENGINE_API float PushFontScaleMul(float scale);
 
     /// <summary>
     /// Push a font scale while adding with old value.
     /// </summary>
-    [[nodiscard]] float PushFontScaleMul(float scale);
+    [[nodiscard]] AME_ENGINE_API float PushFontScaleMul(float scale);
 
     /// <summary>
     /// Pop a font scale.
     /// </summary>
-    void PopFontScale(float oldScale);
+    AME_ENGINE_API void PopFontScale(float oldScale);
 
     //
 
     /// <summary>
     /// Draw label with the given color.
     /// </summary>
-    void DrawLabel(const String& label, const ImColor& color, const ImVec2& maxSize = { -FLT_MIN, -FLT_MIN });
+    AME_ENGINE_API void DrawLabel(const String& label, const ImColor& color,
+                                  const ImVec2& maxSize = { -FLT_MIN, -FLT_MIN });
 
     /// <summary>
     /// Draw label with the given color.
     /// </summary>
-    void DrawLabel(const char* label, const ImColor& color, const ImVec2& maxSize = { -FLT_MIN, -FLT_MIN });
+    AME_ENGINE_API void DrawLabel(const char* label, const ImColor& color,
+                                  const ImVec2& maxSize = { -FLT_MIN, -FLT_MIN });
 
     //
 
@@ -196,7 +197,7 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Draws a component label with the given tooltip.
     /// </summary>
-    void DrawComponentLabel(const char* label, bool sameLine = true, float propertyNameWidth = 0.25f);
+    AME_ENGINE_API void DrawComponentLabel(const char* label, bool sameLine = true, float propertyNameWidth = 0.25f);
 
     enum class DrawVectorType : uint8_t
     {
@@ -234,7 +235,7 @@ namespace Ame::ImGuiUtils
     /// Flags are either ImGuiSliderFlags for slider+drag or ImGuiInputTextFlags for input.
     /// </summary>
     template<DrawVectorType DrawType, Concepts::VectorType _Ty>
-    static bool DrawVectorComponent(const DrawVectorData<_Ty>& drawData)
+    inline bool DrawVectorComponent(const DrawVectorData<_Ty>& drawData)
     {
         ImGui::PushID(std::addressof(drawData.Value));
         bool changed = false;
@@ -396,18 +397,20 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Draw a color picker.
     /// </summary>
-    bool DrawColorPicker(const char* name, Math::Color4& color,
-                         ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoSidePreview |
-                                                     ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_AlphaBar |
-                                                     ImGuiColorEditFlags_HDR);
+    AME_ENGINE_API bool DrawColorPicker(const char* name, Math::Color4& color,
+                                        ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoSidePreview |
+                                                                    ImGuiColorEditFlags_NoSmallPreview |
+                                                                    ImGuiColorEditFlags_AlphaBar |
+                                                                    ImGuiColorEditFlags_HDR);
 
     /// <summary>
     /// Draw a color picker.
     /// </summary>
-    bool DrawColorPicker(const char* Name, Math::Color3& Color,
-                         ImGuiColorEditFlags Flags = ImGuiColorEditFlags_NoSidePreview |
-                                                     ImGuiColorEditFlags_NoSmallPreview | ImGuiColorEditFlags_AlphaBar |
-                                                     ImGuiColorEditFlags_HDR);
+    AME_ENGINE_API bool DrawColorPicker(const char* Name, Math::Color3& Color,
+                                        ImGuiColorEditFlags Flags = ImGuiColorEditFlags_NoSidePreview |
+                                                                    ImGuiColorEditFlags_NoSmallPreview |
+                                                                    ImGuiColorEditFlags_AlphaBar |
+                                                                    ImGuiColorEditFlags_HDR);
 
     //
 
@@ -424,8 +427,8 @@ namespace Ame::ImGuiUtils
     /// <summary>
     /// Draw basic shape icon to draw list
     /// </summary>
-    void DrawIcon(ImDrawList* drawList, const ImVec2& size, BasicIconType type, bool filled, ImU32 color,
-                  ImU32 fillColor);
+    AME_ENGINE_API void DrawIcon(ImDrawList* drawList, const ImVec2& size, BasicIconType type, bool filled, ImU32 color,
+                                 ImU32 fillColor);
 
     /// <summary>
     /// Draw basic shape icon to current window's draw list

@@ -6,7 +6,7 @@
 
 namespace Ame::Gfx
 {
-    class EntityEmptyVertexBuffersPass : public Rg::Pass
+    class AME_ENGINE_API EntityEmptyVertexBuffersPass : public Rg::Pass
     {
     public:
         EntityEmptyVertexBuffersPass()

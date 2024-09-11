@@ -4,7 +4,7 @@
 
 namespace Ame::Log
 {
-    class NullStream final : public ILoggerStream
+    class AME_ENGINE_API NullStream final : public ILoggerStream
     {
     public:
         NullStream();

@@ -10,7 +10,7 @@ namespace Ame::Interfaces
         0xbe4b917d, 0x4b7a, 0x4582, { 0x80, 0x34, 0x1, 0xdc, 0x24, 0x14, 0x74, 0x18 }
     };
 
-    class FrameTimer final : public BaseObject<IObject>, public Ame::FrameTimer
+    class AME_ENGINE_API FrameTimer final : public BaseObject<IObject>, public Ame::FrameTimer
     {
     public:
         using Base = BaseObject<IObject>;

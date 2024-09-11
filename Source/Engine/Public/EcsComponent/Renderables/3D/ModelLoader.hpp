@@ -5,7 +5,7 @@
 
 namespace Ame::Ecs
 {
-    struct MeshModelLoader
+    struct AME_ENGINE_API MeshModelLoader
     {
         struct ImportDesc
         {

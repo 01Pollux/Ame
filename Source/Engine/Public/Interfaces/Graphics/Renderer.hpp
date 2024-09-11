@@ -28,7 +28,7 @@ namespace Ame::Interfaces
         Rhi::IImGuiRenderer* ImguiRenderer = nullptr;
     };
 
-    class IRenderer : public IObject
+    class AME_ENGINE_API IRenderer : public IObject
     {
     public:
         /// <summary>
@@ -74,5 +74,5 @@ namespace Ame::Interfaces
         uint32_t     m_SyncInterval = 0;
     };
 
-    [[nodiscard]] Ptr<IRenderer> CreateRenderer(const RendererCreateDesc& createDesc);
+    [[nodiscard]] AME_ENGINE_API Ptr<IRenderer> CreateRenderer(const RendererCreateDesc& createDesc);
 } // namespace Ame::Interfaces

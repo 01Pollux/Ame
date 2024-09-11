@@ -152,10 +152,10 @@ namespace Ame::Rhi
             level = Log::LogLevel::Fatal;
             break;
         }
-        if (Log::s_Logger && Log::s_Logger->CanLog(level))
+        if (auto logger = Log::ILogger::Get(); logger && logger->CanLog(level))
         {
 #ifdef AME_DIST
-            Log::s_Logger->WriteMessage({ level, message });
+            logger->WriteMessage({ level, message });
 #else
             StringView logFormat;
             uint32_t   code = (function ? 1 : 0) | (file ? 2 : 0);
@@ -166,14 +166,16 @@ namespace Ame::Rhi
             switch (code)
             {
             case 0:
-                Log::s_Logger->WriteMessage({ level, message });
+                logger->WriteMessage({ level, message });
                 break;
             case 1:
             case 2:
-                Log::s_Logger->WriteMessage({ level, std::format("{} (L{}): {}", file, function, line, message) });
+                logger->WriteMessage(
+                    { level, std::format("{} (L{}): {}", file, function, line, message) });
                 break;
             case 3:
-                Log::s_Logger->WriteMessage({ level, std::format("{}/{} (L{}): {}", file, function, line, message) });
+                logger->WriteMessage(
+                    { level, std::format("{}/{} (L{}): {}", file, function, line, message) });
                 break;
             default:
                 std::unreachable();

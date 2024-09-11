@@ -114,7 +114,7 @@ namespace Ame::Ecs
     Ecs::Entity RuntimeScene::GetCurrentEntity(Ecs::World* world)
     {
         auto scene = GetCurrent(world);
-        return scene ? scene->GetRoot() : Ecs::Entity::c_Null;
+        return scene ? scene->GetRoot() : Ecs::Entity{};
     }
 
     void RuntimeScene::SetCurrent(Ecs::World* world, RuntimeScene* scene)

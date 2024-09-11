@@ -18,7 +18,7 @@ namespace Ame
         TVersion    Version     = { 1, 0, 0, 0 };
     };
 
-    class IPlugin
+    class AME_ENGINE_API IPlugin
     {
         friend class PluginContext;
 
@@ -38,7 +38,10 @@ namespace Ame
         /// <summary>
         /// Called when plugin is first loaded, use this callback to register interfaces only
         /// </summary>
-        virtual bool OnPluginPreLoad(IModuleRegistry* registry);
+        virtual bool OnPluginPreLoad(IModuleRegistry*)
+        {
+            return true;
+        }
 
         /// <summary>
         /// Called when plugin is first loaded
@@ -91,22 +94,7 @@ namespace Ame
         /// <summary>
         /// Set plugin state
         /// </summary>
-        void SetPluginState(bool pause) noexcept
-        {
-            if (pause)
-            {
-                if (!m_IsPaused)
-                {
-                    this->OnPluginPauseChange(true);
-                }
-            }
-            else if (m_IsPaused)
-            {
-                this->OnPluginPauseChange(false);
-            }
-
-            m_IsPaused = pause;
-        }
+        void SetPluginState(bool paused);
 
         /// <summary>
         /// Get plugin name

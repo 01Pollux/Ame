@@ -12,7 +12,7 @@ namespace Ame
     {
     public:
         virtual void Serialize(BinaryOArchiver&) const {};
-        virtual void Deserialize(BinaryIArchiver&){};
+        virtual void Deserialize(BinaryIArchiver&) {};
     };
 } // namespace Ame
 

@@ -5,7 +5,7 @@
 
 namespace Ame::Rg
 {
-    class Context
+    class AME_ENGINE_API Context
     {
         friend class PassStorage;
         friend class Graph;

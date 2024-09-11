@@ -145,7 +145,7 @@ namespace Ame::DbgImpl
 namespace Ame
 {
 #ifndef AME_DIST
-    void DebugBreak();
+    AME_ENGINE_API void DebugBreak();
 #else
     inline void DebugBreak()
     {

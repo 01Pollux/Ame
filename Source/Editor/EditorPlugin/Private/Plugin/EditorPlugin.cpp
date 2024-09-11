@@ -2,7 +2,6 @@
 #include <Plugin/ModuleRegistry.hpp>
 
 #include <Interfaces/Rhi/ImGuiRenderer.hpp>
-#include <ImGuiUtils/Core.hpp>
 
 namespace Ame::Editor
 {
@@ -14,8 +13,6 @@ namespace Ame::Editor
         {
             return false;
         }
-
-        ImGuiUtils::InitializeAllocatorsAndContext(imguiRenderer->GetContext());
 
         s_ModuleRegistry = registry;
         return true;

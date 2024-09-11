@@ -8,7 +8,6 @@
 #include <Rhi/ImGui/ImGuiRendererCreateDesc.hpp>
 
 #include <Window/Window.hpp>
-#include <Window/ImGuiWindow.hpp>
 
 namespace Ame::Rhi
 {
@@ -35,8 +34,12 @@ namespace Ame::Rhi
         ImFont* LoadFont(const String& fontName, const ImFontConfig& fontConfig) override;
         ImFont* LoadCompressedFont(const char* fontName, const ImFontConfig& fontConfig) override;
 
-        ImGuiContext* GetContext() const;
-        bool          RenderBackbufferToTexture() const override;
+        bool RenderBackbufferToTexture() const override;
+
+    private:
+        void InitializeImGui();
+        void NewFrameImGui();
+        void ShutdownImGui();
 
     private:
         void SetDefaultTheme();
@@ -51,10 +54,10 @@ namespace Ame::Rhi
         void SubmitDrawData(ImDrawData* drawData);
 
     private:
-        Ptr<Dg::IRenderDevice>    m_RenderDevice;
-        Ptr<Dg::IDeviceContext>   m_DeviceContext;
-        Ptr<Dg::ISwapChain>       m_Swapchain;
-        Ptr<Window::IImGuiWindow> m_ImGuiWindow;
+        Ptr<Dg::IRenderDevice>  m_RenderDevice;
+        Ptr<Dg::IDeviceContext> m_DeviceContext;
+        Ptr<Dg::ISwapChain>     m_Swapchain;
+        Ptr<Window::IWindow>    m_Window;
 
         size_t m_VertexBufferSize = 0;
         size_t m_IndexBufferSize  = 0;
@@ -72,12 +75,10 @@ namespace Ame::Rhi
         Dg::TEXTURE_FORMAT    m_DepthBufferFormat = {};
         Dg::SURFACE_TRANSFORM m_Transform         = Dg::SURFACE_TRANSFORM_IDENTITY;
 
-        ImGuiContext*             m_Context = nullptr;
         std::map<String, ImFont*> m_Fonts;
 
         ImGuiColorConversionMode m_ConversionMode;
 
-        bool m_MultiThreaded       : 1 = false;
         bool m_BaseVertexSupported : 1 = false;
     };
 } // namespace Ame::Rhi

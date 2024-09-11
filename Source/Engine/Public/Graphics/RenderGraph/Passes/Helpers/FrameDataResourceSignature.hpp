@@ -85,7 +85,7 @@ namespace Ame::Gfx
 
     //
 
-    class FrameDataResourceSignature_GraphicsPass final
+    class AME_ENGINE_API FrameDataResourceSignature_GraphicsPass final
         : public FrameDataResourceSignature<FrameDataResourceSignature_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
@@ -100,7 +100,7 @@ namespace Ame::Gfx
         }
     };
 
-    class FrameDataResourceSignature_ComputePass final
+    class AME_ENGINE_API FrameDataResourceSignature_ComputePass final
         : public FrameDataResourceSignature<FrameDataResourceSignature_ComputePass, Dg::SHADER_TYPE_COMPUTE>
     {
     public:

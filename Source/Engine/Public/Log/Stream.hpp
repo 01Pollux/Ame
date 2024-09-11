@@ -10,10 +10,18 @@ namespace spdlog::sinks
 
 namespace Ame::Log
 {
-    class ILoggerStream
+    class AME_ENGINE_API ILoggerStream
     {
     public:
-        virtual ~ILoggerStream() = default;
+        ILoggerStream() = default;
+
+        ILoggerStream(const ILoggerStream&)            = delete;
+        ILoggerStream& operator=(const ILoggerStream&) = delete;
+
+        ILoggerStream(ILoggerStream&&) noexcept            = delete;
+        ILoggerStream& operator=(ILoggerStream&&) noexcept = delete;
+
+        virtual ~ILoggerStream();
 
     public:
         void SetPattern(String pattern);

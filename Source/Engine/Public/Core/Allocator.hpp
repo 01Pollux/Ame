@@ -1,12 +1,16 @@
-#pragma once
-
 /* ----------------------------------------------------------------------------
 Copyright (c) 2018-2020 Microsoft Research, Daan Leijen
 This is free software; you can redistribute it and/or modify it under the
 terms of the MIT license. A copy of the license can be found in the file
 "LICENSE" at the root of this distribution.
 -----------------------------------------------------------------------------*/
+#pragma once
+#ifndef MIMALLOC_NEW_DELETE_H
+#define MIMALLOC_NEW_DELETE_H
 
+#include <mimalloc.h>
+
+#ifdef AME_STATIC_LINKING
 // ----------------------------------------------------------------------------
 // This header provides convenient overrides for the new and
 // delete operations in C++.
@@ -17,45 +21,152 @@ terms of the MIT license. A copy of the license can be found in the file
 // can be more performant than the standard new-delete operations.
 // See <https://en.cppreference.com/w/cpp/memory/new/operator_new>
 // ---------------------------------------------------------------------------
+#if defined(__cplusplus)
 #include <new>
-#include <mimalloc.h>
 
 #if defined(_MSC_VER) && defined(_Ret_notnull_) && defined(_Post_writable_byte_size_)
 // stay consistent with VCRT definitions
-#define mi_decl_new(n)         mi_decl_nodiscard _Ret_notnull_ _Post_writable_byte_size_(n)
-#define mi_decl_new_nothrow(n) mi_decl_nodiscard _Ret_maybenull_ _Success_(return != NULL) _Post_writable_byte_size_(n)
+#define mi_decl_new(n) mi_decl_nodiscard mi_decl_restrict _Ret_notnull_ _Post_writable_byte_size_(n)
+#define mi_decl_new_nothrow(n)                                                                                         \
+    mi_decl_nodiscard mi_decl_restrict _Ret_maybenull_ _Success_(return != NULL) _Post_writable_byte_size_(n)
 #else
-#define mi_decl_new(n)         mi_decl_nodiscard
-#define mi_decl_new_nothrow(n) mi_decl_nodiscard
+#define mi_decl_new(n)         mi_decl_nodiscard mi_decl_restrict
+#define mi_decl_new_nothrow(n) mi_decl_nodiscard mi_decl_restrict
 #endif
 
-void operator delete(void* p) noexcept;
-void operator delete[](void* p) noexcept;
+inline void operator delete(void* p) noexcept
+{
+    mi_free(p);
+};
+inline void operator delete[](void* p) noexcept
+{
+    mi_free(p);
+};
 
-void operator delete(void* p, const std::nothrow_t&) noexcept;
-void operator delete[](void* p, const std::nothrow_t&) noexcept;
+inline void operator delete(void* p, const std::nothrow_t&) noexcept
+{
+    mi_free(p);
+}
+inline void operator delete[](void* p, const std::nothrow_t&) noexcept
+{
+    mi_free(p);
+}
 
-mi_decl_new(n) void* operator new(std::size_t n) noexcept(false);
-mi_decl_new(n) void* operator new[](std::size_t n) noexcept(false);
+inline mi_decl_new(n) void* operator new(std::size_t n) noexcept(false)
+{
+    return mi_new(n);
+}
+inline mi_decl_new(n) void* operator new[](std::size_t n) noexcept(false)
+{
+    return mi_new(n);
+}
 
-mi_decl_new_nothrow(n) void* operator new(std::size_t n, const std::nothrow_t& tag) noexcept;
-mi_decl_new_nothrow(n) void* operator new[](std::size_t n, const std::nothrow_t& tag) noexcept;
+inline mi_decl_new_nothrow(n) void* operator new(std::size_t n, const std::nothrow_t& tag) noexcept
+{
+    (void)(tag);
+    return mi_new_nothrow(n);
+}
+inline mi_decl_new_nothrow(n) void* operator new[](std::size_t n, const std::nothrow_t& tag) noexcept
+{
+    (void)(tag);
+    return mi_new_nothrow(n);
+}
 
 #if (__cplusplus >= 201402L || _MSC_VER >= 1916)
-void operator delete(void* p, std::size_t n) noexcept;
-void operator delete[](void* p, std::size_t n) noexcept;
+inline void operator delete(void* p, std::size_t n) noexcept
+{
+    mi_free_size(p, n);
+};
+inline void operator delete[](void* p, std::size_t n) noexcept
+{
+    mi_free_size(p, n);
+};
 #endif
 
 #if (__cplusplus > 201402L || defined(__cpp_aligned_new))
-void operator delete(void* p, std::align_val_t al) noexcept;
-void operator delete[](void* p, std::align_val_t al) noexcept;
-void operator delete(void* p, std::size_t n, std::align_val_t al) noexcept;
-void operator delete[](void* p, std::size_t n, std::align_val_t al) noexcept;
-void operator delete(void* p, std::align_val_t al, const std::nothrow_t&) noexcept;
-void operator delete[](void* p, std::align_val_t al, const std::nothrow_t&) noexcept;
+inline void operator delete(void* p, std::align_val_t al) noexcept
+{
+    mi_free_aligned(p, static_cast<size_t>(al));
+}
+inline void operator delete[](void* p, std::align_val_t al) noexcept
+{
+    mi_free_aligned(p, static_cast<size_t>(al));
+}
+inline void operator delete(void* p, std::size_t n, std::align_val_t al) noexcept
+{
+    mi_free_size_aligned(p, n, static_cast<size_t>(al));
+};
+inline void operator delete[](void* p, std::size_t n, std::align_val_t al) noexcept
+{
+    mi_free_size_aligned(p, n, static_cast<size_t>(al));
+};
+inline void operator delete(void* p, std::align_val_t al, const std::nothrow_t&) noexcept
+{
+    mi_free_aligned(p, static_cast<size_t>(al));
+}
+inline void operator delete[](void* p, std::align_val_t al, const std::nothrow_t&) noexcept
+{
+    mi_free_aligned(p, static_cast<size_t>(al));
+}
 
-void* operator new(std::size_t n, std::align_val_t al) noexcept(false);
-void* operator new[](std::size_t n, std::align_val_t al) noexcept(false);
-void* operator new(std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept;
-void* operator new[](std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept;
+inline void* operator new(std::size_t n, std::align_val_t al) noexcept(false)
+{
+    return mi_new_aligned(n, static_cast<size_t>(al));
+}
+inline void* operator new[](std::size_t n, std::align_val_t al) noexcept(false)
+{
+    return mi_new_aligned(n, static_cast<size_t>(al));
+}
+inline void* operator new(std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept
+{
+    return mi_new_aligned_nothrow(n, static_cast<size_t>(al));
+}
+inline void* operator new[](std::size_t n, std::align_val_t al, const std::nothrow_t&) noexcept
+{
+    return mi_new_aligned_nothrow(n, static_cast<size_t>(al));
+}
 #endif
+#endif
+#endif
+
+namespace Ame
+{
+    template<typename Ty> struct StlAllocator
+    {
+        using value_type                  = Ty;
+        static constexpr size_t alignment = alignof(Ty);
+
+        StlAllocator() noexcept = default;
+        template<typename OTy> constexpr StlAllocator(const StlAllocator<OTy>&) noexcept
+        {
+        }
+
+        [[nodiscard]] Ty* allocate(size_t n) const
+        {
+            if (n == 0)
+            {
+                return nullptr;
+            }
+            if (auto p = static_cast<Ty*>(mi_malloc_aligned(n * sizeof(Ty), alignment)))
+            {
+                return p;
+            }
+            throw std::bad_alloc();
+        }
+
+        void deallocate(Ty* p, size_t) const noexcept
+        {
+            mi_free_aligned(p, alignment);
+        }
+        [[nodiscard]] bool operator==(const StlAllocator&) const noexcept
+        {
+            return true;
+        }
+        [[nodiscard]] bool operator!=(const StlAllocator&) const noexcept
+        {
+            return false;
+        }
+    };
+} // namespace Ame
+
+#endif // MIMALLOC_NEW_DELETE_H

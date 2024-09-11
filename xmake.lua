@@ -1,5 +1,6 @@
 -- defines:
 -- AME_NO_IMGUI: disable imgui
+-- AME_NO_EXCEPTIONS: disable exceptions
 
 --
 

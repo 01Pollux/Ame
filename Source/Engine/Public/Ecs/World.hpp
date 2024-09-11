@@ -20,7 +20,7 @@ namespace Ame::Ecs
         0xfb443eb9, 0xf56, 0x4640, { 0xb7, 0x24, 0xde, 0x48, 0xe7, 0x37, 0xbb, 0x9c }
     };
 
-    class World : public BaseObject<IObject>
+    class AME_ENGINE_API World : public BaseObject<IObject>
     {
     public:
         struct This

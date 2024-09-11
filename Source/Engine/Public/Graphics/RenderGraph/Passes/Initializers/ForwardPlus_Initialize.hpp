@@ -5,7 +5,7 @@
 
 namespace Ame::Gfx
 {
-    class ForwardPlus_InitializePass : public Rg::Pass
+    class AME_ENGINE_API ForwardPlus_InitializePass : public Rg::Pass
     {
     public:
         struct PassData

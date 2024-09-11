@@ -10,7 +10,7 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx
 {
-    class ComputeLightCullPass : public Rg::Pass
+    class AME_ENGINE_API ComputeLightCullPass : public Rg::Pass
     {
     private:
         static constexpr uint32_t c_AverageOverlappingLightsPerTile = 200u;

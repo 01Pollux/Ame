@@ -7,7 +7,7 @@ namespace Ame::Rhi
 {
     using BlitCopyParameters = Dg::CopyTextureAttribs;
 
-    struct BlitDrawParameters
+    struct AME_ENGINE_API BlitDrawParameters
     {
         Dg::ITextureView*                  SourceView;
         Dg::RESOURCE_STATE_TRANSITION_MODE SrcTransition = Dg::RESOURCE_STATE_TRANSITION_MODE_NONE;
@@ -19,7 +19,7 @@ namespace Ame::Rhi
         bool                      SwapRBChannels : 1 = false;
     };
 
-    class BlitRenderPass
+    class AME_ENGINE_API BlitRenderPass
     {
     public:
         BlitRenderPass(Rhi::IRhiDevice* rhiDevice);

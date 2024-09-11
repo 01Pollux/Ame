@@ -12,7 +12,7 @@ namespace Ame::Interfaces
         bool Enable3DModule : 1 = true;
     };
 
-    struct EcsModuleConfig
+    struct AME_ENGINE_API EcsModuleConfig
     {
         EntityWorldCreateDesc WorldDesc;
 

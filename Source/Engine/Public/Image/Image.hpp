@@ -8,7 +8,7 @@
 
 namespace Ame::Rhi
 {
-    class Image
+    class AME_ENGINE_API Image
     {
     public:
         Image() = default;
@@ -146,7 +146,7 @@ namespace Ame::Rhi
         bool               m_OwnsBitmapData : 1 = false;
     };
 
-    class ImageMemory
+    class AME_ENGINE_API ImageMemory
     {
     public:
         ImageMemory() = default;
@@ -168,7 +168,7 @@ namespace Ame::Rhi
         Image m_Image;
     };
 
-    class ImageMipChain
+    class AME_ENGINE_API ImageMipChain
     {
     public:
         ImageMipChain() = default;

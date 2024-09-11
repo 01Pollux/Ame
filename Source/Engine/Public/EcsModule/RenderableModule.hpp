@@ -8,7 +8,7 @@ namespace Ame::Ecs
     /// Defines:
     /// IBaseRenderableComponent
     /// </summary>
-    class RenderableEcsModule
+    class AME_ENGINE_API RenderableEcsModule
     {
     public:
         RenderableEcsModule(flecs::world& flecsWorld);

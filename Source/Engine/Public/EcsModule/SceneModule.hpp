@@ -4,7 +4,14 @@
 
 namespace Ame::Ecs
 {
-    class SceneEcsModule
+    /// <summary>
+    /// Defines:
+    /// RuntimeSceneComponent
+    /// SceneEntityPairComponent
+    /// ActiveSceneEntityPairComponent
+    /// ActiveSceneEntityTag
+    /// </summary>
+    class AME_ENGINE_API SceneEcsModule
     {
     public:
         SceneEcsModule(WorldRef world);

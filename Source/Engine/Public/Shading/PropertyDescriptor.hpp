@@ -5,7 +5,7 @@
 
 namespace Ame::Rhi
 {
-    class MaterialPropertyDescriptor
+    class AME_ENGINE_API MaterialPropertyDescriptor
     {
         friend class Material;
 

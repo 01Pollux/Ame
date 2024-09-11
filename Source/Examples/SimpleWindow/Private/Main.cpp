@@ -8,7 +8,7 @@ namespace Ame
 
         while (window->IsRunning())
         {
-            window->ProcessEvents();
+            std::this_thread::sleep_for(std::chrono::milliseconds(16));
         }
     }
 } // namespace Ame

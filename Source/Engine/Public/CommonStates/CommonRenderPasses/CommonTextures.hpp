@@ -32,7 +32,7 @@ namespace Ame::Rhi
     /// <summary>
     /// All common render passes can use cached render pass.
     /// </summary>s
-    class CommonTextures
+    class AME_ENGINE_API CommonTextures
     {
         using DefaultTextureList = std::array<Ptr<Dg::ITexture>, std::to_underlying(CommonTexture::Count)>;
         using CustomTextureList  = std::map<size_t, Ptr<Dg::ITexture>>;

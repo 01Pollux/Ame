@@ -68,5 +68,5 @@ namespace Ame
     /// <summary>
     /// Create a new module registry.
     /// </summary>
-    UniquePtr<IModuleRegistry> CreateModuleRegistry();
+    AME_ENGINE_API UniquePtr<IModuleRegistry> CreateModuleRegistry();
 } // namespace Ame

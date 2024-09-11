@@ -5,7 +5,7 @@
 
 namespace Ame::Log
 {
-    class StdStream final : public ILoggerStream
+    class AME_ENGINE_API StdStream final : public ILoggerStream
     {
     public:
         StdStream(std::ostream& os, bool forceFlush = false);

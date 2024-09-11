@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include <Core/Interface.hpp>
 #include <Plugin/ModuleRegistry.hpp>
 #include <Log/Stream.hpp>
@@ -9,7 +10,7 @@ namespace Ame::Interfaces
     class FrameEvent;
     class FrameTimer;
 
-    struct LoggerCreateDesc
+    struct AME_ENGINE_API LoggerCreateDesc
     {
         String                                     LoggerName = "Ame";
         std::vector<UniquePtr<Log::ILoggerStream>> Streams;
@@ -21,9 +22,19 @@ namespace Ame::Interfaces
         Log::LogLevel DefaultLevel = Log::LogLevel::Info;
 #endif
         bool SetAsMain = true;
+
+        LoggerCreateDesc() = default;
+
+        LoggerCreateDesc(const LoggerCreateDesc&)            = delete;
+        LoggerCreateDesc& operator=(const LoggerCreateDesc&) = delete;
+
+        LoggerCreateDesc(LoggerCreateDesc&&) noexcept            = default;
+        LoggerCreateDesc& operator=(LoggerCreateDesc&&) noexcept = default;
+
+        ~LoggerCreateDesc();
     };
 
-    struct CoreModuleConfig
+    struct AME_ENGINE_API CoreModuleConfig
     {
         LoggerCreateDesc LoggerDesc;
         bool             EnableFrameTimer : 1 = true;

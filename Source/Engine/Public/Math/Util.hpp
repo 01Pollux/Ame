@@ -1,7 +1,7 @@
 #pragma once
 
-#include <DirectXMath.h>
 #include <numbers>
+#include <DirectXMath.h>
 #include <Core/Ame.hpp>
 
 namespace Ame::Math::Util

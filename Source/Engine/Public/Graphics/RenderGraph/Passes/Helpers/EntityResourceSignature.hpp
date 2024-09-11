@@ -74,7 +74,7 @@ namespace Ame::Gfx
 
     //
 
-    class EntityResourceSignature_GraphicsPass final
+    class AME_ENGINE_API EntityResourceSignature_GraphicsPass final
         : public EntityResourceSignaturePass<EntityResourceSignature_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
@@ -89,7 +89,7 @@ namespace Ame::Gfx
         }
     };
 
-    class EntityResourceSignature_ComputePass final
+    class AME_ENGINE_API EntityResourceSignature_ComputePass final
         : public EntityResourceSignaturePass<EntityResourceSignature_ComputePass, Dg::SHADER_TYPE_COMPUTE>
     {
     public:

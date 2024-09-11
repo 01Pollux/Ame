@@ -9,8 +9,6 @@ namespace Ame::Window
     {
         GlfwDriverImpl::Initialize();
         GetGlfwDriver()->submit([this, windowDesc] { CreateGlfwWindow(windowDesc); }).wait();
-
-        m_ImGuiWindow = AmeCreate(ImGuiWindowImplGlfw, this);
     }
 
     DesktopWindowImplGlfw::~DesktopWindowImplGlfw()
@@ -29,11 +27,6 @@ namespace Ame::Window
     }
 
     //
-
-    void DesktopWindowImplGlfw::ProcessEvents()
-    {
-        //GetGlfwDriver()->submit([this] { glfwPollEvents(); }).wait();
-    }
 
     bool DesktopWindowImplGlfw::IsRunning() const
     {

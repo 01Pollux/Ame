@@ -9,7 +9,7 @@ namespace Ame::Ecs
     struct SceneEntityPairComponent
     {
     };
-    
+
     /// <summary>
     /// pair: [SceneEntityComponent, Entity] # world
     /// world: Mark the scene as active

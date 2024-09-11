@@ -4,7 +4,7 @@
 
 namespace Ame::Log
 {
-    class MsvcDebugStream final : public ILoggerStream
+    class AME_ENGINE_API MsvcDebugStream final : public ILoggerStream
     {
     public:
         MsvcDebugStream();

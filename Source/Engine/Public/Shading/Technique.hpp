@@ -13,7 +13,7 @@ namespace Ame::Rhi
     /// <summary>
     /// Class that defines material's pipeline state and shaders
     /// </summary>
-    class MaterialTechnique : public BaseObject<IObject>
+    class AME_ENGINE_API MaterialTechnique : public BaseObject<IObject>
     {
     private:
         using PipelineStateMap = std::map<MaterialHash, Ptr<Dg::IPipelineState>>;

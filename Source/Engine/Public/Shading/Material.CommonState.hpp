@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class MaterialCommonState
+    class AME_ENGINE_API MaterialCommonState
     {
     public:
         MaterialCommonState(Dg::IRenderDevice* renderDevice, MaterialCreateDesc createDesc);

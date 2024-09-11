@@ -25,12 +25,6 @@ namespace Ame::Rhi
 
     public:
         /// <summary>
-        /// Poll events.
-        /// return wether the window is being closed or not.
-        /// </summary>
-        [[nodiscard]] bool PollEvents();
-
-        /// <summary>
         /// Present the backbuffer.
         /// </summary>
         void Present(uint32_t syncInterval);

@@ -12,12 +12,8 @@ namespace Ame::Concepts
 {
     template<typename T>
     concept CryptoAlgorithm = requires {
-        {
-            std::is_base_of_v<CryptoPP::HashTransformation, T>
-        } -> std::convertible_to<bool>;
-        {
-            T::DIGESTSIZE
-        } -> std::convertible_to<size_t>;
+        { std::is_base_of_v<CryptoPP::HashTransformation, T> } -> std::convertible_to<bool>;
+        { T::DIGESTSIZE } -> std::convertible_to<size_t>;
     };
 } // namespace Ame::Concepts
 
@@ -31,7 +27,7 @@ namespace Ame::Util
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy, typename Ty>
         requires std::is_standard_layout_v<Ty> && std::is_trivial_v<Ty>
-    static void UpdateCrypto(CryptoAlgoTy& hasher, const Ty& value)
+    void UpdateCrypto(CryptoAlgoTy& hasher, const Ty& value)
     {
         hasher.Update(std::bit_cast<const CryptoPP::byte*>(&value), sizeof(Ty));
     }
@@ -40,7 +36,7 @@ namespace Ame::Util
     /// Helper function to update crypto from stream
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
-    static void UpdateCrypto(CryptoAlgoTy& hasher, std::istream& stream, size_t size)
+    void UpdateCrypto(CryptoAlgoTy& hasher, std::istream& stream, size_t size)
     {
         CryptoPP::byte buffer[64];
         while (size > 0 && stream.good())
@@ -56,7 +52,7 @@ namespace Ame::Util
     /// Helper function to convert digest to string
     /// </summary>
     template<Concepts::CryptoAlgorithm CryptoAlgoTy>
-    [[nodiscard]] static String DigestStringify(const CryptoDigest<CryptoAlgoTy>& digest)
+    [[nodiscard]] inline String DigestStringify(const CryptoDigest<CryptoAlgoTy>& digest)
     {
         constexpr const char lut[] = "0123456789ABCDEF";
 
@@ -74,7 +70,7 @@ namespace Ame::Util
     /// <summary>
     /// Helper function to finalize digest
     /// </summary>
-    template<Concepts::CryptoAlgorithm CryptoAlgoTy> [[nodiscard]] static auto FinalizeDigest(CryptoAlgoTy& hasher)
+    template<Concepts::CryptoAlgorithm CryptoAlgoTy> [[nodiscard]] auto FinalizeDigest(CryptoAlgoTy& hasher)
     {
         CryptoDigest<CryptoAlgoTy> digest;
         hasher.Final(digest.data());
@@ -84,8 +80,7 @@ namespace Ame::Util
     /// <summary>
     /// Helper function to finalize digest to string
     /// </summary>
-    template<Concepts::CryptoAlgorithm CryptoAlgoTy>
-    [[nodiscard]] static String FinalizeDigestToString(CryptoAlgoTy& hasher)
+    template<Concepts::CryptoAlgorithm CryptoAlgoTy> [[nodiscard]] String FinalizeDigestToString(CryptoAlgoTy& hasher)
     {
         CryptoDigest<CryptoAlgoTy> digest;
         hasher.Final(digest.data());

@@ -6,7 +6,7 @@
 
 namespace Ame::Rhi
 {
-    struct ImageStorage
+    struct AME_ENGINE_API ImageStorage
     {
         [[nodiscard]] static ImageFormat GetFormat(const char* format);
         [[nodiscard]] static ImageFormat GetFormatFromFileName(const char* fileName);

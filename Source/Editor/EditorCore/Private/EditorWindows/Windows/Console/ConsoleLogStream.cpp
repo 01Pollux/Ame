@@ -12,9 +12,9 @@ namespace Ame::Editor
         using namespace EnumBitOperators;
 
         uint64_t mask = 0;
-        if (Log::s_Logger)
+        if (auto logger = Log::ILogger::Get())
         {
-            auto level = Log::s_Logger->GetLevel();
+            auto level = logger->GetLevel();
             SetLevel(level);
             if (level == Log::LogLevel::Disabled)
             {

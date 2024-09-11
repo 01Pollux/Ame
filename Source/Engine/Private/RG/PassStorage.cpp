@@ -9,6 +9,8 @@
 
 namespace Ame::Rg
 {
+    PassStorage::~PassStorage() = default;
+
     Pass* PassStorage::AddPass(const String& name, UniquePtr<Pass> pass)
     {
         AME_LOG_ASSERT(!m_NamedPasses.contains(name), std::format("Pass with name '{}' already exists", name));

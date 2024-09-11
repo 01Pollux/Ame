@@ -21,15 +21,10 @@ namespace Ame::Interfaces
 
         Rhi::ImGuiColorConversionMode ConversionMode = Rhi::ImGuiColorConversionMode::Auto;
 
-        /// <summary>
-        /// If true, the renderer will be created in a multi-threaded mode, and only one instance is allowed to execute
-        /// at a time. (Between BeginFrame and EndFrame)
-        /// </summary>
-        bool MultiThreaded        : 1 = true;
         bool EnableImGuiSubmodule : 1 = true;
     };
 
-    struct RhiModuleConfig
+    struct AME_ENGINE_API RhiModuleConfig
     {
         Rhi::DeviceCreateDesc     RhiDeviceDesc;
         GraphicsModuleImGuiConfig ImGuiConfig;

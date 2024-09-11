@@ -85,6 +85,10 @@ package("ame.mimalloc")
             end
             os.cp("include", package:installdir())
         end
+
+        if package:config("shared") then
+            package:add("defines", "MI_SHARED_LIB")
+        end
     end)
 
     on_test(function (package)

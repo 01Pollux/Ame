@@ -2,7 +2,6 @@
 
 #include <Window/Window.hpp>
 #include <Window/WindowEventListener.hpp>
-#include <Window/Glfw/ImGuiWindowImplGlfw.hpp>
 #include <GLFW/glfw3.h>
 
 namespace Ame::Window
@@ -14,7 +13,7 @@ namespace Ame::Window
     public:
         using Base = BaseObject<IWindow>;
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_Window, Base, m_ImGuiWindow);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Window, Base);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(DesktopWindowImplGlfw, const WindowCreateDesc& windowDesc);
@@ -23,7 +22,6 @@ namespace Ame::Window
         ~DesktopWindowImplGlfw() override;
 
     public:
-        void ProcessEvents() override;
         bool IsRunning() const override;
         void Close() override;
 
@@ -65,8 +63,6 @@ namespace Ame::Window
         GLFWwindow*  m_Handle = nullptr;
         String       m_Title;
         Math::Size2I m_WindowSize;
-
-        Ptr<ImGuiWindowImplGlfw> m_ImGuiWindow;
 
         WindowEventListener m_EventListener;
 

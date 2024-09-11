@@ -14,12 +14,6 @@ namespace Ame::Rhi
 
     //
 
-    bool WindowWrapper::PollEvents()
-    {
-        m_Window->ProcessEvents();
-        return m_Window->IsRunning();
-    }
-
     void WindowWrapper::Present(uint32_t syncInterval)
     {
         m_Swapchain->Present(syncInterval);

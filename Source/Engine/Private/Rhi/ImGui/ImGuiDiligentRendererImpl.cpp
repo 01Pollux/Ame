@@ -5,18 +5,19 @@
 
 #include <Rhi/ImGui/Fonts/FontAwesome5.hpp>
 #include <imgui_internal.h>
+#include <Math/Matrix.hpp>
 
 #include <Rhi/ImGui/ImGuiDiligentRendererImpl.hpp>
 #include <Rhi/ImGui/ImGuiRendererCreateDesc.hpp>
+#include <Rhi/ImGui/ImGuiGlfwImpl.hpp>
 
 #include <DiligentCore/Graphics/GraphicsTools/interface/CommonlyUsedStates.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/GraphicsUtilities.h>
 #include <DiligentCore/Graphics/GraphicsTools/interface/MapHelper.hpp>
 
-#include <Shaders/Rendering/ImGuiRenderShader.hpp>
-
 #include <Rhi/Device/RhiDevice.hpp>
-#include <Math/Matrix.hpp>
+#include <Window/GlfwDriver.hpp>
+#include <Shaders/Rendering/ImGuiRenderShader.hpp>
 
 #include <Log/Logger.hpp>
 
@@ -71,14 +72,13 @@ namespace Ame::Rhi
 
     ImGuiDiligentRendererImpl::ImGuiDiligentRendererImpl(IReferenceCounters*            counters,
                                                          const ImGuiRendererCreateDesc& desc) :
-        Base(counters),
-        m_MultiThreaded(desc.MultiThreaded), m_VertexBufferSize(desc.InitialVertexBufferSize),
+        Base(counters), m_VertexBufferSize(desc.InitialVertexBufferSize),
         m_IndexBufferSize(desc.InitialIndexBufferSize), m_ConversionMode(desc.ConversionMode)
     {
         m_RenderDevice  = desc.RhiDevice->GetRenderDevice();
         m_DeviceContext = desc.RhiDevice->GetImmediateContext();
         m_Swapchain     = desc.RhiDevice->GetSwapchain();
-        desc.RhiDevice->QueryInterface(Window::IID_ImGuiWindow, m_ImGuiWindow.DblPtr<IObject>());
+        desc.RhiDevice->QueryInterface(Window::IID_Window, m_Window.DblPtr<IObject>());
 
         auto& swapchainDesc = m_Swapchain->GetDesc();
 
@@ -92,20 +92,8 @@ namespace Ame::Rhi
         ImGui::SetAllocatorFunctions(
             [](size_t size, void*) { return mi_malloc(size); }, [](void* ptr, void*) -> void { mi_free(ptr); });
 
-        if (m_MultiThreaded)
-        {
-            std::scoped_lock lock(s_Mutex);
-
-            m_Context = ImGui::CreateContext();
-            m_ImGuiWindow->InitializeImGui(m_Context);
-            m_ImGuiWindow->InstallImGuiCallbacks(m_Context);
-        }
-        else
-        {
-            m_Context = ImGui::CreateContext();
-            m_ImGuiWindow->InitializeImGui(m_Context);
-            m_ImGuiWindow->InstallImGuiCallbacks(m_Context);
-        }
+        ImGui::CreateContext();
+        InitializeImGui();
 
         SetDefaultTheme();
         LoadDefaultFonts();
@@ -114,24 +102,8 @@ namespace Ame::Rhi
 
     ImGuiDiligentRendererImpl::~ImGuiDiligentRendererImpl()
     {
-        if (m_MultiThreaded)
-        {
-            std::scoped_lock lock(s_Mutex);
-
-            ImGui::SetCurrentContext(m_Context);
-            m_ImGuiWindow->UninstallImGuiCallbacks(m_Context);
-            m_ImGuiWindow->ShutdownImGui(m_Context);
-            ImGui::DestroyContext(m_Context);
-        }
-        else
-        {
-            ImGui::SetCurrentContext(m_Context);
-            m_ImGuiWindow->UninstallImGuiCallbacks(m_Context);
-            m_ImGuiWindow->ShutdownImGui(m_Context);
-            ImGui::DestroyContext(m_Context);
-        }
-
-        m_Context = nullptr;
+        ShutdownImGui();
+        ImGui::DestroyContext();
     }
 
     //
@@ -142,13 +114,8 @@ namespace Ame::Rhi
         {
             CreateDeviceObjects();
         }
-        if (m_MultiThreaded)
-        {
-            s_Mutex.lock();
-        }
 
         m_Transform = transform;
-        ImGui::SetCurrentContext(m_Context);
 
         ImGuiIO& io = ImGui::GetIO();
         if (m_BaseVertexSupported)
@@ -162,7 +129,7 @@ namespace Ame::Rhi
 
         CreateFontsTextures();
 
-        m_ImGuiWindow->NewFrameImGui(m_Context);
+        NewFrameImGui();
         ImGui::NewFrame();
     }
 
@@ -176,12 +143,6 @@ namespace Ame::Rhi
         {
             ImGui::UpdatePlatformWindows();
             ImGui::RenderPlatformWindowsDefault(nullptr, nullptr);
-        }
-
-        ImGui::SetCurrentContext(nullptr);
-        if (m_MultiThreaded)
-        {
-            s_Mutex.unlock();
         }
     }
 
@@ -235,11 +196,6 @@ namespace Ame::Rhi
         return font;
     }
 
-    ImGuiContext* ImGuiDiligentRendererImpl::GetContext() const
-    {
-        return m_Context;
-    }
-
     bool ImGuiDiligentRendererImpl::RenderBackbufferToTexture() const
     {
         return true;
@@ -247,9 +203,41 @@ namespace Ame::Rhi
 
     //
 
+    void ImGuiDiligentRendererImpl::InitializeImGui()
+    {
+        m_Window->GetGlfwDriver()
+            ->submit(
+                [this]
+                {
+                    IMGUI_CHECKVERSION();
+
+                    ImGuiIO& io = ImGui::GetIO();
+                    io.ConfigFlags |= /*ImGuiConfigFlags_ViewportsEnable |*/ // TODO
+                                      ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NavEnableKeyboard |
+                                      ImGuiConfigFlags_NavEnableGamepad;
+
+                    io.BackendFlags |= ImGuiBackendFlags_RendererHasViewports | ImGuiBackendFlags_RendererHasVtxOffset;
+
+                    ImGui_ImplGlfw_InitForOther(m_Window->GetGlfwHandle(), true);
+                })
+            .wait();
+    }
+
+    void ImGuiDiligentRendererImpl::NewFrameImGui()
+    {
+        m_Window->GetGlfwDriver()->submit([this] { ImGui_ImplGlfw_NewFrame(); }).wait();
+    }
+
+    void ImGuiDiligentRendererImpl::ShutdownImGui()
+    {
+        m_Window->GetGlfwDriver()->submit([this] { ImGui_ImplGlfw_Shutdown(); }).wait();
+    }
+
+    //
+
     void ImGuiDiligentRendererImpl::SetDefaultTheme()
     {
-        ImGuiStyle& style = m_Context->Style;
+        ImGuiStyle& style = ImGui::GetCurrentContext()->Style;
 
         style.Alpha                     = 1.0f;
         style.DisabledAlpha             = 1.0f;

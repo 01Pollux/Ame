@@ -12,7 +12,7 @@ namespace Ame::Math
         Orthographic
     };
 
-    struct Camera
+    struct AME_ENGINE_API Camera
     {
         enum class Type : uint8_t
         {

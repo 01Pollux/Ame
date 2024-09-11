@@ -1,4 +1,3 @@
-#ifndef AME_NO_IMGUI
 // dear imgui: Platform Backend for GLFW
 // This needs to be used along with a Renderer (e.g. OpenGL3, Vulkan, WebGPU..)
 // (Info: GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context
@@ -28,7 +27,12 @@
 // CHANGELOG
 // (minor and older changes stripped away, please see git history for details)
 //  2024-XX-XX: Platform: Added support for multiple windows via the ImGuiPlatformIO interface.
-//  2024-07-08: *BREAKING* Renamed ImGui_ImplGlfw_InstallEmscriptenCanvasResizeCallback to
+//  2024-08-22: moved some OS/backend related function pointers from ImGuiIO to ImGuiPlatformIO:
+//               - io.GetClipboardTextFn    -> platform_io.Platform_GetClipboardTextFn
+//               - io.SetClipboardTextFn    -> platform_io.Platform_SetClipboardTextFn
+//               - io.PlatformOpenInShellFn -> platform_io.Platform_OpenInShellFn
+//  2024-07-31: Added ImGui_ImplGlfw_Sleep() helper function for usage by our examples app, since GLFW doesn't provide
+//  one. 2024-07-08: *BREAKING* Renamed ImGui_ImplGlfw_InstallEmscriptenCanvasResizeCallback to
 //  ImGui_ImplGlfw_InstallEmscriptenCallbacks(), added GLFWWindow* parameter. 2024-07-08: Emscripten: Added support for
 //  GLFW3 contrib port (GLFW 3.4.0 features + bug fixes): to enable, replace -sUSE_GLFW=3 with --use-port=contrib.glfw3
 //  (requires emscripten 3.1.59+) (https://github.com/pongasoft/emscripten-glfw) 2024-07-02: Emscripten: Added
@@ -94,12 +98,10 @@
 //  -FLT_MAX,-FLT_MAX when mouse is unavailable/missing (instead of -1,-1). 2016-10-15: Misc: Added a void* user_data
 //  parameter to Clipboard function handlers.
 
-#include <Core/Allocator.hpp>
-#ifndef IMGUI_DISABLE
-#include <imgui.h>
-#include <Window/Glfw/ImGuiGlfwImpl.hpp>
+#ifndef AME_NO_IMGUI
+#include "imgui.h"
+#include "ImGuiGlfwImpl.hpp"
 #include <Window/Glfw/GlfwHooks.hpp>
-#include <imgui_internal.h>
 
 // Clang warnings with -Weverything
 #if defined(__clang__)
@@ -109,8 +111,6 @@
 #endif
 
 // GLFW
-#include <map>
-#include <mutex>
 #include <GLFW/glfw3.h>
 
 #ifdef _WIN32
@@ -125,6 +125,9 @@
 #define GLFW_EXPOSE_NATIVE_COCOA
 #endif
 #include <GLFW/glfw3native.h> // for glfwGetCocoaWindow()
+#endif
+#ifndef _WIN32
+#include <unistd.h> // for usleep()
 #endif
 
 #ifdef __EMSCRIPTEN__
@@ -162,60 +165,30 @@
 #else
 #define GLFW_HAS_NEW_CURSORS (0)
 #endif
-#ifdef GLFW_MOUSE_PASSTHROUGH // Let's be nice to people who pulled GLFW between 2019-04-16 (3.4 define) and 2020-07-17
-                              // (passthrough)
 #define GLFW_HAS_MOUSE_PASSTHROUGH (0)
-#endif
-#define GLFW_HAS_GAMEPAD_API (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetGamepadState() new api
-#define GLFW_HAS_GETKEYNAME  (GLFW_VERSION_COMBINED >= 3200) // 3.2+ glfwGetKeyName()
-#define GLFW_HAS_GETERROR    (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetError()
-
-#ifdef _WIN32
-static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif
-
-struct ImGuiSingleInstance
-{
-    std::mutex                  Mutex;
-    static ImGuiSingleInstance& Get()
-    {
-        static ImGuiSingleInstance instance;
-        return instance;
-    }
-};
-
-struct ImGuiSingleInstanceLock
-{
-private:
-    std::lock_guard<std::mutex> Lock{ ImGuiSingleInstance::Get().Mutex };
-};
-
-struct ImGuiContextOverride
-{
-    ImGuiContext* OldContext;
-    ImGuiContextOverride(ImGuiContext* context)
-    {
-        OldContext = ImGui::GetCurrentContext();
-        ImGui::SetCurrentContext(context);
-    }
-
-    ~ImGuiContextOverride()
-    {
-        ImGui::SetCurrentContext(OldContext);
-    }
-};
+#define GLFW_HAS_GAMEPAD_API       (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetGamepadState() new api
+#define GLFW_HAS_GETKEYNAME        (GLFW_VERSION_COMBINED >= 3200) // 3.2+ glfwGetKeyName()
+#define GLFW_HAS_GETERROR          (GLFW_VERSION_COMBINED >= 3300) // 3.3+ glfwGetError()
 
 // GLFW data
+enum GlfwClientApi
+{
+    GlfwClientApi_Unknown,
+    GlfwClientApi_OpenGL,
+    GlfwClientApi_Vulkan,
+};
+
 struct ImGui_ImplGlfw_Data
 {
-    ImGuiContext* Context;
     GLFWwindow*   Window;
+    GlfwClientApi ClientApi;
     double        Time;
     GLFWwindow*   MouseWindow;
     GLFWcursor*   MouseCursors[ImGuiMouseCursor_COUNT];
-    GLFWwindow*   KeyOwnerWindows[GLFW_KEY_LAST];
     ImVec2        LastValidMousePos;
+    GLFWwindow*   KeyOwnerWindows[GLFW_KEY_LAST];
     bool          InstalledCallbacks;
+    bool          CallbacksChainForAllWindows;
     bool          WantUpdateMonitors;
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
     const char* CanvasSelector;
@@ -230,6 +203,7 @@ struct ImGui_ImplGlfw_Data
     uint32_t UserCallbackKeyId;
     uint32_t UserCallbackCharId;
     uint32_t UserCallbackMonitorId;
+
 #ifdef _WIN32
     WNDPROC PrevWndProc;
 #endif
@@ -239,15 +213,8 @@ struct ImGui_ImplGlfw_Data
         memset((void*)this, 0, sizeof(*this));
     }
 };
-static std::map<GLFWwindow*, ImGui_ImplGlfw_Data> g_WindowToData;
-static std::map<void*, ImGui_ImplGlfw_Data*>      g_PlatformHandleToData;
 
-// Forward Declarations
-static void ImGui_ImplGlfw_UpdateMonitors(GLFWwindow* window);
-static void ImGui_ImplGlfw_InitPlatformInterface(GLFWwindow* window);
-static void ImGui_ImplGlfw_ShutdownPlatformInterface(GLFWwindow* window);
-
-// Backend data stored in global container to allow support for multiple Dear ImGui contexts
+// Backend data stored in io.BackendPlatformUserData to allow support for multiple Dear ImGui contexts
 // It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple
 // windows) instead of multiple Dear ImGui contexts.
 // FIXME: multi-context support is not well tested and probably dysfunctional in this backend.
@@ -258,46 +225,17 @@ static void ImGui_ImplGlfw_ShutdownPlatformInterface(GLFWwindow* window);
 // - Otherwise we may need to store a GLFWWindow* -> ImGuiContext* map and handle this in the backend, adding a little
 // bit of extra complexity to it.
 // FIXME: some shared resources (mouse cursor shape, gamepad) are mishandled when using multi-context.
-static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_GetBackendData(GLFWwindow* window)
+static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_GetBackendData()
 {
-    auto it = g_WindowToData.find(window);
-    return it == g_WindowToData.end() ? nullptr : &it->second;
-}
-static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_GetBackendData_Platform(void* platformHandle)
-{
-    auto it = g_PlatformHandleToData.find(platformHandle);
-    return it == g_PlatformHandleToData.end() ? nullptr : it->second;
+    return ImGui::GetCurrentContext() ? (ImGui_ImplGlfw_Data*)ImGui::GetIO().BackendPlatformUserData : nullptr;
 }
 
-static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_NewBackendData(GLFWwindow* window, void* platformHandle = nullptr)
-{
-    IM_ASSERT(!g_WindowToData.contains(window));
-    IM_ASSERT(!g_PlatformHandleToData.contains(platformHandle));
-    auto bd = &g_WindowToData[window];
-    if (platformHandle)
-    {
-        g_PlatformHandleToData.emplace(platformHandle, bd);
-    }
-    return bd;
-}
-
-static void ImGui_ImplGlfw_DeleteBackendData(GLFWwindow* window, void* platformHandle = nullptr)
-{
-    g_PlatformHandleToData.erase(platformHandle);
-    g_WindowToData.erase(window);
-}
+// Forward Declarations
+static void ImGui_ImplGlfw_UpdateMonitors();
+static void ImGui_ImplGlfw_InitPlatformInterface();
+static void ImGui_ImplGlfw_ShutdownPlatformInterface();
 
 // Functions
-static const char* ImGui_ImplGlfw_GetClipboardText(void* user_data)
-{
-    return glfwGetClipboardString((GLFWwindow*)user_data);
-}
-
-static void ImGui_ImplGlfw_SetClipboardText(void* user_data, const char* text)
-{
-    glfwSetClipboardString((GLFWwindow*)user_data, text);
-}
-
 static ImGuiKey ImGui_ImplGlfw_KeyToImGuiKey(int key)
 {
     switch (key)
@@ -543,7 +481,7 @@ static ImGuiKey ImGui_ImplGlfw_KeyToImGuiKey(int key)
 
 // X11 does not include current pressed/released modifier key in 'mods' flags submitted by GLFW
 // See https://github.com/ocornut/imgui/issues/6034 and https://github.com/glfw/glfw/issues/1630
-static void ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(GLFWwindow* window)
+static void ImGui_ImplGlfw_UpdateKeyModifiers(GLFWwindow* window)
 {
     ImGuiIO& io = ImGui::GetIO();
     io.AddKeyEvent(ImGuiMod_Ctrl, (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) ||
@@ -556,35 +494,38 @@ static void ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(GLFWwindow* window)
                                        (glfwGetKey(window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS));
 }
 
+static bool ImGui_ImplGlfw_ShouldChainCallback(GLFWwindow* window)
+{
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
+    return bd->CallbacksChainForAllWindows ? true : (window == bd->Window);
+}
+
 bool ImGui_ImplGlfw_MouseButtonCallback(GLFWwindow* window, int button, int action, int)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    ImGuiContextOverride contextGuard(bd->Context);
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
-    ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(window);
-
-    ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(window);
+    ImGui_ImplGlfw_UpdateKeyModifiers(window);
 
     ImGuiIO& io = ImGui::GetIO();
     if (button >= 0 && button < ImGuiMouseButton_COUNT)
         io.AddMouseButtonEvent(button, action == GLFW_PRESS);
-    return true;
+
+    return chain_callback;
 }
 
 bool ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
     // Ignore GLFW events: will be processed in ImGui_ImplEmscripten_WheelCallback().
-    return;
-#endif
-
-    ImGuiContextOverride contextGuard(bd->Context);
-
+    return false;
+#else
     ImGuiIO& io = ImGui::GetIO();
     io.AddMouseWheelEvent((float)xoffset, (float)yoffset);
-    return true;
+
+    return chain_callback;
+#endif
 }
 
 static int ImGui_ImplGlfw_TranslateUntranslatedKey(int key, int scancode)
@@ -637,44 +578,41 @@ static int ImGui_ImplGlfw_TranslateUntranslatedKey(int key, int scancode)
 
 bool ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int keycode, int scancode, int action, int)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
+    auto bd             = ImGui_ImplGlfw_GetBackendData();
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
     if (action != GLFW_PRESS && action != GLFW_RELEASE)
-        return true;
+        return chain_callback;
 
-    keycode = ImGui_ImplGlfw_TranslateUntranslatedKey(keycode, scancode);
-
-    ImGuiContextOverride contextGuard(bd->Context);
-
-    ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(window);
+    ImGui_ImplGlfw_UpdateKeyModifiers(window);
 
     if (keycode >= 0 && keycode < IM_ARRAYSIZE(bd->KeyOwnerWindows))
         bd->KeyOwnerWindows[keycode] = (action == GLFW_PRESS) ? window : nullptr;
 
-    ImGui_ImplGlfw_UpdateKeyModifiers_NoLock(window);
+    keycode = ImGui_ImplGlfw_TranslateUntranslatedKey(keycode, scancode);
 
     ImGuiIO& io        = ImGui::GetIO();
     ImGuiKey imgui_key = ImGui_ImplGlfw_KeyToImGuiKey(keycode);
     io.AddKeyEvent(imgui_key, (action == GLFW_PRESS));
     io.SetKeyEventNativeData(imgui_key, keycode, scancode); // To support legacy indexing (<1.87 user code)
 
-    return true;
+    return chain_callback;
 }
 
 bool ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    ImGuiContextOverride contextGuard(bd->Context);
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
     ImGuiIO& io = ImGui::GetIO();
     io.AddFocusEvent(focused != 0);
-    return true;
+
+    return chain_callback;
 }
 
 bool ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    ImGuiContextOverride contextGuard(bd->Context);
+    auto bd             = ImGui_ImplGlfw_GetBackendData();
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
     ImGuiIO& io = ImGui::GetIO();
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -686,15 +624,16 @@ bool ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
     }
     io.AddMousePosEvent((float)x, (float)y);
     bd->LastValidMousePos = ImVec2((float)x, (float)y);
-    return true;
+
+    return chain_callback;
 }
 
 // Workaround: X11 seems to send spurious Leave/Enter events which would make us lose our position,
 // so we back it up and restore on Leave/Enter (see https://github.com/ocornut/imgui/issues/4984)
 bool ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    ImGuiContextOverride contextGuard(bd->Context);
+    auto bd             = ImGui_ImplGlfw_GetBackendData();
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
     ImGuiIO& io = ImGui::GetIO();
     if (entered)
@@ -708,31 +647,30 @@ bool ImGui_ImplGlfw_CursorEnterCallback(GLFWwindow* window, int entered)
         bd->MouseWindow       = nullptr;
         io.AddMousePosEvent(-FLT_MAX, -FLT_MAX);
     }
-    return true;
+    return chain_callback;
 }
 
 bool ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    ImGuiContextOverride contextGuard(bd->Context);
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
 
     ImGuiIO& io = ImGui::GetIO();
     io.AddInputCharacter(c);
-    return true;
+
+    return chain_callback;
 }
 
 bool ImGui_ImplGlfw_MonitorCallback(GLFWmonitor*, GLFWwindow* window, int)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    bd->WantUpdateMonitors  = true;
-    return true;
+    auto bd                = ImGui_ImplGlfw_GetBackendData();
+    bool chain_callback    = ImGui_ImplGlfw_ShouldChainCallback(window);
+    bd->WantUpdateMonitors = true;
+    return chain_callback;
 }
 
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
-static EM_BOOL ImGui_ImplEmscripten_WheelCallback(int, const EmscriptenWheelEvent* ev, void* userData)
+static EM_BOOL ImGui_ImplEmscripten_WheelCallback(int, const EmscriptenWheelEvent* ev, void*)
 {
-    auto bd = (ImGui_ImplGlfw_Data*)userData;
-
     // Mimic Emscripten_HandleWheel() in SDL.
     // Corresponding equivalent in GLFW JS emulation layer has incorrect quantizing preventing small values. See #6096
     float multiplier = 0.0f;
@@ -748,13 +686,9 @@ static EM_BOOL ImGui_ImplEmscripten_WheelCallback(int, const EmscriptenWheelEven
     {
         multiplier = 80.0f;
     } // A page makes up 80 steps.
-    float wheel_x = ev->deltaX * -multiplier;
-    float wheel_y = ev->deltaY * -multiplier;
-
-    ImGuiSingleInstanceLock lock;
-    ImGuiContextOverride    contextGuard(bd->Context);
-
-    ImGuiIO& io = ImGui::GetIO();
+    float    wheel_x = ev->deltaX * -multiplier;
+    float    wheel_y = ev->deltaY * -multiplier;
+    ImGuiIO& io      = ImGui::GetIO();
     io.AddMouseWheelEvent(wheel_x, wheel_y);
     // IMGUI_DEBUG_LOG("[Emsc] mode %d dx: %.2f, dy: %.2f, dz: %.2f --> feed %.2f %.2f\n", (int)ev->deltaMode,
     // ev->deltaX, ev->deltaY, ev->deltaZ, wheel_x, wheel_y);
@@ -762,9 +696,13 @@ static EM_BOOL ImGui_ImplEmscripten_WheelCallback(int, const EmscriptenWheelEven
 }
 #endif
 
-void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext*, GLFWwindow* window)
+#ifdef _WIN32
+static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+#endif
+
+void ImGui_ImplGlfw_InstallCallbacks(GLFWwindow* window)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd->InstalledCallbacks == false && "Callbacks already installed!");
     IM_ASSERT(bd->Window == window);
 
@@ -779,28 +717,13 @@ void ImGui_ImplGlfw_InstallCallbacks(ImGuiContext*, GLFWwindow* window)
     bd->UserCallbackMonitorId     = GlfwHooks::Get().Install_Monitor(
         [window](GLFWmonitor* monitor, int event) { return ImGui_ImplGlfw_MonitorCallback(monitor, window, event); });
     bd->InstalledCallbacks = true;
-
-    // Windows: register a WndProc hook so we can intercept some messages.
-    // #ifdef _WIN32
-    //     auto viewport   = context->Viewports[0];
-    //     bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC);
-    //     IM_ASSERT(bd->PrevWndProc != nullptr);
-    //     ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
-    // #endif
 }
 
-void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWwindow* window)
+void ImGui_ImplGlfw_RestoreCallbacks(GLFWwindow* window)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd->InstalledCallbacks == true && "Callbacks not installed!");
     IM_ASSERT(bd->Window == window);
-
-    // Windows: restore WndProc hook
-#ifdef _WIN32
-    auto viewport = context->Viewports[0];
-    ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)bd->PrevWndProc);
-    bd->PrevWndProc = nullptr;
-#endif
 
     using Ame::Window::GlfwHooks;
     GlfwHooks::Get().Uninstall_WindowFocus(window, bd->UserCallbackWindowFocusId);
@@ -822,38 +745,71 @@ void ImGui_ImplGlfw_RestoreCallbacks(ImGuiContext* context, GLFWwindow* window)
     bd->UserCallbackMonitorId     = GlfwHooks::InvalidId;
 }
 
+// Set to 'true' to enable chaining installed callbacks for all windows (including secondary viewports created by
+// backends or by user. This is 'false' by default meaning we only chain callbacks for the main viewport. We cannot set
+// this to 'true' by default because user callbacks code may be not testing the 'window' parameter of their callback. If
+// you set this to 'true' your user callback code will need to make sure you are testing the 'window' parameter.
+void ImGui_ImplGlfw_SetCallbacksChainForAllWindows(bool chain_for_all_windows)
+{
+    ImGui_ImplGlfw_Data* bd         = ImGui_ImplGlfw_GetBackendData();
+    bd->CallbacksChainForAllWindows = chain_for_all_windows;
+}
+
 #ifdef __EMSCRIPTEN__
-EM_JS(void, ImGui_ImplGlfw_EmscriptenOpenURL, (char const* url), {
+#if EMSCRIPTEN_USE_PORT_CONTRIB_GLFW3 >= 3'4'0'20240817
+void ImGui_ImplGlfw_EmscriptenOpenURL(const char* url)
+{
+    if (url)
+        emscripten::glfw3::OpenURL(url);
+}
+#else
+EM_JS(void, ImGui_ImplGlfw_EmscriptenOpenURL, (const char* url), {
     url = url ? UTF8ToString(url) : null;
     if (url)
         window.open(url, '_blank');
 });
 #endif
+#endif
 
-static bool ImGui_ImplGlfw_Init(ImGuiContext* context, GLFWwindow* window, bool install_callbacks)
+static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, GlfwClientApi client_api)
 {
+    ImGuiIO& io = ImGui::GetIO();
     IMGUI_CHECKVERSION();
+    IM_ASSERT(io.BackendPlatformUserData == nullptr && "Already initialized a platform backend!");
     // printf("GLFW_VERSION: %d.%d.%d (%d)", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION,
     // GLFW_VERSION_COMBINED);
 
-    // Set platform dependent data in viewport
-    auto viewport            = context->Viewports[0];
-    viewport->PlatformHandle = (void*)window;
-#ifdef _WIN32
-    viewport->PlatformHandleRaw = glfwGetWin32Window(window);
-#elif defined(__APPLE__)
-    viewport->PlatformHandleRaw = (void*)glfwGetCocoaWindow(window);
+    // Setup backend capabilities flags
+    ImGui_ImplGlfw_Data* bd    = IM_NEW(ImGui_ImplGlfw_Data)();
+    io.BackendPlatformUserData = (void*)bd;
+    io.BackendPlatformName     = "imgui_impl_glfw";
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors; // We can honor GetMouseCursor() values (optional)
+    io.BackendFlags |=
+        ImGuiBackendFlags_HasSetMousePos; // We can honor io.WantSetMousePos requests (optional, rarely used)
+#ifndef __EMSCRIPTEN__
+    io.BackendFlags |=
+        ImGuiBackendFlags_PlatformHasViewports; // We can create multi-viewports on the Platform side (optional)
+#endif
+#if GLFW_HAS_MOUSE_PASSTHROUGH || GLFW_HAS_WINDOW_HOVERED
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can call io.AddMouseViewportEvent() with correct
+                                                                  // data (optional)
 #endif
 
-    // Setup backend capabilities flags
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_NewBackendData(window, viewport->PlatformHandleRaw);
-    ImGui::GetIO().BackendFlags |=
-        ImGuiBackendFlags_HasMouseCursors | // We can honor GetMouseCursor() values (optional)
-        ImGuiBackendFlags_HasSetMousePos;   // We can honor io.WantSetMousePos requests (optional, rarely used)
+    bd->Window             = window;
+    bd->Time               = 0.0;
+    bd->WantUpdateMonitors = true;
 
-    bd->Context = context;
-    bd->Window  = window;
-    bd->Time    = 0.0;
+    ImGuiPlatformIO& platform_io            = ImGui::GetPlatformIO();
+    platform_io.Platform_SetClipboardTextFn = [](ImGuiContext*, const char* text)
+    { glfwSetClipboardString(NULL, text); };
+    platform_io.Platform_GetClipboardTextFn = [](ImGuiContext*) { return glfwGetClipboardString(NULL); };
+#ifdef __EMSCRIPTEN__
+    platform_io.Platform_OpenInShellFn = [](ImGuiContext*, const char* url)
+    {
+        ImGui_ImplGlfw_EmscriptenOpenURL(url);
+        return true;
+    };
+#endif
 
     // Create mouse cursors
     // (By design, on X11 cursors are user configurable and some cursors may be missing. When a cursor doesn't exist,
@@ -883,43 +839,51 @@ static bool ImGui_ImplGlfw_Init(ImGuiContext* context, GLFWwindow* window, bool 
 
     // Chain GLFW callbacks: our callbacks will call the user's previously installed callbacks, if any.
     if (install_callbacks)
-        ImGui_ImplGlfw_InstallCallbacks(context, window);
-
-    auto& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-#ifndef __EMSCRIPTEN__
-        // We can create multi-viewports on the Platform side (optional)
-        io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_RendererHasViewports;
-#endif
-#if GLFW_HAS_MOUSE_PASSTHROUGH || GLFW_HAS_WINDOW_HOVERED
-        io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can call io.AddMouseViewportEvent() with
-                                                                      // correct data (optional)
-#endif
-        ImGui_ImplGlfw_InitPlatformInterface(window);
-    }
+        ImGui_ImplGlfw_InstallCallbacks(window);
 
     // Update monitors the first time (note: monitor callback are broken in GLFW 3.2 and earlier, see
     // github.com/glfw/glfw/issues/784)
-    ImGui_ImplGlfw_UpdateMonitors(window);
+    ImGui_ImplGlfw_UpdateMonitors();
 
+    // Set platform dependent data in viewport
+    ImGuiViewport* main_viewport  = ImGui::GetMainViewport();
+    main_viewport->PlatformHandle = (void*)bd->Window;
+#ifdef _WIN32
+    main_viewport->PlatformHandleRaw = glfwGetWin32Window(bd->Window);
+#elif defined(__APPLE__)
+    main_viewport->PlatformHandleRaw = (void*)glfwGetCocoaWindow(bd->Window);
+#else
+    IM_UNUSED(main_viewport);
+#endif
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        ImGui_ImplGlfw_InitPlatformInterface();
+
+        // Windows: register a WndProc hook so we can intercept some messages.
+#ifdef _WIN32
+    bd->PrevWndProc = (WNDPROC)::GetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC);
+    IM_ASSERT(bd->PrevWndProc != nullptr);
+    ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)ImGui_ImplGlfw_WndProc);
+#endif
+
+    bd->ClientApi = client_api;
     return true;
 }
 
-bool ImGui_ImplGlfw_InitForOther(ImGuiContext* context, GLFWwindow* window, bool install_callbacks)
+bool ImGui_ImplGlfw_InitForOther(GLFWwindow* window, bool install_callbacks)
 {
-    return ImGui_ImplGlfw_Init(context, window, install_callbacks);
+    return ImGui_ImplGlfw_Init(window, install_callbacks, GlfwClientApi_Unknown);
 }
 
-void ImGui_ImplGlfw_Shutdown(ImGuiContext* context, GLFWwindow* window)
+void ImGui_ImplGlfw_Shutdown()
 {
-    auto bd = ImGui_ImplGlfw_GetBackendData(window);
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
+    ImGuiIO& io = ImGui::GetIO();
 
-    ImGui_ImplGlfw_ShutdownPlatformInterface(window);
+    ImGui_ImplGlfw_ShutdownPlatformInterface();
 
     if (bd->InstalledCallbacks)
-        ImGui_ImplGlfw_RestoreCallbacks(context, bd->Window);
+        ImGui_ImplGlfw_RestoreCallbacks(bd->Window);
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
     if (bd->CanvasSelector)
         emscripten_set_wheel_callback(bd->CanvasSelector, nullptr, false, nullptr);
@@ -928,31 +892,34 @@ void ImGui_ImplGlfw_Shutdown(ImGuiContext* context, GLFWwindow* window)
     for (ImGuiMouseCursor cursor_n = 0; cursor_n < ImGuiMouseCursor_COUNT; cursor_n++)
         glfwDestroyCursor(bd->MouseCursors[cursor_n]);
 
-    // Windows: restore our WndProc hook
-    auto viewport = context->Viewports[0];
-
+        // Windows: restore our WndProc hook
 #ifdef _WIN32
-    ::SetWindowLongPtrW((HWND)viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)bd->PrevWndProc);
+    ImGuiViewport* main_viewport = ImGui::GetMainViewport();
+    ::SetWindowLongPtrW((HWND)main_viewport->PlatformHandleRaw, GWLP_WNDPROC, (LONG_PTR)bd->PrevWndProc);
     bd->PrevWndProc = nullptr;
 #endif
 
-    ImGui_ImplGlfw_DeleteBackendData(window, viewport->PlatformHandleRaw);
+    io.BackendPlatformName     = nullptr;
+    io.BackendPlatformUserData = nullptr;
+    io.BackendFlags &=
+        ~(ImGuiBackendFlags_HasMouseCursors | ImGuiBackendFlags_HasSetMousePos | ImGuiBackendFlags_HasGamepad |
+          ImGuiBackendFlags_PlatformHasViewports | ImGuiBackendFlags_HasMouseHoveredViewport);
+    IM_DELETE(bd);
 }
 
-static void ImGui_ImplGlfw_UpdateMouseData_NoLock(GLFWwindow* mainWindow)
+static void ImGui_ImplGlfw_UpdateMouseData()
 {
-    auto bd = ImGui_ImplGlfw_GetBackendData(mainWindow);
-    IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
-
-    ImGuiIO&         io          = ImGui::GetIO();
-    ImGuiPlatformIO& platform_io = bd->Context->PlatformIO;
+    ImGui_ImplGlfw_Data* bd          = ImGui_ImplGlfw_GetBackendData();
+    ImGuiIO&             io          = ImGui::GetIO();
+    ImGuiPlatformIO&     platform_io = ImGui::GetPlatformIO();
 
     ImGuiID      mouse_viewport_id = 0;
     const ImVec2 mouse_pos_prev    = io.MousePos;
     for (int n = 0; n < platform_io.Viewports.Size; n++)
     {
         ImGuiViewport* viewport = platform_io.Viewports[n];
-        GLFWwindow*    window   = static_cast<GLFWwindow*>(viewport->PlatformHandle);
+        GLFWwindow*    window   = (GLFWwindow*)viewport->PlatformHandle;
+
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
         const bool is_window_focused = true;
 #else
@@ -1024,18 +991,16 @@ static void ImGui_ImplGlfw_UpdateMouseData_NoLock(GLFWwindow* mainWindow)
         io.AddMouseViewportEvent(mouse_viewport_id);
 }
 
-static void ImGui_ImplGlfw_UpdateMouseCursor_NoLock(GLFWwindow* mainWindow)
+static void ImGui_ImplGlfw_UpdateMouseCursor()
 {
-    auto bd = ImGui_ImplGlfw_GetBackendData(mainWindow);
-    IM_ASSERT(bd != nullptr && "No platform backend to shutdown, or already shutdown?");
-
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO&             io = ImGui::GetIO();
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) ||
         glfwGetInputMode(bd->Window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
         return;
 
     ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
-    ImGuiPlatformIO& platform_io  = bd->Context->PlatformIO;
+    ImGuiPlatformIO& platform_io  = ImGui::GetPlatformIO();
     for (int n = 0; n < platform_io.Viewports.Size; n++)
     {
         GLFWwindow* window = (GLFWwindow*)platform_io.Viewports[n]->PlatformHandle;
@@ -1061,7 +1026,7 @@ static inline float Saturate(float v)
 {
     return v < 0.0f ? 0.0f : v > 1.0f ? 1.0f : v;
 }
-static void ImGui_ImplGlfw_UpdateGamepads_NoLock()
+static void ImGui_ImplGlfw_UpdateGamepads()
 {
     ImGuiIO& io = ImGui::GetIO();
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) ==
@@ -1133,17 +1098,17 @@ static void ImGui_ImplGlfw_UpdateGamepads_NoLock()
 #undef MAP_ANALOG
 }
 
-static void ImGui_ImplGlfw_UpdateMonitors(GLFWwindow* window)
+static void ImGui_ImplGlfw_UpdateMonitors()
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-    IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplGlfw_InitForXXX()?");
+    ImGui_ImplGlfw_Data* bd          = ImGui_ImplGlfw_GetBackendData();
+    ImGuiPlatformIO&     platform_io = ImGui::GetPlatformIO();
+    bd->WantUpdateMonitors           = false;
 
     int           monitors_count = 0;
     GLFWmonitor** glfw_monitors  = glfwGetMonitors(&monitors_count);
     if (monitors_count == 0) // Preserve existing monitor list if there are none. Happens on macOS sleeping (#5683)
         return;
 
-    ImGuiPlatformIO& platform_io = bd->Context->PlatformIO;
     platform_io.Monitors.resize(0);
     for (int n = 0; n < monitors_count; n++)
     {
@@ -1170,6 +1135,8 @@ static void ImGui_ImplGlfw_UpdateMonitors(GLFWwindow* window)
         // settings, which generally needs to be set in the manifest or at runtime.
         float x_scale, y_scale;
         glfwGetMonitorContentScale(glfw_monitors[n], &x_scale, &y_scale);
+        if (x_scale == 0.0f)
+            continue; // Some accessibility applications are declaring virtual monitors with a DPI of 0, see #7902.
         monitor.DpiScale = x_scale;
 #endif
         monitor.PlatformHandle = (void*)glfw_monitors[n]; // [...] GLFW doc states: "guaranteed to be valid only until
@@ -1178,26 +1145,11 @@ static void ImGui_ImplGlfw_UpdateMonitors(GLFWwindow* window)
     }
 }
 
-void ImGui_ImplGlfw_NewFrame(ImGuiContext*, GLFWwindow* window)
+void ImGui_ImplGlfw_NewFrame()
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-
-    ImGuiSingleInstanceLock lock;
-    ImGuiContextOverride    contextGuard(bd->Context);
-
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO&             io = ImGui::GetIO();
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     IM_ASSERT(bd != nullptr && "Context or backend not initialized! Did you call ImGui_ImplGlfw_InitForXXX()?");
-
-    io.SetClipboardTextFn = ImGui_ImplGlfw_SetClipboardText;
-    io.GetClipboardTextFn = ImGui_ImplGlfw_GetClipboardText;
-    io.ClipboardUserData  = bd->Window;
-#ifdef __EMSCRIPTEN__
-    io.PlatformOpenInShellFn = [](ImGuiContext*, const char* url)
-    {
-        ImGui_ImplGlfw_EmscriptenOpenURL(url);
-        return true;
-    };
-#endif
 
     // Setup display size (every frame to accommodate for window resizing)
     int w, h;
@@ -1208,7 +1160,7 @@ void ImGui_ImplGlfw_NewFrame(ImGuiContext*, GLFWwindow* window)
     if (w > 0 && h > 0)
         io.DisplayFramebufferScale = ImVec2((float)display_w / (float)w, (float)display_h / (float)h);
     if (bd->WantUpdateMonitors)
-        ImGui_ImplGlfw_UpdateMonitors(window);
+        ImGui_ImplGlfw_UpdateMonitors();
 
     // Setup time step
     // (Accept glfwGetTime() not returning a monotonically increasing value. Seems to happens on disconnecting
@@ -1219,11 +1171,21 @@ void ImGui_ImplGlfw_NewFrame(ImGuiContext*, GLFWwindow* window)
     io.DeltaTime = bd->Time > 0.0 ? (float)(current_time - bd->Time) : (float)(1.0f / 60.0f);
     bd->Time     = current_time;
 
-    ImGui_ImplGlfw_UpdateMouseData_NoLock(window);
-    ImGui_ImplGlfw_UpdateMouseCursor_NoLock(window);
+    ImGui_ImplGlfw_UpdateMouseData();
+    ImGui_ImplGlfw_UpdateMouseCursor();
 
     // Update game controllers (if enabled and available)
-    ImGui_ImplGlfw_UpdateGamepads_NoLock();
+    ImGui_ImplGlfw_UpdateGamepads();
+}
+
+// GLFW doesn't provide a portable sleep function
+void ImGui_ImplGlfw_Sleep(int milliseconds)
+{
+#ifdef _WIN32
+    ::Sleep(milliseconds);
+#else
+    usleep(milliseconds * 1000);
+#endif
 }
 
 #ifdef EMSCRIPTEN_USE_EMBEDDED_GLFW3
@@ -1267,7 +1229,7 @@ void ImGui_ImplGlfw_InstallEmscriptenCallbacks(GLFWwindow*, const char* canvas_s
     // We intentionally do not check 'if (install_callbacks)' here, as some users may set it to false and call GLFW
     // callback themselves.
     // FIXME: May break chaining in case user registered their own Emscripten callback?
-    emscripten_set_wheel_callback(bd->CanvasSelector, bd, false, ImGui_ImplEmscripten_WheelCallback);
+    emscripten_set_wheel_callback(bd->CanvasSelector, nullptr, false, ImGui_ImplEmscripten_WheelCallback);
 }
 #elif defined(EMSCRIPTEN_USE_PORT_CONTRIB_GLFW3)
 // When using --use-port=contrib.glfw3 for the GLFW implementation, you can override the behavior of this call
@@ -1328,9 +1290,10 @@ struct ImGui_ImplGlfw_ViewportData
 
 static bool ImGui_ImplGlfw_WindowCloseCallback(GLFWwindow* window)
 {
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
     if (ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle(window))
         viewport->PlatformRequestClose = true;
-    return false;
+    return chain_callback;
 }
 
 // GLFW may dispatch window pos/size events after calling glfwSetWindowPos()/glfwSetWindowSize().
@@ -1341,6 +1304,7 @@ static bool ImGui_ImplGlfw_WindowCloseCallback(GLFWwindow* window)
 // ignore recent glfwSetWindowXXX() calls.
 static bool ImGui_ImplGlfw_WindowPosCallback(GLFWwindow* window, int, int)
 {
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
     if (ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle(window))
     {
         if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
@@ -1352,11 +1316,12 @@ static bool ImGui_ImplGlfw_WindowPosCallback(GLFWwindow* window, int, int)
         }
         viewport->PlatformRequestMove = true;
     }
-    return false;
+    return chain_callback;
 }
 
 static bool ImGui_ImplGlfw_WindowSizeCallback(GLFWwindow* window, int, int)
 {
+    bool chain_callback = ImGui_ImplGlfw_ShouldChainCallback(window);
     if (ImGuiViewport* viewport = ImGui::FindViewportByPlatformHandle(window))
     {
         if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
@@ -1368,11 +1333,12 @@ static bool ImGui_ImplGlfw_WindowSizeCallback(GLFWwindow* window, int, int)
         }
         viewport->PlatformRequestResize = true;
     }
-    return false;
+    return chain_callback;
 }
 
 static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
 {
+    ImGui_ImplGlfw_Data*         bd = ImGui_ImplGlfw_GetBackendData();
     ImGui_ImplGlfw_ViewportData* vd = IM_NEW(ImGui_ImplGlfw_ViewportData)();
     viewport->PlatformUserData      = vd;
 
@@ -1387,7 +1353,7 @@ static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
 #if GLFW_HAS_WINDOW_TOPMOST
     glfwWindowHint(GLFW_FLOATING, (viewport->Flags & ImGuiViewportFlags_TopMost) ? true : false);
 #endif
-    GLFWwindow* share_window = nullptr;
+    GLFWwindow* share_window = (bd->ClientApi == GlfwClientApi_OpenGL) ? bd->Window : nullptr;
     vd->Window = glfwCreateWindow((int)viewport->Size.x, (int)viewport->Size.y, "No Title Yet", nullptr, share_window);
     vd->WindowOwned          = true;
     viewport->PlatformHandle = (void*)vd->Window;
@@ -1410,12 +1376,17 @@ static void ImGui_ImplGlfw_CreateWindow(ImGuiViewport* viewport)
     vd->WindowCloseCallbackId = GlfwHooks::Get().Install_WindowClose(vd->Window, ImGui_ImplGlfw_WindowCloseCallback);
     vd->WindowPosCallbackId   = GlfwHooks::Get().Install_WindowPos(vd->Window, ImGui_ImplGlfw_WindowPosCallback);
     vd->WindowSizeCallbackId  = GlfwHooks::Get().Install_WindowSize(vd->Window, ImGui_ImplGlfw_WindowSizeCallback);
+
+    if (bd->ClientApi == GlfwClientApi_OpenGL)
+    {
+        glfwMakeContextCurrent(vd->Window);
+        glfwSwapInterval(0);
+    }
 }
 
 static void ImGui_ImplGlfw_DestroyWindow(ImGuiViewport* viewport)
 {
-    GLFWwindow*          window = (GLFWwindow*)viewport->PlatformHandle;
-    ImGui_ImplGlfw_Data* bd     = ImGui_ImplGlfw_GetBackendData(window);
+    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
     if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
     {
         if (vd->WindowOwned)
@@ -1570,15 +1541,70 @@ static void ImGui_ImplGlfw_SetWindowAlpha(ImGuiViewport* viewport, float alpha)
 }
 #endif
 
+static void ImGui_ImplGlfw_RenderWindow(ImGuiViewport* viewport, void*)
+{
+    ImGui_ImplGlfw_Data*         bd = ImGui_ImplGlfw_GetBackendData();
+    ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData;
+    if (bd->ClientApi == GlfwClientApi_OpenGL)
+        glfwMakeContextCurrent(vd->Window);
+}
+
+static void ImGui_ImplGlfw_SwapBuffers(ImGuiViewport* viewport, void*)
+{
+    ImGui_ImplGlfw_Data*         bd = ImGui_ImplGlfw_GetBackendData();
+    ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData;
+    if (bd->ClientApi == GlfwClientApi_OpenGL)
+    {
+        glfwMakeContextCurrent(vd->Window);
+        glfwSwapBuffers(vd->Window);
+    }
+}
+
 //--------------------------------------------------------------------------------------------------------
 // Vulkan support (the Vulkan renderer needs to call a platform-side support function to create the surface)
 //--------------------------------------------------------------------------------------------------------
 
-static void ImGui_ImplGlfw_InitPlatformInterface(GLFWwindow* window)
+// Avoid including <vulkan.h> so we can build without it
+#if GLFW_HAS_VULKAN
+#ifndef VULKAN_H_
+#define VK_DEFINE_HANDLE(object) typedef struct object##_T* object;
+#if defined(__LP64__) || defined(_WIN64) || defined(__x86_64__) || defined(_M_X64) || defined(__ia64) ||               \
+    defined(_M_IA64) || defined(__aarch64__) || defined(__powerpc64__)
+#define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef struct object##_T* object;
+#else
+#define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) typedef uint64_t object;
+#endif
+VK_DEFINE_HANDLE(VkInstance)
+VK_DEFINE_NON_DISPATCHABLE_HANDLE(VkSurfaceKHR)
+struct VkAllocationCallbacks;
+enum VkResult
+{
+    VK_RESULT_MAX_ENUM = 0x7FFFFFFF
+};
+#endif // VULKAN_H_
+extern "C"
+{
+    extern GLFWAPI VkResult glfwCreateWindowSurface(VkInstance instance, GLFWwindow* window,
+                                                    const VkAllocationCallbacks* allocator, VkSurfaceKHR* surface);
+}
+static int ImGui_ImplGlfw_CreateVkSurface(ImGuiViewport* viewport, ImU64 vk_instance, const void* vk_allocator,
+                                          ImU64* out_vk_surface)
+{
+    ImGui_ImplGlfw_Data*         bd = ImGui_ImplGlfw_GetBackendData();
+    ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData;
+    IM_UNUSED(bd);
+    IM_ASSERT(bd->ClientApi == GlfwClientApi_Vulkan);
+    VkResult err = glfwCreateWindowSurface(
+        (VkInstance)vk_instance, vd->Window, (const VkAllocationCallbacks*)vk_allocator, (VkSurfaceKHR*)out_vk_surface);
+    return (int)err;
+}
+#endif // GLFW_HAS_VULKAN
+
+static void ImGui_ImplGlfw_InitPlatformInterface()
 {
     // Register platform interface (will be coupled with a renderer interface)
-    ImGui_ImplGlfw_Data* bd                 = ImGui_ImplGlfw_GetBackendData(window);
-    ImGuiPlatformIO&     platform_io        = bd->Context->PlatformIO;
+    ImGui_ImplGlfw_Data* bd                 = ImGui_ImplGlfw_GetBackendData();
+    ImGuiPlatformIO&     platform_io        = ImGui::GetPlatformIO();
     platform_io.Platform_CreateWindow       = ImGui_ImplGlfw_CreateWindow;
     platform_io.Platform_DestroyWindow      = ImGui_ImplGlfw_DestroyWindow;
     platform_io.Platform_ShowWindow         = ImGui_ImplGlfw_ShowWindow;
@@ -1590,28 +1616,28 @@ static void ImGui_ImplGlfw_InitPlatformInterface(GLFWwindow* window)
     platform_io.Platform_GetWindowFocus     = ImGui_ImplGlfw_GetWindowFocus;
     platform_io.Platform_GetWindowMinimized = ImGui_ImplGlfw_GetWindowMinimized;
     platform_io.Platform_SetWindowTitle     = ImGui_ImplGlfw_SetWindowTitle;
+    platform_io.Platform_RenderWindow       = ImGui_ImplGlfw_RenderWindow;
+    platform_io.Platform_SwapBuffers        = ImGui_ImplGlfw_SwapBuffers;
 #if GLFW_HAS_WINDOW_ALPHA
     platform_io.Platform_SetWindowAlpha = ImGui_ImplGlfw_SetWindowAlpha;
+#endif
+#if GLFW_HAS_VULKAN
+    platform_io.Platform_CreateVkSurface = ImGui_ImplGlfw_CreateVkSurface;
 #endif
 
     // Register main window handle (which is owned by the main application, not by us)
     // This is mostly for simplicity and consistency, so that our code (e.g. mouse handling etc.) can use same logic for
     // main and secondary viewports.
-    auto                         viewport = bd->Context->Viewports[0];
-    ImGui_ImplGlfw_ViewportData* vd       = IM_NEW(ImGui_ImplGlfw_ViewportData)();
-    vd->Window                            = bd->Window;
-    vd->WindowOwned                       = false;
-    viewport->PlatformUserData            = vd;
-    viewport->PlatformHandle              = (void*)bd->Window;
+    ImGuiViewport*               main_viewport = ImGui::GetMainViewport();
+    ImGui_ImplGlfw_ViewportData* vd            = IM_NEW(ImGui_ImplGlfw_ViewportData)();
+    vd->Window                                 = bd->Window;
+    vd->WindowOwned                            = false;
+    main_viewport->PlatformUserData            = vd;
+    main_viewport->PlatformHandle              = (void*)bd->Window;
 }
 
-static void ImGui_ImplGlfw_ShutdownPlatformInterface(GLFWwindow* window)
+static void ImGui_ImplGlfw_ShutdownPlatformInterface()
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData(window);
-
-    ImGuiSingleInstanceLock lock;
-    ImGuiContextOverride    contextGuard(bd->Context);
-
     ImGui::DestroyPlatformWindows();
 }
 
@@ -1628,14 +1654,11 @@ static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo()
         return ImGuiMouseSource_TouchScreen;
     return ImGuiMouseSource_Mouse;
 }
-[[maybe_unused]] static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+static LRESULT CALLBACK ImGui_ImplGlfw_WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData_Platform(hWnd);
-
-    ImGuiContextOverride contextGuard(bd->Context);
-
-    WNDPROC        prev_wndproc = bd->PrevWndProc;
-    ImGuiViewport* viewport     = (ImGuiViewport*)::GetPropA(hWnd, "IMGUI_VIEWPORT");
+    ImGui_ImplGlfw_Data* bd           = ImGui_ImplGlfw_GetBackendData();
+    WNDPROC              prev_wndproc = bd->PrevWndProc;
+    ImGuiViewport*       viewport     = (ImGuiViewport*)::GetPropA(hWnd, "IMGUI_VIEWPORT");
     if (viewport != NULL)
         if (ImGui_ImplGlfw_ViewportData* vd = (ImGui_ImplGlfw_ViewportData*)viewport->PlatformUserData)
             prev_wndproc = vd->PrevWndProc;
@@ -1690,4 +1713,3 @@ static ImGuiMouseSource GetMouseSourceFromMessageExtraInfo()
 #endif
 
 #endif // #ifndef IMGUI_DISABLE
-#endif

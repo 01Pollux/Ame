@@ -6,7 +6,7 @@
 namespace Ame::Ecs
 {
     using EntityId = flecs::entity_t;
-    class Entity
+    class AME_ENGINE_API Entity
     {
         friend class World;
 

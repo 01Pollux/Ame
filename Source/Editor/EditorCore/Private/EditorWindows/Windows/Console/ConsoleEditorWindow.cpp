@@ -9,10 +9,10 @@ namespace Ame::Editor
 {
     ConsoleEditorWindow::ConsoleEditorWindow(IReferenceCounters* counters) : Base(counters, ConsoleEditorWindowPath)
     {
-        if (Log::s_Logger)
+        if (auto logger = Log::ILogger::Get())
         {
             m_LogStream = std::make_unique<ConsoleLogStream>();
-            Log::s_Logger->AddStream(m_LogStream.get());
+            logger->AddStream(m_LogStream.get());
         }
     }
 
@@ -20,7 +20,7 @@ namespace Ame::Editor
     {
         if (m_LogStream)
         {
-            Log::s_Logger->RemoveStream(m_LogStream.get());
+            Log::ILogger::Get()->RemoveStream(m_LogStream.get());
         }
     }
 

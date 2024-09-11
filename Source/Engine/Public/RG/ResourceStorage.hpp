@@ -4,7 +4,7 @@
 
 namespace Ame::Rg
 {
-    class ResourceStorage
+    class AME_ENGINE_API ResourceStorage
     {
         friend class Resolver;
         friend class Context;

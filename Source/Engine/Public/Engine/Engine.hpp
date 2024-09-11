@@ -8,7 +8,7 @@
 
 namespace Ame
 {
-    class AmeEngine
+    class AME_ENGINE_API AmeEngine
     {
     public:
         explicit AmeEngine(const EngineConfig& engineConfig);

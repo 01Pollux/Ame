@@ -4,7 +4,14 @@
 
 namespace Ame::Ecs
 {
-    class MathEcsModule
+    /// <summary>
+    /// Defines:
+    /// TransformComponent
+    /// GlobalTransformComponent
+    /// AABBComponent
+    /// TransformedAABBComponent
+    /// </summary>
+    class AME_ENGINE_API MathEcsModule
     {
     public:
         MathEcsModule(WorldRef world);

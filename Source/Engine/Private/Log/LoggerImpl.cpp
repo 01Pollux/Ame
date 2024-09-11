@@ -8,6 +8,18 @@
 
 namespace Ame::Log
 {
+    inline Ptr<ILogger> s_Logger;
+
+    void ILogger::Initialize(Ptr<ILogger> logger)
+    {
+        s_Logger = std::move(logger);
+    }
+
+    ILogger* ILogger::Get()
+    {
+        return s_Logger;
+    }
+
     Ptr<ILogger> CreateLogger(String name)
     {
         return AmeCreate(LoggerImpl, std::move(name));

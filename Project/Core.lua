@@ -24,6 +24,8 @@ target("AmeEngine")
         public_inherit)
     add_packages("assimp")
     add_packages("ame.imgui", public_inherit)
+    add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Export.hpp"), public_inherit)
+    add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Allocator.hpp"), public_inherit)
 target_end()
 
 --
@@ -35,25 +37,25 @@ target_end()
 
 --
 
--- target("Ame.EditorPlugin")
---     ame_utils:add_library("Ame/Editor", "static", "Source/Editor/EditorPlugin")
---     add_deps("Ame.Engine", public_inherit)
---     add_packages("Ame.ImGuiUtils", public_inherit)
--- target_end()
+target("Ame.EditorPlugin")
+    ame_utils:add_library("Ame/Editor", "static", "Source/Editor/EditorPlugin")
+    add_deps("AmeEngine", public_inherit)
+target_end()
 
--- target("EditorCore")
---     ame_utils:add_library("Ame/Editor", "shared", "Source/Editor/EditorCore")
---     add_deps("Ame.EditorPlugin", public_inherit)
---     ame_utils:copy_to_plugins()
--- target_end()
+target("EditorCore")
+    ame_utils:add_library("Ame/Editor", "shared", "Source/Editor/EditorCore")
+    ame_utils:copy_to_plugins()
+    
+    add_deps("Ame.EditorPlugin", public_inherit)
+target_end()
 
--- target("AmeEditor")
---     set_default(true)
---     ame_utils:add_library("Ame/Editor", "binary", "Source/Editor/EditorApplication")
---     ame_utils:install_assets()
+target("AmeEditor")
+    set_default(true)
+    ame_utils:add_library("Ame/Editor", "binary", "Source/Editor/EditorApplication")
+    ame_utils:install_assets()
 
---     add_deps("Ame.Application")
---     add_deps("Ame.EditorPlugin")
+    add_deps("Ame.Application")
+    add_deps("Ame.EditorPlugin")
 
---     set_runargs("-p", "Shared/Assets/Projects/EmptyProject/EmptyProject.ame")
--- target_end()
+    set_runargs("-p", "Shared/Assets/Projects/EmptyProject/EmptyProject.ame")
+target_end()

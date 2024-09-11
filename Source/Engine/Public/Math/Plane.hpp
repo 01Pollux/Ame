@@ -5,7 +5,7 @@
 
 namespace Ame::Math
 {
-    class Plane : public Vector4
+    class AME_ENGINE_API Plane : public Vector4
     {
     public:
         using Vector4::Vector4;

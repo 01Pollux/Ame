@@ -7,7 +7,7 @@
 
 namespace Ame::Rg
 {
-    class Graph : public BaseObject<IObject>
+    class AME_ENGINE_API Graph : public BaseObject<IObject>
     {
     public:
         using Base = BaseObject<IObject>;

@@ -12,7 +12,7 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx
 {
-    class DepthPrePass : public Rg::Pass
+    class AME_ENGINE_API DepthPrePass : public Rg::Pass
     {
     public:
         static constexpr Dg::TEXTURE_FORMAT DepthFormat = Dg::TEX_FORMAT_D32_FLOAT;

@@ -9,7 +9,7 @@ namespace Ame::Math
 
     //
 
-    class Vector2 : public Impl::MVector<float, 2>
+    class AME_ENGINE_API Vector2 : public Impl::MVector<float, 2>
     {
     public:
         using MVector::MVector;
@@ -36,7 +36,7 @@ namespace Ame::Math
         [[nodiscard]] float Cross(const Vector2& other) const noexcept;
     };
 
-    class Vector2I : public Impl::MVector<int, 2>
+    class AME_ENGINE_API Vector2I : public Impl::MVector<int, 2>
     {
     public:
         using MVector::MVector;
@@ -60,7 +60,7 @@ namespace Ame::Math
         AME_VECTOR_IMPL_ACCESSOR(1, y);
     };
 
-    class Vector2U : public Impl::MVector<uint32_t, 2>
+    class AME_ENGINE_API Vector2U : public Impl::MVector<uint32_t, 2>
     {
     public:
         using MVector::MVector;
@@ -86,7 +86,7 @@ namespace Ame::Math
 
     //
 
-    class Vector3 : public Impl::MVector<float, 3>
+    class AME_ENGINE_API Vector3 : public Impl::MVector<float, 3>
     {
     public:
         using MVector::MVector;
@@ -119,7 +119,7 @@ namespace Ame::Math
         [[nodiscard]] Vector3 Cross(const Vector3& Other) const noexcept;
     };
 
-    class Vector3I : public Impl::MVector<int, 3>
+    class AME_ENGINE_API Vector3I : public Impl::MVector<int, 3>
     {
     public:
         using MVector::MVector;
@@ -144,7 +144,7 @@ namespace Ame::Math
         AME_VECTOR_IMPL_ACCESSOR(2, z);
     };
 
-    class Vector3U : public Impl::MVector<uint32_t, 3>
+    class AME_ENGINE_API Vector3U : public Impl::MVector<uint32_t, 3>
     {
     public:
         using MVector::MVector;
@@ -171,7 +171,7 @@ namespace Ame::Math
 
     //
 
-    class Vector4 : public Impl::MVector<float, 4>
+    class AME_ENGINE_API Vector4 : public Impl::MVector<float, 4>
     {
     public:
         using MVector::MVector;
@@ -200,7 +200,7 @@ namespace Ame::Math
         AME_VECTOR_IMPL_ACCESSOR(3, w);
     };
 
-    class Vector4I : public Impl::MVector<int, 4>
+    class AME_ENGINE_API Vector4I : public Impl::MVector<int, 4>
     {
     public:
         using MVector::MVector;
@@ -226,7 +226,7 @@ namespace Ame::Math
         AME_VECTOR_IMPL_ACCESSOR(3, w);
     };
 
-    class Vector4U : public Impl::MVector<uint32_t, 4>
+    class AME_ENGINE_API Vector4U : public Impl::MVector<uint32_t, 4>
     {
     public:
         using MVector::MVector;
@@ -254,11 +254,11 @@ namespace Ame::Math
 
     //
 
-    class Quaternion : public Vector4
+    class AME_ENGINE_API Quaternion : public Vector4
     {
     public:
         using Vector4::Vector4;
-        static const Quaternion Identity;
+        struct Constants;
 
     public:
         [[nodiscard]] static Quaternion RotationRollPitchYaw(const Vector3& vec);
@@ -295,9 +295,10 @@ namespace Ame::Math
         AME_VECTOR_IMPL_MATH_OP(Quaternion, *);
     };
 
-    //
-
-    inline constexpr Quaternion Quaternion::Identity = Quaternion(0.f, 0.f, 0.f, 1.f);
+    struct Quaternion::Constants
+    {
+        static inline constexpr Quaternion Identity = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+    };
 } // namespace Ame::Math
 
 namespace Ame::Concepts

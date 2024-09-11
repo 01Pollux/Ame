@@ -3,6 +3,8 @@
 
 namespace Ame::Log
 {
+    ILoggerStream::~ILoggerStream() = default;
+
     void ILoggerStream::SetPattern(String pattern)
     {
         m_Pattern = std::move(pattern);

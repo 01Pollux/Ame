@@ -21,8 +21,7 @@ namespace Ame::Interfaces
                                                           .InitialVertexBufferSize =
                                                               imguiConfig.InitialVertexBufferSize,
                                                           .InitialIndexBufferSize = imguiConfig.InitialIndexBufferSize,
-                                                          .ConversionMode         = imguiConfig.ConversionMode,
-                                                          .MultiThreaded          = imguiConfig.MultiThreaded };
+                                                          .ConversionMode         = imguiConfig.ConversionMode };
             return Rhi::CreateImGuiRenderer(imguiCreateDesc);
         }
         else

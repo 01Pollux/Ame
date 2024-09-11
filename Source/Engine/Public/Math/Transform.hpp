@@ -3,11 +3,6 @@
 #include <Math/Matrix.hpp>
 #include <Math/Vector.hpp>
 
-namespace boost::serialization
-{
-    class access;
-} // namespace boost::serialization
-
 namespace Ame::Math
 {
     class TransformMatrix
@@ -19,9 +14,7 @@ namespace Ame::Math
 
     public:
         TransformMatrix(const Matrix3x3& basis    = Matrix3x3::Constants::Identity,
-                        const Vector3&   position = Vector3::Constants::Zero) :
-            m_Basis(basis),
-            m_Position(position)
+                        const Vector3&   position = Vector3::Constants::Zero) : m_Basis(basis), m_Position(position)
         {
         }
 
@@ -202,14 +195,6 @@ namespace Ame::Math
             m_Basis *= other.m_Basis;
             m_Position += other.m_Position;
             return *this;
-        }
-
-    private:
-        friend class boost::serialization::access;
-
-        template<typename ArchiveTy> void Serialize(ArchiveTy& archive, uint32_t)
-        {
-            archive & m_Basis & m_Position;
         }
 
     private:

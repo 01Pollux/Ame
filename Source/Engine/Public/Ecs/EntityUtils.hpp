@@ -4,7 +4,7 @@
 
 namespace Ame::Ecs
 {
-    struct EntityUtils
+    struct AME_ENGINE_API EntityUtils
     {
         /// <summary>
         /// Get the scene root entity of the entity

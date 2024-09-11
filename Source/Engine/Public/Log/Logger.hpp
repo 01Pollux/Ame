@@ -8,9 +8,12 @@ namespace Ame::Log
     // {940017D2-269C-45B6-803B-F3C530151CCA}
     inline constexpr UId IID_Logger{ 0x940017d2, 0x269c, 0x45b6, { 0x80, 0x3b, 0xf3, 0xc5, 0x30, 0x15, 0x1c, 0xca } };
 
-    class ILogger : public IObject
+    class AME_ENGINE_API ILogger : public IObject
     {
     public:
+        static void                   Initialize(Ptr<ILogger> logger);
+        [[nodiscard]] static ILogger* Get();
+
         virtual void WriteMessage(const LoggerInfo& info) = 0;
 
         virtual void AddStream(ILoggerStream* stream)    = 0;
@@ -38,7 +41,5 @@ namespace Ame::Log
 
     //
 
-    inline Ptr<ILogger> s_Logger;
-
-    [[nodiscard]] Ptr<ILogger> CreateLogger(String name);
+    [[nodiscard]] AME_ENGINE_API Ptr<ILogger> CreateLogger(String name);
 } // namespace Ame::Log

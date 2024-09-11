@@ -40,11 +40,6 @@ namespace Ame::Rhi
             return nullptr;
         }
 
-        ImGuiContext* GetContext() const
-        {
-            return nullptr;
-        }
-
         bool RenderBackbufferToTexture() const override
         {
             return false;

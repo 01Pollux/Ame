@@ -5,7 +5,13 @@
 
 namespace Ame::Ecs
 {
-    class ViewporEcsModule
+    /// <summary>
+    /// Defines:
+    /// CameraComponent
+    /// CameraOutputComponent
+    /// CameraFrustumComponent
+    /// </summary>
+    class AME_ENGINE_API ViewporEcsModule
     {
     public:
         ViewporEcsModule(WorldRef world);

@@ -7,28 +7,13 @@
 
 namespace Ame
 {
-    struct EngineConfig
+    struct AME_ENGINE_API EngineConfig
     {
         Interfaces::CoreModuleConfig          CoreConfig;
         Opt<Interfaces::RhiModuleConfig>      RhiConfig;
         Opt<Interfaces::EcsModuleConfig>      EcsConfig;
         Opt<Interfaces::GraphicsModuleConfig> GraphicsConfig;
 
-        void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const
-        {
-            CoreConfig.ExposeInterfaces(registry, owner);
-            if (RhiConfig)
-            {
-                RhiConfig->ExposeInterfaces(registry, owner);
-            }
-            if (EcsConfig)
-            {
-                EcsConfig->ExposeInterfaces(registry, owner);
-            }
-            if (GraphicsConfig)
-            {
-                GraphicsConfig->ExposeInterfaces(registry, owner);
-            }
-        }
+        void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const;
     };
 } // namespace Ame

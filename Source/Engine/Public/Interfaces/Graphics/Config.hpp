@@ -5,7 +5,7 @@
 
 namespace Ame::Interfaces
 {
-    struct GraphicsModuleConfig
+    struct AME_ENGINE_API GraphicsModuleConfig
     {
         void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner = nullptr) const;
     };

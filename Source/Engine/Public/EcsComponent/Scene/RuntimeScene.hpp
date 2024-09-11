@@ -35,7 +35,7 @@ namespace Ame::Ecs
         Clear
     };
 
-    class RuntimeScene : public BaseObject<ISerializable>
+    class AME_ENGINE_API RuntimeScene : public BaseObject<ISerializable>
     {
     public:
         using Base = BaseObject<ISerializable>;

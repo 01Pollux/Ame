@@ -12,7 +12,7 @@ namespace Ame::Ecs
 
 namespace Ame::Gfx
 {
-    class ForwardPlus_RenderObjectsPass : public Rg::Pass
+    class AME_ENGINE_API ForwardPlus_RenderObjectsPass : public Rg::Pass
     {
     private:
         struct PassData

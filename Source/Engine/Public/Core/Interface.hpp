@@ -25,11 +25,21 @@ namespace Ame
     class ObjectMemoryAllocator : public Dg::IMemoryAllocator
     {
     public:
-        static ObjectMemoryAllocator& Instance();
+        static ObjectMemoryAllocator& Instance()
+        {
+            static ObjectMemoryAllocator allocator;
+            return allocator;
+        }
 
     public:
-        void* Allocate(size_t size, const char*, const char*, const int) override;
-        void  Free(void* ptr) override;
+        void* Allocate(size_t size, const char*, const char*, const int) override
+        {
+            return mi_malloc(size);
+        }
+        void Free(void* ptr) override
+        {
+            mi_free(ptr);
+        }
     };
 
     template<typename Ty> class ObjectAllocator : public Dg::MakeNewRCObj<Ty, ObjectMemoryAllocator>

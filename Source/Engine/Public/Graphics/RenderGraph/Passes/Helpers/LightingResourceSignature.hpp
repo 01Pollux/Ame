@@ -68,7 +68,7 @@ namespace Ame::Gfx
 
     //
 
-    class LightingResourceSignaturePass_GraphicsPass final
+    class AME_ENGINE_API LightingResourceSignaturePass_GraphicsPass final
         : public LightingResourceSignaturePass<LightingResourceSignaturePass_GraphicsPass, Dg::SHADER_TYPE_ALL_GRAPHICS>
     {
     public:
@@ -83,7 +83,7 @@ namespace Ame::Gfx
         }
     };
 
-    class LightingResourceSignaturePass_ComputePass final
+    class AME_ENGINE_API LightingResourceSignaturePass_ComputePass final
         : public LightingResourceSignaturePass<LightingResourceSignaturePass_ComputePass, Dg::SHADER_TYPE_COMPUTE>
     {
     public:

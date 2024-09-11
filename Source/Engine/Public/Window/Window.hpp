@@ -18,7 +18,6 @@ namespace Ame::Window
     class IWindow : public IObject
     {
     public:
-        virtual void               ProcessEvents()   = 0;
         [[nodiscard]] virtual bool IsRunning() const = 0;
         virtual void               Close()           = 0;
 
@@ -59,5 +58,6 @@ namespace Ame::Window
         virtual void Restore() = 0;
     };
 
-    [[nodiscard]] Ptr<IWindow> CreateWindow(const WindowType& windowType, const WindowCreateDesc& createDesc);
+    [[nodiscard]] AME_ENGINE_API Ptr<IWindow> CreateWindow(const WindowType&       windowType,
+                                                           const WindowCreateDesc& createDesc);
 } // namespace Ame::Window

@@ -1,11 +1,12 @@
 #include <Interfaces/Core/Config.hpp>
 #include <Interfaces/Core/Logger.hpp>
-#include <Interfaces/Core/Coroutine.hpp>
 #include <Interfaces/Core/FrameTimer.hpp>
 #include <Interfaces/Core/FrameEvent.hpp>
 
 namespace Ame::Interfaces
 {
+    LoggerCreateDesc::~LoggerCreateDesc() = default;
+
     void CoreModuleConfig::ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const
     {
         if (!LoggerDesc.LoggerName.empty())
@@ -19,13 +20,11 @@ namespace Ame::Interfaces
             logger->SetLevel(LoggerDesc.DefaultLevel);
 
             registry->ExposeInterface(owner, IID_Logger, logger);
-
             if (LoggerDesc.SetAsMain)
             {
-                Log::s_Logger = logger;
+                Log::ILogger::Initialize(std::move(logger));
             }
         }
-        registry->ExposeInterface(owner, IID_Coroutine, s_Coroutine);
         if (EnableFrameTimer)
         {
             registry->ExposeInterface(owner, IID_FrameTimer, AmeCreateObject(FrameTimer));

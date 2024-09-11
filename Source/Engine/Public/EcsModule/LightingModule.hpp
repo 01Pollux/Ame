@@ -4,7 +4,14 @@
 
 namespace Ame::Ecs
 {
-    class LightingEcsModule
+    /// <summary>
+    /// Defines:
+    /// LightTypeTag
+    /// PointLightComponent
+    /// SpotLightComponent
+    /// DirectionalLightComponent
+    /// </summary>
+    class AME_ENGINE_API LightingEcsModule
     {
     public:
         LightingEcsModule(WorldRef world);

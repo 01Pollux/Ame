@@ -6,7 +6,7 @@
 
 namespace Ame::Math
 {
-    class [[nodiscard]] Matrix4x4
+    class [[nodiscard]] AME_ENGINE_API Matrix4x4
     {
     public:
         struct Constants;
@@ -139,7 +139,7 @@ namespace Ame::Math
         std::array<Vector4, 4> m_Data;
     };
 
-    class [[nodiscard]] Matrix3x3
+    class [[nodiscard]] AME_ENGINE_API Matrix3x3
     {
     public:
         struct Constants;

@@ -149,7 +149,7 @@ namespace Ame::Rg
 
     //
 
-    class ResourceHandle
+    class AME_ENGINE_API ResourceHandle
     {
         friend class DependencyLevel;
         friend class ResourceStorage;

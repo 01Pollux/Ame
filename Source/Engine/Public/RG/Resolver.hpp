@@ -5,7 +5,7 @@
 
 namespace Ame::Rg
 {
-    class Resolver
+    class AME_ENGINE_API Resolver
     {
         friend class PassStorage;
 

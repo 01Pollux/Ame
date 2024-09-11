@@ -38,7 +38,6 @@ namespace Ame::Rhi
         if (windowWrapper)
         {
             auto window = windowWrapper->GetWindow();
-            window->ProcessEvents();
             return window->IsRunning();
         }
         return true;

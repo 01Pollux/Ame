@@ -87,46 +87,114 @@ namespace Ame::Strings
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] String ToLower(StringView str) noexcept;
+    [[nodiscard]] inline String ToLower(StringView str) noexcept
+    {
+        return str | std::views::transform([](Char c) { return static_cast<Char>(std::tolower(c)); }) |
+               std::ranges::to<String>();
+    }
 
     /// <summary>
     /// Convert string to lower case
     /// </summary>
-    [[nodiscard]] WideString ToLower(WideStringView str) noexcept;
+    [[nodiscard]] inline WideString ToLower(WideStringView str) noexcept
+    {
+        return str | std::views::transform([](WideChar c) { return static_cast<WideChar>(std::tolower(c)); }) |
+               std::ranges::to<WideString>();
+    }
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] String ToUpper(StringView str) noexcept;
+    [[nodiscard]] inline String ToUpper(StringView str) noexcept
+    {
+        return str | std::views::transform([](Char c) { return static_cast<Char>(std::toupper(c)); }) |
+               std::ranges::to<String>();
+    }
 
     /// <summary>
     /// Convert string to upper case
     /// </summary>
-    [[nodiscard]] WideString ToUpper(WideStringView str) noexcept;
+    [[nodiscard]] inline WideString ToUpper(WideStringView str) noexcept
+    {
+        return str | std::views::transform([](WideChar c) { return static_cast<WideChar>(std::toupper(c)); }) |
+               std::ranges::to<WideString>();
+    }
 
     //
 
     /// <summary>
     /// Replace occurence of a token in a string
     /// </summary>
-    bool Replace(String& str, StringView token, StringView value) noexcept;
+    inline bool Replace(String& str, StringView token, StringView value) noexcept
+    {
+        size_t iter = str.find(token.data(), 0, token.size());
+        if (iter != str.npos)
+        {
+            str.replace(iter, token.size(), value);
+            return true;
+        }
+        return false;
+    }
 
     /// <summary>
     /// Replace occurence of a token in a string
     /// </summary>
-    bool Replace(WideString& str, WideStringView token, WideStringView value) noexcept;
+    inline bool Replace(WideString& str, WideStringView token, WideStringView value) noexcept
+    {
+        size_t iter = str.find(token.data(), 0, token.size());
+        if (iter != str.npos)
+        {
+            str.replace(iter, token.size(), value);
+            return true;
+        }
+        return false;
+    }
 
     //
 
     /// <summary>
     /// Replace all occurences of a token in a string
     /// </summary>
-    size_t ReplaceAll(String& str, StringView token, StringView value) noexcept;
+    inline size_t ReplaceAll(String& str, StringView token, StringView value) noexcept
+    {
+        size_t count = 0;
+        while (true)
+        {
+            size_t iter = str.find(token.data(), 0, token.size());
+            if (iter != str.npos)
+            {
+                str.replace(iter, token.size(), value);
+                count++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return count;
+    }
 
     /// <summary>
     /// Replace all occurences of a token in a string
     /// </summary>
-    size_t ReplaceAll(WideString& str, WideStringView token, WideStringView value) noexcept;
+    inline size_t ReplaceAll(WideString& str, WideStringView token, WideStringView value) noexcept
+    {
+        size_t count = 0;
+        while (true)
+        {
+            size_t iter = str.find(token.data(), 0, token.size());
+            if (iter != str.npos)
+            {
+                str.replace(iter, token.size(), value);
+                count++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return count;
+    }
 
     //
 

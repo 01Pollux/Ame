@@ -19,7 +19,7 @@ namespace Ame
     // {6A81E4C8-A67E-44C0-9A06-03B3539B1F1D}
     inline constexpr UId IID_Coroutine{ 0x6a81e4c8, 0xa67e, 0x44c0, { 0x9a, 0x6, 0x3, 0xb3, 0x53, 0x9b, 0x1f, 0x1d } };
 
-    class Coroutine : public BaseObject<IObject>
+    class AME_ENGINE_API Coroutine : public BaseObject<IObject>
     {
     public:
         using Base = BaseObject<IObject>;

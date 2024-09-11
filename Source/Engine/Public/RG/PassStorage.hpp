@@ -6,7 +6,7 @@
 
 namespace Ame::Rg
 {
-    class PassStorage
+    class AME_ENGINE_API PassStorage
     {
         friend class Graph;
 
@@ -16,6 +16,17 @@ namespace Ame::Rg
         using DependencyLevelListType = std::vector<DependencyLevel>;
 
         static constexpr std::chrono::milliseconds s_GraphBuildTime = std::chrono::milliseconds(5'000);
+
+    public:
+        PassStorage() = default;
+
+        PassStorage(const PassStorage&)            = delete;
+        PassStorage& operator=(const PassStorage&) = delete;
+
+        PassStorage(PassStorage&&) noexcept            = default;
+        PassStorage& operator=(PassStorage&&) noexcept = default;
+
+        ~PassStorage();
 
     public:
         /// <summary>

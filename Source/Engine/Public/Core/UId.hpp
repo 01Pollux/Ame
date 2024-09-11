@@ -10,7 +10,7 @@ namespace Ame
     using UId          = Dg::INTERFACE_ID;
     using INTERFACE_ID = Dg::INTERFACE_ID;
 
-    struct UIdUtils
+    struct AME_ENGINE_API UIdUtils
     {
         struct Hasher
         {
