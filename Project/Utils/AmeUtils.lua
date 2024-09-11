@@ -45,7 +45,7 @@ end
 
 function ame_utils:add_binary(group, path)
     self:add_library(group, "binary", path)
-    add_deps("Ame.Engine", {public = true})
+    add_deps("AmeEngine", {public = true})
 end
 
 function ame_utils:add_tests(group, path, target_name)

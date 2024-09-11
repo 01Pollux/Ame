@@ -17,6 +17,6 @@ target_end()
 
 target("PluginHost")
     ame_utils:add_library("Examples/Plugin", "shared", "Source/Examples/PluginHost")
-    add_deps("Ame.Engine")
+    add_deps("AmeEngine")
     ame_utils:copy_to_plugins()
 target_end()
