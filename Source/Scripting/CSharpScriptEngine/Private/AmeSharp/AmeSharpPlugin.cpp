@@ -4,13 +4,6 @@
 #include <Interfaces/Scripting/CSharpScriptEngine.hpp>
 #include <Log/Logger.hpp>
 
-namespace Ame::Interfaces
-{
-#ifdef AME_CSHARP_STATIC_LINKING
-    Ptr<IScriptEngine> CreateCSharpScriptingEngine();
-#endif
-} // namespace Ame::Interfaces
-
 namespace Ame::Scripting
 {
     AmeSharpPlugin::AmeSharpPlugin() :
@@ -27,7 +20,7 @@ namespace Ame::Scripting
 
         try
         {
-            auto engine = Interfaces::CreateCSharpScriptingEngine();
+            auto engine = Interfaces::CreateCSharpScriptingEngine({ .RuntimeConfigPath = GetPluginPath() });
             return registry->ExposeInterface(this, Interfaces::IID_CSScriptEngine, engine);
         }
         catch (const std::exception& e)

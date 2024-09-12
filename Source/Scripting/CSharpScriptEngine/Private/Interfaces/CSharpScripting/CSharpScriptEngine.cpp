@@ -1,20 +1,19 @@
 #include <Interfaces/CSharpScripting/CSharpScriptEngine.hpp>
 #include <CSharpScripting/Library.hpp>
 
-#include <nethost.h>
-#include <hostfxr.h>
 #include <Log/Logger.hpp>
 
 namespace Ame::Interfaces
 {
-    Ptr<IScriptEngine> CreateCSharpScriptingEngine()
+    Ptr<IScriptEngine> CreateCSharpScriptingEngine(const Scripting::CSScriptEngineConfig& config)
     {
-        return AmeCreate(CSharpScriptEngine);
+        return AmeCreate(CSharpScriptEngine, config);
     }
 
-    CSharpScriptEngine::CSharpScriptEngine(IReferenceCounters* counters) : Base(counters)
+    CSharpScriptEngine::CSharpScriptEngine(IReferenceCounters*                    counters,
+                                           const Scripting::CSScriptEngineConfig& config) :
+        Base(counters), m_Runtime(config)
     {
-        LoadHostFxrLibrary();
     }
 
     //
@@ -33,28 +32,6 @@ namespace Ame::Interfaces
     {
         auto context = GetOrCreateLibraryContext(contextName);
         return context->LoadLibrary(path);
-    }
-
-    //
-
-    void CSharpScriptEngine::LoadHostFxrLibrary()
-    {
-        size_t bufferSize = 0;
-        get_hostfxr_path(nullptr, &bufferSize, nullptr);
-        std::basic_string<char_t> hostFxrPath(bufferSize, '\0');
-        if (get_hostfxr_path(hostFxrPath.data(), &bufferSize, nullptr))
-        {
-            throw std::runtime_error("Failed to locate hostfxr");
-        }
-
-        AME_LOG_TRACE(std::format("Found hostfxr at: {}", Strings::To<String>(hostFxrPath)));
-        m_HostFxrLibrary = DllLibrary(hostFxrPath.c_str());
-    }
-
-    void CSharpScriptEngine::LoadHostFxrRuntime()
-    {
-        m_CoreClr.Load(m_HostFxrLibrary);
-        m_CoreClr.SetErrorWriter([](const char_t* message) { AME_LOG_ERROR(Strings::To<String>(message)); });
     }
 
     //

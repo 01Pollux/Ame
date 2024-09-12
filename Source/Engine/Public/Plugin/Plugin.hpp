@@ -104,8 +104,17 @@ namespace Ame
             return m_PluginName;
         }
 
+        /// <summary>
+        /// Get plugin path
+        /// </summary>
+        [[nodiscard]] const String& GetPluginPath() const noexcept
+        {
+            return m_PluginPath;
+        }
+
     private:
         String           m_PluginName;
+        String           m_PluginPath;
         const PluginInfo m_PluginInfo;
         bool             m_IsPaused = false;
     };
