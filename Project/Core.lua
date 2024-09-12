@@ -2,9 +2,8 @@ local public_inherit = {public = true, inherit = true}
 
 --
 
-target("AmeEngine")
+ame_utils:add_library("AmeEngine", "Ame", "shared", "Source/Engine", function()
     add_defines("AME_ENGINE_EXPORT")
-    ame_utils:add_library("Ame", "shared", "Source/Engine")
     add_packages(
         "boost",
         "cereal",
@@ -26,51 +25,50 @@ target("AmeEngine")
     add_packages("ame.imgui", public_inherit)
     add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Export.hpp"), public_inherit)
     add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Allocator.hpp"), public_inherit)
-target_end()
+end)
 
 --
 
-target("Ame.ScriptingEngine")
-    ame_utils:add_library("Ame/Scripting", "headeronly", "Source/Scripting/ScriptEngine")
-    add_deps("AmeEngine")
+target("DotNet")
+    set_kind("phony")
+    add_packages("dotnet", public_inherit)
 target_end()
 
-target("AmeSharp")
+ame_utils:add_library("Ame.ScriptingEngine", "Ame/Scripting", "headeronly", "Source/Scripting/ScriptEngine", function()
+    add_deps("AmeEngine")
+end)
+
+ame_utils:add_plugin("AmeSharp", "Ame/Scripting", "Source/Scripting/CSharpScriptEngine", function()
     -- add_defines("AME_CSHARP_EXPORT")
     add_defines("AME_CSHARP_STATIC_LINKING")
-    ame_utils:add_plugin("Ame/Scripting", "Source/Scripting/CSharpScriptEngine")
 
     add_deps("Ame.ScriptingEngine")
-    add_packages("dotnet")
-target_end()
+    add_deps("DotNet")
+end)
 
 --
 
-target("Ame.Application")
-    ame_utils:add_library("Ame", "static", "Source/Application")
-    add_deps("AmeEngine")
-target_end()
-
---
-
-target("Ame.EditorPlugin")
-    ame_utils:add_library("Ame/Editor", "static", "Source/Editor/EditorPlugin")
+ame_utils:add_library("Ame.Application", "Ame", "static", "Source/Application", function()
     add_deps("AmeEngine", public_inherit)
-target_end()
+end)
 
-target("EditorCore")
-ame_utils:add_plugin("Ame/Editor", "Source/Editor/EditorCore")
-    
+--
+
+ame_utils:add_library("Ame.EditorPlugin", "Ame/Editor", "static", "Source/Editor/EditorPlugin", function()
+    add_deps("AmeEngine", public_inherit)
+end)
+
+ame_utils:add_plugin("EditorCore", "Ame/Editor", "Source/Editor/EditorCore", function()
     add_deps("Ame.EditorPlugin", public_inherit)
-target_end()
+end)
 
-target("AmeEditor")
+ame_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/EditorApplication", function()
     set_default(true)
-    ame_utils:add_library("Ame/Editor", "binary", "Source/Editor/EditorApplication")
-    ame_utils:install_assets()
 
     add_deps("Ame.Application")
     add_deps("Ame.EditorPlugin")
+    add_deps("DotNet")
 
+    ame_utils:install_assets()
     set_runargs("-p", "Shared/Assets/Projects/EmptyProject/EmptyProject.ame")
-target_end()
+end)

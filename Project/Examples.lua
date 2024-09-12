@@ -1,22 +1,11 @@
-target("HelloWorld")
-    ame_utils:add_binary("Examples", "Source/Examples/HelloWorld")
-target_end()
+ame_utils:add_binary("HelloWorld", "Examples", "Source/Examples/HelloWorld")
 
-target("SimpleWindow")
-    ame_utils:add_binary("Examples", "Source/Examples/SimpleWindow")
-target_end()
+ame_utils:add_binary("SimpleWindow", "Examples", "Source/Examples/SimpleWindow")
 
-target("SimpleRhi")
-    ame_utils:add_binary("Examples", "Source/Examples/SimpleRhi")
-target_end()
+ame_utils:add_binary("SimpleRhi", "Examples", "Source/Examples/SimpleRhi")
 
-target("PluginExample")
-    ame_utils:add_binary("Examples/Plugin", "Source/Examples/PluginExample")
+ame_utils:add_binary("PluginExample", "Examples/Plugin", "Source/Examples/PluginExample", function()
     add_deps("Ame.Application")
-target_end()
+end)
 
-target("PluginHost")
-    ame_utils:add_library("Examples/Plugin", "shared", "Source/Examples/PluginHost")
-    add_deps("AmeEngine")
-    ame_utils:copy_to_plugins()
-target_end()
+ame_utils:add_plugin("PluginHost", "Examples/Plugin", "Source/Examples/PluginHost")

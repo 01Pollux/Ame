@@ -18,43 +18,64 @@ function _ame_add_headers_if_not_empty(path)
     __ame_add_headerfiles_if_not_empty(file_utils:path_from_root(path .. "/**.hpp"))
 end
 
-function ame_utils:add_library(group, kind, path)
-    set_kind(kind)
-    set_group(group)
+function ame_utils:add_library(name, group, kind, path, callback)
+    target(name)
+        set_kind(kind)
+        set_group(group)
 
-    if kind ~= "headeronly" then
-        _ame_add_sources_if_not_empty(path .. "/Private")
-        _ame_add_headers_if_not_empty(path .. "/Private")
-    end
-    _ame_add_headers_if_not_empty(path .. "/Public")
+        if kind ~= "headeronly" then
+            _ame_add_sources_if_not_empty(path .. "/Private")
+            _ame_add_headers_if_not_empty(path .. "/Private")
+        end
+        _ame_add_headers_if_not_empty(path .. "/Public")
 
-    local include_dirs = file_utils:path_from_root(path .. "/Public")
-    local folder_exists = os.isdir(include_dirs)
-    if folder_exists == true then
-        add_includedirs(include_dirs, {public = true})
-    end
+        local include_dirs = file_utils:path_from_root(path .. "/Public")
+        local folder_exists = os.isdir(include_dirs)
+        if folder_exists == true then
+            add_includedirs(include_dirs, {public = true})
+        end
 
-    include_dirs = file_utils:path_from_root(path .. "/Private")
-    folder_exists = os.isdir(include_dirs)
-    if folder_exists == true then
-        add_includedirs(include_dirs, {public = false})
-    end
+        include_dirs = file_utils:path_from_root(path .. "/Private")
+        folder_exists = os.isdir(include_dirs)
+        if folder_exists == true then
+            add_includedirs(include_dirs, {public = false})
+        end
 
-    add_filegroups("", {rootdir = "../" .. path .. "/"})
+        add_filegroups("", {rootdir = "../" .. path .. "/"})
+
+        if callback ~= nil then
+            callback()
+        end
+    target_end()
 end
 
-function ame_utils:add_binary(group, path)
-    self:add_library(group, "binary", path)
-    add_deps("AmeEngine", {public = true})
-end
-
-function ame_utils:add_plugin(group, path)
-    self:add_library(group, "shared", path)
-    on_load(function(target)
-        target:set("targetdir", path.join(target:targetdir(), "Plugins"))
-        target:set("installdir", path.join(target:installdir(), "Plugins"))
+function ame_utils:add_binary(name, group, path, callback)
+    self:add_library(name, group, "binary", path, function()
+        add_deps("AmeEngine", {public = true})
+        if callback ~= nil then
+            callback()
+        end
     end)
-    add_deps("AmeEngine", {public = true})
+end
+
+function ame_utils:add_plugin(name, group, path, callback)
+    self:add_library(name, group, "shared", path, function()
+        add_deps("AmeEngine", {public = true})
+        after_load(function(target)
+            target:set("targetdir", target:targetdir() .. "/Plugins")
+        end)
+        after_install(function(target)
+            local plugins_dir = target:installdir() .. "/bin/Plugins"
+            local src_plugin = target:installdir() .. target:name()
+            if not os.isdir(plugins_dir) then
+                os.mkdir(plugins_dir)
+            end
+            os.mv(target:targetfile(), plugins_dir)
+        end)
+        if callback ~= nil then
+            callback()
+        end
+    end)
 end
 
 function ame_utils:add_tests(group, path, target_name)
@@ -79,7 +100,7 @@ end
 function ame_utils:install_assets()
     after_build(function(target)
         local targetdir = target:targetdir() .. "/Shared/Assets"
-        print ("Copying assets to " .. targetdir)
+        print("Copying assets to " .. targetdir)
         if not os.isdir(targetdir) then
             print("Creating asset directory")
             os.mkdir(targetdir)
@@ -89,7 +110,7 @@ function ame_utils:install_assets()
     end)
     after_install(function(target)
         local targetdir = target:installdir() .. "/bin/Shared/Assets"
-        print ("Copying assets to " .. targetdir)
+        print("Copying assets to " .. targetdir)
         if not os.isdir(targetdir) then
             print("Creating asset directory")
             os.mkdir(targetdir)

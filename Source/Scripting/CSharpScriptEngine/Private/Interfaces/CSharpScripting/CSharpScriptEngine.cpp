@@ -16,7 +16,7 @@ namespace Ame::Interfaces
         size_t bufferSize = 0;
         get_hostfxr_path(nullptr, &bufferSize, nullptr);
         std::basic_string<char_t> hostFxrPath(bufferSize, '\0');
-        if (!get_hostfxr_path(hostFxrPath.data(), &bufferSize, nullptr))
+        if (get_hostfxr_path(hostFxrPath.data(), &bufferSize, nullptr))
         {
             throw std::runtime_error("Failed to locate hostfxr");
         }

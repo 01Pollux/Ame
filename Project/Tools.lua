@@ -1,4 +1,3 @@
-target("GZipCompressToC")
-    ame_utils:add_library("Tools", "binary", "Source/Tools/GZipCompressToC")
+ame_utils:add_binary("GZipCompressToC", "Tools", "Source/Tools/GZipCompressToC", function()
     add_packages("boost")
-target_end()
+end)
