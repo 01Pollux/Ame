@@ -18,7 +18,7 @@
 
 namespace Ame::Rhi
 {
-    class StdMaterial3D_PixelShader : public EngineShader
+    class AME_ENGINE_API StdMaterial3D_PixelShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

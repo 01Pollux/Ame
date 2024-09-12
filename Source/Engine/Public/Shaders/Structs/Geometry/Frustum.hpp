@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class StructGeometryFrustumPlanesShader : public EngineShader
+    class AME_ENGINE_API StructGeometryFrustumPlanesShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

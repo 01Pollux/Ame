@@ -19,7 +19,7 @@
 
 namespace Ame::Rhi
 {
-    class ForwardPlus_RenderObjects_VertexShader : public EngineShader
+    class AME_ENGINE_API ForwardPlus_RenderObjects_VertexShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =
@@ -59,7 +59,7 @@ namespace Ame::Rhi
         Ptr<Dg::IShaderSourceInputStreamFactory> m_LinkedShaders;
     };
 
-    class ForwardPlus_RenderObjects_PixelShader : public EngineShader
+    class AME_ENGINE_API ForwardPlus_RenderObjects_PixelShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

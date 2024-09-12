@@ -8,7 +8,7 @@
 namespace Ame::Gfx
 {
     template<typename Ty, Dg::SHADER_TYPE ShaderFlags, bool WithSamplers = true>
-    class FrameDataResourceSignature : public Rg::Pass
+    class AME_ENGINE_API FrameDataResourceSignature : public Rg::Pass
     {
     public:
         FrameDataResourceSignature()

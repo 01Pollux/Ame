@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class ImGuiRenderVertexShader : public EngineShader
+    class AME_ENGINE_API ImGuiRenderVertexShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =
@@ -18,7 +18,7 @@ namespace Ame::Rhi
         }
     };
 
-    class ImGuiRenderPixelShader : public EngineShader
+    class AME_ENGINE_API ImGuiRenderPixelShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

@@ -13,7 +13,8 @@ namespace Ame::Gfx
         Dg::ITextureView* LightGrid          = nullptr;
     };
 
-    template<typename Ty, Dg::SHADER_TYPE ShaderFlags> class LightingResourceSignaturePass : public Rg::Pass
+    template<typename Ty, Dg::SHADER_TYPE ShaderFlags>
+    class AME_ENGINE_API LightingResourceSignaturePass : public Rg::Pass
     {
     public:
         LightingResourceSignaturePass()

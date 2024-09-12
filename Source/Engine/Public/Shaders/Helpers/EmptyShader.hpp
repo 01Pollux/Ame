@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class EmptyShader : public EngineShader
+    class AME_ENGINE_API EmptyShader : public EngineShader
     {
     public:
         EmptyShader()

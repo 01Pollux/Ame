@@ -17,7 +17,7 @@
 
 namespace Ame::Rhi
 {
-    class LightFrustumCull_ComputeShader : public EngineShader
+    class AME_ENGINE_API LightFrustumCull_ComputeShader : public EngineShader
     {
     private:
         static constexpr const char* DISPATCH_CHUNK_SIZE  = "DISPATCH_CHUNK_SIZE";

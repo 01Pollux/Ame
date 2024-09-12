@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class StructStdMaterialFragmentShader : public EngineShader
+    class AME_ENGINE_API StructStdMaterialFragmentShader : public EngineShader
     {
     private:
         static constexpr const char* c_SourceCode =

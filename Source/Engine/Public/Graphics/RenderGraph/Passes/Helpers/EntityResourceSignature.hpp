@@ -7,7 +7,8 @@
 
 namespace Ame::Gfx
 {
-    template<typename Ty, Dg::SHADER_TYPE ShaderFlags> class EntityResourceSignaturePass : public Rg::Pass
+    template<typename Ty, Dg::SHADER_TYPE ShaderFlags>
+    class AME_ENGINE_API EntityResourceSignaturePass : public Rg::Pass
     {
     public:
         EntityResourceSignaturePass()

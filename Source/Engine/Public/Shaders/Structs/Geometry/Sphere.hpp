@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class StructGeometrySphereShader : public EngineShader
+    class AME_ENGINE_API StructGeometrySphereShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

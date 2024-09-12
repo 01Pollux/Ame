@@ -48,6 +48,15 @@ function ame_utils:add_binary(group, path)
     add_deps("AmeEngine", {public = true})
 end
 
+function ame_utils:add_plugin(group, path)
+    self:add_library(group, "shared", path)
+    on_load(function(target)
+        target:set("targetdir", path.join(target:targetdir(), "Plugins"))
+        target:set("installdir", path.join(target:installdir(), "Plugins"))
+    end)
+    add_deps("AmeEngine", {public = true})
+end
+
 function ame_utils:add_tests(group, path, target_name)
     local test_files = os.files(file_utils:path_from_root(path .. "/Tests/*/*.cpp"))
     if table.empty(test_files) ~= true then

@@ -16,7 +16,7 @@ namespace Ame::Editor
 
     bool EditorCorePlugin::OnPluginPreLoad(IModuleRegistry* registry)
     {
-        if (!IEditorPlugin::OnPluginPreLoad(registry))
+        if (!IEditorPlugin::OnPluginPreLoad(registry) || !registry->BindPlugin(this, "AmeSharp", true))
         {
             return false;
         }

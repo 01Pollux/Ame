@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class StructStdVertexOutputShader : public EngineShader
+    class AME_ENGINE_API StructStdVertexOutputShader : public EngineShader
     {
     private:
         static constexpr const char* c_SourceCode =

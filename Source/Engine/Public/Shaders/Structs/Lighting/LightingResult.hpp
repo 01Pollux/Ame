@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class StructLightingResultShader : public EngineShader
+    class AME_ENGINE_API StructLightingResultShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

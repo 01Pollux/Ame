@@ -12,7 +12,7 @@
 
 namespace Ame::Rhi
 {
-    class EngineShader
+    class AME_ENGINE_API EngineShader
     {
     public:
         void AddMacro(const char* name, const char* definition)

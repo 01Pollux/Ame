@@ -15,7 +15,7 @@
 
 namespace Ame::Rhi
 {
-    class DepthPrepass_VertexShader : public EngineShader
+    class AME_ENGINE_API DepthPrepass_VertexShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

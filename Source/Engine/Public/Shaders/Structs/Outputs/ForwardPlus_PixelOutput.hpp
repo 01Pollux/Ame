@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class StructForwardPlusPixelOutputShader : public EngineShader
+    class AME_ENGINE_API StructForwardPlusPixelOutputShader : public EngineShader
     {
     private:
         static constexpr const char* c_SourceCode =

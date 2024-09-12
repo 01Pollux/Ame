@@ -42,7 +42,10 @@ namespace Ame
         //
 
         auto moduleRegistry = GetEngine().GetRegistry();
-        moduleRegistry->LoadPlugin("EditorCore");
+        if (!moduleRegistry->LoadPlugin("EditorCore"))
+        {
+            throw std::runtime_error("Failed to load EditorCore plugin");
+        }
 
         Ptr<Interfaces::IEditorProjectManager> projectManager;
         moduleRegistry->RequestInterface(nullptr, Interfaces::IID_ProjectManager, projectManager.DblPtr<IObject>());

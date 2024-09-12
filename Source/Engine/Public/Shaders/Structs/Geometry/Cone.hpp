@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class GeometryPlanesShader : public EngineShader
+    class AME_ENGINE_API GeometryPlanesShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =

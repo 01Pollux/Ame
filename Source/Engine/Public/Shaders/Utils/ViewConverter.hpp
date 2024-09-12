@@ -4,7 +4,7 @@
 
 namespace Ame::Rhi
 {
-    class UtilsViewConverterShader : public EngineShader
+    class AME_ENGINE_API UtilsViewConverterShader : public EngineShader
     {
     private:
         static constexpr const char c_SourceCode[] =
