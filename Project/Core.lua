@@ -35,6 +35,14 @@ target("Ame.ScriptingEngine")
     add_deps("AmeEngine")
 target_end()
 
+target("AmeSharp")
+    add_defines("AME_CSHARP_EXPORT")
+    ame_utils:add_library("Ame/Scripting", "shared", "Source/Scripting/CSharpScriptEngine")
+    ame_utils:copy_to_plugins()
+
+    add_deps("Ame.ScriptingEngine")
+target_end()
+
 --
 
 target("Ame.Application")

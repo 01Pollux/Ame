@@ -15,9 +15,9 @@ namespace Ame::Interfaces
     class IScriptEngine : public IObject
     {
     public:
-        virtual auto GetGarbageCollector() -> Ptr<Scripting::IGarbageCollector> = 0;
+        virtual auto GetGarbageCollector() -> Scripting::IGarbageCollector* = 0;
 
-        virtual auto CreateLibraryContext(const String& name) -> Ptr<Scripting::ILibraryContext>              = 0;
-        virtual auto CreateLibrary(const String& contextName, const String& path) -> Ptr<Scripting::ILibrary> = 0;
+        virtual auto CreateLibraryContext(const String& name) -> Scripting::ILibraryContext*              = 0;
+        virtual auto CreateLibrary(const String& contextName, const String& path) -> Scripting::ILibrary* = 0;
     };
 } // namespace Ame::Interfaces
