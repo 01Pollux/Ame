@@ -2,9 +2,9 @@
 
 #include <Core/String.hpp>
 
-namespace Ame::CSharp
+namespace Ame::Scripting
 {
-    struct ScriptEngineConfig
+    struct CSScriptEngineConfig
     {
         String RuntimeConfigPath;
     };

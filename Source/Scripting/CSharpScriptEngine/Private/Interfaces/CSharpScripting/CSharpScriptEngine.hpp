@@ -1,8 +1,8 @@
 #pragma once
 
 #include <map>
-#include <boost/dll.hpp>
 
+#include <CSharpScripting/Core.hpp>
 #include <Interfaces/Scripting/CSharpScriptEngine.hpp>
 
 #include <CSharpScripting/GC.hpp>
@@ -31,10 +31,15 @@ namespace Ame::Interfaces
         auto CreateLibrary(const String& contextName, const String& path) -> Scripting::ILibrary* override;
 
     private:
+        void LoadHostFxrLibrary();
+        void LoadHostFxrRuntime();
+
+    private:
         [[nodiscard]] Scripting::CSLibraryContext* GetOrCreateLibraryContext(const String& name);
 
     private:
-        DllLibrary m_HostFxrLibrary;
+        DllLibrary                  m_HostFxrLibrary;
+        Scripting::CoreCLRFunctions m_CoreClr;
 
         Ptr<Scripting::CSGarbageCollector> m_Gc;
         LibraryContextMap                  m_LibraryContexts;
