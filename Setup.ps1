@@ -1,6 +1,7 @@
 param (
     [string]$XMakeArgs = "",
-    [switch]$ShadersToCString = $false
+    [switch]$ShadersToCString = $false,
+    [switch]$BuildAmeSharpRuntime = $false
 )
 
 #
@@ -12,4 +13,9 @@ if ($ShadersToCString) {
 
 if ($XMakeArgs -ne "") {
     & xmake $XMakeArgs.Split(' ')
+}
+
+if ($BuildAmeSharpRuntime) {
+    Write-Host "Building C#..."
+    dotnet publish .\Source\Scripting\CSharpRuntime\AmeSharp.Runtime -o ./install/dotnet/AmeSharp.Runtime
 }
