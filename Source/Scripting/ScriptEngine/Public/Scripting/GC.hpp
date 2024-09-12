@@ -19,7 +19,7 @@ namespace Ame::Scripting
         Aggressive
     };
 
-    class IGarbageCollector
+    class IGarbageCollector : public IObject
     {
     public:
         virtual void CollectAll()                     = 0;

@@ -8,13 +8,13 @@ namespace Ame::Scripting
     class ILibraryContext;
     class IType;
 
-    class ILibrary
+    class ILibrary : public IObject
     {
     public:
-        virtual auto GetContext() const -> ILibraryContext*                       = 0;
-        virtual void RegisterFunction(const String& functionName, void* callback) = 0;
+        [[nodiscard]] virtual auto GetContext() const -> ILibraryContext*                       = 0;
+        [[nodiscard]] virtual void RegisterFunction(const String& functionName, void* callback) = 0;
 
-        virtual auto GetType(const String& name) -> Ptr<IType> = 0;
-        virtual auto GetTypes() -> Co::generator<Ptr<IType>>   = 0;
+        [[nodiscard]] virtual auto GetType(const String& name) -> IType* = 0;
+        [[nodiscard]] virtual auto GetTypes() -> Co::generator<IType*>   = 0;
     };
 } // namespace Ame::Scripting

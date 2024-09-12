@@ -6,7 +6,7 @@ namespace Ame::Scripting
 {
     class ILibrary;
 
-    class ILibraryContext
+    class ILibraryContext : public IObject
     {
     public:
         virtual ILibrary* LoadLibrary(const String& path)                                         = 0;

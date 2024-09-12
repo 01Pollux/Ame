@@ -36,11 +36,13 @@ target("Ame.ScriptingEngine")
 target_end()
 
 target("AmeSharp")
-    add_defines("AME_CSHARP_EXPORT")
+    -- add_defines("AME_CSHARP_EXPORT")
+    add_defines("AME_CSHARP_STATIC_LINKING")
     ame_utils:add_library("Ame/Scripting", "shared", "Source/Scripting/CSharpScriptEngine")
     ame_utils:copy_to_plugins()
 
     add_deps("Ame.ScriptingEngine")
+    add_packages("dotnet")
 target_end()
 
 --
