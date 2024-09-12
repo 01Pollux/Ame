@@ -24,13 +24,9 @@
 #define AME_MAIN_APPLICATION_CONFIG(ApplicationType, Config)                                                           \
     AME_MAIN_ENTRY_POINT                                                                                               \
     {                                                                                                                  \
-        int ret = 0;                                                                                                   \
-        Ame::Coroutine::Initialize();                                                                                  \
-        {                                                                                                              \
-            ApplicationType app(Config);                                                                               \
-            ret = app.Run();                                                                                           \
-        }                                                                                                              \
-        Ame::Coroutine::Shutdown();                                                                                    \
+        int             ret = 0;                                                                                       \
+        ApplicationType app(Config);                                                                                   \
+        ret = app.Run();                                                                                               \
         return ret;                                                                                                    \
     }
 

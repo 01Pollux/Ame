@@ -124,17 +124,17 @@ namespace Ame::Ecs
     Co::result<MeshModel::CreateDesc> AssImpModelImporter::CreateModelDescAsync(Rhi::IRhiDevice* rhiDevice) const
     {
         MeshModel::CreateDesc createDesc;
-        Co::result<void>      bufferTask, materialTask;
 
         if (m_Importer.GetScene())
         {
-            bufferTask =
+            auto bufferTask =
                 Coroutine::Get().background_executor()->submit([&] { CreateBufferResources(createDesc, rhiDevice); });
-            materialTask =
+            auto materialTask =
                 Coroutine::Get().background_executor()->submit([&] { CreateMaterials(createDesc, rhiDevice); });
 
-            co_await bufferTask;
-            co_await materialTask;
+            co_await Co::when_all(
+                Coroutine::Get().background_executor(), std::move(bufferTask), std::move(materialTask))
+                .run();
         }
 
         co_return createDesc;

@@ -37,8 +37,8 @@ namespace Ame::Interfaces
     struct AME_ENGINE_API CoreModuleConfig
     {
         LoggerCreateDesc LoggerDesc;
-        bool             EnableFrameTimer : 1 = true;
-        bool             EnableFrameEvent : 1 = true;
+        bool             EnableFrameTimer   : 1 = true;
+        bool             EnableFrameEvent   : 1 = true;
 
         void ExposeInterfaces(IModuleRegistry* registry, IPlugin* owner) const;
     };

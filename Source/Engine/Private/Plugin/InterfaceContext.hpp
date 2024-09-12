@@ -47,8 +47,11 @@ namespace Ame
         void DropInterface()
         {
             DropDependencies();
-            m_Plugin = nullptr;
-            m_Object = {};
+            if (m_Plugin)
+            {
+                m_Plugin = nullptr;
+                m_Object = {};
+            }
         }
 
         [[nodiscard]] bool HasDependencies() const noexcept
