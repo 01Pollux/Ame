@@ -2,27 +2,27 @@
 using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Loader;
 
-namespace AmeSharp.Core.Bridge
+namespace AmeSharp.Bridge.Core.Runtime
 {
     [CustomMarshaller(typeof(AssemblyLoadContext), MarshalMode.UnmanagedToManagedIn, typeof(AssemblyLoadContextMarshaller))]
     [CustomMarshaller(typeof(AssemblyLoadContext), MarshalMode.ManagedToUnmanagedIn, typeof(AssemblyLoadContextMarshaller))]
     internal static unsafe class AssemblyLoadContextMarshaller
     {
-        public static AssemblyLoadContext? ConvertToManaged(IntPtr unmanaged)
+        public static AssemblyLoadContext? ConvertToManaged(nint unmanaged)
         {
             var handle = (GCHandle)unmanaged;
             return handle.Target as AssemblyLoadContext;
         }
 
-        public static IntPtr ConvertToUnmanaged(AssemblyLoadContext managed)
+        public static nint ConvertToUnmanaged(AssemblyLoadContext managed)
         {
             var handle = GCHandle.Alloc(managed);
-            return (IntPtr)handle;
+            return (nint)handle;
         }
 
-        public static void Free(IntPtr unmanaged)
+        public static void Free(nint unmanaged)
         {
-            if (unmanaged != IntPtr.Zero)
+            if (unmanaged != nint.Zero)
             {
                 GCHandle handle = (GCHandle)unmanaged;
                 handle.Free();

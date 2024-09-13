@@ -10,6 +10,14 @@ namespace Ame::Scripting
     public:
         CLRRuntime(const CSScriptEngineConfig& config);
 
+    public:
+        template<typename Ty> [[nodiscard]] Ty GetFunction(const String& className, const String& functionName) const
+        {
+            return std::bit_cast<Ty>(GetFunctionPtr(className, functionName));
+        }
+
+        [[nodiscard]] void* GetFunctionPtr(const String& className, const String& functionName) const;
+
     private:
         void LoadHostFxrLibrary();
         void LoadHostFxrRuntime();

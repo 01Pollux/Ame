@@ -9,10 +9,41 @@ struct NativeString
     size_t      Length;
 };
 
+extern "C" __declspec(dllexport) void __cdecl TestingThis()
+{
+    printf("Test\n");
+}
+
 extern "C" __declspec(dllexport) void __cdecl AmeCSharp_LogMessage(const NativeString& str, char lvl)
 {
     printf("%s\n", str.Data);
     printf("Level: %c\n", lvl);
+}
+
+extern "C" __declspec(dllexport) void __cdecl Ame_BaseObject_QueryInterface(void* thisPtr, const Ame::UId& iid,
+                                                                            void** ppObject)
+{
+    using namespace Ame;
+    printf("QueryInterface\n");
+
+    auto baseObject = static_cast<IObject*>(thisPtr);
+    baseObject->QueryInterface(iid, std::bit_cast<IObject**>(ppObject));
+}
+
+extern "C" __declspec(dllexport) void __cdecl Ame_BaseObject_AddRef(void* thisPtr)
+{
+    using namespace Ame;
+    printf("AddRef\n");
+    auto baseObject = static_cast<IObject*>(thisPtr);
+    baseObject->AddRef();
+}
+
+extern "C" __declspec(dllexport) void __cdecl Ame_BaseObject_Release(void* thisPtr)
+{
+    using namespace Ame;
+    printf("Release\n");
+    auto baseObject = static_cast<IObject*>(thisPtr);
+    baseObject->Release();
 }
 
 namespace Ame::Scripting
@@ -29,17 +60,19 @@ namespace Ame::Scripting
         LoadHostFxrLibrary();
         LoadHostFxrRuntime();
         Initialize(runtimePath);
-
-        //
-
-        using type    = void (*)();
-        type function = nullptr;
-        m_GetFunction(m_RuntimePath.c_str(), L"AmeSharp.Test, AmeSharp", L"Run",
-                      NETHOST_UNMANAGED_CALLER_DELEGATE, nullptr, (void**)&function);
-        function();
     }
 
     //
+
+    void* CLRRuntime::GetFunctionPtr(const String& className, const String& functionName) const
+    {
+        void* function = nullptr;
+        m_GetFunction(m_RuntimePath.c_str(), Strings::To<NetHostString>(className).c_str(),
+                      Strings::To<NetHostString>(functionName).c_str(), NETHOST_UNMANAGED_CALLER_DELEGATE, nullptr,
+                      &function);
+        AME_LOG_ASSERT(function != nullptr, "Failed to get function pointer");
+        return function;
+    }
 
     void CLRRuntime::LoadHostFxrLibrary()
     {

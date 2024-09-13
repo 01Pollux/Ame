@@ -1,4 +1,5 @@
-﻿using AmeSharp.Core.Base;
+﻿using AmeSharp.Bridge.Core;
+using AmeSharp.Core.Base;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -6,7 +7,7 @@ namespace AmeSharp.Core.Log
 {
     public unsafe partial class LoggerEng
     {
-        [LibraryImport("AmeSharp", EntryPoint = "AmeCSharp_LogMessage")]
+        [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "AmeCSharp_LogMessage")]
         [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
         public static partial void LogMessage(NativeString message, LogLevel level);
     }

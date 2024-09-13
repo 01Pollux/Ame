@@ -20,8 +20,21 @@ namespace Ame::Scripting
 
         try
         {
-            auto engine = Interfaces::CreateCSharpScriptingEngine({ .RuntimeConfigPath = GetPluginPath() });
-            return registry->ExposeInterface(this, Interfaces::IID_CSScriptEngine, engine);
+            CSScriptEngineConfig scriptConfig{ .RuntimeConfigPath = GetPluginPath() };
+
+            auto engine = Interfaces::CreateCSharpScriptingEngine(scriptConfig);
+            bool ret    = registry->ExposeInterface(this, Interfaces::IID_CSScriptEngine, engine);
+
+            //
+
+            {
+                auto context = engine->CreateLibraryContext(NativeString("ExampleContext"));
+                (void)context;
+            }
+
+            //
+
+            return ret;
         }
         catch (const std::exception& e)
         {

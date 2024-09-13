@@ -12,12 +12,14 @@ namespace AmeSharp.Core.Base
 
         public static implicit operator UnmanagedNativeString(NativeString value) => NativeStringMarshaller.ConvertToUnmanaged(value);
         public static implicit operator NativeString?(UnmanagedNativeString value) => NativeStringMarshaller.ConvertToManaged(value);
-        public static implicit operator UnmanagedNativeString(string? value) => NativeStringMarshaller.ConvertToUnmanaged(new(value));
+        public static implicit operator UnmanagedNativeString(string? value) => NativeStringMarshaller.ConvertToUnmanaged(new(value ?? string.Empty));
         public static implicit operator string?(UnmanagedNativeString value) => NativeStringMarshaller.ConvertToManaged(value)?.Value;
 
         public static void Free(UnmanagedNativeString value) => NativeStringMarshaller.Free(value);
 
         public override readonly string? ToString() => NativeStringMarshaller.ConvertToManaged(this)?.Value;
+
+        public readonly UnmanagedNativeString Empty => new() { Data = IntPtr.Zero, Size = 0 };
     }
 
     [CustomMarshaller(typeof(NativeString), MarshalMode.ManagedToUnmanagedOut, typeof(NativeStringMarshaller))]
@@ -26,8 +28,13 @@ namespace AmeSharp.Core.Base
     [CustomMarshaller(typeof(NativeString), MarshalMode.UnmanagedToManagedOut, typeof(NativeStringMarshaller))]
     internal static unsafe class NativeStringMarshaller
     {
-        public static UnmanagedNativeString ConvertToUnmanaged(NativeString managed)
+        public static UnmanagedNativeString ConvertToUnmanaged(NativeString? managed)
         {
+            if (managed == null)
+            {
+                return new UnmanagedNativeString { Data = IntPtr.Zero, Size = 0 };
+            }
+
             int byteCount = checked(Encoding.UTF8.GetByteCount(managed.Value) + 1);
             UnmanagedNativeString unmanaged = new()
             {

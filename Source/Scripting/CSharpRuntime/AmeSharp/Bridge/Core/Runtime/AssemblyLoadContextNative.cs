@@ -2,34 +2,34 @@
 using System.Runtime.InteropServices;
 using System.Runtime.Loader;
 
-namespace AmeSharp.Core.Bridge
+namespace AmeSharp.Bridge.Core.Runtime
 {
-    public unsafe partial class AssemblyLoadContextNative
+    public unsafe partial class ALCBridge
     {
-        [UnmanagedCallersOnly(EntryPoint = "AssemblyLoadContext_Create")]
-        public static IntPtr Create(UnmanagedNativeString name)
+        [UnmanagedCallersOnly]
+        public static nint Create(UnmanagedNativeString name)
         {
-            AssemblyLoadContext context = new(name!);
+            AssemblyLoadContext context = new(name!, true);
             return AssemblyLoadContextMarshaller.ConvertToUnmanaged(context);
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "AssemblyLoadContext_Unload")]
-        public static void Unload(IntPtr contextPtr)
+        [UnmanagedCallersOnly]
+        public static void Unload(nint contextPtr)
         {
             AssemblyLoadContext context = AssemblyLoadContextMarshaller.ConvertToManaged(contextPtr)!;
             context.Unload();
             AssemblyLoadContextMarshaller.Free(contextPtr);
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "AssemblyLoadContext_Load")]
-        public static void Load(IntPtr contextPtr, UnmanagedNativeString path)
+        [UnmanagedCallersOnly]
+        public static void LoadLibrary(nint contextPtr, UnmanagedNativeString path)
         {
             AssemblyLoadContext context = AssemblyLoadContextMarshaller.ConvertToManaged(contextPtr)!;
             context.LoadFromAssemblyPath(path!);
         }
 
-        [UnmanagedCallersOnly(EntryPoint = "AssemblyLoadContext_LoadFrom")]
-        public static void LoadFrom(IntPtr contextPtr, UnmanagedNativeString path)
+        [UnmanagedCallersOnly]
+        public static void LoadLibraryFrom(nint contextPtr, UnmanagedNativeString path)
         {
             AssemblyLoadContext context = AssemblyLoadContextMarshaller.ConvertToManaged(contextPtr)!;
             context.LoadFromAssemblyPath(path!);

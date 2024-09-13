@@ -12,7 +12,7 @@ namespace Ame::Interfaces
 
     CSharpScriptEngine::CSharpScriptEngine(IReferenceCounters*                    counters,
                                            const Scripting::CSScriptEngineConfig& config) :
-        Base(counters), m_Runtime(config)
+        Base(counters), m_Runtime(config), m_Gc(AmeCreate(Scripting::CSGarbageCollector, m_Runtime))
     {
     }
 
@@ -23,12 +23,13 @@ namespace Ame::Interfaces
         return m_Gc;
     }
 
-    Scripting::ILibraryContext* CSharpScriptEngine::CreateLibraryContext(const String& name)
+    Scripting::ILibraryContext* CSharpScriptEngine::CreateLibraryContext(const Scripting::NativeString& contextName)
     {
-        return GetOrCreateLibraryContext(name);
+        return GetOrCreateLibraryContext(contextName);
     }
 
-    Scripting::ILibrary* CSharpScriptEngine::CreateLibrary(const String& contextName, const String& path)
+    Scripting::ILibrary* CSharpScriptEngine::CreateLibrary(const Scripting::NativeString& contextName,
+                                                           const Scripting::NativeString& path)
     {
         auto context = GetOrCreateLibraryContext(contextName);
         return context->LoadLibrary(path);
@@ -36,12 +37,13 @@ namespace Ame::Interfaces
 
     //
 
-    Scripting::CSLibraryContext* CSharpScriptEngine::GetOrCreateLibraryContext(const String& name)
+    Scripting::CSLibraryContext* CSharpScriptEngine::GetOrCreateLibraryContext(const Scripting::NativeString& name)
     {
-        auto it = m_LibraryContexts.find(name);
+        auto it = m_LibraryContexts.find(name.GetHash());
         if (it == m_LibraryContexts.end())
         {
-            it = m_LibraryContexts.emplace(name, AmeCreate(Scripting::CSLibraryContext)).first;
+            it = m_LibraryContexts.emplace(name.GetHash(), AmeCreate(Scripting::CSLibraryContext, m_Runtime, name))
+                     .first;
         }
         return it->second;
     }

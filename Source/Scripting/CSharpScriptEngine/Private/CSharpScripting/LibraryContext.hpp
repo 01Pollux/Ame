@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Scripting/LibraryContext.hpp>
+#include <CSharpScripting/Runtime.hpp>
 
 namespace Ame::Scripting
 {
@@ -11,21 +12,27 @@ namespace Ame::Scripting
 
     class CSLibraryContext : public BaseObject<ILibraryContext>
     {
+        using CreateFn = void* (*)(const NativeString& name);
+        using UnloadFn = void (*)(void* context);
+
     public:
         using Base = BaseObject<ILibraryContext>;
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSLibraryContext, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSLibraryContext) : Base(counters)
-        {
-        }
+        IMPLEMENT_INTERFACE_CTOR(CSLibraryContext, const CLRRuntime& runtime, const NativeString& name);
 
     public:
-        ILibrary* LoadLibrary(const String& path) override;
-        ILibrary* LoadLibrary(const String& path, const std::byte* data, size_t dataSize) override;
-        ILibrary* GetLibrary(const String& path) override;
+        ~CSLibraryContext() override;
+
+    public:
+        ILibrary* LoadLibrary(const NativeString& path) override;
+        ILibrary* LoadLibrary(const NativeString& path, const std::byte* data, size_t dataSize) override;
+        ILibrary* GetLibrary(const NativeString& path) override;
 
     private:
+        const CLRRuntime* m_Runtime = nullptr;
+        void*             m_Context = nullptr;
     };
 } // namespace Ame::Scripting

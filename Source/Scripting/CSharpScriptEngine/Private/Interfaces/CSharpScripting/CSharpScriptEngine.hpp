@@ -19,7 +19,7 @@ namespace Ame::Interfaces
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSScriptEngine, Base);
 
     private:
-        using LibraryContextMap = std::map<String, Ptr<Scripting::CSLibraryContext>>;
+        using LibraryContextMap = std::map<size_t, Ptr<Scripting::CSLibraryContext>>;
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSharpScriptEngine, const Scripting::CSScriptEngineConfig& config);
@@ -27,11 +27,12 @@ namespace Ame::Interfaces
     public:
         auto GetGarbageCollector() -> Scripting::IGarbageCollector* override;
 
-        auto CreateLibraryContext(const String& name) -> Scripting::ILibraryContext* override;
-        auto CreateLibrary(const String& contextName, const String& path) -> Scripting::ILibrary* override;
+        auto CreateLibraryContext(const Scripting::NativeString& name) -> Scripting::ILibraryContext* override;
+        auto CreateLibrary(const Scripting::NativeString& contextName,
+                           const Scripting::NativeString& path) -> Scripting::ILibrary* override;
 
     private:
-        [[nodiscard]] Scripting::CSLibraryContext* GetOrCreateLibraryContext(const String& name);
+        [[nodiscard]] Scripting::CSLibraryContext* GetOrCreateLibraryContext(const Scripting::NativeString& name);
 
     private:
         Scripting::CLRRuntime m_Runtime;

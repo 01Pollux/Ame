@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Scripting/GC.hpp>
+#include <CSharpScripting/Runtime.hpp>
 
 namespace Ame::Scripting
 {
@@ -11,15 +12,17 @@ namespace Ame::Scripting
 
     class CSGarbageCollector : public BaseObject<IGarbageCollector>
     {
+        using CollectAllFn               = void (*)();
+        using CollectFn                  = void (*)(int, char, bool, bool);
+        using WaitForPendingFinalizersFn = void (*)();
+
     public:
         using Base = BaseObject<IGarbageCollector>;
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSGarbageCollector, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSGarbageCollector) : Base(counters)
-        {
-        }
+        IMPLEMENT_INTERFACE_CTOR(CSGarbageCollector, const CLRRuntime& runtime);
 
     public:
         void CollectAll() override;
@@ -28,5 +31,8 @@ namespace Ame::Scripting
         void WaitForPendingFinalizers() override;
 
     private:
+        CollectAllFn               m_CollectAll               = nullptr;
+        CollectFn                  m_Collect                  = nullptr;
+        WaitForPendingFinalizersFn m_WaitForPendingFinalizers = nullptr;
     };
 } // namespace Ame::Scripting
