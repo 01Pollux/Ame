@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Interfaces/Scripting/ScriptEngine.hpp>
-#include <Scripting/NativeString.hpp>
 #include <CSharpScripting/Export.hpp>
 #include <CSharpScripting/EngineConfig.hpp>
 

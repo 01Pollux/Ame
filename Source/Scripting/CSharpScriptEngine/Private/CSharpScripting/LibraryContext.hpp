@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <Scripting/LibraryContext.hpp>
 #include <CSharpScripting/Runtime.hpp>
 
@@ -15,6 +16,11 @@ namespace Ame::Scripting
         using CreateFn = void* (*)(const NativeString& name);
         using UnloadFn = void (*)(void* context);
 
+        using LoadLibraryFn           = void* (*)(void* context, const NativeString& path);
+        using LoadLibraryFromStreamFn = void* (*)(void* context, const void* data, size_t dataSize);
+
+        using LibraryMap = std::map<size_t, Ptr<ILibrary>>;
+
     public:
         using Base = BaseObject<ILibraryContext>;
 
@@ -28,11 +34,18 @@ namespace Ame::Scripting
 
     public:
         ILibrary* LoadLibrary(const NativeString& path) override;
-        ILibrary* LoadLibrary(const NativeString& path, const std::byte* data, size_t dataSize) override;
-        ILibrary* GetLibrary(const NativeString& path) override;
+        ILibrary* LoadLibrary(const NativeString& name, const std::byte* data, size_t dataSize) override;
+        ILibrary* GetLibrary(const NativeString& name) override;
+
+    public:
+        [[nodiscard]] auto GetHandle() const -> void*
+        {
+            return m_Context;
+        }
 
     private:
         const CLRRuntime* m_Runtime = nullptr;
         void*             m_Context = nullptr;
+        LibraryMap        m_Libraries;
     };
 } // namespace Ame::Scripting

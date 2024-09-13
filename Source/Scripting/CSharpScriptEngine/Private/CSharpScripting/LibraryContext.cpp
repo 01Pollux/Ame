@@ -1,4 +1,5 @@
 #include <CSharpScripting/LibraryContext.hpp>
+#include <CSharpScripting/Library.hpp>
 
 namespace Ame::Scripting
 {
@@ -19,21 +20,32 @@ namespace Ame::Scripting
 
     ILibrary* CSLibraryContext::LoadLibrary(const NativeString& path)
     {
-        (void)path;
-        return nullptr;
+        if (auto library = GetLibrary(path); library != nullptr)
+        {
+            return library;
+        }
+
+        auto loadLibrary = m_Runtime->GetFunction<LoadLibraryFn>(ClassName, "LoadLibrary");
+        auto library     = loadLibrary(m_Context, path);
+        return m_Libraries.emplace(path.hash(), AmeCreate(CSLibrary, *m_Runtime, this, library)).first->second;
     }
 
-    ILibrary* CSLibraryContext::LoadLibrary(const NativeString& path, const std::byte* data, size_t dataSize)
+    ILibrary* CSLibraryContext::LoadLibrary(const NativeString& name, const std::byte* data, size_t dataSize)
     {
-        (void)path;
-        (void)data;
-        (void)dataSize;
-        return nullptr;
+        if (auto library = GetLibrary(name); library != nullptr)
+        {
+            return library;
+        }
+
+        auto loadLibraryFromStream =
+            m_Runtime->GetFunction<LoadLibraryFromStreamFn>(ClassName, "LoadLibraryFromStream");
+        auto library = loadLibraryFromStream(m_Context, data, dataSize);
+        return m_Libraries.emplace(name.hash(), AmeCreate(CSLibrary, *m_Runtime, this, library)).first->second;
     }
 
-    ILibrary* CSLibraryContext::GetLibrary(const NativeString& path)
+    ILibrary* CSLibraryContext::GetLibrary(const NativeString& name)
     {
-        (void)path;
-        return nullptr;
+        auto iter = m_Libraries.find(name.hash());
+        return iter != m_Libraries.end() ? iter->second : nullptr;
     }
 } // namespace Ame::Scripting

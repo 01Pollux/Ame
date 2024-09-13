@@ -38,7 +38,7 @@ namespace AmeSharp.Core.Base
             int byteCount = checked(Encoding.UTF8.GetByteCount(managed.Value) + 1);
             UnmanagedNativeString unmanaged = new()
             {
-                Data = Marshal.AllocCoTaskMem(byteCount),
+                Data = (nint)NativeMemory.Alloc((nuint)byteCount),
                 Size = (ulong)byteCount
             };
 
@@ -60,7 +60,7 @@ namespace AmeSharp.Core.Base
         {
             if (unmanaged.Data != IntPtr.Zero)
             {
-                Marshal.FreeCoTaskMem(unmanaged.Data);
+                NativeMemory.Free((void*)unmanaged.Data);
             }
         }
     }

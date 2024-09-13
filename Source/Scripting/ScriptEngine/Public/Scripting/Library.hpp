@@ -2,6 +2,8 @@
 
 #include <Core/Interface.hpp>
 #include <Core/Coroutine.hpp>
+#include <Scripting/Types/NativeString.hpp>
+#include <Scripting/Types/NativeArray.hpp>
 
 namespace Ame::Scripting
 {
@@ -11,10 +13,10 @@ namespace Ame::Scripting
     class ILibrary : public IObject
     {
     public:
-        [[nodiscard]] virtual auto GetContext() const -> ILibraryContext*                       = 0;
-        [[nodiscard]] virtual void RegisterFunction(const String& functionName, void* callback) = 0;
+        [[nodiscard]] virtual NativeString GetName() const = 0;
 
-        [[nodiscard]] virtual auto GetType(const String& name) -> IType* = 0;
-        [[nodiscard]] virtual auto GetTypes() -> Co::generator<IType*>   = 0;
+        [[nodiscard]] virtual auto GetContext() const -> ILibraryContext*          = 0;
+        [[nodiscard]] virtual auto GetType(const NativeString& name) -> Ptr<IType> = 0;
+        [[nodiscard]] virtual auto GetTypes() -> NativeArray<Ptr<IType>>           = 0;
     };
 } // namespace Ame::Scripting

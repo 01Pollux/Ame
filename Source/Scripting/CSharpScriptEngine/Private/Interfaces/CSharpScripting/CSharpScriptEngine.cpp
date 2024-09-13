@@ -28,6 +28,11 @@ namespace Ame::Interfaces
         return GetOrCreateLibraryContext(contextName);
     }
 
+    void CSharpScriptEngine::TryUnloadLibraryContext(const Scripting::NativeString& name)
+    {
+        m_LibraryContexts.erase(name.hash());
+    }
+
     Scripting::ILibrary* CSharpScriptEngine::CreateLibrary(const Scripting::NativeString& contextName,
                                                            const Scripting::NativeString& path)
     {
@@ -39,10 +44,10 @@ namespace Ame::Interfaces
 
     Scripting::CSLibraryContext* CSharpScriptEngine::GetOrCreateLibraryContext(const Scripting::NativeString& name)
     {
-        auto it = m_LibraryContexts.find(name.GetHash());
+        auto it = m_LibraryContexts.find(name.hash());
         if (it == m_LibraryContexts.end())
         {
-            it = m_LibraryContexts.emplace(name.GetHash(), AmeCreate(Scripting::CSLibraryContext, m_Runtime, name))
+            it = m_LibraryContexts.emplace(name.hash(), AmeCreate(Scripting::CSLibraryContext, m_Runtime, name))
                      .first;
         }
         return it->second;

@@ -7,7 +7,7 @@ namespace Ame::Scripting
 {
     class IType;
 
-    class IInstance
+    class IInstance : public IObject
     {
     public:
         virtual auto GetType() const -> IType* = 0;

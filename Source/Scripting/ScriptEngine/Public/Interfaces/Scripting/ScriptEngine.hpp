@@ -21,6 +21,7 @@ namespace Ame::Interfaces
 
         [[nodiscard]] virtual auto CreateLibraryContext(const Scripting::NativeString& name)
             -> Scripting::ILibraryContext*                                                                    = 0;
+        virtual void               TryUnloadLibraryContext(const Scripting::NativeString& name)               = 0;
         [[nodiscard]] virtual auto CreateLibrary(const Scripting::NativeString& contextName,
                                                  const Scripting::NativeString& path) -> Scripting::ILibrary* = 0;
     };

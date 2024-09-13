@@ -1,23 +1,43 @@
 #pragma once
 
-#include <Core/Interface.hpp>
-#include <Core/Coroutine.hpp>
+#include <Scripting/Instance.hpp>
 
 namespace Ame::Scripting
 {
     class IType;
 
-    class IInstance
+    class CSInstance : public IInstance
     {
     public:
-        virtual auto GetType() const -> IType* = 0;
-
-        virtual void InvokeMethod(const char* methodName, const void* arguments, void* returnPtr) = 0;
-
-        virtual void GetField(const char* fieldName, void* valuePtr)       = 0;
-        virtual void SetField(const char* fieldName, const void* valuePtr) = 0;
-
-        virtual void GetProperty(const char* propertyName, void* valuePtr)       = 0;
-        virtual void SetProperty(const char* propertyName, const void* valuePtr) = 0;
+        auto GetType() const -> IType*
+        {
+            return {};
+        }
+        void InvokeMethod(const char* methodName, const void* arguments, void* returnPtr)
+        {
+            (void)methodName;
+            (void)arguments;
+            (void)returnPtr;
+        }
+        void GetField(const char* fieldName, void* valuePtr)
+        {
+            (void)fieldName;
+            (void)valuePtr;
+        }
+        void SetField(const char* fieldName, const void* valuePtr)
+        {
+            fieldName;
+            (void)valuePtr;
+        }
+        void GetProperty(const char* propertyName, void* valuePtr)
+        {
+            (void)propertyName;
+            (void)valuePtr;
+        }
+        void SetProperty(const char* propertyName, const void* valuePtr)
+        {
+            (void)propertyName;
+            (void)valuePtr;
+        }
     };
 } // namespace Ame::Scripting

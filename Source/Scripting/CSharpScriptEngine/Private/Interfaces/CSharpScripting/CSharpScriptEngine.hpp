@@ -28,6 +28,7 @@ namespace Ame::Interfaces
         auto GetGarbageCollector() -> Scripting::IGarbageCollector* override;
 
         auto CreateLibraryContext(const Scripting::NativeString& name) -> Scripting::ILibraryContext* override;
+        void TryUnloadLibraryContext(const Scripting::NativeString& name) override;
         auto CreateLibrary(const Scripting::NativeString& contextName,
                            const Scripting::NativeString& path) -> Scripting::ILibrary* override;
 

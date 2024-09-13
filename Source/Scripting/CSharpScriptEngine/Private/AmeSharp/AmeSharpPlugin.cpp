@@ -4,6 +4,8 @@
 #include <Interfaces/Scripting/CSharpScriptEngine.hpp>
 #include <Log/Logger.hpp>
 
+#include <Scripting/Library.hpp>
+
 namespace Ame::Scripting
 {
     AmeSharpRuntimePlugin::AmeSharpRuntimePlugin() :
@@ -28,8 +30,10 @@ namespace Ame::Scripting
             //
 
             {
-                auto context = engine->CreateLibraryContext(NativeString("ExampleContext"));
-                (void)context;
+                auto library =
+                    engine->CreateLibrary(NativeString("ExampleContext"), NativeString("Plugins/Sample.dll"));
+                auto name = library->GetName();
+                (void)library;
             }
 
             //

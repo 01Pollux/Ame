@@ -2,6 +2,7 @@
 
 #include <Core/Interface.hpp>
 #include <Core/Coroutine.hpp>
+#include <Scripting/Types/NativeString.hpp>
 
 namespace Ame::Scripting
 {
@@ -20,7 +21,7 @@ namespace Ame::Scripting
         size_t       ArgumentCount = 0;
     };
 
-    class IType
+    class IType : public IObject
     {
     public:
         virtual auto GetBaseType() const -> IType*     = 0;
@@ -29,8 +30,8 @@ namespace Ame::Scripting
 
         virtual auto CreateInstance(const InstanceCreateDesc& createDesc) -> Ptr<IInstance> = 0;
 
-        virtual auto GetField(const String& name) -> IField*       = 0;
-        virtual auto GetMethod(const String& name) -> IMethod*     = 0;
-        virtual auto GetProperty(const String& name) -> IProperty* = 0;
+        virtual auto GetField(const NativeString& name) -> IField*       = 0;
+        virtual auto GetMethod(const NativeString& name) -> IMethod*     = 0;
+        virtual auto GetProperty(const NativeString& name) -> IProperty* = 0;
     };
 } // namespace Ame::Scripting

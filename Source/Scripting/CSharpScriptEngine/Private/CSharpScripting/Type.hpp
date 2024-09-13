@@ -1,36 +1,33 @@
 #pragma once
 
-#include <Core/Interface.hpp>
-#include <Core/Coroutine.hpp>
+#include <Scripting/Type.hpp>
 
 namespace Ame::Scripting
 {
-    class IInstance;
-    class IField;
-    class IMethod;
-    class IProperty;
+    // {B4494A29-5C6E-4121-AB0B-87A4764CF671}
+    inline constexpr UId IID_CSType{ 0xb4494a29, 0x5c6e, 0x4121, { 0xab, 0xb, 0x87, 0xa4, 0x76, 0x4c, 0xf6, 0x71 } };
 
-    struct InstanceCreateDesc
-    {
-        /// <summary>
-        ///  Used if the constructor has multiple overloads.
-        /// </summary>
-        const char*  Constructor   = nullptr;
-        const void** Arguments     = nullptr;
-        size_t       ArgumentCount = 0;
-    };
-
-    class IType
+    class CSType : public BaseObject<IType>
     {
     public:
-        virtual auto GetBaseType() const -> IType*     = 0;
-        virtual auto CastAs(IType* type) const -> bool = 0;
-        virtual auto GetSize() const -> size_t         = 0;
+        using Base = BaseObject<IType>;
 
-        virtual auto CreateInstance(const InstanceCreateDesc& createDesc) -> Ptr<IInstance> = 0;
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSType, Base);
 
-        virtual auto GetField(const String& name) -> IField*       = 0;
-        virtual auto GetMethod(const String& name) -> IMethod*     = 0;
-        virtual auto GetProperty(const String& name) -> IProperty* = 0;
+    private:
+        IMPLEMENT_INTERFACE_CTOR(CSType) : Base(counters)
+        {
+        }
+
+    public:
+        auto GetBaseType() const -> IType* override;
+        auto CastAs(IType* type) const -> bool override;
+        auto GetSize() const -> size_t override;
+
+        auto CreateInstance(const InstanceCreateDesc& createDesc) -> Ptr<IInstance> override;
+
+        auto GetField(const NativeString& name) -> IField* override;
+        auto GetMethod(const NativeString& name) -> IMethod* override;
+        auto GetProperty(const NativeString& name) -> IProperty* override;
     };
 } // namespace Ame::Scripting
