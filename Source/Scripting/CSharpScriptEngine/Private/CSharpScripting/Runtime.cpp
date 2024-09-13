@@ -34,7 +34,7 @@ namespace Ame::Scripting
 
         using type    = void (*)();
         type function = nullptr;
-        m_GetFunction(m_RuntimePath.c_str(), L"AmeSharp.Runtime.Core.Log.Logger, AmeSharp.Runtime", L"Test",
+        m_GetFunction(m_RuntimePath.c_str(), L"AmeSharp.Test, AmeSharp", L"Run",
                       NETHOST_UNMANAGED_CALLER_DELEGATE, nullptr, (void**)&function);
         function();
     }

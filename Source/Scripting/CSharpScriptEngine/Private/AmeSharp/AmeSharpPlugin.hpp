@@ -4,10 +4,10 @@
 
 namespace Ame::Scripting
 {
-    class AmeSharpPlugin : public IPlugin
+    class AmeSharpRuntimePlugin : public IPlugin
     {
     public:
-        AmeSharpPlugin();
+        AmeSharpRuntimePlugin();
 
         bool OnPluginPreLoad(IModuleRegistry* registry);
     };

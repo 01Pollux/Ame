@@ -1,8 +1,8 @@
-﻿using AmeSharp.Runtime.Core.Base;
+﻿using AmeSharp.Core.Base;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace AmeSharp.Runtime.Core.Log
+namespace AmeSharp.Core.Log
 {
     public unsafe partial class LoggerEng
     {
@@ -13,9 +13,6 @@ namespace AmeSharp.Runtime.Core.Log
 
     public unsafe partial class Logger
     {
-        //[DllImport("AmeEngine.dll", EntryPoint = "AmeCSharp_LogMessage2", CallingConvention = CallingConvention.Cdecl)]
-        //public static extern void LogMessage2(LoggerInfo logInfo);
-
         [UnmanagedCallersOnly]
         public static void Test()
         {

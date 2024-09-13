@@ -1,6 +1,6 @@
-﻿using AmeSharp.Runtime.Core.Base;
+﻿using AmeSharp.Core.Base;
 
-namespace AmeSharp.Runtime.Core.Log
+namespace AmeSharp.Core.Log
 {
     public enum LogLevel : byte
     {

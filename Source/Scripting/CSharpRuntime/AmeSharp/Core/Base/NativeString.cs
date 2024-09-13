@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices.Marshalling;
 
-namespace AmeSharp.Runtime.Core.Base
+namespace AmeSharp.Core.Base
 {
     [NativeMarshalling(typeof(NativeStringMarshaller))]
     public record NativeString(string Value)

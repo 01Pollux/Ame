@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Loader;
 
-namespace AmeSharp.Runtime.Core.Bridge
+namespace AmeSharp.Core.Bridge
 {
     [CustomMarshaller(typeof(AssemblyLoadContext), MarshalMode.UnmanagedToManagedIn, typeof(AssemblyLoadContextMarshaller))]
     [CustomMarshaller(typeof(AssemblyLoadContext), MarshalMode.ManagedToUnmanagedIn, typeof(AssemblyLoadContextMarshaller))]

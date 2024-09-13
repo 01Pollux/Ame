@@ -6,12 +6,12 @@
 
 namespace Ame::Scripting
 {
-    AmeSharpPlugin::AmeSharpPlugin() :
-        IPlugin({ "AmeSharp", "01Pollux", "C# scripting plugin for Ame Engine", __DATE__ })
+    AmeSharpRuntimePlugin::AmeSharpRuntimePlugin() :
+        IPlugin({ "AmeSharp.Runtime", "01Pollux", "C# scripting plugin for Ame Engine", __DATE__ })
     {
     }
 
-    bool AmeSharpPlugin::OnPluginPreLoad(IModuleRegistry* registry)
+    bool AmeSharpRuntimePlugin::OnPluginPreLoad(IModuleRegistry* registry)
     {
         if (!IPlugin::OnPluginPreLoad(registry))
         {
@@ -31,4 +31,4 @@ namespace Ame::Scripting
     }
 } // namespace Ame::Scripting
 
-AME_PLUGIN_EXPORT(Ame::Scripting::AmeSharpPlugin);
+AME_PLUGIN_EXPORT(Ame::Scripting::AmeSharpRuntimePlugin);

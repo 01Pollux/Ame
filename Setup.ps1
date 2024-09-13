@@ -17,5 +17,5 @@ if ($XMakeArgs -ne "") {
 
 if ($BuildAmeSharpRuntime) {
     Write-Host "Building C#..."
-    dotnet publish .\Source\Scripting\CSharpRuntime\AmeSharp.Runtime -o ./install/dotnet/AmeSharp.Runtime
+    dotnet publish .\Source\Scripting\CSharpRuntime\AmeSharp -o ./install/dotnet/AmeSharp
 }
