@@ -1,4 +1,6 @@
-﻿namespace AmeSharp.Runtime.Core.Log
+﻿using AmeSharp.Runtime.Core.Base;
+
+namespace AmeSharp.Runtime.Core.Log
 {
     public enum LogLevel : byte
     {
@@ -13,7 +15,7 @@
 
     public struct LoggerInfo
     {
-        public string Message;
+        public NativeString Message;
         public LogLevel Level;
     }
 }

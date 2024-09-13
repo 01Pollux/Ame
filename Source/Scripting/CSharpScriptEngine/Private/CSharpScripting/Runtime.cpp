@@ -3,6 +3,18 @@
 
 #include <Log/Logger.hpp>
 
+struct NativeString
+{
+    const char* Data;
+    size_t      Length;
+};
+
+extern "C" __declspec(dllexport) void __cdecl AmeCSharp_LogMessage(const NativeString& str, char lvl)
+{
+    printf("%s\n", str.Data);
+    printf("Level: %c\n", lvl);
+}
+
 namespace Ame::Scripting
 {
     CLRRuntime::CLRRuntime(const CSScriptEngineConfig& config) :
@@ -17,6 +29,14 @@ namespace Ame::Scripting
         LoadHostFxrLibrary();
         LoadHostFxrRuntime();
         Initialize(runtimePath);
+
+        //
+
+        using type    = void (*)();
+        type function = nullptr;
+        m_GetFunction(m_RuntimePath.c_str(), L"AmeSharp.Runtime.Core.Log.Logger, AmeSharp.Runtime", L"Test",
+                      NETHOST_UNMANAGED_CALLER_DELEGATE, nullptr, (void**)&function);
+        function();
     }
 
     //

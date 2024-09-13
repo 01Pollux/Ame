@@ -1,24 +1,26 @@
-﻿using System.Runtime.InteropServices;
+﻿using AmeSharp.Runtime.Core.Base;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AmeSharp.Runtime.Core.Log
 {
-    public class Logger
+    public unsafe partial class LoggerEng
     {
-        //[MethodImpl(MethodImplOptions.InternalCall)]
-        //public static extern void LogMessage(LoggerInfo logInfo);
+        [LibraryImport("AmeSharp", EntryPoint = "AmeCSharp_LogMessage")]
+        [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+        public static partial void LogMessage(NativeString message, LogLevel level);
+    }
+
+    public unsafe partial class Logger
+    {
+        //[DllImport("AmeEngine.dll", EntryPoint = "AmeCSharp_LogMessage2", CallingConvention = CallingConvention.Cdecl)]
+        //public static extern void LogMessage2(LoggerInfo logInfo);
 
         [UnmanagedCallersOnly]
         public static void Test()
         {
-            //LoggerInfo logInfo = new LoggerInfo
-            //{
-            //    Message = "Test",
-            //    Level = LogLevel.Info
-            //};
-            ////LogMessage(logInfo);
-            //Console.WriteLine(logInfo.Message);
-            //Console.WriteLine(logInfo.Level);
-            Console.WriteLine("))");
+            Console.WriteLine("Test");
+            LoggerEng.LogMessage("test", LogLevel.Info);
         }
     }
 }
