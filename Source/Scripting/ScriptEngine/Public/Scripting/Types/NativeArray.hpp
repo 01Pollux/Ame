@@ -16,6 +16,14 @@ namespace Ame::Scripting
         {
             std::memcpy(m_Data.get(), other.m_Data.get(), other.m_Size * sizeof(Ty));
         }
+        NativeArray(std::initializer_list<Ty> list) : m_Data(std::make_unique<Ty[]>(list.size())), m_Size(list.size())
+        {
+            std::memcpy(m_Data.get(), list.begin(), list.size() * sizeof(Ty));
+        }
+        NativeArray(std::span<const Ty> span) : m_Data(std::make_unique<Ty[]>(span.size())), m_Size(span.size())
+        {
+            std::memcpy(m_Data.get(), span.data(), span.size() * sizeof(Ty));
+        }
         NativeArray(NativeArray&&) = default;
         NativeArray& operator=(const NativeArray& other)
         {

@@ -32,7 +32,11 @@ namespace Ame::Scripting
         [[nodiscard]] virtual auto CreateInstance(const InstanceCreateDesc& createDesc) -> Ptr<IInstance> = 0;
 
         [[nodiscard]] virtual auto GetField(const NativeString& name) -> IField*       = 0;
-        [[nodiscard]] virtual auto GetMethod(const NativeString& name) -> IMethod*     = 0;
+        [[nodiscard]] virtual auto GetMethod(const NativeString& name) -> Ptr<IMethod> = 0;
         [[nodiscard]] virtual auto GetProperty(const NativeString& name) -> IProperty* = 0;
+
+        [[nodiscard]] virtual auto GetFields() -> Co::generator<IField*>        = 0;
+        [[nodiscard]] virtual auto GetMethods() -> Co::generator<Ptr<IMethod>> = 0;
+        [[nodiscard]] virtual auto GetProperties() -> Co::generator<IProperty*>  = 0;
     };
 } // namespace Ame::Scripting

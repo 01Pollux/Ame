@@ -38,7 +38,7 @@ ame_utils:add_library("Ame.ScriptingEngine", "Ame/Scripting", "headeronly", "Sou
     add_deps("AmeEngine")
 end)
 
-ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/CSharpScriptEngine", function()
+ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeSharp.Runtime", function()
     -- add_defines("AME_CSHARP_EXPORT")
     add_defines("AME_CSHARP_STATIC_LINKING")
 
