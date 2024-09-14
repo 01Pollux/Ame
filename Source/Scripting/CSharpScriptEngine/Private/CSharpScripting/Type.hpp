@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Scripting/Type.hpp>
+#include <CSharpScripting/Runtime.hpp>
 
 namespace Ame::Scripting
 {
@@ -9,18 +10,24 @@ namespace Ame::Scripting
 
     class CSType : public BaseObject<IType>
     {
+        using FreeFn        = void (*)(void* type);
+        using GetNameFn     = NativeString (*)(void* type);
+        using GetBaseTypeFn = void* (*)(void* type);
+
     public:
         using Base = BaseObject<IType>;
 
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSType, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSType) : Base(counters)
-        {
-        }
+        IMPLEMENT_INTERFACE_CTOR(CSType, const CLRRuntime& runtime, void* type);
 
     public:
-        auto GetBaseType() const -> IType* override;
+        ~CSType() override;
+
+    public:
+        auto GetName() const -> NativeString override;
+        auto GetBaseType() const -> Ptr<IType> override;
         auto CastAs(IType* type) const -> bool override;
         auto GetSize() const -> size_t override;
 
@@ -29,5 +36,9 @@ namespace Ame::Scripting
         auto GetField(const NativeString& name) -> IField* override;
         auto GetMethod(const NativeString& name) -> IMethod* override;
         auto GetProperty(const NativeString& name) -> IProperty* override;
+
+    private:
+        const CLRRuntime* m_Runtime = nullptr;
+        void*             m_Type    = nullptr;
     };
 } // namespace Ame::Scripting

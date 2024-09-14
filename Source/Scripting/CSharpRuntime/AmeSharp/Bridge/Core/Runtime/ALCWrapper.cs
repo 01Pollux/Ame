@@ -17,14 +17,14 @@ namespace AmeSharp.Bridge.Core.Runtime
         public nint LoadAssembly(string path)
         {
             Assembly assembly = _context.LoadFromAssemblyPath(path);
-            nint library = GCHandleMarshaller<Assembly>.ConvertToUnmanaged(assembly);
+            nint library = AssemblyBridge.Create(assembly);
             _assemblies.Add(library);
             return library;
         }
         public nint LoadAssembly(Stream stream)
         {
             Assembly assembly = _context.LoadFromStream(stream);
-            nint library = GCHandleMarshaller<Assembly>.ConvertToUnmanaged(assembly);
+            nint library = AssemblyBridge.Create(assembly);
             _assemblies.Add(library);
             return library;
         }

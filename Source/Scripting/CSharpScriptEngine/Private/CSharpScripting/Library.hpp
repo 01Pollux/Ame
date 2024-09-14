@@ -14,6 +14,7 @@ namespace Ame::Scripting
     class CSLibrary : public BaseObject<ILibrary>
     {
         using GetNameFn  = NativeString (*)(void* library);
+        using GetTypeFn  = void* (*)(void* library, const NativeString& name);
         using GetTypesFn = NativeArray<void*> (*)(void* library);
 
     public:
@@ -29,7 +30,7 @@ namespace Ame::Scripting
 
         auto GetContext() const -> ILibraryContext* override;
         auto GetType(const NativeString& name) -> Ptr<IType> override;
-        auto GetTypes() -> NativeArray<Ptr<IType>> override;
+        auto GetTypes() -> Co::generator<Ptr<IType>> override;
 
     private:
         const CLRRuntime* m_Runtime = nullptr;

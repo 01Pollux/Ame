@@ -6,6 +6,14 @@ namespace Ame::Scripting
 {
     static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.AssemblyBridge, AmeSharp";
 
+    void CLRRuntime::RegisterCommonFunctions_AssemblyBridge()
+    {
+        RegisterCommonFunction(Functions::AssemblyBridge_GetType, GetFunctionPtr(ClassName, "GetType"));
+        RegisterCommonFunction(Functions::AssemblyBridge_GetTypes, GetFunctionPtr(ClassName, "GetTypes"));
+    }
+
+    //
+
     CSLibrary::CSLibrary(IReferenceCounters* counters, const CLRRuntime& runtime, CSLibraryContext* context,
                          void* library) : Base(counters), m_Runtime(&runtime), m_Context(context), m_Library(library)
     {
@@ -24,13 +32,17 @@ namespace Ame::Scripting
 
     Ptr<IType> CSLibrary::GetType(const NativeString& name)
     {
-        (void)name;
-        return {};
+        auto getType = m_Runtime->GetCommonFunction<GetTypeFn>(CLRRuntime::Functions::AssemblyBridge_GetType);
+        auto type    = getType(m_Library, name);
+        return type ? AmeCreate(CSType, *m_Runtime, type) : Ptr<IType>{};
     }
 
-    NativeArray<Ptr<IType>> CSLibrary::GetTypes()
+    Co::generator<Ptr<IType>> CSLibrary::GetTypes()
     {
-        //auto getTypes = m_Runtime->GetFunction<GetTypesFn>(ClassName, "GetTypes");
-        return {};
+        auto getTypes = m_Runtime->GetCommonFunction<GetTypesFn>(CLRRuntime::Functions::AssemblyBridge_GetTypes);
+        for (auto type : getTypes(m_Library))
+        {
+            co_yield AmeCreate(CSType, *m_Runtime, type);
+        }
     }
 } // namespace Ame::Scripting

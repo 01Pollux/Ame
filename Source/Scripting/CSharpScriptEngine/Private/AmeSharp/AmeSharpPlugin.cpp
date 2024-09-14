@@ -5,9 +5,29 @@
 #include <Log/Logger.hpp>
 
 #include <Scripting/Library.hpp>
+#include <Scripting/Type.hpp>
 
 namespace Ame::Scripting
 {
+    static void Test(Interfaces::IScriptEngine* engine)
+    {
+        auto library = engine->CreateLibrary(NativeString("ExampleContext"), NativeString("Plugins/Sample.dll"));
+        auto name    = library->GetName();
+
+        AME_LOG_INFO(std::format("Library name: {}", library->GetName().view()));
+        for (auto& type : library->GetTypes())
+        {
+            AME_LOG_INFO(std::format("Type: {}", type->GetName().view()));
+        }
+        auto type = library->GetType(NativeString("Example.Managed.ExampleClass"));
+        if (type)
+        {
+            AME_LOG_INFO(std::format("Found Type: {}", type->GetName().view()));
+        }
+    }
+
+    //
+
     AmeSharpRuntimePlugin::AmeSharpRuntimePlugin() :
         IPlugin({ "AmeSharp.Runtime", "01Pollux", "C# scripting plugin for Ame Engine", __DATE__ })
     {
@@ -25,20 +45,8 @@ namespace Ame::Scripting
             CSScriptEngineConfig scriptConfig{ .RuntimeConfigPath = GetPluginPath() };
 
             auto engine = Interfaces::CreateCSharpScriptingEngine(scriptConfig);
-            bool ret    = registry->ExposeInterface(this, Interfaces::IID_CSScriptEngine, engine);
-
-            //
-
-            {
-                auto library =
-                    engine->CreateLibrary(NativeString("ExampleContext"), NativeString("Plugins/Sample.dll"));
-                auto name = library->GetName();
-                (void)library;
-            }
-
-            //
-
-            return ret;
+            Test(engine);
+            return registry->ExposeInterface(this, Interfaces::IID_CSScriptEngine, engine);
         }
         catch (const std::exception& e)
         {

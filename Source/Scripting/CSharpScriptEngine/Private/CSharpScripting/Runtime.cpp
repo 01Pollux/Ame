@@ -60,6 +60,7 @@ namespace Ame::Scripting
         LoadHostFxrLibrary();
         LoadHostFxrRuntime();
         Initialize(runtimePath);
+        RegisterCommonFunctions();
     }
 
     //
@@ -73,6 +74,13 @@ namespace Ame::Scripting
         AME_LOG_ASSERT(function != nullptr, "Failed to get function pointer");
         return function;
     }
+
+    void* CLRRuntime::GetCommonFunctionPtr(Functions type) const
+    {
+        return m_CommonFunctions[static_cast<size_t>(type)];
+    }
+
+    //
 
     void CLRRuntime::LoadHostFxrLibrary()
     {
@@ -111,5 +119,18 @@ namespace Ame::Scripting
 
         getRuntimeDelegate(
             m_HostHandle, hdt_load_assembly_and_get_function_pointer, std::bit_cast<void**>(&m_GetFunction));
+    }
+
+    //
+
+    void CLRRuntime::RegisterCommonFunctions()
+    {
+        RegisterCommonFunctions_AssemblyBridge();
+        RegisterCommonFunctions_TypeBridge();
+    }
+
+    void CLRRuntime::RegisterCommonFunction(Functions type, void* function)
+    {
+        m_CommonFunctions[std::to_underlying(type)] = function;
     }
 } // namespace Ame::Scripting

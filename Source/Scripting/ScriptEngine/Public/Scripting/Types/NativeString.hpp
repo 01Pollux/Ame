@@ -35,5 +35,9 @@ namespace Ame::Scripting
         {
             return String(data(), size());
         }
+        [[nodiscard]] StringView view() const
+        {
+            return StringView(data(), size());
+        }
     };
 } // namespace Ame::Scripting
