@@ -13,12 +13,12 @@ namespace Ame::Scripting
     class IMethod : public IObject
     {
     public:
-        virtual auto GetType() const -> IType*       = 0;
-        virtual auto IsStatic() const -> bool        = 0;
-        virtual auto GetName() const -> NativeString = 0;
+        [[nodiscard]] virtual auto GetType() const -> IType*       = 0;
+        [[nodiscard]] virtual auto IsStatic() const -> bool        = 0;
+        [[nodiscard]] virtual auto GetName() const -> NativeString = 0;
 
-        virtual auto GetParamTypes() const -> Co::generator<Ptr<IType>>                                   = 0;
-        virtual auto GetReturnType() const -> Ptr<IType>                                                  = 0;
+        [[nodiscard]] virtual auto GetParamTypes() const -> Co::generator<Ptr<IType>>                     = 0;
+        [[nodiscard]] virtual auto GetReturnType() const -> Ptr<IType>                                    = 0;
         virtual void InvokeMethod(IInstance* instance, std::span<void* const> arguments, void* returnPtr) = 0;
         void         InvokeStaticMethod(std::span<void* const> arguments, void* returnPtr)
         {

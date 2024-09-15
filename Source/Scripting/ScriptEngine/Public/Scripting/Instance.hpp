@@ -11,9 +11,9 @@ namespace Ame::Scripting
     class IInstance : public IObject
     {
     public:
-        virtual auto GetType() const -> IType*     = 0;
-        virtual void InvokeMethod(const NativeString& methodName, std::span<void* const> arguments,
-                                  void* returnPtr) = 0;
+        [[nodiscard]] virtual auto GetType() const -> IType*     = 0;
+        virtual void               InvokeMethod(const NativeString& methodName, std::span<void* const> arguments,
+                                                void* returnPtr) = 0;
 
         virtual void GetFieldMethod(const NativeString& fieldName, void* valuePtr)       = 0;
         virtual void SetFieldMethod(const NativeString& fieldName, const void* valuePtr) = 0;
@@ -27,7 +27,7 @@ namespace Ame::Scripting
             return InvokeImpl<RetTy>(methodName, NativeConverter<Args>::Wrap(std::forward<Args>(args))...);
         }
 
-        template<typename Ty> Ty GetField(const NativeString& fieldName)
+        template<typename Ty> [[nodiscard]] Ty GetField(const NativeString& fieldName)
         {
             Ty result{};
             GetFieldMethod(fieldName, std::addressof(result));
@@ -39,7 +39,7 @@ namespace Ame::Scripting
             SetFieldImpl(fieldName, NativeConverter<Ty>::Wrap(std::forward<Ty>(value)));
         }
 
-        template<typename Ty> Ty GetProperty(const NativeString& propertyName)
+        template<typename Ty> [[nodiscard]] Ty GetProperty(const NativeString& propertyName)
         {
             Ty result{};
             GetPropertyMethod(propertyName, std::addressof(result));

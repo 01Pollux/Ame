@@ -12,15 +12,15 @@ namespace Ame::Scripting
     class IField : public IObject
     {
     public:
-        virtual bool IsStatic() const                = 0;
-        virtual auto GetName() const -> NativeString = 0;
-        virtual auto GetType() const -> IType*       = 0;
+        [[nodiscard]] virtual bool IsStatic() const                = 0;
+        [[nodiscard]] virtual auto GetName() const -> NativeString = 0;
+        virtual auto               GetType() const -> IType*       = 0;
 
-        virtual void GetValue(IInstance* instance, void* valuePtr)       = 0;
-        virtual void SetValue(IInstance* instance, const void* valuePtr) = 0;
+        [[nodiscard]] virtual void GetValue(IInstance* instance, void* valuePtr)       = 0;
+        [[nodiscard]] virtual void SetValue(IInstance* instance, const void* valuePtr) = 0;
 
     public:
-        template<typename Ty> Ty Get(IInstance* instance)
+        template<typename Ty> [[nodiscard]] Ty Get(IInstance* instance)
         {
             Ty result{};
             GetValue(instance, std::addressof(result));

@@ -3,49 +3,6 @@
 
 #include <Log/Logger.hpp>
 
-struct NativeString
-{
-    const char* Data;
-    size_t      Length;
-};
-
-extern "C" __declspec(dllexport) void __cdecl TestingThis()
-{
-    printf("Test\n");
-}
-
-extern "C" __declspec(dllexport) void __cdecl AmeCSharp_LogMessage(const NativeString& str, char lvl)
-{
-    printf("%s\n", str.Data);
-    printf("Level: %c\n", lvl);
-}
-
-extern "C" __declspec(dllexport) void __cdecl Ame_BaseObject_QueryInterface(void* thisPtr, const Ame::UId& iid,
-                                                                            void** ppObject)
-{
-    using namespace Ame;
-    printf("QueryInterface\n");
-
-    auto baseObject = static_cast<IObject*>(thisPtr);
-    baseObject->QueryInterface(iid, std::bit_cast<IObject**>(ppObject));
-}
-
-extern "C" __declspec(dllexport) void __cdecl Ame_BaseObject_AddRef(void* thisPtr)
-{
-    using namespace Ame;
-    printf("AddRef\n");
-    auto baseObject = static_cast<IObject*>(thisPtr);
-    baseObject->AddRef();
-}
-
-extern "C" __declspec(dllexport) void __cdecl Ame_BaseObject_Release(void* thisPtr)
-{
-    using namespace Ame;
-    printf("Release\n");
-    auto baseObject = static_cast<IObject*>(thisPtr);
-    baseObject->Release();
-}
-
 namespace Ame::Scripting
 {
     CLRRuntime::CLRRuntime(const CSScriptEngineConfig& config) :
