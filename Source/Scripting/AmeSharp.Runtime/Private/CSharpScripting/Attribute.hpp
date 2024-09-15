@@ -31,7 +31,7 @@ namespace Ame::Scripting
         ~CSAttribute() override;
 
     public:
-        auto GetType() const -> Ptr<IType> override;
+        auto GetType() const -> IType* override;
         void GetValue(const NativeString& name, void* const valuePtr) override;
 
     public:

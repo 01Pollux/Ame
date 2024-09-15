@@ -45,6 +45,7 @@ namespace Ame::Scripting
 
     public:
         [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&;
+        [[nodiscard]] auto GetHandle() const -> void*;
 
     private:
         Ptr<CSType> m_Type;

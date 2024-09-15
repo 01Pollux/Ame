@@ -24,7 +24,7 @@ namespace Ame::Scripting
 
     //
 
-    Ptr<IType> CSAttribute::GetType() const
+    IType* CSAttribute::GetType() const
     {
         return m_Type;
     }

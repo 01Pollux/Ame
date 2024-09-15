@@ -130,6 +130,8 @@ namespace Ame::Scripting
         RegisterCommonFunctions_MethodBridge();
         RegisterCommonFunctions_AttributeBridge();
         RegisterCommonFunctions_InstanceBridge();
+        RegisterCommonFunctions_PropertyBridge();
+        RegisterCommonFunctions_FieldBridge();
     }
 
     void CLRRuntime::RegisterCommonFunction(Functions type, void* function)

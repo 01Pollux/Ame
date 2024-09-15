@@ -11,3 +11,5 @@
 #include <Scripting/Method.hpp>
 #include <Scripting/Instance.hpp>
 #include <Scripting/Attribute.hpp>
+#include <Scripting/Field.hpp>
+#include <Scripting/Property.hpp>

@@ -18,7 +18,7 @@ namespace Ame::Scripting
         using GetNameFn       = NativeString (*)(void* method);
         using GetParamTypesFn = NativeArray<void*> (*)(void* method);
         using GetReturnTypeFn = void* (*)(void* method);
-        using InvokeFn        = void (*)(void* method, IInstance* instance, void* const* arguments, size_t argCount,
+        using InvokeFn        = void (*)(void* method, void* instance, void* const* arguments, size_t argCount,
                                   void* returnPtr);
 
     public:
@@ -33,7 +33,7 @@ namespace Ame::Scripting
         ~CSMethod() override;
 
     public:
-        auto GetType() const -> Ptr<IType> override;
+        auto GetType() const -> IType* override;
         auto IsStatic() const -> bool override;
         auto GetName() const -> NativeString override;
 

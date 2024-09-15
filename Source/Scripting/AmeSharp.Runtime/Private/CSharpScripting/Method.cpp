@@ -1,5 +1,6 @@
 #include <CSharpScripting/Method.hpp>
 #include <CSharpScripting/Type.hpp>
+#include <CSharpScripting/Instance.hpp>
 
 namespace Ame::Scripting
 {
@@ -28,7 +29,7 @@ namespace Ame::Scripting
 
     //
 
-    Ptr<IType> CSMethod::GetType() const
+    IType* CSMethod::GetType() const
     {
         return m_Type;
     }
@@ -66,7 +67,8 @@ namespace Ame::Scripting
     void CSMethod::InvokeMethod(IInstance* instance, std::span<void* const> arguments, void* returnPtr)
     {
         auto methodInvoke = GetRuntime().GetCommonFunction<InvokeFn>(CLRRuntime::Functions::MethodBridge_Invoke);
-        methodInvoke(m_Method, instance, arguments.data(), arguments.size(), returnPtr);
+        auto instanceHandle = instance ? static_cast<CSInstance*>(instance)->GetHandle() : nullptr;
+        methodInvoke(m_Method, instanceHandle, arguments.data(), arguments.size(), returnPtr);
     }
 
     //

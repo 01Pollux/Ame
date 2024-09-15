@@ -25,15 +25,15 @@ namespace Ame::Scripting
 
         [[nodiscard]] virtual auto CreateInstanceRaw(std::span<void* const> args) -> Ptr<IInstance> = 0;
 
-        [[nodiscard]] virtual auto GetField(const NativeString& name) -> IField*             = 0;
+        [[nodiscard]] virtual auto GetField(const NativeString& name) -> Ptr<IField>         = 0;
         [[nodiscard]] virtual auto GetMethod(const NativeString& name) -> Ptr<IMethod>       = 0;
         [[nodiscard]] virtual auto GetAttribute(const NativeString& name) -> Ptr<IAttribute> = 0;
-        [[nodiscard]] virtual auto GetProperty(const NativeString& name) -> IProperty*       = 0;
+        [[nodiscard]] virtual auto GetProperty(const NativeString& name) -> Ptr<IProperty>   = 0;
 
-        [[nodiscard]] virtual auto GetFields() -> Co::generator<IField*>             = 0;
+        [[nodiscard]] virtual auto GetFields() -> Co::generator<Ptr<IField>>         = 0;
         [[nodiscard]] virtual auto GetMethods() -> Co::generator<Ptr<IMethod>>       = 0;
         [[nodiscard]] virtual auto GetAttributes() -> Co::generator<Ptr<IAttribute>> = 0;
-        [[nodiscard]] virtual auto GetProperties() -> Co::generator<IProperty*>      = 0;
+        [[nodiscard]] virtual auto GetProperties() -> Co::generator<Ptr<IProperty>>  = 0;
 
         template<typename... Args> auto CreateInstance(Args&&... args)
         {

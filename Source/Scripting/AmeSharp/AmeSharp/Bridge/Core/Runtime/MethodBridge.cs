@@ -10,6 +10,10 @@ namespace AmeSharp.Bridge.Core.Runtime
         {
             return method is null ? nint.Zero : GCHandleMarshaller<MethodInfo>.ConvertToUnmanaged(method);
         }
+        public static MethodInfo? Get(nint methodPtr)
+        {
+            return GCHandleMarshaller<MethodInfo>.ConvertToManaged(methodPtr);
+        }
 
         [UnmanagedCallersOnly]
         public static void Free(nint methodPtr)
@@ -20,38 +24,38 @@ namespace AmeSharp.Bridge.Core.Runtime
         [UnmanagedCallersOnly]
         public static bool IsStatic(nint methodPtr)
         {
-            var method = GCHandleMarshaller<MethodInfo>.ConvertToManaged(methodPtr);
+            var method = Get(methodPtr);
             return method?.IsStatic ?? false;
         }
 
         [UnmanagedCallersOnly]
         public static UnmanagedNativeString GetName(nint methodPtr)
         {
-            var method = GCHandleMarshaller<MethodInfo>.ConvertToManaged(methodPtr);
+            var method = Get(methodPtr);
             return method?.Name ?? string.Empty;
         }
 
         [UnmanagedCallersOnly]
         public static RawUnmanagedNativeArray GetParamTypes(nint methodPtr)
         {
-            var method = GCHandleMarshaller<MethodInfo>.ConvertToManaged(methodPtr);
+            var method = Get(methodPtr);
             return Marshalling.ParamsToPtr(method).Storage;
         }
 
         [UnmanagedCallersOnly]
         public static nint GetReturnType(nint methodPtr)
         {
-            var method = GCHandleMarshaller<MethodInfo>.ConvertToManaged(methodPtr);
+            var method = Get(methodPtr);
             return TypeBridge.Create(method?.ReturnType);
         }
 
         [UnmanagedCallersOnly]
         public static void Invoke(nint methodPtr, nint obj, IntPtr args, ulong argCount, IntPtr retPtr)
         {
-            var method = GCHandleMarshaller<MethodInfo>.ConvertToManaged(methodPtr)!;
+            var method = Get(methodPtr)!;
             var arguments = Marshalling.PtrToParams(method, args, argCount);
 
-            object? thisPtr = obj == nint.Zero ? null : GCHandleMarshaller<object>.ConvertToManaged(obj);
+            object? thisPtr = obj == nint.Zero ? null : InstanceBridge.Get(obj);
             var ret = method.Invoke(thisPtr, arguments);
             if (retPtr != IntPtr.Zero)
             {

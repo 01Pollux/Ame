@@ -3,6 +3,8 @@
 #include <CSharpScripting/Instance.hpp>
 #include <CSharpScripting/Method.hpp>
 #include <CSharpScripting/Attribute.hpp>
+#include <CSharpScripting/Field.hpp>
+#include <CSharpScripting/Property.hpp>
 
 namespace Ame::Scripting
 {
@@ -20,6 +22,10 @@ namespace Ame::Scripting
         RegisterCommonFunction(Functions::TypeBridge_GetMethods, GetFunctionPtr(ClassName, "GetMethods"));
         RegisterCommonFunction(Functions::TypeBridge_GetAttribute, GetFunctionPtr(ClassName, "GetAttribute"));
         RegisterCommonFunction(Functions::TypeBridge_GetAttributes, GetFunctionPtr(ClassName, "GetAttributes"));
+        RegisterCommonFunction(Functions::TypeBridge_GetProperty, GetFunctionPtr(ClassName, "GetProperty"));
+        RegisterCommonFunction(Functions::TypeBridge_GetProperties, GetFunctionPtr(ClassName, "GetProperties"));
+        RegisterCommonFunction(Functions::TypeBridge_GetField, GetFunctionPtr(ClassName, "GetField"));
+        RegisterCommonFunction(Functions::TypeBridge_GetFields, GetFunctionPtr(ClassName, "GetFields"));
     }
 
     //
@@ -78,10 +84,11 @@ namespace Ame::Scripting
 
     //
 
-    IField* CSType::GetField(const NativeString& name)
+    Ptr<IField> CSType::GetField(const NativeString& name)
     {
-        (void)name;
-        return {};
+        auto getField = GetRuntime().GetCommonFunction<GetFieldFn>(CLRRuntime::Functions::TypeBridge_GetField);
+        auto field    = getField(m_Type, name);
+        return field ? AmeCreate(CSField, this, field) : Ptr<IField>{};
     }
 
     Ptr<IMethod> CSType::GetMethod(const NativeString& name)
@@ -99,17 +106,22 @@ namespace Ame::Scripting
         return attribute ? AmeCreate(CSAttribute, this, attribute) : Ptr<IAttribute>{};
     }
 
-    IProperty* CSType::GetProperty(const NativeString& name)
+    Ptr<IProperty> CSType::GetProperty(const NativeString& name)
     {
-        (void)name;
-        return {};
+        auto getProperty = GetRuntime().GetCommonFunction<GetPropertyFn>(CLRRuntime::Functions::TypeBridge_GetProperty);
+        auto property    = getProperty(m_Type, name);
+        return property ? AmeCreate(CSProperty, this, property) : Ptr<IProperty>{};
     }
 
     //
 
-    Co::generator<IField*> CSType::GetFields()
+    Co::generator<Ptr<IField>> CSType::GetFields()
     {
-        co_return;
+        auto getFields = GetRuntime().GetCommonFunction<GetFieldsFn>(CLRRuntime::Functions::TypeBridge_GetFields);
+        for (auto field : getFields(m_Type))
+        {
+            co_yield AmeCreate(CSField, this, field);
+        }
     }
 
     Co::generator<Ptr<IMethod>> CSType::GetMethods()
@@ -131,9 +143,14 @@ namespace Ame::Scripting
         }
     }
 
-    Co::generator<IProperty*> CSType::GetProperties()
+    Co::generator<Ptr<IProperty>> CSType::GetProperties()
     {
-        co_return;
+        auto getProperties =
+            GetRuntime().GetCommonFunction<GetPropertiesFn>(CLRRuntime::Functions::TypeBridge_GetProperties);
+        for (auto property : getProperties(m_Type))
+        {
+            co_yield AmeCreate(CSProperty, this, property);
+        }
     }
 
     const CLRRuntime& CSType::GetRuntime() const

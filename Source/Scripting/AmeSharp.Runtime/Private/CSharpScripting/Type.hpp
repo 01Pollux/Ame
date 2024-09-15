@@ -23,6 +23,10 @@ namespace Ame::Scripting
         using GetMethodsFn     = NativeArray<void*> (*)(void* type);
         using GetAttributeFn   = void* (*)(void* type, const NativeString& name);
         using GetAttributesFn  = NativeArray<void*> (*)(void* type);
+        using GetPropertyFn    = void* (*)(void* type, const NativeString& name);
+        using GetPropertiesFn  = NativeArray<void*> (*)(void* type);
+        using GetFieldFn       = void* (*)(void* type, const NativeString& name);
+        using GetFieldsFn      = NativeArray<void*> (*)(void* type);
 
     public:
         using Base = BaseObject<IType>;
@@ -44,15 +48,15 @@ namespace Ame::Scripting
 
         auto CreateInstanceRaw(std::span<void* const> args) -> Ptr<IInstance> override;
 
-        auto GetField(const NativeString& name) -> IField* override;
+        auto GetField(const NativeString& name) -> Ptr<IField> override;
         auto GetMethod(const NativeString& name) -> Ptr<IMethod> override;
         auto GetAttribute(const NativeString& name) -> Ptr<IAttribute> override;
-        auto GetProperty(const NativeString& name) -> IProperty* override;
+        auto GetProperty(const NativeString& name) -> Ptr<IProperty> override;
 
-        auto GetFields() -> Co::generator<IField*> override;
+        auto GetFields() -> Co::generator<Ptr<IField>> override;
         auto GetMethods() -> Co::generator<Ptr<IMethod>> override;
         auto GetAttributes() -> Co::generator<Ptr<IAttribute>> override;
-        auto GetProperties() -> Co::generator<IProperty*> override;
+        auto GetProperties() -> Co::generator<Ptr<IProperty>> override;
 
     public:
         [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&;

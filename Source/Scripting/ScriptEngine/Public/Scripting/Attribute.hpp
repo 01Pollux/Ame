@@ -10,7 +10,7 @@ namespace Ame::Scripting
     class IAttribute : public IObject
     {
     public:
-        virtual auto GetType() const -> Ptr<IType>                            = 0;
+        virtual auto GetType() const -> IType*                                = 0;
         virtual void GetValue(const NativeString& name, void* const valuePtr) = 0;
 
         template<typename Ty> [[nodiscard]] Ty GetValue(const NativeString& name)

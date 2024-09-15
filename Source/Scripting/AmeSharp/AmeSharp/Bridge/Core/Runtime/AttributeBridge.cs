@@ -10,6 +10,10 @@ namespace AmeSharp.Bridge.Core.Runtime
         {
             return attribute is null ? nint.Zero : GCHandleMarshaller<Attribute>.ConvertToUnmanaged(attribute);
         }
+        public static Attribute? Get(nint attributePtr)
+        {
+            return GCHandleMarshaller<Attribute>.ConvertToManaged(attributePtr);
+        }
 
         [UnmanagedCallersOnly]
         public static void Free(nint attributePtr)
@@ -20,7 +24,7 @@ namespace AmeSharp.Bridge.Core.Runtime
         [UnmanagedCallersOnly]
         public static void GetValue(nint attributePtr, UnmanagedNativeString name, IntPtr valuePtr)
         {
-            var attribute = GCHandleMarshaller<Attribute>.ConvertToManaged(attributePtr)!;
+            var attribute = Get(attributePtr)!;
             var value = attribute.GetType().GetField(name!, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(attribute);
             Marshalling.StructureToPtrEx(value, valuePtr);
         }

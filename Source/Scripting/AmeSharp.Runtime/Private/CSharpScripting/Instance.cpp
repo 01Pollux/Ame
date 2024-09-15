@@ -72,4 +72,9 @@ namespace Ame::Scripting
     {
         return m_Type->GetRuntime();
     }
+
+    auto CSInstance::GetHandle() const -> void*
+    {
+        return m_Instance;
+    }
 } // namespace Ame::Scripting

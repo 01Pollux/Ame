@@ -48,11 +48,17 @@ namespace Ame::Scripting
         auto instance = exampleClass->CreateInstance(50);
         instance->Invoke<void>("MemberMethod", MyVec3{ 10.0f, 10.0f, 10.0f });
 
-        instance->SetProperty("PublicProp", 100);
-        printf("PublicProp: %d\n", instance->GetProperty<int>("PublicProp"));
+        // instance->SetProperty("PublicProp", 100);
+        // printf("PublicProp: %d\n", instance->GetProperty<int>("PublicProp"));
 
-        instance->SetField("myPrivateValue", 200);
-        printf("myPrivateValue: %d\n", instance->GetField<int>("myPrivateValue"));
+        // instance->SetField("myPrivateValue", 200);
+        // printf("myPrivateValue: %d\n", instance->GetField<int>("myPrivateValue"));
+
+        exampleClass->GetProperty("PublicProp")->Set(instance, 100);
+        exampleClass->GetField("myPrivateValue")->Set(instance, 200);
+
+        printf("PublicProp: %d\n", exampleClass->GetProperty("PublicProp")->Get<int>(instance));
+        printf("myPrivateValue: %d\n", exampleClass->GetField("myPrivateValue")->Get<int>(instance));
 
         instance->Invoke<void>("StringDemo");
     }

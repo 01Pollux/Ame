@@ -13,7 +13,7 @@ namespace Ame::Scripting
     class IMethod : public IObject
     {
     public:
-        virtual auto GetType() const -> Ptr<IType>   = 0;
+        virtual auto GetType() const -> IType*       = 0;
         virtual auto IsStatic() const -> bool        = 0;
         virtual auto GetName() const -> NativeString = 0;
 
