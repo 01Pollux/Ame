@@ -8,6 +8,13 @@
 
 namespace Ame::Scripting
 {
+    struct MyVec3
+    {
+        float X;
+        float Y;
+        float Z;
+    };
+
     static void Test(Interfaces::IScriptEngine* engine)
     {
         auto library = engine->CreateLibrary("ExampleContext", "Plugins/Sample.dll");
@@ -39,7 +46,15 @@ namespace Ame::Scripting
         }
 
         auto instance = exampleClass->CreateInstance(50);
-        (void)instance;
+        instance->Invoke<void>("MemberMethod", MyVec3{ 10.0f, 10.0f, 10.0f });
+
+        instance->SetProperty("PublicProp", 100);
+        printf("PublicProp: %d\n", instance->GetProperty<int>("PublicProp"));
+
+        instance->SetField("myPrivateValue", 200);
+        printf("myPrivateValue: %d\n", instance->GetField<int>("myPrivateValue"));
+
+        instance->Invoke<void>("StringDemo");
     }
 
     //

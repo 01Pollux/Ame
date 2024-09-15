@@ -18,19 +18,7 @@ namespace Example.Managed
     [Custom(Value = -2500.0f)]
     public class ExampleClass
     {
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern MyVec3 VectorAddCall(MyVec3 a, MyVec3 b);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern void PrintStringCall(string str);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern void NativeArrayCall(float[] arr);
-
-        [MethodImpl(MethodImplOptions.InternalCall)]
-        public static extern float[] ArrayReturnCall();
-
-        private int myPrivateValue;
+        public int myPrivateValue;
 
         public ExampleClass(int someValue)
         {
@@ -57,24 +45,16 @@ namespace Example.Managed
                 Z = 30
             };
 
-            vec3 = VectorAddCall(vec3, anotherVector);
+            vec3.X += anotherVector.X;
+            vec3.Y += anotherVector.Y;
+            vec3.Z += anotherVector.Z;
             Console.WriteLine($"X: {vec3.X}, Y: {vec3.Y}, Z: {vec3.Z}");
         }
 
         public void StringDemo()
         {
             string str = "Hello, World?";
-            PrintStringCall(str);
-        }
-
-        public void ArrayDemo(float[] arr)
-        {
-            NativeArrayCall(arr);
-
-            foreach (var v in ArrayReturnCall())
-            {
-                Console.WriteLine(v);
-            }
+            Console.WriteLine(str);
         }
 
         public int PublicProp

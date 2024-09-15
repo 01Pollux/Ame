@@ -39,16 +39,33 @@ namespace Ame::Scripting
         {
             constexpr size_t argsCount = sizeof...(args);
 
-            void* const argsPtrs[argsCount] = { std::addressof(args)... };
-            if constexpr (std::is_void_v<RetTy>)
+            if constexpr (argsCount == 0)
             {
-                InvokeMethod(instance, argsPtrs, nullptr);
+                constexpr std::array<void*, 0> emptyArgs{};
+                if constexpr (std::is_void_v<RetTy>)
+                {
+                    InvokeMethod(instance, emptyArgs, nullptr);
+                }
+                else
+                {
+                    RetTy result{};
+                    InvokeMethod(instance, emptyArgs, &result);
+                    return result;
+                }
             }
             else
             {
-                RetTy result{};
-                InvokeMethod(instance, argsPtrs, &result);
-                return result;
+                void* const argsPtrs[argsCount] = { std::addressof(args)... };
+                if constexpr (std::is_void_v<RetTy>)
+                {
+                    InvokeMethod(instance, argsPtrs, nullptr);
+                }
+                else
+                {
+                    RetTy result{};
+                    InvokeMethod(instance, argsPtrs, &result);
+                    return result;
+                }
             }
         }
     };

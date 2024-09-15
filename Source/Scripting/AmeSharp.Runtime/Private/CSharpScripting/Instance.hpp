@@ -14,6 +14,14 @@ namespace Ame::Scripting
 
     class CSInstance : public BaseObject<IInstance>
     {
+        using FreeFn         = void (*)(void*);
+        using GetTypeFn      = void* (*)(void*);
+        using InvokeMethodFn = void (*)(void*, const NativeString&, const void*, size_t, void*);
+        using GetFieldFn     = void (*)(void*, const NativeString&, void*);
+        using SetFieldFn     = void (*)(void*, const NativeString&, const void*);
+        using GetPropertyFn  = void (*)(void*, const NativeString&, void*);
+        using SetPropertyFn  = void (*)(void*, const NativeString&, const void*);
+
     public:
         using Base = BaseObject<IInstance>;
 
@@ -26,36 +34,11 @@ namespace Ame::Scripting
         ~CSInstance() override;
 
     public:
-        auto GetType() const -> IType*
-        {
-            return {};
-        }
-        void InvokeMethod(const char* methodName, const void* arguments, void* returnPtr)
-        {
-            (void)methodName;
-            (void)arguments;
-            (void)returnPtr;
-        }
-        void GetField(const char* fieldName, void* valuePtr)
-        {
-            (void)fieldName;
-            (void)valuePtr;
-        }
-        void SetField(const char* fieldName, const void* valuePtr)
-        {
-            fieldName;
-            (void)valuePtr;
-        }
-        void GetProperty(const char* propertyName, void* valuePtr)
-        {
-            (void)propertyName;
-            (void)valuePtr;
-        }
-        void SetProperty(const char* propertyName, const void* valuePtr)
-        {
-            (void)propertyName;
-            (void)valuePtr;
-        }
+        void InvokeMethod(const NativeString& methodName, std::span<void* const> arguments, void* returnPtr) override;
+        void GetFieldMethod(const NativeString& fieldName, void* valuePtr) override;
+        void SetFieldMethod(const NativeString& fieldName, const void* valuePtr) override;
+        void GetPropertyMethod(const NativeString& propertyName, void* valuePtr) override;
+        void SetPropertyMethod(const NativeString& propertyName, const void* valuePtr) override;
 
     private:
         const CLRRuntime* m_Runtime  = nullptr;
