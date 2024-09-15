@@ -27,7 +27,7 @@ namespace Ame::Scripting
 
         auto loadLibrary = m_Runtime->GetFunction<LoadLibraryFn>(ClassName, "LoadLibrary");
         auto library     = loadLibrary(m_Context, path);
-        return m_Libraries.emplace(path.hash(), AmeCreate(CSLibrary, *m_Runtime, this, library)).first->second;
+        return m_Libraries.emplace(path.hash(), AmeCreate(CSLibrary, this, library)).first->second;
     }
 
     ILibrary* CSLibraryContext::LoadLibrary(const NativeString& name, const std::byte* data, size_t dataSize)
@@ -40,7 +40,7 @@ namespace Ame::Scripting
         auto loadLibraryFromStream =
             m_Runtime->GetFunction<LoadLibraryFromStreamFn>(ClassName, "LoadLibraryFromStream");
         auto library = loadLibraryFromStream(m_Context, data, dataSize);
-        return m_Libraries.emplace(name.hash(), AmeCreate(CSLibrary, *m_Runtime, this, library)).first->second;
+        return m_Libraries.emplace(name.hash(), AmeCreate(CSLibrary, this, library)).first->second;
     }
 
     ILibrary* CSLibraryContext::GetLibrary(const NativeString& name)

@@ -9,6 +9,8 @@ namespace Ame::Scripting
     // {2FA2BB0D-7355-4AD4-81CE-DA38B0AFF923}
     inline constexpr UId IID_CSMethod{ 0x2fa2bb0d, 0x7355, 0x4ad4, { 0x81, 0xce, 0xda, 0x38, 0xb0, 0xaf, 0xf9, 0x23 } };
 
+    class CSType;
+
     class CSMethod : public BaseObject<IMethod>
     {
         using FreeFn          = void (*)(void* method);
@@ -25,12 +27,13 @@ namespace Ame::Scripting
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSMethod, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSMethod, const CLRRuntime& runtime, void* method);
+        IMPLEMENT_INTERFACE_CTOR(CSMethod, CSType* type, void* method);
 
     public:
         ~CSMethod() override;
 
     public:
+        auto GetType() const -> Ptr<IType> override;
         auto IsStatic() const -> bool override;
         auto GetName() const -> NativeString override;
 
@@ -38,8 +41,11 @@ namespace Ame::Scripting
         auto GetReturnType() const -> Ptr<IType> override;
         void InvokeMethod(IInstance* instance, std::span<void* const> arguments, void* returnPtr) override;
 
+    public:
+        [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&;
+
     private:
-        const CLRRuntime* m_Runtime = nullptr;
-        void*             m_Method  = nullptr;
+        Ptr<CSType> m_Type;
+        void*       m_Method = nullptr;
     };
 } // namespace Ame::Scripting

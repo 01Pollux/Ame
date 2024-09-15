@@ -11,6 +11,8 @@ namespace Ame::Scripting
         0xba590673, 0xca2c, 0x47d9, { 0xb1, 0x17, 0x83, 0x95, 0xc8, 0x1f, 0x1d, 0xc }
     };
 
+    class CSType;
+
     class CSAttribute : public BaseObject<IAttribute>
     {
         using FreeFn     = void (*)(void* attribute);
@@ -23,7 +25,7 @@ namespace Ame::Scripting
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSAttribute, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSAttribute, const CLRRuntime& runtime, void* attribute);
+        IMPLEMENT_INTERFACE_CTOR(CSAttribute, CSType* type, void* attribute);
 
     public:
         ~CSAttribute() override;
@@ -32,8 +34,11 @@ namespace Ame::Scripting
         auto GetType() const -> Ptr<IType> override;
         void GetValue(const NativeString& name, void* const valuePtr) override;
 
+    public:
+        [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&;
+
     private:
-        const CLRRuntime* m_Runtime   = nullptr;
-        void*             m_Attribute = nullptr;
+        Ptr<CSType> m_Type;
+        void*       m_Attribute = nullptr;
     };
 } // namespace Ame::Scripting

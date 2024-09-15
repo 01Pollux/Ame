@@ -8,18 +8,17 @@ namespace Ame::Scripting
     void CLRRuntime::RegisterCommonFunctions_AttributeBridge()
     {
         RegisterCommonFunction(Functions::AttributeBridge_Free, GetFunctionPtr(ClassName, "Free"));
-        RegisterCommonFunction(Functions::AttributeBridge_GetType, GetFunctionPtr(ClassName, "GetType"));
         RegisterCommonFunction(Functions::AttributeBridge_GetValue, GetFunctionPtr(ClassName, "GetValue"));
     }
 
-    CSAttribute::CSAttribute(IReferenceCounters* counters, const CLRRuntime& runtime, void* attribute) :
-        Base(counters), m_Runtime(&runtime), m_Attribute(attribute)
+    CSAttribute::CSAttribute(IReferenceCounters* counters, CSType* type, void* attribute) :
+        Base(counters), m_Type(type), m_Attribute(attribute)
     {
     }
 
     CSAttribute::~CSAttribute()
     {
-        auto attributeFree = m_Runtime->GetCommonFunction<FreeFn>(CLRRuntime::Functions::AttributeBridge_Free);
+        auto attributeFree = GetRuntime().GetCommonFunction<FreeFn>(CLRRuntime::Functions::AttributeBridge_Free);
         attributeFree(m_Attribute);
     }
 
@@ -27,15 +26,20 @@ namespace Ame::Scripting
 
     Ptr<IType> CSAttribute::GetType() const
     {
-        auto attributeGetType = m_Runtime->GetCommonFunction<GetTypeFn>(CLRRuntime::Functions::AttributeBridge_GetType);
-        auto type             = attributeGetType(m_Attribute);
-        return AmeCreate(CSType, *m_Runtime, type);
+        return m_Type;
     }
 
     void CSAttribute::GetValue(const NativeString& name, void* const valuePtr)
     {
         auto attributeGetValue =
-            m_Runtime->GetCommonFunction<GetValueFn>(CLRRuntime::Functions::AttributeBridge_GetValue);
+            GetRuntime().GetCommonFunction<GetValueFn>(CLRRuntime::Functions::AttributeBridge_GetValue);
         attributeGetValue(m_Attribute, name, valuePtr);
+    }
+
+    //
+
+    const CLRRuntime& CSAttribute::GetRuntime() const
+    {
+        return m_Type->GetRuntime();
     }
 } // namespace Ame::Scripting

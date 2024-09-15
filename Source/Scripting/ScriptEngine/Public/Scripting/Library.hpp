@@ -17,6 +17,6 @@ namespace Ame::Scripting
 
         [[nodiscard]] virtual auto GetContext() const -> ILibraryContext*          = 0;
         [[nodiscard]] virtual auto GetType(const NativeString& name) -> Ptr<IType> = 0;
-        [[nodiscard]] virtual auto GetTypes() -> Co::generator<Ptr<IType>>           = 0;
+        [[nodiscard]] virtual auto GetTypes() -> Co::generator<Ptr<IType>>         = 0;
     };
 } // namespace Ame::Scripting

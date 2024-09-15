@@ -14,14 +14,14 @@ namespace Ame::Scripting
 
     //
 
-    CSLibrary::CSLibrary(IReferenceCounters* counters, const CLRRuntime& runtime, CSLibraryContext* context,
-                         void* library) : Base(counters), m_Runtime(&runtime), m_Context(context), m_Library(library)
+    CSLibrary::CSLibrary(IReferenceCounters* counters, CSLibraryContext* context, void* library) :
+        Base(counters), m_Context(context), m_Library(library)
     {
     }
 
     auto CSLibrary::GetName() const -> NativeString
     {
-        auto getName = m_Runtime->GetFunction<GetNameFn>(ClassName, "GetName");
+        auto getName = GetRuntime().GetFunction<GetNameFn>(ClassName, "GetName");
         return getName(m_Library);
     }
 
@@ -32,17 +32,24 @@ namespace Ame::Scripting
 
     Ptr<IType> CSLibrary::GetType(const NativeString& name)
     {
-        auto getType = m_Runtime->GetCommonFunction<GetTypeFn>(CLRRuntime::Functions::AssemblyBridge_GetType);
+        auto getType = GetRuntime().GetCommonFunction<GetTypeFn>(CLRRuntime::Functions::AssemblyBridge_GetType);
         auto type    = getType(m_Library, name);
-        return type ? AmeCreate(CSType, *m_Runtime, type) : Ptr<IType>{};
+        return type ? AmeCreate(CSType, this, type) : Ptr<IType>{};
     }
 
     Co::generator<Ptr<IType>> CSLibrary::GetTypes()
     {
-        auto getTypes = m_Runtime->GetCommonFunction<GetTypesFn>(CLRRuntime::Functions::AssemblyBridge_GetTypes);
+        auto getTypes = GetRuntime().GetCommonFunction<GetTypesFn>(CLRRuntime::Functions::AssemblyBridge_GetTypes);
         for (auto type : getTypes(m_Library))
         {
-            co_yield AmeCreate(CSType, *m_Runtime, type);
+            co_yield AmeCreate(CSType, this, type);
         }
+    }
+
+    //
+
+    const CLRRuntime& CSLibrary::GetRuntime() const
+    {
+        return m_Context->GetRuntime();
     }
 } // namespace Ame::Scripting

@@ -23,7 +23,7 @@ namespace Ame::Scripting
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSLibrary, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSLibrary, const CLRRuntime& runtime, CSLibraryContext* context, void* library);
+        IMPLEMENT_INTERFACE_CTOR(CSLibrary, CSLibraryContext* context, void* library);
 
     public:
         auto GetName() const -> NativeString override;
@@ -32,9 +32,11 @@ namespace Ame::Scripting
         auto GetType(const NativeString& name) -> Ptr<IType> override;
         auto GetTypes() -> Co::generator<Ptr<IType>> override;
 
+    public:
+        [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&;
+
     private:
-        const CLRRuntime* m_Runtime = nullptr;
-        CSLibraryContext* m_Context = nullptr;
+        CSLibraryContext* m_Context;
         void*             m_Library = 0;
     };
 } // namespace Ame::Scripting

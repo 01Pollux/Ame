@@ -38,6 +38,11 @@ namespace Ame::Scripting
         ILibrary* GetLibrary(const NativeString& name) override;
 
     public:
+        [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&
+        {
+            return *m_Runtime;
+        }
+
         [[nodiscard]] auto GetHandle() const -> void*
         {
             return m_Context;

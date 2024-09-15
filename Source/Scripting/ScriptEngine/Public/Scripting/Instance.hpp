@@ -11,6 +11,7 @@ namespace Ame::Scripting
     class IInstance : public IObject
     {
     public:
+        virtual auto GetType() const -> IType*     = 0;
         virtual void InvokeMethod(const NativeString& methodName, std::span<void* const> arguments,
                                   void* returnPtr) = 0;
 

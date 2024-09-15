@@ -9,6 +9,8 @@ namespace Ame::Scripting
     // {B4494A29-5C6E-4121-AB0B-87A4764CF671}
     inline constexpr UId IID_CSType{ 0xb4494a29, 0x5c6e, 0x4121, { 0xab, 0xb, 0x87, 0xa4, 0x76, 0x4c, 0xf6, 0x71 } };
 
+    class CSLibrary;
+
     class CSType : public BaseObject<IType>
     {
         using FreeFn           = void (*)(void* type);
@@ -28,12 +30,13 @@ namespace Ame::Scripting
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSType, Base);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(CSType, const CLRRuntime& runtime, void* type);
+        IMPLEMENT_INTERFACE_CTOR(CSType, CSLibrary* library, void* type);
 
     public:
         ~CSType() override;
 
     public:
+        auto GetLibrary() const -> ILibrary* override;
         auto GetName() const -> NativeString override;
         auto GetBaseType() const -> Ptr<IType> override;
         auto CastAs(IType* type) const -> bool override;
@@ -51,8 +54,12 @@ namespace Ame::Scripting
         auto GetAttributes() -> Co::generator<Ptr<IAttribute>> override;
         auto GetProperties() -> Co::generator<IProperty*> override;
 
+    public:
+        [[nodiscard]] auto GetRuntime() const -> const CLRRuntime&;
+        [[nodiscard]] auto GetCSLibrary() const -> CSLibrary*;
+
     private:
-        const CLRRuntime* m_Runtime = nullptr;
-        void*             m_Type    = nullptr;
+        Ptr<CSLibrary> m_Library;
+        void*          m_Type = nullptr;
     };
 } // namespace Ame::Scripting

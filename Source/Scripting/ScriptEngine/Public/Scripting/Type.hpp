@@ -7,6 +7,7 @@
 
 namespace Ame::Scripting
 {
+    class ILibrary;
     class IInstance;
     class IField;
     class IMethod;
@@ -16,6 +17,7 @@ namespace Ame::Scripting
     class IType : public IObject
     {
     public:
+        [[nodiscard]] virtual auto GetLibrary() const -> ILibrary*   = 0;
         [[nodiscard]] virtual auto GetName() const -> NativeString   = 0;
         [[nodiscard]] virtual auto GetBaseType() const -> Ptr<IType> = 0;
         [[nodiscard]] virtual auto CastAs(IType* type) const -> bool = 0;

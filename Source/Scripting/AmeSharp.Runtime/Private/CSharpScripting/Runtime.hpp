@@ -32,11 +32,9 @@ namespace Ame::Scripting
             MethodBridge_Invoke,
 
             AttributeBridge_Free,
-            AttributeBridge_GetType,
             AttributeBridge_GetValue,
 
             InstanceBridge_Free,
-            InstanceBridge_GetType,
             InstanceBridge_InvokeMethod,
             InstanceBridge_GetField,
             InstanceBridge_SetField,

@@ -1,4 +1,5 @@
 #include <CSharpScripting/Type.hpp>
+#include <CSharpScripting/Library.hpp>
 #include <CSharpScripting/Instance.hpp>
 #include <CSharpScripting/Method.hpp>
 #include <CSharpScripting/Attribute.hpp>
@@ -23,51 +24,56 @@ namespace Ame::Scripting
 
     //
 
-    CSType::CSType(IReferenceCounters* counters, const CLRRuntime& runtime, void* type) :
-        Base(counters), m_Runtime(&runtime), m_Type(type)
+    CSType::CSType(IReferenceCounters* counters, CSLibrary* library, void* type) :
+        Base(counters), m_Library(library), m_Type(type)
     {
     }
 
     CSType::~CSType()
     {
-        auto typeFree = m_Runtime->GetCommonFunction<FreeFn>(CLRRuntime::Functions::TypeBridge_Free);
+        auto typeFree = GetRuntime().GetCommonFunction<FreeFn>(CLRRuntime::Functions::TypeBridge_Free);
         typeFree(m_Type);
     }
 
     //
 
+    ILibrary* CSType::GetLibrary() const
+    {
+        return m_Library;
+    }
+
     NativeString CSType::GetName() const
     {
-        auto typeGetName = m_Runtime->GetCommonFunction<GetNameFn>(CLRRuntime::Functions::TypeBridge_GetName);
+        auto typeGetName = GetRuntime().GetCommonFunction<GetNameFn>(CLRRuntime::Functions::TypeBridge_GetName);
         return typeGetName(m_Type);
     }
 
     Ptr<IType> CSType::GetBaseType() const
     {
         auto typeGetBaseType =
-            m_Runtime->GetCommonFunction<GetBaseTypeFn>(CLRRuntime::Functions::TypeBridge_GetBaseType);
+            GetRuntime().GetCommonFunction<GetBaseTypeFn>(CLRRuntime::Functions::TypeBridge_GetBaseType);
         auto type = typeGetBaseType(m_Type);
-        return type ? AmeCreate(CSType, *m_Runtime, type) : Ptr<IType>{};
+        return type ? AmeCreate(CSType, m_Library, type) : Ptr<IType>{};
     }
 
     bool CSType::CastAs(IType* type) const
     {
-        auto typeCastAs = m_Runtime->GetCommonFunction<CastAsFn>(CLRRuntime::Functions::TypeBridge_CastAs);
+        auto typeCastAs = GetRuntime().GetCommonFunction<CastAsFn>(CLRRuntime::Functions::TypeBridge_CastAs);
         return typeCastAs(m_Type, type);
     }
 
     size_t CSType::GetSize() const
     {
-        auto typeGetSize = m_Runtime->GetCommonFunction<GetSizeFn>(CLRRuntime::Functions::TypeBridge_GetSize);
+        auto typeGetSize = GetRuntime().GetCommonFunction<GetSizeFn>(CLRRuntime::Functions::TypeBridge_GetSize);
         return typeGetSize(m_Type);
     }
 
     Ptr<IInstance> CSType::CreateInstanceRaw(std::span<void* const> args)
     {
         auto createInstance =
-            m_Runtime->GetCommonFunction<CreateInstanceFn>(CLRRuntime::Functions::TypeBridge_CreateInstance);
+            GetRuntime().GetCommonFunction<CreateInstanceFn>(CLRRuntime::Functions::TypeBridge_CreateInstance);
         auto instance = createInstance(m_Type, args.data(), args.size());
-        return AmeCreate(CSInstance, *m_Runtime, instance);
+        return AmeCreate(CSInstance, this, instance);
     }
 
     //
@@ -80,17 +86,17 @@ namespace Ame::Scripting
 
     Ptr<IMethod> CSType::GetMethod(const NativeString& name)
     {
-        auto getMethod = m_Runtime->GetCommonFunction<GetMethodFn>(CLRRuntime::Functions::TypeBridge_GetMethod);
+        auto getMethod = GetRuntime().GetCommonFunction<GetMethodFn>(CLRRuntime::Functions::TypeBridge_GetMethod);
         auto method    = getMethod(m_Type, name);
-        return method ? AmeCreate(CSMethod, *m_Runtime, method) : Ptr<IMethod>{};
+        return method ? AmeCreate(CSMethod, this, method) : Ptr<IMethod>{};
     }
 
     Ptr<IAttribute> CSType::GetAttribute(const NativeString& name)
     {
         auto getAttribute =
-            m_Runtime->GetCommonFunction<GetAttributeFn>(CLRRuntime::Functions::TypeBridge_GetAttribute);
+            GetRuntime().GetCommonFunction<GetAttributeFn>(CLRRuntime::Functions::TypeBridge_GetAttribute);
         auto attribute = getAttribute(m_Type, name);
-        return attribute ? AmeCreate(CSAttribute, *m_Runtime, attribute) : Ptr<IAttribute>{};
+        return attribute ? AmeCreate(CSAttribute, this, attribute) : Ptr<IAttribute>{};
     }
 
     IProperty* CSType::GetProperty(const NativeString& name)
@@ -108,25 +114,35 @@ namespace Ame::Scripting
 
     Co::generator<Ptr<IMethod>> CSType::GetMethods()
     {
-        auto getMethods = m_Runtime->GetCommonFunction<GetMethodsFn>(CLRRuntime::Functions::TypeBridge_GetMethods);
+        auto getMethods = GetRuntime().GetCommonFunction<GetMethodsFn>(CLRRuntime::Functions::TypeBridge_GetMethods);
         for (auto method : getMethods(m_Type))
         {
-            co_yield AmeCreate(CSMethod, *m_Runtime, method);
+            co_yield AmeCreate(CSMethod, this, method);
         }
     }
 
     Co::generator<Ptr<IAttribute>> CSType::GetAttributes()
     {
         auto getAttributes =
-            m_Runtime->GetCommonFunction<GetAttributesFn>(CLRRuntime::Functions::TypeBridge_GetAttributes);
+            GetRuntime().GetCommonFunction<GetAttributesFn>(CLRRuntime::Functions::TypeBridge_GetAttributes);
         for (auto attribute : getAttributes(m_Type))
         {
-            co_yield AmeCreate(CSAttribute, *m_Runtime, attribute);
+            co_yield AmeCreate(CSAttribute, this, attribute);
         }
     }
 
     Co::generator<IProperty*> CSType::GetProperties()
     {
         co_return;
+    }
+
+    const CLRRuntime& CSType::GetRuntime() const
+    {
+        return m_Library->GetRuntime();
+    }
+
+    auto CSType::GetCSLibrary() const -> CSLibrary*
+    {
+        return m_Library;
     }
 } // namespace Ame::Scripting

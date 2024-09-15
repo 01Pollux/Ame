@@ -18,13 +18,6 @@ namespace AmeSharp.Bridge.Core.Runtime
         }
 
         [UnmanagedCallersOnly]
-        public static nint GetType(nint attributePtr)
-        {
-            var attribute = GCHandleMarshaller<Attribute>.ConvertToManaged(attributePtr)!;
-            return TypeBridge.Create(attribute.GetType());
-        }
-
-        [UnmanagedCallersOnly]
         public static void GetValue(nint attributePtr, UnmanagedNativeString name, IntPtr valuePtr)
         {
             var attribute = GCHandleMarshaller<Attribute>.ConvertToManaged(attributePtr)!;
