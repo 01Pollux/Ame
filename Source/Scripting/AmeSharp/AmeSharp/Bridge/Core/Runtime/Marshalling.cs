@@ -78,6 +78,64 @@ namespace AmeSharp.Bridge.Core.Runtime
             return Marshal.PtrToStructure(ptr, type);
         }
 
+        public static void StructureToPtrEx(object? value, IntPtr ptr)
+        {
+            if (value is null)
+            {
+                return;
+            }
+            if (value is string str)
+            {
+                Marshal.StructureToPtr(new UnmanagedNativeString(str), ptr, false);
+            }
+            else if (value is Array array)
+            {
+                var storage = Marshal.PtrToStructure<RawUnmanagedNativeArray>(ptr);
+                int elementSize = 0;
+                if (array.GetType().GetElementType() == typeof(string))
+                {
+                    elementSize = Marshal.SizeOf<UnmanagedNativeString>();
+                }
+                else
+                {
+                    var type = array.GetType().GetElementType();
+                    if (type is null)
+                    {
+                        return;
+                    }
+                    if (type.IsGenericType)
+                    {
+                        var genericType = type.GetGenericTypeDefinition();
+                        if (genericType == typeof(UnmanagedNativeArray<>))
+                        {
+                            elementSize = Marshal.SizeOf<RawUnmanagedNativeArray>();
+                        }
+                        else
+                        {
+                            elementSize = Marshal.SizeOf(type);
+                        }
+                    }
+                    else if (type.IsSZArray)
+                    {
+                        elementSize = Marshal.SizeOf<RawUnmanagedNativeArray>();
+                    }
+                    else
+                    {
+                        elementSize = Marshal.SizeOf(type);
+                    }
+                }
+                for (int i = 0; i < array.Length; i++)
+                {
+                    var elementPtr = storage.Data + i * elementSize;
+                    StructureToPtrEx(array.GetValue(i), elementPtr);
+                }
+            }
+            else
+            {
+                Marshal.StructureToPtr(value, ptr, false);
+            }
+        }
+
         public static object?[]? PtrToParams(MethodInfo? method, IntPtr args, ulong argCount)
         {
             if (method is null || args == IntPtr.Zero)

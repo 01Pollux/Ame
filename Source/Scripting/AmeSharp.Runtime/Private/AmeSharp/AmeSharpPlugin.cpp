@@ -4,9 +4,7 @@
 #include <Interfaces/Scripting/CSharpScriptEngine.hpp>
 #include <Log/Logger.hpp>
 
-#include <Scripting/Library.hpp>
-#include <Scripting/Type.hpp>
-#include <Scripting/Method.hpp>
+#include <Scripting/Scripting.hpp>
 
 namespace Ame::Scripting
 {
@@ -15,13 +13,13 @@ namespace Ame::Scripting
         auto library = engine->CreateLibrary("ExampleContext", "Plugins/Sample.dll");
         auto name    = library->GetName();
 
-        AME_LOG_INFO(std::format("Library name: {}", library->GetName().view()));
+        AME_LOG_INFO(std::format("Library name: {}", name.view()));
         for (auto& type : library->GetTypes())
         {
             AME_LOG_INFO(std::format("Type: {}", type->GetName().view()));
         }
 
-        auto type = library->GetType("Example.Managed.ExampleClass");
+        auto exampleClass = library->GetType("Example.Managed.ExampleClass");
 
         NativeArray<int>              arr{ 1, 2, 3, 4, 5 };
         NativeArray<int>              arr2{ 1, 2, 3, 4, 5 };
@@ -30,8 +28,15 @@ namespace Ame::Scripting
             NativeArray<int>{ 5, 4, 3, 2, 1 },
         };
         NativeArray<NativeString> arr4{ "Testing", "Testing2" };
-        int sum = type->GetMethod("SumArray")->InvokeStatic<int>(arr, arr4, "Testing2", arr2, arr3);
+
+        int sum = exampleClass->GetMethod("SumArray")->InvokeStatic<int>(arr, arr4, "Testing2", arr2, arr3);
         printf("Sum: %d\n", sum);
+
+        auto attribute = exampleClass->GetAttribute("Example.Managed.CustomAttribute");
+        if (attribute)
+        {
+            printf("CustomAttribute: %f\n", attribute->GetValue<float>("Value"));
+        }
     }
 
     //

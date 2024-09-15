@@ -1,4 +1,5 @@
 ﻿using AmeSharp.Core.Base;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace AmeSharp.Bridge.Core.Runtime
@@ -29,6 +30,28 @@ namespace AmeSharp.Bridge.Core.Runtime
             return Create(type.BaseType);
         }
 
+        [UnmanagedCallersOnly]
+        public static bool CastAs(nint typePtr, nint otherTypePtr)
+        {
+            var type = GCHandleMarshaller<Type>.ConvertToManaged(typePtr)!;
+            var otherType = GCHandleMarshaller<Type>.ConvertToManaged(otherTypePtr)!;
+            return otherType.IsAssignableFrom(type);
+        }
+
+        [UnmanagedCallersOnly]
+        public static ulong GetSize(nint typePtr)
+        {
+            var type = GCHandleMarshaller<Type>.ConvertToManaged(typePtr)!;
+            try
+            {
+                return (ulong)Marshal.SizeOf(type);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         //
 
         [UnmanagedCallersOnly]
@@ -45,6 +68,25 @@ namespace AmeSharp.Bridge.Core.Runtime
             var type = GCHandleMarshaller<Type>.ConvertToManaged(typePtr)!;
             var method = type.GetMethod(name!);
             return MethodBridge.Create(method);
+        }
+
+        //
+
+        [UnmanagedCallersOnly]
+        public static RawUnmanagedNativeArray GetAttributes(nint typePtr)
+        {
+            var type = GCHandleMarshaller<Type>.ConvertToManaged(typePtr)!;
+            var attributes = type.GetCustomAttributes();
+            return (new UnmanagedNativeArray<nint>(attributes.Select(AttributeBridge.Create))).Storage;
+        }
+
+        [UnmanagedCallersOnly]
+        public static nint GetAttribute(nint typePtr, UnmanagedNativeString name)
+        {
+            string nameStr = name!;
+            var type = GCHandleMarshaller<Type>.ConvertToManaged(typePtr)!;
+            var attribute = type.GetCustomAttributes().FirstOrDefault(x => x.GetType().FullName == nameStr);
+            return AttributeBridge.Create(attribute);
         }
     }
 }

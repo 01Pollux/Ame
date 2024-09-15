@@ -11,11 +11,15 @@ namespace Ame::Scripting
 
     class CSType : public BaseObject<IType>
     {
-        using FreeFn        = void (*)(void* type);
-        using GetNameFn     = NativeString (*)(void* type);
-        using GetBaseTypeFn = void* (*)(void* type);
-        using GetMethodFn   = void* (*)(void* type, const NativeString& name);
-        using GetMethodsFn  = NativeArray<void*> (*)(void* type);
+        using FreeFn          = void (*)(void* type);
+        using GetNameFn       = NativeString (*)(void* type);
+        using GetBaseTypeFn   = void* (*)(void* type);
+        using CastAsFn        = bool (*)(void* type, void* otherType);
+        using GetSizeFn       = size_t (*)(void* type);
+        using GetMethodFn     = void* (*)(void* type, const NativeString& name);
+        using GetMethodsFn    = NativeArray<void*> (*)(void* type);
+        using GetAttributeFn  = void* (*)(void* type, const NativeString& name);
+        using GetAttributesFn = NativeArray<void*> (*)(void* type);
 
     public:
         using Base = BaseObject<IType>;
@@ -38,10 +42,12 @@ namespace Ame::Scripting
 
         auto GetField(const NativeString& name) -> IField* override;
         auto GetMethod(const NativeString& name) -> Ptr<IMethod> override;
+        auto GetAttribute(const NativeString& name) -> Ptr<IAttribute> override;
         auto GetProperty(const NativeString& name) -> IProperty* override;
 
         auto GetFields() -> Co::generator<IField*> override;
         auto GetMethods() -> Co::generator<Ptr<IMethod>> override;
+        auto GetAttributes() -> Co::generator<Ptr<IAttribute>> override;
         auto GetProperties() -> Co::generator<IProperty*> override;
 
     private:

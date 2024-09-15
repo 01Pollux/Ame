@@ -1,6 +1,7 @@
 #include <CSharpScripting/Type.hpp>
 #include <CSharpScripting/Instance.hpp>
 #include <CSharpScripting/Method.hpp>
+#include <CSharpScripting/Attribute.hpp>
 
 namespace Ame::Scripting
 {
@@ -11,8 +12,12 @@ namespace Ame::Scripting
         RegisterCommonFunction(Functions::TypeBridge_Free, GetFunctionPtr(ClassName, "Free"));
         RegisterCommonFunction(Functions::TypeBridge_GetName, GetFunctionPtr(ClassName, "GetName"));
         RegisterCommonFunction(Functions::TypeBridge_GetBaseType, GetFunctionPtr(ClassName, "GetBaseType"));
+        RegisterCommonFunction(Functions::TypeBridge_CastAs, GetFunctionPtr(ClassName, "CastAs"));
+        RegisterCommonFunction(Functions::TypeBridge_GetSize, GetFunctionPtr(ClassName, "GetSize"));
         RegisterCommonFunction(Functions::TypeBridge_GetMethod, GetFunctionPtr(ClassName, "GetMethod"));
         RegisterCommonFunction(Functions::TypeBridge_GetMethods, GetFunctionPtr(ClassName, "GetMethods"));
+        RegisterCommonFunction(Functions::TypeBridge_GetAttribute, GetFunctionPtr(ClassName, "GetAttribute"));
+        RegisterCommonFunction(Functions::TypeBridge_GetAttributes, GetFunctionPtr(ClassName, "GetAttributes"));
     }
 
     //
@@ -46,13 +51,14 @@ namespace Ame::Scripting
 
     bool CSType::CastAs(IType* type) const
     {
-        (void)type;
-        return {};
+        auto typeCastAs = m_Runtime->GetCommonFunction<CastAsFn>(CLRRuntime::Functions::TypeBridge_CastAs);
+        return typeCastAs(m_Type, type);
     }
 
     size_t CSType::GetSize() const
     {
-        return {};
+        auto typeGetSize = m_Runtime->GetCommonFunction<GetSizeFn>(CLRRuntime::Functions::TypeBridge_GetSize);
+        return typeGetSize(m_Type);
     }
 
     Ptr<IInstance> CSType::CreateInstance(const InstanceCreateDesc& createDesc)
@@ -60,6 +66,8 @@ namespace Ame::Scripting
         (void)createDesc;
         return {};
     }
+
+    //
 
     IField* CSType::GetField(const NativeString& name)
     {
@@ -74,11 +82,21 @@ namespace Ame::Scripting
         return method ? AmeCreate(CSMethod, *m_Runtime, method) : Ptr<IMethod>{};
     }
 
+    Ptr<IAttribute> CSType::GetAttribute(const NativeString& name)
+    {
+        auto getAttribute =
+            m_Runtime->GetCommonFunction<GetAttributeFn>(CLRRuntime::Functions::TypeBridge_GetAttribute);
+        auto attribute = getAttribute(m_Type, name);
+        return attribute ? AmeCreate(CSAttribute, *m_Runtime, attribute) : Ptr<IAttribute>{};
+    }
+
     IProperty* CSType::GetProperty(const NativeString& name)
     {
         (void)name;
         return {};
     }
+
+    //
 
     Co::generator<IField*> CSType::GetFields()
     {
@@ -91,6 +109,16 @@ namespace Ame::Scripting
         for (auto method : getMethods(m_Type))
         {
             co_yield AmeCreate(CSMethod, *m_Runtime, method);
+        }
+    }
+
+    Co::generator<Ptr<IAttribute>> CSType::GetAttributes()
+    {
+        auto getAttributes =
+            m_Runtime->GetCommonFunction<GetAttributesFn>(CLRRuntime::Functions::TypeBridge_GetAttributes);
+        for (auto attribute : getAttributes(m_Type))
+        {
+            co_yield AmeCreate(CSAttribute, *m_Runtime, attribute);
         }
     }
 

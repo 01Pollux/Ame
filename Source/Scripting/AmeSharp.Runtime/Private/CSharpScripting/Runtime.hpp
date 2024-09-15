@@ -16,8 +16,12 @@ namespace Ame::Scripting
             TypeBridge_Free,
             TypeBridge_GetName,
             TypeBridge_GetBaseType,
+            TypeBridge_CastAs,
+            TypeBridge_GetSize,
             TypeBridge_GetMethod,
             TypeBridge_GetMethods,
+            TypeBridge_GetAttribute,
+            TypeBridge_GetAttributes,
 
             MethodBridge_Free,
             MethodBridge_IsStatic,
@@ -25,6 +29,10 @@ namespace Ame::Scripting
             MethodBridge_GetParamTypes,
             MethodBridge_GetReturnType,
             MethodBridge_Invoke,
+
+            AttributeBridge_Free,
+            AttributeBridge_GetType,
+            AttributeBridge_GetValue,
 
             Count
         };
@@ -56,6 +64,7 @@ namespace Ame::Scripting
         void RegisterCommonFunctions_AssemblyBridge();
         void RegisterCommonFunctions_TypeBridge();
         void RegisterCommonFunctions_MethodBridge();
+        void RegisterCommonFunctions_AttributeBridge();
 
     private:
         DllLibrary    m_HostFxrLibrary;
