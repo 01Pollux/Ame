@@ -32,7 +32,7 @@ namespace Ame::Scripting
 
         template<typename RetTy, typename... Args> RetTy InvokeStatic(Args&&... args)
         {
-            return Invoke<RetTy>(nullptr, std::forward<Args>(args)...);
+            return InvokeImpl<RetTy>(nullptr, NativeConverter<Args>::Wrap(std::forward<Args>(args))...);
         }
 
     private:

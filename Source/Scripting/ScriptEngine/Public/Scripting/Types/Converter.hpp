@@ -4,7 +4,7 @@ namespace Ame::Scripting
 {
     template<typename Ty> struct NativeConverter
     {
-        static auto Wrap(Ty&& value) noexcept
+        static auto Wrap(Ty&& value) -> Ty&&
         {
             return std::forward<Ty>(value);
         }

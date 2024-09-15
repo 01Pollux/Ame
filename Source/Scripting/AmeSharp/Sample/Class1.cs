@@ -43,14 +43,9 @@ namespace Example.Managed
             return (int)value - 26;
         }
 
-        public static int SumArray(UnmanagedNativeArray<int> arr, string str, UnmanagedNativeString str2, string withDefault = "default", int x = 15)
+        public static int SumArray(UnmanagedNativeArray<int> arr, string[] strs, UnmanagedNativeString str2, int[] arr2, int[][] arr3, string withDefault = "default", int x = 15)
         {
-            int sum = 0;
-            for (ulong i = 0; i < arr.Length; i++)
-            {
-                sum += arr[i];
-            }
-            return sum;
+            return arr.ToArray().Concat(arr2).Concat(arr3.SelectMany(x => x)).ToArray().Sum();
         }
 
         public void MemberMethod(MyVec3 vec3)

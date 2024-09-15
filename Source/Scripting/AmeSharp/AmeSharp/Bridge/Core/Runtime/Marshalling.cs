@@ -1,12 +1,60 @@
 ﻿using AmeSharp.Core.Base;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace AmeSharp.Bridge.Core.Runtime
 {
     internal static class Marshalling
     {
+        public static object? PtrArrayToStructureEx(IntPtr ptr, Type? type)
+        {
+            if (type is null)
+            {
+                return null;
+            }
+
+            var storage = Marshal.PtrToStructure<RawUnmanagedNativeArray>(ptr);
+            if (type.IsGenericType) // Generic type
+            {
+                var genericType = type.GetGenericTypeDefinition();
+                if (genericType == typeof(UnmanagedNativeArray<>))
+                {
+                    type = typeof(UnmanagedNativeArray<>).MakeGenericType(type.GetGenericArguments());
+                    return Activator.CreateInstance(type, storage);
+                }
+            }
+            if (type.IsSZArray)
+            {
+                var value = Array.CreateInstance(type, (int)storage.Length);
+                for (int i = 0; i < (int)storage.Length; i++)
+                {
+                    var elementPtr = storage.Data + i * Marshal.SizeOf<RawUnmanagedNativeArray>();
+                    var subStorage = Marshal.PtrToStructure<RawUnmanagedNativeArray>(elementPtr);
+                    unsafe
+                    {
+                        var subStoragePtr = (IntPtr)Unsafe.AsPointer(ref subStorage);
+                        value.SetValue(PtrArrayToStructureEx(subStoragePtr, type.GetElementType()), i);
+                    }
+                }
+                return value;
+            }
+            else
+            {
+                var value = Array.CreateInstance(type, (int)storage.Length);
+                int elementSize = type == typeof(string) ? Marshal.SizeOf<UnmanagedNativeString>() : Marshal.SizeOf(type);
+
+                for (int i = 0; i < (int)storage.Length; i++)
+                {
+                    var elementPtr = storage.Data + i * elementSize;
+                    value.SetValue(PtrToStructureEx(elementPtr, type), i);
+                }
+
+                return value;
+            }
+        }
+
         public static object? PtrToStructureEx(IntPtr ptr, Type type)
         {
             if (type == typeof(string))
@@ -22,6 +70,10 @@ namespace AmeSharp.Bridge.Core.Runtime
                     type = typeof(UnmanagedNativeArray<>).MakeGenericType(type.GetGenericArguments());
                     return Activator.CreateInstance(type, storage);
                 }
+            }
+            else if (type.IsSZArray)
+            {
+                return PtrArrayToStructureEx(ptr, type.GetElementType());
             }
             return Marshal.PtrToStructure(ptr, type);
         }

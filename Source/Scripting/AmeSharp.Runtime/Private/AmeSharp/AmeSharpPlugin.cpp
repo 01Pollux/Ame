@@ -23,9 +23,14 @@ namespace Ame::Scripting
 
         auto type = library->GetType("Example.Managed.ExampleClass");
 
-        NativeArray<int> arr{ 1, 2, 3, 4, 5 };
-        type->GetMethod("StaticMethod")->InvokeStatic<void>(50.f);
-        int sum = type->GetMethod("SumArray")->InvokeStatic<int>(arr, "Testing", "Testing");
+        NativeArray<int>              arr{ 1, 2, 3, 4, 5 };
+        NativeArray<int>              arr2{ 1, 2, 3, 4, 5 };
+        NativeArray<NativeArray<int>> arr3{
+            NativeArray<int>{ 1, 2, 3, 4, 5 },
+            NativeArray<int>{ 5, 4, 3, 2, 1 },
+        };
+        NativeArray<NativeString> arr4{ "Testing", "Testing2" };
+        int sum = type->GetMethod("SumArray")->InvokeStatic<int>(arr, arr4, "Testing2", arr2, arr3);
         printf("Sum: %d\n", sum);
     }
 

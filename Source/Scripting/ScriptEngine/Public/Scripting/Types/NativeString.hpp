@@ -35,10 +35,23 @@ namespace Ame::Scripting
             std::copy(other.begin(), other.end(), data());
         }
 
-        NativeString& operator=(const NativeString&) = default;
-        NativeString& operator=(NativeString&&)      = default;
-        NativeString(NativeString&&)                 = default;
-        ~NativeString()                              = default;
+        NativeString& operator=(const NativeString& other)
+        {
+            if (this != &other)
+            {
+                if (m_Size != other.size())
+                {
+                    m_Data = std::make_unique<char_type[]>(other.size() + 1);
+                    m_Size = other.size();
+                }
+                std::copy(other.begin(), other.end(), data());
+            }
+            return *this;
+        }
+
+        NativeString& operator=(NativeString&&) = default;
+        NativeString(NativeString&&)            = default;
+        ~NativeString()                         = default;
 
     public:
         [[nodiscard]] std_string_type str() const

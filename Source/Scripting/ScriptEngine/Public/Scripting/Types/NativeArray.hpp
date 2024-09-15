@@ -14,15 +14,27 @@ namespace Ame::Scripting
         }
         NativeArray(const NativeArray& other) : m_Data(std::make_unique<Ty[]>(other.m_Size)), m_Size(other.m_Size)
         {
-            std::memcpy(m_Data.get(), other.m_Data.get(), other.m_Size * sizeof(Ty));
-        }
-        NativeArray(std::initializer_list<Ty> list) : m_Data(std::make_unique<Ty[]>(list.size())), m_Size(list.size())
-        {
-            std::memcpy(m_Data.get(), list.begin(), list.size() * sizeof(Ty));
+            std::copy(other.begin(), other.end(), m_Data.get());
         }
         NativeArray(std::span<const Ty> span) : m_Data(std::make_unique<Ty[]>(span.size())), m_Size(span.size())
         {
-            std::memcpy(m_Data.get(), span.data(), span.size() * sizeof(Ty));
+            for (size_t i = 0; i < span.size(); i++)
+            {
+                m_Data[i] = std::move(span[i]);
+            }
+        }
+        NativeArray(std::span<Ty> span) : m_Data(std::make_unique<Ty[]>(span.size())), m_Size(span.size())
+        {
+            for (size_t i = 0; i < span.size(); i++)
+            {
+                m_Data[i] = std::move(span[i]);
+            }
+        }
+        template<typename... Args>
+        NativeArray(Args&&... args) : m_Data(std::make_unique<Ty[]>(sizeof...(args))), m_Size(sizeof...(args))
+        {
+            size_t i = 0;
+            ((m_Data[i++] = std::forward<Args>(args)), ...);
         }
         NativeArray(NativeArray&&) = default;
         NativeArray& operator=(const NativeArray& other)
@@ -114,6 +126,6 @@ namespace Ame::Scripting
 
     private:
         std::unique_ptr<Ty[]> m_Data;
-        size_t                m_Size;
+        size_t                m_Size = 0;
     };
 } // namespace Ame::Scripting
