@@ -36,8 +36,7 @@ namespace Ame::Scripting
 
         auto GetParamTypes() const -> Co::generator<Ptr<IType>> override;
         auto GetReturnType() const -> Ptr<IType> override;
-        void InvokeMethod(IInstance* instance, std::span<void* const> arguments, size_t argCount,
-                          void* returnPtr) override;
+        void InvokeMethod(IInstance* instance, std::span<void* const> arguments, void* returnPtr) override;
 
     private:
         const CLRRuntime* m_Runtime = nullptr;

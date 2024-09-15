@@ -16,13 +16,12 @@ namespace Ame::Scripting
         virtual auto IsStatic() const -> bool        = 0;
         virtual auto GetName() const -> NativeString = 0;
 
-        virtual auto GetParamTypes() const -> Co::generator<Ptr<IType>> = 0;
-        virtual auto GetReturnType() const -> Ptr<IType>                = 0;
-        virtual void InvokeMethod(IInstance* instance, std::span<void* const> arguments, size_t argCount,
-                                  void* returnPtr)                      = 0;
-        void         InvokeStaticMethod(std::span<void* const> arguments, size_t argCount, void* returnPtr)
+        virtual auto GetParamTypes() const -> Co::generator<Ptr<IType>>                                   = 0;
+        virtual auto GetReturnType() const -> Ptr<IType>                                                  = 0;
+        virtual void InvokeMethod(IInstance* instance, std::span<void* const> arguments, void* returnPtr) = 0;
+        void         InvokeStaticMethod(std::span<void* const> arguments, void* returnPtr)
         {
-            InvokeMethod(nullptr, arguments, argCount, returnPtr);
+            InvokeMethod(nullptr, arguments, returnPtr);
         }
 
         template<typename RetTy, typename... Args> RetTy Invoke(IInstance* instance, Args&&... args)
@@ -43,12 +42,12 @@ namespace Ame::Scripting
             void* const argsPtrs[argsCount] = { std::addressof(args)... };
             if constexpr (std::is_void_v<RetTy>)
             {
-                InvokeMethod(instance, argsPtrs, argsCount, nullptr);
+                InvokeMethod(instance, argsPtrs, nullptr);
             }
             else
             {
                 RetTy result{};
-                InvokeMethod(instance, argsPtrs, argsCount, &result);
+                InvokeMethod(instance, argsPtrs, &result);
                 return result;
             }
         }

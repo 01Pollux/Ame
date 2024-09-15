@@ -58,9 +58,9 @@ namespace Ame::Scripting
         return type ? AmeCreate(CSType, *m_Runtime, type) : Ptr<IType>{};
     }
 
-    void CSMethod::InvokeMethod(IInstance* instance, std::span<void* const> arguments, size_t argCount, void* returnPtr)
+    void CSMethod::InvokeMethod(IInstance* instance, std::span<void* const> arguments, void* returnPtr)
     {
         auto methodInvoke = m_Runtime->GetCommonFunction<InvokeFn>(CLRRuntime::Functions::MethodBridge_Invoke);
-        methodInvoke(m_Method, instance, arguments.data(), argCount, returnPtr);
+        methodInvoke(m_Method, instance, arguments.data(), arguments.size(), returnPtr);
     }
 } // namespace Ame::Scripting

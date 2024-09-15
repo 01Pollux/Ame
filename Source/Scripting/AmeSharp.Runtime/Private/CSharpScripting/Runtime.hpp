@@ -18,6 +18,7 @@ namespace Ame::Scripting
             TypeBridge_GetBaseType,
             TypeBridge_CastAs,
             TypeBridge_GetSize,
+            TypeBridge_CreateInstance,
             TypeBridge_GetMethod,
             TypeBridge_GetMethods,
             TypeBridge_GetAttribute,

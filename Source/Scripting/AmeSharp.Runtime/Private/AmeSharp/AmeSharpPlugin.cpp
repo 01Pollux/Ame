@@ -37,6 +37,9 @@ namespace Ame::Scripting
         {
             printf("CustomAttribute: %f\n", attribute->GetValue<float>("Value"));
         }
+
+        auto instance = exampleClass->CreateInstance(50);
+        (void)instance;
     }
 
     //

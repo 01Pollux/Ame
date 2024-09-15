@@ -52,6 +52,19 @@ namespace AmeSharp.Bridge.Core.Runtime
             }
         }
 
+        [UnmanagedCallersOnly]
+        public static nint CreateInstance(nint typePtr, IntPtr args, ulong argCount)
+        {
+            var type = GCHandleMarshaller<Type>.ConvertToManaged(typePtr)!;
+            var ctor = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
+            var arguments = Marshalling.PtrToParams(ctor, args, argCount);
+            if (arguments is null)
+            {
+                return nint.Zero;
+            }
+            return InstanceBridge.Create(ctor?.Invoke(arguments));
+        }
+
         //
 
         [UnmanagedCallersOnly]

@@ -136,7 +136,7 @@ namespace AmeSharp.Bridge.Core.Runtime
             }
         }
 
-        public static object?[]? PtrToParams(MethodInfo? method, IntPtr args, ulong argCount)
+        public static object?[]? PtrToParams(MethodBase? method, IntPtr args, ulong argCount)
         {
             if (method is null || args == IntPtr.Zero)
             {

@@ -14,6 +14,7 @@ namespace Ame::Scripting
         RegisterCommonFunction(Functions::TypeBridge_GetBaseType, GetFunctionPtr(ClassName, "GetBaseType"));
         RegisterCommonFunction(Functions::TypeBridge_CastAs, GetFunctionPtr(ClassName, "CastAs"));
         RegisterCommonFunction(Functions::TypeBridge_GetSize, GetFunctionPtr(ClassName, "GetSize"));
+        RegisterCommonFunction(Functions::TypeBridge_CreateInstance, GetFunctionPtr(ClassName, "CreateInstance"));
         RegisterCommonFunction(Functions::TypeBridge_GetMethod, GetFunctionPtr(ClassName, "GetMethod"));
         RegisterCommonFunction(Functions::TypeBridge_GetMethods, GetFunctionPtr(ClassName, "GetMethods"));
         RegisterCommonFunction(Functions::TypeBridge_GetAttribute, GetFunctionPtr(ClassName, "GetAttribute"));
@@ -61,10 +62,12 @@ namespace Ame::Scripting
         return typeGetSize(m_Type);
     }
 
-    Ptr<IInstance> CSType::CreateInstance(const InstanceCreateDesc& createDesc)
+    Ptr<IInstance> CSType::CreateInstanceRaw(std::span<void* const> args)
     {
-        (void)createDesc;
-        return {};
+        auto createInstance =
+            m_Runtime->GetCommonFunction<CreateInstanceFn>(CLRRuntime::Functions::TypeBridge_CreateInstance);
+        auto instance = createInstance(m_Type, args.data(), args.size());
+        return AmeCreate(CSInstance, *m_Runtime, instance);
     }
 
     //

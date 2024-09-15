@@ -9,4 +9,5 @@
 #include <Scripting/Library.hpp>
 #include <Scripting/Type.hpp>
 #include <Scripting/Method.hpp>
+#include <Scripting/Instance.hpp>
 #include <Scripting/Attribute.hpp>
