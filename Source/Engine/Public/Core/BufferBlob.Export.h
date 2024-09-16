@@ -1,0 +1,21 @@
+#pragma once
+
+#include <Core/CApi.h>
+
+typedef struct Ame_DataBlob_t Ame_DataBlob_t;
+
+// clang-format off
+extern "C"
+{
+    AME_EXPORT_C(void, Ame_IDataBlob_Resize(Ame_DataBlob_t* blobHandle, size_t newSize));
+    AME_EXPORT_C(size_t, Ame_IDataBlob_GetSize(Ame_DataBlob_t* blobHandle));
+    AME_EXPORT_C(void*, Ame_IDataBlob_GetData(Ame_DataBlob_t* blobHandle));
+    AME_EXPORT_C(const void*, Ame_IDataBlob_GetConstData(Ame_DataBlob_t* blobHandle));
+
+    //
+
+    // Must be released with Ame_IBaseObject_Release
+    AME_EXPORT_C(Ame_DataBlob_t*, Ame_RawDataBlob_CreateDataBlob(const void* data, size_t initialSize));
+    AME_EXPORT_C(Ame_DataBlob_t*, Ame_RawDataBlob_CreateDataBlobFromBlob(const Ame_DataBlob_t* otherBlobHandle));
+}
+// clang-format on

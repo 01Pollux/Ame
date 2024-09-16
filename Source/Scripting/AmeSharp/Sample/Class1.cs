@@ -1,4 +1,4 @@
-﻿using AmeSharp.Core.Base;
+﻿using AmeSharp.Core.Base.Types;
 using System.Runtime.CompilerServices;
 
 namespace Example.Managed

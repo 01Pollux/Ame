@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Log/Stream.hpp>
+#include <Log/Streams/LogFileEvent.hpp>
 
 namespace Ame::Log
 {
-    struct LogFileEvent;
     class AME_ENGINE_API FileStream final : public ILoggerStream
     {
     public:

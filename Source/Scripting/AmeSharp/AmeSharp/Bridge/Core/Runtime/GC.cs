@@ -1,25 +1,24 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace AmeSharp.Bridge.Core.Runtime
+namespace AmeSharp.Bridge.Core.Runtime;
+
+public class GCBridge
 {
-    public class GCBridge
+    [UnmanagedCallersOnly]
+    public static void CollectAll()
     {
-        [UnmanagedCallersOnly]
-        public static void CollectAll()
-        {
-            GC.Collect();
-        }
+        GC.Collect();
+    }
 
-        [UnmanagedCallersOnly]
-        public static void Collect(int generation, char mode, bool blocking, bool compacting)
-        {
-            GC.Collect(generation, (GCCollectionMode)mode, blocking, compacting);
-        }
+    [UnmanagedCallersOnly]
+    public static void Collect(int generation, char mode, bool blocking, bool compacting)
+    {
+        GC.Collect(generation, (GCCollectionMode)mode, blocking, compacting);
+    }
 
-        [UnmanagedCallersOnly]
-        public static void WaitForPendingFinalizers()
-        {
-            GC.WaitForPendingFinalizers();
-        }
+    [UnmanagedCallersOnly]
+    public static void WaitForPendingFinalizers()
+    {
+        GC.WaitForPendingFinalizers();
     }
 }

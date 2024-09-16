@@ -46,6 +46,9 @@ ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeS
     add_deps("DotNet")
 end)
 
+ame_csharp_utils:add_library("AmeSharp", "Ame/Scripting", "Source/Scripting/AmeSharp/AmeSharp", "Plugins")
+ame_csharp_utils:add_library("AmeSharp.Sample", "Ame/Scripting", "Source/Scripting/AmeSharp/Sample", "Plugins")
+
 --
 
 ame_utils:add_library("Ame.Application", "Ame", "static", "Source/Application", function()

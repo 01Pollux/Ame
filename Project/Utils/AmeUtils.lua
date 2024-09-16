@@ -16,6 +16,7 @@ end
 
 function _ame_add_headers_if_not_empty(path)
     __ame_add_headerfiles_if_not_empty(file_utils:path_from_root(path .. "/**.hpp"))
+    __ame_add_headerfiles_if_not_empty(file_utils:path_from_root(path .. "/**.h"))
 end
 
 function ame_utils:add_library(name, group, kind, path, callback)

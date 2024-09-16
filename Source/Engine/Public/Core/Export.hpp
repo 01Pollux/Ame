@@ -21,4 +21,11 @@
 
 #endif
 
-// Your code here
+// if msvc use AME_CDECL as __cdecl
+#if defined(_MSC_VER)
+#define AME_CDECL __cdecl
+#else
+#define AME_CDECL __attribute__((__cdecl__))
+#endif
+
+#define AME_EXPORT_C(ReturnType, ...) AME_ENGINE_API ReturnType AME_CDECL __VA_ARGS__

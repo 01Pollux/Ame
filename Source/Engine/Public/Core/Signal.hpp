@@ -3,6 +3,8 @@
 #include <boost/signals2.hpp>
 #include <Core/Ame.hpp>
 
+struct Ame_SignalConnection_t;
+
 namespace Ame::Signals
 {
     using Connection       = boost::signals2::connection;
@@ -56,6 +58,20 @@ namespace Ame::Signals
     private:
         UniquePtr<ISignal> m_Signal = std::make_unique<SignalImpl>();
     };
+
+    //
+
+    // Used in the C API
+    template<typename CbTy> auto WrapSignalCallback(auto& signal, CbTy callback, void* userData)
+    {
+        // clang-format off
+        auto wrapper = [callback, userData](auto&&... args)
+        {
+            return callback(std::forward<decltype(args)>(args)..., userData);
+        };
+        return std::bit_cast<Ame_SignalConnection_t*>(new Connection(signal.Connect(std::move(wrapper))));
+        // clang-format on
+    }
 } // namespace Ame::Signals
 
 #define AME_SIGNAL_DECL(Name, ...) using Name##_Signal = Ame::Signals::Signal<__VA_ARGS__>;
