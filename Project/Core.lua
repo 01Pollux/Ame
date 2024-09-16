@@ -31,18 +31,15 @@ end)
 
 target("DotNet")
     set_kind("phony")
+    set_group("Ame/Scripting")
     add_packages("dotnet", public_inherit)
 target_end()
-
-ame_utils:add_library("Ame.ScriptingEngine", "Ame/Scripting", "headeronly", "Source/Scripting/ScriptEngine", function()
-    add_deps("AmeEngine")
-end)
 
 ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeSharp.Runtime", function()
     -- add_defines("AME_CSHARP_EXPORT")
     add_defines("AME_CSHARP_STATIC_LINKING")
 
-    add_deps("Ame.ScriptingEngine")
+    add_deps("AmeEngine")
     add_deps("DotNet")
 end)
 
