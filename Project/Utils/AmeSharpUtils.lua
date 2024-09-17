@@ -31,7 +31,7 @@ function ame_csharp_utils:add_library(name, group, path, output_path, callback)
         end)
 
         on_install(function (target)
-            local target_dir =  target:targetdir()
+            local target_dir =  target:installdir() .. "/bin"
             if output_path ~= nil then
                 target_dir =  target_dir .. "/" .. output_path
             end
@@ -41,6 +41,7 @@ function ame_csharp_utils:add_library(name, group, path, output_path, callback)
                 mode = "Release"
             end
 
+            print("Installing " .. name .. " to " .. target_dir)
             os.execv("dotnet", {
                 "publish", path,
                 "--configuration", "Release",

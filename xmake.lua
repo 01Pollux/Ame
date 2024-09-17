@@ -4,8 +4,9 @@
 
 --
 
-add_rules("mode.debug", "mode.releasedbg", "mode.check")
 set_languages("cxxlatest")
+add_rules("mode.debug", "mode.releasedbg", "mode.check")
+set_policy("install.strip_packagelibs", false)
 
 --
 

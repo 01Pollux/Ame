@@ -4,7 +4,8 @@ local public_inherit = {public = true, inherit = true}
 
 ame_utils:add_library("AmeEngine", "Ame", "shared", "Source/Engine", function()
     add_defines("AME_ENGINE_EXPORT")
-    add_packages(
+    
+    local packages = {
         "boost",
         "cereal",
         "ame.diligent_core",
@@ -20,9 +21,13 @@ ame_utils:add_library("AmeEngine", "Ame", "shared", "Source/Engine", function()
         "ame.octree",
         "flecs",
         "freeimage",
-        public_inherit)
+        "ame.imgui",
+    }
+    for _, package in ipairs(packages) do
+        add_packages(package, public_inherit)
+    end
     add_packages("assimp")
-    add_packages("ame.imgui", public_inherit)
+
     add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Export.hpp"), public_inherit)
     add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Allocator.hpp"), public_inherit)
 end)

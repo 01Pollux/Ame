@@ -213,7 +213,7 @@ package("ame.diligent_core")
         for _, file in ipairs(extra_files) do
             local src_dir = path.join(package:buildir(), build_mode, file)
             if os.isfile(src_dir) then
-                os.cp(src_dir, package:installdir("bin"))
+                os.trycp(src_dir, package:installdir("bin"))
                 if file == "WinPixEventRuntime.dll" then
                     has_winpix = true
                 elseif file == "WinPixEventRuntime_UAP.dll" then
@@ -227,10 +227,10 @@ package("ame.diligent_core")
             local pix_runtime = path.join(package:buildir(), "WinPixEventRuntime", "bin", package_arch)
             if os.isdir(pix_runtime) then
                 if has_winpix then
-                    os.cp(path.join(pix_runtime, "WinPixEventRuntime.lib"), package:installdir("lib"))
+                    os.trycp(path.join(pix_runtime, "WinPixEventRuntime.lib"), package:installdir("lib"))
                 end
                 if has_winpix_uwp then
-                    os.cp(path.join(pix_runtime, "WinPixEventRuntime_UAP.lib"), package:installdir("lib"))
+                    os.trycp(path.join(pix_runtime, "WinPixEventRuntime_UAP.lib"), package:installdir("lib"))
                 end
             end
         end
@@ -260,12 +260,16 @@ package("ame.diligent_core")
         os.mv(path.join(src_inc_dir, "Primitives"),path.join(dst_inc_dir, "Primitives"))
         
         -- link libraries
+        local linked_libs = {}
         local function link_libs(lib_dir, lib_extension)
             for _, file in ipairs(os.files(path.join(lib_dir, lib_extension))) do
                 file = path.filename(file)
                 file = file:sub(1, #file - 4)
-                print("linking " .. file)
-                package:add("links", file)
+                -- if it hasn't been linked yet
+                if not linked_libs[file] then
+                    linked_libs[file] = true
+                    package:add("links", file)
+                end
             end
         end
         
