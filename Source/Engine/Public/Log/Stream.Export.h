@@ -32,21 +32,21 @@ typedef void (*Ame_LoggerStream_Callback_t)(const Ame_Logger_LogData*);
 // clang-format off
 extern "C"
 {
-    AME_EXPORT_C(void, Ame_LoggerStream_Release(Ame_LoggerStream_t* stream));
+    AME_ENGINE_C(void, Ame_LoggerStream_Release(Ame_LoggerStream_t* stream));
 
-    AME_EXPORT_C(void, Ame_LoggerStream_SetPattern(Ame_LoggerStream_t* stream, Ame_StringView_t pattern));
-    AME_EXPORT_C(void, Ame_LoggerStream_SetLevel(Ame_LoggerStream_t* stream, char level));
+    AME_ENGINE_C(void, Ame_LoggerStream_SetPattern(Ame_LoggerStream_t* stream, Ame_StringView_t pattern));
+    AME_ENGINE_C(void, Ame_LoggerStream_SetLevel(Ame_LoggerStream_t* stream, char level));
 
-    AME_EXPORT_C(Ame_StringView_t, Ame_LoggerStream_GetPattern(Ame_LoggerStream_t* stream, Ame_StringView_t pattern));
-    AME_EXPORT_C(char, Ame_LoggerStream_GetLevel(Ame_LoggerStream_t* stream, char level));
+    AME_ENGINE_C(Ame_StringView_t, Ame_LoggerStream_GetPattern(Ame_LoggerStream_t* stream, Ame_StringView_t pattern));
+    AME_ENGINE_C(char, Ame_LoggerStream_GetLevel(Ame_LoggerStream_t* stream, char level));
 
     //
 
-    AME_EXPORT_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback));
-    AME_EXPORT_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateConsole());
-    AME_EXPORT_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateFile(Ame_StringView_t fileName, bool truncate));
-    AME_EXPORT_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateMsvcDebug());
-    AME_EXPORT_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateNull());
-    AME_EXPORT_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateRotatingFile(Ame_StringView_t baseFileName, size_t maxSize, size_t maxFiles, bool rotateOnOpen));
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback));
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateConsole());
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateFile(Ame_StringView_t fileName, bool truncate));
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateMsvcDebug());
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateNull());
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateRotatingFile(Ame_StringView_t baseFileName, size_t maxSize, size_t maxFiles, bool rotateOnOpen));
 }
 // clang-format on

@@ -10,10 +10,10 @@ typedef bool (*Ame_FrameEvent_SignalSlot_t)(void* /*userData*/);
 extern "C"
 {
     // Must be released with Ame_IBaseObject_Release
-    AME_EXPORT_C(Ame_FrameEvent_t*, Ame_FrameEvent_Create());
+    AME_ENGINE_C(Ame_FrameEvent_t*, Ame_FrameEvent_Create());
 
-    AME_EXPORT_C(Ame_SignalConnection_t*, Ame_FrameEvent_OnFrameStart_Connect(Ame_FrameEvent_t* frameEventHandle, Ame_FrameEvent_SignalSlot_t slot, void* userData));
-    AME_EXPORT_C(Ame_SignalConnection_t*, Ame_FrameEvent_OnFrameUpdate_Connect(Ame_FrameEvent_t* frameEventHandle, Ame_FrameEvent_SignalSlot_t slot, void* userData));
-    AME_EXPORT_C(Ame_SignalConnection_t*, Ame_FrameEvent_OnFrameEnd_Connect(Ame_FrameEvent_t* frameEventHandle, Ame_FrameEvent_SignalSlot_t slot, void* userData));
+    AME_ENGINE_C(Ame_SignalConnection_t*, Ame_FrameEvent_OnFrameStart_Connect(Ame_FrameEvent_t* frameEventHandle, Ame_FrameEvent_SignalSlot_t slot, void* userData));
+    AME_ENGINE_C(Ame_SignalConnection_t*, Ame_FrameEvent_OnFrameUpdate_Connect(Ame_FrameEvent_t* frameEventHandle, Ame_FrameEvent_SignalSlot_t slot, void* userData));
+    AME_ENGINE_C(Ame_SignalConnection_t*, Ame_FrameEvent_OnFrameEnd_Connect(Ame_FrameEvent_t* frameEventHandle, Ame_FrameEvent_SignalSlot_t slot, void* userData));
 }
 // clang-format on

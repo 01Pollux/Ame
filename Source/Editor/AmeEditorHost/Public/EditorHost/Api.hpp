@@ -1,0 +1,9 @@
+#pragma once
+
+#if defined(AME_EDITORHOST_EXPORT)
+#define AME_EDITORHOST_API BOOST_SYMBOL_EXPORT
+#else
+#define AME_EDITORHOST_API BOOST_SYMBOL_IMPORT
+#endif
+
+#define AME_EDITORHOST_C(ReturnType, ...) AME_EDITORHOST_API ReturnType AME_CDECL __VA_ARGS__

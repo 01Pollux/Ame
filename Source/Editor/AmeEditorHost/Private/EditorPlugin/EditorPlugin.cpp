@@ -1,5 +1,5 @@
-#include <Plugin/EditorPlugin.hpp>
 #include <Plugin/ModuleRegistry.hpp>
+#include <EditorPlugin/EditorPlugin.hpp>
 
 #include <Interfaces/Rhi/ImGuiRenderer.hpp>
 

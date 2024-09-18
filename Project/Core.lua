@@ -28,7 +28,7 @@ ame_utils:add_library("AmeEngine", "Ame", "shared", "Source/Engine", function()
     end
     add_packages("assimp")
 
-    add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Export.hpp"), public_inherit)
+    add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Api.hpp"), public_inherit)
     add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Allocator.hpp"), public_inherit)
 end)
 
@@ -59,19 +59,24 @@ end)
 
 --
 
-ame_utils:add_library("Ame.EditorPlugin", "Ame/Editor", "static", "Source/Editor/EditorPlugin", function()
+ame_utils:add_plugin("AmeEditorHost", "Ame/Editor", "Source/Editor/AmeEditorHost", function()
+    add_defines("AME_EDITORHOST_EXPORT")
+    add_defines([[AME_EDITORHOST_EXPORT_C(ReturnType, ...)=AME_EDITORHOST_API ReturnType AME_CDECL __VA_ARGS__]])
+
     add_deps("AmeEngine", public_inherit)
+
+    add_forceincludes(file_utils:path_from_root("Source/Editor/AmeEditorHost/Public/EditorHost/Api.hpp"), public_inherit)
 end)
 
 ame_utils:add_plugin("EditorCore", "Ame/Editor", "Source/Editor/EditorCore", function()
-    add_deps("Ame.EditorPlugin", public_inherit)
+    add_deps("AmeEditorHost", public_inherit)
 end)
 
 ame_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/EditorApplication", function()
     set_default(true)
 
     add_deps("Ame.Application")
-    add_deps("Ame.EditorPlugin")
+    add_deps("AmeEditorHost")
     add_deps("DotNet")
 
     ame_utils:install_assets()

@@ -28,4 +28,4 @@
 #define AME_CDECL __attribute__((__cdecl__))
 #endif
 
-#define AME_EXPORT_C(ReturnType, ...) AME_ENGINE_API ReturnType AME_CDECL __VA_ARGS__
+#define AME_ENGINE_C(ReturnType, ...) AME_ENGINE_API ReturnType AME_CDECL __VA_ARGS__
