@@ -15,7 +15,7 @@ internal partial class SignalBridge
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_Signal_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial IntPtr Connect(IntPtr signalObject, IntPtr callback, IntPtr userData);
+    public static unsafe partial IntPtr Connect(IntPtr signalObject, delegate* unmanaged[Cdecl]<void> callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_Signal_Disconnect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -23,5 +23,5 @@ internal partial class SignalBridge
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_Signal_Invoke")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void Emit(IntPtr signalObject, IntPtr data);
+    public static partial void Emit(IntPtr signalObject, IntPtr args);
 }

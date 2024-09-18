@@ -27,7 +27,7 @@ typedef struct Ame_Logger_LogData
     char             Level;
 } Ame_Logger_LogData;
 
-typedef void (*Ame_LoggerStream_Callback_t)(const Ame_Logger_LogData*);
+typedef void(AME_CDECL* Ame_LoggerStream_Callback_t)(const Ame_Logger_LogData*);
 
 // clang-format off
 extern "C"

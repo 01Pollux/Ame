@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 
-namespace AmeSharp.Bridge.Core.Base.Marshallers;
+namespace AmeSharp.Core.Base.Marshallers;
 
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.Default, typeof(NativeStringViewMarshaller))]
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]
-internal static unsafe class NativeStringViewMarshaller
+public static unsafe class NativeStringViewMarshaller
 {
-    internal struct UnmanagedView
+    public struct UnmanagedView
     {
         public byte* Bytes;
         public ulong Length;

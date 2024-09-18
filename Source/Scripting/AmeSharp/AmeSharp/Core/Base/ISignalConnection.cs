@@ -1,9 +1,15 @@
 ﻿using AmeSharp.Bridge.Core.Base;
+using System.Runtime.InteropServices;
+using static AmeSharp.Core.Base.ISignalConnection;
 
 namespace AmeSharp.Core.Base;
 
-public class ISignalConnection(IntPtr obj) : INativeObject(obj)
+public class ISignalConnection(IntPtr obj, SignalCallback callback) : INativeObject(obj)
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    public delegate void SignalCallback();
+    private readonly SignalCallback _callback = callback;
+
     public void Disconnect() => Dispose(true);
 
     protected override void Dispose(bool disposing)

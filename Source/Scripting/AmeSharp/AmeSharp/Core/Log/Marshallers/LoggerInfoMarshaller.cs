@@ -1,8 +1,8 @@
-﻿using AmeSharp.Bridge.Core.Base.Marshallers;
+﻿using AmeSharp.Core.Base.Marshallers;
 using AmeSharp.Core.Log;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace AmeSharp.Bridge.Core.Log.Marshallers;
+namespace AmeSharp.Core.Log.Marshallers;
 
 [CustomMarshaller(typeof(LoggerInfo), MarshalMode.Default, typeof(LoggerInfoMarshaller))]
 internal static unsafe class LoggerInfoMarshaller

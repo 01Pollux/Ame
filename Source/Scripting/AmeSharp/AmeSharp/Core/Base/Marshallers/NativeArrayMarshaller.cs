@@ -1,7 +1,7 @@
 ﻿using AmeSharp.Core.Base.Types;
 using System.Runtime.InteropServices;
 
-namespace AmeSharp.Bridge.Core.Base.Marshallers;
+namespace AmeSharp.Core.Base.Marshallers;
 
 internal static unsafe class NativeArrayMarshaller<T> where T : unmanaged
 {
