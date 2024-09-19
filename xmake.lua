@@ -4,6 +4,12 @@
 
 --
 
+rule("csharp")
+	set_extensions(".csproj", ".cs")
+rule_end()
+
+--
+
 set_languages("cxxlatest")
 add_rules("mode.debug", "mode.releasedbg", "mode.check")
 set_policy("install.strip_packagelibs", false)

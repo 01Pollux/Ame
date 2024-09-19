@@ -48,8 +48,8 @@ ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeS
     add_deps("DotNet")
 end)
 
-ame_csharp_utils:add_library("AmeSharp", "Ame/Scripting", "Source/Scripting/AmeSharp/AmeSharp", "Plugins")
-ame_csharp_utils:add_library("AmeSharp.Sample", "Ame/Scripting", "Source/Scripting/AmeSharp/Sample", "Plugins")
+ame_csharp_utils:add_library("AmeSharp", "Ame/Scripting", "shared", "Source/Scripting/AmeSharp/AmeSharp", "Plugins")
+ame_csharp_utils:add_library("AmeSharp.Sample", "Ame/Scripting", "shared", "Source/Scripting/AmeSharp/Sample", "Plugins")
 
 --
 
@@ -72,13 +72,15 @@ ame_utils:add_plugin("EditorCore", "Ame/Editor", "Source/Editor/EditorCore", fun
     add_deps("AmeEditorHost", public_inherit)
 end)
 
-ame_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/EditorApplication", function()
-    set_default(true)
+ame_csharp_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/AmeEditor")
 
-    add_deps("Ame.Application")
-    add_deps("AmeEditorHost")
-    add_deps("DotNet")
+-- ame_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/EditorApplication", function()
+--     set_default(true)
 
-    ame_utils:install_assets()
-    set_runargs("-p", "Shared/Assets/Projects/EmptyProject/EmptyProject.ame")
-end)
+--     add_deps("Ame.Application")
+--     add_deps("AmeEditorHost")
+--     add_deps("DotNet")
+
+--     ame_utils:install_assets()
+--     set_runargs("-p", "Shared/Assets/Projects/EmptyProject/EmptyProject.ame")
+-- end)

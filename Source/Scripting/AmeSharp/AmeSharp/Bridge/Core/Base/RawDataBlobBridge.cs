@@ -5,11 +5,11 @@ namespace AmeSharp.Bridge.Core.Base;
 
 internal partial class RawDataBlobBridge
 {
-    [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_RawDataBlob_CreateDataBlob")]
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_RawDataBlob_CreateDataBlob")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial IntPtr FromBytes(IntPtr data, ulong dataSize);
 
-    [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_RawDataBlob_CreateDataBlobFromBlob")]
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_RawDataBlob_CreateDataBlobFromBlob")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial IntPtr FromBlob(IntPtr blobObject);
 
