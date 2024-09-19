@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
 #include <Log/Stream.Export.h>
 
 typedef struct Ame_Logger_t Ame_Logger_t;

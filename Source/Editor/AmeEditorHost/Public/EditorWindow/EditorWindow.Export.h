@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
-
 typedef struct Ame_EditorWindow_t Ame_EditorWindow_t;
 typedef void(AME_CDECL* Ame_EditorWindow_Callback_t)(void* /*thisWindow*/);
 

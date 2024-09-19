@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
-
 typedef struct Ame_LoggerStream_t Ame_LoggerStream_t;
 
 // Must match the LogLevel enum in Core.hpp

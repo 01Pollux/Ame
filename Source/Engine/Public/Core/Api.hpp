@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 #include <boost/config.hpp>
 
 #ifdef _MSC_VER
@@ -29,3 +32,9 @@
 #endif
 
 #define AME_ENGINE_C(ReturnType, ...) AME_ENGINE_API ReturnType AME_CDECL __VA_ARGS__
+
+typedef struct Ame_StringView_t
+{
+    const char* Data;
+    size_t      Size;
+} Ame_StringView_t;

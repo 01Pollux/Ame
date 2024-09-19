@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
-
 typedef struct Ame_IObject_t Ame_IObject_t;
 typedef struct Ame_UID_t     Ame_UID_t;
 

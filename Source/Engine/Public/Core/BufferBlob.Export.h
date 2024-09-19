@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
-
 typedef struct Ame_DataBlob_t Ame_DataBlob_t;
 
 // clang-format off

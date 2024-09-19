@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
 #include <Core/Signal.Export.h>
 
 typedef struct Ame_FrameEvent_t Ame_FrameEvent_t;

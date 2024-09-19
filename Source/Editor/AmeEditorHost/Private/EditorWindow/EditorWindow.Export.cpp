@@ -25,7 +25,7 @@ public:
     {
         if (OnDrawVisibleFn)
         {
-            OnDrawVisibleFn();
+            OnDrawVisibleFn(this);
         }
     }
 
@@ -33,7 +33,7 @@ public:
     {
         if (OnToolbarDrawFn)
         {
-            OnToolbarDrawFn();
+            OnToolbarDrawFn(this);
         }
     }
 
@@ -41,7 +41,7 @@ public:
     {
         if (OnShowFn)
         {
-            OnShowFn();
+            OnShowFn(this);
         }
     }
 
@@ -49,15 +49,15 @@ public:
     {
         if (OnHideFn)
         {
-            OnHideFn();
+            OnHideFn(this);
         }
     }
 
 public:
-    void (*OnDrawVisibleFn)() = nullptr;
-    void (*OnToolbarDrawFn)() = nullptr;
-    void (*OnShowFn)()        = nullptr;
-    void (*OnHideFn)()        = nullptr;
+    Ame_EditorWindow_Callback_t OnDrawVisibleFn = nullptr;
+    Ame_EditorWindow_Callback_t OnToolbarDrawFn = nullptr;
+    Ame_EditorWindow_Callback_t OnShowFn        = nullptr;
+    Ame_EditorWindow_Callback_t OnHideFn        = nullptr;
 };
 
 //
@@ -67,25 +67,25 @@ Ame_EditorWindow_t* Ame_EditorWindow_Create(Ame_StringView_t path)
     return std::bit_cast<Ame_EditorWindow_t*>(AmeCreateRaw(EditorWindowImpl, path));
 }
 
-void Ame_EditorWindow_SetOnDrawVisible(Ame_EditorWindow_t* window, void (*callback)())
+void Ame_EditorWindow_SetOnDrawVisible(Ame_EditorWindow_t* window, Ame_EditorWindow_Callback_t callback)
 {
     auto impl             = std::bit_cast<EditorWindowImpl*>(window);
     impl->OnDrawVisibleFn = callback;
 }
 
-void Ame_EditorWindow_SetOnToolbarDraw(Ame_EditorWindow_t* window, void (*callback)())
+void Ame_EditorWindow_SetOnToolbarDraw(Ame_EditorWindow_t* window, Ame_EditorWindow_Callback_t callback)
 {
     auto impl             = std::bit_cast<EditorWindowImpl*>(window);
     impl->OnToolbarDrawFn = callback;
 }
 
-void Ame_EditorWindow_SetOnShow(Ame_EditorWindow_t* window, void (*callback)())
+void Ame_EditorWindow_SetOnShow(Ame_EditorWindow_t* window, Ame_EditorWindow_Callback_t callback)
 {
     auto impl      = std::bit_cast<EditorWindowImpl*>(window);
     impl->OnShowFn = callback;
 }
 
-void Ame_EditorWindow_SetOnHide(Ame_EditorWindow_t* window, void (*callback)())
+void Ame_EditorWindow_SetOnHide(Ame_EditorWindow_t* window, Ame_EditorWindow_Callback_t callback)
 {
     auto impl      = std::bit_cast<EditorWindowImpl*>(window);
     impl->OnHideFn = callback;

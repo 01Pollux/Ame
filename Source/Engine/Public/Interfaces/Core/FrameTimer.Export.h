@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Core/CApi.h>
-
 typedef struct Ame_FrameTimer_t Ame_FrameTimer_t;
 
 // clang-format off
