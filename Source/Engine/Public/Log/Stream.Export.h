@@ -27,7 +27,7 @@ typedef struct Ame_Logger_LogData
     char             Level;
 } Ame_Logger_LogData;
 
-typedef void(AME_CDECL* Ame_LoggerStream_Callback_t)(const Ame_Logger_LogData*);
+typedef void(AME_CDECL* Ame_LoggerStream_Callback_t)(const Ame_Logger_LogData*, void*);
 
 // clang-format off
 extern "C"
@@ -42,7 +42,7 @@ extern "C"
 
     //
 
-    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback));
+    AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback, void* userData));
     AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateConsole());
     AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateFile(Ame_StringView_t fileName, bool truncate));
     AME_ENGINE_C(Ame_LoggerStream_t*, Ame_LoggerStream_CreateMsvcDebug());

@@ -4,13 +4,17 @@ using System.Runtime.InteropServices;
 namespace AmeSharp.Core.Base;
 
 [Guid("00000000-0000-0000-0000-000000000000")]
-public class IBaseObject : INativeObject
+public class IBaseObject(IntPtr obj) : INativeObject(obj)
 {
-    public IBaseObject(IntPtr obj) : base(obj)
+    public override nint NativePointer
     {
-        if (NativePointer != IntPtr.Zero)
+        protected set
         {
-            BaseObjectBridge.AddRef(NativePointer);
+            base.NativePointer = value;
+            if (NativePointer != IntPtr.Zero)
+            {
+                BaseObjectBridge.AddRef(NativePointer);
+            }
         }
     }
 

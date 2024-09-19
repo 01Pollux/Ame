@@ -1,7 +1,9 @@
-﻿using AmeSharp.Core.Base.Types;
+﻿using AmeSharp.Core.Base.Marshallers;
+using AmeSharp.Core.Base.Types;
 using AmeSharp.Core.Log;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Bridge.Core.Log;
 
@@ -13,7 +15,7 @@ internal partial class LoggerStreamBridge
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_LoggerStream_SetPattern")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void SetPattern(IntPtr streamObject, NativeStringView pattern);
+    public static partial void SetPattern(IntPtr streamObject, [MarshalUsing(typeof(NativeStringViewMarshaller))] NativeStringView pattern);
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_LoggerStream_SetLevel")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -21,6 +23,7 @@ internal partial class LoggerStreamBridge
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_LoggerStream_GetPattern")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    [return: MarshalUsing(typeof(NativeStringViewMarshaller))]
     public static partial NativeStringView GetPattern(IntPtr streamObject);
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_LoggerStream_GetLevel")]
@@ -31,7 +34,7 @@ internal partial class LoggerStreamBridge
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_LoggerStream_CreateCallback")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr CreateCallback(delegate* unmanaged[Cdecl]<NativeStringView, void> callback);
+    public static unsafe partial IntPtr CreateCallback(delegate* unmanaged[Cdecl]<LoggerInfoUnmanaged*, IntPtr, void> callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeSharpRuntime, EntryPoint = "Ame_LoggerStream_CreateConsole")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

@@ -4,20 +4,15 @@ using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Core.Log;
 
-public enum LogLevel : byte
-{
-    Trace,
-    Debug,
-    Info,
-    Warning,
-    Error,
-    Fatal,
-    Disabled,
-}
-
 [NativeMarshalling(typeof(LoggerInfoMarshaller))]
 public struct LoggerInfo
 {
     public NativeStringView Message;
+    public LogLevel Level;
+}
+
+public struct LoggerInfoUnmanaged
+{
+    public NativeStringViewUnmanaged Message;
     public LogLevel Level;
 }

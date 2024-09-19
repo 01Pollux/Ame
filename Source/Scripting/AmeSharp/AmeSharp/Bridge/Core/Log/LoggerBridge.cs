@@ -1,7 +1,9 @@
-﻿using AmeSharp.Core.Base.Types;
+﻿using AmeSharp.Core.Base.Marshallers;
+using AmeSharp.Core.Base.Types;
 using AmeSharp.Core.Log;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Bridge.Core.Log;
 

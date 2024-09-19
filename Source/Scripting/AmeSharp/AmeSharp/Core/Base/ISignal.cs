@@ -1,6 +1,6 @@
 ﻿using AmeSharp.Bridge.Core.Base;
-using System.Runtime.InteropServices;
-using static AmeSharp.Core.Base.ISignalConnection;
+using AmeSharp.Bridge.Core.Log;
+using AmeSharp.Core.Utils.Callbacks;
 
 namespace AmeSharp.Core.Base;
 
@@ -8,15 +8,12 @@ public class ISignal : INativeObject
 {
     public ISignal() : base(SignalBridge.Create()) { }
 
-    public ISignalConnection Connect(SignalCallback callback)
+    public unsafe ISignalConnection Connect(CallbackUtils.Callback callback)
     {
-        IntPtr connection;
-        unsafe
+        return new SignalConnectionImpl(callback, (callbackImpl, thisHandle) =>
         {
-            var callbackPtr = (delegate* unmanaged[Cdecl]<void>)Marshal.GetFunctionPointerForDelegate(callback);
-            connection = SignalBridge.Connect(NativePointer, callbackPtr, IntPtr.Zero);
-        }
-        return new ISignalConnection(connection, callback);
+            return SignalBridge.Connect(NativePointer, callbackImpl, thisHandle);
+        });
     }
 
     public void Emit() => SignalBridge.Emit(NativePointer, IntPtr.Zero);

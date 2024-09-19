@@ -45,7 +45,8 @@ char Ame_LoggerStream_GetLevel(Ame_LoggerStream_t* streamHandle)
 class CallbackStreamWrapper : public Ame::Log::CallbackStream
 {
 public:
-    CallbackStreamWrapper(Ame_LoggerStream_Callback_t callback) : m_Callback(callback)
+    CallbackStreamWrapper(Ame_LoggerStream_Callback_t callback, void* userData) :
+        m_Callback(callback), m_UserData(userData)
     {
     }
 
@@ -55,16 +56,17 @@ public:
                                  .ThreadId      = logData.ThreadId,
                                  .TimepointInMs = logData.Timepoint.time_since_epoch().count(),
                                  .Level         = static_cast<char>(logData.Level) };
-        m_Callback(&data);
+        m_Callback(&data, m_UserData);
     }
 
 private:
     Ame_LoggerStream_Callback_t m_Callback;
+    void*                       m_UserData;
 };
 
-Ame_LoggerStream_t* Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback)
+Ame_LoggerStream_t* Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback, void* userData)
 {
-    auto stream = new CallbackStreamWrapper(callback);
+    auto stream = new CallbackStreamWrapper(callback, userData);
     return std::bit_cast<Ame_LoggerStream_t*>(stream);
 }
 

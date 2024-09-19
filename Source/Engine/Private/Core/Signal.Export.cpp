@@ -2,7 +2,7 @@
 #include <Core/Signal.hpp>
 #include <Core/Signal.Export.h>
 
-using SignalImpl = Ame::Signals::Signal<void(void*)>;
+using SignalImpl = Ame::Signals::Signal<void()>;
 
 Ame_Signal_t* Ame_Signal_Create()
 {
@@ -27,8 +27,8 @@ void Ame_Signal_Disconnect(Ame_SignalConnection_t* connectionHandle)
     delete connection;
 }
 
-void Ame_Signal_Invoke(void* signalHandle, void* args)
+void Ame_Signal_Invoke(void* signalHandle)
 {
     auto signal = std::bit_cast<SignalImpl*>(signalHandle);
-    signal->Invoke(args);
+    signal->Invoke();
 }

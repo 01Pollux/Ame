@@ -9,3 +9,9 @@ public record NativeStringView(string Value)
     public static implicit operator NativeStringView(string value) => new(value);
     public static implicit operator string(NativeStringView value) => value.Value;
 }
+
+public unsafe struct NativeStringViewUnmanaged
+{
+    public byte* Bytes;
+    public ulong Length;
+}

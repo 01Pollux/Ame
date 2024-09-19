@@ -1,6 +1,7 @@
 ﻿using AmeSharp.Bridge.Core.Base;
+using AmeSharp.Bridge.Core.Log;
+using AmeSharp.Core.Utils.Callbacks;
 using System.Runtime.InteropServices;
-using static AmeSharp.Core.Base.ISignalConnection;
 
 namespace AmeSharp.Core.Base;
 
@@ -9,34 +10,25 @@ public class IFrameEvent : IBaseObject
 {
     public IFrameEvent() : base(FrameEventBridge.Create()) { }
 
-    public ISignalConnection ConnectOnFrameStart(SignalCallback callback)
+    public unsafe ISignalConnection ConnectOnFrameStart(CallbackUtils.Callback callback)
     {
-        IntPtr connection;
-        unsafe
+        return new SignalConnectionImpl(callback, (callbackImpl, thisHandle) =>
         {
-            var callbackPtr = (delegate* unmanaged[Cdecl]<void>)Marshal.GetFunctionPointerForDelegate(callback);
-            connection = FrameEventBridge.ConnectOnFrameStart(NativePointer, callbackPtr, IntPtr.Zero);
-        }
-        return new(connection, callback);
+            return FrameEventBridge.ConnectOnFrameStart(NativePointer, callbackImpl, thisHandle);
+        });
     }
-    public ISignalConnection ConnectOnFrameUpdate(SignalCallback callback)
+    public unsafe ISignalConnection ConnectOnFrameUpdate(CallbackUtils.Callback callback)
     {
-        IntPtr connection;
-        unsafe
+        return new SignalConnectionImpl(callback, (callbackImpl, thisHandle) =>
         {
-            var callbackPtr = (delegate* unmanaged[Cdecl]<void>)Marshal.GetFunctionPointerForDelegate(callback);
-            connection = FrameEventBridge.ConnectOnFrameUpdate(NativePointer, callbackPtr, IntPtr.Zero);
-        }
-        return new(connection, callback);
+            return FrameEventBridge.ConnectOnFrameUpdate(NativePointer, callbackImpl, thisHandle);
+        });
     }
-    public ISignalConnection ConnectOnFrameEnd(SignalCallback callback)
+    public unsafe ISignalConnection ConnectOnFrameEnd(CallbackUtils.Callback callback)
     {
-        IntPtr connection;
-        unsafe
+        return new SignalConnectionImpl(callback, (callbackImpl, thisHandle) =>
         {
-            var callbackPtr = (delegate* unmanaged[Cdecl]<void>)Marshal.GetFunctionPointerForDelegate(callback);
-            connection = FrameEventBridge.ConnectOnFrameEnd(NativePointer, callbackPtr, IntPtr.Zero);
-        }
-        return new(connection, callback);
+            return FrameEventBridge.ConnectOnFrameEnd(NativePointer, callbackImpl, thisHandle);
+        });
     }
 }

@@ -7,18 +7,15 @@ using System.Text;
 namespace AmeSharp.Core.Base.Marshallers;
 
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.Default, typeof(NativeStringViewMarshaller))]
+[CustomMarshaller(typeof(NativeStringView), MarshalMode.UnmanagedToManagedIn, typeof(NativeStringViewMarshaller))]
+[CustomMarshaller(typeof(NativeStringView), MarshalMode.UnmanagedToManagedOut, typeof(NativeStringViewMarshaller))]
+[CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedOut, typeof(NativeStringViewMarshaller))]
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]
 public static unsafe class NativeStringViewMarshaller
 {
-    public struct UnmanagedView
+    public static NativeStringViewUnmanaged ConvertToUnmanaged(NativeStringView? managed)
     {
-        public byte* Bytes;
-        public ulong Length;
-    }
-
-    public static UnmanagedView ConvertToUnmanaged(NativeStringView? managed)
-    {
-        UnmanagedView unmanaged = new();
+        NativeStringViewUnmanaged unmanaged = new();
         if (managed is null)
         {
             return unmanaged;
@@ -35,16 +32,16 @@ public static unsafe class NativeStringViewMarshaller
         return unmanaged;
     }
 
-    public static NativeStringView ConvertToManaged(UnmanagedView unmanaged)
+    public static NativeStringView ConvertToManaged(NativeStringViewUnmanaged unmanaged)
     {
         return new(Marshal.PtrToStringUTF8((nint)unmanaged.Bytes, (int)unmanaged.Length));
     }
 
-    public static void Free(UnmanagedView unmanaged)
+    public static void Free(NativeStringViewUnmanaged unmanaged)
     {
         if (unmanaged.Bytes != null)
         {
-            Marshal.FreeCoTaskMem((nint)unmanaged.Bytes);
+            NativeMemory.Free(unmanaged.Bytes);
         }
     }
 
@@ -52,7 +49,7 @@ public static unsafe class NativeStringViewMarshaller
     {
         public static int BufferSize => 0x100;
 
-        UnmanagedView _view;
+        NativeStringViewUnmanaged _view;
         bool _allocated;
 
         public void FromManaged(NativeStringView? managed, Span<byte> buffer)
@@ -88,7 +85,7 @@ public static unsafe class NativeStringViewMarshaller
             _view.Length = (ulong)byteCount;
         }
 
-        public readonly UnmanagedView ToUnmanaged() => _view;
+        public readonly NativeStringViewUnmanaged ToUnmanaged() => _view;
 
         public void Free()
         {

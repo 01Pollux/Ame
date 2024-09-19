@@ -11,13 +11,13 @@ internal partial class FrameEventBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_OnFrameStart_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr ConnectOnFrameStart(IntPtr frameEvent, delegate* unmanaged[Cdecl]<void> callback, IntPtr userData);
+    public static unsafe partial IntPtr ConnectOnFrameStart(IntPtr frameEvent, delegate* unmanaged[Cdecl]<IntPtr, void> callback, IntPtr userData);
 
-    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_GetOnFrameUpdate_Connect")]
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_OnFrameUpdate_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr ConnectOnFrameUpdate(IntPtr frameEvent, delegate* unmanaged[Cdecl]<void> callback, IntPtr userData);
+    public static unsafe partial IntPtr ConnectOnFrameUpdate(IntPtr frameEvent, delegate* unmanaged[Cdecl]<IntPtr, void> callback, IntPtr userData);
 
-    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_GetOnFrameEnd_Connect")]
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_OnFrameEnd_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr ConnectOnFrameEnd(IntPtr frameEvent, delegate* unmanaged[Cdecl]<void> callback, IntPtr userData);
+    public static unsafe partial IntPtr ConnectOnFrameEnd(IntPtr frameEvent, delegate* unmanaged[Cdecl]<IntPtr, void> callback, IntPtr userData);
 }
