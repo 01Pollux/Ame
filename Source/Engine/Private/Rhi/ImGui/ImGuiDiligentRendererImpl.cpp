@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <ranges>
+#include <mimalloc.h>
 
 #include <Rhi/ImGui/Fonts/FontAwesome5.hpp>
 #include <imgui_internal.h>

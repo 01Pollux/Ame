@@ -29,7 +29,6 @@ ame_utils:add_library("AmeEngine", "Ame", "shared", "Source/Engine", function()
     add_packages("assimp")
 
     add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Api.hpp"), public_inherit)
-    add_forceincludes(file_utils:path_from_root("Source/Engine/Public/Core/Allocator.hpp"), public_inherit)
 end)
 
 --

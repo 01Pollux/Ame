@@ -15,46 +15,70 @@ function ame_csharp_utils:add_library(name, group, kind, path, output_path, call
 
         add_filegroups("", {rootdir = "../" .. path .. "/"})
 
-        local run_dotnet_cmd = function (os, target, cmd)
-            local mode = "Debug"
-            if is_mode("release") then
-                mode = "Release"
+        local mode = "Debug"
+        if is_mode("release") then
+            mode = "Release"
+        end
+
+        if callback ~= nil then
+            callback()
+        end
+
+        on_build(function (target)
+            local target_path =  target:targetdir()
+            if output_path ~= nil then
+                target_path =  target_path .. "/" .. output_path
             end
-    
+
             os.execv("dotnet", {
-                cmd, file_utils:path_from_root(path),
+                "build", path,
+                "--configuration", mode,
+                "--output", target_path,
+                "--nologo",
+                "--verbosity", "minimal",
+                "--no-restore",
+            })
+        end)
+        on_clean(function (target)
+            os.execv("dotnet", {
+                "clean", path,
                 "--configuration", mode,
                 "--nologo",
                 "--verbosity", "minimal",
                 "--no-restore",
-                "--output", target:targetdir()
             })
-        end 
-    
-        on_build(function (target)
-            run_dotnet_cmd(os, target, "build")
         end)
-        on_build(function (target)
-            run_dotnet_cmd(os, target, "clean")
+        on_run(function (target)
+            os.execv("dotnet", {
+                "run", path,
+                "--configuration", mode,
+                "--nologo",
+                "--verbosity", "minimal",
+                "--no-restore",
+            })
         end)
-        on_build(function (target)
-            run_dotnet_cmd(os, target, "run")
+        on_install(function (target)
+            local install_path =  target:installdir() .. "/bin"
+            if output_path ~= nil then
+                install_path =  install_path .. "/" .. output_path
+            end
+            os.execv("dotnet", {
+                "publish", path,
+                "--configuration", mode,
+                "--output", install_path,
+                "--nologo",
+                "--verbosity", "minimal",
+                "--no-restore",
+            })
         end)
-        on_build(function (target)
-            run_dotnet_cmd(os, target, "publish")
-        end)
-
-        if callback ~= nil then
-            callback()
-        end
     target_end()
 end
 
-function ame_csharp_utils:add_binary(name, group, path, callback)
-    self:add_library(name, group, "binary", path, function()
-        add_deps("AmeEngine", {public = true})
+function ame_csharp_utils:add_binary(name, group, path, output_path, callback)
+    self:add_library(name, group, "binary", path, output_path, function()
         if callback ~= nil then
             callback()
         end
+        add_deps("AmeEngine", {public = true})
     end)
 end

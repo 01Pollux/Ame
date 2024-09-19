@@ -2,6 +2,7 @@
 
 #include <Core/Enum.hpp>
 #include <Window/Window.hpp>
+#include <mimalloc.h>
 
 #include <Rhi/Wrapper/DeviceWrapper.hpp>
 #include <Window/Window.hpp>

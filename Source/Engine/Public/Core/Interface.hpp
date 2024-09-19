@@ -23,24 +23,14 @@ namespace Ame
 
     //
 
-    class ObjectMemoryAllocator : public Dg::IMemoryAllocator
+    class AME_ENGINE_API ObjectMemoryAllocator : public Dg::IMemoryAllocator
     {
     public:
-        static ObjectMemoryAllocator& Instance()
-        {
-            static ObjectMemoryAllocator allocator;
-            return allocator;
-        }
+        static ObjectMemoryAllocator& Instance();
 
     public:
-        void* Allocate(size_t size, const char*, const char*, const int) override
-        {
-            return mi_malloc(size);
-        }
-        void Free(void* ptr) override
-        {
-            mi_free(ptr);
-        }
+        void* Allocate(size_t size, const char*, const char*, const int) override;
+        void  Free(void* ptr) override;
     };
 
     template<typename Ty> class ObjectAllocator : public Dg::MakeNewRCObj<Ty, ObjectMemoryAllocator>

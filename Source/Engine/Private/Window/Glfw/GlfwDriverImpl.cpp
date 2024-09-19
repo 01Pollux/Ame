@@ -1,4 +1,6 @@
 #include <Window/Glfw/GlfwDriverImpl.hpp>
+#include <mimalloc.h>
+
 #include <GLFW/glfw3.h>
 
 #include <Log/Logger.hpp>
