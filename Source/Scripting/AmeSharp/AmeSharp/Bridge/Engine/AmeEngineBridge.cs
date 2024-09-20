@@ -30,4 +30,8 @@ internal partial class AmeEngineBridge
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_Engine_Exit")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial void Exit(IntPtr engine, int exitCode);
+
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_Engine_GetModuleRegistry")]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    public static partial IntPtr GetModuleRegistry(IntPtr engine);
 }

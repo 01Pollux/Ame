@@ -7,11 +7,8 @@ using System.Text;
 namespace AmeSharp.Core.Base.Marshallers;
 
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.Default, typeof(NativeStringViewMarshaller))]
-[CustomMarshaller(typeof(NativeStringView), MarshalMode.UnmanagedToManagedIn, typeof(NativeStringViewMarshaller))]
-[CustomMarshaller(typeof(NativeStringView), MarshalMode.UnmanagedToManagedOut, typeof(NativeStringViewMarshaller))]
-[CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedOut, typeof(NativeStringViewMarshaller))]
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]
-public static unsafe class NativeStringViewMarshaller
+internal static unsafe class NativeStringViewMarshaller
 {
     public static NativeStringViewUnmanaged ConvertToUnmanaged(NativeStringView? managed)
     {

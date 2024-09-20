@@ -1,6 +1,6 @@
 ﻿using AmeEditorCore.Bridge.EditorWindow;
 using AmeSharp.Core.Base;
-using AmeSharp.Core.Utils.Callbacks;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace AmeEditorCore.EditorWindow;
@@ -10,20 +10,16 @@ public class IEditorWindow : IBaseObject
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void EditorWindowCallbacks();
 
-    private readonly CallbackHandler _onDrawVisible;
-    private readonly CallbackHandler _onToolbarDraw;
-    private readonly CallbackHandler _onShow;
-    private readonly CallbackHandler _onHide;
+    private GCHandle _thisHandle;
+
+    public IEditorWindow(IntPtr obj) : base(obj)
+    {
+        InitialzeCallbacks();
+    }
 
     public IEditorWindow(string path) : base(EditorWindowBridge.Create(path))
     {
-        unsafe
-        {
-            _onDrawVisible = new(OnDrawVisible, (callbackImpl, thisHandle) => { EditorWindowBridge.SetOnDrawVisible(NativePointer, callbackImpl); return NativePointer; });
-            _onToolbarDraw = new(OnToolbarDraw, (callbackImpl, thisHandle) => { EditorWindowBridge.SetOnToolbalDraw(NativePointer, callbackImpl); return NativePointer; });
-            _onShow = new(OnShow, (callbackImpl, thisHandle) => { EditorWindowBridge.SetOnShow(NativePointer, callbackImpl); return NativePointer; });
-            _onHide = new(OnHide, (callbackImpl, thisHandle) => { EditorWindowBridge.SetOnHide(NativePointer, callbackImpl); return NativePointer; });
-        }
+        InitialzeCallbacks();
     }
 
     public string FullPath => EditorWindowBridge.GetFullPath(NativePointer).ToString();
@@ -32,4 +28,42 @@ public class IEditorWindow : IBaseObject
     public virtual void OnToolbarDraw() { }
     public virtual void OnShow() { }
     public virtual void OnHide() { }
+
+    //
+
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static void OnDrawVisibleCallback(IntPtr thisObject)
+    {
+        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
+        @this!.OnDrawVisible();
+    }
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static void OnToolbarDrawCallback(IntPtr thisObject)
+    {
+        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
+        @this!.OnToolbarDraw();
+    }
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static void OnShowCallback(IntPtr thisObject)
+    {
+        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
+        @this!.OnShow();
+    }
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
+    public static void OnHideCallback(IntPtr thisObject)
+    {
+        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
+        @this!.OnHide();
+    }
+
+    private unsafe void InitialzeCallbacks()
+    {
+        _thisHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
+        var thisHandle = GCHandle.ToIntPtr(_thisHandle);
+
+        EditorWindowBridge.SetOnDrawVisible(thisHandle, &OnDrawVisibleCallback);
+        EditorWindowBridge.SetOnToolbalDraw(thisHandle, &OnToolbarDrawCallback);
+        EditorWindowBridge.SetOnShow(thisHandle, &OnShowCallback);
+        EditorWindowBridge.SetOnHide(thisHandle, &OnHideCallback);
+    }
 }

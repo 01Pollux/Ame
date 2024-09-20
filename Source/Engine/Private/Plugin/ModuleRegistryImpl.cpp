@@ -60,7 +60,7 @@ namespace Ame
 #ifdef AME_DEBUG
         if (*object != nullptr)
         {
-            AME_LOG_WARNING("Interface will be overwritten");
+            AME_LOG_WARNING(std::format("Interface '{}' will be overwritten", UIdUtils::ToString(iid)));
         }
 #endif
 

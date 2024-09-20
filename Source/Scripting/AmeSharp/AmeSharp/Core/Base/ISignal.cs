@@ -1,6 +1,5 @@
 ﻿using AmeSharp.Bridge.Core.Base;
-using AmeSharp.Bridge.Core.Log;
-using AmeSharp.Core.Utils.Callbacks;
+using static AmeSharp.Core.Base.ISignalConnection;
 
 namespace AmeSharp.Core.Base;
 
@@ -8,7 +7,7 @@ public class ISignal : INativeObject
 {
     public ISignal() : base(SignalBridge.Create()) { }
 
-    public unsafe ISignalConnection Connect(CallbackUtils.Callback callback)
+    public unsafe ISignalConnection Connect(SignalCallback callback)
     {
         return new SignalConnectionImpl(callback, (callbackImpl, thisHandle) =>
         {

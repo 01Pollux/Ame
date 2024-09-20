@@ -19,14 +19,14 @@ Ame_Logger_t* Ame_Logger_GetInstance()
     return std::bit_cast<Ame_Logger_t*>(logger);
 }
 
-void Ame_Logger_AddStream(Ame_Logger_t* loggerHandle, const Ame_LoggerStream_t* streamHandle)
+void Ame_Logger_AddStream(Ame_Logger_t* loggerHandle, Ame_LoggerStream_t* streamHandle)
 {
     auto logger = std::bit_cast<Ame::Log::ILogger*>(loggerHandle);
     auto stream = std::bit_cast<Ame::Log::ILoggerStream*>(streamHandle);
     logger->AddStream(stream);
 }
 
-void Ame_Logger_RemoveStream(Ame_Logger_t* loggerHandle, const Ame_LoggerStream_t* streamHandle)
+void Ame_Logger_RemoveStream(Ame_Logger_t* loggerHandle, Ame_LoggerStream_t* streamHandle)
 {
     auto logger = std::bit_cast<Ame::Log::ILogger*>(loggerHandle);
     auto stream = std::bit_cast<Ame::Log::ILoggerStream*>(streamHandle);

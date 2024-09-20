@@ -30,6 +30,5 @@ internal unsafe partial class EditorWindowBridge
 
     [LibraryImport(Libraries.AmeEditorHost, EntryPoint = "Ame_EditorWindow_GetFullPath")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    [return: MarshalUsing(typeof(NativeStringViewMarshaller))]
     public static partial NativeStringView GetFullPath(IntPtr editorWindowObject);
 }

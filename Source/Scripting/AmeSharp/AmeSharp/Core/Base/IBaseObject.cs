@@ -28,8 +28,18 @@ public class IBaseObject(IntPtr obj) : INativeObject(obj)
 
     public T? QueryInterface<T>() where T : IBaseObject
     {
+        return RequestInterface<T>(NativePointer);
+    }
+
+    public static T? RequestInterface<T>(IntPtr obj) where T : IBaseObject
+    {
         Guid iid = typeof(T).GUID;
-        return QueryInterface(ref iid) as T;
+        var output = BaseObjectBridge.QueryInterface(obj, ref iid);
+        if (output == IntPtr.Zero)
+        {
+            return null;
+        }
+        return Activator.CreateInstance(typeof(T), output) as T;
     }
 
     //

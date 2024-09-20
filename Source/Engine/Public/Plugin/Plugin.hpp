@@ -1,6 +1,8 @@
 #pragma once
 
+#include <concepts>
 #include <boost/dll/alias.hpp>
+
 #include <Core/String.hpp>
 #include <Core/Version.hpp>
 #include <Core/Interface.hpp>

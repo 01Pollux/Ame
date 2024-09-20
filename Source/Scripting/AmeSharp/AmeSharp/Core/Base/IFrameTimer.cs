@@ -6,6 +6,7 @@ namespace AmeSharp.Core.Base;
 [Guid("BE4B917D-4B7A-4582-8034-01DC24147418")]
 public class IFrameTimer : IBaseObject
 {
+    public IFrameTimer(IntPtr obj) : base(obj) { }
     public IFrameTimer() : base(FrameTimerBridge.Create()) { }
 
     public double EngineTime => FrameTimerBridge.GetEngineTime(NativePointer);

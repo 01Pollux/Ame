@@ -11,6 +11,7 @@ namespace Ame
     class AME_ENGINE_API AmeEngine
     {
     public:
+        AmeEngine();
         explicit AmeEngine(const EngineConfig& engineConfig);
 
         AmeEngine(const AmeEngine&)            = delete;

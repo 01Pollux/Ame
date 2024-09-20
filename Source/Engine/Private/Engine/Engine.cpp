@@ -5,8 +5,14 @@
 #include <Interfaces/Ecs/EntityWorld.hpp>
 #include <Interfaces/Graphics/Renderer.hpp>
 
+#include <Log/Logger.hpp>
+
 namespace Ame
 {
+    AmeEngine::AmeEngine() : m_ModuleRegistery(CreateModuleRegistry())
+    {
+    }
+
     AmeEngine::AmeEngine(const EngineConfig& engineConfig) : m_ModuleRegistery(CreateModuleRegistry())
     {
         engineConfig.ExposeInterfaces(m_ModuleRegistery.get(), nullptr);
@@ -31,8 +37,10 @@ namespace Ame
     {
         bool shouldQuit = false;
 
+        AME_LOG_ASSERT(m_FrameTimer != nullptr, "FrameTimer was not registered");
         m_FrameTimer->Tick();
 
+        AME_LOG_ASSERT(m_FrameEvent != nullptr, "FrameTimer was not registered");
         m_FrameEvent->OnFrameStart.Invoke();
         m_FrameEvent->OnFrameUpdate.Invoke();
 
