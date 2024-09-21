@@ -10,12 +10,12 @@ namespace Ame::Scripting
 
         [[nodiscard]] String GetRuntimeConfigPath() const
         {
-            return RuntimeConfigPath + "/AmeSharp.runtimeconfig.json";
+            return RuntimeConfigPath + "/AmeSharp.RuntimeHost.runtimeconfig.json";
         }
 
         [[nodiscard]] String GetRuntimePath() const
         {
-            return RuntimeConfigPath + "/AmeSharp.dll";
+            return RuntimeConfigPath + "/AmeSharp.RuntimeHost.dll";
         }
     };
 } // namespace Ame::Scripting

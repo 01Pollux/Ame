@@ -1,4 +1,4 @@
-﻿using AmeSharp.Config;
+﻿using AmeSharp.Core.Config;
 
 namespace AmeEditor.Config;
 

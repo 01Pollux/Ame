@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Scripting\AmeSharp\AmeSharp\AmeSharp.csproj" />
+    <ProjectReference Include="..\..\Scripting\AmeSharp\AmeSharp.Core\AmeSharp.Core.csproj" />
     <ProjectReference Include="..\AmeEditorCore\AmeEditorCore.csproj" />
   </ItemGroup>
 

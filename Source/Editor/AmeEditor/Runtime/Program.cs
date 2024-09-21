@@ -2,7 +2,7 @@
 using AmeEditor.Config;
 using AmeSharp.Core.Log;
 using AmeSharp.Core.Log.Streams;
-using AmeSharp.Rhi.Device;
+using AmeSharp.Core.Rhi.Device;
 
 EditorConfig config = new();
 

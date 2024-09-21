@@ -1,5 +1,5 @@
 ﻿using AmeEditor.Config;
-using AmeSharp.Application;
+using AmeSharp.Core.Application;
 
 namespace AmeEditor.Application;
 

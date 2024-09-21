@@ -39,6 +39,8 @@ target("DotNet")
     add_packages("dotnet", public_inherit)
 target_end()
 
+-- runtime script engine and its runtime host
+ame_csharp_utils:add_library("AmeSharp.RuntimeHost", "Ame/Scripting", "shared", "Source/Scripting/AmeSharp/AmeSharp.RuntimeHost", "Plugins")
 ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeSharp.Runtime", "Plugins", function()
     -- add_defines("AME_CSHARP_EXPORT")
     add_defines("AME_CSHARP_STATIC_LINKING")
@@ -47,7 +49,7 @@ ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeS
     add_deps("DotNet")
 end)
 
-ame_csharp_utils:add_library("AmeSharp", "Ame/Scripting", "shared", "Source/Scripting/AmeSharp/AmeSharp", "Plugins")
+-- sample for runtime script engine
 ame_csharp_utils:add_library("AmeSharp.Sample", "Ame/Scripting", "shared", "Source/Scripting/AmeSharp/Sample", "Plugins")
 
 --

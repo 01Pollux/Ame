@@ -5,10 +5,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\Scripting\AmeSharp\AmeSharp.Core\AmeSharp.Core.csproj" />
+		<ProjectReference Include="..\AmeSharp.Core\AmeSharp.Core.csproj" />
 	</ItemGroup>
 
 </Project>
