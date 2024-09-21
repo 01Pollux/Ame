@@ -62,15 +62,12 @@ namespace Ame::Signals
     //
 
     // Used in the C API
-    template<typename CbTy> auto WrapSignalCallback(auto& signal, CbTy callback, void* userData)
+    template<typename CbTy> auto WrapSignalCallback(auto& signal, CbTy slot, void* userData)
     {
-        // clang-format off
-        auto wrapper = [callback, userData](auto&&... args)
-        {
-            return callback(std::forward<decltype(args)>(args)..., userData);
-        };
-        return std::bit_cast<Ame_SignalConnection_t*>(new Connection(signal.Connect(std::move(wrapper))));
-        // clang-format on
+        auto con = new Ame::Signals::Connection(
+            signal.ConnectEx([slot = std::move(slot), userData](auto& connection)
+                             { return slot(std::bit_cast<const Ame_SignalConnection_t*>(&connection), userData); }));
+        return std::bit_cast<Ame_SignalConnection_t*>(con);
     }
 } // namespace Ame::Signals
 

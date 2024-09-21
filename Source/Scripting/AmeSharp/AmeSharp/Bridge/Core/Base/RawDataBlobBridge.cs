@@ -23,5 +23,4 @@ internal partial class RawDataBlobBridge
             }
         }
     }
-
 }

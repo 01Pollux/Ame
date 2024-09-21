@@ -1,5 +1,5 @@
 ﻿using AmeSharp.Bridge.Core.Base;
-using static AmeSharp.Core.Base.ISignalConnection;
+using AmeSharp.Bridge.Core.Internal.Signals;
 
 namespace AmeSharp.Core.Base;
 
@@ -7,11 +7,11 @@ public class ISignal : INativeObject
 {
     public ISignal() : base(SignalBridge.Create()) { }
 
-    public unsafe ISignalConnection Connect(SignalCallback callback)
+    public unsafe ISignalConnection Connect(VoidSignalConnectionImpl.SignalCallback callback)
     {
-        return new SignalConnectionImpl(callback, (callbackImpl, thisHandle) =>
+        return new VoidSignalConnectionImpl(callback, (callbackImpl) =>
         {
-            return SignalBridge.Connect(NativePointer, callbackImpl, thisHandle);
+            return SignalBridge.Connect(NativePointer, callbackImpl, IntPtr.Zero);
         });
     }
 

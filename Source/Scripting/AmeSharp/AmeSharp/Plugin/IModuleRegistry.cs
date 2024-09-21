@@ -4,7 +4,7 @@ using AmeSharp.Core.Base.Types;
 
 namespace AmeSharp.Plugin;
 
-public class IModuleRegistry : INativeObject
+public sealed class IModuleRegistry : INativeObject
 {
     public IModuleRegistry(IntPtr obj) : base(obj) { }
     public IModuleRegistry() : base(ModuleRegistryBridge.Create()) { }

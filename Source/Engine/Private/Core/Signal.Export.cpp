@@ -17,7 +17,7 @@ void Ame_Signal_Release(Ame_Signal_t* signalHandle)
 Ame_SignalConnection_t* Ame_Signal_Connect(Ame_Signal_t* signalHandle, Ame_SignalSlot_t slot, void* userData)
 {
     auto signal = std::bit_cast<SignalImpl*>(signalHandle);
-    return Ame::Signals::WrapSignalCallback(*signal, std::move(slot), userData);
+    return Ame::Signals::WrapSignalCallback(*signal, slot, userData);
 }
 
 void Ame_Signal_Disconnect(Ame_SignalConnection_t* connectionHandle)

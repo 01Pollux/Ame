@@ -7,18 +7,18 @@ namespace AmeSharp.Core.Log;
 [Guid("940017D2-269C-45B6-803B-F3C530151CCA")]
 public sealed class ILogger : IBaseObject
 {
-    public ILogger(IntPtr ptr) : base(ptr) { }
+    public ILogger(IntPtr obj) : base(obj) { }
     public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName)) { }
 
-    private static ILogger _cachedLogger = new(IntPtr.Zero);
+    private static ILogger? _cachedLogger;
     public static ILogger? Instance
     {
         get
         {
             var ptr = LoggerBridge.GetInstance();
-            if (_cachedLogger.NativePointer == IntPtr.Zero || _cachedLogger.NativePointer != ptr)
+            if (_cachedLogger is null || _cachedLogger.NativePointer != ptr)
             {
-                _cachedLogger = new(ptr);
+                _cachedLogger = Get<ILogger>(ptr);
             }
             return _cachedLogger;
         }
@@ -27,7 +27,7 @@ public sealed class ILogger : IBaseObject
             if (value == null)
             {
                 LoggerBridge.SetInstance(IntPtr.Zero);
-                _cachedLogger = new(IntPtr.Zero);
+                _cachedLogger = null;
             }
             else
             {

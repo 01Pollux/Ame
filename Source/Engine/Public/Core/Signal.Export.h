@@ -2,7 +2,7 @@
 
 typedef struct Ame_Signal_t           Ame_Signal_t;
 typedef struct Ame_SignalConnection_t Ame_SignalConnection_t;
-typedef void(AME_CDECL* Ame_SignalSlot_t)(void* /*userData*/);
+typedef void(AME_CDECL* Ame_SignalSlot_t)(const Ame_SignalConnection_t* /*connection*/, void* /*userData*/);
 
 // clang-format off
 extern "C"

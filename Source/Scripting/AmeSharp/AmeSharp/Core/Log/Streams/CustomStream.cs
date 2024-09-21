@@ -5,17 +5,10 @@ using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Log.Streams;
 
-public abstract class ICustomStream : ILoggerStream
+public abstract class ICustomLoggerStream : ILoggerStream
 {
-    private GCHandle _thisHandle;
-
-    protected ICustomStream() : base(IntPtr.Zero)
+    unsafe protected ICustomLoggerStream() : base(LoggerStreamBridge.CreateCallback(&StreamCallback, IntPtr.Zero))
     {
-        _thisHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
-        unsafe
-        {
-            NativePointer = LoggerStreamBridge.CreateCallback(&StreamCallback, GCHandle.ToIntPtr(_thisHandle));
-        }
     }
 
     public abstract void Write(LoggerInfo info);
@@ -23,10 +16,10 @@ public abstract class ICustomStream : ILoggerStream
     //
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static unsafe void StreamCallback(LoggerInfoMarshaller.Unmanaged* unmanagedInfo, IntPtr _thisHandle)
+    static unsafe void StreamCallback(IntPtr _thisPointer, LoggerInfoMarshaller.Unmanaged* unmanagedInfo, IntPtr _)
     {
-        var @this = GCHandle.FromIntPtr(_thisHandle).Target as ICustomStream;
+        var @this = Get<ICustomLoggerStream>(_thisPointer)!;
         var info = LoggerInfoMarshaller.ConvertToManaged(*unmanagedInfo);
-        @this!.Write(info);
+        @this.Write(info);
     }
 }

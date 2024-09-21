@@ -6,9 +6,8 @@ namespace AmeSharp.Engine;
 
 public class IAmeEngine : INativeObject
 {
-    public IAmeEngine() : base(AmeEngineBridge.Create())
-    {
-    }
+    public IAmeEngine(IntPtr obj) : base(obj) { }
+    public IAmeEngine() : base(AmeEngineBridge.Create()) { }
 
     public void RefreshSubmoduleCache() => AmeEngineBridge.RefreshSubmoduleCache(NativePointer);
 

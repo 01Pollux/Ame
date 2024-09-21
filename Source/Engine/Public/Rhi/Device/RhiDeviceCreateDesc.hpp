@@ -493,16 +493,6 @@ namespace Ame::Rhi
 #endif
 
         /// <summary>
-        /// Loop count for concurrent frame processing.
-        /// </summary>
-        uint32_t ConcurrentLoopCount = 64;
-
-        /// <summary>
-        /// Loop count for concurrent frame processing.
-        /// </summary>
-        uint32_t ConcurrentLoopChunkSize = 4;
-
-        /// <summary>
         /// The types of devices to create
         /// The  first one that is supported will be created.
         /// </summary>

@@ -11,7 +11,7 @@ public abstract class IBaseApplication
     public IBaseApplication(ApplicationConfig config)
     {
         Engine = new();
-        IntiailizeEngine(config);
+        InitializeEngine(config);
     }
 
     public virtual void OnLoad() { }
@@ -43,7 +43,7 @@ public abstract class IBaseApplication
 
     //
 
-    private void IntiailizeEngine(ApplicationConfig config)
+    private void InitializeEngine(ApplicationConfig config)
     {
         var registry = Engine.Registry;
         config.RegisterInterface(registry);

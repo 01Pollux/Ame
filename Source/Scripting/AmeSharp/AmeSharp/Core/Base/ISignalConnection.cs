@@ -1,8 +1,27 @@
-﻿namespace AmeSharp.Core.Base;
+﻿using AmeSharp.Bridge.Core.Base;
+
+namespace AmeSharp.Core.Base;
 
 public abstract class ISignalConnection(IntPtr obj) : INativeObject(obj)
 {
-    public delegate void SignalCallback();
+    public void Disconnect() => Dispose();
 
-    public abstract void Disconnect();
+    protected override void Dispose(bool disposing)
+    {
+        if (NativePointer != nint.Zero)
+        {
+            SignalBridge.Disconnect(NativePointer);
+        }
+        base.Dispose(disposing);
+    }
+}
+
+public abstract class ITypedSignalConnection<T>(IntPtr obj) : ISignalConnection(obj)
+{
+    public delegate T SignalCallback();
+}
+
+public abstract class IVoidSignalConnection(IntPtr obj) : ISignalConnection(obj)
+{
+    public delegate void SignalCallback();
 }

@@ -4,7 +4,7 @@ using AmeSharp.Core.Base.Types;
 
 namespace AmeSharp.Core.Log;
 
-public class ILoggerStream(IntPtr nativePointer) : INativeObject(nativePointer)
+public class ILoggerStream(IntPtr obj) : INativeObject(obj)
 {
     public delegate void LoggerStreamCallback(NativeStringView message);
 

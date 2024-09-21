@@ -56,7 +56,7 @@ public:
                                  .ThreadId      = logData.ThreadId,
                                  .TimepointInMs = logData.Timepoint.time_since_epoch().count(),
                                  .Level         = static_cast<char>(logData.Level) };
-        m_Callback(&data, m_UserData);
+        m_Callback(this, &data, m_UserData);
     }
 
 private:

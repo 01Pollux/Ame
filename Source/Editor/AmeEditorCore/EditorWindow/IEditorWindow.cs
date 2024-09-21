@@ -5,17 +5,14 @@ using System.Runtime.InteropServices;
 
 namespace AmeEditorCore.EditorWindow;
 
+[Guid("97FB68DA-A89C-4938-A158-9402F5534427")]
 public class IEditorWindow : IBaseObject
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void EditorWindowCallbacks();
 
-    private GCHandle _thisHandle;
-
-    public IEditorWindow(string path) : base(EditorWindowBridge.Create(path))
-    {
-        InitialzeCallbacks();
-    }
+    public IEditorWindow(IntPtr obj) : base(obj) { }
+    public IEditorWindow(string path) : base(EditorWindowBridge.Create(path)) => InitialzeCallbacks();
 
     public string FullPath => EditorWindowBridge.GetFullPath(NativePointer).ToString();
 
@@ -27,35 +24,32 @@ public class IEditorWindow : IBaseObject
     //
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    public static void OnDrawVisibleCallback(IntPtr thisObject)
+    public static void OnDrawVisibleCallback(IntPtr _thisPointer)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
-        @this!.OnDrawVisible();
+        var @this = Get<IEditorWindow>(_thisPointer)!;
+        @this.OnDrawVisible();
     }
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    public static void OnToolbarDrawCallback(IntPtr thisObject)
+    public static void OnToolbarDrawCallback(IntPtr _thisPointer)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
-        @this!.OnToolbarDraw();
+        var @this = Get<IEditorWindow>(_thisPointer)!;
+        @this.OnToolbarDraw();
     }
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    public static void OnShowCallback(IntPtr thisObject)
+    public static void OnShowCallback(IntPtr _thisPointer)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
-        @this!.OnShow();
+        var @this = Get<IEditorWindow>(_thisPointer)!;
+        @this.OnShow();
     }
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    public static void OnHideCallback(IntPtr thisObject)
+    public static void OnHideCallback(IntPtr _thisPointer)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IEditorWindow;
-        @this!.OnHide();
+        var @this = Get<IEditorWindow>(_thisPointer)!;
+        @this.OnHide();
     }
 
     private unsafe void InitialzeCallbacks()
     {
-        _thisHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
-        var thisHandle = GCHandle.ToIntPtr(_thisHandle);
-
         EditorWindowBridge.SetOnDrawVisible(NativePointer, &OnDrawVisibleCallback);
         EditorWindowBridge.SetOnToolbalDraw(NativePointer, &OnToolbarDrawCallback);
         EditorWindowBridge.SetOnShow(NativePointer, &OnShowCallback);

@@ -7,14 +7,8 @@ namespace AmeSharp.Plugin;
 
 public class IPlugin : INativeObject
 {
-    public IPlugin(IntPtr obj) : base(obj)
-    {
-        InitialzeCallbacks();
-    }
-    public IPlugin(PluginInfo info) : base(PluginBridge.Create(info))
-    {
-        InitialzeCallbacks();
-    }
+    public IPlugin(IntPtr obj) : base(obj) { }
+    public IPlugin(PluginInfo info) : base(PluginBridge.Create(info)) => InitialzeCallbacks();
 
     public PluginInfo Info => PluginBridge.GetInfo(NativePointer);
     public string Name => PluginBridge.GetName(NativePointer);
@@ -24,8 +18,6 @@ public class IPlugin : INativeObject
         get => PluginBridge.IsPaused(NativePointer);
         set => PluginBridge.Pause(NativePointer, value);
     }
-
-    private GCHandle _thisHandle;
 
     protected virtual bool OnPreLoad(IModuleRegistry registry)
     {
@@ -51,52 +43,49 @@ public class IPlugin : INativeObject
     //
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static bool OnPreLoadCallback(IntPtr thisObject, IntPtr registry)
+    static bool OnPreLoadCallback(IntPtr thisPointer, IntPtr registry)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IPlugin;
-        var registryObject = new IModuleRegistry(registry);
-        return @this!.OnPreLoad(registryObject);
+        var @this = Get<IPlugin>(thisPointer)!;
+        var registryObject = Get<IModuleRegistry>(registry)!;
+        return @this.OnPreLoad(registryObject);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static void OnLoadCallback(IntPtr thisObject, IntPtr registry)
+    static void OnLoadCallback(IntPtr thisPointer, IntPtr registry)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IPlugin;
-        var registryObject = new IModuleRegistry(registry);
-        @this!.OnLoad(registryObject);
+        var @this = Get<IPlugin>(thisPointer)!;
+        var registryObject = Get<IModuleRegistry>(registry)!;
+        @this.OnLoad(registryObject);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static void OnInterfaceDropCallback(IntPtr thisObject, IntPtr iface)
+    static void OnInterfaceDropCallback(IntPtr thisPointer, IntPtr iface)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IPlugin;
-        var ifaceObject = new IBaseObject(iface);
-        @this!.OnInterfaceDrop(ifaceObject);
+        var @this = Get<IPlugin>(thisPointer)!;
+        var ifaceObject = Get<IBaseObject>(iface)!;
+        @this.OnInterfaceDrop(ifaceObject);
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static void OnUnloadCallback(IntPtr thisObject)
+    static void OnUnloadCallback(IntPtr thisPointer)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IPlugin;
-        @this!.OnUnload();
+        var @this = Get<IPlugin>(thisPointer)!;
+        @this.OnUnload();
     }
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static void OnPauseChangedCallback(IntPtr thisObject, bool paused)
+    static void OnPauseChangedCallback(IntPtr thisPointer, bool paused)
     {
-        var @this = GCHandle.FromIntPtr(thisObject).Target as IPlugin;
-        @this!.OnPauseChanged(paused);
+        var @this = Get<IPlugin>(thisPointer)!;
+        @this.OnPauseChanged(paused);
     }
 
     private unsafe void InitialzeCallbacks()
     {
-        _thisHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
-        var thisPointer = GCHandle.ToIntPtr(_thisHandle);
-
-        PluginBridge.SetOnPreLoad(thisPointer, &OnPreLoadCallback);
-        PluginBridge.SetOnLoad(thisPointer, &OnLoadCallback);
-        PluginBridge.SetOnInterfaceDrop(thisPointer, &OnInterfaceDropCallback);
-        PluginBridge.SetOnUnload(thisPointer, &OnUnloadCallback);
-        PluginBridge.SetOnPauseChanged(thisPointer, &OnPauseChangedCallback);
+        PluginBridge.SetOnPreLoad(NativePointer, &OnPreLoadCallback);
+        PluginBridge.SetOnLoad(NativePointer, &OnLoadCallback);
+        PluginBridge.SetOnInterfaceDrop(NativePointer, &OnInterfaceDropCallback);
+        PluginBridge.SetOnUnload(NativePointer, &OnUnloadCallback);
+        PluginBridge.SetOnPauseChanged(NativePointer, &OnPauseChangedCallback);
     }
 }

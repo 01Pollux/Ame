@@ -1,25 +1,13 @@
 ﻿using AmeSharp.Bridge.Core.Base;
-using AmeSharp.Core.Internal;
 using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Base;
 
 [Guid("00000000-0000-0000-0000-000000000000")]
-public class IBaseObject(IntPtr obj) : INativeObject(obj)
+public class IBaseObject : INativeObject
 {
-    public override nint NativePointer
-    {
-        protected set
-        {
-            base.NativePointer = value;
-            if (NativePointer != IntPtr.Zero)
-            {
-                BaseObjectBridge.AddRef(NativePointer);
-            }
-        }
-    }
-
-    //
+    public IBaseObject(IntPtr obj) : base(obj) { }
+    public IBaseObject() : base(BaseObjectBridge.Create()) { }
 
     public IBaseObject? QueryInterface(ref Guid iid)
     {
@@ -28,12 +16,18 @@ public class IBaseObject(IntPtr obj) : INativeObject(obj)
         {
             return null;
         }
-        return IAbstractStorage.Get<IBaseObject>(output);
+        return Get(output) as IBaseObject;
     }
 
     public T? QueryInterface<T>() where T : IBaseObject
     {
-        return RequestInterface<T>(NativePointer);
+        Guid iid = typeof(T).GUID;
+        var output = BaseObjectBridge.QueryInterface(NativePointer, ref iid);
+        if (output == IntPtr.Zero)
+        {
+            return null;
+        }
+        return Get(output) as T;
     }
 
     public static T? RequestInterface<T>(IntPtr obj) where T : IBaseObject
@@ -44,7 +38,7 @@ public class IBaseObject(IntPtr obj) : INativeObject(obj)
         {
             return null;
         }
-        return IAbstractStorage.Get<T>(output);
+        return Get(output) as T;
     }
 
     //

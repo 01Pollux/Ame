@@ -35,7 +35,7 @@ internal partial class LoggerStreamBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_LoggerStream_CreateCallback")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr CreateCallback(delegate* unmanaged[Cdecl]<LoggerInfoMarshaller.Unmanaged*, IntPtr, void> callback, IntPtr userData);
+    public static unsafe partial IntPtr CreateCallback(delegate* unmanaged[Cdecl]<IntPtr, LoggerInfoMarshaller.Unmanaged*, IntPtr, void> callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_LoggerStream_CreateConsole")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
