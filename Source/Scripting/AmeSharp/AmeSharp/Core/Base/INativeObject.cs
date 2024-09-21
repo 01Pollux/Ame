@@ -1,8 +1,17 @@
-﻿namespace AmeSharp.Core.Base;
+﻿using AmeSharp.Core.Internal;
 
-public class INativeObject(IntPtr obj) : IDisposable
+namespace AmeSharp.Core.Base;
+
+public class INativeObject : IDisposable
 {
-    public virtual IntPtr NativePointer { get; protected set; } = obj;
+    public virtual IntPtr NativePointer { get; protected set; }
+
+    public INativeObject() { }
+    public INativeObject(IntPtr nativePointer)
+    {
+        IAbstractStorage.Set(nativePointer, this);
+        NativePointer = nativePointer;
+    }
 
     ~INativeObject() => Dispose(false);
 
@@ -20,6 +29,7 @@ public class INativeObject(IntPtr obj) : IDisposable
     {
         if (NativePointer != IntPtr.Zero)
         {
+            IAbstractStorage.Remove(NativePointer);
             NativePointer = IntPtr.Zero;
         }
     }

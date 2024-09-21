@@ -1,4 +1,5 @@
 ﻿using AmeSharp.Bridge.Core.Base;
+using AmeSharp.Core.Internal;
 using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Base;
@@ -23,7 +24,11 @@ public class IBaseObject(IntPtr obj) : INativeObject(obj)
     public IBaseObject? QueryInterface(ref Guid iid)
     {
         var output = BaseObjectBridge.QueryInterface(NativePointer, ref iid);
-        return output == IntPtr.Zero ? null : new IBaseObject(output);
+        if (output == IntPtr.Zero)
+        {
+            return null;
+        }
+        return IAbstractStorage.Get<IBaseObject>(output);
     }
 
     public T? QueryInterface<T>() where T : IBaseObject
@@ -39,7 +44,7 @@ public class IBaseObject(IntPtr obj) : INativeObject(obj)
         {
             return null;
         }
-        return Activator.CreateInstance(typeof(T), output) as T;
+        return IAbstractStorage.Get<T>(output);
     }
 
     //

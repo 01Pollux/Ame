@@ -23,7 +23,7 @@ extern "C"
 
     AME_ENGINE_C(void, Ame_Plugin_SetOnPreLoad(Ame_IPlugin_t* plugin, bool(AME_CDECL* callback)(Ame_IPlugin_t*, Ame_IModuleRegistry_t*)));
     AME_ENGINE_C(void, Ame_Plugin_SetOnLoad(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*, Ame_IModuleRegistry_t*)));
-    AME_ENGINE_C(void, Ame_Plugin_SetOnInterfaceDrop(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*, Ame_IObject_t*)));
+    AME_ENGINE_C(void, Ame_Plugin_SetOnInterfaceDrop(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*, Ame_IBaseObject_t*)));
     AME_ENGINE_C(void, Ame_Plugin_SetOnUnload(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*)));
     AME_ENGINE_C(void, Ame_Plugin_SetOnPauseChanged(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*, bool)));
 

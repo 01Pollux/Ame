@@ -11,8 +11,3 @@ public struct LoggerInfo
     public LogLevel Level;
 }
 
-public struct LoggerInfoUnmanaged
-{
-    public NativeStringViewUnmanaged Message;
-    public LogLevel Level;
-}

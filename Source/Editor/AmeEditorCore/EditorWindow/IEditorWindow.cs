@@ -12,11 +12,6 @@ public class IEditorWindow : IBaseObject
 
     private GCHandle _thisHandle;
 
-    public IEditorWindow(IntPtr obj) : base(obj)
-    {
-        InitialzeCallbacks();
-    }
-
     public IEditorWindow(string path) : base(EditorWindowBridge.Create(path))
     {
         InitialzeCallbacks();
@@ -61,9 +56,20 @@ public class IEditorWindow : IBaseObject
         _thisHandle = GCHandle.Alloc(this, GCHandleType.Pinned);
         var thisHandle = GCHandle.ToIntPtr(_thisHandle);
 
-        EditorWindowBridge.SetOnDrawVisible(thisHandle, &OnDrawVisibleCallback);
-        EditorWindowBridge.SetOnToolbalDraw(thisHandle, &OnToolbarDrawCallback);
-        EditorWindowBridge.SetOnShow(thisHandle, &OnShowCallback);
-        EditorWindowBridge.SetOnHide(thisHandle, &OnHideCallback);
+        EditorWindowBridge.SetOnDrawVisible(NativePointer, &OnDrawVisibleCallback);
+        EditorWindowBridge.SetOnToolbalDraw(NativePointer, &OnToolbarDrawCallback);
+        EditorWindowBridge.SetOnShow(NativePointer, &OnShowCallback);
+        EditorWindowBridge.SetOnHide(NativePointer, &OnHideCallback);
     }
+}
+
+[Guid("00000000-0000-0000-0000-0000000000A0")]
+public class XXXIEditorWindow : IEditorWindow
+{
+    public XXXIEditorWindow() : base("XXX") { }
+
+    public override void OnDrawVisible() { Console.WriteLine("overwritte"); }
+    public override void OnToolbarDraw() { Console.WriteLine("overwritte"); }
+    public override void OnShow() { Console.WriteLine("overwritte"); }
+    public override void OnHide() { Console.WriteLine("overwritte"); }
 }

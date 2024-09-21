@@ -39,11 +39,11 @@ internal partial class ModuleRegistryBridge
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial IntPtr BindPlugin(IntPtr module, IntPtr pluginCaller, NativeStringView name, [MarshalAs(UnmanagedType.I1)] bool isRequired);
 
-    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_ModuleRegistry_BindPlugin")]
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_ModuleRegistry_LoadPlugin")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial IntPtr LoadPlugin(IntPtr module, IntPtr pluginCaller, NativeStringView name, [MarshalAs(UnmanagedType.I1)] bool isRequired);
+    public static partial IntPtr LoadPlugin(IntPtr module, NativeStringView name);
 
-    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_ModuleRegistry_BindPlugin")]
+    [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_ModuleRegistry_UnloadPlugin")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     public static partial void UnloadPlugin(IntPtr module, IntPtr plugin);
 

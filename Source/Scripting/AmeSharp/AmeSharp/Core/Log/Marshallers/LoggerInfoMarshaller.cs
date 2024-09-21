@@ -6,7 +6,13 @@ namespace AmeSharp.Core.Log.Marshallers;
 [CustomMarshaller(typeof(LoggerInfo), MarshalMode.Default, typeof(LoggerInfoMarshaller))]
 public static unsafe class LoggerInfoMarshaller
 {
-    public static LoggerInfoUnmanaged ConvertToUnmanaged(LoggerInfo managed)
+    public unsafe struct Unmanaged
+    {
+        public NativeStringViewMarshaller.Unmanaged Message;
+        public LogLevel Level;
+    }
+
+    public static Unmanaged ConvertToUnmanaged(LoggerInfo managed)
     {
         return new()
         {
@@ -15,7 +21,7 @@ public static unsafe class LoggerInfoMarshaller
         };
     }
 
-    public static LoggerInfo ConvertToManaged(LoggerInfoUnmanaged unmanaged)
+    public static LoggerInfo ConvertToManaged(Unmanaged unmanaged)
     {
         return new LoggerInfo()
         {
@@ -24,7 +30,7 @@ public static unsafe class LoggerInfoMarshaller
         };
     }
 
-    public static void Free(LoggerInfoUnmanaged unmanaged)
+    public static void Free(Unmanaged unmanaged)
     {
         NativeStringViewMarshaller.Free(unmanaged.Message);
     }

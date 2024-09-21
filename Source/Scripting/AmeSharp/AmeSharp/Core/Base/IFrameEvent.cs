@@ -5,7 +5,7 @@ using static AmeSharp.Core.Base.ISignalConnection;
 namespace AmeSharp.Core.Base;
 
 [Guid("919C726D-72E2-4573-ACC2-98EA5AF1781B")]
-public class IFrameEvent : IBaseObject
+public sealed class IFrameEvent : IBaseObject
 {
     public IFrameEvent(IntPtr obj) : base(obj) { }
     public IFrameEvent() : base(FrameEventBridge.Create()) { }

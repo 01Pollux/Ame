@@ -1,6 +1,7 @@
 ﻿using AmeSharp.Core.Base.Marshallers;
 using AmeSharp.Core.Base.Types;
 using AmeSharp.Core.Log;
+using AmeSharp.Core.Log.Marshallers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
@@ -34,7 +35,7 @@ internal partial class LoggerStreamBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_LoggerStream_CreateCallback")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr CreateCallback(delegate* unmanaged[Cdecl]<LoggerInfoUnmanaged*, IntPtr, void> callback, IntPtr userData);
+    public static unsafe partial IntPtr CreateCallback(delegate* unmanaged[Cdecl]<LoggerInfoMarshaller.Unmanaged*, IntPtr, void> callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_LoggerStream_CreateConsole")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

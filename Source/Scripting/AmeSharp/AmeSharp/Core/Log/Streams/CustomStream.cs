@@ -23,7 +23,7 @@ public abstract class ICustomStream : ILoggerStream
     //
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static unsafe void StreamCallback(LoggerInfoUnmanaged* unmanagedInfo, IntPtr _thisHandle)
+    static unsafe void StreamCallback(LoggerInfoMarshaller.Unmanaged* unmanagedInfo, IntPtr _thisHandle)
     {
         var @this = GCHandle.FromIntPtr(_thisHandle).Target as ICustomStream;
         var info = LoggerInfoMarshaller.ConvertToManaged(*unmanagedInfo);

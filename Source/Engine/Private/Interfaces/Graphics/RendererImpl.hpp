@@ -19,16 +19,14 @@ namespace Ame::Ecs
 
 namespace Ame::Interfaces
 {
-    class RendererImpl : public BaseObject<IRenderer>
+    class RendererImpl : public IRenderer
     {
     private:
         using CameraRenderQuery = Ecs::UniqueQuery<const Ecs::GlobalTransformComponent, const Ecs::CameraComponent,
                                                    const Ecs::CameraOutputComponent>;
 
     public:
-        using Base = BaseObject<IRenderer>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Renderer, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Renderer, IRenderer);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(RendererImpl, Rhi::IRhiDevice* rhiDevice, Ecs::World* world,

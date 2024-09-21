@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Base;
 
-[Guid("74063704-A586-47A5-9349-DE2AC9370DFC")]
+[Guid("CD902203-B43C-48CA-9C6A-625AC4C98D5B")]
 public class IRawDataBlob : IDataBlob
 {
     public IRawDataBlob(IntPtr obj) : base(obj) { }

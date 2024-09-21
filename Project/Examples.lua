@@ -8,4 +8,4 @@ ame_utils:add_binary("PluginExample", "Examples/Plugin", "Source/Examples/Plugin
     add_deps("Ame.Application")
 end)
 
-ame_utils:add_plugin("PluginHost", "Examples/Plugin", "Source/Examples/PluginHost")
+ame_utils:add_plugin("PluginHost", "Examples/Plugin", "Source/Examples/PluginHost", "Plugins")

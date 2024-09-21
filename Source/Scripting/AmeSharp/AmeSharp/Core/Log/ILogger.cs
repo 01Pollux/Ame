@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 namespace AmeSharp.Core.Log;
 
 [Guid("940017D2-269C-45B6-803B-F3C530151CCA")]
-public class ILogger : IBaseObject
+public sealed class ILogger : IBaseObject
 {
     public ILogger(IntPtr ptr) : base(ptr) { }
     public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName)) { }
@@ -45,12 +45,42 @@ public class ILogger : IBaseObject
 
     public void Log(LogLevel level, string message) => LoggerBridge.WriteMessage(NativePointer, new() { Level = level, Message = message });
 
-    public void Trace(string message) => Log(LogLevel.Trace, message);
-    public void Debug(string message) => Log(LogLevel.Debug, message);
+    public void Trace(string message)
+    {
+#if DEBUG
+        Log(LogLevel.Trace, message);
+#endif
+    }
+    public void Debug(string message)
+    {
+#if DEBUG
+        Log(LogLevel.Debug, message);
+#endif
+    }
     public void Info(string message) => Log(LogLevel.Info, message);
     public void Warning(string message) => Log(LogLevel.Warning, message);
     public void Error(string message) => Log(LogLevel.Error, message);
     public void Fatal(string message) => Log(LogLevel.Fatal, message);
+
+    public void Assert(bool condition, string message)
+    {
+        if (!condition)
+        {
+#if DEBUG
+            Log(LogLevel.Error, message);
+            System.Diagnostics.Debugger.Break();
+#endif
+        }
+    }
+
+    public void Validate(bool condition, string message)
+    {
+        if (!condition)
+        {
+            Log(LogLevel.Fatal, message);
+            throw new InvalidOperationException(message);
+        }
+    }
 
     public static ILogger operator +(ILogger logger, ILoggerStream stream)
     {

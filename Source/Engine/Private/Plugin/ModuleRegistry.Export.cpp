@@ -18,7 +18,7 @@ struct Ame_Version_t Ame_ModuleRegistry_GetHostVersion(Ame_IModuleRegistry_t* re
 }
 
 void Ame_ModuleRegistry_ExposeInterface(Ame_IModuleRegistry_t* registry, Ame_IPlugin_t* owner, const Ame_UID_t* iid,
-                                        Ame_IObject_t* iface)
+                                        Ame_IBaseObject_t* iface)
 {
     auto impl      = std::bit_cast<Ame::IModuleRegistry*>(registry);
     auto ownerImpl = std::bit_cast<Ame::IPlugin*>(owner);
@@ -34,14 +34,14 @@ void Ame_ModuleRegistry_DropInterface(Ame_IModuleRegistry_t* registry, const Ame
     impl->DropInterface(*iidImpl);
 }
 
-Ame_IObject_t* Ame_ModuleRegistry_RequestInterface(Ame_IModuleRegistry_t* registry, Ame_IPlugin_t* caller,
+Ame_IBaseObject_t* Ame_ModuleRegistry_RequestInterface(Ame_IModuleRegistry_t* registry, Ame_IPlugin_t* caller,
                                                    const Ame_UID_t* iid)
 {
     auto          impl       = std::bit_cast<Ame::IModuleRegistry*>(registry);
     auto          callerImpl = std::bit_cast<Ame::IPlugin*>(caller);
     auto          iidImpl    = std::bit_cast<Ame::UId*>(iid);
     Ame::IObject* iface      = nullptr;
-    return impl->RequestInterface(callerImpl, *iidImpl, &iface) ? std::bit_cast<Ame_IObject_t*>(iface) : nullptr;
+    return impl->RequestInterface(callerImpl, *iidImpl, &iface) ? std::bit_cast<Ame_IBaseObject_t*>(iface) : nullptr;
 }
 
 Ame_IPlugin_t* Ame_ModuleRegistry_FindPlugin(Ame_IModuleRegistry_t* registry, const Ame_StringView_t name)

@@ -82,32 +82,28 @@ namespace Ame
 
     //
 
-    template<typename ObjectType, UId Id, typename BaseInterface = IObject>
-        requires(!std::is_base_of_v<IObject, ObjectType> && std::is_base_of_v<IObject, BaseInterface>)
-    class WrappedObject : public BaseObject<BaseInterface>, public ObjectType
+    class IObjectWithCallback : public BaseObject<IObject>
     {
     public:
-        using Base = BaseObject<BaseInterface>;
+        using QueryCallback = IObject*(AME_CDECL*)(IObject* objectHandle, const UId* iidHandle);
 
-        template<typename... ArgsTy>
-        WrappedObject(IReferenceCounters* counters, ArgsTy&&... args) noexcept(
-            std::is_nothrow_constructible_v<BaseObject<BaseInterface>, IReferenceCounters*> &&
-            std::is_nothrow_constructible_v<ObjectType, ArgsTy...>) :
-            Base(counters), ObjectType(std::forward<ArgsTy>(args)...)
+        void AME_CDECL QueryInterface(const UId& iid, IObject** iface) override
         {
+            if (QueryInterfaceCallback)
+            {
+                auto obj = QueryInterfaceCallback(this, &iid);
+                if (obj)
+                {
+                    *iface = std::bit_cast<IObject*>(obj);
+                    return;
+                }
+            }
+            BaseObject<IObject>::QueryInterface(iid, iface);
         }
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(Id, IID_Unknown, Base);
+        using BaseObject<IObject>::BaseObject;
 
     public:
-        [[nodiscard]] ObjectType& Get() noexcept
-        {
-            return *this;
-        }
-
-        [[nodiscard]] const ObjectType& Get() const noexcept
-        {
-            return *this;
-        }
+        QueryCallback QueryInterfaceCallback = nullptr;
     };
 } // namespace Ame

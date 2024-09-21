@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Base;
 
-[Guid("F578FF0D-ABD2-4514-9D32-7CB454D4A73B")]
+[Guid("99E53E10-55D1-4E81-871D-09C580060D43")]
 public class IDataBlob(IntPtr obj) : IBaseObject(obj)
 {
     public ulong Size

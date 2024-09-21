@@ -59,19 +59,29 @@ function ame_utils:add_binary(name, group, path, callback)
     end)
 end
 
-function ame_utils:add_plugin(name, group, path, callback)
+function ame_utils:add_plugin(name, group, path, output_path, callback)
     self:add_library(name, group, "shared", path, function()
         add_deps("AmeEngine", {public = true})
         after_load(function(target)
-            target:set("targetdir", target:targetdir() .. "/Plugins")
+            local output = target:targetdir()
+            if output_path ~= nil then
+                output = output .. "/" .. output_path
+            end
+            if not os.isdir(output) then
+                os.mkdir(output)
+            end
+            target:set("targetdir", output)
         end)
         after_install(function(target)
-            local plugins_dir = target:installdir() .. "/bin/Plugins"
-            local src_plugin = target:installdir() .. target:name()
-            if not os.isdir(plugins_dir) then
-                os.mkdir(plugins_dir)
+            local output = target:installdir() .. "/bin"
+            if output_path ~= nil then
+                output = output .. "/" .. output_path
             end
-            os.mv(target:targetfile(), plugins_dir)
+            local src_plugin = target:installdir() .. target:name()
+            if not os.isdir(output) then
+                os.mkdir(output)
+            end
+            os.mv(target:targetfile(), output)
         end)
         if callback ~= nil then
             callback()

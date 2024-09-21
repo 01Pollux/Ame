@@ -11,15 +11,15 @@
 
 #define IMPLEMENT_INTERFACE_CTOR(ClassName, ...)                                                                       \
     template<typename, typename> friend class Dg::MakeNewRCObj;                                                        \
-    explicit ClassName(IReferenceCounters* counters, __VA_ARGS__)
+    explicit ClassName(Ame::IReferenceCounters* counters, __VA_ARGS__)
 
 //
 
 #define IMPLEMENT_QUERY_INTERFACE_DECL()                                                                               \
-    void DILIGENT_CALL_TYPE QueryInterface(const INTERFACE_ID& iid, IObject** outObject) override
+    void DILIGENT_CALL_TYPE QueryInterface(const Ame::INTERFACE_ID& iid, IObject** outObject) override
 
 #define IMPLEMENT_QUERY_INTERFACE_HEAD(ClassName)                                                                      \
-    void ClassName::QueryInterface(const INTERFACE_ID& iid, IObject** outObject)
+    void ClassName::QueryInterface(const Ame::INTERFACE_ID& iid, IObject** outObject)
 
 //
 
@@ -32,8 +32,7 @@
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            IObject* const subObjects[]{ __VA_ARGS__ };                                                                \
-                                                                                                                       \
+            Ame::IObject* const subObjects[]{ __VA_ARGS__ };                                                           \
             for (auto subObject : subObjects)                                                                          \
             {                                                                                                          \
                 if (subObject)                                                                                         \
@@ -65,7 +64,7 @@
                 return;                                                                                                \
             }                                                                                                          \
                                                                                                                        \
-            IObject* const subObjects[]{ __VA_ARGS__ };                                                                \
+            Ame::IObject* const subObjects[]{ __VA_ARGS__ };                                                           \
             for (auto subObject : subObjects)                                                                          \
             {                                                                                                          \
                 if (subObject)                                                                                         \

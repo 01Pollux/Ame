@@ -34,7 +34,7 @@ public:
     {
         if (OnInterfaceDropFn)
         {
-            OnInterfaceDropFn(std::bit_cast<Ame_IPlugin_t*>(this), std::bit_cast<Ame_IObject_t*>(iface));
+            OnInterfaceDropFn(std::bit_cast<Ame_IPlugin_t*>(this), std::bit_cast<Ame_IBaseObject_t*>(iface));
         }
     }
 
@@ -57,7 +57,7 @@ public:
 public:
     bool(AME_CDECL* OnPreloadFn)(Ame_IPlugin_t*, Ame_IModuleRegistry_t*) = nullptr;
     void(AME_CDECL* OnLoadFn)(Ame_IPlugin_t*, Ame_IModuleRegistry_t*)    = nullptr;
-    void(AME_CDECL* OnInterfaceDropFn)(Ame_IPlugin_t*, Ame_IObject_t*)   = nullptr;
+    void(AME_CDECL* OnInterfaceDropFn)(Ame_IPlugin_t*, Ame_IBaseObject_t*)   = nullptr;
     void(AME_CDECL* OnUnloadFn)(Ame_IPlugin_t*)                          = nullptr;
     void(AME_CDECL* OnPauseChangedFn)(Ame_IPlugin_t*, bool)              = nullptr;
 };
@@ -86,7 +86,7 @@ void Ame_Plugin_SetOnLoad(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_I
     impl->OnLoadFn = callback;
 }
 
-void Ame_Plugin_SetOnInterfaceDrop(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*, Ame_IObject_t*))
+void Ame_Plugin_SetOnInterfaceDrop(Ame_IPlugin_t* plugin, void(AME_CDECL* callback)(Ame_IPlugin_t*, Ame_IBaseObject_t*))
 {
     auto impl               = std::bit_cast<PluginImpl*>(plugin);
     impl->OnInterfaceDropFn = callback;

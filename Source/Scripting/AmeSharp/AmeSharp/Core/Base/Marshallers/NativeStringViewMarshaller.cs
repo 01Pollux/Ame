@@ -8,11 +8,17 @@ namespace AmeSharp.Core.Base.Marshallers;
 
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.Default, typeof(NativeStringViewMarshaller))]
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]
-internal static unsafe class NativeStringViewMarshaller
+public static unsafe class NativeStringViewMarshaller
 {
-    public static NativeStringViewUnmanaged ConvertToUnmanaged(NativeStringView? managed)
+    public unsafe struct Unmanaged
     {
-        NativeStringViewUnmanaged unmanaged = new();
+        public byte* Bytes;
+        public ulong Length;
+    }
+
+    public static Unmanaged ConvertToUnmanaged(NativeStringView? managed)
+    {
+        Unmanaged unmanaged = new();
         if (managed is null)
         {
             return unmanaged;
@@ -29,12 +35,12 @@ internal static unsafe class NativeStringViewMarshaller
         return unmanaged;
     }
 
-    public static NativeStringView ConvertToManaged(NativeStringViewUnmanaged unmanaged)
+    public static NativeStringView ConvertToManaged(Unmanaged unmanaged)
     {
         return new(Marshal.PtrToStringUTF8((nint)unmanaged.Bytes, (int)unmanaged.Length));
     }
 
-    public static void Free(NativeStringViewUnmanaged unmanaged)
+    public static void Free(Unmanaged unmanaged)
     {
         if (unmanaged.Bytes != null)
         {
@@ -46,7 +52,7 @@ internal static unsafe class NativeStringViewMarshaller
     {
         public static int BufferSize => 0x100;
 
-        NativeStringViewUnmanaged _view;
+        Unmanaged _view;
         bool _allocated;
 
         public void FromManaged(NativeStringView? managed, Span<byte> buffer)
@@ -82,7 +88,7 @@ internal static unsafe class NativeStringViewMarshaller
             _view.Length = (ulong)byteCount;
         }
 
-        public readonly NativeStringViewUnmanaged ToUnmanaged() => _view;
+        public readonly Unmanaged ToUnmanaged() => _view;
 
         public void Free()
         {

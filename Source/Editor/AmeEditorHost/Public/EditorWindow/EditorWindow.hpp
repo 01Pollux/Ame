@@ -6,10 +6,11 @@
 
 namespace Ame::Editor
 {
-    class IEditorWindow : public IObject
+    class IEditorWindow : public IObjectWithCallback
     {
     public:
-        IEditorWindow(String path) : m_Path(std::move(path))
+        IEditorWindow(IReferenceCounters* counters, String path) :
+            IObjectWithCallback(counters), m_Path(std::move(path))
         {
         }
 

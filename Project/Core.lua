@@ -39,7 +39,7 @@ target("DotNet")
     add_packages("dotnet", public_inherit)
 target_end()
 
-ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeSharp.Runtime", function()
+ame_utils:add_plugin("AmeSharp.Runtime", "Ame/Scripting", "Source/Scripting/AmeSharp.Runtime", "Plugins", function()
     -- add_defines("AME_CSHARP_EXPORT")
     add_defines("AME_CSHARP_STATIC_LINKING")
 
@@ -58,7 +58,7 @@ end)
 
 --
 
-ame_utils:add_plugin("AmeEditorHost", "Ame/Editor", "Source/Editor/AmeEditorHost", function()
+ame_utils:add_plugin("AmeEditorHost", "Ame/Editor", "Source/Editor/AmeEditorHost", nil, function()
     add_defines("AME_EDITORHOST_EXPORT")
     add_defines([[AME_EDITORHOST_EXPORT_C(ReturnType, ...)=AME_EDITORHOST_API ReturnType AME_CDECL __VA_ARGS__]])
 
@@ -67,11 +67,12 @@ ame_utils:add_plugin("AmeEditorHost", "Ame/Editor", "Source/Editor/AmeEditorHost
     add_forceincludes(file_utils:path_from_root("Source/Editor/AmeEditorHost/Public/EditorHost/Api.hpp"), public_inherit)
 end)
 
-ame_utils:add_plugin("EditorCore", "Ame/Editor", "Source/Editor/EditorCore", function()
-    add_deps("AmeEditorHost", public_inherit)
-end)
+-- ame_utils:add_plugin("EditorCore", "Ame/Editor", "Source/Editor/EditorCore", function()
+--     add_deps("AmeEditorHost", public_inherit)
+-- end)
 
 ame_csharp_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/AmeEditor")
+ame_csharp_utils:add_binary("AmeEditorCore", "Ame/Editor", "Source/Editor/AmeEditorCore")
 
 -- ame_utils:add_binary("AmeEditor", "Ame/Editor", "Source/Editor/EditorApplication", function()
 --     set_default(true)

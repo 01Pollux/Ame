@@ -6,25 +6,36 @@
 
 namespace Ame
 {
-    using IDataBlob = Dg::IDataBlob;
+    // {99E53E10-55D1-4E81-871D-09C580060D43}
+    inline constexpr UId IID_DataBlob{ 0x99e53e10, 0x55d1, 0x4e81, { 0x87, 0x1d, 0x9, 0xc5, 0x80, 0x6, 0xd, 0x43 } };
 
-    // {F578FF0D-ABD2-4514-9D32-7CB454D4A73B}
-    inline constexpr UId IID_DataBlob{ 0xf578ff0d, 0xabd2, 0x4514, { 0x9d, 0x32, 0x7c, 0xb4, 0x54, 0xd4, 0xa7, 0x3b } };
-
-    // {74063704-A586-47A5-9349-DE2AC9370DFC}
-    inline constexpr UId IID_RawDataBlob{
-        0x74063704, 0xa586, 0x47a5, { 0x93, 0x49, 0xde, 0x2a, 0xc9, 0x37, 0xd, 0xfc }
-    };
-
-    class RawDataBlob : public BaseObject<IDataBlob>
+    class IDataBlob : public IObjectWithCallback
     {
     public:
-        using Base = BaseObject<IDataBlob>;
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_DataBlob, IObjectWithCallback);
 
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_RawDataBlob, IID_DataBlob, Base);
+        using IObjectWithCallback::IObjectWithCallback;
+
+    public:
+        virtual void        Resize(size_t newSize)  = 0;
+        virtual size_t      GetSize() const         = 0;
+        virtual void*       GetDataPtr()            = 0;
+        virtual const void* GetConstDataPtr() const = 0;
+    };
+
+    // {CD902203-B43C-48CA-9C6A-625AC4C98D5B}
+    inline constexpr UId IID_RawDataBlob{
+        0xcd902203, 0xb43c, 0x48ca, { 0x9c, 0x6a, 0x62, 0x5a, 0xc4, 0xc9, 0x8d, 0x5b }
+    };
+
+    class RawDataBlob : public IDataBlob
+    {
+    public:
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RawDataBlob, IDataBlob);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(RawDataBlob, const std::byte* data = nullptr, size_t initialSize = 0) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(RawDataBlob, const std::byte* data = nullptr, size_t initialSize = 0) :
+            IDataBlob(counters)
         {
             m_Data.resize(initialSize);
             if (data != nullptr)

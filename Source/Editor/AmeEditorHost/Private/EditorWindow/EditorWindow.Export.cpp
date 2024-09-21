@@ -1,9 +1,9 @@
 #include <EditorWindow/EditorWindow.hpp>
-#include <EditorWindow/EditorWindow.Export.hpp>
+#include <EditorWindow/EditorWindow.Export.h>
 
 using namespace Ame;
 
-class EditorWindowImpl : public BaseObject<Editor::IEditorWindow>
+class EditorWindowImpl : public Editor::IEditorWindow
 {
 public:
     // {97FB68DA-A89C-4938-A158-9402F5534427}

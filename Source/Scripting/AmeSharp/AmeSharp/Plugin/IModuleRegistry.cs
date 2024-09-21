@@ -13,7 +13,8 @@ public class IModuleRegistry : INativeObject
 
     public void ExposeInterface(IPlugin? pluginOwner, Guid guid, IBaseObject iface)
     {
-        ModuleRegistryBridge.ExposeInterface(NativePointer, pluginOwner is not null ? pluginOwner.NativePointer : IntPtr.Zero, guid, iface.NativePointer);
+        var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : IntPtr.Zero;
+        ModuleRegistryBridge.ExposeInterface(NativePointer, pluginHandle, guid, iface.NativePointer);
     }
 
     public void DropInterface(Guid guid)
@@ -21,27 +22,34 @@ public class IModuleRegistry : INativeObject
         ModuleRegistryBridge.DropInterface(NativePointer, guid);
     }
 
-    public T? RequestInterface<T>(IPlugin pluginOwner) where T : IBaseObject
+    public IBaseObject RequestInterface<T>(IPlugin? pluginOwner, Guid iid) where T : IBaseObject
     {
-        var output = ModuleRegistryBridge.RequestInterface(NativePointer, pluginOwner.NativePointer, typeof(T).GUID);
+        var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : IntPtr.Zero;
+        return new IBaseObject(ModuleRegistryBridge.RequestInterface(NativePointer, pluginHandle, iid));
+    }
+
+    public T? RequestInterface<T>(IPlugin? pluginOwner) where T : IBaseObject
+    {
+        var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : IntPtr.Zero;
+        var output = ModuleRegistryBridge.RequestInterface(NativePointer, pluginHandle, typeof(T).GUID);
         return IBaseObject.RequestInterface<T>(output);
     }
 
     public IPlugin? FindPlugin(string name)
     {
-        var output = ModuleRegistryBridge.FindPlugin(NativePointer, new NativeStringView(name));
+        var output = ModuleRegistryBridge.FindPlugin(NativePointer, name);
         return output == IntPtr.Zero ? null : new IPlugin(output);
     }
 
     public IPlugin? BindPlugin(IPlugin pluginCaller, string name, bool isRequired)
     {
-        var output = ModuleRegistryBridge.BindPlugin(NativePointer, pluginCaller.NativePointer, new NativeStringView(name), isRequired);
+        var output = ModuleRegistryBridge.BindPlugin(NativePointer, pluginCaller.NativePointer, name, isRequired);
         return output == IntPtr.Zero ? null : new IPlugin(output);
     }
 
-    public IPlugin? LoadPlugin(IPlugin pluginCaller, string name, bool isRequired)
+    public IPlugin? LoadPlugin(string name)
     {
-        var output = ModuleRegistryBridge.LoadPlugin(NativePointer, pluginCaller.NativePointer, new NativeStringView(name), isRequired);
+        var output = ModuleRegistryBridge.LoadPlugin(NativePointer, name);
         return output == IntPtr.Zero ? null : new IPlugin(output);
     }
 
@@ -52,7 +60,7 @@ public class IModuleRegistry : INativeObject
 
     public void UnloadPlugin(string name)
     {
-        ModuleRegistryBridge.UnloadPlugin(NativePointer, new NativeStringView(name));
+        ModuleRegistryBridge.UnloadPlugin(NativePointer, name);
     }
 
     protected override void Dispose(bool disposing)
