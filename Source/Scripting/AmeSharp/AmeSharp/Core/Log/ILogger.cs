@@ -7,8 +7,8 @@ namespace AmeSharp.Core.Log;
 [Guid("940017D2-269C-45B6-803B-F3C530151CCA")]
 public sealed class ILogger : IBaseObject
 {
-    public ILogger(IntPtr obj) : base(obj) { }
-    public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName)) { }
+    public ILogger(IntPtr obj) : base(obj, true) { }
+    public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName), false) { }
 
     private static ILogger? _cachedLogger;
     public static ILogger? Instance

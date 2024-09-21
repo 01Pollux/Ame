@@ -9,8 +9,8 @@ public sealed class IFrameEvent : IBaseObject
 {
     public delegate bool FrameEndSignalCallback();
 
-    public IFrameEvent(IntPtr obj) : base(obj) { }
-    public IFrameEvent() : base(FrameEventBridge.Create()) { }
+    public IFrameEvent(IntPtr obj) : base(obj, true) { }
+    public IFrameEvent() : base(FrameEventBridge.Create(), false) { }
 
     public unsafe ISignalConnection ConnectOnFrameStart(IVoidSignalConnection.SignalCallback callback)
     {

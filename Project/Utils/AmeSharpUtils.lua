@@ -42,10 +42,8 @@ function ame_csharp_utils:add_library(name, group, kind, path, output_path, call
         on_clean(function (target)
             os.execv("dotnet", {
                 "clean", path,
-                "--configuration", mode,
                 "--nologo",
                 "--verbosity", "minimal",
-                "--no-restore",
             })
         end)
         on_run(function (target)

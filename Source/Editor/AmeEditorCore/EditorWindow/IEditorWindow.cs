@@ -11,8 +11,8 @@ public class IEditorWindow : IBaseObject
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void EditorWindowCallbacks();
 
-    public IEditorWindow(IntPtr obj) : base(obj) { }
-    public IEditorWindow(string path) : base(EditorWindowBridge.Create(path)) => InitialzeCallbacks();
+    public IEditorWindow(IntPtr obj) : base(obj, true) { }
+    public IEditorWindow(string path) : base(EditorWindowBridge.Create(path), false) => InitialzeCallbacks();
 
     public string FullPath => EditorWindowBridge.GetFullPath(NativePointer).ToString();
 
@@ -55,15 +55,4 @@ public class IEditorWindow : IBaseObject
         EditorWindowBridge.SetOnShow(NativePointer, &OnShowCallback);
         EditorWindowBridge.SetOnHide(NativePointer, &OnHideCallback);
     }
-}
-
-[Guid("00000000-0000-0000-0000-0000000000A0")]
-public class XXXIEditorWindow : IEditorWindow
-{
-    public XXXIEditorWindow() : base("XXX") { }
-
-    public override void OnDrawVisible() { Console.WriteLine("overwritte"); }
-    public override void OnToolbarDraw() { Console.WriteLine("overwritte"); }
-    public override void OnShow() { Console.WriteLine("overwritte"); }
-    public override void OnHide() { Console.WriteLine("overwritte"); }
 }

@@ -22,17 +22,16 @@ public sealed class IModuleRegistry : INativeObject
         ModuleRegistryBridge.DropInterface(NativePointer, guid);
     }
 
-    public IBaseObject RequestInterface<T>(IPlugin? pluginOwner, Guid iid) where T : IBaseObject
+    public T? RequestInterface<T>(IPlugin? pluginOwner, Guid iid) where T : IBaseObject
     {
         var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : IntPtr.Zero;
-        return new IBaseObject(ModuleRegistryBridge.RequestInterface(NativePointer, pluginHandle, iid));
+        var ptr = ModuleRegistryBridge.RequestInterface(NativePointer, pluginHandle, iid);
+        return ptr != IntPtr.Zero ? Get<T>(ptr) : null;
     }
 
     public T? RequestInterface<T>(IPlugin? pluginOwner) where T : IBaseObject
     {
-        var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : IntPtr.Zero;
-        var output = ModuleRegistryBridge.RequestInterface(NativePointer, pluginHandle, typeof(T).GUID);
-        return IBaseObject.RequestInterface<T>(output);
+        return RequestInterface<T>(pluginOwner, typeof(T).GUID);
     }
 
     public IPlugin? FindPlugin(string name)

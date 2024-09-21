@@ -1,4 +1,5 @@
 ﻿using AmeSharp.Core.Base;
+using AmeSharp.Core.Log;
 using System.Runtime.InteropServices;
 
 namespace AmeSharp.Bridge.Core.Internal
@@ -28,20 +29,25 @@ namespace AmeSharp.Bridge.Core.Internal
             var handle = AbstractStorageBridge.Get(_instance.Value._storage, nativePointer);
             if (handle == nint.Zero)
             {
+                var type = typeof(T);
                 // check if the object has a constructor with a single IntPtr parameter
-                if (typeof(T).GetConstructor([typeof(IntPtr)]) is not null)
+                if (type.GetConstructor([typeof(IntPtr), typeof(bool)]) is not null)
                 {
-                    var instance = Activator.CreateInstance(typeof(T), nativePointer) as T;
-                    if (instance is not null)
+                    try
                     {
-                        Set(nativePointer, instance);
+                        var instance = Activator.CreateInstance(type, nativePointer, true) as T;
+                        if (instance is not null)
+                        {
+                            Set(nativePointer, instance);
+                        }
+                        return instance;
                     }
-                    return instance;
+                    catch (Exception ex)
+                    {
+                        ILogger.Instance?.Error(ex.Message);
+                    }
                 }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
             else
             {

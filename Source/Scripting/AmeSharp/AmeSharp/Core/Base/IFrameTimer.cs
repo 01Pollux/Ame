@@ -6,8 +6,8 @@ namespace AmeSharp.Core.Base;
 [Guid("BE4B917D-4B7A-4582-8034-01DC24147418")]
 public sealed class IFrameTimer : IBaseObject
 {
-    public IFrameTimer(IntPtr obj) : base(obj) { }
-    public IFrameTimer() : base(FrameTimerBridge.Create()) { }
+    public IFrameTimer(IntPtr obj) : base(obj, true) { }
+    public IFrameTimer() : base(FrameTimerBridge.Create(), false) { }
 
     public double EngineTime => FrameTimerBridge.GetEngineTime(NativePointer);
     public double GameTime => FrameTimerBridge.GetGameTime(NativePointer);

@@ -23,5 +23,5 @@ internal partial class BaseObjectBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_IBaseObject_SetQueryInterface")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial void SetQueryInterface(IntPtr thisObject, delegate* unmanaged[Cdecl]<IntPtr, Guid*> callback);
+    public static unsafe partial void SetQueryInterface(IntPtr thisObject, delegate* unmanaged[Cdecl]<IntPtr, Guid*, IntPtr> callback);
 }
