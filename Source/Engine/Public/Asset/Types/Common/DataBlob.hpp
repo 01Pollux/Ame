@@ -5,21 +5,20 @@
 
 namespace Ame::Asset::Common
 {
-    class DataBlobAsset : public BaseObject<IAsset>
+    class DataBlobAsset : public IAsset
     {
     public:
-        using Base = BaseObject<IAsset>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_DataBlobAsset, Base, m_Blob);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(IID_DataBlobAsset, IAsset, m_Blob);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(DataBlobAsset) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(DataBlobAsset) : IAsset(counters)
         {
         }
 
     public:
         void Serialize(BinaryOArchiver& ar) const override
         {
-            Base::Serialize(ar);
+            IAsset::Serialize(ar);
 
             ar(m_Blob->GetSize());
             ar(cereal::binary_data(std::bit_cast<const std::byte*>(m_Blob->GetConstDataPtr()), m_Blob->GetSize()));
@@ -27,7 +26,7 @@ namespace Ame::Asset::Common
 
         void Deserialize(BinaryIArchiver& ar) override
         {
-            Base::Deserialize(ar);
+            IAsset::Deserialize(ar);
 
             size_t size;
             ar(size);

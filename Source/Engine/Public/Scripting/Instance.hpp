@@ -8,9 +8,11 @@ namespace Ame::Scripting
 {
     class IType;
 
-    class IInstance : public IObject
+    class IInstance : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual auto GetType() const -> IType*     = 0;
         virtual void               InvokeMethod(const NativeString& methodName, std::span<void* const> arguments,
                                                 void* returnPtr) = 0;

@@ -26,7 +26,7 @@ namespace Ame::Log
     }
 
     LoggerImpl::LoggerImpl(IReferenceCounters* counters, String loggerName) :
-        Base(counters), m_Logger(std::move(loggerName))
+        ILogger(counters), m_Logger(std::move(loggerName))
     {
 #if defined AME_DEBUG
         SetLevel(LogLevel::Trace);

@@ -4,15 +4,13 @@
 
 namespace Ame::Rhi
 {
-    class ImGuiNullRendererImpl final : public BaseObject<IImGuiRenderer>
+    class ImGuiNullRendererImpl final : public IImGuiRenderer
     {
     public:
-        using Base = BaseObject<IImGuiRenderer>;
-
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_ImGuiNullRenderer, IID_ImGuiRenderer, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_ImGuiNullRenderer, IID_ImGuiRenderer, IImGuiRenderer);
 
     public:
-        IMPLEMENT_INTERFACE_CTOR(ImGuiNullRendererImpl) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(ImGuiNullRendererImpl) : IImGuiRenderer(counters)
         {
         }
 

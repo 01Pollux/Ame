@@ -5,14 +5,13 @@
 
 namespace Ame::Asset::Common
 {
-    class TextFileAsset : public BaseObject<IAsset>
+    class TextFileAsset : public IAsset
     {
     public:
-        using Base = BaseObject<IAsset>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_TextFileAsset, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_TextFileAsset, IAsset);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(TextFileAsset) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(TextFileAsset) : IAsset(counters)
         {
         }
 

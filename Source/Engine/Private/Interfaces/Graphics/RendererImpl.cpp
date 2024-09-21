@@ -7,8 +7,8 @@ namespace Ame::Interfaces
 {
     RendererImpl::RendererImpl(IReferenceCounters* counters, Rhi::IRhiDevice* rhiDevice, Ecs::World* world,
                                Rhi::IImGuiRenderer* imguiRenderer) :
-        IRenderer(counters),
-        m_RhiDevice(rhiDevice), m_CommonRenderPass(rhiDevice->GetCommonRenderPass()), m_World(world),
+        IRenderer(counters), m_RhiDevice(rhiDevice), m_CommonRenderPass(rhiDevice->GetCommonRenderPass()),
+        m_World(world),
 #ifndef AME_NO_IMGUI
         m_ImGuiRenderer(imguiRenderer),
 #endif

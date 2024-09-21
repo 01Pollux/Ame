@@ -12,7 +12,7 @@ namespace Ame::Scripting
 
     class CSType;
 
-    class CSProperty : public BaseObject<IProperty>
+    class CSProperty : public IProperty
     {
         using FreeFn     = void (*)(void*);
         using GetNameFn  = NativeString (*)(void*);
@@ -21,9 +21,7 @@ namespace Ame::Scripting
         using SetValueFn = void (*)(void*, void*, const void*);
 
     public:
-        using Base = BaseObject<IProperty>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSProperty, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSProperty, IProperty);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSProperty, CSType* type, void* property);

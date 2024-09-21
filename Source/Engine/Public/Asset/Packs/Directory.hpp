@@ -5,12 +5,10 @@
 
 namespace Ame::Asset
 {
-    class DirectoryAssetPackage : public BaseObject<IAssetPackage>
+    class DirectoryAssetPackage : public IAssetPackage
     {
     public:
-        using Base = BaseObject<IAssetPackage>;
-
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_DirectoryAssetPackage, IID_BaseAssetPackage, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_DirectoryAssetPackage, IID_BaseAssetPackage, IAssetPackage);
 
     public:
         using AssetMetaMap = std::unordered_map<UId, AssetMetaDataDef, UIdUtils::Hasher>;

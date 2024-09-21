@@ -16,7 +16,7 @@ namespace Ame::Scripting
     }
 
     CSField::CSField(IReferenceCounters* counters, CSType* type, void* property) :
-        Base(counters), m_Type(type), m_Field(property)
+        IField(counters), m_Type(type), m_Field(property)
     {
     }
 

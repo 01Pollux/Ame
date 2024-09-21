@@ -8,12 +8,10 @@ namespace Ame::Window
 {
     struct WindowCreateDesc;
 
-    class DesktopWindowImplGlfw : public BaseObject<IWindow>
+    class DesktopWindowImplGlfw : public IWindow
     {
     public:
-        using Base = BaseObject<IWindow>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Window, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Window, IWindow);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(DesktopWindowImplGlfw, const WindowCreateDesc& windowDesc);

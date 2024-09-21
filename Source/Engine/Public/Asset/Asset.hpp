@@ -9,6 +9,8 @@ namespace Ame::Asset
     class IAsset : public ISerializable
     {
     public:
+        using ISerializable::ISerializable;
+
         void Serialize(BinaryOArchiver& ar) const override
         {
             ar(m_AssetPath, m_AssetGuid);

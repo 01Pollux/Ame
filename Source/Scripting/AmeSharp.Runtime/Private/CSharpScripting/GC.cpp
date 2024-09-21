@@ -4,7 +4,8 @@ namespace Ame::Scripting
 {
     static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.GCBridge, AmeSharp";
 
-    CSGarbageCollector::CSGarbageCollector(IReferenceCounters* counters, const CLRRuntime& runtime) : Base(counters)
+    CSGarbageCollector::CSGarbageCollector(IReferenceCounters* counters, const CLRRuntime& runtime) :
+        IGarbageCollector(counters)
     {
         m_CollectAll = runtime.GetFunction<CollectAllFn>(ClassName, "CollectAll");
         m_Collect    = runtime.GetFunction<CollectFn>(ClassName, "Collect");

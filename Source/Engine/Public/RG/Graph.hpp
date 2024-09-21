@@ -7,12 +7,10 @@
 
 namespace Ame::Rg
 {
-    class AME_ENGINE_API Graph : public BaseObject<IObject>
+    class AME_ENGINE_API Graph : public IObjectWithCallback
     {
     public:
-        using Base = BaseObject<IObject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RenderGraph, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RenderGraph, IObjectWithCallback);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(Graph, Rhi::IRhiDevice* rhiDevice);

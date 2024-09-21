@@ -9,9 +9,11 @@ namespace Ame::Scripting
     class IInstance;
     class IType;
 
-    class IProperty : public IObject
+    class IProperty : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual auto GetName() const -> NativeString = 0;
         [[nodiscard]] virtual auto GetType() const -> IType*       = 0;
         [[nodiscard]] virtual bool IsStatic() const                = 0;

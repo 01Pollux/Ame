@@ -26,9 +26,11 @@ namespace Ame::Rhi
     /// - IID_CommonRenderPass
     /// - IID_RenderStateCache
     /// </summary>
-    class IRhiDevice : public IObject
+    class IRhiDevice : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual bool BeginFrame() = 0;
 
         /// <summary>

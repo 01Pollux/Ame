@@ -10,9 +10,11 @@ namespace Ame::Scripting
     class ILibraryContext;
     class IType;
 
-    class ILibrary : public IObject
+    class ILibrary : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual NativeString GetName() const = 0;
 
         [[nodiscard]] virtual auto GetContext() const -> ILibraryContext*          = 0;

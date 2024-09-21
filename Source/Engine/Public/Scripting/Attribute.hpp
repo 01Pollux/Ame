@@ -7,9 +7,11 @@ namespace Ame::Scripting
 {
     class IType;
 
-    class IAttribute : public IObject
+    class IAttribute : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual auto GetType() const -> IType*                                = 0;
         [[nodiscard]] virtual void GetValue(const NativeString& name, void* const valuePtr) = 0;
 

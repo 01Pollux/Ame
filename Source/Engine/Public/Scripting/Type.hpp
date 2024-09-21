@@ -14,9 +14,11 @@ namespace Ame::Scripting
     class IAttribute;
     class IProperty;
 
-    class IType : public IObject
+    class IType : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual auto GetLibrary() const -> ILibrary*   = 0;
         [[nodiscard]] virtual auto GetName() const -> NativeString   = 0;
         [[nodiscard]] virtual auto GetBaseType() const -> Ptr<IType> = 0;

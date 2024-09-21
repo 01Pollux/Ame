@@ -7,8 +7,10 @@
 
 namespace Ame::Editor
 {
-    class IProjectRequest : public IObject
+    class IProjectRequest : public IObjectWithCallback
     {
+    public:
+        using IObjectWithCallback::IObjectWithCallback;
     };
 
     AME_ECS_WRAP_COMPONENT_REF(IProjectRequest);

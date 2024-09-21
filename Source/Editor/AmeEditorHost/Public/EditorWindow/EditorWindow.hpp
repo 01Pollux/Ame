@@ -6,8 +6,16 @@
 
 namespace Ame::Editor
 {
+    // {97FB68DA-A89C-4938-A158-9402F5534427}
+    static constexpr UId IID_EditorWindow{
+        0x97fb68da, 0xa89c, 0x4938, { 0xa1, 0x58, 0x94, 0x2, 0xf5, 0x53, 0x44, 0x27 }
+    };
+
     class IEditorWindow : public IObjectWithCallback
     {
+    public:
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_EditorWindow, IObjectWithCallback);
+
     public:
         IEditorWindow(IReferenceCounters* counters, String path) :
             IObjectWithCallback(counters), m_Path(std::move(path))

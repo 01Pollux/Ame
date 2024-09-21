@@ -35,11 +35,10 @@ namespace Ame::Ecs
         Clear
     };
 
-    class AME_ENGINE_API RuntimeScene : public BaseObject<ISerializable>
+    class AME_ENGINE_API RuntimeScene : public ISerializable
     {
     public:
-        using Base = BaseObject<ISerializable>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RuntimeScene, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_RuntimeScene, ISerializable);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(RuntimeScene, Ecs::World* world);

@@ -11,7 +11,7 @@ namespace Ame::Scripting
 
     class CSType;
 
-    class CSMethod : public BaseObject<IMethod>
+    class CSMethod : public IMethod
     {
         using FreeFn          = void (*)(void* method);
         using IsStaticFn      = bool (*)(void* method);
@@ -22,9 +22,7 @@ namespace Ame::Scripting
                                   void* returnPtr);
 
     public:
-        using Base = BaseObject<IMethod>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSMethod, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSMethod, IMethod);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSMethod, CSType* type, void* method);

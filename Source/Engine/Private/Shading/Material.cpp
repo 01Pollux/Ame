@@ -123,14 +123,13 @@ namespace Ame::Rhi
 
     Material::Material(IReferenceCounters* counters, Dg::IRenderDevice* renderDevice,
                        const MaterialCreateDesc& materialDesc) :
-        Base(counters),
-        m_SharedData(std::make_shared<SharedData>(renderDevice, materialDesc)),
+        IObjectWithCallback(counters), m_SharedData(std::make_shared<SharedData>(renderDevice, materialDesc)),
         m_LocalData(m_SharedData->CommonState, nullptr)
     {
     }
 
     Material::Material(IReferenceCounters* counters, const Material* material) :
-        Base(counters), m_SharedData(material->m_SharedData),
+        IObjectWithCallback(counters), m_SharedData(material->m_SharedData),
         m_LocalData(m_SharedData->CommonState, &material->m_LocalData)
     {
     }

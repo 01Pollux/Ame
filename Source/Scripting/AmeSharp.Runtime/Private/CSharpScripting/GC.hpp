@@ -10,16 +10,14 @@ namespace Ame::Scripting
         0x7e0bbcd0, 0x4f73, 0x4214, { 0x9f, 0xd1, 0xc4, 0x98, 0xf4, 0x41, 0xf5, 0x96 }
     };
 
-    class CSGarbageCollector : public BaseObject<IGarbageCollector>
+    class CSGarbageCollector : public IGarbageCollector
     {
         using CollectAllFn               = void (*)();
         using CollectFn                  = void (*)(int, char, bool, bool);
         using WaitForPendingFinalizersFn = void (*)();
 
     public:
-        using Base = BaseObject<IGarbageCollector>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSGarbageCollector, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSGarbageCollector, IGarbageCollector);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSGarbageCollector, const CLRRuntime& runtime);

@@ -8,12 +8,10 @@ namespace Ame::Rhi
     // {3D942721-30B7-4D6D-9453-731DB09F8259}
     inline constexpr UId IID_Material{ 0x3d942721, 0x30b7, 0x4d6d, { 0x94, 0x53, 0x73, 0x1d, 0xb0, 0x9f, 0x82, 0x59 } };
 
-    class AME_ENGINE_API Material : public BaseObject<IObject>
+    class AME_ENGINE_API Material : public IObjectWithCallback
     {
     public:
-        using Base = BaseObject<IObject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Material, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Material, IObjectWithCallback);
 
     public:
         [[nodiscard]] static Ptr<Material> Create(Dg::IRenderDevice* renderDevice, MaterialCreateDesc materialDesc);

@@ -19,9 +19,11 @@ namespace Ame::Scripting
         Aggressive
     };
 
-    class IGarbageCollector : public IObject
+    class IGarbageCollector : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         virtual void CollectAll()                     = 0;
         virtual void Collect(int generation, GCCollectionMode mode = GCCollectionMode::Default, bool blocking = true,
                              bool compacting = false) = 0;

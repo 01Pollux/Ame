@@ -12,7 +12,7 @@ namespace Ame::Interfaces
 
     CSharpScriptEngine::CSharpScriptEngine(IReferenceCounters*                    counters,
                                            const Scripting::CSScriptEngineConfig& config) :
-        Base(counters), m_Runtime(config), m_Gc(AmeCreate(Scripting::CSGarbageCollector, m_Runtime))
+        IScriptEngine(counters), m_Runtime(config), m_Gc(AmeCreate(Scripting::CSGarbageCollector, m_Runtime))
     {
     }
 
@@ -47,8 +47,7 @@ namespace Ame::Interfaces
         auto it = m_LibraryContexts.find(name.hash());
         if (it == m_LibraryContexts.end())
         {
-            it = m_LibraryContexts.emplace(name.hash(), AmeCreate(Scripting::CSLibraryContext, m_Runtime, name))
-                     .first;
+            it = m_LibraryContexts.emplace(name.hash(), AmeCreate(Scripting::CSLibraryContext, m_Runtime, name)).first;
         }
         return it->second;
     }

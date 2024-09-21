@@ -73,7 +73,7 @@ namespace Ame::Rhi
 
     ImGuiDiligentRendererImpl::ImGuiDiligentRendererImpl(IReferenceCounters*            counters,
                                                          const ImGuiRendererCreateDesc& desc) :
-        Base(counters), m_VertexBufferSize(desc.InitialVertexBufferSize),
+        IImGuiRenderer(counters), m_VertexBufferSize(desc.InitialVertexBufferSize),
         m_IndexBufferSize(desc.InitialIndexBufferSize), m_ConversionMode(desc.ConversionMode)
     {
         m_RenderDevice  = desc.RhiDevice->GetRenderDevice();

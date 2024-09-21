@@ -4,15 +4,13 @@
 
 namespace Ame::Asset
 {
-    class MemoryAssetPackage : public BaseObject<IAssetPackage>
+    class MemoryAssetPackage : public IAssetPackage
     {
     public:
-        using Base = BaseObject<IAssetPackage>;
-
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_MemoryAssetPackage, IID_BaseAssetPackage, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(IID_MemoryAssetPackage, IID_BaseAssetPackage, IAssetPackage);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(MemoryAssetPackage, Storage& assetStorage) : Base(counters, assetStorage)
+        IMPLEMENT_INTERFACE_CTOR(MemoryAssetPackage, Storage& assetStorage) : IAssetPackage(counters, assetStorage)
         {
         }
 

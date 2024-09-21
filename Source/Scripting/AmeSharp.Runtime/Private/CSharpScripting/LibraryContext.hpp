@@ -11,7 +11,7 @@ namespace Ame::Scripting
         0x3c7bd943, 0x404b, 0x48dc, { 0xb5, 0x4b, 0xa7, 0xd, 0x51, 0x91, 0x2a, 0x5b }
     };
 
-    class CSLibraryContext : public BaseObject<ILibraryContext>
+    class CSLibraryContext : public ILibraryContext
     {
         using CreateFn = void* (*)(const NativeString& name);
         using UnloadFn = void (*)(void* context);
@@ -22,9 +22,7 @@ namespace Ame::Scripting
         using LibraryMap = std::map<size_t, Ptr<ILibrary>>;
 
     public:
-        using Base = BaseObject<ILibraryContext>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSLibraryContext, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSLibraryContext, ILibraryContext);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSLibraryContext, const CLRRuntime& runtime, const NativeString& name);

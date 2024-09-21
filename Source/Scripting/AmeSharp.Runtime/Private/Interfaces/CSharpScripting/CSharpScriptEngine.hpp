@@ -11,12 +11,10 @@
 
 namespace Ame::Interfaces
 {
-    class CSharpScriptEngine : public BaseObject<IScriptEngine>
+    class CSharpScriptEngine : public IScriptEngine
     {
     public:
-        using Base = BaseObject<IScriptEngine>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSScriptEngine, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSScriptEngine, IScriptEngine);
 
     private:
         using LibraryContextMap = std::map<size_t, Ptr<Scripting::CSLibraryContext>>;

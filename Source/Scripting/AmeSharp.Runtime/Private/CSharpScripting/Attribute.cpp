@@ -12,7 +12,7 @@ namespace Ame::Scripting
     }
 
     CSAttribute::CSAttribute(IReferenceCounters* counters, CSType* type, void* attribute) :
-        Base(counters), m_Type(type), m_Attribute(attribute)
+        IAttribute(counters), m_Type(type), m_Attribute(attribute)
     {
     }
 

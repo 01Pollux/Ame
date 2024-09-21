@@ -20,9 +20,11 @@ namespace Ame::Rhi
         0xddff902a, 0x8f6b, 0x4402, { 0x81, 0xaf, 0x1b, 0xf9, 0x4c, 0x7c, 0xe1, 0x7a }
     };
 
-    class IImGuiRenderer : public IObject
+    class IImGuiRenderer : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         virtual void BeginFrame(Dg::SURFACE_TRANSFORM transform = Dg::SURFACE_TRANSFORM_IDENTITY) = 0;
         virtual void EndFrame()                                                                   = 0;
         virtual void Reset()                                                                      = 0;

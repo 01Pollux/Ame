@@ -13,8 +13,6 @@ namespace Ame
 
     using IReferenceCounters = Dg::IReferenceCounters;
 
-    template<typename Ty> using RefCountedObject = Dg::RefCountedObject<Ty>;
-
     template<typename Ty> using Ptr = Dg::RefCntAutoPtr<Ty>;
 
     template<typename Ty> using WPtr = Dg::RefCntWeakPtr<Ty>;
@@ -52,43 +50,22 @@ namespace Ame
 
     //
 
-    /// Template class implementing base functionality for an object
-    template<typename BaseInterface> class BaseObject : public RefCountedObject<BaseInterface>
-    {
-    public:
-        using base_type = RefCountedObject<BaseInterface>;
-
-    public:
-        template<typename... Args>
-        explicit BaseObject(IReferenceCounters* counters, Args&&... args) noexcept(
-            std::is_nothrow_constructible_v<base_type, IReferenceCounters*, Args...>) :
-            base_type(counters, std::forward<Args>(args)...)
-        {
-        }
-
-        void DILIGENT_CALL_TYPE QueryInterface(const INTERFACE_ID& iid, IObject** outObject) override
-        {
-            if (outObject == nullptr)
-                return;
-
-            *outObject = nullptr;
-            if (iid == IID_Unknown)
-            {
-                *outObject = this;
-                (*outObject)->AddRef();
-            }
-        }
-    };
-
-    //
-
-    class IObjectWithCallback : public BaseObject<IObject>
+    class IObjectWithCallback : public Dg::ObjectBase<IObject>
     {
     public:
         using QueryCallback = IObject*(AME_CDECL*)(IObject* objectHandle, const UId* iidHandle);
 
+        IMPLEMENT_INTERFACE_CTOR(IObjectWithCallback) : ObjectBase(counters)
+        {
+        }
+
         void AME_CDECL QueryInterface(const UId& iid, IObject** iface) override
         {
+            if (iface == nullptr) [[unlikely]]
+            {
+                return;
+            }
+
             if (QueryInterfaceCallback)
             {
                 auto obj = QueryInterfaceCallback(this, &iid);
@@ -98,10 +75,13 @@ namespace Ame
                     return;
                 }
             }
-            BaseObject<IObject>::QueryInterface(iid, iface);
-        }
 
-        using BaseObject<IObject>::BaseObject;
+            if (iid == IID_Unknown)
+            {
+                *iface = this;
+                (*iface)->AddRef();
+            }
+        }
 
     public:
         QueryCallback QueryInterfaceCallback = nullptr;

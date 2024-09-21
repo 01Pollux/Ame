@@ -12,7 +12,7 @@ namespace Ame::Scripting
 
     class CSType;
 
-    class CSInstance : public BaseObject<IInstance>
+    class CSInstance : public IInstance
     {
         using FreeFn         = void (*)(void*);
         using GetTypeFn      = void* (*)(void*);
@@ -23,9 +23,7 @@ namespace Ame::Scripting
         using SetPropertyFn  = void (*)(void*, const NativeString&, const void*);
 
     public:
-        using Base = BaseObject<IInstance>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSInstance, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSInstance, IInstance);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSInstance, CSType* type, void* instance);

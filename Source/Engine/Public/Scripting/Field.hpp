@@ -9,9 +9,11 @@ namespace Ame::Scripting
     class IInstance;
     class IType;
 
-    class IField : public IObject
+    class IField : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual bool IsStatic() const                = 0;
         [[nodiscard]] virtual auto GetName() const -> NativeString = 0;
         virtual auto               GetType() const -> IType*       = 0;

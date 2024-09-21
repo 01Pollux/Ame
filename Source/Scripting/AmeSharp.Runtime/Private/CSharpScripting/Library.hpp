@@ -11,16 +11,14 @@ namespace Ame::Scripting
 
     class CSLibraryContext;
 
-    class CSLibrary : public BaseObject<ILibrary>
+    class CSLibrary : public ILibrary
     {
         using GetNameFn  = NativeString (*)(void* library);
         using GetTypeFn  = void* (*)(void* library, const NativeString& name);
         using GetTypesFn = NativeArray<void*> (*)(void* library);
 
     public:
-        using Base = BaseObject<ILibrary>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSLibrary, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSLibrary, ILibrary);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSLibrary, CSLibraryContext* context, void* library);

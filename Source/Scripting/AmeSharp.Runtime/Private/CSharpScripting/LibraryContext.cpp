@@ -6,7 +6,7 @@ namespace Ame::Scripting
     static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.ALCBridge, AmeSharp";
 
     CSLibraryContext::CSLibraryContext(IReferenceCounters* counters, const CLRRuntime& runtime,
-                                       const NativeString& name) : Base(counters), m_Runtime(&runtime)
+                                       const NativeString& name) : ILibraryContext(counters), m_Runtime(&runtime)
     {
         auto create = m_Runtime->GetFunction<CreateFn>(ClassName, "Create");
         m_Context   = create(name);

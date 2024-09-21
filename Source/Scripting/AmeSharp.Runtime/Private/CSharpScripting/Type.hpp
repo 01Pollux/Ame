@@ -11,7 +11,7 @@ namespace Ame::Scripting
 
     class CSLibrary;
 
-    class CSType : public BaseObject<IType>
+    class CSType : public IType
     {
         using FreeFn           = void (*)(void* type);
         using GetNameFn        = NativeString (*)(void* type);
@@ -29,9 +29,7 @@ namespace Ame::Scripting
         using GetFieldsFn      = NativeArray<void*> (*)(void* type);
 
     public:
-        using Base = BaseObject<IType>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSType, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSType, IType);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSType, CSLibrary* library, void* type);

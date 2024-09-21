@@ -31,7 +31,7 @@ namespace Ame::Scripting
     //
 
     CSType::CSType(IReferenceCounters* counters, CSLibrary* library, void* type) :
-        Base(counters), m_Library(library), m_Type(type)
+        IType(counters), m_Library(library), m_Type(type)
     {
     }
 

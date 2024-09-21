@@ -13,16 +13,14 @@ namespace Ame::Scripting
 
     class CSType;
 
-    class CSAttribute : public BaseObject<IAttribute>
+    class CSAttribute : public IAttribute
     {
         using FreeFn     = void (*)(void* attribute);
         using GetTypeFn  = void* (*)(void* attribute);
         using GetValueFn = void (*)(void* attribute, const NativeString& name, void* valuePtr);
 
     public:
-        using Base = BaseObject<IAttribute>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSAttribute, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSAttribute, IAttribute);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSAttribute, CSType* type, void* attribute);

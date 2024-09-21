@@ -15,7 +15,7 @@ namespace Ame::Scripting
     //
 
     CSLibrary::CSLibrary(IReferenceCounters* counters, CSLibraryContext* context, void* library) :
-        Base(counters), m_Context(context), m_Library(library)
+        ILibrary(counters), m_Context(context), m_Library(library)
     {
     }
 

@@ -22,13 +22,11 @@ namespace Ame::Rhi
         Count
     };
 
-    class RhiDeviceImpl : public BaseObject<IRhiDevice>
+    class RhiDeviceImpl : public IRhiDevice
     {
     public:
-        using Base = BaseObject<IRhiDevice>;
-
         IMPLEMENT_QUERY_INTERFACE_IN_PLACE_SUBOJECTS(
-            IID_RhiDevice, Base, m_Wrapper.GetFactory(), m_Wrapper.GetDevice(), m_Wrapper.GetImmediateContext(),
+            IID_RhiDevice, IRhiDevice, m_Wrapper.GetFactory(), m_Wrapper.GetDevice(), m_Wrapper.GetImmediateContext(),
             m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetWindow() : nullptr,
             m_Wrapper.GetWindowWrapper() ? m_Wrapper.GetWindowWrapper()->GetSwapchain() : nullptr, m_CommonRenderPass,
             m_RenderStateCache);

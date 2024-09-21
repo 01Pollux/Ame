@@ -167,9 +167,11 @@ namespace Ame::Asset
 
     //
 
-    class IAssetHandler : public IObject
+    class IAssetHandler : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         /// <summary>
         /// Query if this asset handler can handle the given asset.
         /// </summary>
@@ -196,17 +198,15 @@ namespace Ame::Asset
     Co::result<void> Save(AssetHandlerSaveDesc& saveDesc) override
 
 #define AME_STANDARD_ASSET_HANDLER(Name, ID)                                                                           \
-    class Name : public BaseObject<IAssetHandler>                                                                      \
+    class Name : public IAssetHandler                                                                                  \
     {                                                                                                                  \
     public:                                                                                                            \
         static inline const UId& UID = ID;                                                                             \
                                                                                                                        \
-        using Base = BaseObject<IAssetHandler>;                                                                        \
-                                                                                                                       \
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, Base);                                          \
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, IAssetHandler);                                 \
                                                                                                                        \
     private:                                                                                                           \
-        IMPLEMENT_INTERFACE_CTOR(Name) : Base(counters)                                                                \
+        IMPLEMENT_INTERFACE_CTOR(Name) : IAssetHandler(counters)                                                       \
         {                                                                                                              \
         }                                                                                                              \
                                                                                                                        \
@@ -216,17 +216,15 @@ namespace Ame::Asset
 
     //
 
-    template<typename Ty, UId ID> class DefaultAssetHandler : public BaseObject<IAssetHandler>
+    template<typename Ty, UId ID> class DefaultAssetHandler : public IAssetHandler
     {
     public:
         static inline UId UID = ID;
 
-        using Base = BaseObject<IAssetHandler>;
-
-        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, Base);
+        IMPLEMENT_QUERY_INTERFACE2_IN_PLACE(UID, IID_BaseAssetHandler, IAssetHandler);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(DefaultAssetHandler) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(DefaultAssetHandler) : IAssetHandler(counters)
         {
         }
 

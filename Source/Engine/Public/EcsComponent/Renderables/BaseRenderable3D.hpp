@@ -7,6 +7,7 @@ namespace Ame::Ecs
     class IBaseRenderable3D : public IBaseRenderable
     {
     public:
+        using IBaseRenderable::IBaseRenderable;
     };
 
     /// <summary>

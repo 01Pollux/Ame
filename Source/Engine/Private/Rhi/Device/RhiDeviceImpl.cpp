@@ -27,7 +27,7 @@ namespace Ame::Rhi
     //
 
     RhiDeviceImpl::RhiDeviceImpl(IReferenceCounters* counters, const DeviceCreateDesc& createDesc) :
-        Base(counters), m_Wrapper(*DeviceWrapper::Create(createDesc)),
+        IRhiDevice(counters), m_Wrapper(*DeviceWrapper::Create(createDesc)),
         m_CommonRenderPass(AmeCreate(CommonRenderPass, this))
     {
     }

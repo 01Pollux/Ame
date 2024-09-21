@@ -21,9 +21,11 @@ namespace Ame::Editor
         ProjectData,  // "<path>/.ame/ProjectData" : Contains all project's related data, such as scenes, assets, etc.
     };
 
-    class IProject : public IObject
+    class IProject : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         using PropertyTree = boost::property_tree::ptree;
         using PropertyPath = boost::property_tree::path;
 

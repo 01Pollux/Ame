@@ -27,7 +27,7 @@ namespace Ame::Ecs
         uint32_t MaterialIndex = std::numeric_limits<uint32_t>::max();
     };
 
-    class MeshModel : public BaseObject<IBaseRenderable3D>
+    class MeshModel : public IBaseRenderable3D
     {
     public:
         using MeshNodeList    = std::vector<MeshNode>;
@@ -51,12 +51,11 @@ namespace Ame::Ecs
         };
 
     public:
-        using Base = BaseObject<IBaseRenderable3D>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Model, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Model, IBaseRenderable3D);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(MeshModel, CreateDesc desc) :
-            Base(counters), m_MeshNodes(std::move(desc.MeshNodes)), m_SubMeshes(std::move(desc.SubMeshes)),
+            IBaseRenderable3D(counters), m_MeshNodes(std::move(desc.MeshNodes)), m_SubMeshes(std::move(desc.SubMeshes)),
             m_Materials(std::move(desc.Materials)), m_PositionBuffer(std::move(desc.PositionBuffer)),
             m_NormalBuffer(std::move(desc.NormalBuffer)), m_TangentBuffer(std::move(desc.TangentBuffer)),
             m_TexCoordBuffer(std::move(desc.TexCoordBuffer)), m_IndexBuffer(std::move(desc.IndexBuffer)),

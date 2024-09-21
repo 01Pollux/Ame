@@ -13,16 +13,14 @@ namespace Ame::Rhi
     /// <summary>
     /// Class that defines material's pipeline state and shaders
     /// </summary>
-    class AME_ENGINE_API MaterialTechnique : public BaseObject<IObject>
+    class AME_ENGINE_API MaterialTechnique : public IObjectWithCallback
     {
     private:
         using PipelineStateMap = std::map<MaterialHash, Ptr<Dg::IPipelineState>>;
         using SRBMap           = std::map<MaterialHash, Ptr<Dg::IShaderResourceBinding>>;
 
     public:
-        using Base = BaseObject<IObject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_MaterialTechnique, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_MaterialTechnique, IObjectWithCallback);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(MaterialTechnique, Dg::IRenderDevice* renderDevice, MaterialRenderState renderState);

@@ -26,7 +26,7 @@ namespace Ame::Ecs
     //
 
     RuntimeScene::RuntimeScene(IReferenceCounters* counters, Ecs::World* world) :
-        Base(counters), m_World(world), m_Root(world->CreateEntity())
+        ISerializable(counters), m_World(world), m_Root(world->CreateEntity())
     {
         auto flecsRoot = m_Root->GetFlecsEntity();
         flecsRoot.set_name(RandomUIdName().c_str());

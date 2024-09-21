@@ -5,7 +5,7 @@
 namespace Ame::Window
 {
     DesktopWindowImplGlfw::DesktopWindowImplGlfw(IReferenceCounters* counters, const WindowCreateDesc& windowDesc) :
-        Base(counters), m_Title(windowDesc.Title)
+        IWindow(counters), m_Title(windowDesc.Title)
     {
         GlfwDriverImpl::Initialize();
         GetGlfwDriver()->submit([this, windowDesc] { CreateGlfwWindow(windowDesc); }).wait();

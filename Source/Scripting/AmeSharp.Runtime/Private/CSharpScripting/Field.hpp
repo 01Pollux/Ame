@@ -10,7 +10,7 @@ namespace Ame::Scripting
 
     class CSType;
 
-    class CSField : public BaseObject<IField>
+    class CSField : public IField
     {
         using FreeFn     = void (*)(void*);
         using GetNameFn  = NativeString (*)(void*);
@@ -19,9 +19,7 @@ namespace Ame::Scripting
         using SetValueFn = void (*)(void*, void*, const void*);
 
     public:
-        using Base = BaseObject<IField>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSField, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CSField, IField);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CSField, CSType* type, void* field);

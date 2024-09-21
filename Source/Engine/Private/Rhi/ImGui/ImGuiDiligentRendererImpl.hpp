@@ -11,12 +11,10 @@
 
 namespace Ame::Rhi
 {
-    class ImGuiDiligentRendererImpl final : public BaseObject<IImGuiRenderer>
+    class ImGuiDiligentRendererImpl final : public IImGuiRenderer
     {
     public:
-        using Base = BaseObject<IImGuiRenderer>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiRenderer, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ImGuiRenderer, IImGuiRenderer);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(ImGuiDiligentRendererImpl, const ImGuiRendererCreateDesc& desc);

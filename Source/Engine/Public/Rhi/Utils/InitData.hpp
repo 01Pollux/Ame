@@ -16,10 +16,10 @@ namespace Ame::Rhi
         0xf8bab672, 0xf3b8, 0x440c, { 0x87, 0x9, 0xa0, 0x56, 0x8, 0xcf, 0xeb, 0x23 }
     };
 
-    struct BufferInitData : BaseObject<IObject>
+    struct BufferInitData : IObjectWithCallback
     {
     private:
-        IMPLEMENT_INTERFACE_CTOR(BufferInitData) : BaseObject(counters)
+        IMPLEMENT_INTERFACE_CTOR(BufferInitData) : IObjectWithCallback(counters)
         {
         }
 
@@ -31,7 +31,7 @@ namespace Ame::Rhi
             return initData;
         }
 
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_BufferInitData, BaseObject)
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_BufferInitData, IObjectWithCallback);
 
         std::vector<std::byte> Data;
 
@@ -43,10 +43,11 @@ namespace Ame::Rhi
         }
     };
 
-    struct TextureInitData : public BaseObject<IObject>
+    struct TextureInitData : IObjectWithCallback
     {
     private:
-        IMPLEMENT_INTERFACE_CTOR(TextureInitData, Dg::TEXTURE_FORMAT format) : BaseObject(counters), Format(format)
+        IMPLEMENT_INTERFACE_CTOR(TextureInitData, Dg::TEXTURE_FORMAT format) :
+            IObjectWithCallback(counters), Format(format)
         {
         }
 

@@ -14,9 +14,11 @@ namespace Ame::Interfaces
         0x1fc4a94c, 0x43d8, 0x4000, { 0xa5, 0xcd, 0x4d, 0x54, 0x12, 0xb0, 0xd0, 0x8 }
     };
 
-    class IEditorProjectManager : public IObject
+    class IEditorProjectManager : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         virtual Editor::IProject*               CreateProject(const String& name, const String& path) = 0;
         virtual Editor::IProject*               OpenProject(const String& path)                       = 0;
         [[nodiscard]] virtual Editor::IProject* GetCurrentProject()                                   = 0;

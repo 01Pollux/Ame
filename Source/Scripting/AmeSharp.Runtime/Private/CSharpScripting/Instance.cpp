@@ -16,7 +16,7 @@ namespace Ame::Scripting
     }
 
     CSInstance::CSInstance(IReferenceCounters* counters, CSType* type, void* instance) :
-        Base(counters), m_Type(type), m_Instance(instance)
+        IInstance(counters), m_Type(type), m_Instance(instance)
     {
     }
 

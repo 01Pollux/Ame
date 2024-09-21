@@ -16,7 +16,7 @@ namespace Ame::Scripting
     }
 
     CSProperty::CSProperty(IReferenceCounters* counters, CSType* type, void* property) :
-        Base(counters), m_Type(type), m_Property(property)
+        IProperty(counters), m_Type(type), m_Property(property)
     {
     }
 

@@ -8,9 +8,11 @@ namespace Ame
     using BinaryIArchiver = cereal::PortableBinaryInputArchive;
     using BinaryOArchiver = cereal::PortableBinaryOutputArchive;
 
-    class ISerializable : public IObject
+    class ISerializable : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         virtual void Serialize(BinaryOArchiver&) const {};
         virtual void Deserialize(BinaryIArchiver&) {};
     };

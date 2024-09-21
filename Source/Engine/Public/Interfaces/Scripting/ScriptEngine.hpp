@@ -14,9 +14,11 @@ namespace Ame::Scripting
 namespace Ame::Interfaces
 {
 
-    class IScriptEngine : public IObject
+    class IScriptEngine : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual auto GetGarbageCollector() -> Scripting::IGarbageCollector* = 0;
 
         [[nodiscard]] virtual auto CreateLibraryContext(const Scripting::NativeString& name)

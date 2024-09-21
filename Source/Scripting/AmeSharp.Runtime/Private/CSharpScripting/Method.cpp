@@ -17,7 +17,7 @@ namespace Ame::Scripting
     }
 
     CSMethod::CSMethod(IReferenceCounters* counters, CSType* type, void* method) :
-        Base(counters), m_Type(type), m_Method(method)
+        IMethod(counters), m_Type(type), m_Method(method)
     {
     }
 

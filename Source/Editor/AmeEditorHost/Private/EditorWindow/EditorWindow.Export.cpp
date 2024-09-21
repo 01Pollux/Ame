@@ -6,17 +6,16 @@ using namespace Ame;
 class EditorWindowImpl : public Editor::IEditorWindow
 {
 public:
-    // {97FB68DA-A89C-4938-A158-9402F5534427}
-    static constexpr UId IID_EditorWindowImpl{
-        0x97fb68da, 0xa89c, 0x4938, { 0xa1, 0x58, 0x94, 0x2, 0xf5, 0x53, 0x44, 0x27 }
+    // {DBF9A2D2-0D13-4BEC-A1ED-79008DDCAB02}
+    static inline constexpr UId IID_EditorWindowImpl{
+        0xdbf9a2d2, 0xd13, 0x4bec, { 0xa1, 0xed, 0x79, 0x0, 0x8d, 0xdc, 0xab, 0x2 }
     };
 
-    using Base = BaseObject<IEditorWindow>;
-
-    IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_EditorWindowImpl, Base);
+    IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_EditorWindowImpl, IEditorWindow);
 
 private:
-    IMPLEMENT_INTERFACE_CTOR(EditorWindowImpl, Ame_StringView_t path) : Base(counters, String{ path.Data, path.Size })
+    IMPLEMENT_INTERFACE_CTOR(EditorWindowImpl, Ame_StringView_t path) :
+        IEditorWindow(counters, String{ path.Data, path.Size })
     {
     }
 

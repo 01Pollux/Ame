@@ -14,14 +14,14 @@ namespace Ame::Ecs
         0x8a752246, 0x8374, 0x4513, { 0x94, 0xa5, 0xb4, 0x93, 0x82, 0xbe, 0x32, 0xd0 }
     };
 
-    class AME_ENGINE_API ScriptInstance : public BaseObject<ISerializable>
+    class AME_ENGINE_API ScriptInstance : public ISerializable
     {
     public:
-        using Base = BaseObject<ISerializable>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ScriptInstance, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ScriptInstance, ISerializable);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(ScriptInstance, Scripting::IInstance* instance) : Base(counters), m_Instance(instance)
+        IMPLEMENT_INTERFACE_CTOR(ScriptInstance, Scripting::IInstance* instance) :
+            ISerializable(counters), m_Instance(instance)
         {
         }
 

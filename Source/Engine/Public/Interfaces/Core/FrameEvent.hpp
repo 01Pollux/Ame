@@ -20,15 +20,13 @@ namespace Ame::Interfaces
         0x919c726d, 0x72e2, 0x4573, { 0xac, 0xc2, 0x98, 0xea, 0x5a, 0xf1, 0x78, 0x1b }
     };
 
-    class AME_ENGINE_API FrameEvent final : public BaseObject<IObject>
+    class AME_ENGINE_API FrameEvent final : public IObjectWithCallback
     {
     public:
-        using Base = BaseObject<IObject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_FrameEvent, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_FrameEvent, IObjectWithCallback);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(FrameEvent) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(FrameEvent) : IObjectWithCallback(counters)
         {
         }
 

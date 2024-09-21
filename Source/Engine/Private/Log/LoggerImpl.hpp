@@ -5,12 +5,10 @@
 
 namespace Ame::Log
 {
-    class LoggerImpl : public BaseObject<ILogger>
+    class LoggerImpl : public ILogger
     {
     public:
-        using Base = BaseObject<ILogger>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Logger, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Logger, ILogger);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(LoggerImpl, String loggerName);

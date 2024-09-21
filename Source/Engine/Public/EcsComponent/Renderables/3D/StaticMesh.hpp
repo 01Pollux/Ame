@@ -9,15 +9,14 @@ namespace Ame::Ecs
         0x75b8dfc4, 0xb5c5, 0x4991, { 0x82, 0x30, 0xd3, 0x7c, 0x53, 0xe8, 0x14, 0xfc }
     };
 
-    class StaticMesh : public BaseObject<IBaseRenderable3D>
+    class StaticMesh : public IBaseRenderable3D
     {
     public:
-        using Base = BaseObject<IBaseRenderable3D>;
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_StaticMesh, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_StaticMesh, IBaseRenderable3D);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(StaticMesh, MeshModel* model, uint32_t subMeshIndex) :
-            Base(counters), m_Model(model), m_SubMeshIndex(subMeshIndex)
+            IBaseRenderable3D(counters), m_Model(model), m_SubMeshIndex(subMeshIndex)
         {
             UpdateRenderableDesc();
         }

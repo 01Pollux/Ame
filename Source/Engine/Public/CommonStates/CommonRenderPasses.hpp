@@ -13,16 +13,14 @@ namespace Ame::Rhi
     /// <summary>
     /// All common render passes can use cached render pass.
     /// </summary>s
-    class AME_ENGINE_API CommonRenderPass : public BaseObject<IObject>, public BlitRenderPass, public CommonTextures
+    class AME_ENGINE_API CommonRenderPass : public IObjectWithCallback, public BlitRenderPass, public CommonTextures
     {
     public:
-        using Base = BaseObject<IObject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CommandRenderPass, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_CommandRenderPass, IObjectWithCallback);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(CommonRenderPass, Rhi::IRhiDevice* rhiDevice) :
-            Base(counters), BlitRenderPass(rhiDevice), CommonTextures(rhiDevice)
+            IObjectWithCallback(counters), BlitRenderPass(rhiDevice), CommonTextures(rhiDevice)
         {
         }
     };

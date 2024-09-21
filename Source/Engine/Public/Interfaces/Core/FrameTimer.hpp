@@ -10,15 +10,13 @@ namespace Ame::Interfaces
         0xbe4b917d, 0x4b7a, 0x4582, { 0x80, 0x34, 0x1, 0xdc, 0x24, 0x14, 0x74, 0x18 }
     };
 
-    class AME_ENGINE_API FrameTimer final : public BaseObject<IObject>, public Ame::FrameTimer
+    class AME_ENGINE_API FrameTimer final : public IObjectWithCallback, public Ame::FrameTimer
     {
     public:
-        using Base = BaseObject<IObject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_FrameTimer, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_FrameTimer, IObjectWithCallback);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(FrameTimer) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(FrameTimer) : IObjectWithCallback(counters)
         {
         }
     };

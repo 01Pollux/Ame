@@ -14,7 +14,7 @@ namespace Ame::Asset
     class Storage;
     class Manager;
 
-    class IAssetPackage : public IObject
+    class IAssetPackage : public IObjectWithCallback
     {
         friend class Storage;
         friend class Manager;
@@ -26,7 +26,7 @@ namespace Ame::Asset
         using RWLock = std::unique_lock<std::shared_mutex>;
 
     public:
-        IAssetPackage(Storage& assetStorage);
+        IMPLEMENT_INTERFACE_CTOR(IAssetPackage, Storage& assetStorage);
 
         IAssetPackage(const IAssetPackage&) = delete;
         IAssetPackage(IAssetPackage&&)      = delete;

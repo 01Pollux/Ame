@@ -15,9 +15,11 @@ namespace Ame::Window
     class WindowEventListener;
     class IGlfwDriver;
 
-    class IWindow : public IObject
+    class IWindow : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         [[nodiscard]] virtual bool IsRunning() const = 0;
         virtual void               Close()           = 0;
 

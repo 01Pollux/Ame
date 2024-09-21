@@ -28,9 +28,11 @@ namespace Ame::Interfaces
         Rhi::IImGuiRenderer* ImguiRenderer = nullptr;
     };
 
-    class AME_ENGINE_API IRenderer : public IObject
+    class AME_ENGINE_API IRenderer : public IObjectWithCallback
     {
     public:
+        using IObjectWithCallback::IObjectWithCallback;
+
         /// <summary>
         /// Update the renderer
         /// </summary>

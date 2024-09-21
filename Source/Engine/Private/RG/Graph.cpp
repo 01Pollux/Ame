@@ -6,7 +6,8 @@
 
 namespace Ame::Rg
 {
-    Graph::Graph(IReferenceCounters* counter, Rhi::IRhiDevice* rhiDevice) : Base(counter), m_Context(rhiDevice)
+    Graph::Graph(IReferenceCounters* counter, Rhi::IRhiDevice* rhiDevice) :
+        IObjectWithCallback(counter), m_Context(rhiDevice)
     {
         auto window = rhiDevice->GetWindow();
         if (window)

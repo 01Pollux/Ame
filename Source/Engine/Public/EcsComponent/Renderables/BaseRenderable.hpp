@@ -72,6 +72,8 @@ namespace Ame::Ecs
     class IBaseRenderable : public ISerializable
     {
     public:
+        using ISerializable::ISerializable;
+
         [[nodiscard]] const RenderableDesc& GetRenderableDesc()
         {
             return m_RenderableDesc;
