@@ -1,4 +1,4 @@
-﻿namespace AmeSharp.Rhi.Device;
+﻿namespace AmeSharp.Rhi.RhiDevice;
 
 [Flags]
 public enum RhiDeviceValidationType : uint

@@ -34,6 +34,7 @@ namespace Ame::Window
     public:
         GLFWwindow* GetGlfwHandle() const override;
 
+        bool IsFullScreen() const override;
         void SetFullscreen(bool state) override;
 
         bool IsMinimized() const override;
@@ -42,12 +43,11 @@ namespace Ame::Window
         void Maximize() override;
         void Minimize() override;
 
-        bool IsFullScreen() const override;
         bool IsVisible() const override;
+        void SetVisible(bool show) override;
 
         bool HasFocus() const override;
         void RequestFocus() override;
-        void SetVisible(bool show) override;
 
         void Restore() override;
 

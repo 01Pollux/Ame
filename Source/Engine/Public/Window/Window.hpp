@@ -4,6 +4,7 @@
 #include <Core/String.hpp>
 
 #include <Window/WindowCreateDesc.hpp>
+#include <Math/Size2.hpp>
 
 struct GLFWwindow;
 
@@ -37,7 +38,8 @@ namespace Ame::Window
     public:
         [[nodiscard]] virtual GLFWwindow* GetGlfwHandle() const = 0;
 
-        virtual void SetFullscreen(bool state) = 0;
+        [[nodiscard]] virtual bool IsFullScreen() const      = 0;
+        virtual void               SetFullscreen(bool state) = 0;
 
         [[nodiscard]] virtual bool IsMinimized() const = 0;
         [[nodiscard]] virtual bool IsMaximized() const = 0;
@@ -45,12 +47,11 @@ namespace Ame::Window
         virtual void Maximize() = 0;
         virtual void Minimize() = 0;
 
-        [[nodiscard]] virtual bool IsFullScreen() const = 0;
-        [[nodiscard]] virtual bool IsVisible() const    = 0;
-
-        [[nodiscard]] virtual bool HasFocus() const      = 0;
-        virtual void               RequestFocus()        = 0;
+        [[nodiscard]] virtual bool IsVisible() const     = 0;
         virtual void               SetVisible(bool show) = 0;
+
+        [[nodiscard]] virtual bool HasFocus() const = 0;
+        virtual void               RequestFocus()   = 0;
 
         /// <summary>
         /// This function restores the specified window if it was previously iconified

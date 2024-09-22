@@ -7,7 +7,7 @@ namespace AmeSharp.Core.Base;
 public sealed class IFrameTimer : IBaseObject
 {
     public IFrameTimer(nint obj) : base(obj, true) { }
-    public IFrameTimer() : base(FrameTimerBridge.Create(), false) { }
+    public IFrameTimer() : base(FrameTimerBridge.Create(), true) { }
 
     public double EngineTime => FrameTimerBridge.GetEngineTime(NativePointer);
     public double GameTime => FrameTimerBridge.GetGameTime(NativePointer);

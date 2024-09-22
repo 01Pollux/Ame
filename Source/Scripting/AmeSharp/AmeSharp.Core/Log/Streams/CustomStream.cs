@@ -1,6 +1,6 @@
 ﻿using AmeSharp.Bridge.Core.Log;
 using AmeSharp.Core.Log;
-using AmeSharp.Core.Log.Marshallers;
+using AmeSharp.Core.Marshallers.Log;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

@@ -1,9 +1,8 @@
-﻿using AmeSharp.Core.Base.Marshallers;
-using AmeSharp.Core.Base.Types;
+﻿using AmeSharp.Core.Base.Types;
 using AmeSharp.Core.Plugin;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace AmeSharp.Core.Plugin.Marshallers;
+namespace AmeSharp.Core.Marshallers.Plugin;
 
 [CustomMarshaller(typeof(PluginInfo), MarshalMode.Default, typeof(PluginInfoMarshaller))]
 internal static unsafe class PluginInfoMarshaller

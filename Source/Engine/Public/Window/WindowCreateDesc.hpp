@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/Interface.hpp>
-#include <Math/Size2.hpp>
 
 namespace Ame::Window
 {
@@ -23,34 +22,32 @@ namespace Ame::Window
         /// </summary>
         const char* Title = nullptr;
 
-        /// <summary>
-        /// Window size
-        /// </summary>
-        Math::Size2I Size{ 800, 600 };
+        uint32_t Width  = 800;
+        uint32_t Height = 600;
 
         /// <summary>
         /// Apply custom title bar
         /// </summary>
-        bool CustomTitleBar : 1 = false;
+        bool CustomTitleBar;
 
         /// <summary>
         /// Window will start in the middle of the screen
         /// </summary>
-        bool StartInMiddle : 1 = true;
+        bool StartInMiddle;
 
         /// <summary>
         /// Window will start in full screen mode
         /// </summary>
-        bool FullScreen : 1 = false;
+        bool FullScreen;
 
         /// <summary>
         /// Window will start maximized
         /// </summary>
-        bool Maximized : 1 = false;
+        bool Maximized;
 
         /// <summary>
         /// Window will not be resizable
         /// </summary>
-        bool NoResize : 1 = false;
+        bool NoResize;
     };
 } // namespace Ame::Window

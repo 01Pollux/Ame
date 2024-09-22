@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<Platform>x64</Platform>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -1,8 +1,8 @@
-﻿namespace AmeSharp.Rhi.Device;
+﻿namespace AmeSharp.Rhi.RhiDevice;
 
-public sealed record D3D12RhiDeviceCreateDesc : IRhiDeviceCreateDesc
+public sealed record D3D12RhiDeviceTypeDesc : IRhiDeviceTypeDesc
 {
-    //public Diligent.Version GraphicsAPIVersion = new(12, 0);
+    public Diligent.Version GraphicsAPIVersion = new(12, 0);
 
     /// <summary>
     /// The size of the GPU descriptor heap region designated to static/mutable

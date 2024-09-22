@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 
-namespace AmeSharp.Core.Base.Marshallers;
+namespace AmeSharp.Core.Marshallers.Base;
 
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.Default, typeof(NativeStringViewMarshaller))]
 [CustomMarshaller(typeof(NativeStringView), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]

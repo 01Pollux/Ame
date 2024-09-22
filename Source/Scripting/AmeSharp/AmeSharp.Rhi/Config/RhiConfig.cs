@@ -1,6 +1,6 @@
 ﻿using AmeSharp.Core.Plugin;
-using AmeSharp.Rhi.Device;
 using AmeSharp.Rhi.ImGui;
+using AmeSharp.Rhi.RhiDevice;
 
 namespace AmeSharp.Rhi.Config;
 

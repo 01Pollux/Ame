@@ -1,4 +1,4 @@
-﻿namespace AmeSharp.Core.Bridge;
+﻿namespace AmeSharp.Rhi.Bridge;
 
 internal static class Libraries
 {

@@ -16,7 +16,7 @@ internal partial class BaseObjectBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_IBaseObject_QueryInterface")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial IntPtr QueryInterface(IntPtr thisObject, ref Guid iid);
+    public static partial IntPtr QueryInterface(IntPtr thisObject, Guid iid);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_BaseObject_Create")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

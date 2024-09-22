@@ -1,4 +1,4 @@
-﻿using AmeSharp.Core.Base.Marshallers;
+﻿using AmeSharp.Core.Marshallers.Base;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Core.Base.Types;

@@ -1,5 +1,5 @@
 ﻿using AmeSharp.Core.Base.Types;
-using AmeSharp.Core.Log.Marshallers;
+using AmeSharp.Core.Marshallers.Log;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Core.Log;

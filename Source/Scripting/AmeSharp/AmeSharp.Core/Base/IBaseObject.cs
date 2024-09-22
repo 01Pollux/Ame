@@ -9,16 +9,21 @@ public class IBaseObject : INativeObject
 {
     public IBaseObject(nint obj, bool isExternal) : base(obj)
     {
+        BaseObjectBridge.AddRef(NativePointer);
         if (!isExternal)
         {
             InitialzeCallbacks();
         }
     }
-    public IBaseObject() : base(BaseObjectBridge.Create()) => InitialzeCallbacks();
-
-    public IBaseObject? QueryInterface(ref Guid iid)
+    public IBaseObject() : base(BaseObjectBridge.Create())
     {
-        var output = BaseObjectBridge.QueryInterface(NativePointer, ref iid);
+        BaseObjectBridge.AddRef(NativePointer);
+        InitialzeCallbacks();
+    }
+
+    public IBaseObject? QueryInterface(Guid iid)
+    {
+        var output = BaseObjectBridge.QueryInterface(NativePointer, iid);
         if (output == nint.Zero)
         {
             return null;
@@ -29,7 +34,7 @@ public class IBaseObject : INativeObject
     public T? QueryInterface<T>() where T : IBaseObject
     {
         Guid iid = typeof(T).GUID;
-        var output = BaseObjectBridge.QueryInterface(NativePointer, ref iid);
+        var output = BaseObjectBridge.QueryInterface(NativePointer, iid);
         if (output == nint.Zero)
         {
             return null;
@@ -40,7 +45,7 @@ public class IBaseObject : INativeObject
     public static T? RequestInterface<T>(nint obj) where T : IBaseObject
     {
         Guid iid = typeof(T).GUID;
-        var output = BaseObjectBridge.QueryInterface(obj, ref iid);
+        var output = BaseObjectBridge.QueryInterface(obj, iid);
         if (output == nint.Zero)
         {
             return null;
@@ -63,7 +68,7 @@ public class IBaseObject : INativeObject
     public static unsafe nint OnQueryInterface(nint _thisPointer, Guid* iid)
     {
         var @this = Get<IBaseObject>(_thisPointer)!;
-        var obj = @this.QueryInterface(ref *iid);
+        var obj = @this.QueryInterface(*iid);
         return obj is not null ? obj.NativePointer : nint.Zero;
     }
 

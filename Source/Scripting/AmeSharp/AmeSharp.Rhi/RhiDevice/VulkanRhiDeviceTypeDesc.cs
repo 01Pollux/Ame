@@ -1,6 +1,6 @@
-﻿namespace AmeSharp.Rhi.Device;
+﻿namespace AmeSharp.Rhi.RhiDevice;
 
-public sealed record VulkanRhiDeviceCreateDesc : IRhiDeviceCreateDesc
+public sealed record VulkanRhiDeviceTypeDesc : IRhiDeviceTypeDesc
 {
     /// <summary>
     /// MainDescriptorPool:

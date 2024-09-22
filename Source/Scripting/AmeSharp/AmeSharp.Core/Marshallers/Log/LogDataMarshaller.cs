@@ -1,8 +1,8 @@
-﻿using AmeSharp.Core.Base.Marshallers;
-using AmeSharp.Core.Log;
+﻿using AmeSharp.Core.Log;
+using AmeSharp.Core.Marshallers.Base;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace AmeSharp.Core.Log.Marshallers;
+namespace AmeSharp.Core.Marshallers.Log;
 
 [CustomMarshaller(typeof(LogData), MarshalMode.Default, typeof(LogDataMarshaller))]
 public static unsafe class LogDataMarshaller

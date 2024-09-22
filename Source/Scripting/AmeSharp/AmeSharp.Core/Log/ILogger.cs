@@ -8,7 +8,7 @@ namespace AmeSharp.Core.Log;
 public sealed class ILogger : IBaseObject
 {
     public ILogger(nint obj) : base(obj, true) { }
-    public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName), false) { }
+    public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName), true) { }
 
     private static ILogger? _cachedLogger;
     public static ILogger? Instance

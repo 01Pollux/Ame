@@ -1,13 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<Platform>x64</Platform>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Editor\AmeEditorCore\AmeEditorCore.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="DiligentGraphics.DiligentEngine.Core" Version="2.5.6" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Editor\AmeEditorCore\AmeEditorCore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Bridge\RhiDevice\" />
+	</ItemGroup>
 
 </Project>

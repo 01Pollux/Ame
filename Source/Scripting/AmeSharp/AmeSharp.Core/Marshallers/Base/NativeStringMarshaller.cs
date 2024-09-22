@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 
-namespace AmeSharp.Core.Base.Marshallers;
+namespace AmeSharp.Core.Marshallers.Base;
 
 [CustomMarshaller(typeof(string), MarshalMode.ManagedToUnmanagedOut, typeof(NativeStringMarshaller))]
 [CustomMarshaller(typeof(string), MarshalMode.ManagedToUnmanagedIn, typeof(NativeStringMarshaller))]

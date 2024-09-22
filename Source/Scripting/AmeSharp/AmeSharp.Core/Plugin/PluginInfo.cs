@@ -1,5 +1,5 @@
 ﻿using AmeSharp.Core.Base.Types;
-using AmeSharp.Core.Plugin.Marshallers;
+using AmeSharp.Core.Marshallers.Plugin;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Core.Plugin;

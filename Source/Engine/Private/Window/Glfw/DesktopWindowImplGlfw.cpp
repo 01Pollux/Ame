@@ -85,6 +85,11 @@ namespace Ame::Window
         return m_Handle;
     }
 
+    bool DesktopWindowImplGlfw::IsFullScreen() const
+    {
+        return GetGlfwDriver()->submit([this] { return glfwGetWindowMonitor(m_Handle) != nullptr; }).get();
+    }
+
     void DesktopWindowImplGlfw::SetFullscreen(bool state)
     {
         GetGlfwDriver()
@@ -131,11 +136,6 @@ namespace Ame::Window
         GetGlfwDriver()->submit([this] { glfwMaximizeWindow(m_Handle); }).wait();
     }
 
-    bool DesktopWindowImplGlfw::IsFullScreen() const
-    {
-        return GetGlfwDriver()->submit([this] { return glfwGetWindowMonitor(m_Handle) != nullptr; }).get();
-    }
-
     bool DesktopWindowImplGlfw::IsVisible() const
     {
         return GetGlfwDriver()
@@ -147,18 +147,6 @@ namespace Ame::Window
                            glfwWindowShouldClose(m_Handle) == GLFW_FALSE;
                 })
             .get();
-    }
-
-    bool DesktopWindowImplGlfw::HasFocus() const
-    {
-        return GetGlfwDriver()
-            ->submit([this] { return glfwGetWindowAttrib(m_Handle, GLFW_FOCUSED) == GLFW_TRUE; })
-            .get();
-    }
-
-    void DesktopWindowImplGlfw::RequestFocus()
-    {
-        GetGlfwDriver()->submit([this] { glfwRequestWindowAttention(m_Handle); }).wait();
     }
 
     void DesktopWindowImplGlfw::SetVisible(bool show)
@@ -177,6 +165,18 @@ namespace Ame::Window
                     }
                 })
             .wait();
+    }
+
+    bool DesktopWindowImplGlfw::HasFocus() const
+    {
+        return GetGlfwDriver()
+            ->submit([this] { return glfwGetWindowAttrib(m_Handle, GLFW_FOCUSED) == GLFW_TRUE; })
+            .get();
+    }
+
+    void DesktopWindowImplGlfw::RequestFocus()
+    {
+        GetGlfwDriver()->submit([this] { glfwRequestWindowAttention(m_Handle); }).wait();
     }
 
     //
@@ -219,8 +219,7 @@ namespace Ame::Window
             }
             else
             {
-                m_Handle = glfwCreateWindow(
-                    windowDesc.Size.Width(), windowDesc.Size.Height(), windowDesc.Title, nullptr, nullptr);
+                m_Handle = glfwCreateWindow(windowDesc.Width, windowDesc.Height, windowDesc.Title, nullptr, nullptr);
             }
         }
 
@@ -228,8 +227,8 @@ namespace Ame::Window
         {
             if (windowDesc.StartInMiddle)
             {
-                int x = (mode->width - windowDesc.Size.Width()) / 2;
-                int y = (mode->height - windowDesc.Size.Height()) / 2;
+                int x = (mode->width - windowDesc.Width) / 2;
+                int y = (mode->height - windowDesc.Height) / 2;
 
                 glfwSetWindowPos(m_Handle, x, y);
             }
