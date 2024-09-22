@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmeEditorCore", "..\..\Edit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmeSharp.RuntimeHost", "AmeSharp.RuntimeHost\AmeSharp.RuntimeHost.csproj", "{5FBCC202-1E93-448C-9F8A-A13C2E62C54D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AmeSharp.Rhi", "AmeSharp.Rhi\AmeSharp.Rhi.csproj", "{D20497D3-B6DA-4FB6-95E8-687E4BD81A2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{5FBCC202-1E93-448C-9F8A-A13C2E62C54D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FBCC202-1E93-448C-9F8A-A13C2E62C54D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FBCC202-1E93-448C-9F8A-A13C2E62C54D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D20497D3-B6DA-4FB6-95E8-687E4BD81A2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D20497D3-B6DA-4FB6-95E8-687E4BD81A2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D20497D3-B6DA-4FB6-95E8-687E4BD81A2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D20497D3-B6DA-4FB6-95E8-687E4BD81A2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,4 @@
-﻿namespace AmeSharp.Core.Rhi.ImGui;
+﻿namespace AmeSharp.Rhi.ImGui;
 
 /// <summary>
 /// Conversion mode to apply to imgui colors.

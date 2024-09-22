@@ -1,8 +1,8 @@
 ﻿using AmeSharp.Core.Plugin;
-using AmeSharp.Core.Rhi.Device;
-using AmeSharp.Core.Rhi.ImGui;
+using AmeSharp.Rhi.Device;
+using AmeSharp.Rhi.ImGui;
 
-namespace AmeSharp.Core.Config;
+namespace AmeSharp.Rhi.Config;
 
 public record ImGuiModuleConfig
 {

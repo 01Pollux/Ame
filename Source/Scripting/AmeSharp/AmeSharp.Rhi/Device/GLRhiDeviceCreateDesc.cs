@@ -1,4 +1,4 @@
-﻿namespace AmeSharp.Core.Rhi.Device;
+﻿namespace AmeSharp.Rhi.Device;
 
 public sealed record GLRhiDeviceCreateDesc : IRhiDeviceCreateDesc
 {
