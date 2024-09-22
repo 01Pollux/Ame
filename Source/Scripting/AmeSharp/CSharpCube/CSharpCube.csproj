@@ -6,6 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Platform>x64</Platform>
+		<Platforms>x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

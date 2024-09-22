@@ -37,5 +37,4 @@ config.Application.Engine.Core.Logger = new()
 //};
 
 var application = new EditorApplication(config);
-application.Engine.Exit(0);
 application.Run();

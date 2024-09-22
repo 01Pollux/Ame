@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Platform>x64</Platform>
+		<Platforms>x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

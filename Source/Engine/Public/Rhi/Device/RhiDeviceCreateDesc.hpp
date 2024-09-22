@@ -249,7 +249,6 @@ namespace Ame::Rhi
         std::span<const char*> RequiredLayerExtensions;
         std::span<const char*> RequiredInstanceExtensions;
         std::span<const char*> RequiredDeviceExtensions;
-
         std::span<const char*> IgnoredDebugMessageNames;
 
         void* RequiredDeviceFeatures = nullptr;

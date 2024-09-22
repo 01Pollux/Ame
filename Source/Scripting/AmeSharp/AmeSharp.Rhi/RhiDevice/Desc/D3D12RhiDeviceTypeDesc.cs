@@ -1,4 +1,4 @@
-﻿namespace AmeSharp.Rhi.RhiDevice;
+﻿namespace AmeSharp.Rhi.RhiDevice.Desc;
 
 public sealed record D3D12RhiDeviceTypeDesc : IRhiDeviceTypeDesc
 {

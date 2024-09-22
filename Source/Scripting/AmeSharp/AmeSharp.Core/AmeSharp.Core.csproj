@@ -7,6 +7,7 @@
 		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<Platform>x64</Platform>
 		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<Platforms>x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

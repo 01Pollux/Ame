@@ -1,7 +1,7 @@
 ﻿using AmeSharp.Rhi.Surface;
 using Diligent;
 
-namespace AmeSharp.Rhi.RhiDevice;
+namespace AmeSharp.Rhi.RhiDevice.Desc;
 
 public interface IRhiDeviceTypeDesc
 {
