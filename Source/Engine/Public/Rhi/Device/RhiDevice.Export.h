@@ -11,7 +11,7 @@ extern "C"
 	AME_ENGINE_C(Ame_IRhiDevice_t*, Ame_IRhiDevice_Create(const Ame_RhiDeviceCreateDesc_t* createDesc));
 
 	AME_ENGINE_C(bool, Ame_IRhiDevice_BeginFrame(Ame_IRhiDevice_t* rhiDevice));
-	AME_ENGINE_C(bool, Ame_IRhiDevice_AdvanceFrame(Ame_IRhiDevice_t* rhiDevice, uint32_t syncInterval));
+	AME_ENGINE_C(void, Ame_IRhiDevice_AdvanceFrame(Ame_IRhiDevice_t* rhiDevice, uint32_t syncInterval));
 
 	AME_ENGINE_C(void*, Ame_IRhiDevice_GetFactory(Ame_IRhiDevice_t* rhiDevice));
 	AME_ENGINE_C(void*, Ame_IRhiDevice_GetRenderDevice(Ame_IRhiDevice_t* rhiDevice));

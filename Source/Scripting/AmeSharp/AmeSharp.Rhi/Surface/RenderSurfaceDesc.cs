@@ -67,6 +67,9 @@ public struct SwapchainDesc()
     public bool IsPrimary = true;
 };
 
-public sealed record RenderSurfaceDesc(IWindow Window, FullscreenModeDesc Fullscreen, SwapchainDesc Swapchain)
+public sealed record RenderSurfaceDesc()
 {
+    public required IWindow Window;
+    public FullscreenModeDesc Fullscreen = new();
+    public SwapchainDesc Swapchain = new();
 }

@@ -46,7 +46,7 @@ public abstract class IBaseApplication
     private void InitializeEngine(ApplicationConfig config)
     {
         var registry = Engine.Registry;
-        config.RegisterInterface(registry);
+        config.ExposeInterfaces(registry);
         Engine.RefreshSubmoduleCache();
     }
 }

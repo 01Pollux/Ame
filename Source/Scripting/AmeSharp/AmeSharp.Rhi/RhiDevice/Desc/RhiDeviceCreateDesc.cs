@@ -1,5 +1,7 @@
-﻿using AmeSharp.Rhi.Surface;
+﻿using AmeSharp.Rhi.Marshallers.RhiDevice;
+using AmeSharp.Rhi.Surface;
 using Diligent;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace AmeSharp.Rhi.RhiDevice.Desc;
 
@@ -7,9 +9,10 @@ public interface IRhiDeviceTypeDesc
 {
 }
 
+[NativeMarshalling(typeof(RhiDeviceCreateDescMarshaller))]
 public sealed record RhiDeviceCreateDesc
 {
-    public delegate int? AdapterFinderDelegate(GraphicsAdapterInfo info);
+    public delegate uint? AdapterFinderDelegate(GraphicsAdapterInfo[] adapters);
 
     public DeviceFeatures DeviceFeatures;
     public AdapterFinderDelegate? AdapterFinder;

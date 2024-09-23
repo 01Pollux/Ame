@@ -85,7 +85,7 @@ static DeviceCreateDesc GetCreateDesc(const Ame_RhiDeviceCreateDesc_t* desc, Str
     {
         createDesc.AdapterCallback = [desc](std::span<const Dg::GraphicsAdapterInfo> adapters) -> Ame::Opt<uint32_t>
         {
-            auto result = desc->AdapterCallback(adapters.data(), static_cast<uint32_t>(adapters.size()));
+            auto result = desc->AdapterCallback(desc, adapters.data(), static_cast<uint32_t>(adapters.size()));
             return result != static_cast<uint32_t>(-1) ? Ame::Opt<uint32_t>{ result } : std::nullopt;
         };
     }
@@ -129,6 +129,12 @@ bool Ame_IRhiDevice_BeginFrame(Ame_IRhiDevice_t* rhiDevice)
 {
     auto impl = std::bit_cast<IRhiDevice*>(rhiDevice);
     return impl->BeginFrame();
+}
+
+void Ame_IRhiDevice_AdvanceFrame(Ame_IRhiDevice_t* rhiDevice, uint32_t syncInterval)
+{
+    auto impl = std::bit_cast<IRhiDevice*>(rhiDevice);
+    impl->AdvanceFrame(syncInterval);
 }
 
 void* Ame_IRhiDevice_GetFactory(Ame_IRhiDevice_t* rhiDevice)

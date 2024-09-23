@@ -1,40 +1,30 @@
 ﻿using AmeEditor.Application;
 using AmeEditor.Config;
+using AmeSharp.Core.Config;
 using AmeSharp.Core.Log;
 using AmeSharp.Core.Log.Streams;
+using AmeSharp.Rhi.Config;
+using AmeSharp.Rhi.RhiDevice.Desc;
 using AmeSharp.Rhi.Surface;
 
-{
-    string title = "";
-    using IWindow window = new IDesktopWindow(new() { Title = title });
-    while (window.IsRunning)
-    {
-        // sleep for 16ms
-        Thread.Sleep(16);
-        title += "*";
-        if (title.Length > 60)
-        {
-            title = "";
-        }
-        window.Title = title;
-    }
-}
-
-EditorConfig config = new();
-
-config.Application.Engine.Core.Logger = new()
+CoreConfig coreConfig = new();
+coreConfig.Logger = new()
 {
     DefaultLevel = LogLevel.Trace,
     LoggerStreams = [new IConsoleLoggerStream(), new IMsvcDebugLoggerStream(), new IFileLoggerStream("Logs/Editor.log")]
 };
 
-//config.Application.Engine.Rhi = new()
-//{
-//    DeviceDesc = new()
-//    {
-//        CreateDescs = [new D3D12RhiDeviceCreateDesc(), new D3D11RhiDeviceCreateDesc(), new VulkanRhiDeviceCreateDesc()]
-//    }
-//};
+RhiConfig rhiConfig = new()
+{
+    DeviceDesc = new()
+    {
+        Types = [new D3D12RhiDeviceTypeDesc(), new D3D11RhiDeviceTypeDesc(), new VulkanRhiDeviceTypeDesc()],
+        Surface = new() { Window = new IDesktopWindow(new() { Title = "Ame Editor" }) }
+    }
+};
+
+EditorConfig config = new();
+config.Application.Configs = [coreConfig, rhiConfig];
 
 var application = new EditorApplication(config);
-application.Run();
+//application.Run();

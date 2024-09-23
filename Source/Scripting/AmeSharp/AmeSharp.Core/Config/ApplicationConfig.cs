@@ -4,10 +4,13 @@ namespace AmeSharp.Core.Config;
 
 public class ApplicationConfig
 {
-    public EngineConfig Engine = new();
+    public IModuleConfig[] Configs = [];
 
-    public void RegisterInterface(IModuleRegistry registry, IPlugin? owner = null)
+    public void ExposeInterfaces(IModuleRegistry registry, IPlugin? owner = null)
     {
-        Engine.RegisterInterface(registry, owner);
+        foreach (var config in Configs)
+        {
+            config.ExposeInterface(registry, owner);
+        }
     }
 }

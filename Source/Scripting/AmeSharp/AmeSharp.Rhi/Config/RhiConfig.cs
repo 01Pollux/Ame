@@ -1,6 +1,9 @@
-﻿using AmeSharp.Core.Plugin;
+﻿using AmeSharp.Core.Config;
+using AmeSharp.Core.Plugin;
 using AmeSharp.Rhi.ImGui;
+using AmeSharp.Rhi.RhiDevice;
 using AmeSharp.Rhi.RhiDevice.Desc;
+using AmeSharp.Rhi.Surface;
 
 namespace AmeSharp.Rhi.Config;
 
@@ -15,12 +18,19 @@ public record ImGuiModuleConfig
     public ImGuiColorConversionMode ConversionMode = ImGuiColorConversionMode.Auto;
 }
 
-public class RhiConfig
+public class RhiConfig : IModuleConfig
 {
     public RhiDeviceCreateDesc DeviceDesc = new();
-    public ImGuiModuleConfig? ImGuiConfig = new();
+    public ImGuiModuleConfig? ImGuiConfig;
 
-    public void RegisterInterface(IModuleRegistry registry, IPlugin? owner = null)
+    public void ExposeInterface(IModuleRegistry registry, IPlugin? owner = null)
     {
+        if (DeviceDesc.Surface?.Window is not null)
+        {
+            registry.ExposeInterface(owner, typeof(IWindow).GUID, DeviceDesc.Surface.Window);
+        }
+
+        var rhiDevice = new IRhiDevice(DeviceDesc);
+        registry.ExposeInterface(owner, typeof(IRhiDevice).GUID, rhiDevice);
     }
 }

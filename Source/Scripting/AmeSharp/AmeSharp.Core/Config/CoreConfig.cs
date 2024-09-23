@@ -29,13 +29,13 @@ public class LoggerCoreConfig
     }
 }
 
-public class CoreConfig
+public class CoreConfig : IModuleConfig
 {
     public LoggerCoreConfig? Logger = null;
     public bool EnableFrameTimer = true;
     public bool EnableFrameEvent = true;
 
-    public void RegisterInterface(IModuleRegistry registry, IPlugin? owner = null)
+    public void ExposeInterface(IModuleRegistry registry, IPlugin? owner = null)
     {
         Logger?.RegisterInterface(registry, owner);
         if (EnableFrameTimer)

@@ -6,7 +6,10 @@
 
 //
 
-typedef uint32_t(AME_CDECL* Ame_RhiQueryAdapterFn_t)(const DILIGENT_NAMESPACE(GraphicsAdapterInfo) *,
+typedef struct Ame_RhiDeviceCreateDesc_t Ame_RhiDeviceCreateDesc_t;
+
+typedef uint32_t(AME_CDECL* Ame_RhiQueryAdapterFn_t)(const Ame_RhiDeviceCreateDesc_t*,
+                                                     const DILIGENT_NAMESPACE(GraphicsAdapterInfo) *,
                                                      uint32_t adapterCount);
 typedef struct Ame_IWindow_t Ame_IWindow_t;
 
@@ -510,4 +513,6 @@ typedef struct Ame_RhiDeviceCreateDesc_t
     /// A headless device is a device that does not create a window.
     /// </summary>
     Ame_RhiRenderSurfaceDesc_t* Surface;
+
+    void* UserData;
 } Ame_RhiDeviceCreateDesc_t;

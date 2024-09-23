@@ -1,9 +1,11 @@
 ﻿using AmeSharp.Core.Base;
 using AmeSharp.Rhi.Bridge.Surface;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace AmeSharp.Rhi.Surface;
 
+[Guid("D04401D7-E3E3-45D8-B66D-FA5E05750D90")]
 public class IWindow : IBaseObject
 {
     public IWindow(IntPtr obj) : base(obj, true) { }
