@@ -24,5 +24,5 @@ internal partial class AbstractStorageBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_AbstractStorage_Remove")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void Remove(IntPtr storage, IntPtr key);
+    public static partial IntPtr Remove(IntPtr storage, IntPtr key);
 }

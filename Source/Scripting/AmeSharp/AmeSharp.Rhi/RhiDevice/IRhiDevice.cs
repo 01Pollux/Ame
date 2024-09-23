@@ -17,13 +17,13 @@ public partial class IRhiDevice : IBaseObject
 
     public IRhiDevice(RhiDeviceCreateDesc desc) : base(RhiDeviceBridge.Create(desc), true)
     {
-        Initialize();
+        Initialize(desc.Surface?.Window);
     }
 
     public IEngineFactory Factory => _factory!.Value;
     public IRenderDevice RenderDevice => _renderDevice!.Value;
     public IDeviceContext ImmediateContext => _immediateContext!.Value;
-    public IWindow? Window => _window!.Value;
+    public IWindow? Window => _window;
     public ISwapChain? Swapchain => _swapchain!.Value;
 
     public RenderDeviceType Api => (RenderDeviceType)RhiDeviceBridge.GetGraphicsAPI(NativePointer);
@@ -37,5 +37,14 @@ public partial class IRhiDevice : IBaseObject
     public void AdvanceFrame(uint syncInterval = 0)
     {
         RhiDeviceBridge.AdvanceFrame(NativePointer, syncInterval);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            Window?.Dispose();
+        }
+        base.Dispose(disposing);
     }
 }

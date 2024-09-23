@@ -16,6 +16,6 @@ extern "C"
 
 	AME_ENGINE_C(void, Ame_AbstractStorage_Set(Ame_AbstractStorage_t* storage, const Ame_AbstractStorage_Key_t* key, const Ame_AbstractStorage_Value_t* value));
 	AME_ENGINE_C(const Ame_AbstractStorage_Value_t*, Ame_AbstractStorage_Get(Ame_AbstractStorage_t* storage, const Ame_AbstractStorage_Key_t* key));
-	AME_ENGINE_C(void, Ame_AbstractStorage_Remove(Ame_AbstractStorage_t* storage, const Ame_AbstractStorage_Key_t* key));
+	AME_ENGINE_C(const Ame_AbstractStorage_Value_t*, Ame_AbstractStorage_Remove(Ame_AbstractStorage_t* storage, const Ame_AbstractStorage_Key_t* key));
 }
 // clang-format on

@@ -64,11 +64,10 @@ namespace AmeSharp.Core.Bridge.Internal
 
         public static void Remove(nint nativePointer)
         {
-            var handle = AbstractStorageBridge.Get(_instance.Value._storage, nativePointer);
+            var handle = AbstractStorageBridge.Remove(_instance.Value._storage, nativePointer);
             if (handle != nint.Zero)
             {
                 GCHandle.FromIntPtr(handle).Free();
-                AbstractStorageBridge.Remove(_instance.Value._storage, nativePointer);
             }
         }
 

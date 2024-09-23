@@ -34,8 +34,17 @@ const Ame_AbstractStorage_Value_t* Ame_AbstractStorage_Get(Ame_AbstractStorage_t
     return nullptr;
 }
 
-void Ame_AbstractStorage_Remove(Ame_AbstractStorage_t* storage, const Ame_AbstractStorage_Key_t* key)
+const Ame_AbstractStorage_Value_t* Ame_AbstractStorage_Remove(Ame_AbstractStorage_t*           storage,
+                                                              const Ame_AbstractStorage_Key_t* key)
 {
-    auto* map = std::bit_cast<MapType*>(storage);
-    map->erase(const_cast<Ame_AbstractStorage_Key_t*>(key));
+    auto* map  = std::bit_cast<MapType*>(storage);
+    auto  iter = map->find(key);
+
+    const Ame_AbstractStorage_Value_t* value = nullptr;
+    if (iter != map->end())
+    {
+        value = iter->second;
+        map->erase(iter);
+    }
+    return value;
 }
