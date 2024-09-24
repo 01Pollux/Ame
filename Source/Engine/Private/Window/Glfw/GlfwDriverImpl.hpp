@@ -61,17 +61,13 @@ namespace Ame::Window
         void ShutdownGlfwWorker();
 
     private:
-        struct State
-        {
-            std::thread GlfwDispatcher;
+        std::jthread m_GlfwDispatcher;
 
-            std::mutex              TaskMutex;
-            std::queue<Co::task>    Tasks;
-            std::condition_variable TaskNotifier;
-            bool                    StopRequested = false;
+        std::mutex              m_TaskMutex;
+        std::queue<Co::task>    m_Tasks;
+        std::condition_variable m_TaskNotifier;
+        bool                    m_StopRequested = false;
 
-            GlfwHooks Hooks;
-        };
-        UniquePtr<State> m_State = std::make_unique<State>();
+        GlfwHooks m_Hooks;
     };
 } // namespace Ame::Window

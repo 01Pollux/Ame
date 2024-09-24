@@ -11,7 +11,7 @@
 namespace Ame::Editor
 {
     SceneViewEditorWindow::SceneViewEditorWindow(IReferenceCounters* counter) :
-        Base(counter, SceneViewEditorWindowPath), m_World(ModuleUtils::GetWorld()),
+        IEditorWindow(counter, SceneViewEditorWindowPath), m_World(ModuleUtils::GetWorld()),
         m_CameraQuery(m_World
                           ->CreateQuery<const Ecs::CameraComponent, const Ecs::GlobalTransformComponent,
                                         const Ecs::CameraOutputComponent>()

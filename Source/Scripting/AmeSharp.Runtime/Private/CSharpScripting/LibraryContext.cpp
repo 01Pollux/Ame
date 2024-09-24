@@ -3,7 +3,7 @@
 
 namespace Ame::Scripting
 {
-    static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.ALCBridge, AmeSharp";
+    static constexpr const char* ClassName = "AmeSharp.RuntimeHost.Runtime.ALCBridge, AmeSharp.RuntimeHost";
 
     CSLibraryContext::CSLibraryContext(IReferenceCounters* counters, const CLRRuntime& runtime,
                                        const NativeString& name) : ILibraryContext(counters), m_Runtime(&runtime)

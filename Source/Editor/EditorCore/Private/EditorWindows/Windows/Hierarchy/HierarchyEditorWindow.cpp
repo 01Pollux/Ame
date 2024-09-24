@@ -10,7 +10,7 @@
 namespace Ame::Editor
 {
     HierarchyEditorWindow::HierarchyEditorWindow(IReferenceCounters* counters) :
-        Base(counters, HierarchyEditorWindowPath), m_World(ModuleUtils::GetWorld())
+        IEditorWindow(counters, HierarchyEditorWindowPath), m_World(ModuleUtils::GetWorld())
     {
     }
 

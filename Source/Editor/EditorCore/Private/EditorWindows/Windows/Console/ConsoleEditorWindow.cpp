@@ -7,7 +7,8 @@
 
 namespace Ame::Editor
 {
-    ConsoleEditorWindow::ConsoleEditorWindow(IReferenceCounters* counters) : Base(counters, ConsoleEditorWindowPath)
+    ConsoleEditorWindow::ConsoleEditorWindow(IReferenceCounters* counters) :
+        IEditorWindow(counters, ConsoleEditorWindowPath)
     {
         if (auto logger = Log::ILogger::Get())
         {

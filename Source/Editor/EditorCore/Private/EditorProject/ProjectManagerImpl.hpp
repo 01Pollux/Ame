@@ -5,15 +5,13 @@
 
 namespace Ame::Editor
 {
-    class ProjectManagerImpl : public BaseObject<Interfaces::IEditorProjectManager>
+    class ProjectManagerImpl : public Interfaces::IEditorProjectManager
     {
     public:
-        using Base = BaseObject<Interfaces::IEditorProjectManager>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(Interfaces::IID_ProjectManager, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(Interfaces::IID_ProjectManager, IEditorProjectManager);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(ProjectManagerImpl) : Base(counters)
+        IMPLEMENT_INTERFACE_CTOR(ProjectManagerImpl) : IEditorProjectManager(counters)
         {
         }
 

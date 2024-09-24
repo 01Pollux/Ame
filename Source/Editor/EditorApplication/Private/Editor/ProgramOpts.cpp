@@ -29,12 +29,11 @@ namespace Ame
             bpo::value<bool>()->default_value(false)->notifier([&](bool val) { windowCreateDesc.FullScreen = val; }),
             "Run in fullscreen mode")(
 
-            "width,w",
-            bpo::value<int>()->default_value(1280)->notifier([&](int val) { windowCreateDesc.Size.x() = val; }),
+            "width,w", bpo::value<int>()->default_value(1280)->notifier([&](int val) { windowCreateDesc.Width = val; }),
             "Set window width")(
 
             "height,h",
-            bpo::value<int>()->default_value(720)->notifier([&](int val) { windowCreateDesc.Size.y() = val; }),
+            bpo::value<int>()->default_value(720)->notifier([&](int val) { windowCreateDesc.Height = val; }),
             "Set window height")(
 
             "start-in-middle,sim",
@@ -53,9 +52,9 @@ namespace Ame
 
     bool EditorApplicationConfig::Parse(int argc, char** argv)
     {
-        Window::WindowCreateDesc windowCreateDesc{ .Title          = "Ame Editor",
-                                                   .Size           = { 1280, 720 },
-                                                   .CustomTitleBar = true };
+        Window::WindowCreateDesc windowCreateDesc{
+            .Title = "Ame Editor", .Width = 1280, .Height = 720, .CustomTitleBar = true
+        };
 
         auto               programOpts = GetProgramOptions(windowCreateDesc, *this);
         bpo::variables_map programVars;

@@ -5,15 +5,13 @@
 
 namespace Ame::Editor
 {
-    class ProjectImpl : public BaseObject<IProject>
+    class ProjectImpl : public IProject
     {
     public:
-        using Base = BaseObject<IProject>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Project, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_Project, IProject);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(ProjectImpl, const String& rootPath) : Base(counters), m_SolutionRootPath(rootPath)
+        IMPLEMENT_INTERFACE_CTOR(ProjectImpl, const String& rootPath) : IProject(counters), m_SolutionRootPath(rootPath)
         {
         }
 

@@ -497,8 +497,8 @@ typedef struct Ame_RhiDeviceCreateDesc_t
 #ifdef AME_DEBUG_SANITIZE
     Ame_RhiDeviceValidationType_t ValidationLayer = AME_RHI_DEVICE_VALIDATION_ALL;
 #elif defined(AME_DEBUG)
-    Ame_RhiDeviceValidationType_t ValidationLayer =
-        AME_RHI_DEVICE_VALIDATION_BREAK_ON_ERROR | AME_RHI_DEVICE_VALIDATION_BREAK_ON_CORRUPTION;
+    Ame_RhiDeviceValidationType_t ValidationLayer = Ame_RhiDeviceValidationType_t(
+        AME_RHI_DEVICE_VALIDATION_BREAK_ON_ERROR | AME_RHI_DEVICE_VALIDATION_BREAK_ON_CORRUPTION);
 #else
     Ame_RhiDeviceValidationType_t ValidationLayer = AME_RHI_DEVICE_VALIDATION_NONE;
 #endif

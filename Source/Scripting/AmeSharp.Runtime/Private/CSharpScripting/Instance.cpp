@@ -3,7 +3,7 @@
 
 namespace Ame::Scripting
 {
-    static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.InstanceBridge, AmeSharp";
+    static constexpr const char* ClassName = "AmeSharp.RuntimeHost.Runtime.InstanceBridge, AmeSharp.RuntimeHost";
 
     void CLRRuntime::RegisterCommonFunctions_InstanceBridge()
     {

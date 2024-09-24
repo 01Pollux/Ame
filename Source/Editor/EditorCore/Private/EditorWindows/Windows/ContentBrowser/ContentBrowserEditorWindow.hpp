@@ -5,15 +5,13 @@
 
 namespace Ame::Editor
 {
-    class ContentBrowserEditorWindow : public BaseObject<IEditorWindow>
+    class ContentBrowserEditorWindow : public IEditorWindow
     {
     public:
-        using Base = BaseObject<IEditorWindow>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ContentBrowserEditorWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ContentBrowserEditorWindow, IEditorWindow);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(ContentBrowserEditorWindow) : Base(counters, ContentBrowserEditorWindowPath)
+        IMPLEMENT_INTERFACE_CTOR(ContentBrowserEditorWindow) : IEditorWindow(counters, ContentBrowserEditorWindowPath)
         {
         }
 

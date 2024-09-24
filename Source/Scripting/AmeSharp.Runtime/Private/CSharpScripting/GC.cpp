@@ -2,7 +2,7 @@
 
 namespace Ame::Scripting
 {
-    static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.GCBridge, AmeSharp";
+    static constexpr const char* ClassName = "AmeSharp.RuntimeHost.Runtime.GCBridge, AmeSharp.RuntimeHost";
 
     CSGarbageCollector::CSGarbageCollector(IReferenceCounters* counters, const CLRRuntime& runtime) :
         IGarbageCollector(counters)

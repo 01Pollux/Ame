@@ -7,12 +7,10 @@
 
 namespace Ame::Editor
 {
-    class ConsoleEditorWindow : public BaseObject<IEditorWindow>
+    class ConsoleEditorWindow : public IEditorWindow
     {
     public:
-        using Base = BaseObject<IEditorWindow>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ConsoleEditorWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_ConsoleEditorWindow, IEditorWindow);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(ConsoleEditorWindow);

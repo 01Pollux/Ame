@@ -18,7 +18,7 @@
 
 namespace Ame::Editor
 {
-    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters) : Base(counters)
+    EditorWindowManagerImpl::EditorWindowManagerImpl(IReferenceCounters* counters) : IEditorWindowManager(counters)
     {
         Ptr<Interfaces::IRhiDevice> rhiDevice;
         Ptr<Interfaces::IRenderer>  renderer;

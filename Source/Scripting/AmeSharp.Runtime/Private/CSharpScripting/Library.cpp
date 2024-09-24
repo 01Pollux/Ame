@@ -4,7 +4,7 @@
 
 namespace Ame::Scripting
 {
-    static constexpr const char* ClassName = "AmeSharp.Bridge.Core.Runtime.AssemblyBridge, AmeSharp";
+    static constexpr const char* ClassName = "AmeSharp.RuntimeHost.Runtime.AssemblyBridge, AmeSharp.RuntimeHost";
 
     void CLRRuntime::RegisterCommonFunctions_AssemblyBridge()
     {

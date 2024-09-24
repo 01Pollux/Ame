@@ -1,4 +1,3 @@
-#include <Core/Coroutine.hpp>
 #include <Window/Glfw/GlfwDriverImpl.hpp>
 #include <mimalloc.h>
 
@@ -8,8 +7,8 @@
 
 namespace Ame::Window
 {
-    static SharedPtr<IGlfwDriver> s_DriverInstance;
-    static std::mutex             s_DriverInitMutex;
+    static IGlfwDriver* s_DriverInstance;
+    static std::mutex   s_DriverInitMutex;
 
     static void GlfwErrorCallback(int code, const char* description)
     {
@@ -25,15 +24,15 @@ namespace Ame::Window
             std::scoped_lock lock(s_DriverInitMutex);
             if (!s_DriverInstance)
             {
-                s_DriverInstance = Coroutine::Get().make_executor<GlfwDriverImpl>();
+                s_DriverInstance = Coroutine::Get().make_executor<GlfwDriverImpl>().get();
             }
         }
-        return s_DriverInstance.get();
+        return s_DriverInstance;
     }
 
     GlfwHooks& GlfwDriverImpl::GetHooks()
     {
-        return static_cast<GlfwDriverImpl*>(Initialize())->m_State->Hooks;
+        return static_cast<GlfwDriverImpl*>(Initialize())->m_Hooks;
     }
 
     GlfwHooks& GlfwHooks::Get()
@@ -43,43 +42,43 @@ namespace Ame::Window
 
     GlfwDriverImpl::GlfwDriverImpl() : IGlfwDriver("GlfwDriver")
     {
-        m_State->GlfwDispatcher = std::thread([this] { GlfwDispatcher(); });
+        m_GlfwDispatcher = std::jthread(&GlfwDriverImpl::GlfwDispatcher, this);
     }
 
     //
 
     void GlfwDriverImpl::enqueue(Co::task task)
     {
-        if (!m_State || m_State->StopRequested) [[unlikely]]
+        if (m_GlfwDispatcher.get_stop_token().stop_requested()) [[unlikely]]
         {
             throw concurrencpp::errors::runtime_shutdown("Cannot enqueue task, the worker thread is shutting down");
         }
 
         {
-            std::unique_lock lock(m_State->TaskMutex);
+            std::unique_lock lock(m_TaskMutex);
 
-            if (m_State->Hooks.IsCallbackInProgress())
+            if (m_Hooks.IsCallbackInProgress())
             {
                 task();
             }
             else
             {
-                m_State->Tasks.push(std::move(task));
+                m_Tasks.push(std::move(task));
             }
         }
-        m_State->TaskNotifier.notify_one();
+        m_TaskNotifier.notify_one();
     }
 
     void GlfwDriverImpl::enqueue(std::span<Co::task> tasks)
     {
-        if (!m_State || m_State->StopRequested) [[unlikely]]
+        if (m_GlfwDispatcher.get_stop_token().stop_requested()) [[unlikely]]
         {
             throw concurrencpp::errors::runtime_shutdown("Cannot enqueue task, the worker thread is shutting down");
         }
 
         {
-            std::unique_lock lock(m_State->TaskMutex);
-            if (m_State->Hooks.IsCallbackInProgress())
+            std::unique_lock lock(m_TaskMutex);
+            if (m_Hooks.IsCallbackInProgress())
             {
                 for (auto& task : tasks)
                 {
@@ -90,27 +89,27 @@ namespace Ame::Window
             {
                 for (auto& task : tasks)
                 {
-                    m_State->Tasks.push(std::move(task));
+                    m_Tasks.push(std::move(task));
                 }
             }
         }
-        m_State->TaskNotifier.notify_one();
+        m_TaskNotifier.notify_one();
     }
 
     bool GlfwDriverImpl::shutdown_requested() const noexcept
     {
-        return !m_State;
+        return m_GlfwDispatcher.get_stop_token().stop_requested();
     }
 
     void GlfwDriverImpl::shutdown() noexcept
     {
+        m_GlfwDispatcher.request_stop();
         {
-            std::unique_lock lock(m_State->TaskMutex);
-            m_State->StopRequested = true;
+            std::unique_lock lock(m_TaskMutex);
+            m_Tasks.push([] { glfwPostEmptyEvent(); });
         }
-        m_State->TaskNotifier.notify_one();
-        m_State->GlfwDispatcher.join();
-        m_State = nullptr;
+        m_TaskNotifier.notify_one();
+        m_GlfwDispatcher.join();
     }
 
     //
@@ -131,28 +130,29 @@ namespace Ame::Window
     {
         InitializeGlfwWorker();
 
-        while (!m_State->StopRequested)
+        auto stopToken = m_GlfwDispatcher.get_stop_token();
+        while (!stopToken.stop_requested())
         {
             glfwPollEvents();
 
             Co::task task;
             {
-                std::unique_lock lock(m_State->TaskMutex);
-                m_State->TaskNotifier.wait_for(lock, std::chrono::milliseconds(1),
-                                               [&]
-                                               {
-                                                   if (m_State->StopRequested)
-                                                   {
-                                                       return true;
-                                                   }
-                                                   if (!m_State->Tasks.empty())
-                                                   {
-                                                       task = std::move(m_State->Tasks.front());
-                                                       m_State->Tasks.pop();
-                                                       return true;
-                                                   }
-                                                   return false;
-                                               });
+                std::unique_lock lock(m_TaskMutex);
+                m_TaskNotifier.wait_for(lock, std::chrono::milliseconds(1),
+                                        [&]
+                                        {
+                                            if (stopToken.stop_requested())
+                                            {
+                                                return true;
+                                            }
+                                            if (!m_Tasks.empty())
+                                            {
+                                                task = std::move(m_Tasks.front());
+                                                m_Tasks.pop();
+                                                return true;
+                                            }
+                                            return false;
+                                        });
             }
 
 #if defined(AME_DEBUG) && !defined(AME_NO_EXCEPTIONS)
@@ -160,7 +160,7 @@ namespace Ame::Window
             {
                 if (task) [[likely]]
                 {
-                    m_State->Hooks.SetCallbackInProgress(true);
+                    m_Hooks.SetCallbackInProgress(true);
                     task();
                 }
             }
@@ -171,11 +171,11 @@ namespace Ame::Window
 #else
             if (task) [[likely]]
             {
-                m_State->Hooks.SetCallbackInProgress(true);
+                m_Hooks.SetCallbackInProgress(true);
                 task();
             }
 #endif
-            m_State->Hooks.SetCallbackInProgress(false);
+            m_Hooks.SetCallbackInProgress(false);
         }
 
         ShutdownGlfwWorker();

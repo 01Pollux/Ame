@@ -15,16 +15,14 @@ namespace Ame::Ecs
 
 namespace Ame::Editor
 {
-    class SceneViewEditorWindow : public BaseObject<IEditorWindow>
+    class SceneViewEditorWindow : public IEditorWindow
     {
     private:
         using CameraQuery = Ecs::UniqueQuery<const Ecs::CameraComponent, const Ecs::GlobalTransformComponent,
                                              const Ecs::CameraOutputComponent>;
 
     public:
-        using Base = BaseObject<IEditorWindow>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_SceneViewEditorWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_SceneViewEditorWindow, IEditorWindow);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(SceneViewEditorWindow);

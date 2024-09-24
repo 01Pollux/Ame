@@ -13,12 +13,10 @@
 
 namespace Ame::Editor
 {
-    class EditorWindowManagerImpl final : public BaseObject<Interfaces::IEditorWindowManager>
+    class EditorWindowManagerImpl final : public Interfaces::IEditorWindowManager
     {
     public:
-        using Base = BaseObject<Interfaces::IEditorWindowManager>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(Interfaces::IID_EditorWindowManager, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(Interfaces::IID_EditorWindowManager, IEditorWindowManager);
 
     private:
         IMPLEMENT_INTERFACE_CTOR(EditorWindowManagerImpl);

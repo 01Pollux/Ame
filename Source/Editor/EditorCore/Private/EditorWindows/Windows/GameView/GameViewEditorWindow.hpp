@@ -5,15 +5,13 @@
 
 namespace Ame::Editor
 {
-    class GameViewEditorWindow : public BaseObject<IEditorWindow>
+    class GameViewEditorWindow : public IEditorWindow
     {
     public:
-        using Base = BaseObject<IEditorWindow>;
-
-        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_GameViewEditorWindow, Base);
+        IMPLEMENT_QUERY_INTERFACE_IN_PLACE(IID_GameViewEditorWindow, IEditorWindow);
 
     private:
-        IMPLEMENT_INTERFACE_CTOR(GameViewEditorWindow) : Base(counters, GameViewEditorWindowPath)
+        IMPLEMENT_INTERFACE_CTOR(GameViewEditorWindow) : IEditorWindow(counters, GameViewEditorWindowPath)
         {
         }
 

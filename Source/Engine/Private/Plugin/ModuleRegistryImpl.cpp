@@ -1,12 +1,32 @@
 #include <Plugin/ModuleRegistryImpl.hpp>
+#include <Core/Coroutine.hpp>
 
 #include <Log/Logger.hpp>
 
 namespace Ame
 {
+    static UniquePtr<Co::runtime> s_Runtime;
+    static std::mutex             s_RuntimeMutex;
+
+    Co::runtime& Coroutine::Get() noexcept
+    {
+        if (!s_Runtime)
+        {
+            std::scoped_lock lock(s_RuntimeMutex);
+            if (!s_Runtime)
+            {
+                s_Runtime = std::make_unique<Co::runtime>();
+            }
+        }
+        return *s_Runtime;
+    }
+
     ModuleRegistryImpl::~ModuleRegistryImpl()
     {
         ReleaseAllPlugins();
+
+        std::scoped_lock lock(s_RuntimeMutex);
+        s_Runtime = nullptr;
     }
 
     //
