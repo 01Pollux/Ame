@@ -1,4 +1,5 @@
-﻿using AmeSharp.Core.Bridge;
+﻿using AmeSharp.Core.Base;
+using AmeSharp.Core.Bridge;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -12,17 +13,17 @@ internal partial class SignalBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_Signal_Release")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void Release(IntPtr signalObject);
+    public static partial void Release(IntPtr signal);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_Signal_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr Connect(IntPtr signalObject, delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void> callback, IntPtr userData);
+    public static unsafe partial IntPtr Connect(IntPtr signal, VoidSignalConnection.SignalCallback callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_Signal_Disconnect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial IntPtr Disconnect(IntPtr signalConnection);
+    public static partial IntPtr Disconnect(ISignalConnection connection);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_Signal_Invoke")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void Emit(IntPtr signalObject, IntPtr args);
+    public static partial void Emit(IntPtr signal);
 }

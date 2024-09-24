@@ -22,7 +22,7 @@ namespace Ame::Window
         /// <summary>
         /// Initialize the glfw context, pass a previous context to transfer the ownership of the glfw context
         /// </summary>
-        static SharedPtr<IGlfwDriver> Initialize();
+        static IGlfwDriver* Initialize();
 
         [[nodiscard]] static GlfwHooks& GetHooks();
 
@@ -61,12 +61,17 @@ namespace Ame::Window
         void ShutdownGlfwWorker();
 
     private:
-        std::jthread m_GlfwDispatcher;
+        struct State
+        {
+            std::thread GlfwDispatcher;
 
-        std::mutex              m_TaskMutex;
-        std::queue<Co::task>    m_Tasks;
-        std::condition_variable m_TaskNotifier;
+            std::mutex              TaskMutex;
+            std::queue<Co::task>    Tasks;
+            std::condition_variable TaskNotifier;
+            bool                    StopRequested = false;
 
-        GlfwHooks m_Hooks;
+            GlfwHooks Hooks;
+        };
+        UniquePtr<State> m_State = std::make_unique<State>();
     };
 } // namespace Ame::Window

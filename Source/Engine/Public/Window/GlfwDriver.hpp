@@ -15,5 +15,6 @@ namespace Ame::Window
     {
     public:
         using Co::derivable_executor<IGlfwDriver>::derivable_executor;
+        virtual ~IGlfwDriver() = default;
     };
 } // namespace Ame::Window

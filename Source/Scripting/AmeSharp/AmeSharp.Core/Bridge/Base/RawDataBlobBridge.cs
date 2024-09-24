@@ -1,4 +1,5 @@
-﻿using AmeSharp.Core.Bridge;
+﻿using AmeSharp.Core.Base;
+using AmeSharp.Core.Bridge;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

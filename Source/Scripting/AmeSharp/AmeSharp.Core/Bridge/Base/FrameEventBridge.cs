@@ -1,4 +1,5 @@
-﻿using AmeSharp.Core.Bridge;
+﻿using AmeSharp.Core.Base;
+using AmeSharp.Core.Bridge;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -12,13 +13,13 @@ internal partial class FrameEventBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_OnFrameStart_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr ConnectOnFrameStart(IntPtr frameEvent, delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void> callback, IntPtr userData);
+    public static unsafe partial IntPtr ConnectOnFrameStart(IFrameEvent frameEvent, VoidSignalConnection.SignalCallback callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_OnFrameUpdate_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr ConnectOnFrameUpdate(IntPtr frameEvent, delegate* unmanaged[Cdecl]<IntPtr, IntPtr, void> callback, IntPtr userData);
+    public static unsafe partial IntPtr ConnectOnFrameUpdate(IFrameEvent frameEvent, VoidSignalConnection.SignalCallback callback, IntPtr userData);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_FrameEvent_OnFrameEnd_Connect")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial IntPtr ConnectOnFrameEnd(IntPtr frameEvent, delegate* unmanaged[Cdecl]<IntPtr, IntPtr, bool> callback, IntPtr userData);
+    public static unsafe partial IntPtr ConnectOnFrameEnd(IFrameEvent frameEvent, TypedSignalConnection<bool>.SignalCallback callback, IntPtr userData);
 }

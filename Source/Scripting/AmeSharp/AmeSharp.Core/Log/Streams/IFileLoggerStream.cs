@@ -1,9 +1,9 @@
 ﻿using AmeSharp.Bridge.Core.Log;
-using AmeSharp.Core.Log;
 
 namespace AmeSharp.Core.Log.Streams;
 
-public class IFileLoggerStream(string filePath, bool truncate = false) :
-    ILoggerStream(LoggerStreamBridge.CreateFile(filePath, truncate))
+public sealed class IFileLoggerStream : ILoggerStream
 {
+    private IFileLoggerStream(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static ILoggerStream Create(string filePath, bool truncate = false) => new IFileLoggerStream(LoggerStreamBridge.CreateFile(filePath, truncate), true);
 }

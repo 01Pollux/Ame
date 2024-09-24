@@ -15,10 +15,11 @@ public class LoggerCoreConfig
     {
         if (LoggerName.Length != 0)
         {
-            ILogger logger = new(LoggerName)
-            {
-                Level = DefaultLevel
-            };
+            ILogger logger = ILogger.Create(LoggerName);
+            using var loggerHolder = logger;
+
+            logger.Level = DefaultLevel;
+
             LoggerStreams?.ForEach(stream => logger += stream);
             registry.ExposeInterface(owner, typeof(ILogger).GUID, logger);
             if (SetAsMain)
@@ -40,11 +41,13 @@ public class CoreConfig : IModuleConfig
         Logger?.RegisterInterface(registry, owner);
         if (EnableFrameTimer)
         {
-            registry.ExposeInterface(owner, typeof(IFrameTimer).GUID, new IFrameTimer());
+            using var frameTimer = IFrameTimer.Create();
+            registry.ExposeInterface(owner, typeof(IFrameTimer).GUID, frameTimer);
         }
         if (EnableFrameEvent)
         {
-            registry.ExposeInterface(owner, typeof(IFrameEvent).GUID, new IFrameEvent());
+            using var frameEvent = IFrameEvent.Create();
+            registry.ExposeInterface(owner, typeof(IFrameEvent).GUID, frameEvent);
         }
     }
 }

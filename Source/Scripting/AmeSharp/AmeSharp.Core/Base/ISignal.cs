@@ -1,30 +1,24 @@
 ﻿using AmeSharp.Bridge.Core.Base;
-using AmeSharp.Core.Bridge.Internal.Signals;
 
 namespace AmeSharp.Core.Base;
 
 public class ISignal : INativeObject
 {
-    public ISignal() : base(SignalBridge.Create()) { }
+    private ISignal(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static ISignal Create() => new(SignalBridge.Create(), true);
 
-    public unsafe ISignalConnection Connect(IVoidSignalConnection.SignalCallback callback)
+    public unsafe ISignalConnection Connect(VoidSignalConnection.SignalCallback callback)
     {
-        return new VoidSignalConnectionImpl(callback, (callbackImpl) =>
-        {
-            return SignalBridge.Connect(NativePointer, callbackImpl, nint.Zero);
-        });
+        return ISignalConnection.Create(SignalBridge.Connect(Handle, callback, nint.Zero));
     }
 
-    public void Emit() => SignalBridge.Emit(NativePointer, nint.Zero);
+    public void Emit() => SignalBridge.Emit(Handle);
 
     //
 
-    protected override void Dispose(bool disposing)
+    protected override bool ReleaseHandle()
     {
-        if (NativePointer != nint.Zero)
-        {
-            SignalBridge.Release(NativePointer);
-        }
-        base.Dispose(disposing);
+        SignalBridge.Release(Handle);
+        return true;
     }
 }

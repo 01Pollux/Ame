@@ -13,7 +13,6 @@ namespace Ame
         using PluginMap    = std::map<String, UniquePtr<PluginContext>>;
 
     public:
-        ModuleRegistryImpl();
         ~ModuleRegistryImpl() override;
 
     public:

@@ -6,27 +6,25 @@ namespace AmeSharp.Core.Plugin;
 
 public sealed class IModuleRegistry : INativeObject
 {
-    public IModuleRegistry(nint obj) : base(obj) { }
-    public IModuleRegistry() : base(ModuleRegistryBridge.Create()) { }
+    private IModuleRegistry(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static IModuleRegistry References(IntPtr handle) => new(handle, true);
+    public static IModuleRegistry Create() => new(ModuleRegistryBridge.Create(), true);
 
-    public VersionT Version => ModuleRegistryBridge.GetVersion(NativePointer);
+    public VersionT Version => ModuleRegistryBridge.GetVersion(Handle);
 
     public void ExposeInterface(IPlugin? pluginOwner, Guid guid, IBaseObject iface)
     {
-        var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : nint.Zero;
-        ModuleRegistryBridge.ExposeInterface(NativePointer, pluginHandle, guid, iface.NativePointer);
+        ModuleRegistryBridge.ExposeInterface(Handle, pluginOwner is not null ? pluginOwner.Handle : InvalidHandle, guid, iface);
     }
 
     public void DropInterface(Guid guid)
     {
-        ModuleRegistryBridge.DropInterface(NativePointer, guid);
+        ModuleRegistryBridge.DropInterface(Handle, guid);
     }
 
     public T? RequestInterface<T>(IPlugin? pluginOwner, Guid iid) where T : IBaseObject
     {
-        var pluginHandle = pluginOwner is not null ? pluginOwner.NativePointer : nint.Zero;
-        var ptr = ModuleRegistryBridge.RequestInterface(NativePointer, pluginHandle, iid);
-        return ptr != nint.Zero ? Get<T>(ptr) : null;
+        return ModuleRegistryBridge.RequestInterface(Handle, pluginOwner is not null ? pluginOwner.Handle : InvalidHandle, iid) as T;
     }
 
     public T? RequestInterface<T>(IPlugin? pluginOwner) where T : IBaseObject
@@ -36,38 +34,32 @@ public sealed class IModuleRegistry : INativeObject
 
     public IPlugin? FindPlugin(string name)
     {
-        var output = ModuleRegistryBridge.FindPlugin(NativePointer, name);
-        return output == nint.Zero ? null : new IPlugin(output);
+        return IPlugin.References(ModuleRegistryBridge.FindPlugin(Handle, name));
     }
 
     public IPlugin? BindPlugin(IPlugin pluginCaller, string name, bool isRequired)
     {
-        var output = ModuleRegistryBridge.BindPlugin(NativePointer, pluginCaller.NativePointer, name, isRequired);
-        return output == nint.Zero ? null : new IPlugin(output);
+        return IPlugin.References(ModuleRegistryBridge.BindPlugin(Handle, pluginCaller.Handle, name, isRequired));
     }
 
     public IPlugin? LoadPlugin(string name)
     {
-        var output = ModuleRegistryBridge.LoadPlugin(NativePointer, name);
-        return output == nint.Zero ? null : new IPlugin(output);
+        return IPlugin.References(ModuleRegistryBridge.LoadPlugin(Handle, name));
     }
 
     public void UnloadPlugin(IPlugin plugin)
     {
-        ModuleRegistryBridge.UnloadPlugin(NativePointer, plugin.NativePointer);
+        ModuleRegistryBridge.UnloadPlugin(Handle, plugin.Handle);
     }
 
     public void UnloadPlugin(string name)
     {
-        ModuleRegistryBridge.UnloadPlugin(NativePointer, name);
+        ModuleRegistryBridge.UnloadPlugin(Handle, name);
     }
 
-    protected override void Dispose(bool disposing)
+    protected override bool ReleaseHandle()
     {
-        if (NativePointer != nint.Zero)
-        {
-            ModuleRegistryBridge.Release(NativePointer);
-        }
-        base.Dispose(disposing);
+        ModuleRegistryBridge.Release(handle);
+        return true;
     }
 }

@@ -1,9 +1,9 @@
 ﻿using AmeSharp.Bridge.Core.Log;
-using AmeSharp.Core.Log;
 
 namespace AmeSharp.Core.Log.Streams;
 
-public class IConsoleLoggerStream() :
-    ILoggerStream(LoggerStreamBridge.CreateConsole())
+public sealed class IConsoleLoggerStream : ILoggerStream
 {
+    private IConsoleLoggerStream(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static ILoggerStream Create() => new IConsoleLoggerStream(LoggerStreamBridge.CreateConsole(), true);
 }

@@ -8,16 +8,16 @@ namespace AmeSharp.Rhi.Surface;
 [Guid("D04401D7-E3E3-45D8-B66D-FA5E05750D90")]
 public class IWindow : IBaseObject
 {
-    public IWindow(IntPtr obj) : base(obj, true) { }
-    public IWindow(WindowSurfaceType type, WindowCreateDesc createDesc) : base(WindowSurfaceBridge.Create(type, createDesc), true) { }
+    protected IWindow(WindowSurfaceType type, WindowCreateDesc createDesc) : base(WindowSurfaceBridge.Create(type, createDesc), true, false) { }
+    public static IWindow Create(WindowSurfaceType type, WindowCreateDesc createDesc) => new(type, createDesc);
 
-    public bool IsRunning => WindowSurfaceBridge.IsRunning(NativePointer);
-    public void Close() => WindowSurfaceBridge.Close(NativePointer);
+    public bool IsRunning => WindowSurfaceBridge.IsRunning(this);
+    public void CloseWindow() => WindowSurfaceBridge.Close(this);
 
     public string Title
     {
-        get => WindowSurfaceBridge.GetTitle(NativePointer);
-        set => WindowSurfaceBridge.SetTitle(NativePointer, value);
+        get => WindowSurfaceBridge.GetTitle(this);
+        set => WindowSurfaceBridge.SetTitle(this, value);
     }
 
     public Size Size
@@ -27,11 +27,11 @@ public class IWindow : IBaseObject
             int width, height;
             unsafe
             {
-                WindowSurfaceBridge.GetSize(NativePointer, &width, &height);
+                WindowSurfaceBridge.GetSize(this, &width, &height);
             }
             return new(width, height);
         }
-        set => WindowSurfaceBridge.SetSize(NativePointer, value.Width, value.Height);
+        set => WindowSurfaceBridge.SetSize(this, value.Width, value.Height);
     }
 
     public Point Position
@@ -41,37 +41,39 @@ public class IWindow : IBaseObject
             int x, y;
             unsafe
             {
-                WindowSurfaceBridge.GetPosition(NativePointer, &x, &y);
+                WindowSurfaceBridge.GetPosition(this, &x, &y);
             }
             return new(x, y);
         }
-        set => WindowSurfaceBridge.SetPosition(NativePointer, value.X, value.Y);
+        set => WindowSurfaceBridge.SetPosition(this, value.X, value.Y);
     }
 
     public bool FullScreen
     {
-        get => WindowSurfaceBridge.IsFullScreen(NativePointer);
-        set => WindowSurfaceBridge.SetFullscreen(NativePointer, value);
+        get => WindowSurfaceBridge.IsFullScreen(this);
+        set => WindowSurfaceBridge.SetFullscreen(this, value);
     }
 
-    public bool Minimized => WindowSurfaceBridge.IsMinimized(NativePointer);
-    public void Minimalize() => WindowSurfaceBridge.Minimize(NativePointer);
+    public bool Minimized => WindowSurfaceBridge.IsMinimized(this);
+    public void Minimalize() => WindowSurfaceBridge.Minimize(this);
 
-    public bool Maximized => WindowSurfaceBridge.IsMaximized(NativePointer);
-    public void Maximize() => WindowSurfaceBridge.Maximize(NativePointer);
+    public bool Maximized => WindowSurfaceBridge.IsMaximized(this);
+    public void Maximize() => WindowSurfaceBridge.Maximize(this);
 
     public bool Visible
     {
-        get => WindowSurfaceBridge.IsVisible(NativePointer);
-        set => WindowSurfaceBridge.SetVisible(NativePointer, value);
+        get => WindowSurfaceBridge.IsVisible(this);
+        set => WindowSurfaceBridge.SetVisible(this, value);
     }
 
-    public bool Focused => WindowSurfaceBridge.HasFocus(NativePointer);
-    public void Focus() => WindowSurfaceBridge.RequestFocus(NativePointer);
+    public bool Focused => WindowSurfaceBridge.HasFocus(this);
+    public void Focus() => WindowSurfaceBridge.RequestFocus(this);
 
-    public void Restore() => WindowSurfaceBridge.Restore(NativePointer);
+    public void Restore() => WindowSurfaceBridge.Restore(this);
 }
 
-public class IDesktopWindow(WindowCreateDesc createDesc) : IWindow(WindowSurfaceType.Desktop, createDesc)
+public class IDesktopWindow : IWindow
 {
+    internal IDesktopWindow(WindowCreateDesc createDesc) : base(WindowSurfaceType.Desktop, createDesc) { }
+    public static IDesktopWindow Create(WindowCreateDesc createDesc) => new(createDesc);
 }

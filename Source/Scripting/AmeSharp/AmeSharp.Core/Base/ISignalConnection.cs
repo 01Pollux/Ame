@@ -1,27 +1,30 @@
 ﻿using AmeSharp.Bridge.Core.Base;
+using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Base;
 
-public abstract class ISignalConnection(nint obj) : INativeObject(obj)
+public class ISignalConnection : INativeObject
 {
+    private ISignalConnection(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static ISignalConnection Create(IntPtr handle) => new(handle, true);
+
     public void Disconnect() => Dispose();
 
-    protected override void Dispose(bool disposing)
+    protected override bool ReleaseHandle()
     {
-        if (NativePointer != nint.Zero)
-        {
-            SignalBridge.Disconnect(NativePointer);
-        }
-        base.Dispose(disposing);
+        SignalBridge.Disconnect(this);
+        return true;
     }
 }
 
-public abstract class ITypedSignalConnection<T>(nint obj) : ISignalConnection(obj)
+public static class TypedSignalConnection<T> where T : unmanaged
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate T SignalCallback();
 }
 
-public abstract class IVoidSignalConnection(nint obj) : ISignalConnection(obj)
+public static class VoidSignalConnection
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void SignalCallback();
 }

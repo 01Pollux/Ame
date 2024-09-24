@@ -7,43 +7,37 @@ namespace AmeSharp.Core.Log;
 [Guid("940017D2-269C-45B6-803B-F3C530151CCA")]
 public sealed class ILogger : IBaseObject
 {
-    public ILogger(nint obj) : base(obj, true) { }
-    public ILogger(string loggerName) : base(LoggerBridge.Create(loggerName), true) { }
+    private ILogger(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle, false) { }
+    public static ILogger Reference(IntPtr handle) => new(handle, false);
+    public static ILogger Create(string loggerName) => new(LoggerBridge.Create(loggerName), true);
 
-    private static ILogger? _cachedLogger;
     public static ILogger? Instance
     {
         get
         {
-            var ptr = LoggerBridge.GetInstance();
-            if (_cachedLogger is null || _cachedLogger.NativePointer != ptr)
-            {
-                _cachedLogger = Get<ILogger>(ptr);
-            }
-            return _cachedLogger;
+            var @ref = LoggerBridge.GetInstance();
+            return IsHandleInvalid(@ref) ? null : Reference(@ref);
         }
         set
         {
-            if (value == null)
+            if (value is null)
             {
-                LoggerBridge.SetInstance(nint.Zero);
-                _cachedLogger = null;
+                LoggerBridge.SetInstance(InvalidHandle);
             }
             else
             {
-                LoggerBridge.SetInstance(value.NativePointer);
-                _cachedLogger = value;
+                LoggerBridge.SetInstance(value.Handle);
             }
         }
     }
 
     public LogLevel Level
     {
-        get => LoggerBridge.GetLevel(NativePointer);
-        set => LoggerBridge.SetLevel(NativePointer, value);
+        get => LoggerBridge.GetLevel(Handle);
+        set => LoggerBridge.SetLevel(Handle, value);
     }
 
-    public void Log(LogLevel level, string message) => LoggerBridge.WriteMessage(NativePointer, new() { Level = level, Message = message });
+    public void Log(LogLevel level, string message) => LoggerBridge.WriteMessage(Handle, new() { Level = level, Message = message });
 
     public void Trace(string message)
     {
@@ -84,13 +78,13 @@ public sealed class ILogger : IBaseObject
 
     public static ILogger operator +(ILogger logger, ILoggerStream stream)
     {
-        LoggerBridge.AddStream(logger.NativePointer, stream.NativePointer);
+        LoggerBridge.AddStream(logger.Handle, stream);
         return logger;
     }
 
     public static ILogger operator -(ILogger logger, ILoggerStream stream)
     {
-        LoggerBridge.RemoveStream(logger.NativePointer, stream.NativePointer);
+        LoggerBridge.RemoveStream(logger.Handle, stream);
         return logger;
     }
 }

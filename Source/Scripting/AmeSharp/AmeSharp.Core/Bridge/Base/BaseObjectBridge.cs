@@ -1,4 +1,5 @@
-﻿using AmeSharp.Core.Bridge;
+﻿using AmeSharp.Core.Base;
+using AmeSharp.Core.Bridge;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -8,15 +9,15 @@ internal partial class BaseObjectBridge
 {
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_IBaseObject_AddRef")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void AddRef(IntPtr thisObject);
+    public static partial int AddRef(IntPtr @object);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_IBaseObject_Release")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial void Release(IntPtr thisObject);
+    public static partial int Release(IntPtr @object);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_IBaseObject_QueryInterface")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static partial IntPtr QueryInterface(IntPtr thisObject, Guid iid);
+    public static partial IntPtr QueryInterface(IntPtr @object, Guid iid);
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_BaseObject_Create")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -24,5 +25,5 @@ internal partial class BaseObjectBridge
 
     [LibraryImport(Libraries.AmeEngine, EntryPoint = "Ame_IBaseObject_SetQueryInterface")]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe partial void SetQueryInterface(IntPtr thisObject, delegate* unmanaged[Cdecl]<IntPtr, Guid*, IntPtr> callback);
+    public static unsafe partial void SetQueryInterface(IntPtr @object, IBaseObject.QueryInterfaceDelegate callback);
 }

@@ -30,7 +30,7 @@ public class RhiConfig : IModuleConfig
             registry.ExposeInterface(owner, typeof(IWindow).GUID, DeviceDesc.Surface.Window);
         }
 
-        var rhiDevice = new IRhiDevice(DeviceDesc);
+        using IRhiDevice rhiDevice = IRhiDevice.Create(DeviceDesc);
         registry.ExposeInterface(owner, typeof(IRhiDevice).GUID, rhiDevice);
     }
 }

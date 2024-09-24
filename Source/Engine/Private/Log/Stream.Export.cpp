@@ -45,29 +45,31 @@ char Ame_LoggerStream_GetLevel(Ame_LoggerStream_t* streamHandle)
 class CallbackStreamWrapper : public Ame::Log::CallbackStream
 {
 public:
-    CallbackStreamWrapper(Ame_LoggerStream_Callback_t callback, void* userData) :
-        m_Callback(callback), m_UserData(userData)
-    {
-    }
-
     void OnLog(const LogData& logData) override
     {
         Ame_Logger_LogData data{ .Message{ logData.Message.data(), logData.Message.size() },
                                  .ThreadId      = logData.ThreadId,
                                  .TimepointInMs = logData.Timepoint.time_since_epoch().count(),
                                  .Level         = static_cast<char>(logData.Level) };
-        m_Callback(this, &data, m_UserData);
+        Callback(this, &data, UserData);
     }
 
-private:
-    Ame_LoggerStream_Callback_t m_Callback;
-    void*                       m_UserData;
+public:
+    Ame_LoggerStream_Callback_t Callback;
+    void*                       UserData;
 };
 
-Ame_LoggerStream_t* Ame_LoggerStream_CreateCallback(Ame_LoggerStream_Callback_t callback, void* userData)
+Ame_LoggerStream_t* Ame_LoggerStream_CreateCallback()
 {
-    auto stream = new CallbackStreamWrapper(callback, userData);
+    auto stream = new CallbackStreamWrapper;
     return std::bit_cast<Ame_LoggerStream_t*>(stream);
+}
+
+void Ame_LoggerStream_UpdateCallback(Ame_LoggerStream_t* stream, Ame_LoggerStream_Callback_t callback, void* userData)
+{
+    auto streamWrapper      = static_cast<CallbackStreamWrapper*>(std::bit_cast<Ame::Log::ILoggerStream*>(stream));
+    streamWrapper->Callback = callback;
+    streamWrapper->UserData = userData;
 }
 
 Ame_LoggerStream_t* Ame_LoggerStream_CreateConsole()

@@ -1,79 +1,39 @@
 ﻿using AmeSharp.Bridge.Core.Base;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Base;
 
 [Guid("00000000-0000-0000-0000-000000000000")]
-public class IBaseObject : INativeObject
+public abstract partial class IBaseObject : INativeObject
 {
-    public IBaseObject(nint obj, bool isExternal) : base(obj)
+    public static IBaseObject References(IntPtr handle) => new BaseObjectRef(handle);
+
+    public IBaseObject(IntPtr handle, bool ownsHandle, bool installCallbacks) : base(handle, ownsHandle)
     {
-        BaseObjectBridge.AddRef(NativePointer);
-        if (!isExternal)
+        if (ownsHandle)
         {
-            InitialzeCallbacks();
+            BaseObjectBridge.AddRef(handle);
         }
-    }
-    public IBaseObject() : base(BaseObjectBridge.Create())
-    {
-        BaseObjectBridge.AddRef(NativePointer);
-        InitialzeCallbacks();
+        if (installCallbacks)
+        {
+            InitializeCallbacks();
+        }
     }
 
     public IBaseObject? QueryInterface(Guid iid)
     {
-        var output = BaseObjectBridge.QueryInterface(NativePointer, iid);
-        if (output == nint.Zero)
-        {
-            return null;
-        }
-        return Get(output) as IBaseObject;
+        var result = BaseObjectBridge.QueryInterface(Handle, iid);
+        return IsHandleInvalid(result) ? null : References(result);
     }
 
-    public T? QueryInterface<T>() where T : IBaseObject
-    {
-        Guid iid = typeof(T).GUID;
-        var output = BaseObjectBridge.QueryInterface(NativePointer, iid);
-        if (output == nint.Zero)
-        {
-            return null;
-        }
-        return Get(output) as T;
-    }
-
-    public static T? RequestInterface<T>(nint obj) where T : IBaseObject
-    {
-        Guid iid = typeof(T).GUID;
-        var output = BaseObjectBridge.QueryInterface(obj, iid);
-        if (output == nint.Zero)
-        {
-            return null;
-        }
-        return Get(output) as T;
-    }
+    public virtual IBaseObject? OnQueryInterface(Guid iid) => null;
 
     //
 
-    protected override void Dispose(bool disposing)
+    protected override bool ReleaseHandle()
     {
-        if (NativePointer != nint.Zero)
-        {
-            BaseObjectBridge.Release(NativePointer);
-        }
-        base.Dispose(disposing);
+        BaseObjectBridge.Release(handle);
+        return true;
     }
 
-    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    public static unsafe nint OnQueryInterface(nint _thisPointer, Guid* iid)
-    {
-        var @this = Get<IBaseObject>(_thisPointer)!;
-        var obj = @this.QueryInterface(*iid);
-        return obj is not null ? obj.NativePointer : nint.Zero;
-    }
-
-    private unsafe void InitialzeCallbacks()
-    {
-        BaseObjectBridge.SetQueryInterface(NativePointer, &OnQueryInterface);
-    }
 }

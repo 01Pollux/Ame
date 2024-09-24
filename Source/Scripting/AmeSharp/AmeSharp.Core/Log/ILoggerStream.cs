@@ -1,31 +1,25 @@
 using AmeSharp.Bridge.Core.Log;
 using AmeSharp.Core.Base;
-using AmeSharp.Core.Base.Types;
 
 namespace AmeSharp.Core.Log;
 
-public class ILoggerStream(nint obj) : INativeObject(obj)
+public abstract class ILoggerStream(IntPtr handle, bool ownsHandle) : INativeObject(handle, ownsHandle)
 {
-    public delegate void LoggerStreamCallback(NativeStringView message);
-
     public string Pattern
     {
-        get => LoggerStreamBridge.GetPattern(NativePointer);
-        set => LoggerStreamBridge.SetPattern(NativePointer, value);
+        get => LoggerStreamBridge.GetPattern(Handle);
+        set => LoggerStreamBridge.SetPattern(Handle, value);
     }
 
     public LogLevel Level
     {
-        get => LoggerStreamBridge.GetLevel(NativePointer);
-        set => LoggerStreamBridge.SetLevel(NativePointer, value);
+        get => LoggerStreamBridge.GetLevel(Handle);
+        set => LoggerStreamBridge.SetLevel(Handle, value);
     }
 
-    protected override void Dispose(bool disposed)
+    protected override bool ReleaseHandle()
     {
-        if (NativePointer != nint.Zero)
-        {
-            LoggerStreamBridge.Release(NativePointer);
-        }
-        base.Dispose(disposed);
+        LoggerStreamBridge.Release(Handle);
+        return true;
     }
 }

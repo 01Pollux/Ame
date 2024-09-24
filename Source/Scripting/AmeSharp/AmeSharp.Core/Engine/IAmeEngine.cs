@@ -4,27 +4,24 @@ using AmeSharp.Core.Plugin;
 
 namespace AmeSharp.Core.Engine;
 
-public class IAmeEngine : INativeObject
+public sealed class IAmeEngine : INativeObject
 {
-    public IAmeEngine(nint obj) : base(obj) { }
-    public IAmeEngine() : base(AmeEngineBridge.Create()) { }
+    private IAmeEngine(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static IAmeEngine Create() => new(AmeEngineBridge.Create(), true);
 
-    public void RefreshSubmoduleCache() => AmeEngineBridge.RefreshSubmoduleCache(NativePointer);
+    public void RefreshSubmoduleCache() => AmeEngineBridge.RefreshSubmoduleCache(this);
 
-    public void Tick() => AmeEngineBridge.Tick(NativePointer);
+    public void Tick() => AmeEngineBridge.Tick(this);
 
-    public bool IsRunning() => AmeEngineBridge.IsRunning(NativePointer);
+    public bool IsRunning() => AmeEngineBridge.IsRunning(this);
 
-    public void Exit(int exitCode) => AmeEngineBridge.Exit(NativePointer, exitCode);
+    public void Exit(int exitCode) => AmeEngineBridge.Exit(this, exitCode);
 
-    public IModuleRegistry Registry => new(AmeEngineBridge.GetModuleRegistry(NativePointer));
+    public IModuleRegistry Registry => IModuleRegistry.References(AmeEngineBridge.GetModuleRegistry(this));
 
-    protected override void Dispose(bool disposing)
+    protected override bool ReleaseHandle()
     {
-        if (NativePointer != nint.Zero)
-        {
-            AmeEngineBridge.Release(NativePointer);
-        }
-        base.Dispose(disposing);
+        AmeEngineBridge.Release(handle);
+        return true;
     }
 }

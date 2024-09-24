@@ -20,7 +20,7 @@ internal static unsafe partial class RhiDeviceCreateDescMarshaller
             }
 
             var data = (UnmanagedRenderSurfaceDesc*)NativeMemory.Alloc((nuint)Unsafe.SizeOf<UnmanagedRenderSurfaceDesc>());
-            data->WindowNativePointer = (void*)desc.Window.NativePointer;
+            data->WindowNativePointer = (void*)desc.Window.Handle;
             data->Fullscreen = desc.Fullscreen;
             data->Swapchain = desc.Swapchain;
             return data;

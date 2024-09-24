@@ -1,11 +1,9 @@
 ﻿using AmeSharp.Bridge.Core.Log;
-using AmeSharp.Core.Log;
 
 namespace AmeSharp.Core.Log.Streams;
 
-public class INullLoggerStream : ILoggerStream
+public sealed class INullLoggerStream : ILoggerStream
 {
-    public INullLoggerStream() : base(LoggerStreamBridge.CreateNull())
-    {
-    }
+    private INullLoggerStream(IntPtr handle, bool ownsHandle) : base(handle, ownsHandle) { }
+    public static ILoggerStream Create() => new INullLoggerStream(LoggerStreamBridge.CreateMsvcDebug(), true);
 }

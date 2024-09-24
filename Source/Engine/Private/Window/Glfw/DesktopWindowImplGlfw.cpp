@@ -191,7 +191,7 @@ namespace Ame::Window
         return m_EventListener;
     }
 
-    SharedPtr<IGlfwDriver> DesktopWindowImplGlfw::GetGlfwDriver() const
+    IGlfwDriver* DesktopWindowImplGlfw::GetGlfwDriver() const
     {
         return GlfwDriverImpl::Initialize();
     }

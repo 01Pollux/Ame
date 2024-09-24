@@ -32,8 +32,8 @@ namespace Ame::Window
         [[nodiscard]] virtual const Math::Size2I& GetSize() const     = 0;
         [[nodiscard]] virtual Math::Vector2I      GetPosition() const = 0;
 
-        [[nodiscard]] virtual WindowEventListener&   GetEventListener()    = 0;
-        [[nodiscard]] virtual SharedPtr<IGlfwDriver> GetGlfwDriver() const = 0;
+        [[nodiscard]] virtual WindowEventListener& GetEventListener()    = 0;
+        [[nodiscard]] virtual IGlfwDriver*         GetGlfwDriver() const = 0;
 
     public:
         [[nodiscard]] virtual GLFWwindow* GetGlfwHandle() const = 0;

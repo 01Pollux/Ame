@@ -1,26 +1,21 @@
 ﻿using AmeSharp.Bridge.Core.Log;
-using AmeSharp.Core.Log;
 using AmeSharp.Core.Marshallers.Log;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace AmeSharp.Core.Log.Streams;
 
 public abstract class ICustomLoggerStream : ILoggerStream
 {
-    unsafe protected ICustomLoggerStream() : base(LoggerStreamBridge.CreateCallback(&StreamCallback, nint.Zero))
+    internal protected unsafe delegate void LoggerStreamCallback(LoggerInfoMarshaller.Unmanaged* message, IntPtr _);
+    private readonly LoggerStreamCallback _loggerCallback;
+
+    public ICustomLoggerStream() : base(LoggerStreamBridge.CreateCallback(), true)
     {
+        unsafe
+        {
+            _loggerCallback = (data, _) => Write(LoggerInfoMarshaller.ConvertToManaged(*data));
+        }
+        LoggerStreamBridge.UpdateCallback(Handle, _loggerCallback, IntPtr.Zero);
     }
 
     public abstract void Write(LoggerInfo info);
-
-    //
-
-    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
-    static unsafe void StreamCallback(nint _thisPointer, LoggerInfoMarshaller.Unmanaged* unmanagedInfo, nint _)
-    {
-        var @this = Get<ICustomLoggerStream>(_thisPointer)!;
-        var info = LoggerInfoMarshaller.ConvertToManaged(*unmanagedInfo);
-        @this.Write(info);
-    }
 }

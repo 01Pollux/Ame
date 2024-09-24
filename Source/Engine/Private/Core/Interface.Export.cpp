@@ -9,16 +9,16 @@ private:
     }
 };
 
-void Ame_IBaseObject_AddRef(Ame_IBaseObject_t* objectHandle)
+int Ame_IBaseObject_AddRef(Ame_IBaseObject_t* objectHandle)
 {
     auto object = std::bit_cast<Ame::IObject*>(objectHandle);
-    object->AddRef();
+    return object->AddRef();
 }
 
-void Ame_IBaseObject_Release(Ame_IBaseObject_t* objectHandle)
+int Ame_IBaseObject_Release(Ame_IBaseObject_t* objectHandle)
 {
     auto object = std::bit_cast<Ame::IObject*>(objectHandle);
-    object->Release();
+    return object->Release();
 }
 
 Ame_IBaseObject_t* Ame_IBaseObject_QueryInterface(Ame_IBaseObject_t* objectHandle, const Ame_UID_t* iidHandle)
