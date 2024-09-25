@@ -36,7 +36,6 @@ function ame_csharp_utils:add_library(name, group, kind, path, output_path, call
                 "--output", target_path,
                 "--nologo",
                 "--verbosity", "minimal",
-                "--no-restore",
             })
         end)
         on_clean(function (target)
@@ -52,7 +51,6 @@ function ame_csharp_utils:add_library(name, group, kind, path, output_path, call
                 "--configuration", mode,
                 "--nologo",
                 "--verbosity", "minimal",
-                "--no-restore",
             })
         end)
         on_install(function (target)
@@ -66,7 +64,6 @@ function ame_csharp_utils:add_library(name, group, kind, path, output_path, call
                 "--output", install_path,
                 "--nologo",
                 "--verbosity", "minimal",
-                "--no-restore",
             })
         end)
     target_end()
